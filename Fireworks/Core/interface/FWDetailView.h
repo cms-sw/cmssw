@@ -2,7 +2,7 @@
 #ifndef Fireworks_Core_FWDetailView_h
 #define Fireworks_Core_FWDetailView_h
 
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <string>
 #include <typeinfo>
 #include "Fireworks/Core/interface/FWModelId.h"

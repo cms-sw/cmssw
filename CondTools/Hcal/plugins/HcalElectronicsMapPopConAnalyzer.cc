@@ -11,7 +11,8 @@ public:
   HcalElectronicsMapPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<HcalElectronicsMapHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalElectronicsMap> objecthandle;
-    esetup.get<HcalElectronicsMapRcd>().get(objecthandle);
-    myDBObject = new HcalElectronicsMap(*objecthandle.product());
+    myDBObject = new HcalElectronicsMap(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> m_tok;
 
   HcalElectronicsMap* myDBObject;
 };

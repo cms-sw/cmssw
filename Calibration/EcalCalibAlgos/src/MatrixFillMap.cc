@@ -101,7 +101,6 @@ void MatrixFillMap::fillEEMap(EEDetId EEmax,
       curr_y = EEmax.iy() - m_recoWindowSidey / 2 + ij;
       if (EEDetId::validDetId(curr_x, curr_y, EEmax.zside())) {
         EEDetId det = EEDetId(curr_x, curr_y, EEmax.zside(), EEDetId::XYMODE);
-        int ID = det.rawId();
         EcalRecHitCollection::const_iterator curr_recHit = endcapHitsCollection->find(det);
         double dummy = curr_recHit->energy();
         if (edm::isNotFinite(dummy)) {
@@ -110,10 +109,10 @@ void MatrixFillMap::fillEEMap(EEDetId EEmax,
         if (dummy < m_minEnergyPerCrystal)
           continue;
         if (dummy > m_maxEnergyPerCrystal) {
-          dummy = 0;
           continue;
         }
         dummy *= (*m_endcapMap)[det];
+        int ID = det.rawId();
         if (m_xtalRegionId[ID] == EENumberOfRegion)
           EExtlMap[m_IndexInRegion[ID]] += dummy;
         else

@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
@@ -81,6 +82,7 @@ class DDCompactView {
 public:
   using Graph = math::Graph<DDLogicalPart, DDPosData*>;
   using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData*>;
+  using Vectors = std::unordered_map<std::string, std::vector<double>>;
 
   //! Creates a compact-view
   explicit DDCompactView();
@@ -103,6 +105,9 @@ public:
 
   //! The absolute position of the world
   const DDPosData* worldPosition() const;
+
+  //! returns an empty container if not found
+  std::vector<double> const& vector(std::string_view iKey) const;
 
   void position(const DDLogicalPart& self,
                 const DDLogicalPart& parent,
@@ -133,6 +138,8 @@ private:
   DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart>> lpStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
   DDI::Store<DDName, std::unique_ptr<DDRotationMatrix>> rotStore_;
+
+  Vectors vectors_;
 };
 
 #endif

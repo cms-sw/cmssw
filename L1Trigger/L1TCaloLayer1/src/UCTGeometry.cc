@@ -184,10 +184,22 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
     return UCTTowerIndex(0, 0);  // Illegal values
   }
   int regionEta = region.first;
-  int absRegionEta = std::abs(regionEta);
-  int towerEta = (regionEta / absRegionEta) * (absRegionEta * NEtaInRegion + iEta);
   uint32_t regionPhi = region.second;
-  int towerPhi = regionPhi * NPhiInRegion + iPhi + 1;
+  bool negativeSide = (regionEta < 0);
+  uint32_t regionNo = std::abs(regionEta) - 1;
+  int towerEta = 0xDEADBEEF;
+  if (regionNo < NRegionsInCard) {
+    towerEta = 1 + regionNo * getNEta(regionNo) + iEta;  // Ranges 1 - 28
+  } else if (regionNo < (NRegionsInCard + NHFRegionsInCard)) {
+    towerEta = HFEtaOffset + 1 + (regionNo - NRegionsInCard) * getNEta(regionNo) + iEta;  // Ranges 30 - 42
+  }
+  if (negativeSide)
+    towerEta = -towerEta;
+  int towerPhi = regionPhi * NPhiInRegion + iPhi - 1;  // Always pretend that there are 4 phi-regions
+  if (towerPhi <= 0)
+    towerPhi += 72;
+  // Legal values of towerPhi = 1, 2, 5, 6, ..., 69, 70 for towerEta 30-39
+  // Legal values of towerPhi = 1, 5, ..., 69 for towerEta 40-41
   return UCTTowerIndex(towerEta, towerPhi);
 }
 
@@ -245,4 +257,28 @@ double UCTGeometry::getUCTTowerPhi(int caloPhi) {
     return (((double)absCaloPhi + 0.5) * 0.0872);
   else
     return (-(71.5 - (double)absCaloPhi) * 0.0872);
+}
+
+UCTRegionIndex UCTGeometry::getUCTRegionIndexFromL1CaloRegion(uint32_t caloRegionEta, uint32_t caloRegionPhi) {
+  uint32_t region = 0xDEADBEEF;
+  bool negativeEtaSide = false;
+  if (caloRegionEta == 31) {
+    region = 12;
+    negativeEtaSide = true;
+  } else if (caloRegionEta == 30) {
+    region = 11;
+    negativeEtaSide = true;
+  } else if (caloRegionEta <= 10) {
+    region = 10 - caloRegionEta;
+    negativeEtaSide = true;
+  } else if (caloRegionEta >= 11 && caloRegionEta <= 23) {
+    region = caloRegionEta - 11;
+  }
+  return UCTRegionIndex(getUCTRegionEtaIndex(negativeEtaSide, region), caloRegionPhi);
+}
+
+UCTTowerIndex UCTGeometry::getUCTTowerIndexFromL1CaloRegion(UCTRegionIndex r, uint32_t rawData) {
+  uint32_t iEta = (rawData >> 14) & 0x3;
+  uint32_t iPhi = (rawData >> 12) & 0x3;
+  return getUCTTowerIndex(r, iEta, iPhi);
 }

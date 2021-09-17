@@ -141,12 +141,12 @@ std::pair<float, float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& c
   unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  const unsigned int pos = col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip;
+  const unsigned int gain = *(range.first + pos) & 0xFF;
+  const unsigned int ped = *(range.first + pos + 1) & 0xFF;
 
-  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
-                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
-
-  isDeadColumn = (s.ped & 0xFF) == deadFlag_;
-  isNoisyColumn = (s.ped & 0xFF) == noisyFlag_;
+  isDeadColumn = ped == deadFlag_;
+  isNoisyColumn = ped == noisyFlag_;
 
   /*
   int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
@@ -156,7 +156,7 @@ std::pair<float, float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& c
   }  
   */
 
-  return std::make_pair(decodePed(s.ped & 0xFF), decodeGain(s.gain & 0xFF));
+  return std::make_pair(decodePed(ped), decodeGain(gain));
 }
 
 float SiPixelGainCalibrationForHLT::getPed(const int& col,
@@ -171,13 +171,13 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col,
   unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  const unsigned int ped =
+      *(range.first + 1 + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) &
+      0xFF;
 
-  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
-                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
-
-  if ((s.ped & 0xFF) == deadFlag_)
+  if (ped == deadFlag_)
     isDeadColumn = true;
-  else if ((s.ped & 0xFF) == noisyFlag_)
+  else if (ped == noisyFlag_)
     isNoisyColumn = true;
 
   int maxRow = (lengthOfColumnData / lengthOfAveragedDataInEachColumn) * numberOfRowsToAverageOver_ - 1;
@@ -185,7 +185,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col,
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
   }
-  return decodePed(s.ped & 0xFF);
+  return decodePed(ped);
 }
 
 float SiPixelGainCalibrationForHLT::getGain(const int& col,
@@ -198,13 +198,12 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col,
   unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  const unsigned int gain =
+      *(range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) & 0xFF;
 
-  const DecodingStructure& s = (const DecodingStructure&)*(range.first + col * lengthOfColumnData +
-                                                           lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
-
-  if ((s.gain & 0xFF) == deadFlag_)
+  if (gain == deadFlag_)
     isDeadColumn = true;
-  else if ((s.gain & 0xFF) == noisyFlag_)
+  else if (gain == noisyFlag_)
     isNoisyColumn = true;
 
   int maxRow = (lengthOfColumnData / lengthOfAveragedDataInEachColumn) * numberOfRowsToAverageOver_ - 1;
@@ -212,7 +211,7 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col,
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col << " row: " << row;
   }
-  return decodeGain(s.gain & 0xFF);
+  return decodeGain(gain);
 }
 
 float SiPixelGainCalibrationForHLT::encodeGain(const float& gain) {

@@ -1,17 +1,27 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("BeamPixel", Run2_2018)
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest = True
 
 
 #----------------------------
 # Common for PP and HI running
 #----------------------------
+if unitTest == True:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+    process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-# Otherwise use this
-process.load("DQM.Integration.config.inputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 
 #----------------------------
@@ -27,7 +37,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter", SelectedTrig
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "BeamPixel"
 process.dqmSaver.tag = "BeamPixel"
-
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'BeamPixel'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #----------------------------
 # Conditions
@@ -51,7 +63,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #----------------------------
 # Define Sequences
 #----------------------------
-process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
@@ -78,12 +90,16 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
-process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
-process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
-process.pixelTracksTrackingRegions.RegionPSet.originXPos       = cms.double(0.08)
-process.pixelTracksTrackingRegions.RegionPSet.originYPos       = cms.double(-0.03)
-process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
+from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
+process.pixelVertices = pixelVertices.clone(
+    TkFilterParameters = dict(
+	minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
+)
+process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
+process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
+process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
+process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
+process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
 
 
 #----------------------------
@@ -98,20 +114,20 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Tracking Configuration
     #----------------------------
-    process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
-    process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
-    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataCollector")
-    process.ecalDigis.InputLabel             = cms.InputTag("rawDataCollector")
-    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataCollector")
-    process.gctDigis.inputLabel              = cms.InputTag("rawDataCollector")
-    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataCollector")
-    process.hcalDigis.InputLabel             = cms.InputTag("rawDataCollector")
-    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataCollector")
-    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
-    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
-    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
+    process.castorDigis.InputLabel           = "rawDataCollector"
+    process.csctfDigis.producer              = "rawDataCollector"
+    process.dttfDigis.DTTF_FED_Source        = "rawDataCollector"
+    process.ecalDigis.cpu.InputLabel         = "rawDataCollector"
+    process.ecalPreshowerDigis.sourceTag     = "rawDataCollector"
+    process.gctDigis.inputLabel              = "rawDataCollector"
+    process.gtDigis.DaqGtInputTag            = "rawDataCollector"
+    process.hcalDigis.InputLabel             = "rawDataCollector"
+    process.muonCSCDigis.InputObjects        = "rawDataCollector"
+    process.muonDTDigis.inputLabel           = "rawDataCollector"
+    process.muonRPCDigis.InputLabel          = "rawDataCollector"
+    process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+    process.siPixelDigis.cpu.InputLabel      = "rawDataCollector"
+    process.siStripDigis.ProductLabel        = "rawDataCollector"
 
     
     #----------------------------
@@ -151,20 +167,20 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # Tracking Configuration
     #----------------------------
-    process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel           = "rawDataRepacker"
+    process.csctfDigis.producer              = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source        = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel         = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag     = "rawDataRepacker"
+    process.gctDigis.inputLabel              = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag            = "rawDataRepacker"
+    process.hcalDigis.InputLabel             = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects        = "rawDataRepacker"
+    process.muonDTDigis.inputLabel           = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel          = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel      = "rawDataRepacker"
+    process.siStripDigis.ProductLabel        = "rawDataRepacker"
 
 
     #----------------------------
@@ -198,9 +214,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
 # File to save beamspot info
 #----------------------------
 if process.dqmRunConfig.type.value() is "production":
-    process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
+    process.pixelVertexDQM.fileName = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt"
 else:
-    process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
+    process.pixelVertexDQM.fileName = "/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"
 print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName))
 
 

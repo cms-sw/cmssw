@@ -1,5 +1,5 @@
-#ifndef CSCRawToDigi_CSCALCTHeader2007_h
-#define CSCRawToDigi_CSCALCTHeader2007_h
+#ifndef EventFilter_CSCRawToDigi_CSCRawToDigi_CSCALCTHeader2007_h
+#define EventFilter_CSCRawToDigi_CSCRawToDigi_CSCALCTHeader2007_h
 
 /** documented in  flags
   http://www.phys.ufl.edu/~madorsky/alctv/alct2000_spec.PDF

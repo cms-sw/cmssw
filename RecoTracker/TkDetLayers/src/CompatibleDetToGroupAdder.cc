@@ -33,7 +33,7 @@ bool CompatibleDetToGroupAdder::add(const GeometricSearchDet& det,
           << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!";
     result.front().reserve(result.front().size() + compatDets.size());
     for (vector<GeometricSearchDet::DetWithState>::const_iterator i = compatDets.begin(); i != compatDets.end(); i++)
-      result.front().push_back(std::move(*i));
+      result.front().push_back(*i);
   }
   return true;
 }

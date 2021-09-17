@@ -2,9 +2,11 @@
 #define RPCEventSummary_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <string>
 
@@ -26,6 +28,9 @@ protected:
 
 private:
   void clientOperation(DQMStore::IGetter &igetter);
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   std::string eventInfoPath_, prefixDir_;
 
   //  bool tier0_;

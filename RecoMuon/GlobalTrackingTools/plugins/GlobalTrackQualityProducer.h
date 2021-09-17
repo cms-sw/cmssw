@@ -44,6 +44,7 @@ private:
   edm::InputTag inputLinksCollection_;
   edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
   edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkCollectionToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   MuonServiceProxy* theService;
   GlobalMuonRefitter* theGlbRefitter;
   GlobalMuonTrackMatcher* theGlbMatcher;

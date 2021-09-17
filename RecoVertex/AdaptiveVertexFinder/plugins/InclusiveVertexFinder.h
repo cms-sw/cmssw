@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -110,6 +111,7 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
   edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
   edm::EDGetTokenT<InputContainer> token_tracks;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_trackBuilder;
   unsigned int minHits;
   unsigned int maxNTracks;
   double maxLIP;
@@ -148,6 +150,8 @@ TemplatedInclusiveVertexFinder<InputContainer, VTX>::TemplatedInclusiveVertexFin
   token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
   token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
   token_tracks = consumes<InputContainer>(params.getParameter<edm::InputTag>("tracks"));
+  token_trackBuilder =
+      esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
   produces<Product>();
   //produces<reco::VertexCollection>("multi");
 }
@@ -183,8 +187,7 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
   edm::Handle<InputContainer> tracks;
   event.getByToken(token_tracks, tracks);
 
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+  edm::ESHandle<TransientTrackBuilder> trackBuilder = es.getHandle(token_trackBuilder);
 
   auto recoVertices = std::make_unique<Product>();
   if (!primaryVertices->empty()) {

@@ -50,10 +50,10 @@ public:
   void setIgnore() { m_ignore = true; }
   bool getIgnore() const { return m_ignore; }
 
-private:
   FWConfigurationManager(const FWConfigurationManager&) = delete;  // stop default
 
   const FWConfigurationManager& operator=(const FWConfigurationManager&) = delete;  // stop default
+private:
   void readFromOldFile(const std::string&) const;
 
   // ---------- member data --------------------------------

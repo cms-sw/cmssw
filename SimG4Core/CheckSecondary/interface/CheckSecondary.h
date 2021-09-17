@@ -29,12 +29,11 @@ class CheckSecondary : public SimWatcher,
                        public Observer<const G4Step *> {
 public:
   CheckSecondary(const edm::ParameterSet &p);
+  CheckSecondary(const CheckSecondary &) = delete;  // stop default
+  const CheckSecondary &operator=(const CheckSecondary &) = delete;
   ~CheckSecondary() override;
 
 private:
-  CheckSecondary(const CheckSecondary &) = delete;  // stop default
-  const CheckSecondary &operator=(const CheckSecondary &) = delete;
-
   // observer classes
   TTree *bookTree(std::string);
   void endTree();

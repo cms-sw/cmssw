@@ -17,14 +17,12 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include <string>
 
-HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps) {
+HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps)
+    : geoToken_(esConsumes()), topologyToken_(esConsumes()) {
   // The verbosity level
   std::string debugString = ps.getParameter<std::string>("VerbosityLevel");
   if (debugString == "DEBUG")
@@ -74,13 +72,7 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ =
-      std::make_unique<HiEgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
-
-  // energy correction class
-  if (applyEnergyCorrection_)
-    EnergyCorrection_ = std::unique_ptr<EcalClusterFunctionBaseClass>{
-        EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps)};
+  energyCorrector_ = std::make_unique<HiEgammaSCEnergyCorrectionAlgo>(sigmaElectronicNoise_, fCorrPset, verbosity_);
 }
 
 HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker() = default;
@@ -88,19 +80,11 @@ HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker() = default;
 void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
 
-  // initialize energy correction class
-  if (applyEnergyCorrection_)
-    EnergyCorrection_->init(es);
-
   // get the collection geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
+  const CaloGeometry& geometry = es.getData(geoToken_);
   const CaloSubdetectorGeometry* geometry_p;
 
-  edm::ESHandle<CaloTopology> pTopology;
-  es.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloTopology* topology = theCaloTopo_.product();
+  const CaloTopology& topology = es.getData(topologyToken_);
 
   std::string rHInputCollection = rHInputProducerTag_.instance();
   if (rHInputCollection == "EcalRecHitsEB") {
@@ -144,8 +128,7 @@ void HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& 
   for (aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++) {
     reco::SuperCluster newClus;
     if (applyEnergyCorrection_)
-      newClus = energyCorrector_->applyCorrection(
-          *aClus, *hitCollection, sCAlgo_, geometry_p, topology, EnergyCorrection_.get());
+      newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, *geometry_p, topology);
     else
       newClus = *aClus;
 

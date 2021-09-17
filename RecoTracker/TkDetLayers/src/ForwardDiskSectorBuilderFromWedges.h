@@ -1,8 +1,8 @@
 #ifndef RecoTracker_TkDetLayers_ForwardDiskSectorBuilderFromWedges_h
 #define RecoTracker_TkDetLayers_ForwardDiskSectorBuilderFromWedges_h
 
-#include "BoundDiskSector.h"
-#include "DiskSectorBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
+#include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
 #include "TECWedge.h"
 #include <utility>
 #include <vector>

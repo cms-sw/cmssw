@@ -27,7 +27,7 @@ namespace clangcms {
         BR.EmitBasicReport(RD,
                            this,
                            "inherits from edm::EDProducer,edm::EDFilter,edm::EDAnalyzer, or edm::OutputModule",
-                           "ThreadSafety",
+                           "Deprecated API",
                            os.str(),
                            ELoc);
       }

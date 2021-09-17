@@ -45,13 +45,17 @@ namespace reco {
 
 class BPHRecoCandidate : public virtual BPHKinematicFit {
 public:
-  /** Constructors are private
+  /** Constructor
    */
   /// create an "empty" object to add daughters later
   /// (see BPHDecayMomentum)
   BPHRecoCandidate(const edm::EventSetup* es);
   // create an object with daughters as specified in the ComponentSet
   BPHRecoCandidate(const edm::EventSetup* es, const BPHRecoBuilder::ComponentSet& compSet);
+
+  // deleted copy constructor and assignment operator
+  BPHRecoCandidate(const BPHRecoCandidate& x) = delete;
+  BPHRecoCandidate& operator=(const BPHRecoCandidate& x) = delete;
 
   /** Destructor
    */
@@ -83,7 +87,15 @@ public:
   /// specified in the BPHRecoBuilder
   static std::vector<BPHRecoConstCandPtr> build(const BPHRecoBuilder& builder, double mass = -1, double msig = -1);
 
+  /// clone object, cloning daughters as well up to required depth
+  /// level = -1 to clone all levels
+  virtual BPHRecoCandidate* clone(int level = -1) const;
+
 protected:
+  // function doing the job to clone reconstructed decays:
+  // copy stable particles and clone cascade decays up to chosen level
+  void fill(BPHRecoCandidate* ptr, int level) const override;
+
   // template function called by "build" to allow
   // the creation of derived objects
   template <class T>
@@ -91,8 +103,6 @@ protected:
                    const BPHRecoBuilder& builder,
                    double mass = -1,
                    double msig = -1);
-
-private:
 };
 
 template <class T>
@@ -100,7 +110,7 @@ void BPHRecoCandidate::fill(std::vector<typename BPHGenericPtr<const T>::type>& 
                             const BPHRecoBuilder& builder,
                             double mass,
                             double msig) {
-  // create paricle combinations
+  // create particle combinations
   const std::vector<BPHRecoBuilder::ComponentSet> dll = builder.build();
   // loop over combinations and create reconstructed particles
   int i;

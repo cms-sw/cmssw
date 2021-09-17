@@ -56,25 +56,25 @@ looseMTS = cms.PSet(
 tightMTS=looseMTS.clone(
     preFilterName='TrkLoose',
 #   second param is actually an int
-    d0_par1 = cms.vdouble(0.3, 4.0),
-    dz_par1 = cms.vdouble(0.35,4.0),
-    d0_par2 = cms.vdouble(0.4, 4.0),
-    dz_par2 = cms.vdouble(0.4, 4.0),
-    chi2n_par = cms.double(0.7),
-    chi2n_no1Dmod_par = cms.double(9999),
-    name= cms.string('TrkTight'),
-    minNumberLayers = cms.uint32(3),
-    minNumber3DLayers = cms.uint32(3),
-    maxNumberLostLayers = cms.uint32(2),
-    qualityBit = cms.string('tight'), ## set to '' or comment out if you dont want to set the bit
-    keepAllTracks= cms.bool(True)
-    )
+    d0_par1 = [0.3, 4.0],
+    dz_par1 = [0.35,4.0],
+    d0_par2 = [0.4, 4.0],
+    dz_par2 = [0.4, 4.0],
+    chi2n_par = 0.7,
+    chi2n_no1Dmod_par = 9999,
+    name = 'TrkTight',
+    minNumberLayers = 3,
+    minNumber3DLayers = 3,
+    maxNumberLostLayers = 2,
+    qualityBit = 'tight', ## set to '' or comment out if you dont want to set the bit
+    keepAllTracks= True
+)
 
 highpurityMTS= tightMTS.clone(
-    name= cms.string('TrkHighPurity'),                           
-    preFilterName='TrkTight',
-    res_par=cms.vdouble(0.003,0.001),
-    qualityBit = cms.string('highPurity') ## set to '' or comment out if you dont want to set the bit
+    name = 'TrkHighPurity',                           
+    preFilterName = 'TrkTight',
+    res_par = [0.003,0.001],
+    qualityBit = 'highPurity' ## set to '' or comment out if you dont want to set the bit
 )
 
 #typical configuration is six selectors... something like this to

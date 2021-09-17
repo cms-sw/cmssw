@@ -1,13 +1,10 @@
 #include "MeasurementTrackerEventProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
@@ -15,7 +12,8 @@
 #include <algorithm>
 
 MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::ParameterSet& iConfig)
-    : measurementTrackerLabel_(iConfig.getParameter<std::string>("measurementTracker")),
+    : measurementTrackerToken_(
+          esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("measurementTracker")))),
       switchOffPixelsIfEmpty_(iConfig.getParameter<bool>("switchOffPixelsIfEmpty")) {
   std::vector<edm::InputTag> inactivePixelDetectorTags(
       iConfig.getParameter<std::vector<edm::InputTag>>("inactivePixelDetectorLabels"));
@@ -27,7 +25,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   if (!badPixelFEDChannelCollectionTags.empty()) {
     for (auto& t : badPixelFEDChannelCollectionTags)
       theBadPixelFEDChannelsLabels.push_back(consumes<PixelFEDChannelCollection>(t));
-    pixelCablingMapLabel_ = iConfig.getParameter<std::string>("pixelCablingMapLabel");
+    pixelCablingMapToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCablingMapLabel")));
   }
 
   std::vector<edm::InputTag> inactiveStripDetectorTags(
@@ -39,7 +37,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   edm::InputTag skip = iConfig.getParameter<edm::InputTag>("skipClusters");
   selfUpdateSkipClusters_ = !(skip == edm::InputTag(""));
   LogDebug("MeasurementTracker") << "skipping clusters: " << selfUpdateSkipClusters_;
-  isPhase2 = false;
+  isPhase2_ = false;
+  useVectorHits_ = false;
 
   if (!iConfig.getParameter<std::string>("stripClusterProducer").empty()) {
     theStripClusterLabel = consumes<edmNew::DetSetVector<SiStripCluster>>(
@@ -58,7 +57,14 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
   if (!iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer").empty()) {
     thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(
         edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
-    isPhase2 = true;
+    isPhase2_ = true;
+  }
+  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag("") ||
+        iConfig.getParameter<edm::InputTag>("vectorHitsRej") == edm::InputTag(""))) {
+    thePh2OTVectorHitsLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHits"));
+    thePh2OTVectorHitsRejLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
+    isPhase2_ = true;
+    useVectorHits_ = true;
   }
 
   produces<MeasurementTrackerEvent>();
@@ -72,6 +78,8 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::string>("pixelClusterProducer", "siPixelClusters");
   desc.add<std::string>("stripClusterProducer", "siStripClusters");
   desc.add<std::string>("Phase2TrackerCluster1DProducer", "");
+  desc.add<edm::InputTag>("vectorHits", edm::InputTag(""));
+  desc.add<edm::InputTag>("vectorHitsRej", edm::InputTag(""));
 
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels",
                                        std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})
@@ -90,13 +98,13 @@ void MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescrip
 }
 
 void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MeasurementTracker> measurementTracker;
-  iSetup.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTracker);
+  auto const& measurementTracker = iSetup.getData(measurementTrackerToken_);
 
   // create new data structures from templates
-  auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
-  auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
-  auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker->phase2DetConditions());
+  auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker.stripDetConditions());
+  auto pixelData = std::make_unique<PxMeasurementDetSet>(measurementTracker.pixelDetConditions());
+  auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker.phase2DetConditions());
+
   std::vector<bool> stripClustersToSkip;
   std::vector<bool> pixelClustersToSkip;
   std::vector<bool> phase2ClustersToSkip;
@@ -105,17 +113,23 @@ void MeasurementTrackerEventProducer::produce(edm::Event& iEvent, const edm::Eve
   updatePixels(iEvent,
                *pixelData,
                pixelClustersToSkip,
-               dynamic_cast<const TrackerGeometry&>(*(measurementTracker->geomTracker())),
+               dynamic_cast<const TrackerGeometry&>(*(measurementTracker.geomTracker())),
                iSetup);
   updatePhase2OT(iEvent, *phase2OTData);
   updateStacks(iEvent, *phase2OTData);
 
   // put into MTE
   // put into event
-  iEvent.put(std::make_unique<MeasurementTrackerEvent>(*measurementTracker,
+  //
+
+  const VectorHitCollection* phase2OTVectorHits = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsLabel) : nullptr;
+  const VectorHitCollection* phase2OTVectorHitsRej = useVectorHits_ ? &iEvent.get(thePh2OTVectorHitsRejLabel) : nullptr;
+  iEvent.put(std::make_unique<MeasurementTrackerEvent>(measurementTracker,
                                                        stripData.release(),
                                                        pixelData.release(),
                                                        phase2OTData.release(),
+                                                       phase2OTVectorHits,
+                                                       phase2OTVectorHitsRej,
                                                        stripClustersToSkip,
                                                        pixelClustersToSkip,
                                                        phase2ClustersToSkip));
@@ -160,8 +174,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
   }
 
   if (!theBadPixelFEDChannelsLabels.empty()) {
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMapLabel_, cablingMap);
+    auto const& cablingMap = iSetup.getData(pixelCablingMapToken_);
 
     edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
     for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk : theBadPixelFEDChannelsLabels) {
@@ -177,7 +190,7 @@ void MeasurementTrackerEventProducer::updatePixels(const edm::Event& event,
           // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
           // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
           for (path.roc = 1; path.roc <= (ch.roc_last - ch.roc_first) + 1; path.roc++) {
-            const sipixelobjects::PixelROC* roc = cablingMap->findItem(path);
+            const sipixelobjects::PixelROC* roc = cablingMap.findItem(path);
             if (roc == nullptr)
               continue;
             assert(roc->rawId() == disabledChannels.detId());
@@ -350,8 +363,10 @@ void MeasurementTrackerEventProducer::updateStrips(const edm::Event& event,
 //FIXME: just a temporary solution for phase2!
 void MeasurementTrackerEventProducer::updatePhase2OT(const edm::Event& event,
                                                      Phase2OTMeasurementDetSet& thePh2OTDets) const {
+  thePh2OTDets.setEmpty();
+
   // Phase2OT Clusters
-  if (isPhase2) {
+  if (isPhase2_) {
     if (thePh2OTClusterLabel.isUninitialized()) {  //clusters have not been produced
       thePh2OTDets.setActiveThisEvent(false);
     } else {

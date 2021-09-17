@@ -14,7 +14,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -36,7 +36,7 @@
 
 class TrackerTopology;
 
-class ResidualRefitting : public edm::EDAnalyzer {
+class ResidualRefitting : public edm::one::EDAnalyzer<> {
   static const int N_MAX_STORED = 10;
   static const int N_MAX_STORED_HIT = 1000;
 
@@ -320,6 +320,11 @@ public:
                          ResidualRefitting::storage_muon& storeTrk,
                          ResidualRefitting::storage_trackExtrap& storeExtrap,
                          int omitSystem);
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   // output histogram file name
   std::string outputFileName_;

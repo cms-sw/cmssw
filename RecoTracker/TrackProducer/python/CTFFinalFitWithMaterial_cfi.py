@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 ctfWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK')
-    )
+    Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
+)
 
 #ctfWithMaterialTracks = cms.EDProducer("TrackProducer",
 #    src = cms.InputTag("ckfTrackCandidates"),

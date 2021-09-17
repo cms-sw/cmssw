@@ -15,8 +15,8 @@ int CSCDetId::triggerSector() const {
                  ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;
   }
 
-  return (result <= 6) ? result
-                       : 6;  // max sector is 6, some calculations give a value greater than six but this is expected.
+  // max sector is 6, some calculations give a value greater than six but this is expected.
+  return (result <= 6) ? result : 6;
 }
 
 int CSCDetId::triggerCscId() const {
@@ -59,12 +59,39 @@ unsigned short CSCDetId::iChamberType(unsigned short istation, unsigned short ir
   return i;
 }
 
+bool CSCDetId::isME1a() const { return iChamberType(station(), ring()) == 1; }
+bool CSCDetId::isME1b() const { return iChamberType(station(), ring()) == 2; }
+bool CSCDetId::isME11() const { return isME1a() or isME1b(); }
+bool CSCDetId::isME12() const { return iChamberType(station(), ring()) == 3; }
+bool CSCDetId::isME13() const { return iChamberType(station(), ring()) == 4; }
+bool CSCDetId::isME21() const { return iChamberType(station(), ring()) == 5; }
+bool CSCDetId::isME22() const { return iChamberType(station(), ring()) == 6; }
+bool CSCDetId::isME31() const { return iChamberType(station(), ring()) == 7; }
+bool CSCDetId::isME32() const { return iChamberType(station(), ring()) == 8; }
+bool CSCDetId::isME41() const { return iChamberType(station(), ring()) == 9; }
+bool CSCDetId::isME42() const { return iChamberType(station(), ring()) == 10; }
+
 std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber) {
   const std::string eSign = endcap == 1 ? "+" : "-";
   return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber);
 }
 
+std::string CSCDetId::layerName(int endcap, int station, int ring, int chamber, int layer) {
+  const std::string eSign = endcap == 1 ? "+" : "-";
+  return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber) + "/" +
+         std::to_string(layer);
+}
+
+std::string CSCDetId::chamberName(int chamberType) {
+  // ME1a, ME1b, ME12, ME13, ME21, ME22, ME31, ME32, ME41, ME42
+  const unsigned stations[10] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4};
+  const std::string rings[10] = {"A", "B", "2", "3", "1", "2", "1", "2", "1", "2"};
+  return "ME" + std::to_string(stations[chamberType - 1]) + rings[chamberType - 1];
+}
+
 std::string CSCDetId::chamberName() const { return chamberName(endcap(), station(), ring(), chamber()); }
+
+std::string CSCDetId::layerName() const { return layerName(endcap(), station(), ring(), chamber(), layer()); }
 
 std::ostream& operator<<(std::ostream& os, const CSCDetId& id) {
   // Note that there is no endl to end the output

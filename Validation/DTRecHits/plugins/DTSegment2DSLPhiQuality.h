@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -37,7 +37,7 @@ public:
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                       edm::Run const &,
                       edm::EventSetup const &,
                       dtsegment2dsl::Histograms &) const override;
@@ -51,6 +51,9 @@ private:
   edm::InputTag segment4DLabel_;
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
   edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
+
+  //Get DT Geometry
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
 
   // Sigma resolution on position
   double sigmaResPos_;

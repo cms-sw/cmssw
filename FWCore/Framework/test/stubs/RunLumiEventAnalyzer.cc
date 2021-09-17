@@ -42,7 +42,7 @@ namespace edmtest {
           "expectedRunLumiEvents1", std::vector<unsigned long long>());
     }
     if (dumpTriggerResults_) {
-      triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+      triggerResultsToken_ = consumes(edm::InputTag("TriggerResults"));
     }
   }
 

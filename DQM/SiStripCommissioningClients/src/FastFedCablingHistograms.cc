@@ -1,12 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/FastFedCablingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -18,7 +20,7 @@ using namespace sistrip;
 FastFedCablingHistograms::FastFedCablingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"), bei, sistrip::FAST_CABLING) {
-  factory_ = unique_ptr<FastFedCablingSummaryFactory>(new FastFedCablingSummaryFactory);
+  factory_ = std::make_unique<FastFedCablingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[FastFedCablingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

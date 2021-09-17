@@ -18,22 +18,22 @@ process.source = cms.Source("EmptySource",
 process.Tracer = cms.Service("Tracer")
 
 process.result1 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('one')
+    labels = cms.VInputTag('one')
 )
 
 process.result2 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result1', 
+    labels = cms.VInputTag('result1',
         'one')
 )
 
 process.result4 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result2', 
+    labels = cms.VInputTag('result2',
         'result2')
 )
 
 process.get = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(4),
-    moduleLabel = cms.untracked.string('result4')
+    moduleLabel = cms.untracked.InputTag('result4')
 )
 
 process.t = cms.Task(process.result1, process.result2, process.result4)

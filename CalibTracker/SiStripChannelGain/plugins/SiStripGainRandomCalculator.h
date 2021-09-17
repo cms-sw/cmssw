@@ -21,6 +21,10 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
 #include <vector>
 #include <memory>
 
@@ -40,7 +44,9 @@ private:
   double minimumPosValue_;
 
   std::vector<std::pair<uint32_t, unsigned short> > detid_apvs_;
-  unsigned long long m_cacheID_;
   bool printdebug_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESWatcher<TrackerDigiGeometryRecord> tkDigiGeomRcdWatcher_;
 };
 #endif

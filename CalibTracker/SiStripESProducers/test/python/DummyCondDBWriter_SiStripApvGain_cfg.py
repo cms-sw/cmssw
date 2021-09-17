@@ -8,11 +8,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Builder")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siStripApvGainDummyDBWriter'),
-    threshold = cms.untracked.string('DEBUG'),
-    destinations = cms.untracked.vstring('ApvGainBuilder.log')
+    files = cms.untracked.PSet(
+        ApvGainBuilder = cms.untracked.PSet(
+
+        )
+    ),
+    threshold = cms.untracked.string('DEBUG')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -23,7 +29,6 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripApvGainDummyDBWriter_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import siStripApvGainFakeESSource

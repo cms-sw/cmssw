@@ -1,8 +1,11 @@
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="root"/>
-<use   name="DataFormats/SiStripCluster"/>
-<use   name="DataFormats/TrackerCommon" />
-<use   name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="CalibTracker/Records"/>
+<use name="CommonTools/ConditionDBWriter"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DQMServices/Core"/>
+<use name="MagneticField/Records"/>
+<use name="root"/>
+<use name="boost_regex"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

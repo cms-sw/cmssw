@@ -78,6 +78,12 @@ public:
   /// returns last strip (INT number [0,nstrip-1]) for pad (an integer [0,npads-1])
   int lastStripInPad(int pad) const;
 
+  // subsystem
+  GEMSubDetId::Station subsystem() const;
+  bool isME0() const;
+  bool isGE11() const;
+  bool isGE21() const;
+
 private:
   GEMDetId id_;
   GEMEtaPartitionSpecs* specs_;

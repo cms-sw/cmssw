@@ -14,7 +14,7 @@ namespace cond {
     std::pair<std::string, std::string> parseTag(const std::string& tag) {
       std::string pfn("");
       std::string t(tag);
-      size_t pos = tag.rfind("[");
+      size_t pos = tag.rfind('[');
       if (pos != std::string::npos && tag.size() >= pos + 2) {
         if (tag[pos - 1] == '@' && tag[tag.size() - 1] == ']') {
           pfn = tag.substr(pos + 1, tag.size() - pos - 2);

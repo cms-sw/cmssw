@@ -18,7 +18,7 @@ void popcon::CSCChamberMapImpl::getNewObjects() {
 
   //check whats already inside of database
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.since << std::endl;
 
   unsigned int snc;
 

@@ -1,7 +1,7 @@
 // Test of the DictionaryTools functions.
 
 #include "FWCore/Utilities/interface/TypeDemangler.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 

@@ -57,25 +57,38 @@ namespace cscdqm {
     provider = p_provider;
 
     /** Link/share Cache methods to function pointers in configuration */
-    config->fnGetCacheEMUHisto = boost::bind(&Cache::getEMU, &cache, _1, _2);
-    config->fnGetCacheFEDHisto = boost::bind(&Cache::getFED, &cache, _1, _2, _3);
-    config->fnGetCacheDDUHisto = boost::bind(&Cache::getDDU, &cache, _1, _2, _3);
-    config->fnGetCacheCSCHisto = boost::bind(&Cache::getCSC, &cache, _1, _2, _3, _4, _5);
-    config->fnGetCacheParHisto = boost::bind(&Cache::getPar, &cache, _1, _2);
-    config->fnPutHisto = boost::bind(&Cache::put, &cache, _1, _2);
-    config->fnNextBookedCSC = boost::bind(&Cache::nextBookedCSC, &cache, _1, _2, _3);
-    config->fnIsBookedCSC = boost::bind(&Cache::isBookedCSC, &cache, _1, _2);
-    config->fnIsBookedDDU = boost::bind(&Cache::isBookedDDU, &cache, _1);
-    config->fnIsBookedFED = boost::bind(&Cache::isBookedFED, &cache, _1);
+    config->fnGetCacheEMUHisto = std::bind(&Cache::getEMU, &cache, std::placeholders::_1, std::placeholders::_2);
+    config->fnGetCacheFEDHisto =
+        std::bind(&Cache::getFED, &cache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    config->fnGetCacheDDUHisto =
+        std::bind(&Cache::getDDU, &cache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    config->fnGetCacheCSCHisto = std::bind(&Cache::getCSC,
+                                           &cache,
+                                           std::placeholders::_1,
+                                           std::placeholders::_2,
+                                           std::placeholders::_3,
+                                           std::placeholders::_4,
+                                           std::placeholders::_5);
+    config->fnGetCacheParHisto = std::bind(&Cache::getPar, &cache, std::placeholders::_1, std::placeholders::_2);
+    config->fnPutHisto = std::bind(&Cache::put, &cache, std::placeholders::_1, std::placeholders::_2);
+    config->fnNextBookedCSC =
+        std::bind(&Cache::nextBookedCSC, &cache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    config->fnIsBookedCSC = std::bind(&Cache::isBookedCSC, &cache, std::placeholders::_1, std::placeholders::_2);
+    config->fnIsBookedDDU = std::bind(&Cache::isBookedDDU, &cache, std::placeholders::_1);
+    config->fnIsBookedFED = std::bind(&Cache::isBookedFED, &cache, std::placeholders::_1);
 
     /** Link/share local functions */
-    config->fnGetHisto = boost::bind(&Dispatcher::getHisto, this, _1, _2);
+    config->fnGetHisto = std::bind(&Dispatcher::getHisto, this, std::placeholders::_1, std::placeholders::_2);
 
     /** Link/share getCSCDetId function */
-    config->fnGetCSCDetId = boost::bind(&MonitorObjectProvider::getCSCDetId, provider, _1, _2, _3);
+    config->fnGetCSCDetId = std::bind(&MonitorObjectProvider::getCSCDetId,
+                                      provider,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2,
+                                      std::placeholders::_3);
 
     /** Link/share booking function */
-    config->fnBook = boost::bind(&MonitorObjectProvider::bookMonitorObject, provider, _1);
+    config->fnBook = std::bind(&MonitorObjectProvider::bookMonitorObject, provider, std::placeholders::_1);
   }
 
   /**
@@ -244,10 +257,10 @@ namespace cscdqm {
   void Dispatcher::updateFractionAndEfficiencyHistos() {
     LockType lock(processorFract.mutex);
     if (config->getFRAEFF_SEPARATE_THREAD()) {
-      boost::function<void()> fnUpdate =
-          boost::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
+      std::function<void()> fnUpdate =
+          std::bind(&EventProcessorMutex::updateFractionAndEfficiencyHistos, &processorFract);
 #ifdef DQMMT
-      threads.create_thread(boost::ref(fnUpdate));
+      threads.create_thread(std::ref(fnUpdate));
 #else
       fnUpdate();
 #endif
@@ -263,10 +276,10 @@ namespace cscdqm {
   void Dispatcher::processStandby(HWStandbyType& standby) {
     LockType lock(processorFract.mutex);
     if (config->getFRAEFF_SEPARATE_THREAD()) {
-      boost::function<void(HWStandbyType&)> fnUpdate =
-          boost::bind(&EventProcessorMutex::processStandby, &processorFract, _1);
+      std::function<void(HWStandbyType&)> fnUpdate =
+          std::bind(&EventProcessorMutex::processStandby, &processorFract, std::placeholders::_1);
 #ifdef DQMMT
-      threads.create_thread(boost::ref(fnUpdate));
+      threads.create_thread(std::ref(fnUpdate));
 #else
       fnUpdate(standby);
 #endif

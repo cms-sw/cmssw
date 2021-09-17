@@ -2,7 +2,7 @@
 //
 // Package:    HcalHPDFilter
 // Class:      HcalHPDFilter
-// 
+//
 /**\class HcalHPDFilter HcalHPDFilter.cc RecoHcal/HcalHPDFilter/src/HcalHPDFilter.cc
 
  Description: <one line class summary>
@@ -17,13 +17,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,72 +35,43 @@
 // class declaration
 //
 
-class HcalHPDFilter : public edm::EDFilter {
-   public:
-      explicit HcalHPDFilter(const edm::ParameterSet&);
-      ~HcalHPDFilter() override;
+class HcalHPDFilter : public edm::stream::EDFilter<> {
+public:
+  explicit HcalHPDFilter(const edm::ParameterSet&);
+  ~HcalHPDFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-HcalHPDFilter::HcalHPDFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-
+HcalHPDFilter::HcalHPDFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
 }
 
-
-HcalHPDFilter::~HcalHPDFilter()
-{
-
-}
-
+HcalHPDFilter::~HcalHPDFilter() {}
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HcalHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool HcalHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel("hbhereco", hbhe);
-   const HBHERecHitCollection Hithbhe = *(hbhe.product());
+  Handle<HBHERecHitCollection> hbhe;
+  iEvent.getByLabel("hbhereco", hbhe);
+  const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-   for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) {
-     if (hhit->energy() > 5.) return true;
-   }
-   return false;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HcalHPDFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HcalHPDFilter::endJob() {
+  for (HBHERecHitCollection::const_iterator hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
+    if (hhit->energy() > 5.)
+      return true;
+  }
+  return false;
 }
 
 //define this as a plug-in

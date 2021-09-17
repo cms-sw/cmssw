@@ -12,6 +12,9 @@ POOL object to store LUT Corrections
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorr.h"
 
+#include <string>
+#include <cstdint>
+
 //typedef HcalCondObjectContainer<HcalLUTCorr> HcalLUTCorrs;
 
 class HcalLUTCorrs : public HcalCondObjectContainer<HcalLUTCorr> {

@@ -1,8 +1,8 @@
 #ifndef DataFormats_SiStripDigi_SiStripDigi_H
 #define DataFormats_SiStripDigi_SiStripDigi_H
 
-#include "boost/cstdint.hpp"
 #include <iosfwd>
+#include <cstdint>
 
 /**  
      @brief A Digi for the silicon strip detector, containing both
@@ -14,7 +14,7 @@ public:
   SiStripDigi(const uint16_t& strip, const uint16_t& adc) : strip_(strip), adc_(adc) { ; }
 
   SiStripDigi() : strip_(0), adc_(0) { ; }
-  ~SiStripDigi() { ; }
+  ~SiStripDigi() = default;
 
   inline const uint16_t& strip() const;
   inline const uint16_t& adc() const;

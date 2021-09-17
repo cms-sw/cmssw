@@ -313,7 +313,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
         }
       }
 
-      // delta_phi bitmask is saved in two boost::uint64_t words
+      // delta_phi bitmask is saved in two uint64_t words
       if (candDeltaPhi < 64) {
         if (!checkBit(corrPar.deltaPhiRange0Word, candDeltaPhi)) {
           continue;

@@ -26,6 +26,7 @@
 #include "TGLabel.h"
 #include "TGTextEntry.h"
 #include "TEveWindow.h"
+#include "TVirtualX.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"

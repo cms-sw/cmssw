@@ -108,49 +108,71 @@ namespace cond {
     {
       case 23:
         c += ((ub8)k[22] << 56);
+        [[fallthrough]];
       case 22:
         c += ((ub8)k[21] << 48);
+        [[fallthrough]];
       case 21:
         c += ((ub8)k[20] << 40);
+        [[fallthrough]];
       case 20:
         c += ((ub8)k[19] << 32);
+        [[fallthrough]];
       case 19:
         c += ((ub8)k[18] << 24);
+        [[fallthrough]];
       case 18:
         c += ((ub8)k[17] << 16);
+        [[fallthrough]];
       case 17:
         c += ((ub8)k[16] << 8);
+        [[fallthrough]];
         /* the first byte of c is reserved for the length */
       case 16:
         b += ((ub8)k[15] << 56);
+        [[fallthrough]];
       case 15:
         b += ((ub8)k[14] << 48);
+        [[fallthrough]];
       case 14:
         b += ((ub8)k[13] << 40);
+        [[fallthrough]];
       case 13:
         b += ((ub8)k[12] << 32);
+        [[fallthrough]];
       case 12:
         b += ((ub8)k[11] << 24);
+        [[fallthrough]];
       case 11:
         b += ((ub8)k[10] << 16);
+        [[fallthrough]];
       case 10:
         b += ((ub8)k[9] << 8);
+        [[fallthrough]];
       case 9:
         b += ((ub8)k[8]);
+        [[fallthrough]];
       case 8:
         a += ((ub8)k[7] << 56);
+        [[fallthrough]];
       case 7:
         a += ((ub8)k[6] << 48);
+        [[fallthrough]];
       case 6:
         a += ((ub8)k[5] << 40);
+        [[fallthrough]];
       case 5:
         a += ((ub8)k[4] << 32);
+        [[fallthrough]];
       case 4:
         a += ((ub8)k[3] << 24);
+        [[fallthrough]];
       case 3:
         a += ((ub8)k[2] << 16);
+        [[fallthrough]];
       case 2:
         a += ((ub8)k[1] << 8);
+        [[fallthrough]];
       case 1:
         a += ((ub8)k[0]);
         /* case 0: nothing left to add */

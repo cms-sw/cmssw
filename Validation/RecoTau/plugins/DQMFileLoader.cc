@@ -9,7 +9,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <TFile.h>
 #include <TList.h>
@@ -224,8 +223,6 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
         std::cout << " opening inputFile = " << (*inputFileName) << std::endl;
       dqmStore.open(*inputFileName, true);
 
-      //if ( verbosity ) dqmStore.showDirStructure();
-
       //--- if dqmDirectory_store specified in configuration parameters,
       //    move histograms from dqmRootDirectory to dqmDirectory_store
       //    (if the histograms are not moved, the histograms get overwritten,
@@ -266,8 +263,6 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
   }
 
   std::cout << "done." << std::endl;
-  if (verbosity)
-    dqmStore.showDirStructure();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

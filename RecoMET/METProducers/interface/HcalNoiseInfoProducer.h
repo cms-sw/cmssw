@@ -18,6 +18,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -30,6 +31,10 @@
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 #include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -38,6 +43,9 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 namespace reco {
 
@@ -110,6 +118,11 @@ namespace reco {
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::EDGetTokenT<reco::TrackCollection> track_token_;
     edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcaltopo_token_;
+    edm::ESGetToken<HcalDbService, HcalDbRecord> service_token_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> quality_token_;
+    edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> severitycomputer_token_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeometry_token_;
 
     double totalCalibCharge;   // placeholder to calculate total charge in calibration channels
     double totalLasmonCharge;  // placeholder to calculate total charge in laser monitor channels

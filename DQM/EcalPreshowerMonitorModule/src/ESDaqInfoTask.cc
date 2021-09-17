@@ -14,7 +14,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -29,10 +28,8 @@ using namespace std;
 
 ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
   dqmStore_ = Service<DQMStore>().operator->();
-
+  runInfoToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
@@ -100,10 +97,7 @@ void ESDaqInfoTask::beginJob(void) {
   }
 }
 
-void ESDaqInfoTask::endJob(void) {
-  if (enableCleanup_)
-    this->cleanup();
-}
+void ESDaqInfoTask::endJob(void) {}
 
 void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
   this->reset();
@@ -123,8 +117,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
-    edm::ESHandle<RunInfo> sumFED;
-    runInfoRec->get(sumFED);
+    const auto& sumFED = runInfoRec->getHandle(runInfoToken_);
 
     std::vector<int> FedsInIds = sumFED->m_fed_in;
 
@@ -182,28 +175,6 @@ void ESDaqInfoTask::reset(void) {
 
   if (meESDaqError_)
     meESDaqError_->Reset();
-}
-
-void ESDaqInfoTask::cleanup(void) {
-  if (dqmStore_) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-    if (meESDaqFraction_)
-      dqmStore_->removeElement(meESDaqFraction_->getName());
-
-    if (meESDaqActiveMap_)
-      dqmStore_->removeElement(meESDaqActiveMap_->getName());
-
-    if (meESDaqError_)
-      dqmStore_->removeElement(meESDaqError_->getName());
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
-
-    for (int i = 0; i < 56; i++) {
-      if (meESDaqActive_[i])
-        dqmStore_->removeElement(meESDaqActive_[i]->getName());
-    }
-  }
 }
 
 void ESDaqInfoTask::analyze(const Event& e, const EventSetup& c) {}

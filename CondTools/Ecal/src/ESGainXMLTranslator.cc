@@ -1,7 +1,7 @@
 #include "CondFormats/ESObjects/interface/ESGain.h"
 #include "CondTools/Ecal/interface/ESGainXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>

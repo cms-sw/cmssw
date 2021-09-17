@@ -39,6 +39,8 @@ namespace edm {
     CPUTimer();
     ~CPUTimer();
     CPUTimer(CPUTimer&&) = default;
+    CPUTimer(const CPUTimer&) = delete;
+    CPUTimer& operator=(const CPUTimer&) = delete;
 
     struct Times {
       Times() : real_(0), cpu_(0) {}
@@ -60,10 +62,6 @@ namespace edm {
     void add(const Times& t);
 
   private:
-    CPUTimer(const CPUTimer&) = delete;  // stop default
-
-    const CPUTimer& operator=(const CPUTimer&) = delete;  // stop default
-
     Times calculateDeltaTime() const;
 
     // ---------- member data --------------------------------

@@ -4,6 +4,7 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -17,6 +18,8 @@
 template <typename T>
 class SiStripDQMPopConSourceHandler : public popcon::PopConSourceHandler<T> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripDQMPopConSourceHandler(const edm::ParameterSet& pset)
       : m_name{pset.getUntrackedParameter<std::string>("name", "SiStripPopConDbObjHandler")},
         m_since{pset.getUntrackedParameter<uint32_t>("since", 5)},
@@ -71,9 +74,9 @@ void SiStripDQMPopConSourceHandler<T>::getNewObjects() {
     ss << "\n\n------- " << m_name << " - > getNewObjects\n";
     if (this->tagInfo().size) {
       //check whats already inside of database
-      ss << "\ngot offlineInfo" << this->tagInfo().name << "\n size " << this->tagInfo().size << "\n"
-         << this->tagInfo().token << "\n last object valid since " << this->tagInfo().lastInterval.first << "\n token "
-         << this->tagInfo().lastPayloadToken << "\n UserText " << this->userTextLog() << "\n LogDBEntry \n"
+      ss << "\ngot offlineInfo" << this->tagInfo().name << "\n size " << this->tagInfo().size
+         << "\n last object valid since " << this->tagInfo().lastInterval.since << "\n token "
+         << this->tagInfo().lastInterval.payloadId << "\n UserText " << this->userTextLog() << "\n LogDBEntry \n"
          << this->logDBEntry().logId << "\n"
          << this->logDBEntry().destinationDB << "\n"
          << this->logDBEntry().provenance << "\n"
@@ -86,7 +89,7 @@ void SiStripDQMPopConSourceHandler<T>::getNewObjects() {
          << this->logDBEntry().exectime << "\n"
          << this->logDBEntry().execmessage << "\n";
       if (!this->logDBEntry().usertext.empty())
-        ss << "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+        ss << "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
     } else {
       ss << " First object for this tag ";
     }
@@ -104,10 +107,10 @@ template <typename T>
 bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded() {
   edm::LogInfo("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::isTransferNeeded] checking for transfer ";
 
-  if (m_iovSequence && (m_since <= this->tagInfo().lastInterval.first)) {
+  if (m_iovSequence && (m_since <= this->tagInfo().lastInterval.since)) {
     edm::LogInfo("SiStripPopConDbObjHandler")
         << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current starting iov " << m_since
-        << "\nis not compatible with the last iov (" << this->tagInfo().lastInterval.first << ") open for the object "
+        << "\nis not compatible with the last iov (" << this->tagInfo().lastInterval.since << ") open for the object "
         << this->logDBEntry().payloadClass << " \nin the db " << this->logDBEntry().destinationDB
         << " \n NO TRANSFER NEEDED";
     return false;
@@ -117,7 +120,7 @@ bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded() {
 
   //get log information from previous upload
   if (!this->logDBEntry().usertext.empty())
-    ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@") + 2);
+    ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@') + 2);
 
   std::string ss = getMetaDataString();
   if ((!m_iovSequence) || checkForCompatibility(ss_logdb)) {
@@ -131,7 +134,7 @@ bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded() {
   } else if (m_iovSequence) {
     edm::LogInfo("SiStripPopConDbObjHandler")
         << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current MetaData conditions " << ss
-        << "\nare not compatible with the MetaData Conditions of the last iov (" << this->tagInfo().lastInterval.first
+        << "\nare not compatible with the MetaData Conditions of the last iov (" << this->tagInfo().lastInterval.since
         << ") open for the object " << this->logDBEntry().payloadClass << " \nin the db "
         << this->logDBEntry().destinationDB << " \nConditions: " << ss_logdb << "\n NO TRANSFER NEEDED";
     return false;
@@ -148,7 +151,7 @@ void SiStripDQMPopConSourceHandler<T>::setForTransfer() {
   if (!this->tagInfo().size)
     m_since = 1;
   else if (m_debugMode)
-    m_since = this->tagInfo().lastInterval.first + 1;
+    m_since = this->tagInfo().lastInterval.since + 1;
 
   T* obj = this->getObj();
   if (obj) {

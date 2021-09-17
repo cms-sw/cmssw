@@ -4,7 +4,7 @@
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDValue;
@@ -204,7 +204,7 @@ bool DDLogicalPart::hasDDValue(const DDValue& v) const { return rep().hasDDValue
 namespace {
   struct Regex {
     explicit Regex(const std::string& s) : m_ok(false), me(s) {
-      size_t p = me.find(".");
+      size_t p = me.find('.');
       m_ok = p != std::string::npos;
       if (m_ok) {
         if (p > 0) {

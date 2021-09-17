@@ -1,5 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstring>  // for bzero
 #include <iostream>
@@ -73,7 +74,7 @@ CSCAnodeDataFrame2007 CSCAnodeData2007::findFrame(int tbin, int layer, int layer
 
 int CSCAnodeData2007::index(int tbin, int layer, int layerPart) const {
   assert(tbin < nTimeBins_);
-  assert(layer <= 6);
+  assert(layer <= CSCDetId::maxLayerId());
   assert(layerPart < layerParts_);
   int result = tbin * 6 * layerParts_ + (layer - 1) * layerParts_ + layerPart;
   assert(result < MAXFRAMES);

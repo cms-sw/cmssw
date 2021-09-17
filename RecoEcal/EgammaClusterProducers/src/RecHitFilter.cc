@@ -4,25 +4,39 @@
  **  \author Shahram Rahatlou, University of Rome & INFN, May 2006
  **
  ***/
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// Reconstruction Classes
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class RecHitFilter : public edm::global::EDProducer<> {
+public:
+  RecHitFilter(const edm::ParameterSet& ps);
+
+  ~RecHitFilter() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const double noiseEnergyThreshold_;
+  const double noiseChi2Threshold_;
+  const std::string reducedHitCollection_;
+  const edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(RecHitFilter);
 
 RecHitFilter::RecHitFilter(const edm::ParameterSet& ps)
     : noiseEnergyThreshold_(ps.getParameter<double>("noiseEnergyThreshold")),

@@ -1,5 +1,4 @@
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
-#include <boost/bind.hpp>
 #include <algorithm>
 #include <functional>
 

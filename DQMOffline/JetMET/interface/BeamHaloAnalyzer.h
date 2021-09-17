@@ -77,7 +77,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -135,8 +134,6 @@
 #include "TLegend.h"
 
 //Standard C++ classes
-#include <iostream>
-#include <ostream>
 #include <string>
 #include <map>
 #include <vector>
@@ -187,8 +184,9 @@ private:
   edm::EDGetTokenT<reco::HcalHaloData> IT_HcalHaloData;
   edm::EDGetTokenT<reco::GlobalHaloData> IT_GlobalHaloData;
   edm::EDGetTokenT<reco::BeamHaloSummary> IT_BeamHaloSummary;
-
   edm::EDGetTokenT<reco::MuonTimeExtraMap> IT_CSCTimeMapToken;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
 
   //Output File
   std::string OutputFileName;

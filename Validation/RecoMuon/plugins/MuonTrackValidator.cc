@@ -1,5 +1,4 @@
 #include "Validation/RecoMuon/plugins/MuonTrackValidator.h"
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -9,11 +8,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
-#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 
 #include "TMath.h"
@@ -22,12 +18,21 @@
 using namespace std;
 using namespace edm;
 
-void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& setup) {
+void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooker,
+                                        edm::Run const&,
+                                        edm::EventSetup const& setup) {
   for (unsigned int ww = 0; ww < associators.size(); ww++) {
     for (unsigned int www = 0; www < label.size(); www++) {
       ibooker.cd();
       InputTag algo = label[www];
       string dirName = dirName_;
+
+      auto setBinLogX = [this](TH1* th1) {
+        if (this->useLogPt) {
+          BinLogX(th1);
+        }
+      };
+
       if (!algo.process().empty())
         dirName += algo.process() + "_";
       if (!algo.label().empty())
@@ -47,8 +52,9 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       std::replace(dirName.begin(), dirName.end(), ':', '_');
       ibooker.setCurrentFolder(dirName);
 
-      h_tracks.push_back(ibooker.book1D("Ntracks", "Number of reconstructed tracks", 100, -0.5, 99.5));
-      h_fakes.push_back(ibooker.book1D("Nfakes", "Number of fake reco tracks", 20, -0.5, 19.5));
+      h_tracks.push_back(
+          ibooker.book1D("Ntracks", "Number of reconstructed tracks", nintNTracks, minNTracks, maxNTracks));
+      h_fakes.push_back(ibooker.book1D("Nfakes", "Number of fake reco tracks", nintFTracks, minFTracks, maxFTracks));
       h_charge.push_back(ibooker.book1D("Ncharge", "track charge", 3, -1.5, 1.5));
 
       h_recoeta.push_back(ibooker.book1D("num_reco_eta", "N of reco track vs eta", nintEta, minEta, maxEta));
@@ -63,14 +69,19 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
                                           minEta,
                                           maxEta));
 
-      h_recopT.push_back(ibooker.book1D("num_reco_pT", "N of reco track vs pT", nintPt, minPt, maxPt));
-      h_assocpT.push_back(
-          ibooker.book1D("num_assoSimToReco_pT", "N of associated tracks (simToReco) vs pT", nintPt, minPt, maxPt));
-      h_assoc2pT.push_back(
-          ibooker.book1D("num_assoRecoToSim_pT", "N of associated (recoToSim) tracks vs pT", nintPt, minPt, maxPt));
-      h_simulpT.push_back(ibooker.book1D("num_simul_pT", "N of simulated tracks vs pT", nintPt, minPt, maxPt));
-      h_misidpT.push_back(ibooker.book1D(
-          "num_chargemisid_pT", "N of associated (simToReco) tracks with charge misID vs pT", nintPt, minPt, maxPt));
+      h_recopT.push_back(ibooker.book1D("num_reco_pT", "N of reco track vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_assocpT.push_back(ibooker.book1D(
+          "num_assoSimToReco_pT", "N of associated tracks (simToReco) vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_assoc2pT.push_back(ibooker.book1D(
+          "num_assoRecoToSim_pT", "N of associated (recoToSim) tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_simulpT.push_back(
+          ibooker.book1D("num_simul_pT", "N of simulated tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_misidpT.push_back(ibooker.book1D("num_chargemisid_pT",
+                                         "N of associated (simToReco) tracks with charge misID vs pT",
+                                         nintPt,
+                                         minPt,
+                                         maxPt,
+                                         setBinLogX));
 
       h_recophi.push_back(ibooker.book1D("num_reco_phi", "N of reco track vs phi", nintPhi, minPhi, maxPhi));
       h_assocphi.push_back(ibooker.book1D(
@@ -213,7 +224,8 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
                                            maxPt,
                                            ptRes_nbin,
                                            ptRes_rangeMin,
-                                           ptRes_rangeMax));
+                                           ptRes_rangeMax,
+                                           setBinLogX));
       h_ptpull.push_back(ibooker.book1D("ptpull", "p_{T} Pull", 100, -10., 10.));
       ptpull_vs_eta.push_back(
           ibooker.book2D("ptpull_vs_eta", "p_{T} Pull vs #eta", nintEta, minEta, maxEta, 100, -10., 10.));
@@ -246,7 +258,8 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
                                                  maxPt,
                                                  cotThetaRes_nbin,
                                                  cotThetaRes_rangeMin,
-                                                 cotThetaRes_rangeMax));
+                                                 cotThetaRes_rangeMax,
+                                                 setBinLogX));
       h_thetapull.push_back(ibooker.book1D("thetapull", "#theta Pull", 100, -10., 10.));
       thetapull_vs_eta.push_back(
           ibooker.book2D("thetapull_vs_eta", "#theta Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
@@ -261,8 +274,15 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
                                              phiRes_nbin,
                                              phiRes_rangeMin,
                                              phiRes_rangeMax));
-      phires_vs_pt.push_back(ibooker.book2D(
-          "phires_vs_pt", "#phi Residual vs p_{T}", nintPt, minPt, maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
+      phires_vs_pt.push_back(ibooker.book2D("phires_vs_pt",
+                                            "#phi Residual vs p_{T}",
+                                            nintPt,
+                                            minPt,
+                                            maxPt,
+                                            phiRes_nbin,
+                                            phiRes_rangeMin,
+                                            phiRes_rangeMax,
+                                            setBinLogX));
       phires_vs_phi.push_back(ibooker.book2D("phires_vs_phi",
                                              "#phi Residual vs #phi",
                                              nintPhi,
@@ -285,16 +305,30 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
                                              dxyRes_nbin,
                                              dxyRes_rangeMin,
                                              dxyRes_rangeMax));
-      dxyres_vs_pt.push_back(ibooker.book2D(
-          "dxyres_vs_pt", "dxy Residual vs p_{T}", nintPt, minPt, maxPt, dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
+      dxyres_vs_pt.push_back(ibooker.book2D("dxyres_vs_pt",
+                                            "dxy Residual vs p_{T}",
+                                            nintPt,
+                                            minPt,
+                                            maxPt,
+                                            dxyRes_nbin,
+                                            dxyRes_rangeMin,
+                                            dxyRes_rangeMax,
+                                            setBinLogX));
       h_dxypull.push_back(ibooker.book1D("dxypull", "dxy Pull", 100, -10., 10.));
       dxypull_vs_eta.push_back(
           ibooker.book2D("dxypull_vs_eta", "dxy Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
 
       dzres_vs_eta.push_back(ibooker.book2D(
           "dzres_vs_eta", "dz Residual vs #eta", nintEta, minEta, maxEta, dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      dzres_vs_pt.push_back(ibooker.book2D(
-          "dzres_vs_pt", "dz Residual vs p_{T}", nintPt, minPt, maxPt, dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
+      dzres_vs_pt.push_back(ibooker.book2D("dzres_vs_pt",
+                                           "dz Residual vs p_{T}",
+                                           nintPt,
+                                           minPt,
+                                           maxPt,
+                                           dzRes_nbin,
+                                           dzRes_rangeMin,
+                                           dzRes_rangeMax,
+                                           setBinLogX));
       h_dzpull.push_back(ibooker.book1D("dzpull", "dz Pull", 100, -10., 10.));
       dzpull_vs_eta.push_back(
           ibooker.book2D("dzpull_vs_eta", "dz Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
@@ -315,20 +349,6 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
         h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit", "number of shared hits", 41, -0.5, 40.5));
       }
 
-      if (useLogPt) {
-        BinLogX(h_simulpT.back()->getTH1F());
-        BinLogX(h_assocpT.back()->getTH1F());
-        BinLogX(h_recopT.back()->getTH1F());
-        BinLogX(h_assoc2pT.back()->getTH1F());
-        BinLogX(h_misidpT.back()->getTH1F());
-
-        BinLogX(phires_vs_pt.back()->getTH2F());
-        BinLogX(thetaCotres_vs_pt.back()->getTH2F());
-        BinLogX(dxyres_vs_pt.back()->getTH2F());
-        BinLogX(dzres_vs_pt.back()->getTH2F());
-        BinLogX(ptres_vs_pt.back()->getTH2F());
-      }
-
     }  //for (unsigned int www=0;www<label.size();www++)
   }    //for (unsigned int ww=0;ww<associators.size();ww++)
 }
@@ -346,12 +366,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<std::vector<PileupSummaryInfo> > puinfoH;
   int PU_NumInteractions(-1);
 
-  edm::ESHandle<ParametersDefinerForTP> Lhc_parametersDefinerTP;
-  std::unique_ptr<ParametersDefinerForTP> Cosmic_parametersDefinerTP;
-
   if (parametersDefiner == "LhcParametersDefinerForTP") {
-    setup.get<TrackAssociatorRecord>().get(parametersDefiner, Lhc_parametersDefinerTP);
-
     // PileupSummaryInfo is contained only in collision events
     event.getByToken(pileupinfo_Token, puinfoH);
     for (std::vector<PileupSummaryInfo>::const_iterator puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end();
@@ -363,32 +378,37 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     }
 
   } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
-    edm::ESHandle<CosmicParametersDefinerForTP> _Cosmic_parametersDefinerTP;
-    setup.get<TrackAssociatorRecord>().get(parametersDefiner, _Cosmic_parametersDefinerTP);
-
-    //Since we modify the object, we must clone it
-    Cosmic_parametersDefinerTP = _Cosmic_parametersDefinerTP->clone();
-
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
     //warning: make sure the TP collection used in the map is the same used here
     event.getByToken(_simHitTpMapTag, simHitsTPAssoc);
-    Cosmic_parametersDefinerTP->initEvent(simHitsTPAssoc);
+    cosmicParametersDefinerTP_->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
-  } else {
-    edm::LogError("MuonTrackValidator") << "Unexpected label: parametersDefiner = " << parametersDefiner.c_str()
-                                        << "\n";
   }
 
-  edm::Handle<TrackingParticleCollection> TPCollectionHeff;
-  event.getByToken(tp_effic_Token, TPCollectionHeff);
-  TrackingParticleCollection const& tPCeff = *(TPCollectionHeff.product());
+  TrackingParticleRefVector TPrefV;
+  const TrackingParticleRefVector* ptr_TPrefV = nullptr;
+  edm::Handle<TrackingParticleCollection> TPCollection_H;
+  edm::Handle<TrackingParticleRefVector> TPCollectionRefVector_H;
 
-  edm::Handle<TrackingParticleCollection> TPCollectionHfake;
-  event.getByToken(tp_fake_Token, TPCollectionHfake);
+  if (label_tp_refvector) {
+    event.getByToken(tp_refvector_Token, TPCollectionRefVector_H);
+    ptr_TPrefV = TPCollectionRefVector_H.product();
+  } else {
+    event.getByToken(tp_Token, TPCollection_H);
+    size_t nTP = TPCollection_H->size();
+    for (size_t i = 0; i < nTP; ++i) {
+      TPrefV.push_back(TrackingParticleRef(TPCollection_H, i));
+    }
+    ptr_TPrefV = &TPrefV;
+  }
+  TrackingParticleRefVector const& tPC = *ptr_TPrefV;
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByToken(bsSrc_Token, recoBeamSpotHandle);
-  reco::BeamSpot bs = *recoBeamSpotHandle;
+  bool bs_Available = event.getByToken(bsSrc_Token, recoBeamSpotHandle);
+  reco::BeamSpot bs;
+  if (bs_Available)
+    bs = *recoBeamSpotHandle;
+  edm::LogVerbatim("MuonTrackValidator") << bs;
 
   std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
   if (UseAssociators) {
@@ -428,10 +448,10 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
           LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method"
                                          << "\n";
-          recSimColl = associator[ww]->associateRecoToSim(trackCollection, TPCollectionHfake);
+          recSimColl = associator[ww]->associateRecoToSim(trackCollection, TPCollection_H);
           LogTrace("MuonTrackValidator") << "Calling associateSimToReco method"
                                          << "\n";
-          simRecColl = associator[ww]->associateSimToReco(trackCollection, TPCollectionHeff);
+          simRecColl = associator[ww]->associateSimToReco(trackCollection, TPCollection_H);
         } else {
           edm::LogVerbatim("MuonTrackValidator")
               << "Analyzing " << label[www].process() << ":" << label[www].label() << ":" << label[www].instance()
@@ -451,16 +471,17 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
       //
       //fill simulation histograms
       //
-      edm::LogVerbatim("MuonTrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
+      edm::LogVerbatim("MuonTrackValidator") << "\n# of TrackingParticles: " << tPC.size() << "\n";
       int ats = 0;
       int st = 0;
-      for (TrackingParticleCollection::size_type i = 0; i < tPCeff.size(); i++) {
+
+      for (size_t i = 0; i < tPC.size(); i++) {
         bool TP_is_matched = false;
         bool isChargeOK = true;
         double quality = 0.;
 
-        TrackingParticleRef tpr(TPCollectionHeff, i);
-        TrackingParticle* tp = const_cast<TrackingParticle*>(tpr.get());
+        const TrackingParticleRef& tpr = tPC[i];
+        const TrackingParticle& tp = *tpr;
 
         TrackingParticle::Vector momentumTP;
         TrackingParticle::Point vertexTP;
@@ -471,12 +492,12 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         //and the impact parameters w.r.t. PCA
         if (parametersDefiner == "LhcParametersDefinerForTP") {
           LogTrace("MuonTrackValidator") << "TrackingParticle " << i;
-          if (!tpSelector(*tp))
+          if (!tpSelector(tp))
             continue;
-          momentumTP = tp->momentum();
-          vertexTP = tp->vertex();
-          TrackingParticle::Vector momentum = Lhc_parametersDefinerTP->momentum(event, setup, tpr);
-          TrackingParticle::Point vertex = Lhc_parametersDefinerTP->vertex(event, setup, tpr);
+          momentumTP = tp.momentum();
+          vertexTP = tp.vertex();
+          TrackingParticle::Vector momentum = lhcParametersDefinerTP_->momentum(event, setup, tpr);
+          TrackingParticle::Point vertex = lhcParametersDefinerTP_->vertex(event, setup, tpr);
           dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
           dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
         }
@@ -485,24 +506,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           edm::LogVerbatim("MuonTrackValidator") << "TrackingParticle " << i;
           if (!cosmictpSelector(tpr, &bs, event, setup))
             continue;
-          momentumTP = Cosmic_parametersDefinerTP->momentum(event, setup, tpr);
-          vertexTP = Cosmic_parametersDefinerTP->vertex(event, setup, tpr);
+          momentumTP = cosmicParametersDefinerTP_->momentum(event, setup, tpr);
+          vertexTP = cosmicParametersDefinerTP_->vertex(event, setup, tpr);
           dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
           dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
         }
-        edm::LogVerbatim("MuonTrackValidator") << "--------------------Selected TrackingParticle #" << tpr.key();
-        edm::LogVerbatim("MuonTrackValidator")
-            << "momentumTP: pt = " << sqrt(momentumTP.perp2()) << ", pz = " << momentumTP.z()
-            << ", \t vertexTP: radius = " << sqrt(vertexTP.perp2()) << ",  z = " << vertexTP.z() << "\n";
-        st++;
-
-        double TPeta = momentumTP.eta();
-        double xTPeta = getEta(TPeta);  // may be |eta| in histos according to useFabsEta
-        double TPpt = sqrt(momentumTP.perp2());
-        double xTPpt = getPt(TPpt);  // may be 1/pt in histos according to useInvPt
-        double TPphi = momentumTP.phi();
-        double TPrpos = sqrt(vertexTP.perp2());
-        double TPzpos = vertexTP.z();
 
         // Number of counted SimHits depend on the selection of tracker and muon detectors (via cfg parameters)
         int nSimHits = 0;
@@ -513,24 +521,35 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         } else if (usetracker && !usemuon) {
           nSimHits = tpr.get()->numberOfTrackerHits();
         }
-        edm::LogVerbatim("MuonTrackValidator") << "\t N simhits = " << nSimHits << "\n";
+
+        edm::LogVerbatim("MuonTrackValidator") << "--------------------Selected TrackingParticle #" << tpr.key()
+                                               << "  (N counted simhits = " << nSimHits << ")";
+        edm::LogVerbatim("MuonTrackValidator")
+            << "momentumTP: pt = " << sqrt(momentumTP.perp2()) << ", pz = " << momentumTP.z()
+            << ", \t vertexTP: radius = " << sqrt(vertexTP.perp2()) << ",  z = " << vertexTP.z();
+        st++;
+
+        double TPeta = momentumTP.eta();
+        double xTPeta = getEta(TPeta);  // may be |eta| in histos according to useFabsEta
+        double TPpt = sqrt(momentumTP.perp2());
+        double xTPpt = getPt(TPpt);  // may be 1/pt in histos according to useInvPt
+        double TPphi = momentumTP.phi();
+        double TPrpos = sqrt(vertexTP.perp2());
+        double TPzpos = vertexTP.z();
 
         int assoc_recoTrack_NValidHits = 0;
         if (simRecColl.find(tpr) != simRecColl.end()) {
           auto const& rt = simRecColl[tpr];
           if (!rt.empty()) {
             RefToBase<Track> assoc_recoTrack = rt.begin()->first;
-            edm::LogVerbatim("MuonTrackValidator")
-                << "-----------------------------associated Track #" << assoc_recoTrack.key();
             TP_is_matched = true;
             ats++;
             if (assoc_recoTrack->charge() != tpr->charge())
               isChargeOK = false;
             quality = rt.begin()->second;
             assoc_recoTrack_NValidHits = assoc_recoTrack->numberOfValidHits();
-            edm::LogVerbatim("MuonTrackValidator")
-                << "TrackingParticle #" << tpr.key() << " with pt=" << sqrt(momentumTP.perp2())
-                << " associated with quality:" << quality << "\n";
+            edm::LogVerbatim("MuonTrackValidator") << "-----------------------------associated to Track #"
+                                                   << assoc_recoTrack.key() << " with quality:" << quality << "\n";
           }
         } else {
           edm::LogVerbatim("MuonTrackValidator")
@@ -541,7 +560,6 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         }
 
         // histos for efficiency vs eta
-
         fillPlotNoFlow(h_simuleta[w], xTPeta);
         if (TP_is_matched) {
           fillPlotNoFlow(h_assoceta[w], xTPeta);
@@ -609,7 +627,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
             fillPlotNoFlow(h_misidpu[w], PU_NumInteractions);
         }
 
-      }  // End for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
+      }  // End for (size_t i = 0; i < tPCeff.size(); i++) {
 
       //
       //fill reconstructed track histograms
@@ -624,6 +642,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         bool Track_is_matched = false;
         bool isChargeOK = true;
         RefToBase<Track> track(trackCollection, i);
+        int nRecHits = track->numberOfValidHits();
         rT++;
 
         std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -631,7 +650,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
         // new logic (bidirectional)
         if (BiDirectional_RecoToSim_association) {
-          edm::LogVerbatim("MuonTrackValidator") << "----------------------------------------Track #" << track.key();
+          edm::LogVerbatim("MuonTrackValidator") << "----------------------------------------Track #" << track.key()
+                                                 << " (N valid rechits = " << nRecHits << ")";
 
           if (recSimColl.find(track) != recSimColl.end()) {
             tp = recSimColl[track];
@@ -642,16 +662,15 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
                 auto const& assoc_track_checkback = simRecColl[tpr].begin()->first;
 
                 if (assoc_track_checkback.key() == track.key()) {
-                  edm::LogVerbatim("MuonTrackValidator")
-                      << "------------------associated TrackingParticle #" << tpr.key();
                   Track_is_matched = true;
                   at++;
                   if (track->charge() != tpr->charge())
                     isChargeOK = false;
                   double Purity = tp.begin()->second;
                   double Quality = simRecColl[tpr].begin()->second;
-                  edm::LogVerbatim("MuonTrackValidator") << "reco::Track #" << track.key() << " with pt=" << track->pt()
-                                                         << " associated with purity:" << Purity << "\n";
+                  edm::LogVerbatim("MuonTrackValidator")
+                      << "with pt=" << track->pt() << " associated with purity:" << Purity << " to TrackingParticle #"
+                      << tpr.key() << "\n";
                   if (MABH)
                     h_PurityVsQuality[w]->Fill(Quality, Purity);
                 }
@@ -660,9 +679,9 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           }
 
           if (!Track_is_matched)
-            edm::LogVerbatim("MuonTrackValidator") << "reco::Track #" << track.key() << " with pt=" << track->pt()
-                                                   << " NOT associated to any TrackingParticle"
-                                                   << "\n";
+            edm::LogVerbatim("MuonTrackValidator")
+                << "with pt=" << track->pt() << " NOT associated to any TrackingParticle"
+                << "\n";
         }
         // old logic, valid for cosmics 2-legs reco (bugged for collision scenario)
         else {
@@ -683,10 +702,6 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
                                                    << "\n";
           }
         }
-
-        //
-        int nRecHits = track->numberOfValidHits();
-        edm::LogVerbatim("MuonTrackValidator") << "\t N valid rechits = " << nRecHits << "\n";
 
         double etaRec = track->eta();
         double xetaRec = getEta(etaRec);
@@ -763,16 +778,16 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
           if (!(Track_is_matched && tpSelector(*tpp)))
             continue;
           else {
-            momentumTP = Lhc_parametersDefinerTP->momentum(event, setup, tpr);
-            vertexTP = Lhc_parametersDefinerTP->vertex(event, setup, tpr);
+            momentumTP = lhcParametersDefinerTP_->momentum(event, setup, tpr);
+            vertexTP = lhcParametersDefinerTP_->vertex(event, setup, tpr);
           }
         } else if (parametersDefiner == "CosmicParametersDefinerForTP") {
           // following reco plots are made only from tracks associated to selected signal TPs
           if (!(Track_is_matched && cosmictpSelector(tpr, &bs, event, setup)))
             continue;
           else {
-            momentumTP = Cosmic_parametersDefinerTP->momentum(event, setup, tpr);
-            vertexTP = Cosmic_parametersDefinerTP->vertex(event, setup, tpr);
+            momentumTP = cosmicParametersDefinerTP_->momentum(event, setup, tpr);
+            vertexTP = cosmicParametersDefinerTP_->vertex(event, setup, tpr);
           }
         }
 
@@ -887,36 +902,36 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         double contrib_phi = phiPull * phiPull / 5;
         double assoChi2 = contrib_Qoverp + contrib_dxy + contrib_dz + contrib_theta + contrib_phi;
 
-        edm::LogVerbatim("MuonTrackValidator") << "normalized Chi2 (track 5-dofs matching) = " << assoChi2 << "\n"
-                                               << "\t contrib_Qoverp = " << contrib_Qoverp << "\n"
-                                               << "\t contrib_theta = " << contrib_theta << "\n"
-                                               << "\t contrib_phi = " << contrib_phi << "\n"
-                                               << "\t contrib_dxy = " << contrib_dxy << "\n"
-                                               << "\t contrib_dz = " << contrib_dz << "\n";
+        LogTrace("MuonTrackValidator") << "normalized Chi2 (track 5-dofs matching) = " << assoChi2 << "\n"
+                                       << "\t contrib_Qoverp = " << contrib_Qoverp << "\n"
+                                       << "\t contrib_theta = " << contrib_theta << "\n"
+                                       << "\t contrib_phi = " << contrib_phi << "\n"
+                                       << "\t contrib_dxy = " << contrib_dxy << "\n"
+                                       << "\t contrib_dz = " << contrib_dz << "\n";
 
-        edm::LogVerbatim("MuonTrackValidator") << "ptRec = " << ptRec << "\n"
-                                               << "etaRec = " << etaRec << "\n"
-                                               << "qoverpRec = " << qoverpRec << "\n"
-                                               << "thetaRec = " << thetaRec << "\n"
-                                               << "phiRec = " << phiRec << "\n"
-                                               << "dxyRec = " << dxyRec << "\n"
-                                               << "dzRec = " << dzRec << "\n"
-                                               << ""
-                                               << "\n"
-                                               << "qoverpError = " << qoverpError << "\n"
-                                               << "thetaError = " << thetaError << "\n"
-                                               << "phiError = " << phiError << "\n"
-                                               << "dxyError = " << dxyError << "\n"
-                                               << "dzError = " << dzError << "\n"
-                                               << ""
-                                               << "\n"
-                                               << "ptSim = " << ptSim << "\n"
-                                               << "etaSim = " << etaSim << "\n"
-                                               << "qoverpSim = " << qoverpSim << "\n"
-                                               << "thetaSim = " << thetaSim << "\n"
-                                               << "phiSim = " << phiSim << "\n"
-                                               << "dxySim = " << dxySim << "\n"
-                                               << "dzSim = " << dzSim << "\n";
+        LogTrace("MuonTrackValidator") << "ptRec = " << ptRec << "\n"
+                                       << "etaRec = " << etaRec << "\n"
+                                       << "qoverpRec = " << qoverpRec << "\n"
+                                       << "thetaRec = " << thetaRec << "\n"
+                                       << "phiRec = " << phiRec << "\n"
+                                       << "dxyRec = " << dxyRec << "\n"
+                                       << "dzRec = " << dzRec << "\n"
+                                       << ""
+                                       << "\n"
+                                       << "qoverpError = " << qoverpError << "\n"
+                                       << "thetaError = " << thetaError << "\n"
+                                       << "phiError = " << phiError << "\n"
+                                       << "dxyError = " << dxyError << "\n"
+                                       << "dzError = " << dzError << "\n"
+                                       << ""
+                                       << "\n"
+                                       << "ptSim = " << ptSim << "\n"
+                                       << "etaSim = " << etaSim << "\n"
+                                       << "qoverpSim = " << qoverpSim << "\n"
+                                       << "thetaSim = " << thetaSim << "\n"
+                                       << "phiSim = " << phiSim << "\n"
+                                       << "dxySim = " << dxySim << "\n"
+                                       << "dzSim = " << dzSim << "\n";
       }  // End of for(edm::View<Track>::size_type i=0; i<trackCollectionSize; ++i) {
 
       h_tracks[w]->Fill(at);

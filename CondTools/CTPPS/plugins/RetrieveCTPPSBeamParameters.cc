@@ -26,32 +26,30 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <cstdint>
 
 class RetrieveCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
 public:
-  explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet&);
+  explicit RetrieveCTPPSBeamParameters(const edm::ParameterSet& ps)
+      : label_(ps.getParameter<std::string>("label")),
+        tokenBeamParameters_(esConsumes<CTPPSBeamParameters, CTPPSBeamParametersRcd>(edm::ESInputTag("", label_))) {}
+
   ~RetrieveCTPPSBeamParameters() override = default;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   std::string label_;
+
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
 };
 
 //---------------------------------------------------------------------------------------
 
-RetrieveCTPPSBeamParameters::RetrieveCTPPSBeamParameters(const edm::ParameterSet& iConfig) {}
-
 void RetrieveCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSBeamParameters> pSetup;
-  iSetup.get<CTPPSBeamParametersRcd>().get(label_, pSetup);
-
-  const CTPPSBeamParameters* pInfo = pSetup.product();
-
-  edm::LogInfo("CTPPSBeamParameters") << "\n" << *pInfo << "\n";
+  edm::LogInfo("CTPPSBeamParameters") << "\n" << iSetup.getData(tokenBeamParameters_) << "\n";
 }
 
 DEFINE_FWK_MODULE(RetrieveCTPPSBeamParameters);

@@ -3,9 +3,10 @@
 
 #include <map>
 #include <algorithm>
-#include <boost/cstdint.hpp>
+#include <vector>
 #include <boost/range.hpp>
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include <cstdint>
 
 class StripCompactDigiSimLinks {
 public:

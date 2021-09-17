@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DataFormats
@@ -30,6 +29,8 @@
 
 class DQMLumiMonitor : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   DQMLumiMonitor(const edm::ParameterSet&);
   ~DQMLumiMonitor() override;
 
@@ -39,7 +40,6 @@ protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void endJob() override;
 
 private:
   void bookHistograms();

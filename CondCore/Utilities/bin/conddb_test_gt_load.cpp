@@ -145,7 +145,7 @@ namespace cond {
 
     Session m_session;
     IOVProxy m_iov;
-    boost::shared_ptr<pimpl> m_data;
+    std::shared_ptr<pimpl> m_data;
   };
 
   class TestGTLoad : public cond::Utilities {
@@ -182,9 +182,9 @@ void cond::UntypedPayloadProxy::reset() {
   m_data->current.clear();
 }
 
-std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tag(); }
+std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tagInfo().name; }
 
-cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.timeType(); }
+cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.tagInfo().timeType; }
 
 bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   bool loaded = false;
@@ -194,14 +194,16 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   if (targetTime < m_data->current.since || targetTime >= m_data->current.till) {
     // a new payload is required!
     if (debug)
-      std::cout << " Searching tag " << m_iov.tag() << " for a valid payload for time=" << targetTime << std::endl;
+      std::cout << " Searching tag " << m_iov.tagInfo().name << " for a valid payload for time=" << targetTime
+                << std::endl;
     m_session.transaction().start();
 
-    auto iIov = m_iov.find(targetTime);
-    if (iIov == m_iov.end())
-      cond::throwException(
-          std::string("Tag ") + m_iov.tag() + ": No iov available for the target time:" + std::to_string(targetTime),
-          "UntypedPayloadProxy::get");
+    auto iovs = m_iov.selectAll();
+    auto iIov = iovs.find(targetTime);
+    if (iIov == iovs.end())
+      cond::throwException(std::string("Tag ") + m_iov.tagInfo().name +
+                               ": No iov available for the target time:" + std::to_string(targetTime),
+                           "UntypedPayloadProxy::get");
     m_data->current = *iIov;
     event << "For target time " << targetTime << " got a valid since:" << m_data->current.since << " from group ["
           << m_iov.loadedGroup().first << " - " << m_iov.loadedGroup().second << "]";
@@ -289,7 +291,7 @@ int cond::TestGTLoad::execute() {
   std::cout << "Loading " << gt.size() << " tags..." << std::endl;
   std::vector<UntypedPayloadProxy> proxies;
   std::map<std::string, size_t> requests;
-  for (auto t : gt) {
+  for (const auto& t : gt) {
     std::pair<std::string, std::string> tagParams = parseTag(t.tagName());
     std::string tagConnStr = connect;
     Session tagSession = session;
@@ -348,14 +350,14 @@ int cond::TestGTLoad::execute() {
   std::cout << "*** GT: " << gtag << " Tags:" << gt.size() << " Loaded:" << proxies.size() << std::endl;
   std::cout << std::endl;
   if (verbose) {
-    for (auto p : proxies) {
+    for (const auto& p : proxies) {
       auto r = requests.find(p.tag());
       if (r != requests.end()) {
         std::cout << "*** Tag: " << p.tag() << " Requests processed:" << r->second << " Queries:" << p.numberOfQueries()
                   << std::endl;
         if (verbose) {
           const std::vector<std::string>& hist = p.history();
-          for (auto e : p.history())
+          for (const auto& e : p.history())
             std::cout << "    " << e << std::endl;
         }
       }

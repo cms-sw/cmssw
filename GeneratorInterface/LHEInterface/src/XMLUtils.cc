@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstring>
 
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>

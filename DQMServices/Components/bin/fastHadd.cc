@@ -88,7 +88,7 @@ PATH=/afs/cern.ch/work/r/rovere/protocolbuf/bin
 #include <thread>
 #include <mutex>
 #include <list>
-#include "DQMServices/Core/src/ROOTFilePB.pb.h"
+#include "DQMServices/Core/interface/ROOTFilePB.pb.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -274,7 +274,7 @@ int convertFile(const std::string &output_filename, const std::vector<std::strin
   FileInputStream fin(filedescriptor);
   GzipInputStream input(&fin);
   CodedInputStream input_coded(&input);
-  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024);
   if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
     std::cout << "Fatal Error opening file " << filenames[0] << std::endl;
     return ERR_NOFILE;
@@ -327,7 +327,7 @@ int dumpFiles(const std::vector<std::string> &filenames) {
     FileInputStream fin(filedescriptor);
     GzipInputStream input(&fin);
     CodedInputStream input_coded(&input);
-    input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+    input_coded.SetTotalBytesLimit(1024 * 1024 * 1024);
     if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
       std::cout << "Fatal Error opening file " << filenames[0] << std::endl;
       return ERR_NOFILE;
@@ -355,7 +355,7 @@ int addFile(MEStore &micromes, int fd) {
   FileInputStream fin(fd);
   GzipInputStream input(&fin);
   CodedInputStream input_coded(&input);
-  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024);
   if (!dqmstore_msg.ParseFromCodedStream(&input_coded)) {
     std::cout << "Fatal decoding stream: " << fd << std::endl;
     return ERR_NOFILE;

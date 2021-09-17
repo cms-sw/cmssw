@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="escon.xml" eval="true">
+  <Constant name="ESFrontZ"            value="2990*mm"/>
+  <Constant name="ESRearZ"             value="3170*mm"/>
+  <Constant name="ESMidZ"              value="3106*mm"/>
+  <Constant name="R_MIN"               value="317*mm"/>
+  <Constant name="R_MAX"               value="1510*mm"/>
+  <Constant name="Front_window_Al"     value="1300*mm"/>
+</ConstantsSection>
+
+</DDDefinition>

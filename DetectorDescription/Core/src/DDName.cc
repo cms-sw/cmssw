@@ -6,6 +6,7 @@
 #include <ext/alloc_traits.h>
 #include <cstdlib>
 #include <sstream>
+#include <mutex>
 
 std::ostream& operator<<(std::ostream& os, const DDName& n) {
   os << n.ns() << ':' << n.name();
@@ -59,19 +60,28 @@ const std::string& DDName::ns() const {
   return *result;
 }
 
-DDName::Registry::iterator DDName::registerName(const std::pair<std::string, std::string>& nm) {
-  Registry& reg = DDI::Singleton<Registry>::instance();
-  IdToName& idToName = DDI::Singleton<IdToName>::instance();
-  Registry::size_type sz = reg.size();
-  if (!sz) {
-    reg[std::make_pair(std::string(""), std::string(""))] = 0;
+namespace {
+  std::once_flag s_once;
+}  // namespace
+
+DDName::Registry::const_iterator DDName::registerName(const std::pair<std::string, std::string>& nm) {
+  std::call_once(s_once, []() {
+    Registry& reg = DDI::Singleton<Registry>::instance();
+    IdToName& idToName = DDI::Singleton<IdToName>::instance();
+    reg.emplace(std::make_pair(std::string(""), std::string("")), 0);
     idToName.emplace_back(reg.begin());
-    ++sz;
+  });
+  Registry& reg = DDI::Singleton<Registry>::instance();
+
+  Registry::const_iterator itFound = reg.find(nm);
+  if (itFound == reg.end()) {
+    //If two threads are concurrently adding the same name we will get
+    // two entries in IdToName but they will both point to the same entry
+    // to Registry where the first emplace to Registry will set the ID number.
+    IdToName& idToName = DDI::Singleton<IdToName>::instance();
+    auto it = idToName.emplace_back(reg.end());
+    *it = reg.emplace(nm, it - idToName.begin()).first;
+    itFound = *it;
   }
-  Registry::value_type val(nm, sz);
-  std::pair<Registry::iterator, bool> result = reg.insert(val);
-  if (result.second) {
-    idToName.emplace_back(result.first);
-  }
-  return result.first;
+  return itFound;
 }

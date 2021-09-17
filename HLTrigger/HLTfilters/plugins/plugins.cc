@@ -24,8 +24,6 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/HLTTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -40,6 +38,14 @@ using namespace trigger;
 
 #include "HLTSinglet.h"
 #include "HLTSinglet.cc"
+
+#include "L1TTkEleFilter.h"
+#include "L1TTkEmFilter.h"
+#include "L1TTkMuonFilter.h"
+#include "L1TPFTauFilter.h"
+#include "L1THPSPFTauFilter.h"
+#include "L1TJetFilterT.h"
+#include "L1TEnergySumFilterT.h"
 
 // filter for HLT candidates
 typedef HLTSinglet<RecoEcalCandidate> HLT1Photon;
@@ -63,6 +69,12 @@ typedef HLTSinglet<l1extra::L1EtMissParticle>
 typedef HLTSinglet<l1extra::L1JetParticle>
     HLTLevel1Jet;  // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
 typedef HLTSinglet<l1extra::L1MuonParticle> HLTLevel1Muon;
+
+// filters for Phase-2
+typedef L1TJetFilterT<reco::CaloJet> L1TJetFilter;
+typedef L1TJetFilterT<l1t::PFJet> L1TPFJetFilter;
+typedef L1TEnergySumFilterT<reco::MET> L1TEnergySumFilter;
+typedef L1TEnergySumFilterT<reco::PFMET> L1TPFEnergySumFilter;
 
 #include "HLTSmartSinglet.h"
 #include "HLTSmartSinglet.cc"
@@ -98,8 +110,6 @@ typedef HLTDoublet<PFJet, PFMET> HLT2PFJetPFMET;
 typedef HLTDoublet<Electron, CaloJet> HLT2ElectronTau;
 typedef HLTDoublet<RecoEcalCandidate, CaloJet> HLT2PhotonTau;
 typedef HLTDoublet<RecoChargedCandidate, CaloJet> HLT2MuonTau;
-typedef HLTDoublet<Electron, CaloTau> HLT2ElectronCaloTau;
-typedef HLTDoublet<RecoChargedCandidate, CaloTau> HLT2MuonCaloTau;
 typedef HLTDoublet<Electron, HLTTau> HLT2ElectronHLTTau;
 typedef HLTDoublet<RecoChargedCandidate, HLTTau> HLT2MuonHLTTau;
 typedef HLTDoublet<Electron, PFTau> HLT2ElectronPFTau;
@@ -160,6 +170,17 @@ DEFINE_FWK_MODULE(HLTLevel1EG);
 DEFINE_FWK_MODULE(HLTLevel1MET);
 DEFINE_FWK_MODULE(HLTLevel1Jet);
 DEFINE_FWK_MODULE(HLTLevel1Muon);
+
+// Phase-2
+DEFINE_FWK_MODULE(L1TTkEleFilter);
+DEFINE_FWK_MODULE(L1TTkEmFilter);
+DEFINE_FWK_MODULE(L1TTkMuonFilter);
+DEFINE_FWK_MODULE(L1TPFTauFilter);
+DEFINE_FWK_MODULE(L1THPSPFTauFilter);
+DEFINE_FWK_MODULE(L1TJetFilter);
+DEFINE_FWK_MODULE(L1TPFJetFilter);
+DEFINE_FWK_MODULE(L1TEnergySumFilter);
+DEFINE_FWK_MODULE(L1TPFEnergySumFilter);
 
 DEFINE_FWK_MODULE(HLTGlobalSumsPFMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);

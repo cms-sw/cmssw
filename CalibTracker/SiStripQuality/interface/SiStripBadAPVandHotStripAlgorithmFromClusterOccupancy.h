@@ -31,18 +31,18 @@
 #include "TFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiStripQuality;
 class TrackerTopology;
 
 class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef SiStrip::QualityHistosMap HistoMap;
 
   SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
@@ -69,7 +69,7 @@ public:
     WriteDQMHistograms_ = WriteDQMHistograms;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
-  void extractBadAPVSandStrips(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
+  void extractBadAPVSandStrips(SiStripQuality*, HistoMap&, const SiStripQuality*);
 
 private:
   struct Apv {
@@ -89,7 +89,7 @@ private:
                         std::vector<Apv>&,
                         std::pair<double, double>*,
                         std::vector<unsigned int>&,
-                        edm::ESHandle<SiStripQuality>&);
+                        const SiStripQuality*);
 
   void iterativeSearch(Apv&, std::vector<unsigned int>&, int);
 

@@ -2,7 +2,6 @@
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 #include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
-#include "RecoLocalMuon/GEMRecHit/interface/GEMClusterizer.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMMaskReClusterizer.h"
 
 GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
@@ -31,4 +30,4 @@ GEMClusterContainer GEMMaskReClusterizer::doAction(const GEMDetId& id,
   return finClusters;
 }
 
-bool GEMMaskReClusterizer::get(const EtaPartitionMask& mask, int strip) const { return mask.test(strip - 1); }
+bool GEMMaskReClusterizer::get(const EtaPartitionMask& mask, int strip) const { return mask.test(strip); }

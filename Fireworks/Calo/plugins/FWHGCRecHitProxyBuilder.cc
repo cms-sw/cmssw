@@ -13,10 +13,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHGCRecHitProxyBuilder(const FWHGCRecHitProxyBuilder &) = delete;
   const FWHGCRecHitProxyBuilder &operator=(const FWHGCRecHitProxyBuilder &) = delete;
 
+private:
   static constexpr uint8_t gradient_steps = 9;
   static constexpr float gradient[3][gradient_steps] = {{0.2082 * 255,
                                                          0.0592 * 255,

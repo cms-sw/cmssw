@@ -342,9 +342,9 @@ MonitorTrackSTAMuons.NClus2DStrMin = cms.double(-0.5)
 MonitorTrackSTAMuons.NClus2DTotBin = cms.int32(50)
 MonitorTrackSTAMuons.NClus2DTotMax = cms.double(14999.5)
 MonitorTrackSTAMuons.NClus2DTotMin = cms.double(-0.5)
-MonitorTrackSTAMuons.NTrk2DBin     = cms.int32(20)
-MonitorTrackSTAMuons.NTrk2DMax     = cms.double(199.5)
-MonitorTrackSTAMuons.NTrk2DMin     = cms.double(-0.5)
+MonitorTrackSTAMuons.NTrk2D.NTrk2DBin     = cms.int32(20)
+MonitorTrackSTAMuons.NTrk2D.NTrk2DMax     = cms.double(199.5)
+MonitorTrackSTAMuons.NTrk2D.NTrk2DMin     = cms.double(-0.5)
 
 MonitorTrackSTAMuons.TTRHBuilder = cms.string('WithTrackAngle')
 

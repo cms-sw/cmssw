@@ -11,9 +11,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistosUsingDb::NoiseHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+NoiseHistosUsingDb::NoiseHistosUsingDb(const edm::ParameterSet& pset,
+                                       DQMStore* bei,
+                                       SiStripConfigDb* const db,
+                                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("NoiseParameters"), bei, sistrip::NOISE),
-      CommissioningHistosUsingDb(db, sistrip::NOISE),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::NOISE),
       NoiseHistograms(pset.getParameter<edm::ParameterSet>("NoiseParameters"), bei) {
   LogTrace(mlDqmClient_) << "[NoiseHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

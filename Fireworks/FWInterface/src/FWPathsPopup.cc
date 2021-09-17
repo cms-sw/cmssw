@@ -5,7 +5,7 @@
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

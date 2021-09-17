@@ -1249,6 +1249,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_Unknown->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_Unknown->Fill(pfPt);
+          break;
         case 1:
           mPFCandpT_vs_eta_ChargedHadron->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1257,6 +1258,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_ChargedHadron->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_ChargedHadron->Fill(pfPt);
+          break;
         case 2:
           mPFCandpT_vs_eta_electron->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1265,6 +1267,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_electron->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_electron->Fill(pfPt);
+          break;
         case 3:
           mPFCandpT_vs_eta_muon->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1273,6 +1276,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_muon->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_muon->Fill(pfPt);
+          break;
         case 4:
           mPFCandpT_vs_eta_photon->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1281,6 +1285,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_photon->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_photon->Fill(pfPt);
+          break;
         case 5:
           mPFCandpT_vs_eta_NeutralHadron->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1289,6 +1294,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_NeutralHadron->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_NeutralHadron->Fill(pfPt);
+          break;
         case 6:
           mPFCandpT_vs_eta_HadE_inHF->Fill(pfPt, pfEta);
           if (inBarrel)
@@ -1297,6 +1303,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
             mPFCandpT_Endcap_HadE_inHF->Fill(pfPt);
           if (inForward)
             mPFCandpT_Forward_HadE_inHF->Fill(pfPt);
+          break;
         case 7:
           mPFCandpT_vs_eta_EME_inHF->Fill(pfPt, pfEta);
           if (inBarrel)

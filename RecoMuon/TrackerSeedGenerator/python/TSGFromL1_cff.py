@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
-from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPE_cfi import *
@@ -15,8 +14,7 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelPairs_cfi import *
 from RecoMuon.TrackerSeedGenerator.TSGFromL1_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi
-myTTRHBuilderWithoutAngleSeedsFromL1Muon = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone()
-myTTRHBuilderWithoutAngleSeedsFromL1Muon.StripCPE = 'Fake'
-myTTRHBuilderWithoutAngleSeedsFromL1Muon.ComponentName = 'PixelTTRHBuilderWithoutAngleSeedsFromL1Muon'
-
-
+myTTRHBuilderWithoutAngleSeedsFromL1Muon = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone(
+    StripCPE = 'Fake',
+    ComponentName = 'PixelTTRHBuilderWithoutAngleSeedsFromL1Muon'
+)

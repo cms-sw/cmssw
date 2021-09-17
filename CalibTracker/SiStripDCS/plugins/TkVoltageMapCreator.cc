@@ -11,7 +11,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +29,7 @@
 // class decleration
 //
 
-class TkVoltageMapCreator : public edm::EDAnalyzer {
+class TkVoltageMapCreator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TkVoltageMapCreator(const edm::ParameterSet&);
   ~TkVoltageMapCreator() override;
@@ -47,6 +47,8 @@ private:
   const std::string _lvtkmapname;
   const std::string _hvfile;
   const std::string _hvtkmapname;
+
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 };
 
 //
@@ -64,16 +66,14 @@ TkVoltageMapCreator::TkVoltageMapCreator(const edm::ParameterSet& iConfig)
     : _lvfile(iConfig.getParameter<std::string>("LVStatusFile")),
       _lvtkmapname(iConfig.getParameter<std::string>("LVTkMapName")),
       _hvfile(iConfig.getParameter<std::string>("HVStatusFile")),
-      _hvtkmapname(iConfig.getParameter<std::string>("HVTkMapName"))
+      _hvtkmapname(iConfig.getParameter<std::string>("HVTkMapName")),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>())
 
 {
   //now do what ever initialization is needed
 }
 
-TkVoltageMapCreator::~TkVoltageMapCreator() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+TkVoltageMapCreator::~TkVoltageMapCreator() = default;
 
 //
 // member functions
@@ -83,9 +83,7 @@ TkVoltageMapCreator::~TkVoltageMapCreator() {
 void TkVoltageMapCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) { using namespace edm; }
 
 void TkVoltageMapCreator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+  const TkDetMap* tkDetMap = &iSetup.getData(tkDetMapToken_);
 
   TrackerMap lvmap, hvmap;
 

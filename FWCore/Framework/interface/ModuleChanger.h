@@ -36,6 +36,8 @@ namespace edm {
   class ModuleChanger {
   public:
     ModuleChanger(Schedule*, ProductRegistry const* iReg, eventsetup::ESRecordsToProxyIndices);
+    ModuleChanger(const ModuleChanger&) = delete;                   // stop default
+    const ModuleChanger& operator=(const ModuleChanger&) = delete;  // stop default
     virtual ~ModuleChanger();
 
     // ---------- const member functions ---------------------
@@ -46,10 +48,6 @@ namespace edm {
     bool changeModule(const std::string& iLabel, const ParameterSet& iPSet);
 
   private:
-    ModuleChanger(const ModuleChanger&) = delete;  // stop default
-
-    const ModuleChanger& operator=(const ModuleChanger&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     edm::propagate_const<Schedule*> schedule_;
     ProductRegistry const* registry_;

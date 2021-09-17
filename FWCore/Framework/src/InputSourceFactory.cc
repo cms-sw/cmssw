@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -29,8 +29,7 @@ namespace edm {
   {
     std::string modtype = conf.getParameter<std::string>("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
-    std::unique_ptr<InputSource> wm =
-        std::unique_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype, conf, desc));
+    auto wm = InputSourcePluginFactory::get()->create(modtype, conf, desc);
 
     if (wm.get() == nullptr) {
       throw edm::Exception(errors::Configuration, "NoSourceModule")

@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,14 +52,11 @@
 // class declaration
 //
 
-class JetPlusTrackProducerAA : public edm::EDProducer {
+class JetPlusTrackProducerAA : public edm::stream::EDProducer<> {
 public:
   explicit JetPlusTrackProducerAA(const edm::ParameterSet&);
   ~JetPlusTrackProducerAA() override;
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-  ////     reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&);
 
   reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&,
                                             std::vector<reco::TrackRef>&,

@@ -14,11 +14,10 @@
 #include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <algorithm>
-#include <numeric>
+#include <functional>
 #include <iterator>
+#include <numeric>
 
 using namespace std;
 
@@ -39,7 +38,7 @@ namespace {
       std::transform(dets.begin(),
                      dets.end(),
                      boundaries.begin(),
-                     boost::bind(&GlobalPoint::perp, boost::bind(&GeometricSearchDet::position, _1)));
+                     std::bind(&GlobalPoint::perp, std::bind(&GeometricSearchDet::position, std::placeholders::_1)));
       std::adjacent_difference(boundaries.begin(), boundaries.end(), boundaries.begin(), Mean());
     }
 

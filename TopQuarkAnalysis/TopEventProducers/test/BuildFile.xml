@@ -1,6 +1,7 @@
 <environment>
-  <bin   file="runtestTqafTopEventProducers.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopEventProducers/test runtests.sh"/>
-    <use   name="FWCore/Utilities"/>
+  <bin file="runtestTqafTopEventProducers.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopEventProducers/test runtests.sh"/>
+    <use name="FWCore/Utilities"/>
   </bin>
+
 </environment>

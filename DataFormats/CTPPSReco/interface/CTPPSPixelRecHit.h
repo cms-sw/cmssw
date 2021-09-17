@@ -1,10 +1,10 @@
 /*
  *
-* This is a part of CTPPS offline software.
-* Author:
-*   Fabrizio Ferro (ferro@ge.infn.it)
-*
-*/
+ * This is a part of CTPPS offline software.
+ * Author:
+ *   Fabrizio Ferro (ferro@ge.infn.it)
+ *
+ */
 
 #ifndef DataFormats_CTPPSReco_CTPPSPixelRecHit_H
 #define DataFormats_CTPPSReco_CTPPSPixelRecHit_H
@@ -16,10 +16,8 @@
 
 class CTPPSPixelRecHit {
 public:
-  CTPPSPixelRecHit() {}
-
-  CTPPSPixelRecHit(LocalPoint lp,
-                   LocalError le,
+  CTPPSPixelRecHit(LocalPoint lp = LocalPoint(0., 0., 0.),
+                   LocalError le = LocalError(0., 0., 0.),
                    bool edge = false,
                    bool bad = false,
                    bool rocs = false,
@@ -39,8 +37,8 @@ public:
         clusterSizeRow_(rowsize),
         clusterSizeCol_(colsize) {}
 
-  inline LocalPoint getPoint() const { return thePoint_; }
-  inline LocalError getError() const { return theError_; }
+  inline LocalPoint point() const { return thePoint_; }
+  inline LocalError error() const { return theError_; }
 
   inline bool isOnEdge() const { return isOnEdge_; }
   inline bool hasBadPixels() const { return hasBadPixels_; }
@@ -69,6 +67,6 @@ private:
   unsigned int clusterSizeCol_;
 };
 
-inline bool operator<(CTPPSPixelRecHit& a, CTPPSPixelRecHit& b) { return (a.getPoint().mag() < b.getPoint().mag()); };
+inline bool operator<(CTPPSPixelRecHit& a, CTPPSPixelRecHit& b) { return (a.point().mag() < b.point().mag()); };
 
 #endif

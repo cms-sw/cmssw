@@ -1,6 +1,5 @@
 #ifndef RAWECAL_ESDCCHEADERBLOCK_H
 #define RAWECAL_ESDCCHEADERBLOCK_H
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class ESDCCHeaderBlock {

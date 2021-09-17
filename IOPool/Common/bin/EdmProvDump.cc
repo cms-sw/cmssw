@@ -13,8 +13,7 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWCore/Services/interface/setupSiteLocalConfig.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -333,21 +332,17 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
 namespace {
   std::unique_ptr<TFile> makeTFileWithLookup(std::string const& filename) {
     // See if it is a logical file name.
-    std::unique_ptr<edm::SiteLocalConfig> slcptr =
-        std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
-    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig>>(std::move(slcptr));
-    edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-    edm::ServiceRegistry::Operate operate(slcToken);
+    auto operate = edm::setupSiteLocalConfig();
     std::string override;
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
     edm::InputFileCatalog catalog(fileNames, override, true);
-    if (catalog.fileNames()[0] == filename) {
+    if (catalog.fileNames(0)[0] == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << filename << " was not found or could not be opened.\n";
     }
     // filename is a valid LFN.
-    std::unique_ptr<TFile> result(TFile::Open(catalog.fileNames()[0].c_str()));
+    std::unique_ptr<TFile> result(TFile::Open(catalog.fileNames(0)[0].c_str()));
     if (!result.get()) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << fileNames[0] << " was not found or could not be opened.\n";
@@ -1055,6 +1050,8 @@ int main(int argc, char* argv[]) {
   descString += " [options] <filename>";
   descString += "\nAllowed options";
   options_description desc(descString);
+
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "show help message")(kSortCommandOpt, "alphabetially sort EventSetup components")(
       kDependenciesCommandOpt, "print what data each EDProducer is directly dependent upon")(
       kExtendedAncestorsCommandOpt, "print what data each EDProducer is dependent upon including indirect dependences")(
@@ -1070,6 +1067,8 @@ int main(int argc, char* argv[]) {
       kDumpPSetIDCommandOpt,
       value<std::string>(),
       "print the parameter set associated with the parameter set ID string (and print nothing else)");
+  // clang-format on
+
   //we don't want users to see these in the help messages since this
   // name only exists since the parser needs it
   options_description hidden;

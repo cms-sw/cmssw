@@ -1,6 +1,6 @@
-<use   name="DataFormats/Provenance"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="rootcore"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/ParameterSet"/>
+<use name="rootcore"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

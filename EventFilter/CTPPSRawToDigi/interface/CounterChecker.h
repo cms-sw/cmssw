@@ -15,11 +15,9 @@
 #include <vector>
 #include <iostream>
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
-
-//----------------------------------------------------------------------------------------------------
 
 /**
  *\brief Class for finding the most popular both EC and BC counter, and filling the conversion
@@ -82,8 +80,6 @@ private:
   /// level of verbosity
   unsigned int verbosity;
 };
-
-//-------------------------------------------------------------------------------------------------
 
 template <typename T>
 void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {

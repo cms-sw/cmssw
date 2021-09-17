@@ -27,7 +27,8 @@
 
 class AlignmentMonitorTemplate : public AlignmentMonitorBase {
 public:
-  AlignmentMonitorTemplate(const edm::ParameterSet& cfg) : AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate"){};
+  AlignmentMonitorTemplate(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+      : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorTemplate"){};
   ~AlignmentMonitorTemplate() override{};
 
   void book() override;

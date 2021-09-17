@@ -6,7 +6,7 @@ for file in ${CMSSW_BASE}/src/PhysicsTools/PatAlgos/python/tools/*.py
 do
     bn=`basename $file`
     if [ "$bn" != "__init__.py" ]; then
-        python "$file" || die "unit tests for $bn failed" $?
+        python3 "$file" || die "unit tests for $bn failed" $?
     fi
 done
 

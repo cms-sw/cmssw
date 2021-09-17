@@ -8,7 +8,6 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DQM/L1TMonitorClient/interface/L1TOccupancyClientHistogramService.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -26,6 +25,7 @@
 #include <TProfile2D.h>
 #include <TNamed.h>
 #include <TRandom3.h>
+#include <TDirectory.h>
 
 class L1TOccupancyClient : public DQMEDHarvester {
 public:

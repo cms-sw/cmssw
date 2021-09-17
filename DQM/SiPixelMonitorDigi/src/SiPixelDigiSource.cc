@@ -17,6 +17,7 @@
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
 // Framework
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,17 +26,13 @@
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
@@ -53,6 +50,7 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig)
       isPIB(conf_.getUntrackedParameter<bool>("isPIB", false)),
       slowDown(conf_.getUntrackedParameter<bool>("slowDown", false)),
       modOn(conf_.getUntrackedParameter<bool>("modOn", true)),
+      perLSsaving(conf_.getUntrackedParameter<bool>("perLSsaving", false)),
       twoDimOn(conf_.getUntrackedParameter<bool>("twoDimOn", true)),
       twoDimModOn(conf_.getUntrackedParameter<bool>("twoDimModOn", true)),
       twoDimOnlyLayDisk(conf_.getUntrackedParameter<bool>("twoDimOnlyLayDisk", false)),
@@ -70,6 +68,10 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig)
       noOfDisks(0) {
   //set Token(-s)
   srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>("src"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
@@ -100,15 +102,67 @@ SiPixelDigiSource::~SiPixelDigiSource() {
   LogInfo("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor" << endl;
 }
 
-void SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
-  int thisls = lb.id().luminosityBlock();
+std::shared_ptr<bool> SiPixelDigiSource::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                    const edm::EventSetup& iSetup) const {
+  unsigned int currentLS = lumi.id().luminosityBlock();
+  bool resetCounters = (currentLS % 10 == 0) ? true : false;
+  return std::make_shared<bool>(resetCounters);
+}
 
-  if (modOn && thisls % 10 == 0 && averageDigiOccupancy) {
+void SiPixelDigiSource::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  int thisls = lb.id().luminosityBlock();
+  const bool resetCounters = luminosityBlockCache(lb.index());
+
+  float averageBPIXFed = float(nBPIXDigis) / 32.;
+  float averageFPIXFed = float(nFPIXDigis) / 8.;
+
+  if (averageDigiOccupancy) {
+    for (int i = 0; i != 40; i++) {
+      float averageOcc = 0.;
+      if (i < 32) {
+        if (averageBPIXFed > 0.)
+          averageOcc = nDigisPerFed[i] / averageBPIXFed;
+      } else {
+        if (averageFPIXFed > 0.)
+          averageOcc = nDigisPerFed[i] / averageFPIXFed;
+      }
+      if (!modOn) {
+        averageDigiOccupancy->Fill(
+            i,
+            nDigisPerFed[i]);  //In offline we fill all digis and normalise at the end of the run for thread safe behaviour.
+        avgfedDigiOccvsLumi->setBinContent(thisls, i + 1, nDigisPerFed[i]);  //Same plot vs lumi section
+      }
+      if (modOn) {
+        if (thisls % 10 == 0)
+          averageDigiOccupancy->Fill(
+              i,
+              averageOcc);  // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
+        if (avgfedDigiOccvsLumi && thisls % 5 == 0) {
+          avgfedDigiOccvsLumi->setBinContent(
+              int(thisls / 5),
+              i + 1,
+              averageOcc);  //fill with the mean over 5 lumisections, previous code was filling this histo only with last event of each 10th lumisection
+        }
+      }
+    }
+
+    if (modOn && thisls % 10 == 0) {
+      avgBarrelFedOccvsLumi->setBinContent(
+          int(thisls / 10), averageBPIXFed);  //<NDigis> vs lumisection for barrel, filled every 10 lumi sections
+      avgEndcapFedOccvsLumi->setBinContent(
+          int(thisls / 10), averageFPIXFed);  //<NDigis> vs lumisection for endcap, filled every 10 lumi sections
+    }
+  }
+
+  //reset counters
+
+  if (modOn && resetCounters && averageDigiOccupancy) {
     nBPIXDigis = 0;
     nFPIXDigis = 0;
     for (int i = 0; i != 40; i++)
       nDigisPerFed[i] = 0;
   }
+
   if (!modOn && averageDigiOccupancy) {
     nBPIXDigis = 0;
     nFPIXDigis = 0;
@@ -116,7 +170,7 @@ void SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm
       nDigisPerFed[i] = 0;
   }
 
-  if (modOn && thisls % 10 == 0) {
+  if (modOn && resetCounters) {
     ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
 
     for (int i = 0; i < 2; i++)
@@ -156,50 +210,6 @@ void SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm
 
     DoZeroRocsFMI1 = true;
     DoZeroRocsFMI2 = true;
-  }
-}
-
-void SiPixelDigiSource::endLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
-  int thisls = lb.id().luminosityBlock();
-
-  float averageBPIXFed = float(nBPIXDigis) / 32.;
-  float averageFPIXFed = float(nFPIXDigis) / 8.;
-
-  if (averageDigiOccupancy) {
-    for (int i = 0; i != 40; i++) {
-      float averageOcc = 0.;
-      if (i < 32) {
-        if (averageBPIXFed > 0.)
-          averageOcc = nDigisPerFed[i] / averageBPIXFed;
-      } else {
-        if (averageFPIXFed > 0.)
-          averageOcc = nDigisPerFed[i] / averageFPIXFed;
-      }
-      if (!modOn) {
-        averageDigiOccupancy->Fill(
-            i,
-            nDigisPerFed[i]);  //In offline we fill all digis and normalise at the end of the run for thread safe behaviour.
-        avgfedDigiOccvsLumi->setBinContent(thisls, i + 1, nDigisPerFed[i]);  //Same plot vs lumi section
-      }
-      if (modOn) {
-        if (thisls % 10 == 0)
-          averageDigiOccupancy->Fill(
-              i,
-              averageOcc);  // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
-        if (avgfedDigiOccvsLumi && thisls % 5 == 0)
-          avgfedDigiOccvsLumi->setBinContent(
-              int(thisls / 5),
-              i + 1,
-              averageOcc);  //fill with the mean over 5 lumisections, previous code was filling this histo only with last event of each 10th lumisection
-      }
-    }
-
-    if (modOn && thisls % 10 == 0) {
-      avgBarrelFedOccvsLumi->setBinContent(
-          int(thisls / 10), averageBPIXFed);  //<NDigis> vs lumisection for barrel, filled every 10 lumi sections
-      avgEndcapFedOccvsLumi->setBinContent(
-          int(thisls / 10), averageFPIXFed);  //<NDigis> vs lumisection for endcap, filled every 10 lumi sections
-    }
   }
 }
 
@@ -316,8 +326,7 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run cons
 // Method called for every event
 //------------------------------------------------------------------
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   // get input data
@@ -343,7 +352,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     int numberOfDigisMod = (*struct_iter)
                                .second->fill(*input,
-                                             iSetup,
+                                             pTT,
                                              meNDigisCOMBBarrel_,
                                              meNDigisCHANBarrel_,
                                              meNDigisCHANBarrelLs_,
@@ -1095,13 +1104,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 // Build data structure
 //------------------------------------------------------------------
 void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   LogInfo("PixelDQM") << " SiPixelDigiSource::buildStructure";
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
@@ -1231,8 +1238,10 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
   char title8[80];
   sprintf(title8, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
   if (modOn) {
-    averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy", title7, 40, -0.5, 39.5, 0., 3.);
-    averageDigiOccupancy->setLumiFlag();
+    {
+      auto scope = DQMStore::IBooker::UseLumiScope(iBooker);
+      averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy", title7, 40, -0.5, 39.5, 0., 3.);
+    }
     avgfedDigiOccvsLumi = iBooker.book2D("avgfedDigiOccvsLumi", title8, 640, 0., 3200., 40, -0.5, 39.5);
     avgBarrelFedOccvsLumi = iBooker.book1D(
         "avgBarrelFedOccvsLumi",
@@ -1247,7 +1256,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
         0.,
         3200.);
   }
-  if (!modOn) {
+  if (!modOn && !perLSsaving) {
     averageDigiOccupancy = iBooker.book1D(
         "averageDigiOccupancy", title7, 40, -0.5, 39.5);  //Book as TH1 for offline to ensure thread-safe behaviour
     avgfedDigiOccvsLumi = iBooker.book2D("avgfedDigiOccvsLumi", title8, 3200, 0., 3200., 40, -0.5, 39.5);
@@ -1256,11 +1265,14 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
 
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology* pTT = tTopoHandle.product();
+
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     /// Create folder tree and book histograms
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 0, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 0, twoDimOn, hiRes, reducedSet, twoDimModOn, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 0, twoDimOn, hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
         if (!isPIB)
           throw cms::Exception("LogicError") << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
@@ -1268,15 +1280,14 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 1, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 1, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 1, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if (layOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 2, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, iSetup, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -1284,29 +1295,28 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
 
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 3, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 3, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 3, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 4, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 4, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 4, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if (diskOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 5, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, iSetup, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 6, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 6, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 6, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

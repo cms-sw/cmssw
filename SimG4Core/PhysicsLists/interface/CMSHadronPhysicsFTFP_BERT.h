@@ -2,10 +2,14 @@
 // Author: Vladimir Ivanchenko
 // Date:   March 2018
 //
-// Hadron physics for the new CMS physics list FTFP_BERT_EMM_TRK.
+// Hadron inelastic physics for the new CMS physics list FTFP_BERT.
 // The hadron physics of FTFP_BERT has the transition between Bertini
-// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [4, 5] GeV (instead of the default for Geant4 10.4).
+// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model
+// optimized for CMS.
+//
+// 15.04.2021 V.Ivanchenko Hadron inelastic physics of CMS
+//                         mirgrated to Geant4 10.7
+//
 //---------------------------------------------------------------------------
 //
 #ifndef SimG4Core_PhysicsLists_CMSHadronPhysicsFTFP_BERT_h
@@ -14,52 +18,19 @@
 #include "globals.hh"
 #include "G4ios.hh"
 
-#include "G4VPhysicsConstructor.hh"
+#include "G4HadronPhysicsFTFP_BERT.hh"
 
-#include "G4Cache.hh"
-
-class G4ComponentGGHadronNucleusXsc;
-class G4VCrossSectionDataSet;
-
-class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor {
+class CMSHadronPhysicsFTFP_BERT : public G4HadronPhysicsFTFP_BERT {
 public:
-  explicit CMSHadronPhysicsFTFP_BERT(G4int verbose = 1);
+  explicit CMSHadronPhysicsFTFP_BERT(G4int verb);
+  explicit CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3, G4double e4, G4double e5);
   ~CMSHadronPhysicsFTFP_BERT() override;
 
-  void ConstructParticle() override;
-  //This will call in order:
-  // DumpBanner (for master)
-  // CreateModels
-  // ExtraConfiguation
   void ConstructProcess() override;
 
-  void TerminateWorker() override;
-
-protected:
-  G4bool QuasiElastic;
-  //This calls the specific ones for the different particles in order
-  virtual void CreateModels();
-  virtual void Neutron();
-  virtual void Proton();
-  virtual void Pion();
-  virtual void Kaon();
-  virtual void Others();
-  virtual void DumpBanner();
-  //This contains extra configurataion specific to this PL
-  virtual void ExtraConfiguration();
-
-  G4double minFTFP_pion;
-  G4double maxBERT_pion;
-  G4double minFTFP_kaon;
-  G4double maxBERT_kaon;
-  G4double minFTFP_proton;
-  G4double maxBERT_proton;
-  G4double minFTFP_neutron;
-  G4double maxBERT_neutron;
-
-  //Thread-private data write them here to delete them
-  G4VectorCache<G4VCrossSectionDataSet*> xs_ds;
-  G4Cache<G4ComponentGGHadronNucleusXsc*> xs_k;
+  // copy constructor and hide assignment operator
+  CMSHadronPhysicsFTFP_BERT(CMSHadronPhysicsFTFP_BERT &) = delete;
+  CMSHadronPhysicsFTFP_BERT &operator=(const CMSHadronPhysicsFTFP_BERT &right) = delete;
 };
 
 #endif

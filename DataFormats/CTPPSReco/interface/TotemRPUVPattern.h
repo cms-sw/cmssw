@@ -24,37 +24,37 @@ class TotemRPUVPattern {
 public:
   enum ProjectionType { projInvalid, projU, projV };
 
-  TotemRPUVPattern() : projection(projInvalid), a(0.), b(0.), w(0.), fittable(false) {}
+  TotemRPUVPattern() : projection_(projInvalid), a_(0.), b_(0.), w_(0.), fittable_(false) {}
 
-  ProjectionType getProjection() const { return projection; }
-  void setProjection(ProjectionType p_) { projection = p_; }
+  ProjectionType projection() const { return projection_; }
+  void setProjection(ProjectionType type) { projection_ = type; }
 
-  double getA() const { return a; }
-  void setA(double a_) { a = a_; }
+  double a() const { return a_; }
+  void setA(double a) { a_ = a; }
 
-  double getB() const { return b; }
-  void setB(double b_) { b = b_; }
+  double b() const { return b_; }
+  void setB(double b) { b_ = b; }
 
-  double getW() const { return w; }
-  void setW(double w_) { w = w_; }
+  double w() const { return w_; }
+  void setW(double w) { w_ = w; }
 
-  bool getFittable() const { return fittable; }
-  void setFittable(bool f_) { fittable = f_; }
+  bool fittable() const { return fittable_; }
+  void setFittable(bool fittable) { fittable_ = fittable; }
 
-  void addHit(edm::det_id_type detId, const TotemRPRecHit &hit) { hits.find_or_insert(detId).push_back(hit); }
+  void addHit(edm::det_id_type detId, const TotemRPRecHit &hit) { hits_.find_or_insert(detId).push_back(hit); }
 
-  const edm::DetSetVector<TotemRPRecHit> &getHits() const { return hits; }
+  const edm::DetSetVector<TotemRPRecHit> &hits() const { return hits_; }
 
   friend bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
 
 private:
-  ProjectionType projection;  ///< projection
-  double a;                   ///< slope in rad
-  double b;                   ///< intercept in mm
-  double w;                   ///< weight
-  bool fittable;              ///< whether this pattern is worth including in track fits
+  ProjectionType projection_;  ///< projection
+  double a_;                   ///< slope in rad
+  double b_;                   ///< intercept in mm
+  double w_;                   ///< weight
+  bool fittable_;              ///< whether this pattern is worth including in track fits
 
-  edm::DetSetVector<TotemRPRecHit> hits;  ///< hits associated with the pattern
+  edm::DetSetVector<TotemRPRecHit> hits_;  ///< hits associated with the pattern
 };
 
 //----------------------------------------------------------------------------------------------------

@@ -10,6 +10,8 @@ class TH1F;
 
 class CandidateBenchmarkAnalyzer : public BenchmarkAnalyzer, public CandidateBenchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   CandidateBenchmarkAnalyzer(const edm::ParameterSet &parameterSet);
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;

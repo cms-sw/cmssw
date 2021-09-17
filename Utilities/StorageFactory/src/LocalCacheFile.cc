@@ -29,7 +29,7 @@ LocalCacheFile::LocalCacheFile(std::unique_ptr<Storage> base, const std::string 
 
   std::string pattern(tmpdir);
   if (pattern.empty())
-    if (char *p = getenv("TMPDIR"))
+    if (char *p = std::getenv("TMPDIR"))
       pattern = p;
   if (pattern.empty())
     pattern = "/tmp";

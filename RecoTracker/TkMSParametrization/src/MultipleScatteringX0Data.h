@@ -4,12 +4,11 @@
 /**
  *
  */
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <string>
 #include <memory>
 class TH2F;
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class dso_hidden SumX0AtEtaDataProvider {
 public:

@@ -220,9 +220,9 @@ namespace HepMCValidationHelper {
             marked = true;
             break;
           }
-          if (!marked)
-            forIsolation.push_back(*iiso);
         }
+        if (!marked)
+          forIsolation.push_back(*iiso);
       }
       //no compute isolation wrt the status 2 tau direction
       double sumIso = 0;

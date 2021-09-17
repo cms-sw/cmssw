@@ -7,7 +7,7 @@ process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -34,8 +34,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
  
 process.testNose = cms.EDAnalyzer("HGCalParameterTester",
-                                  Name = cms.untracked.string("HGCalHFNoseSensitive"),
-                                  Mode = cms.untracked.int32(1)
+                                  Name = cms.string("HGCalHFNoseSensitive"),
+                                  Mode = cms.int32(1)
 )
  
 process.p1 = cms.Path(process.generator*process.testNose)

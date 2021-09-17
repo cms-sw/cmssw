@@ -306,7 +306,7 @@ QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.HTdefinition     = cms.string('
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.HTcut            = cms.double(0)
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.nbjets           = cms.uint32(2)
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.btagAlgos        = ["pfCombinedMVAV2BJetTags"]
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.workingpoint     = cms.double(-0.715) # Loose
 # Binning
 #QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -369,7 +369,7 @@ QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.HTdefinition     = cms.string('pt>30 & ab
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.HTcut            = cms.double(0)
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.nbjets           = cms.uint32(1)
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.btagAlgos        = ["pfCombinedMVAV2BJetTags"]
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.workingpoint     = cms.double(-0.715) # Loose
 # Binning
 #QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -430,7 +430,7 @@ QuadPFJet98_83_71_15.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 QuadPFJet98_83_71_15.HTcut            = cms.double(0)
 QuadPFJet98_83_71_15.nbjets           = cms.uint32(0)
 QuadPFJet98_83_71_15.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet98_83_71_15.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
+QuadPFJet98_83_71_15.btagAlgos        = ["pfCombinedMVAV2BJetTags"]
 QuadPFJet98_83_71_15.workingpoint     = cms.double(-0.715) # Loose
 # Binning
 #QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )

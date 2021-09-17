@@ -105,10 +105,11 @@ public:
   //called after all the slots attached to colorsHaveChanged_ are done
   mutable sigc::signal<void> colorsHaveChangedFinished_;
 
-private:
   FWColorManager(const FWColorManager&) = delete;  // stop default
 
   const FWColorManager& operator=(const FWColorManager&) = delete;  // stop default
+
+public:
   void updateColors();
   void initColorTable();
 

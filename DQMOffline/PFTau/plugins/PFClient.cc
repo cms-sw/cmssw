@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -117,8 +116,8 @@ void PFClient::createResolutionPlots(DQMStore::IBooker &ibooker,
   MonitorElement *me_mean;
   MonitorElement *me_sigma;
 
-  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) || (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
-      (me->kind() == MonitorElement::DQM_KIND_TH2D)) {
+  if ((me->kind() == MonitorElement::Kind::TH2F) || (me->kind() == MonitorElement::Kind::TH2S) ||
+      (me->kind() == MonitorElement::Kind::TH2D)) {
     TH2 *th = me->getTH2F();
     size_t nbinx = me->getNbinsX();
     size_t nbiny = me->getNbinsY();
@@ -163,8 +162,6 @@ void PFClient::createResolutionPlots(DQMStore::IBooker &ibooker,
       me_mean->setBinContent(ix, mean);
       me_sigma->setBinContent(ix, sigma);
     }
-    if (me_slice)
-      igetter.removeElement(me_slice->getName());  //?
     delete[] xbins;
   }
 }
@@ -182,8 +179,8 @@ void PFClient::createProjectionPlots(DQMStore::IBooker &ibooker,
 
   MonitorElement *projection = nullptr;
 
-  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) || (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
-      (me->kind() == MonitorElement::DQM_KIND_TH2D)) {
+  if ((me->kind() == MonitorElement::Kind::TH2F) || (me->kind() == MonitorElement::Kind::TH2S) ||
+      (me->kind() == MonitorElement::Kind::TH2D)) {
     TH2 *th = me->getTH2F();
     size_t nbinx = me->getNbinsX();
     size_t nbiny = me->getNbinsY();
@@ -235,8 +232,8 @@ void PFClient::createProfilePlots(DQMStore::IBooker &ibooker,
   if (!me)
     return;
 
-  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) || (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
-      (me->kind() == MonitorElement::DQM_KIND_TH2D)) {
+  if ((me->kind() == MonitorElement::Kind::TH2F) || (me->kind() == MonitorElement::Kind::TH2S) ||
+      (me->kind() == MonitorElement::Kind::TH2D)) {
     TH2 *th = me->getTH2F();
     size_t nbinx = me->getNbinsX();
 
@@ -297,7 +294,7 @@ void PFClient::getHistogramParameters(
 
   if (!me_slice)
     return;
-  if (me_slice->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me_slice->kind() == MonitorElement::Kind::TH1F) {
     average = me_slice->getMean();
     rms = me_slice->getRMS();
     TH1F *th_slice = me_slice->getTH1F();
@@ -327,7 +324,7 @@ void PFClient::createEfficiencyPlots(DQMStore::IBooker &ibooker,
   TH1F *me2_forEff = (TH1F *)me2->getTH1F()->Rebin(2, "me2_forEff");
 
   MonitorElement *me_eff;
-  if ((me1->kind() == MonitorElement::DQM_KIND_TH1F) && (me1->kind() == MonitorElement::DQM_KIND_TH1F)) {
+  if ((me1->kind() == MonitorElement::Kind::TH1F) && (me1->kind() == MonitorElement::Kind::TH1F)) {
     // TH1* th1 = me1->getTH1F();
     // size_t nbinx = me1->getNbinsX();
     size_t nbinx = me1_forEff->GetNbinsX();
@@ -356,7 +353,7 @@ void PFClient::createEfficiencyPlots(DQMStore::IBooker &ibooker,
     }
     */
     // Binomial errors "B" asked by Florian
-    /*me1_forEff->Sumw2(); me2_forEff->Sumw2();*/ me_eff->getTH1F()->Sumw2();
+    /*me1_forEff->Sumw2(); me2_forEff->Sumw2();*/ me_eff->enableSumw2();
     me_eff->getTH1F()->Divide(me1_forEff, me2_forEff, 1, 1, "B");
   }
 }

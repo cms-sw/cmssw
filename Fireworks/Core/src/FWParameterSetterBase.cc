@@ -11,12 +11,12 @@
 //
 
 // system include files
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 #include <cassert>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -131,7 +131,7 @@ std::shared_ptr<FWParameterSetterBase> FWParameterSetterBase::makeSetterFor(FWPa
   FWParameterSetterBase* p = static_cast<FWParameterSetterBase*>(setterObj.address());
   //Make a shared pointer to the base class that uses a destructor for the derived class, in order to match the above construct call.
   std::shared_ptr<FWParameterSetterBase> ptr(
-      p, boost::bind(&edm::TypeWithDict::destruct, itFind->second, setterObj.address(), true));
+      p, std::bind(&edm::TypeWithDict::destruct, itFind->second, setterObj.address(), true));
   return ptr;
 }
 

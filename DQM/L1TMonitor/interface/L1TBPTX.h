@@ -23,7 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -34,7 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include <TString.h>
 
@@ -67,7 +66,13 @@ private:
   std::map<std::pair<int, int>, double> m_lsTechRate;
 };
 
-class L1TBPTX : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1GtTriggerMenu;
+class L1GtTriggerMenuRcd;
+class L1GtPrescaleFactors;
+class L1GtPrescaleFactorsAlgoTrigRcd;
+class L1GtPrescaleFactorsTechTrigRcd;
+
+class L1TBPTX : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   enum BeamMode {
     NOMODE = 1,
@@ -174,6 +179,9 @@ private:
   edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource;  // Where to get L1 Scalers
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtMenuToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> l1GtPfAlgoToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> l1GtPfTechToken_;
 };
 
 #endif

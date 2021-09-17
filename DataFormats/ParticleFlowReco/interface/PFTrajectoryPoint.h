@@ -50,9 +50,16 @@ namespace reco {
       HCALExit = 7,
       /// HO layer
       HOLayer = 8,
-
-      NLayers = 9
+      /// VFcal(HF) front face
+      VFcalEntrance = 9,
+      // Number of valid layers
+      NLayers = 10,
+      // Unknown
+      Unknown = -1
     };
+
+    static const std::array<std::string, NLayers> layerTypeNames;
+    static LayerType layerTypeByName(const std::string& name);
 
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();

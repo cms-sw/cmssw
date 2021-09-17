@@ -13,12 +13,10 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
-
-class DQMStore;
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class DTOfflineSummaryClients : public DQMEDHarvester {
 public:

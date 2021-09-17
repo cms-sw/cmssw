@@ -2,7 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TH1.h>
 
@@ -78,7 +78,7 @@ std::string dqmSubDirectoryName_merged(const std::string& directory, const std::
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-void dqmRegisterHistogram(DQMStore& dqmStore, TH1* histogram, const std::string& name) {
+void dqmRegisterHistogram(dqm::legacy::DQMStore& dqmStore, TH1* histogram, const std::string& name) {
   //std::cout << "<dqmRegisterHistogram>:" << std::endl;
   //histogram->SetName(std::string(histogram->GetName()).append("_copied").data());
   histogram->SetName(histogram->GetName());
@@ -106,7 +106,7 @@ void dqmRegisterHistogram(DQMStore& dqmStore, TH1* histogram, const std::string&
   }
 }
 
-void dqmCopyRecursively(DQMStore& dqmStore,
+void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
                         const std::string& inputDirectory,
                         const std::string& outputDirectory,
                         double scaleFactor,
@@ -117,8 +117,6 @@ void dqmCopyRecursively(DQMStore& dqmStore,
   //std::cout << " outputDirectory = " << outputDirectory << std::endl;
   //std::cout << " rmInputDirectory = " << rmInputDirectory << std::endl;
 
-  bool meInput_copied = false;
-
   //--- copy all monitor elements in current inputDirectory to the outputDirectory
   dqmStore.setCurrentFolder(inputDirectory);
   std::vector<std::string> meNames = dqmStore.getMEs();
@@ -127,7 +125,7 @@ void dqmCopyRecursively(DQMStore& dqmStore,
     //std::cout << " meName_full = " <<  meName_full << std::endl;
 
     dqmStore.setCurrentFolder(inputDirectory);
-    MonitorElement* meInput = dqmStore.get(meName_full);
+    dqm::legacy::MonitorElement* meInput = dqmStore.get(meName_full);
     //std::cout << " meInput = " << meInput << std::endl;
     if (!meInput) {
       edm::LogError("copyRecursively") << " Failed to access meName = " << (*meName) << " in DQMStore"
@@ -148,7 +146,7 @@ void dqmCopyRecursively(DQMStore& dqmStore,
     clone->Scale(scaleFactor);
 
     dqmStore.setCurrentFolder(outputDirectory);
-    MonitorElement* meOutput = dqmStore.get(dqmDirectoryName(outputDirectory).append(*meName));
+    dqm::legacy::MonitorElement* meOutput = dqmStore.get(dqmDirectoryName(outputDirectory).append(*meName));
     //std::cout << " meOutput = " << meOutput << std::endl;
     //--- check if outputHistogram does already exist
     if (meOutput) {
@@ -167,8 +165,6 @@ void dqmCopyRecursively(DQMStore& dqmStore,
     } else {
       dqmRegisterHistogram(dqmStore, clone.release(), *meName);
     }
-
-    meInput_copied = true;
   }
 
   //--- call function recursively for all sub-directories
@@ -186,12 +182,6 @@ void dqmCopyRecursively(DQMStore& dqmStore,
 
     dqmCopyRecursively(dqmStore, inputDirName_full, outputDirName_full, scaleFactor, mode, rmInputDirectory);
   }
-
-  //--- delete inputDirectory
-  //    (if requested to do so and inputDirectory is **not empty**;
-  //     otherwise, common parent directories of inputDirectory and outputDirectory might get deleted !!)
-  if (rmInputDirectory && meInput_copied)
-    dqmStore.rmdir(inputDirectory);
 }
 
 //

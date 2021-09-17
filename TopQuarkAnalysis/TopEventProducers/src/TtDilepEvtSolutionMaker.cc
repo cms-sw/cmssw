@@ -190,10 +190,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       for (std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin();
            tau < subset1.end();
            ++tau) {
-        if ((*tau)->isCaloTau() && (*tau)->isolationTracksPtSum() < iso) {
-          *tauIdx = *tau - taus->begin();
-          iso = (*tau)->isolationTracksPtSum();
-        }
         if ((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum() < iso) {
           *tauIdx = *tau - taus->begin();
           iso = (*tau)->isolationPFChargedHadrCandsPtSum();
@@ -242,10 +238,6 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       for (std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin();
            tau < subset1.end();
            ++tau) {
-        if ((*tau)->isCaloTau() && (*tau)->isolationTracksPtSum() < iso) {
-          *tauIdx = *tau - taus->begin();
-          iso = (*tau)->isolationTracksPtSum();
-        }
         if ((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum() < iso) {
           *tauIdx = *tau - taus->begin();
           iso = (*tau)->isolationPFChargedHadrCandsPtSum();

@@ -12,11 +12,11 @@
 
 // system include files
 #include <cassert>
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
-#include "Fireworks/Core/src/FWItemSingleAccessor.h"
+#include "Fireworks/Core/interface/FWItemSingleAccessor.h"
 
 //
 // constants, enums and typedefs

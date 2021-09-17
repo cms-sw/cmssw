@@ -11,7 +11,8 @@ public:
   HcalL1TriggerObjectsPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<HcalL1TriggerObjectsHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalL1TriggerObjects> objecthandle;
-    esetup.get<HcalL1TriggerObjectsRcd>().get(objecthandle);
-    myDBObject = new HcalL1TriggerObjects(*objecthandle.product());
+    myDBObject = new HcalL1TriggerObjects(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd> m_tok;
 
   HcalL1TriggerObjects* myDBObject;
 };

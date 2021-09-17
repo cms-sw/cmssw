@@ -18,8 +18,12 @@ namespace reco {
   class PFMET : public MET {
   public:
     PFMET();
-    PFMET(const SpecificPFMETData& pf_data_, double sumet_, const LorentzVector& fP4, const Point& fVertex)
-        : MET(sumet_, fP4, fVertex), pf_data(pf_data_) {}
+    PFMET(const SpecificPFMETData& pf_data_,
+          double sumet_,
+          const LorentzVector& fP4,
+          const Point& fVertex,
+          bool isWeighted = false)
+        : MET(sumet_, fP4, fVertex, isWeighted), pf_data(pf_data_) {}
 
     ~PFMET() override {}
 

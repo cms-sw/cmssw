@@ -1,19 +1,18 @@
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <cstring>
@@ -139,24 +138,21 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const {
   lclphidat data;
 
   constexpr int maxPhiL = 1 << CSCBitWidths::kLocalPhiDataBitWidth;
-  double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS);
+  double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS_RUN1);
 
   double patternOffset;
 
-  if (isTMB07)
-    patternOffset = CSCPatternLUT::get2007Position((theadd.pattern_type << 3) + theadd.clct_pattern);
-  else
-    patternOffset = CSCPatternLUT::getPosition(theadd.clct_pattern);
+  patternOffset = CSCPatternBank::getLegacyPosition((theadd.pattern_type << 3) + theadd.clct_pattern);
 
   // The phiL value stored is for the center of the half-/di-strip.
-  if (theadd.strip < 2 * CSCConstants::MAX_NUM_STRIPS)
+  if (theadd.strip < 2 * CSCConstants::MAX_NUM_STRIPS_RUN1)
     if (theadd.pattern_type == 1 || isTMB07)  // if halfstrip (Note: no distrips in TMB 2007 patterns)
       data.phi_local = static_cast<unsigned>((0.5 + theadd.strip + patternOffset) * binPhiL);
     else  // if distrip
       data.phi_local = static_cast<unsigned>((2 + theadd.strip + 4. * patternOffset) * binPhiL);
   else {
     throw cms::Exception("CSCSectorReceiverLUT") << "+++ Value of strip, " << theadd.strip << ", exceeds max allowed, "
-                                                 << 2 * CSCConstants::MAX_NUM_STRIPS - 1 << " +++\n";
+                                                 << 2 * CSCConstants::MAX_NUM_STRIPS_RUN1 - 1 << " +++\n";
   }
 
   if (data.phi_local >= maxPhiL) {
@@ -261,7 +257,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const 
 
   // We will use these to convert the local phi into radians.
   constexpr unsigned int maxPhiL = 1 << CSCBitWidths::kLocalPhiDataBitWidth;
-  const double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS);
+  const double binPhiL = static_cast<double>(maxPhiL) / (2. * CSCConstants::MAX_NUM_STRIPS_RUN1);
 
   if (cscid < CSCTriggerNumbering::minTriggerCscId()) {
     edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
@@ -301,21 +297,16 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const 
     CSCDetId detid(_endcap, _station, ring, chid, 0);
     thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
     if (thechamber) {
-      if (isTMB07) {
-        layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
-        thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER);
-      } else {
-        layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry();
-        thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07);
-      }
+      layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+      thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER);
       const int nStrips = layergeom->numberOfStrips();
       // PhiL is the strip number converted into some units between 0 and
       // 1023.  When we did the conversion in fillLocalPhiTable(), we did
       // not know for which chamber we do it (and, therefore, how many strips
       // it has), and always used the maximum possible number of strips
-      // per chamber, MAX_NUM_STRIPS=80.  Now, since we know the chamber id
+      // per chamber, MAX_NUM_STRIPS_RUN1=80.  Now, since we know the chamber id
       // and how many strips the chamber has, we can re-adjust the scale.
-      //const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS)/nStrips;
+      //const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS_RUN1)/nStrips;
 
       int strip = 0, halfstrip = 0;
 
@@ -617,15 +608,15 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid,
         result = thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->centerOfWireGroup(wire_group).eta();
       } else {
         const unsigned nStrips = layerGeom->numberOfStrips();
-        const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS / numBins;
+        const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS_RUN1 / numBins;
         /**
 	   * Calculate Eta correction
 	   */
 
         // Check that no strips will be left out.
-        if (nStrips % numBins != 0 || CSCConstants::MAX_NUM_STRIPS % numBins != 0)
+        if (nStrips % numBins != 0 || CSCConstants::MAX_NUM_STRIPS_RUN1 % numBins != 0)
           edm::LogWarning("CSCSectorReceiverLUT")
-              << "getGlobalEtaValue warning: number of strips " << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
+              << "getGlobalEtaValue warning: number of strips " << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS_RUN1
               << ") is not divisible by numBins " << numBins << " Station " << _station << " sector " << _sector
               << " subsector " << _subsector << " cscid " << cscid << "\n";
 
@@ -817,7 +808,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned short temp = 0;
       while (!LocalPhiLUT.eof() && i < 1 << CSCBitWidths::kLocalPhiAddressWidth) {
         LocalPhiLUT >> temp;
-        me_lcl_phi[i++] = (*reinterpret_cast<lclphidat*>(&temp));
+        me_lcl_phi[i++] = temp;
       }
       LocalPhiLUT.close();
     }
@@ -845,7 +836,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalPhiLUT.eof() && i < 1 << CSCBitWidths::kGlobalPhiAddressWidth) {
         GlobalPhiLUT >> temp;
-        me_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
+        me_global_phi[i++] = temp;
       }
       GlobalPhiLUT.close();
     }
@@ -874,7 +865,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalPhiLUT.eof() && i < 1 << CSCBitWidths::kGlobalPhiAddressWidth) {
         GlobalPhiLUT >> temp;
-        mb_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
+        mb_global_phi[i++] = temp;
       }
       GlobalPhiLUT.close();
     }
@@ -902,7 +893,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile() {
       unsigned i = 0;
       while (!GlobalEtaLUT.eof() && i < 1 << CSCBitWidths::kGlobalEtaAddressWidth) {
         GlobalEtaLUT >> temp;
-        me_global_eta[i++] = (*reinterpret_cast<gbletadat*>(&temp));
+        me_global_eta[i++] = temp;
       }
       GlobalEtaLUT.close();
     }

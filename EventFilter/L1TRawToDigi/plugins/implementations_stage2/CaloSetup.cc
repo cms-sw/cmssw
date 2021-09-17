@@ -1,5 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
-
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
@@ -32,7 +30,7 @@ namespace l1t {
       return res;
     }
 
-    void CaloSetup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void CaloSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<CaloTowerBxCollection>("CaloTower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");

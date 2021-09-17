@@ -23,7 +23,7 @@
 #include <memory>
 
 // user include files
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -56,6 +56,10 @@ namespace reco {
     TrackToTrackingParticleAssociator() = default;
     TrackToTrackingParticleAssociator(TrackToTrackingParticleAssociator &&) = default;
     TrackToTrackingParticleAssociator &operator=(TrackToTrackingParticleAssociator &&) = default;
+    TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator &) = delete;  // stop default
+    const TrackToTrackingParticleAssociator &operator=(const TrackToTrackingParticleAssociator &) =
+        delete;  // stop default
+
     ~TrackToTrackingParticleAssociator() = default;
 
     // ---------- const member functions ---------------------
@@ -108,11 +112,6 @@ namespace reco {
     }
 
   private:
-    TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator &) = delete;  // stop default
-
-    const TrackToTrackingParticleAssociator &operator=(const TrackToTrackingParticleAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<TrackToTrackingParticleAssociatorBaseImpl> m_impl;
   };

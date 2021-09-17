@@ -14,10 +14,10 @@ process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
 process.SiStripConfigDb.TNS_ADMIN = '/etc'  # for P5 only!
 
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
   CablingSource = cms.untracked.string('UNDEFINED')   ## <-- this should be replaced by "DEVICES" for a connection run!
 )
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 process.NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling

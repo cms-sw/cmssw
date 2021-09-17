@@ -32,6 +32,8 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
+#include "FWCore/Common/interface/OutputProcessBlockHelper.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
@@ -41,6 +43,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 namespace edm {
@@ -49,9 +52,7 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -89,7 +90,7 @@ namespace edm {
 
       bool selected(BranchDescription const& desc) const;
 
-      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
+      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&, ProcessBlockHelperBase const&);
       std::string const& processName() const { return process_name_; }
       SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
@@ -103,6 +104,8 @@ namespace edm {
 
       BranchIDLists const* branchIDLists() const;
 
+      OutputProcessBlockHelper const& outputProcessBlockHelper() const { return outputProcessBlockHelper_; }
+
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
 
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
@@ -110,6 +113,8 @@ namespace edm {
       //Output modules always need writeRun and writeLumi to be called
       bool wantsGlobalRuns() const { return true; }
       bool wantsGlobalLuminosityBlocks() const { return true; }
+      virtual bool wantsProcessBlocks() const = 0;
+      virtual bool wantsInputProcessBlocks() const = 0;
       virtual bool wantsStreamRuns() const = 0;
       virtual bool wantsStreamLuminosityBlocks() const = 0;
 
@@ -129,31 +134,20 @@ namespace edm {
 
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID id, RunPrincipal& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamEndRun(StreamID id, RunPrincipal& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal& ep,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal& ep,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const*);
 
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                                    ModuleCallingContext const& iModuleCallingContext,
-                                                    Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
 
-      bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
+      bool doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       void setEventSelectionInfo(
           std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,
@@ -207,6 +201,9 @@ namespace edm {
 
       edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       std::map<BranchID, bool> keepAssociation_;
+
+      OutputProcessBlockHelper outputProcessBlockHelper_;
+
       LimitedTaskQueue queue_;
 
       //------------------------------------------------------------------
@@ -215,11 +212,13 @@ namespace edm {
 
       void updateBranchIDListsWithKeptAliases();
 
+      void doWriteProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*);
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*, MergeableRunProductMetadata const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
+      void doRespondToCloseOutputFile() {}
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       std::string workerType() const { return "WorkerT<edm::limited::OutputModuleBase>"; }
@@ -245,6 +244,7 @@ namespace edm {
       virtual void endJob() {}
       virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
       virtual void writeRun(RunForOutput const&) = 0;
+      virtual void writeProcessBlock(ProcessBlockForOutput const&) {}
       virtual void openFile(FileBlock const&) const {}
       virtual bool isFileOpen() const { return true; }
 

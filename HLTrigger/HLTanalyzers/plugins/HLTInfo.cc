@@ -169,8 +169,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>& hltresults,
   if (id != cache_id_) {
     cache_id_ = id; 
   */
-  edm::ESHandle<L1TUtmTriggerMenu> menu;
-  eventSetup.get<L1TUtmTriggerMenuRcd>().get(menu);
+  auto const& menu = eventSetup.getHandle(l1tUtmTriggerMenuToken_);
+
   //std::map<std::string, L1TUtmAlgorithm> const & algorithmMap_ = &(menu->getAlgorithmMap());
   /*
   // get the bit/name association

@@ -3,8 +3,10 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include <cassert>
@@ -26,6 +28,7 @@ class TrajectoryMeasurement;
 class TrajectoryContainer;
 class TrajectoryStateOnSurface;
 class TrajectoryFitter;
+class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 class TempTrajectory;
@@ -65,6 +68,7 @@ public:
 
   // Claims ownership of TrajectoryFilter pointers
   BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                           edm::ConsumesCollector iC,
                            std::unique_ptr<TrajectoryFilter> filter,
                            std::unique_ptr<TrajectoryFilter> inOutFilter = nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder&) = delete;
@@ -142,7 +146,7 @@ protected:
   /** Called at end of track building, to see if track should be kept */
   bool qualityFilter(const TempTrajectory& traj, bool inOut = false) const;
 
-  void addToResult(boost::shared_ptr<const TrajectorySeed> const& seed,
+  void addToResult(std::shared_ptr<const TrajectorySeed> const& seed,
                    TempTrajectory& traj,
                    TrajectoryContainer& result,
                    bool inOut = false) const;
@@ -152,7 +156,7 @@ protected:
   StateAndLayers findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const;
 
 private:
-  void seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result) const;
+  void seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result, bool as5D) const;
 
 protected:
   void setData(const MeasurementTrackerEvent* data);
@@ -167,32 +171,26 @@ protected:
 protected:
   typedef TrackingComponentsRecord Chi2MeasurementEstimatorRecord;
 
-  const TrajectoryStateUpdator* theUpdator;
-  const Propagator* thePropagatorAlong;
-  const Propagator* thePropagatorOpposite;
-  const Chi2MeasurementEstimatorBase* theEstimator;
-  const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTrackerEvent* theMeasurementTracker;
+  const TrajectoryStateUpdator* theUpdator = nullptr;
+  const Propagator* thePropagatorAlong = nullptr;
+  const Propagator* thePropagatorOpposite = nullptr;
+  const Chi2MeasurementEstimatorBase* theEstimator = nullptr;
+  const TransientTrackingRecHitBuilder* theTTRHBuilder = nullptr;
+  const MeasurementTrackerEvent* theMeasurementTracker = nullptr;
   const NavigationSchool* theNavigationSchool = nullptr;
 
 private:
-  //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  //  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits
-  //                                     per trajectory candidate. */
-  //  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
-  //  float theChargeSignificance;  /**< Value to declare (q/p)/sig(q/p) significant. Negative: ignore. */
+  bool theSeedAs5DHit;
 
-  //  TrajectoryFilter*              theMinPtCondition;
-  //  TrajectoryFilter*              theMaxHitsCondition;
   std::unique_ptr<TrajectoryFilter> theFilter;      /** Filter used at end of complete tracking */
   std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
 
   // for EventSetup
-  const std::string theUpdatorName;
-  const std::string thePropagatorAlongName;
-  const std::string thePropagatorOppositeName;
-  const std::string theEstimatorName;
-  const std::string theRecHitBuilderName;
+  const edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> theUpdatorToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorAlongToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorOppositeToken;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> theEstimatorToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theRecHitBuilderToken;
 };
 
 #endif

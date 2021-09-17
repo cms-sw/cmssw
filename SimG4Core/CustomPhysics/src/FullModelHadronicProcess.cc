@@ -1,6 +1,6 @@
-#include "G4HadReentrentException.hh"
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
+#include "G4HadronicException.hh"
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
@@ -594,9 +594,10 @@ void FullModelHadronicProcess::CalculateMomenta(
                                                       targetHasChanged,
                                                       leadFlag,
                                                       leadingStrangeParticle);
-    } catch (G4HadReentrentException& aC) {
-      aC.Report(G4cout);
-      throw G4HadReentrentException(__FILE__, __LINE__, "Failing to calculate momenta");
+    } catch (G4HadronicException& aR) {
+      G4ExceptionDescription ed;
+      aR.Report(ed);
+      G4Exception("FullModelHadronicProcess::CalculateMomenta", "had066", FatalException, ed);
     }
   }
   if (finishedTwoClu) {

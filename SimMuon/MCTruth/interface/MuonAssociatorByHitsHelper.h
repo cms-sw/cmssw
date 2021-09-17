@@ -3,13 +3,13 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -19,7 +19,8 @@
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 #include <functional>
 
 class TrackerTopology;
@@ -29,12 +30,27 @@ public:
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
   // typedef std::map<unsigned int, std::vector<SimHitIdpr> > MapOfMatchedIds;
   typedef std::pair<unsigned int, std::vector<SimHitIdpr>> uint_SimHitIdpr_pair;
-  typedef boost::ptr_vector<uint_SimHitIdpr_pair> MapOfMatchedIds;
+  typedef std::vector<std::unique_ptr<uint_SimHitIdpr_pair>> MapOfMatchedIds;
   typedef std::vector<std::pair<trackingRecHit_iterator, trackingRecHit_iterator>> TrackHitsCollection;
 
   MuonAssociatorByHitsHelper(const edm::ParameterSet &conf);
 
   struct Resources {
+    Resources(TrackerTopology const *tTopo,
+              TrackerHitAssociator const *trackerHitAssoc,
+              CSCHitAssociator const *cscHitAssoc,
+              DTHitAssociator const *dtHitAssoc,
+              RPCHitAssociator const *rpcHitAssoc,
+              GEMHitAssociator const *gemHitAssoc,
+              std::function<void(const TrackHitsCollection &, const TrackingParticleCollection &)> diagnostics)
+        : tTopo_(tTopo),
+          trackerHitAssoc_(trackerHitAssoc),
+          cscHitAssoc_(cscHitAssoc),
+          dtHitAssoc_(dtHitAssoc),
+          rpcHitAssoc_(rpcHitAssoc),
+          gemHitAssoc_(gemHitAssoc),
+          diagnostics_(diagnostics) {}
+
     TrackerTopology const *tTopo_;
     TrackerHitAssociator const *trackerHitAssoc_;
     CSCHitAssociator const *cscHitAssoc_;
@@ -99,6 +115,7 @@ private:
 
   const bool includeZeroHitMuons;
   const bool acceptOneStubMatchings;
+  const bool rejectBadGlobal;
   bool UseTracker;
   bool UseMuon;
   const bool AbsoluteNumberOfHits_track;

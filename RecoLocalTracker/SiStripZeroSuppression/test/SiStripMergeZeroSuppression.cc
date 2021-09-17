@@ -26,7 +26,8 @@ private:
 };
 
 SiStripMergeZeroSuppression::SiStripMergeZeroSuppression(const edm::ParameterSet& conf)
-    : m_algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))) {
+    : m_algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"),
+                                                       consumesCollector())) {
   m_rawDigisToMerge = consumes<edm::DetSetVector<SiStripRawDigi>>(conf.getParameter<edm::InputTag>("DigisToMergeVR"));
   m_zsDigisToMerge = consumes<edm::DetSetVector<SiStripDigi>>(conf.getParameter<edm::InputTag>("DigisToMergeZS"));
   produces<edm::DetSetVector<SiStripDigi>>("ZeroSuppressed");

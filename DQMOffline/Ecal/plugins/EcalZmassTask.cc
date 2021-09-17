@@ -21,7 +21,6 @@ Implementation:
 
 // user include files
 
-#include "DQM/Physics/src/EwkDQM.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -39,7 +38,7 @@ Implementation:
 #include <string>
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class EcalZmassTask : public DQMEDAnalyzer {
 public:

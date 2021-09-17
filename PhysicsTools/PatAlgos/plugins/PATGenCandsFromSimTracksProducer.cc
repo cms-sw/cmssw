@@ -22,8 +22,10 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <ext/algorithm>
+#include <memory>
 
 namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
@@ -55,6 +57,7 @@ namespace pat {
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<std::vector<int> > genBarcodesToken_;
 
+    edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
     /// Global context for all recursive methods
     struct GlobalContext {
       GlobalContext(const edm::SimTrackContainer &simtks1,
@@ -127,7 +130,8 @@ PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const Paramet
       makeMotherLink_(cfg.existsAs<bool>("makeMotherLink") ? cfg.getParameter<bool>("makeMotherLink") : false),
       writeAncestors_(cfg.existsAs<bool>("writeAncestors") ? cfg.getParameter<bool>("writeAncestors") : false),
       genParticlesToken_(mayConsume<GenParticleCollection>(cfg.getParameter<InputTag>("genParticles"))),
-      genBarcodesToken_(mayConsume<std::vector<int> >(cfg.getParameter<InputTag>("genParticles"))) {
+      genBarcodesToken_(mayConsume<std::vector<int> >(cfg.getParameter<InputTag>("genParticles"))),
+      tableToken_(esConsumes()) {
   // Possibly allow a list of particle types
   if (cfg.exists("particleTypes")) {
     pdts_ = cfg.getParameter<vector<PdtEntry> >("particleTypes");
@@ -227,10 +231,11 @@ reco::GenParticle PATGenCandsFromSimTracksProducer::makeGenParticle_(
 
 void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &iSetup) {
   if (firstEvent_) {
+    auto const &pdt = iSetup.getData(tableToken_);
     if (!pdts_.empty()) {
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
+        itp->setup(pdt);  // decode string->pdgId and vice-versa
         pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();
@@ -238,7 +243,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
     if (!motherPdts_.empty()) {
       motherPdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
-        itp->setup(iSetup);  // decode string->pdgId and vice-versa
+        itp->setup(pdt);  // decode string->pdgId and vice-versa
         motherPdgIds_.insert(std::abs(itp->pdgId()));
       }
       motherPdts_.clear();
@@ -255,7 +260,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   const SimTrackContainer *simtracksSorted = &*simtracks;
   if (makeMotherLink_ || writeAncestors_) {
     if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
-      simtracksTmp.reset(new SimTrackContainer(*simtracks));
+      simtracksTmp = std::make_unique<SimTrackContainer>(*simtracks);
       std::sort(simtracksTmp->begin(), simtracksTmp->end(), LessById());
       simtracksSorted = &*simtracksTmp;
     }

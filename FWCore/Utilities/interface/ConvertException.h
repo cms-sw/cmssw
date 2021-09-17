@@ -5,6 +5,7 @@
 #include <exception>
 #include <functional>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   namespace convertException {
@@ -16,9 +17,8 @@ namespace edm {
 
     template <typename F>
     auto wrap(F iFunc) -> decltype(iFunc()) {
-      try {
-        return iFunc();
-      } catch (cms::Exception&) {
+      // Caught exception is rethrown
+      CMS_SA_ALLOW try { return iFunc(); } catch (cms::Exception&) {
         throw;
       } catch (std::bad_alloc&) {
         convertException::badAllocToEDM();

@@ -30,6 +30,7 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
   if (disable) {
     outputFile_ = "";
   }
+  rpcgeomToken_ = esConsumes();
 }
 
 L1TRPCTPG::~L1TRPCTPG() {}
@@ -64,8 +65,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c) {
     cout << "L1TRPCTPG: analyze...." << endl;
 
   /// RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  c.get<MuonGeometryRecord>().get(rpcGeo);
+  const auto& rpcGeo = c.getHandle(rpcgeomToken_);
   if (!rpcGeo.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find RPCGeometry" << endl;
     return;

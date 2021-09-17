@@ -258,8 +258,6 @@ void L1TDEMON::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
     std::cout << "L1TDEMON::bookHistograms()  end.\n" << std::flush;
 }
 
-void L1TDEMON::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 // ------------ method called to for each event  ------------
 void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (!hasRecord_)

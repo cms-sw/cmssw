@@ -61,7 +61,6 @@
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -234,7 +233,7 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   std::vector<int> muToPrimary(nmu, -1), muToSecondary(nmu,
                                                        -1);  // map from input into (index) in output, -1 for null
   if (linkToGenParticles_)
-    secondaries.reset(new reco::GenParticleCollection());
+    secondaries = std::make_unique<reco::GenParticleCollection>();
 
   // loop on reco muons
   for (size_t i = 0; i < nmu; ++i) {
@@ -320,7 +319,11 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
               jm++;
               if (mMom->numberOfMothers() > 0) {
                 mMom = mMom->motherRef();
+              } else {
+                LogTrace("MuonSimClassifier") << "\t No Mother is found ";
+                break;
               }
+
               LogTrace("MuonSimClassifier") << "\t\t backtracking mother " << jm << ", pdgId = " << mMom->pdgId()
                                             << ", status= " << mMom->status();
             }

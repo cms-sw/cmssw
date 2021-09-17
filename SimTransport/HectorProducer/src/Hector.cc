@@ -161,17 +161,6 @@ void Hector::clear() {
   m_isCharged.clear();
 }
 
-/*
-  bool Hector::isCharged(const HepMC::GenParticle * p){
-  const ParticleData * part = pdt->particle( p->pdg_id() );
-  if (part){
-  return part->charge()!=0;
-  }else{
-  // the new/improved particle table doesn't know anti-particles
-  return  pdt->particle( -p->pdg_id() )!=0;
-  }
-  }
-*/
 void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
   H_BeamParticle *h_p;
   unsigned int line;
@@ -224,9 +213,10 @@ void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
           m_pz[line] = (*eventParticle)->momentum().pz();
 
           if (m_verbosity) {
-            LogDebug("HectorEventProcessing") << "Hector:add: barcode = " << line << " status = " << g->status()
-                                              << " PDG Id = " << g->pdg_id() << " mass = " << mass << " pz = " << pz
-                                              << " charge = " << charge << " m_isCharged[line] = " << m_isCharged[line];
+            edm::LogVerbatim("HectorEventProcessing")
+                << "Hector:add: barcode = " << line << " status = " << g->status() << " PDG Id = " << g->pdg_id()
+                << " mass = " << mass << " pz = " << pz << " charge = " << charge
+                << " m_isCharged[line] = " << m_isCharged[line];
           }
         }  // if find line
       }    // if eta > 8.2
@@ -339,13 +329,11 @@ void Hector::filterZDC(TRandom3 *rootEngine) {
       line = (*it).first;
       part = (*it).second;
       if (m_verbosity) {
-        LogDebug("HectorEventProcessing")
+        edm::LogVerbatim("HectorEventProcessing")
             << "Hector:filterZDC: barcode = " << line << " charge  = " << (*m_isCharged.find(line)).second;
         if (m_FP420Transport)
           LogDebug("HectorEventProcessing") << " isStoppedFP420 =" << (*m_isStoppedfp420.find(line)).second;
       }
-      //      if ( ((*m_isStoppedfp420.find(line)).second) &&
-      //      ((*m_isCharged.find(line)).second) ) {
       if (((*m_isCharged.find(line)).second)) {
         if (m_verbosity)
           LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " propagated ";
@@ -427,11 +415,11 @@ void Hector::filterD1(TRandom3 *rootEngine) {
       line = (*it).first;
       part = (*it).second;
       if (m_verbosity)
-        LogDebug("HectorEventProcessing")
+        edm::LogVerbatim("HectorEventProcessing")
             << "Hector:filterD1: barcode = " << line << " isStoppedZDC =" << (*m_isStoppedzdc.find(line)).second;
       if (((*m_isStoppedzdc.find(line)).second) || !((*m_isCharged.find(line)).second)) {
         if (m_verbosity)
-          LogDebug("HectorEventProcessing") << "Hector:filterD1: barcode = " << line << " propagated ";
+          edm::LogVerbatim("HectorEventProcessing") << "Hector:filterD1: barcode = " << line << " propagated ";
 
         direction = (*m_direct.find(line)).second;
         if (m_verbosity)

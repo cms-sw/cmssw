@@ -5,7 +5,7 @@
 #include "TMath.h"
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
-#include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
+#include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSel.h"
@@ -13,14 +13,8 @@
 inline double evaluateTtSemiLepSignalSel(PhysicsTools::MVAComputerCache& mvaComputer,
                                          const TtSemiLepSignalSel& sigsel,
                                          float weight = 1.,
-                                         const bool training = false,
                                          const bool isSignal = false) {
   std::vector<PhysicsTools::Variable::Value> values;
-
-  if (training)
-    values.push_back(PhysicsTools::Variable::Value(PhysicsTools::MVATrainer::kTargetId, isSignal));
-  if (training)
-    values.push_back(PhysicsTools::Variable::Value(PhysicsTools::MVATrainer::kWeightId, weight));
 
   values.push_back(PhysicsTools::Variable::Value("sumEt", sigsel.sumEt()));
   values.push_back(PhysicsTools::Variable::Value("relEt1", sigsel.Et1()));

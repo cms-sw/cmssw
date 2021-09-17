@@ -1,14 +1,11 @@
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <boost/bind.hpp>
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 
 #include <cfloat>
 #include <vector>
@@ -68,73 +65,6 @@ namespace {
  * destroy all the daughters!
  */
 GeometricTimingDet::~GeometricTimingDet() { deleteComponents(); }
-#ifdef GEOMETRICDETDEBUG
-// for use outside CMSSW framework only since it asks for a default DDCompactView...
-GeometricTimingDet::GeometricTimingDet(DDnav_type const& navtype, GeometricTimingEnumType type)
-    : ddd_(navtype.begin(), navtype.end()), type_(type) {
-  //
-  // I need to find the params by myself :(
-  //
-  //std::cout << "GeometricTimingDet1" << std::endl;
-  fromDD_ = true;
-  DDCompactView cpv;  // bad, bad, bad!
-  DDExpandedView ev(cpv);
-  ev.goTo(navtype);
-  params_ = ((ev.logicalPart()).solid()).parameters();
-  trans_ = ev.translation();
-  phi_ = trans_.Phi();
-  rho_ = trans_.Rho();
-  rot_ = ev.rotation();
-  shape_ = ((ev.logicalPart()).solid()).shape();
-  ddname_ = ((ev.logicalPart()).ddname()).name();
-  parents_ = GeoHistory(ev.geoHistory().begin(), ev.geoHistory().end());
-  volume_ = ((ev.logicalPart()).solid()).volume();
-  density_ = ((ev.logicalPart()).material()).density();
-  //  _weight  = (ev.logicalPart()).weight();
-  weight_ = density_ * (volume_ / 1000.);  // volume mm3->cm3
-  copy_ = ev.copyno();
-  material_ = ((ev.logicalPart()).material()).name().fullname();
-  radLength_ = getDouble("TrackerRadLength", ev);
-  xi_ = getDouble("TrackerXi", ev);
-  pixROCRows_ = getDouble("PixelROCRows", ev);
-  pixROCCols_ = getDouble("PixelROCCols", ev);
-  pixROCx_ = getDouble("PixelROC_X", ev);
-  pixROCy_ = getDouble("PixelROC_Y", ev);
-  stereo_ = getString("TrackerStereoDetectors", ev) == strue;
-  siliconAPVNum_ = getDouble("SiliconAPVNumber", ev);
-}
-
-GeometricTimingDet::GeometricTimingDet(DDExpandedView* fv, GeometricTimingEnumType type) : type_(type) {
-  //
-  // Set by hand the ddd_
-  //
-  //std::cout << "GeometricTimingDet2" << std::endl;
-  fromDD_ = true;
-  ddd_ = nav_type(fv->navPos().begin(), fv->navPos().end());
-  params_ = ((fv->logicalPart()).solid()).parameters();
-  trans_ = fv->translation();
-  phi_ = trans_.Phi();
-  rho_ = trans_.Rho();
-  rot_ = fv->rotation();
-  shape_ = ((fv->logicalPart()).solid()).shape();
-  ddname_ = ((fv->logicalPart()).ddname()).name();
-  parents_ = GeoHistory(fv->geoHistory().begin(), fv->geoHistory().end());
-  volume_ = ((fv->logicalPart()).solid()).volume();
-  density_ = ((fv->logicalPart()).material()).density();
-  //  weight_   = (fv->logicalPart()).weight();
-  weight_ = density_ * (volume_ / 1000.);  // volume mm3->cm3
-  copy_ = fv->copyno();
-  material_ = ((fv->logicalPart()).material()).name().fullname();
-  radLength_ = getDouble("TrackerRadLength", *fv);
-  xi_ = getDouble("TrackerXi", *fv);
-  pixROCRows_ = getDouble("PixelROCRows", *fv);
-  pixROCCols_ = getDouble("PixelROCCols", *fv);
-  pixROCx_ = getDouble("PixelROC_X", *fv);
-  pixROCy_ = getDouble("PixelROC_Y", *fv);
-  stereo_ = getString("TrackerStereoDetectors", *fv) == "true";
-  siliconAPVNum_ = getDouble("SiliconAPVNumber", *fv);
-}
-#endif
 
 GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumType type)
     :  //
@@ -144,20 +74,10 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       phi_(trans_.Phi()),
       rho_(trans_.Rho()),
       rot_(fv->rotation()),
-      shape_(((fv->logicalPart()).solid()).shape()),
-      ddname_(((fv->logicalPart()).ddname()).name()),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, fv->shape())),
+      ddname_(fv->name()),
       type_(type),
-      params_(((fv->logicalPart()).solid()).parameters()),
-//  want this :) ddd_(fv->navPos().begin(),fv->navPos().end()),
-#ifdef GEOMTRICDETDEBUG
-      parents_(fv->geoHistory().begin(), fv->geoHistory().end()),
-      volume_(((fv->logicalPart()).solid()).volume()),
-      density_(((fv->logicalPart()).material()).density()),
-      //  _weight   = (fv->logicalPart()).weight();
-      weight_(density_ * (volume_ / 1000.)),  // volume mm3->cm3
-      copy_(fv->copyno()),
-      material_(((fv->logicalPart()).material()).name().fullname()),
-#endif
+      params_(fv->parameters()),
       radLength_(getDouble("TrackerRadLength", *fv)),
       xi_(getDouble("TrackerXi", *fv)),
       pixROCRows_(getDouble("PixelROCRows", *fv)),
@@ -165,14 +85,35 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       pixROCx_(getDouble("PixelROC_X", *fv)),
       pixROCy_(getDouble("PixelROC_Y", *fv)),
       stereo_(getString("TrackerStereoDetectors", *fv) == strue),
-      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv))
-#ifdef GEOMTRICDETDEBUG
-      ,
-      fromDD_(true)
-#endif
-{
+      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)) {
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
+}
+
+GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
+    : trans_(fv->translation() / dd4hep::mm),
+      rot_(fv->rotation()),
+      shape_(fv->shape()),
+      ddname_(fv->name()),
+      type_(type),
+      params_(fv->parameters()),
+      radLength_(fv->get<double>("TrackerRadLength")),
+      xi_(fv->get<double>("TrackerXi")),
+      pixROCRows_(fv->get<double>("PixelROCRows")),
+      pixROCCols_(fv->get<double>("PixelROCCols")),
+      pixROCx_(fv->get<double>("PixelROC_X")),
+      pixROCy_(fv->get<double>("PixelROC_Y")),
+      stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+      siliconAPVNum_(fv->get<double>("SiliconAPVNumber")) {
+  phi_ = trans_.Phi();
+  rho_ = trans_.Rho();
+  for (size_t pit = 0; pit < params_.size(); pit++) {
+    params_[pit] = params_[pit] / dd4hep::mm;
+  }
+  //
+  // Not navPos(), as not properly working for DD4hep and not used
+  //
+  ddd_ = nav_type(fv->copyNos().size(), 0);
 }
 
 // PGeometricTimingDet is persistent version... make it... then come back here and make the
@@ -190,20 +131,12 @@ GeometricTimingDet::GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, 
            onePGD.a31_,
            onePGD.a32_,
            onePGD.a33_),
-      shape_(static_cast<DDSolidShape>(onePGD.shape_)),
+      shape_(cms::dd::name_from_value(cms::LegacySolidShapeMap, static_cast<LegacySolidShape>(onePGD.shape_))),
       ddd_(),
-      ddname_(onePGD.name_, onePGD.ns_),  //, "fromdb");
+      ddname_(onePGD.name_),  //, "fromdb");
       type_(type),
       params_(),
       geographicalID_(onePGD.geographicalID_),
-#ifdef GEOMTRICDETDEBUG
-      parents_(),  // will remain empty... hate wasting the space but want all methods to work.
-      volume_(onePGD.volume_),
-      density_(onePGD.density_),
-      weight_(onePGD.weight_),
-      copy_(onePGD.copy_),
-      material_(onePGD.material_),
-#endif
       radLength_(onePGD.radLength_),
       xi_(onePGD.xi_),
       pixROCRows_(onePGD.pixROCRows_),
@@ -211,14 +144,7 @@ GeometricTimingDet::GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, 
       pixROCx_(onePGD.pixROCx_),
       pixROCy_(onePGD.pixROCy_),
       stereo_(onePGD.stereo_),
-      siliconAPVNum_(onePGD.siliconAPVNum_)
-#ifdef GEOMTRICDETDEBUG
-      ,  // mind the tricky comma is needed.
-      fromDD_(false)
-#endif
-{
-  //std::cout << "GeometricTimingDet4" << std::endl;
-
+      siliconAPVNum_(onePGD.siliconAPVNum_) {
   if (onePGD.shape_ == 1 || onePGD.shape_ == 3) {  //The parms vector is neede only in the case of box or trap shape
     params_.reserve(11);
     params_.emplace_back(onePGD.params_0);
@@ -303,12 +229,14 @@ void GeometricTimingDet::deleteComponents() {
 }
 
 GeometricTimingDet::Position GeometricTimingDet::positionBounds() const {
-  Position pos(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  Position pos(geant_units::operators::convertMmToCm(trans_.x()),
+               geant_units::operators::convertMmToCm(trans_.y()),
+               geant_units::operators::convertMmToCm(trans_.z()));
   return pos;
 }
 
 GeometricTimingDet::Rotation GeometricTimingDet::rotationBounds() const {
-  DD3Vector x, y, z;
+  Translation x, y, z;
   rot_.GetComponents(x, y, z);
   Rotation rotation(float(x.X()),
                     float(x.Y()),

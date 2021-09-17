@@ -15,12 +15,15 @@ process.CondDBCommon.connect = cms.string("sqlite_file:/afs/cern.ch/user/d/deish
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb' 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet( 
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.source = cms.Source("EmptyIOVSource",

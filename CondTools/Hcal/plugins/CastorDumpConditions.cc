@@ -27,7 +27,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -132,9 +131,8 @@ void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
                                   const std::string name) {
   if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
     int myrun = e.id().run();
-    edm::ESHandle<S> p;
-    context.get<SRcd>().get(p);
-    S myobject(*p.product());
+    edm::ESGetToken<S, SRcd> tok = esConsumes<S, SRcd>();
+    const S& myobject = context.getData(tok);
 
     std::ostringstream file;
     file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";

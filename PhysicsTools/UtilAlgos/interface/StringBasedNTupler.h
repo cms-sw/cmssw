@@ -1,15 +1,12 @@
 #ifndef StringBasedNTupler_NTupler_H
 #define StringBasedNTupler_NTupler_H
 
-//#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
-
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include <FWCore/Framework/interface/ProducerBase.h>
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
-//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 #include "TBranch.h"
@@ -28,8 +25,6 @@
 
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-//#define StringBasedNTuplerPrecision float;
 
 #include <memory>
 #include <string>
@@ -71,7 +66,7 @@ public:
   }
   const std::string& branchAlias() const { return branchAlias_; }
   const std::string& branchTitle() const { return branchTitle_; }
-  typedef std::unique_ptr<std::vector<float> > value;
+  typedef std::unique_ptr<std::vector<float>> value;
   value branch(const edm::Event& iEvent);
 
   std::vector<float>** dataHolderPtrAdress() { return &dataHolderPtr_; }
@@ -105,12 +100,12 @@ public:
     //empty vector if product not found
     if (oH.failedToGet()) {
       edm::LogError("StringBranchHelper") << "cannot open: " << B.src();
-      value_.reset(new std::vector<float>(0));
+      value_ = std::make_unique<std::vector<float>>(0);
     } else {
       //parser for the object expression
       StringObjectFunction<Object> expr(B.expr());
       //allocate enough memory for the data holder
-      value_.reset(new std::vector<float>(1));
+      value_ = std::make_unique<std::vector<float>>(1);
       try {
         (*value_)[0] = (expr)(*oH);
       } catch (...) {
@@ -125,7 +120,7 @@ private:
   value value_;
 };
 
-template <typename Object, typename Collection = std::vector<Object> >
+template <typename Object, typename Collection = std::vector<Object>>
 class StringBranchHelper {
 public:
   typedef TreeBranch::value value;
@@ -143,12 +138,12 @@ public:
       if (!(iEvent.isRealData() && B.className() == "reco::GenParticle")) {  //don't output genparticle error in data
         edm::LogError("StringBranchHelper") << "cannot open: " << B.src() << "  " << B.className();
       }
-      value_.reset(new std::vector<float>());
+      value_ = std::make_unique<std::vector<float>>();
     } else {
       //parser for the object expression
       StringObjectFunction<Object> expr(B.expr());
       //allocate enough memory for the data holder
-      value_.reset(new std::vector<float>());
+      value_ = std::make_unique<std::vector<float>>();
       value_->reserve(oH->size());
 
       StringCutObjectSelector<Object>* selection = nullptr;
@@ -238,17 +233,17 @@ public:
 
       //do it once with configuration [vstring vars = { "x:x" ,... } ] where ":"=separator
       if (leavesPSet.exists("vars")) {
-        std::vector<std::string> leavesS = leavesPSet.getParameter<std::vector<std::string> >("vars");
+        std::vector<std::string> leavesS = leavesPSet.getParameter<std::vector<std::string>>("vars");
         for (uint l = 0; l != leavesS.size(); ++l) {
           uint sep = leavesS[l].find(separator);
           std::string name = leavesS[l].substr(0, sep);
           //removes spaces from the variable name
-          /*uint*/ int space = name.find(" ");
+          /*uint*/ int space = name.find(' ');
           while (space != -1 /*std::string::npos*/) {
             std::string first = name.substr(0, space);
             std::string second = name.substr(space + 1);
             name = first + second;
-            space = name.find(" ");
+            space = name.find(' ');
           }
           std::string expr = leavesS[l].substr(sep + 1);
           std::string branchAlias = branches[b] + "_" + name;
@@ -285,7 +280,7 @@ public:
     }
   }
 
-  uint registerleaves(edm::ProducerBase* producer) override {
+  uint registerleaves(edm::ProducesCollector producesCollector) override {
     uint nLeaves = 0;
 
     if (useTFileService_) {
@@ -346,13 +341,13 @@ public:
       for (; iB != iB_end; ++iB) {
         //the index. should produce it only once
         // a simple uint for the index
-        producer->produces<uint>(iB->first).setBranchAlias(iB->first);
+        producesCollector.produces<uint>(iB->first).setBranchAlias(iB->first);
         std::vector<TreeBranch>::iterator iL = iB->second.begin();
         std::vector<TreeBranch>::iterator iL_end = iB->second.end();
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           //a vector of float for each leave
-          producer->produces<std::vector<float> >(b.branchName()).setBranchAlias(b.branchAlias());
+          producesCollector.produces<std::vector<float>>(b.branchName()).setBranchAlias(b.branchAlias());
           nLeaves++;
         }
       }
@@ -376,7 +371,7 @@ public:
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           // grab the vector of values from the interpretation of expression for the associated collection
-          std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
+          std::unique_ptr<std::vector<float>> branch(b.branch(iEvent));
           // calculate the maximum index size.
           if (branch->size() > maxS)
             maxS = branch->size();
@@ -435,7 +430,7 @@ public:
         uint maxS = 0;
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
-          std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
+          std::unique_ptr<std::vector<float>> branch(b.branch(iEvent));
           if (branch->size() > maxS)
             maxS = branch->size();
           iEvent.put(std::move(branch), b.branchName());
@@ -475,7 +470,7 @@ public:
   }
 
 protected:
-  typedef std::map<std::string, std::vector<TreeBranch> > Branches;
+  typedef std::map<std::string, std::vector<TreeBranch>> Branches;
   Branches branches_;
 
   bool ownTheTree_;

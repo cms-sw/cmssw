@@ -12,6 +12,7 @@
  *
  *
  * \author: Vladimir Rekovic,   Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
+ *          Elisa Fontanesi - extended for three-body correlation conditions
  *
  * $Date$
  * $Revision$
@@ -96,7 +97,8 @@ namespace l1t {
     CondEnergySum,
     CondCorrelation,
     CondExternal,
-    CondCorrelationWithOverlapRemoval
+    CondCorrelationWithOverlapRemoval,
+    CondCorrelationThreeBody
   };
 
   struct GtConditionCategoryStringToEnum {

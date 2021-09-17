@@ -34,9 +34,10 @@ private:
   void endJob() override;
 
   edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
-  std::string lhcInfoLabel_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
   std::string outputFile_;
 
+  std::unique_ptr<TH1D> h_vtx_x_, h_vtx_y_, h_vtx_z_, h_vtx_t_;
   std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
 };
 
@@ -50,8 +51,14 @@ using namespace HepMC;
 
 CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::ParameterSet &iConfig)
     : tokenHepMC_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC"))),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
       outputFile_(iConfig.getParameter<string>("outputFile")),
+
+      h_vtx_x_(new TH1D("h_vtx_x", ";vtx_x   (mm)", 100, 0., 0.)),
+      h_vtx_y_(new TH1D("h_vtx_y", ";vtx_y   (mm)", 100, 0., 0.)),
+      h_vtx_z_(new TH1D("h_vtx_z", ";vtx_z   (mm)", 100, 0., 0.)),
+      h_vtx_t_(new TH1D("h_vtx_t", ";vtx_t   (mm)", 100, 0., 0.)),
+
       h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
       h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
       h_th_y_(new TH1D("h_th_y", ";#theta^{*}_{y}", 100, -300E-6, +300E-6)) {}
@@ -60,13 +67,21 @@ CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::Paramete
 
 void CTPPSHepMCDistributionPlotter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMC;
   iEvent.getByToken(tokenHepMC_, hHepMC);
   HepMC::GenEvent *hepMCEvent = (HepMC::GenEvent *)hHepMC->GetEvent();
+
+  // plot vertices
+  for (HepMC::GenEvent::vertex_iterator vit = hepMCEvent->vertices_begin(); vit != hepMCEvent->vertices_end(); ++vit) {
+    const auto pos = (*vit)->position();
+    h_vtx_x_->Fill(pos.x());
+    h_vtx_y_->Fill(pos.y());
+    h_vtx_z_->Fill(pos.z());
+    h_vtx_t_->Fill(pos.t());
+  }
 
   // extract protons
   for (auto it = hepMCEvent->particles_begin(); it != hepMCEvent->particles_end(); ++it) {
@@ -83,7 +98,7 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event &iEvent, const edm:
       continue;
 
     const auto &mom = part->momentum();
-    const double p_nom = hLHCInfo->energy();
+    const double p_nom = lhcInfo.energy();
 
     if (mom.rho() / p_nom < 0.7)
       continue;
@@ -102,6 +117,11 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event &iEvent, const edm:
 
 void CTPPSHepMCDistributionPlotter::endJob() {
   auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
+
+  h_vtx_x_->Write();
+  h_vtx_y_->Write();
+  h_vtx_z_->Write();
+  h_vtx_t_->Write();
 
   h_xi_->Write();
   h_th_x_->Write();

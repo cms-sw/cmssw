@@ -17,10 +17,18 @@
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
+#include "Geometry/Records/interface/EcalEndcapGeometryRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TFile.h>
 #include <TH1F.h>
@@ -61,6 +69,11 @@ private:
 
   edm::InputTag rechits_labelEB_;
   edm::InputTag rechits_labelEE_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> endcapGeomToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> barrelGeomToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  EcalTPGScale::Tokens tokens_;
 
   bool recHits_;
 };

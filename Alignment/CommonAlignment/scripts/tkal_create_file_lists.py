@@ -12,7 +12,10 @@ import math
 import bisect
 import random
 import signal
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import difflib
 import argparse
 import functools
@@ -363,14 +366,14 @@ class FileListCreator(object):
         for d in self._datasets: print_msg("\t"+d)
         print_msg("This may take a while...")
 
-        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxsize)
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(3600)
         self._events_in_dataset = sum(result)
 
-        result = pool.map_async(get_max_run, self._datasets).get(sys.maxsize)
+        result = pool.map_async(get_max_run, self._datasets).get(3600)
         self._max_run = max(result)
 
-        result = sum(pool.map_async(get_file_info, self._datasets).get(sys.maxint), [])
-        files = pool.map_async(_make_file_info, result).get(sys.maxint)
+        result = sum(pool.map_async(get_file_info, self._datasets).get(3600), [])
+        files = pool.map_async(_make_file_info, result).get(3600)
         self._file_info = sorted(fileinfo for fileinfo in files)
 
         self.rereco = any(len(fileinfo.runs)>1 for fileinfo in self._file_info)
@@ -493,7 +496,7 @@ class FileListCreator(object):
                           self._events_for_alignment/self._events_in_dataset),
                   log_file = log)
         for iov in sorted(self._iov_info_alignment):
-            print_msg(("Approximate events" if self.rereco else "Events") + " for alignment in IOV since {0:d}: {1:d}"
+            print_msg(("Approximate events" if self.rereco else "Events") + " for alignment in IOV since {0:f}: {1:f}"
                       .format(iov, self._iov_info_alignment[iov]["events"]),
                       log_file = log)
 
@@ -504,7 +507,7 @@ class FileListCreator(object):
                   log_file = log)
 
         for iov in sorted(self._iov_info_validation):
-            msg = ("Approximate events" if self.rereco else "Events") + " for validation in IOV since {0:d}: {1:d}".format(
+            msg = ("Approximate events" if self.rereco else "Events") + " for validation in IOV since {0:f}: {1:f}".format(
                 iov, self._iov_info_validation[iov]["events"])
             if (self._iov_info_validation[iov]["events"]
                 < self._args.minimum_events_validation):
@@ -512,7 +515,7 @@ class FileListCreator(object):
             print_msg(msg, log_file = log)
 
         for run in sorted(self._run_info):
-            msg = ("Approximate events" if self.rereco else "Events") + " for validation in run {0:d}: {1:d}".format(
+            msg = ("Approximate events" if self.rereco else "Events") + " for validation in run {0:f}: {1:f}".format(
                 run, self._run_info[run]["events"])
             if (self._run_info[run]["events"]
                 < self._args.minimum_events_validation):

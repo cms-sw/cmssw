@@ -1,17 +1,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
@@ -20,9 +17,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
-                                       edm::ProducerBase &mixMod,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
     : theParameterMap(new HcalTBSimParameterMap(ps)),
+      paraMap(new HcalSimParameterMap(ps)),
       theHcalShape(new HcalShape()),
       theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
       theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
@@ -33,12 +31,14 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
       theTimeSlewSim(nullptr),
       theHBHEDigitizer(nullptr),
       theHODigitizer(nullptr),
+      conditionsToken_(iC.esConsumes()),
+      hcalTimeSlew_delay_token_(iC.esConsumes(edm::ESInputTag("", "HBHE"))),
       theHBHEHits(),
       theHOHits(),
       thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
-  mixMod.produces<HBHEDigiCollection>(instance);
-  mixMod.produces<HODigiCollection>(instance);
+  producesCollector.produces<HBHEDigiCollection>(instance);
+  producesCollector.produces<HODigiCollection>(instance);
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", "HcalHits"));
 
   DetId detId(DetId::Hcal, 1);
@@ -53,7 +53,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
   bool dummy2 = false;  // extra arguments for premixing
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
+  theElectronicsSim = new HcalElectronicsSim(paraMap, theAmplifier, theCoderFactory, dummy1);
 
   double minFCToDelay = ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
@@ -106,10 +106,9 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
 
 void HcalTBDigiProducer::initializeEvent(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // get the appropriate gains, noises, & widths for this event
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-  theAmplifier->setDbService(conditions.product());
-  theCoderFactory->setDbService(conditions.product());
+  const HcalDbService *conditions = &eventSetup.getData(conditionsToken_);
+  theAmplifier->setDbService(conditions);
+  theCoderFactory->setDbService(conditions);
 
   // get the correct geometry
   checkGeometry(eventSetup);
@@ -131,9 +130,7 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const &e, edm::EventSetup co
     setPhaseShift(detIdHO);
   }
 
-  edm::ESHandle<HcalTimeSlew> delay;
-  eventSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &eventSetup.getData(hcalTimeSlew_delay_token_);
 
   theAmplifier->setTimeSlew(hcalTimeSlew_delay_);
 
@@ -207,15 +204,9 @@ void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
 }
 
 void HcalTBDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
-  // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<CaloGeometryRecord>().get(geometry);
-
-  const CaloGeometry *pGeometry = &*geometry;
-
   // see if we need to update
-  if (pGeometry != theGeometry) {
-    theGeometry = pGeometry;
+  if (geometryWatcher_.check(eventSetup)) {
+    theGeometry = &eventSetup.getData(geometryToken_);
     updateGeometry();
   }
 }

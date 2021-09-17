@@ -31,6 +31,7 @@ Tracker DetIds
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -53,6 +54,9 @@ private:
                                std::vector<const TrackingRecHit *>::iterator hitsBegin,
                                std::vector<const TrackingRecHit *>::iterator hitsEnd);
 
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+
   std::vector<DetIdSelector> detidsels_;
   bool m_verbose;
 
@@ -61,7 +65,9 @@ private:
 };
 
 CalibrationTrackSelectorFromDetIdList::CalibrationTrackSelectorFromDetIdList(const edm::ParameterSet &iConfig)
-    : detidsels_() {
+    : geometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
+      detidsels_() {
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet>>("selections");
 
   for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
@@ -103,7 +109,7 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event &iEvent, const ed
 
       for (const auto &detidsel : detidsels_) {
         if (detidsel.isSelected(detid)) {
-          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid;
+          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid.rawId();
           saveTrack = true;
           break;
         }
@@ -153,8 +159,8 @@ TrackCandidate CalibrationTrackSelectorFromDetIdList::makeCandidate(
 }
 
 void CalibrationTrackSelectorFromDetIdList::beginRun(edm::Run const &run, const edm::EventSetup &iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+  theGeometry = iSetup.getHandle(geometryToken_);
+  theMagField = iSetup.getHandle(magFieldToken_);
 
   if (m_verbose) {
     for (const auto &detidsel : detidsels_) {

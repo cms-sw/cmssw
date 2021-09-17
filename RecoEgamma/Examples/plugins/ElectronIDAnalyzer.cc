@@ -1,7 +1,31 @@
-#include "RecoEgamma/Examples/plugins/ElectronIDAnalyzer.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class ElectronIDAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit ElectronIDAnalyzer(const edm::ParameterSet& conf);
+  ~ElectronIDAnalyzer() override{};
+
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  edm::ParameterSet conf_;
+
+  std::string electronProducer_;
+
+  std::string electronLabelRobustLoose_;
+  std::string electronLabelRobustTight_;
+  std::string electronLabelLoose_;
+  std::string electronLabelTight_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ElectronIDAnalyzer);
 
 ElectronIDAnalyzer::ElectronIDAnalyzer(const edm::ParameterSet& conf) : conf_(conf) {
   electronProducer_ = conf.getParameter<std::string>("electronProducer");

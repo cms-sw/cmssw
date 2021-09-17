@@ -1,29 +1,76 @@
-#include "CommonTools/ParticleFlow/plugins/PFCandIsolatorFromDeposit.h"
-
-// Framework
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string>
-#include <regex>
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
+
+#include <memory>
+#include <regex>
+#include <string>
+
+class PFCandIsolatorFromDeposits : public edm::stream::EDProducer<> {
+public:
+  typedef edm::ValueMap<double> CandDoubleMap;
+
+  enum Mode { Sum, SumRelative, Sum2, Sum2Relative, Max, MaxRelative, Count, NearestDR };
+  PFCandIsolatorFromDeposits(const edm::ParameterSet &);
+
+  ~PFCandIsolatorFromDeposits() override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  class SingleDeposit {
+  public:
+    SingleDeposit(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
+    void cleanup();
+    void open(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    double compute(const reco::CandidateBaseRef &cand);
+    const reco::IsoDepositMap &map() { return *hDeps_; }
+
+  private:
+    Mode mode_;
+    edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;
+    double deltaR_;
+    bool usesFunction_;
+    double weight_;
+
+    StringObjectFunction<reco::Candidate> weightExpr_;
+    reco::isodeposit::AbsVetos barrelVetos_;
+    reco::isodeposit::AbsVetos endcapVetos_;
+    reco::isodeposit::EventDependentAbsVetos evdepVetos_;  // note: these are a subset of the above. Don't delete twice!
+    bool skipDefaultVeto_;
+    bool usePivotForBarrelEndcaps_;
+    edm::Handle<reco::IsoDepositMap> hDeps_;  // transient
+
+    bool isNumber(const std::string &str) const;
+    double toNumber(const std::string &str) const;
+  };
+  // datamembers
+  std::vector<SingleDeposit> sources_;
+};
 
 using namespace edm;
 using namespace reco;
@@ -201,7 +248,7 @@ void PFCandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSe
   const IsoDepositMap &map = begin->map();
 
   if (map.empty()) {  // !!???
-    event.put(std::unique_ptr<CandDoubleMap>(new CandDoubleMap()));
+    event.put(std::make_unique<CandDoubleMap>());
     return;
   }
   std::unique_ptr<CandDoubleMap> ret(new CandDoubleMap());

@@ -663,9 +663,6 @@ void DQMPFCandidateAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 }
 
 // ***********************************************************
-void DQMPFCandidateAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
-
-// ***********************************************************
 void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Vertex information
   Handle<VertexCollection> vertexHandle;

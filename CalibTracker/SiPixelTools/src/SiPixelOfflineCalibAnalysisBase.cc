@@ -17,11 +17,12 @@
 //
 //
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
@@ -41,6 +42,12 @@ SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::Para
   daqBE_ = &*edm::Service<DQMStore>();
   folderMaker_ = new SiPixelFolderOrganizer();
   tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi> >(siPixelCalibDigiProducer_);
+
+  calibTokenBeginRun_ =
+      esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd, edm::Transition::BeginRun>();
+  calibToken_ = esConsumes<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>();
 }
 
 SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase() {
@@ -60,9 +67,9 @@ SiPixelOfflineCalibAnalysisBase::~SiPixelOfflineCalibAnalysisBase() {}
 void SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom_);
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
+  calib_ = iSetup.getHandle(calibToken_);
+  geom_ = iSetup.getHandle(trackerGeomToken_);
+  theCablingMap_ = iSetup.getHandle(cablingMapToken_);
   if (eventCounter_ == 0)
     this->calibrationSetup(iSetup);
   eventCounter_++;
@@ -111,13 +118,11 @@ void SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const ed
 
 void SiPixelOfflineCalibAnalysisBase::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   //load the calibration information from the database
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom_);
-  iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
+  edm::ESHandle<SiPixelCalibConfiguration> calib = iSetup.getHandle(calibTokenBeginRun_);
 
-  calibrationMode_ = calib_->getCalibrationMode();
-  nTriggers_ = calib_->getNTriggers();
-  vCalValues_ = calib_->getVCalValues();
+  calibrationMode_ = calib->getCalibrationMode();
+  nTriggers_ = calib->getNTriggers();
+  vCalValues_ = calib->getVCalValues();
   std::cout << "!!!! in beginRun" << std::endl;
   edm::LogInfo("SiPixelOfflineCalibAnalysisBase")
       << "Calibration file loaded. Mode: " << calibrationMode_ << " nTriggers: " << nTriggers_
@@ -169,34 +174,33 @@ std::string SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t det
   return output;
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
     uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book1D(hid, title, nchX, lowX, highX);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
     uint32_t detid, std::string name, std::string title, int nchX, float* xbinsize) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book1D(hid, title, nchX, xbinsize);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
-                                                                    std::string name,
-                                                                    std::string title,
-                                                                    int nchX,
-                                                                    double lowX,
-                                                                    double highX,
-                                                                    int nchY,
-                                                                    double lowY,
-                                                                    double highY) {
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
+                                                                                                     std::string name,
+                                                                                                     std::string title,
+                                                                                                     int nchX,
+                                                                                                     double lowX,
+                                                                                                     double highX,
+                                                                                                     int nchY,
+                                                                                                     double lowY,
+                                                                                                     double highY) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
-                                                                                std::string name,
-                                                                                std::string title) {
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(
+    uint32_t detid, std::string name, std::string title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
   const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
@@ -301,5 +305,3 @@ void SiPixelOfflineCalibAnalysisBase::addTF1ToDQMMonitoringElement(MonitorElemen
   }
   return;
 }
-//define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelOfflineCalibAnalysisBase);

@@ -171,10 +171,10 @@ def psetGsfEleSCEtaMultiRangeCut():
 # Configure the cut on the dEtaIn for the seed
 def psetGsfEleDEtaInSeedCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleDEtaInSeedCut'),
-        dEtaInSeedCutValueEB = cms.double( wpEB.dEtaInSeedCut ),
-        dEtaInSeedCutValueEE = cms.double( wpEE.dEtaInSeedCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaEtaSeedClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dEtaInSeedCut ),
+        cutValueEE = cms.double( wpEE.dEtaInSeedCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -182,10 +182,10 @@ def psetGsfEleDEtaInSeedCut(wpEB, wpEE):
 # Configure the cut on the dPhiIn
 def psetGsfEleDPhiInCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleDPhiInCut'),
-        dPhiInCutValueEB = cms.double( wpEB.dPhiInCut ),
-        dPhiInCutValueEE = cms.double( wpEE.dPhiInCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaPhiSuperClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dPhiInCut ),
+        cutValueEE = cms.double( wpEE.dPhiInCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -193,10 +193,10 @@ def psetGsfEleDPhiInCut(wpEB, wpEE):
 # Confugure the full 5x5 sigmaIEtaIEta cut
 def psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaCut'),
-        full5x5SigmaIEtaIEtaCutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
-        full5x5SigmaIEtaIEtaCutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("full5x5_sigmaIetaIeta"),
+        cutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
+        cutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )

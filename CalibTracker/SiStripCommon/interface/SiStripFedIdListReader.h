@@ -1,10 +1,10 @@
 #ifndef CalibTracker_SiStripCommon_SiStripFedIdListReader_h
 #define CalibTracker_SiStripCommon_SiStripFedIdListReader_h
 
-#include <boost/cstdint.hpp>
 #include <fstream>
 #include <ostream>
 #include <vector>
+#include <cstdint>
 
 class SiStripFedIdListReader;
 

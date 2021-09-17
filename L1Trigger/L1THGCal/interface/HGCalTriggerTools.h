@@ -18,13 +18,10 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
-class HGCalTriggerGeometryBase;
-class DetId;
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 namespace edm {
   class Event;
@@ -33,7 +30,7 @@ namespace edm {
 
 class HGCalTriggerTools {
 public:
-  HGCalTriggerTools() : geom_(nullptr), eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0) {}
+  HGCalTriggerTools() : geom_(nullptr), eeLayers_(0), fhLayers_(0), bhLayers_(0), noseLayers_(0), totalLayers_(0) {}
   ~HGCalTriggerTools() {}
 
   void eventSetup(const edm::EventSetup&);
@@ -46,15 +43,15 @@ public:
   bool isHad(const DetId& id) const { return !isEm(id); }
   bool isSilicon(const DetId&) const;
   bool isScintillator(const DetId& id) const { return !isSilicon(id); }
+  bool isNose(const DetId&) const;
   int zside(const DetId&) const;
-  // tc argument is needed because of the impossibility
-  // to know whether the ID is a TC or a sensor cell
-  // in the v8 geometry detid scheme
-  int thicknessIndex(const DetId&, bool tc = false) const;
+  int thicknessIndex(const DetId&) const;
 
-  unsigned lastLayerEE() const { return eeLayers_; }
+  unsigned lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : eeLayers_); }
   unsigned lastLayerFH() const { return eeLayers_ + fhLayers_; }
   unsigned lastLayerBH() const { return totalLayers_; }
+  unsigned lastLayerNose() const { return noseLayers_; }
+  unsigned lastLayer(bool nose = false) const { return nose ? noseLayers_ : totalLayers_; }
 
   // 4-vector helper functions using GlobalPoint
   float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
@@ -74,22 +71,30 @@ public:
   template <typename T>
   std::vector<T> bxVectorToVector(const BXVector<T>& inputBXVector) {
     std::vector<T> outputVector;
-    //loop over collection for a given bx and put the objects into a std::vector
+    // loop over collection for a given bx and put the objects into a std::vector
     outputVector.insert(outputVector.end(), inputBXVector.begin(0), inputBXVector.end(0));
     return outputVector;
   }
 
   DetId simToReco(const DetId&, const HGCalTopology&) const;
-  DetId simToReco(const DetId&, const HcalTopology&) const;
+  unsigned triggerLayer(const unsigned id) const { return geom_->triggerLayer(id); }
+
+  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;
+
+  enum SubDetectorType {
+    hgcal_silicon_CEE,
+    hgcal_silicon_CEH,
+    hgcal_scintillator,
+  };
+  SubDetectorType getSubDetectorType(const DetId& id) const;
 
 private:
   const HGCalTriggerGeometryBase* geom_;
   unsigned eeLayers_;
   unsigned fhLayers_;
   unsigned bhLayers_;
+  unsigned noseLayers_;
   unsigned totalLayers_;
-
-  int sensorCellThicknessV8(const DetId& id) const;
 };
 
 #endif

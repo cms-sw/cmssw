@@ -14,21 +14,20 @@ namespace {
 namespace edm {
   ProductProvenance::ProductProvenance() : branchID_(), parentageID_() {}
 
-  ProductProvenance::ProductProvenance(BranchID bid) : branchID_(std::move(bid)), parentageID_() {}
+  ProductProvenance::ProductProvenance(BranchID bid) : branchID_(bid), parentageID_() {}
 
   ProductProvenance::ProductProvenance(BranchID bid, ParentageID edid)
-      : branchID_(std::move(bid)), parentageID_(std::move(edid)) {}
+      : branchID_(bid), parentageID_(std::move(edid)) {}
 
   ProductProvenance::ProductProvenance(BranchID bid, std::vector<BranchID> const& parents)
-      : branchID_(std::move(bid)), parentageID_() {
+      : branchID_(bid), parentageID_() {
     Parentage p;
     p.setParents(parents);
     parentageID_ = p.id();
     ParentageRegistry::instance()->insertMapped(p);
   }
 
-  ProductProvenance::ProductProvenance(BranchID bid, std::vector<BranchID>&& parents)
-      : branchID_(std::move(bid)), parentageID_() {
+  ProductProvenance::ProductProvenance(BranchID bid, std::vector<BranchID>&& parents) : branchID_(bid), parentageID_() {
     Parentage p;
     p.setParents(std::move(parents));
     parentageID_ = p.id();

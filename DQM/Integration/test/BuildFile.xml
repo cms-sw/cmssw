@@ -1,0 +1,34 @@
+<test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-castor_dqm_sourceclient" command="runtest.sh castor_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-dt4ml_dqm_sourceclient" command="runtest.sh dt4ml_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-dt_dqm_sourceclient" command="runtest.sh dt_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-ecal_dqm_sourceclient" command="runtest.sh ecal_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-es_dqm_sourceclient" command="runtest.sh es_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-fed_dqm_sourceclient" command="runtest.sh fed_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-gem_dqm_sourceclient" command="runtest.sh gem_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-hcalreco_dqm_sourceclient" command="runtest.sh hcalreco_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-hcal_dqm_sourceclient" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-hlt_dqm_clientPB" command="runtest.sh hlt_dqm_clientPB-live_cfg.py"/>
+<test name="TestDQMOnlineClient-hlt_dqm_sourceclient" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-info_dqm_sourceclient" command="runtest.sh info_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-l1tstage2_dqm_sourceclient" command="runtest.sh l1tstage2_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-l1tstage2emulator_dqm_sourceclient" command="runtest.sh l1tstage2emulator_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-mutracking_dqm_sourceclient" command="runtest.sh mutracking_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-pixel_dqm_sourceclient" command="runtest.sh pixel_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-pixellumi_dqm_sourceclient" command="runtest.sh pixellumi_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
+<!-- Need an HLT stream -->
+<!-- <test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" /> -->
+<!-- streamDQMCalibration is required -->
+<!-- <test name="TestDQMOnlineClient-ecalcalib_dqm_sourceclient" command="runtest.sh ecalcalib_dqm_sourceclient-live_cfg.py" /> -->
+<!-- streamDQMCalibration is required -->
+<!-- <test name="TestDQMOnlineClient-hcalcalib_dqm_sourceclient" command="runtest.sh hcalcalib_dqm_sourceclient-live_cfg.py" /> -->
+<!-- No data of type "GBRForestD" with label "electron_eb_ecalOnly_1To300_0p2To2_mean" in record "GBRDWrapperRcd" -->
+<!-- <test name="TestDQMOnlineClient-visualization" command="runtest.sh visualization-live_cfg.py" />  -->
+<!-- <test name="TestDQMOnlineClient-visualization_secondInstance" command="runtest.sh visualization-live-secondInstance_cfg.py" /> -->

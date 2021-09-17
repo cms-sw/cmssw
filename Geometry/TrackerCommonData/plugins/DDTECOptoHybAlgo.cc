@@ -3,15 +3,47 @@
 // Description: Placing cooling pieces in the petal material of a TEC petal
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTECOptoHybAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTECOptoHybAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTECOptoHybAlgo();
+  ~DDTECOptoHybAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;     //Namespace of this and ALL parts
+  string childName;       //Child name
+  double rpos;            //r Position
+  double zpos;            //Z position of the OptoHybrid
+  double optoHeight;      // Height of the OptoHybrid
+  double optoWidth;       // Width of the OptoHybrid
+  int startCopyNo;        //Start copy number
+  vector<double> angles;  //Angular position of Hybrid
+};
 
 DDTECOptoHybAlgo::DDTECOptoHybAlgo() : angles(0) {
   LogDebug("TECGeom") << "DDTECOptoHybAlgo info: Creating an instance";
@@ -68,7 +100,7 @@ void DDTECOptoHybAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
     if (phideg != 0) {
-      std::string rotstr = DDSplit(childName).first + std::to_string(phideg * 1000.);
+      string rotstr = DDSplit(childName).first + to_string(phideg * 1000.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         double theta = 90. * CLHEP::deg;
@@ -87,3 +119,5 @@ void DDTECOptoHybAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TECGeom") << "<<== End of DDTECOptoHybAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTECOptoHybAlgo, "track:DDTECOptoHybAlgo");

@@ -7,8 +7,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include <cstdint>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 /**
  * Interface for adding material effects during propagation
  *   as a Gaussian mixture. Similar to MaterialEffectsUpdator,

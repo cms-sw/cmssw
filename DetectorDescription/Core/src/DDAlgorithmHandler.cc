@@ -12,7 +12,7 @@ void DDAlgorithmHandler::initialize(const DDName& algoName,
                                     const DDMapArguments& mArgs,
                                     const DDStringArguments& sArgs,
                                     const DDStringVectorArguments& svArgs) {
-  algo_ = std::unique_ptr<DDAlgorithm>(DDAlgorithmFactory::get()->create(algoName.fullname()));
+  algo_ = DDAlgorithmFactory::get()->create(algoName.fullname());
   algo_->setParent(parent);
   algo_->initialize(nArgs, vArgs, mArgs, sArgs, svArgs);
 }

@@ -12,38 +12,36 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariables.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPUserVariablesIORoot.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "FWCore/Framework/interface/ValidityInterval.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
 // Constructor ----------------------------------------------------------------
-HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg)
-    : AlignmentAlgorithmBase(cfg),
+HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+    : AlignmentAlgorithmBase(cfg, iC),
+      topoToken_(iC.esConsumes<TrackerTopology, IdealGeometryRecord, edm::Transition::EndRun>()),
+      topoToken2_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::EndRun>()),
       verbose(cfg.getParameter<bool>("verbosity")),
       theMonitorConfig(cfg),
       doTrackHitMonitoring(theMonitorConfig.fillTrackMonitoring || theMonitorConfig.fillTrackHitMonitoring),
@@ -85,7 +83,6 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg)
   theIOVrangeSet = cfg.getParameter<std::vector<unsigned>>("IOVrange");
 
   defaultAlignableSpecs.minNHits = cfg.getParameter<int>("minimumNumberOfHits");
-  ;
   defaultAlignableSpecs.minRelParError = cfg.getParameter<double>("minRelParameterError");
   defaultAlignableSpecs.maxRelParError = cfg.getParameter<double>("maxRelParameterError");
   defaultAlignableSpecs.maxHitPull = cfg.getParameter<double>("maxAllowedHitPull");
@@ -136,8 +133,6 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
 
   for (const auto& level : surveyResiduals_)
     theLevels.push_back(alignableObjectId_->stringToId(level));
-
-  edm::ESHandle<Alignments> globalPositionRcd;
 
   const edm::ValidityInterval& validity = setup.get<TrackerAlignmentRcd>().validityInterval();
   const edm::IOVSyncValue first1 = validity.first();
@@ -371,9 +366,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
 
     unsigned int nAlignable = theAlignables.size();
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
     for (unsigned int i = 0; i < nAlignable; ++i) {
       const Alignable* ali = theAlignables[i];
       AlignmentParameters* ap = ali->alignmentParameters();
@@ -1160,11 +1153,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
   int naligned = 0;
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  //  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken2_);
 
   for (const auto& ali : theAlignables) {
     AlignmentParameters* dap = ali->alignmentParameters();

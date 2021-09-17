@@ -81,8 +81,7 @@ namespace pf2pat {
 
         int match = -1;
         // try first the non-ambiguous tracks
-        for (reco::GsfElectronCollection::const_iterator it = electrons->begin(), ed = electrons->end(); it != ed;
-             ++it) {
+        for (auto it = electrons->begin(), ed = electrons->end(); it != ed; ++it) {
           if (it->gsfTrack() == PfTk) {
             match = it - electrons->begin();
             break;
@@ -90,9 +89,8 @@ namespace pf2pat {
         }
         // then the ambiguous ones
         if (match == -1) {
-          for (reco::GsfElectronCollection::const_iterator it = electrons->begin(), ed = electrons->end(); it != ed;
-               ++it) {
-            if (std::count(it->ambiguousGsfTracksBegin(), it->ambiguousGsfTracksEnd(), PfTk) > 0) {
+          for (auto it = electrons->begin(), ed = electrons->end(); it != ed; ++it) {
+            if (std::count(it->ambiguousGsfTracks().begin(), it->ambiguousGsfTracks().end(), PfTk) > 0) {
               match = it - electrons->begin();
               break;
             }

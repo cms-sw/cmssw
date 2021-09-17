@@ -38,11 +38,9 @@ process.dqmSaver.saveAtJobEnd = True
 
 ######################################################################################
 ### include your reference file
-process.DQMStore.referenceFileName = 'ref.root'
 
 ######################################################################################
 ### set this in order to add up histograms that already exist
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ### loading of root files into DQMStore (stripping out Run and RunSummary)
@@ -64,7 +62,8 @@ process.dqmSource   = cms.EDAnalyzer("DQMSourceExample",
 ######################################################################################
 ### run the quality tests as defined in QualityTests.xml
 ### by default: the quality tests run at the end of each lumisection
-process.qTester    = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester    = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQMServices/Examples/test/QualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     testInEventloop = cms.untracked.bool(False), #run on each event

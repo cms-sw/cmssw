@@ -1,7 +1,7 @@
 /*
- *  Routine to calculate CSC efficiencies 
+ *  Routine to calculate CSC efficiencies
  *  Comments about the program logic are denoted by //----
- * 
+ *
  *  Stoyan Stoynev, Northwestern University.
  */
 
@@ -74,8 +74,7 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
   //---- Get the CSC Geometry :
   if (printalot)
     printf("\tget the CSC geometry.\n");
-  edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // use theTrackingGeometry instead of cscGeom?
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
@@ -792,6 +791,7 @@ void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::
 }
 void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips) {
   //---- STRIPS
+  const float threshold = 13.3;
   for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int largestADCValue = -1;
@@ -802,24 +802,18 @@ void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips)
       int myStrip = digiItr->getStrip();
       std::vector<int> myADCVals = digiItr->getADCCounts();
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
-      float threshold = 13.3;
-      float diff = 0.;
       float peakADC = -1000.;
-      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
-        diff = (float)myADCVals[iCount] - thisPedestal;
+      for (int myADCVal : myADCVals) {
+        float diff = (float)myADCVal - thisPedestal;
         if (diff > threshold) {
-          if (myADCVals[iCount] > largestADCValue) {
-            largestADCValue = myADCVals[iCount];
-          }
-        }
-        if (diff > threshold && diff > peakADC) {
-          peakADC = diff;
+          if (myADCVal > largestADCValue)
+            largestADCValue = myADCVal;
+          if (diff > peakADC)
+            peakADC = diff;
         }
       }
       if (largestADCValue > maxADC) {  // FIX IT!!!
-        maxADC = largestADCValue;
         std::pair<int, float> LayerSignal(myStrip, peakADC);
-
         //---- AllStrips contains basic information about strips
         //---- (strip number and peak signal for most significant strip in the layer)
         allStrips[id.endcap() - 1][id.station() - 1][id.ring() - 1][id.chamber() - 1][id.layer() - 1].clear();
@@ -1685,9 +1679,11 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet &pset) {
   tk_token = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("tracksTag"));
   sh_token = consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("simHitTag"));
 
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
+
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   // maybe use the service for getting magnetic field, propagators, etc. ...
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // Trigger
   useTrigger = pset.getUntrackedParameter<bool>("useTrigger", false);
@@ -1942,11 +1938,11 @@ CSCEfficiency::CSCEfficiency(const edm::ParameterSet &pset) {
           //
           /*
 	  sprintf(SpecName,"Sim_Rechits_each_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each = 
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits_each =
 	    new TH1F(SpecName,"Existing RecHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
 	  //
 	  sprintf(SpecName,"Sim_Simhits_each_Ch%d",iChamber);
-	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each = 
+	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits_each =
 	    new TH1F(SpecName,"Existing SimHit (Sim), each;layers (1-6);entries",nLayer_bins,Layer_min,Layer_max);
 	  */
           theFile->cd();

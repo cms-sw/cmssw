@@ -11,8 +11,8 @@ ALCARECORandomFromRECOHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.c
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
 alcaPCCProducerRandomFromRECO = alcaPCCProducer.clone()
-alcaPCCProducerRandomFromRECO.AlcaPCCProducerParameters.pixelClusterLabel = cms.InputTag("siPixelClusters")
-alcaPCCProducerRandomFromRECO.AlcaPCCProducerParameters.trigstring        = cms.untracked.string("alcaPCCRandomFromRECO")
+alcaPCCProducerRandomFromRECO.pixelClusterLabel = cms.InputTag("siPixelClusters")
+alcaPCCProducerRandomFromRECO.trigstring        = cms.untracked.string("alcaPCCRandomFromRECO")
 
 
 # Sequence #

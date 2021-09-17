@@ -1,48 +1,28 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/KFBasedPixelFitter.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
-/*
-#include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
-#include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
-#include "Alignment/ReferenceTrajectories/interface/BeamSpotGeomDet.h"
-#include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
-#include <TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h>
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
-*/
-
-#include <sstream>
 template <class T>
 inline T sqr(T t) {
   return t * t;
@@ -51,8 +31,8 @@ inline T sqr(T t) {
 KFBasedPixelFitter::MyBeamSpotHit::MyBeamSpotHit(const reco::BeamSpot &beamSpot, const GeomDet *geom)
     : TValidTrackingRecHit(*geom) {
   localPosition_ = LocalPoint(0., 0., 0.);
-  localError_ =
-      LocalError(sqr(beamSpot.BeamWidthX()), 0.0, sqr(beamSpot.sigmaZ()));  //neglect XY differences and BS slope
+  //neglect XY differences and BS slope
+  localError_ = LocalError(sqr(beamSpot.BeamWidthX()), 0.0, sqr(beamSpot.sigmaZ()));
 }
 
 AlgebraicVector KFBasedPixelFitter::MyBeamSpotHit::parameters() const {
@@ -112,7 +92,7 @@ std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const Tra
   float theta;
   CircleFromThreePoints circle(points[0], points[1], points[2]);
   if (circle.curvature() > 1.e-4) {
-    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), setup);
+    float invPt = PixelRecoUtilities::inversePt(circle.curvature(), *theField);
     float valPt = 1.f / invPt;
     float chargeTmp = (points[1].x() - points[0].x()) * (points[2].y() - points[1].y()) -
                       (points[1].y() - points[0].y()) * (points[2].x() - points[1].x());
@@ -183,8 +163,7 @@ std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const Tra
   }
 
   // extrapolate to vertex
-  TrajectoryStateOnSurface impactPointState =
-      TransverseImpactPointExtrapolator(theField).extrapolate(innerState, vertexPos);
+  auto impactPointState = TransverseImpactPointExtrapolator(theField).extrapolate(innerState, vertexPos);
   if (!impactPointState.isValid())
     return ret;
 

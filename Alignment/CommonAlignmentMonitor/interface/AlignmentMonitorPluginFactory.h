@@ -27,7 +27,8 @@ namespace edm {
   class ParameterSet;
 }
 
-typedef edmplugin::PluginFactory<AlignmentMonitorBase*(const edm::ParameterSet&)> AlignmentMonitorPluginFactory;
+typedef edmplugin::PluginFactory<AlignmentMonitorBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    AlignmentMonitorPluginFactory;
 
 // // Forward declaration
 // namespace edm { class ParameterSet; }

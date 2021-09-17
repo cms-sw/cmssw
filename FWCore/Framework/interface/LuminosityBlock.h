@@ -22,17 +22,20 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class ModuleCallingContext;
@@ -46,8 +49,9 @@ namespace edm {
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                    ModuleDescription const& md,
+    LuminosityBlock(LumiTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
+    LuminosityBlock(LuminosityBlockPrincipal const&,
+                    ModuleDescription const&,
                     ModuleCallingContext const*,
                     bool isAtEnd);
     ~LuminosityBlock() override;
@@ -100,7 +104,12 @@ namespace edm {
     template <typename PROD>
     void getManyByType(std::vector<Handle<PROD>>& results) const;
 
-    Run const& getRun() const { return *run_; }
+    Run const& getRun() const {
+      if (not run_) {
+        fillRun();
+      }
+      return run_.value();
+    }
 
     ///Put a new product.
     template <typename PROD>
@@ -125,7 +134,9 @@ namespace edm {
     template <typename PROD, typename... Args>
     void emplace(EDPutToken token, Args&&... args);
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
+
+    StableProvenance const& getStableProvenance(BranchID const& theID) const;
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
@@ -157,6 +168,8 @@ namespace edm {
     ProductPtrVec& putProducts() { return putProducts_; }
     ProductPtrVec const& putProducts() const { return putProducts_; }
 
+    void fillRun() const;
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -171,7 +184,8 @@ namespace edm {
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
-    std::shared_ptr<Run const> const run_;
+    //This class is intended to be used by only one thread
+    CMS_SA_ALLOW mutable std::optional<Run> run_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
@@ -202,7 +216,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));
@@ -215,7 +229,7 @@ namespace edm {
 
   template <typename PROD>
   void LuminosityBlock::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if (UNLIKELY(product.get() == 0)) {  // null pointer is illegal
+    if (UNLIKELY(product.get() == nullptr)) {  // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct(
           "LuminosityBlock", typeID, provRecorder_.productInstanceLabel(token));
@@ -333,20 +347,18 @@ namespace edm {
 
   template <typename PROD>
   Handle<PROD> LuminosityBlock::getHandle(EDGetTokenT<PROD> token) const {
-    if
-      UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-        principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-      }
+    if UNLIKELY (!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     return convert_handle<PROD>(std::move(bh));
   }
 
   template <typename PROD>
   PROD const& LuminosityBlock::get(EDGetTokenT<PROD> token) const noexcept(false) {
-    if
-      UNLIKELY(!provRecorder_.checkIfComplete<PROD>()) {
-        principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
-      }
+    if UNLIKELY (!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)), PRODUCT_TYPE, token, moduleCallingContext_);
     return *convert_handle<PROD>(std::move(bh));
   }

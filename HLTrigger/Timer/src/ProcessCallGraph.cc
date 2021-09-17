@@ -72,7 +72,7 @@ void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pat
   boost::get_property(graph, boost::graph_name) = context.processName();
 
   // create graph vertices associated to all modules in the process
-  auto size = pathsAndConsumes.allModules().size();
+  unsigned int size = pathsAndConsumes.largestModuleID() - boost::num_vertices(graph) + 1;
   for (size_t i = 0; i < size; ++i)
     boost::add_vertex(graph);
 

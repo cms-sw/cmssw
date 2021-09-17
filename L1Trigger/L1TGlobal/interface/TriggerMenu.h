@@ -12,6 +12,7 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *          Vladimir Rekovic - extend for overlap removal
+ *          Elisa Fontanesi - extended for three-body correlation conditions
  *
  * $Date$
  * $Revision$
@@ -35,6 +36,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 
 // forward declarations
@@ -55,6 +57,7 @@ public:
               const std::vector<std::vector<EnergySumTemplate> >&,
               const std::vector<std::vector<ExternalTemplate> >&,
               const std::vector<std::vector<CorrelationTemplate> >&,
+              const std::vector<std::vector<CorrelationThreeBodyTemplate> >&,
               const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&,
               const std::vector<std::vector<MuonTemplate> >&,
               const std::vector<std::vector<CaloTemplate> >&,
@@ -130,6 +133,13 @@ public:
   }
 
   void setVecCorrelationTemplate(const std::vector<std::vector<CorrelationTemplate> >&);
+
+  //
+  inline const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTemplate() const {
+    return m_vecCorrelationThreeBodyTemplate;
+  }
+
+  void setVecCorrelationThreeBodyTemplate(const std::vector<std::vector<CorrelationThreeBodyTemplate> >&);
 
   //
   inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&
@@ -214,6 +224,7 @@ private:
   std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
   std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
+  std::vector<std::vector<CorrelationThreeBodyTemplate> > m_vecCorrelationThreeBodyTemplate;
   std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> > m_vecCorrelationWithOverlapRemovalTemplate;
   std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
   std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;

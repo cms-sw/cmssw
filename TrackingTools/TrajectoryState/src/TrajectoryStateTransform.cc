@@ -67,6 +67,22 @@ namespace trajectoryStateTransform {
     return FreeTrajectoryState(par, err);
   }
 
+  FreeTrajectoryState initialFreeStateL1TTrack(const TTTrack<Ref_Phase2TrackerDigi_>& tk,
+                                               const MagneticField* field,
+                                               bool withErr) {
+    Basic3DVector<float> pos(tk.POCA());
+    GlobalPoint gpos(pos);
+    GlobalVector gmom = tk.momentum();
+    int charge = tk.rInv() > 0.f ? 1 : -1;
+
+    GlobalTrajectoryParameters par(gpos, gmom, charge, field);
+    if (!withErr)
+      return FreeTrajectoryState(par);
+    AlgebraicSymMatrix55 mat = AlgebraicMatrixID();
+    mat *= 1e-8;
+    return FreeTrajectoryState(par, mat);
+  }
+
   FreeTrajectoryState innerFreeState(const reco::Track& tk, const MagneticField* field, bool withErr) {
     Basic3DVector<float> pos(tk.innerPosition());
     GlobalPoint gpos(pos);

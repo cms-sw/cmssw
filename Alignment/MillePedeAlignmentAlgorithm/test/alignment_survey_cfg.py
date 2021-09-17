@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 
 # initialize  MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.alignment = cms.untracked.PSet(
+process.MessageLogger.files.alignment = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
         ),
@@ -27,16 +27,14 @@ process.MessageLogger.alignment = cms.untracked.PSet(
     Alignment = cms.untracked.PSet(
         limit = cms.untracked.int32(-1),
         reportEvery = cms.untracked.int32(1)
-        )
+        ),
+    enableStatistics = cms.untracked.bool(True)
     )
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(True)
-process.MessageLogger.destinations = ['alignment']
-process.MessageLogger.statistics = ['alignment']
-process.MessageLogger.categories = ['Alignment']
+process.MessageLogger.cerr.enable = cms.untracked.bool(False)
+
 
 
 # initialize magnetic field
-#process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
@@ -108,7 +106,6 @@ process.TrackRefitter.TrajectoryInEvent = True
 ##process.Chi2MeasurementEstimator.MaxChi2 = 50. # untested, default 30
 #process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
 #process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
-#process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi")
 #process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
 ## end refitting with analytical propagator
 

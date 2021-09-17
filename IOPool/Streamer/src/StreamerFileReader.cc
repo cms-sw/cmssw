@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/src/StreamerFileReader.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
@@ -13,13 +14,12 @@ namespace edm {
 
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
-        streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
         streamReader_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
     InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
                              pset.getUntrackedParameter<std::string>("overrideCatalog"));
-    streamerNames_ = catalog.fileNames();
+    streamerNames_ = catalog.fileCatalogItems();
     reset_();
   }
 
@@ -29,11 +29,13 @@ namespace edm {
     if (streamerNames_.size() > 1) {
       streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID());
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_.at(0), eventSkipperByID());
+      streamReader_ = std::make_unique<StreamerInputFile>(
+          streamerNames_.at(0).fileNames()[0], streamerNames_.at(0).logicalFileName(), eventSkipperByID());
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
           << "No fileNames were specified\n";
     }
+    isFirstFile_ = true;
     InitMsgView const* header = getHeader();
     deserializeAndMergeWithRegistry(*header, false);
     if (initialNumberOfEventsToSkip_) {
@@ -41,21 +43,17 @@ namespace edm {
     }
   }
 
-  bool StreamerFileReader::checkNextEvent() {
+  StreamerFileReader::Next StreamerFileReader::checkNext() {
     EventMsgView const* eview = getNextEvent();
 
-    if (newHeader()) {
-      // FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-      // A new file has been opened and we must compare Heraders here !!
-      //Get header/init from reader
-      InitMsgView const* header = getHeader();
-      deserializeAndMergeWithRegistry(*header, true);
-    }
     if (eview == nullptr) {
-      return false;
+      if (newHeader()) {
+        return Next::kFile;
+      }
+      return Next::kStop;
     }
     deserializeEvent(*eview);
-    return true;
+    return Next::kEvent;
   }
 
   void StreamerFileReader::skip(int toSkip) {
@@ -76,6 +74,20 @@ namespace edm {
       streamReader_->closeStreamerFile();
   }
 
+  void StreamerFileReader::genuineReadFile() {
+    if (isFirstFile_) {
+      //The file was already opened in the constructor
+      isFirstFile_ = false;
+      return;
+    }
+    streamReader_->openNextFile();
+    // FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
+    // A new file has been opened and we must compare Heraders here !!
+    //Get header/init from reader
+    InitMsgView const* header = getHeader();
+    deserializeAndMergeWithRegistry(*header, true);
+  }
+
   bool StreamerFileReader::newHeader() { return streamReader_->newHeader(); }
 
   InitMsgView const* StreamerFileReader::getHeader() {
@@ -89,7 +101,7 @@ namespace edm {
   }
 
   EventMsgView const* StreamerFileReader::getNextEvent() {
-    if (!streamReader_->next()) {
+    if (StreamerInputFile::Next::kEvent != streamReader_->next()) {
       return nullptr;
     }
     return streamReader_->currentRecord();

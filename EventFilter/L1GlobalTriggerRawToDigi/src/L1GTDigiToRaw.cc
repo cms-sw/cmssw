@@ -50,9 +50,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
-
 // constructor(s)
 L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
     :
@@ -62,6 +59,7 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
       m_muGmtInputToken(consumes<L1MuGMTReadoutCollection>(pSet.getParameter<edm::InputTag>("MuGmtInputTag"))),
       m_daqGtInputTag(pSet.getParameter<edm::InputTag>("DaqGtInputTag")),
       m_muGmtInputTag(pSet.getParameter<edm::InputTag>("MuGmtInputTag")),
+      m_l1GtBMToken(esConsumes<L1GtBoardMaps, L1GtBoardMapsRcd>()),
       m_activeBoardsMaskGt(pSet.getParameter<unsigned int>("ActiveBoardsMask")),
       m_totalBxInEvent(0),
       m_minBxInEvent(0),
@@ -97,8 +95,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) 
   // get records from EventSetup
 
   //  board maps
-  edm::ESHandle<L1GtBoardMaps> l1GtBM;
-  evSetup.get<L1GtBoardMapsRcd>().get(l1GtBM);
+  edm::ESHandle<L1GtBoardMaps> l1GtBM = evSetup.getHandle(m_l1GtBMToken);
 
   const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
   int boardMapsSize = boardMaps.size();

@@ -134,6 +134,11 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet)
       consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtDataEvmInputTag"));
   m_l1GtEmulEvmInputToken_ =
       consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtEmulEvmInputTag"));
+  l1gtPrescaleTechToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtPrescaleAlgoToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtTrigmenuToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtTrigmaskTechToken_ = esConsumes<edm::Transition::BeginRun>();
+  l1gtTrigmaskAlgoToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 // destructor
@@ -142,8 +147,6 @@ L1GtHwValidation::~L1GtHwValidation() {
 }
 
 // member functions
-
-void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {}
 
 void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                       const edm::Run& iRun,
@@ -654,9 +657,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
+    m_l1GtMenu = &evSetup.getData(l1gtTrigmenuToken_);
 
     // compute the list of algorithms excluded from the computing of the agreement flag
     m_excludedAlgoList.clear();
@@ -754,9 +755,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-    m_l1GtPfAlgo = l1GtPfAlgo.product();
+    m_l1GtPfAlgo = &evSetup.getData(l1gtPrescaleAlgoToken_);
 
     m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
 
@@ -766,9 +765,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtPfTechCacheID = evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
-    m_l1GtPfTech = l1GtPfTech.product();
+    m_l1GtPfTech = &evSetup.getData(l1gtPrescaleTechToken_);
 
     m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
 
@@ -781,9 +778,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-    m_l1GtTmAlgo = l1GtTmAlgo.product();
+    m_l1GtTmAlgo = &evSetup.getData(l1gtTrigmaskAlgoToken_);
 
     m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
 
@@ -793,9 +788,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
   unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-    m_l1GtTmTech = l1GtTmTech.product();
+    m_l1GtTmTech = &evSetup.getData(l1gtTrigmaskTechToken_);
 
     m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
 
@@ -829,8 +822,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BoardId value
-  const boost::uint16_t boardIdData = gtfeBlockData.boardId();
-  const boost::uint16_t boardIdEmul = gtfeBlockEmul.boardId();
+  const uint16_t boardIdData = gtfeBlockData.boardId();
+  const uint16_t boardIdEmul = gtfeBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE boardId identical.";
@@ -849,8 +842,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get record length for alternative 1
-  const boost::uint16_t recordLength1Data = gtfeBlockData.recordLength1();
-  const boost::uint16_t recordLength1Emul = gtfeBlockEmul.recordLength1();
+  const uint16_t recordLength1Data = gtfeBlockData.recordLength1();
+  const uint16_t recordLength1Emul = gtfeBlockEmul.recordLength1();
 
   if (recordLength1Data == recordLength1Emul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 1 identical.";
@@ -866,8 +859,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get record length for alternative 0
-  const boost::uint16_t recordLengthData = gtfeBlockData.recordLength();
-  const boost::uint16_t recordLengthEmul = gtfeBlockEmul.recordLength();
+  const uint16_t recordLengthData = gtfeBlockData.recordLength();
+  const uint16_t recordLengthEmul = gtfeBlockEmul.recordLength();
 
   if (recordLengthData == recordLengthEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE recordLength for alternative 0 identical.";
@@ -883,8 +876,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get bunch cross number as counted in the GTFE board
-  const boost::uint16_t bxNrData = gtfeBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = gtfeBlockEmul.bxNr();
+  const uint16_t bxNrData = gtfeBlockData.bxNr();
+  const uint16_t bxNrEmul = gtfeBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE bxNr identical.";
@@ -900,8 +893,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get setup version
-  const boost::uint32_t setupVersionData = gtfeBlockData.setupVersion();
-  const boost::uint32_t setupVersionEmul = gtfeBlockEmul.setupVersion();
+  const uint32_t setupVersionData = gtfeBlockData.setupVersion();
+  const uint32_t setupVersionEmul = gtfeBlockEmul.setupVersion();
 
   if (setupVersionData == setupVersionEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE setupVersion identical.";
@@ -917,8 +910,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get boards contributing to EVM respectively DAQ record
-  const boost::uint16_t activeBoardsData = gtfeBlockData.activeBoards();
-  const boost::uint16_t activeBoardsEmul = gtfeBlockEmul.activeBoards();
+  const uint16_t activeBoardsData = gtfeBlockData.activeBoards();
+  const uint16_t activeBoardsEmul = gtfeBlockEmul.activeBoards();
 
   if (activeBoardsData == activeBoardsEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE activeBoards identical.";
@@ -939,8 +932,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   ///     correlated with active boards
   ///     bit value is 0: take alternative 0
   ///     bit value is 1: take alternative 1
-  const boost::uint16_t altNrBxBoardData = gtfeBlockData.altNrBxBoard();
-  const boost::uint16_t altNrBxBoardEmul = gtfeBlockEmul.altNrBxBoard();
+  const uint16_t altNrBxBoardData = gtfeBlockData.altNrBxBoard();
+  const uint16_t altNrBxBoardEmul = gtfeBlockEmul.altNrBxBoard();
 
   if (altNrBxBoardData == altNrBxBoardEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE altNrBxBoard identical.";
@@ -956,8 +949,8 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get total number of L1A sent since start of run
-  const boost::uint32_t totalTriggerNrData = gtfeBlockData.totalTriggerNr();
-  const boost::uint32_t totalTriggerNrEmul = gtfeBlockEmul.totalTriggerNr();
+  const uint32_t totalTriggerNrData = gtfeBlockData.totalTriggerNr();
+  const uint32_t totalTriggerNrEmul = gtfeBlockEmul.totalTriggerNr();
 
   if (totalTriggerNrData == totalTriggerNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated GTFE totalTriggerNr identical.";
@@ -1053,8 +1046,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   // loop over algorithms and increase the corresponding counters
 
   // get BoardId value
-  const boost::uint16_t boardIdData = fdlBlockData.boardId();
-  const boost::uint16_t boardIdEmul = fdlBlockEmul.boardId();
+  const uint16_t boardIdData = fdlBlockData.boardId();
+  const uint16_t boardIdEmul = fdlBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL boardId identical.";
@@ -1082,8 +1075,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BxNr - bunch cross number of the actual bx
-  const boost::uint16_t bxNrData = fdlBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = fdlBlockEmul.bxNr();
+  const uint16_t bxNrData = fdlBlockData.bxNr();
+  const uint16_t bxNrEmul = fdlBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL bxNr identical.";
@@ -1108,8 +1101,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get event number since last L1 reset generated in FDL
-  const boost::uint32_t eventNrData = fdlBlockData.eventNr();
-  const boost::uint32_t eventNrEmul = fdlBlockEmul.eventNr();
+  const uint32_t eventNrData = fdlBlockData.eventNr();
+  const uint32_t eventNrEmul = fdlBlockEmul.eventNr();
 
   if (eventNrData == eventNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL eventNr identical.";
@@ -1541,8 +1534,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   }
 
   // get  NoAlgo
-  const boost::uint16_t noAlgoData = fdlBlockData.noAlgo();
-  const boost::uint16_t noAlgoEmul = fdlBlockEmul.noAlgo();
+  const uint16_t noAlgoData = fdlBlockData.noAlgo();
+  const uint16_t noAlgoEmul = fdlBlockEmul.noAlgo();
 
   if (noAlgoData == noAlgoEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL noAlgo identical.";
@@ -1563,8 +1556,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   }
 
   // get  "Final OR" bits
-  const boost::uint16_t finalORData = fdlBlockData.finalOR();
-  const boost::uint16_t finalOREmul = fdlBlockEmul.finalOR();
+  const uint16_t finalORData = fdlBlockData.finalOR();
+  const uint16_t finalOREmul = fdlBlockEmul.finalOR();
 
   if (finalORData == finalOREmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL finalOR identical.";
@@ -1610,8 +1603,8 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
   }
 
   // get  local bunch cross number of the actual bx
-  const boost::uint16_t localBxNrData = fdlBlockData.localBxNr();
-  const boost::uint16_t localBxNrEmul = fdlBlockEmul.localBxNr();
+  const uint16_t localBxNrData = fdlBlockData.localBxNr();
+  const uint16_t localBxNrEmul = fdlBlockEmul.localBxNr();
 
   if (localBxNrData == localBxNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL localBxNr identical.";
@@ -1661,8 +1654,8 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BoardId value
-  const boost::uint16_t boardIdData = psbBlockData.boardId();
-  const boost::uint16_t boardIdEmul = psbBlockEmul.boardId();
+  const uint16_t boardIdData = psbBlockData.boardId();
+  const uint16_t boardIdEmul = psbBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\nData and emulated PSB boardId identical.";
@@ -1696,8 +1689,8 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
   }
 
   // get BxNr - bunch cross number of the actual bx
-  const boost::uint16_t bxNrData = psbBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = psbBlockEmul.bxNr();
+  const uint16_t bxNrData = psbBlockData.bxNr();
+  const uint16_t bxNrEmul = psbBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\nData and emulated PSB bxNr identical.";
@@ -1712,8 +1705,8 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
   }
 
   // get event number since last L1 reset generated in FDL
-  const boost::uint32_t eventNrData = psbBlockData.eventNr();
-  const boost::uint32_t eventNrEmul = psbBlockEmul.eventNr();
+  const uint32_t eventNrData = psbBlockData.eventNr();
+  const uint32_t eventNrEmul = psbBlockEmul.eventNr();
 
   if (eventNrData == eventNrEmul) {
     m_myCoutStream << "\nData and emulated PSB eventNr identical.";
@@ -1728,8 +1721,8 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
   }
 
   /// get/set A_DATA_CH_IA
-  boost::uint16_t valData;
-  boost::uint16_t valEmul;
+  uint16_t valData;
+  uint16_t valEmul;
 
   for (int iA = 0; iA < psbBlockData.NumberAData; ++iA) {
     valData = psbBlockData.aData(iA);
@@ -1773,8 +1766,8 @@ void L1GtHwValidation::comparePSB(const edm::Event& iEvent,
   }
 
   // get  local bunch cross number of the actual bx
-  const boost::uint16_t localBxNrData = psbBlockData.localBxNr();
-  const boost::uint16_t localBxNrEmul = psbBlockEmul.localBxNr();
+  const uint16_t localBxNrData = psbBlockData.localBxNr();
+  const uint16_t localBxNrEmul = psbBlockEmul.localBxNr();
 
   if (localBxNrData == localBxNrEmul) {
     m_myCoutStream << "\nData and emulated PSB localBxNr identical.";
@@ -1902,7 +1895,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent, const edm::Eve
   // in unpacker: every PSB in all BxInEvent
   for (int iPsb = 0; iPsb < gtPsbVectorDataSize; ++iPsb) {
     const L1GtPsbWord& psbBlockData = gtPsbVectorData[iPsb];
-    const boost::uint16_t boardIdData = psbBlockData.boardId();
+    const uint16_t boardIdData = psbBlockData.boardId();
     const int bxInEventData = psbBlockData.bxInEvent();
 
     // search the corresponding PSB in the emulated record using the
@@ -1912,7 +1905,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent, const edm::Eve
 
     for (int iPsbF = 0; iPsbF < gtPsbVectorEmulSize; ++iPsbF) {
       const L1GtPsbWord& psbBlockEmul = gtPsbVectorEmul[iPsbF];
-      const boost::uint16_t boardIdEmul = psbBlockEmul.boardId();
+      const uint16_t boardIdEmul = psbBlockEmul.boardId();
       const int bxInEventEmul = psbBlockEmul.bxInEvent();
 
       if ((boardIdEmul == boardIdData) && (bxInEventData == bxInEventEmul)) {

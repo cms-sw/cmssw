@@ -27,7 +27,7 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
 

@@ -20,11 +20,14 @@ Usage:
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 class SiPixelFolderOrganizer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor - getStore should be called false from multi-thread DQM
   /// applications
   SiPixelFolderOrganizer(bool getStore = true);

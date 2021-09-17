@@ -3,6 +3,8 @@
 
 #include "MSLayersKeeper.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+
 class dso_hidden MSLayersKeeperX0Averaged final : public MSLayersKeeper {
 public:
   MSLayersKeeperX0Averaged() : isInitialised(false) {}

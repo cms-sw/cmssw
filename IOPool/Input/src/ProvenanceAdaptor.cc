@@ -9,6 +9,8 @@ ProvenanceAdaptor.cc
 #include "IOPool/Input/src/ProvenanceAdaptor.h"
 
 #include <cassert>
+#include <memory>
+
 #include <set>
 #include <utility>
 #include <string>
@@ -133,7 +135,7 @@ namespace edm {
             branchListIndexes.push_back(blix);
             ++blix;
             pv->push_back(std::move(*p));
-            p.reset(new BranchIDList);
+            p = std::make_unique<BranchIDList>();
           }
           processName = it->first;
         }

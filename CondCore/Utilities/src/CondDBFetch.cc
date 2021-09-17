@@ -34,6 +34,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(Alignments)
       FETCH_PAYLOAD_CASE(AlignPCLThresholds)
       FETCH_PAYLOAD_CASE(BeamSpotObjects)
+      FETCH_PAYLOAD_CASE(BeamSpotOnlineObjects)
       FETCH_PAYLOAD_CASE(CSCBadChambers)
       FETCH_PAYLOAD_CASE(CSCBadStrips)
       FETCH_PAYLOAD_CASE(CSCBadWires)
@@ -55,6 +56,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE(CTPPSPixelAnalysisMask)
       FETCH_PAYLOAD_CASE(CTPPSPixelGainCalibrations)
       FETCH_PAYLOAD_CASE(CTPPSRPAlignmentCorrectionsData)
+      FETCH_PAYLOAD_CASE(PPSAlignmentConfig)
+      FETCH_PAYLOAD_CASE(PPSAlignmentConfiguration)
       FETCH_PAYLOAD_CASE(LHCOpticalFunctionsSetCollection)
       FETCH_PAYLOAD_CASE(CastorChannelQuality)
       FETCH_PAYLOAD_CASE(CastorElectronicsMap)
@@ -241,8 +244,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE(PCaloGeometry)
       FETCH_PAYLOAD_CASE(HcalParameters)
       FETCH_PAYLOAD_CASE(PGeometricDet)
-      FETCH_PAYLOAD_CASE(PGeometricDetExtra)
       FETCH_PAYLOAD_CASE(PTrackerParameters)
+      FETCH_PAYLOAD_CASE(PTrackerAdditionalParametersPerDet)
       FETCH_PAYLOAD_CASE(PHGCalParameters)
       //FETCH_PAYLOAD_CASE( PerformancePayload )
       FETCH_PAYLOAD_CASE(PerformancePayloadFromTable)
@@ -271,6 +274,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(RPFlatParams)
       FETCH_PAYLOAD_CASE(RecoIdealGeometry)
       FETCH_PAYLOAD_CASE(RunInfo)
+      FETCH_PAYLOAD_CASE(SiPhase2OuterTrackerLorentzAngle)
       FETCH_PAYLOAD_CASE(SiPixelCalibConfiguration)
       FETCH_PAYLOAD_CASE(SiPixelCPEGenericErrorParm)
       FETCH_PAYLOAD_CASE(SiPixelFedCablingMap)
@@ -284,7 +288,9 @@ namespace cond {
       FETCH_PAYLOAD_CASE(SiPixelQualityProbabilities)
       FETCH_PAYLOAD_CASE(SiPixelTemplateDBObject)
       FETCH_PAYLOAD_CASE(SiPixel2DTemplateDBObject)
+      FETCH_PAYLOAD_CASE(SiPixelVCal)
       FETCH_PAYLOAD_CASE(SiStripApvGain)
+      FETCH_PAYLOAD_CASE(SiStripApvSimulationParameters)
       FETCH_PAYLOAD_CASE(SiStripBackPlaneCorrection)
       FETCH_PAYLOAD_CASE(SiStripBadStrip)
       FETCH_PAYLOAD_CASE(SiStripConfObject)
@@ -309,6 +315,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(EcalCondObjectContainer<float>)
       FETCH_PAYLOAD_CASE(MagFieldConfig)
       FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetos)
+      FETCH_PAYLOAD_CASE(L1TGlobalPrescalesVetosFract)
 
       //
       if (payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>") {
@@ -338,9 +345,7 @@ namespace cond {
       std::string payloadTypeName;
       bool found = session.fetchPayloadData(payloadId, payloadTypeName, data, streamerInfo);
       if (!found)
-        throwException(
-            "Payload with id " + boost::lexical_cast<std::string>(payloadId) + " has not been found in the database.",
-            "fetch");
+        throwException("Payload with id " + payloadId + " has not been found in the database.", "fetch");
       return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
     }
 

@@ -126,31 +126,31 @@ void SiPixelGainCalibration::setData(
 float SiPixelGainCalibration::getPed(
     const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
   int nRows = (range.second - range.first) / 2 / nCols;
-  const DecodingStructure& s = (const DecodingStructure&)*(range.first + (col * nRows + row) * 2);
+  const unsigned int ped = *(range.first + 1 + (col * nRows + row) * 2) & 0xFF;
   if (col >= nCols || row >= nRows) {
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }
-  if ((s.ped & 0xFF) == deadFlag_)
+  if (ped == deadFlag_)
     isDead = true;
-  if ((s.ped & 0xFF) == noisyFlag_)
+  if (ped == noisyFlag_)
     isNoisy = true;
-  return decodePed(s.ped & 0xFF);
+  return decodePed(ped);
 }
 
 float SiPixelGainCalibration::getGain(
     const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
   int nRows = (range.second - range.first) / 2 / nCols;
-  const DecodingStructure& s = (const DecodingStructure&)*(range.first + (col * nRows + row) * 2);
+  const unsigned int gain = *(range.first + (col * nRows + row) * 2) & 0xFF;
   if (col >= nCols || row >= nRows) {
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }
-  if ((s.gain & 0xFF) == deadFlag_)
+  if (gain == deadFlag_)
     isDead = true;
-  if ((s.gain & 0xFF) == noisyFlag_)
+  if (gain == noisyFlag_)
     isNoisy = true;
-  return decodeGain(s.gain & 0xFF);
+  return decodeGain(gain);
 }
 
 float SiPixelGainCalibration::encodeGain(const float& gain) {

@@ -14,7 +14,6 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -49,6 +48,8 @@ public:
 private:
   std::string outfile;
   double epsilon;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok1;
+  edm::ESGetToken<HcalPedestals, HcalPedestalsRcd> m_tok2;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);
 };
 #endif

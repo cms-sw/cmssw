@@ -158,14 +158,15 @@ void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,
 float SiPixelGainCalibrationOffline::getPed(
     const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
   unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
-  //determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
+  // determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
   unsigned int lengthOfAveragedDataInEachColumn = numberOfRowsToAverageOver_ + 1;
   unsigned int numberOfAveragedDataBlocksToSkip = row / numberOfRowsToAverageOver_;
   unsigned int offSetInCorrectDataBlock = row % numberOfRowsToAverageOver_;
 
-  const DecodingStructure& s = (const DecodingStructure&)*(
-      range.first + col * (lengthOfColumnData) + (numberOfAveragedDataBlocksToSkip * lengthOfAveragedDataInEachColumn) +
-      offSetInCorrectDataBlock);
+  const unsigned int datum =
+      *(range.first + col * lengthOfColumnData + numberOfAveragedDataBlocksToSkip * lengthOfAveragedDataInEachColumn +
+        offSetInCorrectDataBlock) &
+      0xFF;
 
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;
   if (col >= nCols || row > maxRow) {
@@ -173,12 +174,12 @@ float SiPixelGainCalibrationOffline::getPed(
         << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }
 
-  if ((s.datum & 0xFF) == deadFlag_)
+  if (datum == deadFlag_)
     isDead = true;
-  if ((s.datum & 0xFF) == noisyFlag_)
+  if (datum == noisyFlag_)
     isNoisy = true;
 
-  return decodePed(s.datum & 0xFF);
+  return decodePed(datum);
 }
 
 float SiPixelGainCalibrationOffline::getGain(const int& col,
@@ -188,18 +189,18 @@ float SiPixelGainCalibrationOffline::getGain(const int& col,
                                              bool& isDeadColumn,
                                              bool& isNoisyColumn) const {
   unsigned int lengthOfColumnData = (range.second - range.first) / nCols;
-  //determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
+  // determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
   unsigned int lengthOfAveragedDataInEachColumn = numberOfRowsToAverageOver_ + 1;
   unsigned int numberOfAveragedDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
   // gain average is stored in the last location of current row averaged column data block
-  const DecodingStructure& s =
-      (const DecodingStructure&)*(range.first + (col) * (lengthOfColumnData) +
-                                  ((numberOfAveragedDataBlocksToSkip + 1) * lengthOfAveragedDataInEachColumn) - 1);
+  const unsigned int datum = *(range.first + col * lengthOfColumnData +
+                               ((numberOfAveragedDataBlocksToSkip + 1) * lengthOfAveragedDataInEachColumn) - 1) &
+                             0xFF;
 
-  if ((s.datum & 0xFF) == deadFlag_)
+  if (datum == deadFlag_)
     isDeadColumn = true;
-  if ((s.datum & 0xFF) == noisyFlag_)
+  if (datum == noisyFlag_)
     isNoisyColumn = true;
 
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;
@@ -207,7 +208,8 @@ float SiPixelGainCalibrationOffline::getGain(const int& col,
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }
-  return decodeGain(s.datum & 0xFF);
+
+  return decodeGain(datum);
 }
 
 float SiPixelGainCalibrationOffline::encodeGain(const float& gain) {

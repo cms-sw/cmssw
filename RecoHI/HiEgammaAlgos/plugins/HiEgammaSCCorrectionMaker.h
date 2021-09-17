@@ -30,10 +30,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
@@ -43,8 +41,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  std::unique_ptr<EcalClusterFunctionBaseClass> EnergyCorrection_;
-
   // the debug level
   HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
 
@@ -62,9 +58,10 @@ private:
   edm::InputTag sCInputProducerTag_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
 
   reco::CaloCluster::AlgoId sCAlgo_;
   std::string outputCollection_;
-  edm::ESHandle<CaloTopology> theCaloTopo_;
 };
 #endif

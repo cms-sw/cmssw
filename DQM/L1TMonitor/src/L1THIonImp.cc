@@ -221,8 +221,6 @@ void L1THIonImp::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
       "Minimum Bias Trigger Data vs Emul", "Minimum Bias Trigger Data vs Emul", 6, -0.5, 5.5, 6, -0.5, 5.5);
 }
 
-void L1THIonImp::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {}
-
 void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<L1GctEmCandCollection> l1IsoEm;
   edm::Handle<L1GctEmCandCollection> l1NonIsoEm;

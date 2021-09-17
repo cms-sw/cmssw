@@ -23,7 +23,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -38,7 +37,6 @@ public:
   ~BPhysicsValidation() override;
 
   void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
   void analyze(edm::Event const &, edm::EventSetup const &) override;
 
 private:

@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,9 +16,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
 #include "TFile.h"

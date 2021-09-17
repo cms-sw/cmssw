@@ -11,7 +11,7 @@
     <Constant name="external_wall_thickness" value="1*mm"/>
   </ConstantsSection>
 
-  <SolidSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
+  <SolidSection label="CTPPS_Timing_Horizontal_Pot.xml">
     <Tubs name="Primary_Vacuum_nocut" rMin="0*mm" rMax="[inner_diameter]/2+[external_wall_thickness]" dz="[plane_length]/2" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Bottom_Wall_nocut" rMin="0*mm" rMax="[inner_diameter]/2" dz="([bottom_wall_thickness])/2" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="External_Wall" rMin="[inner_diameter]/2" rMax="[inner_diameter]/2+[external_wall_thickness]" dz="[plane_length]/2" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -43,7 +43,7 @@
     </LogicalPart>
   </LogicalPartSection>
 
-  <PosPartSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
+  <PosPartSection label="CTPPS_Timing_Horizontal_Pot.xml">
     <PosPart copyNumber="1">
       <rParent name="Primary_Vacuum"/>
       <rChild name="External_Wall"/>

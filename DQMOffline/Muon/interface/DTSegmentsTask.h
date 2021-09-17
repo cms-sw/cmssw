@@ -17,7 +17,6 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>
@@ -41,6 +40,8 @@ private:
   bool debug;
   bool checkNoisyChannels;
   edm::ParameterSet parameters;
+
+  const edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
 
   // the histos
   std::vector<MonitorElement *> phiHistos;

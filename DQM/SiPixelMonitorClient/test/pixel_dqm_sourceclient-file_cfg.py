@@ -4,7 +4,7 @@ process = cms.Process("SIPIXELDQM")
 
 ##----## Geometry and other global parameters:
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 ###process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 ##----## Reco:
@@ -26,7 +26,6 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 ##----## Central DQM:
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = 'tmp/pixel_reference.root'
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
@@ -36,7 +35,8 @@ process.dqmSaver.dirName = '/tmp/merkelp/'
 process.dqmSaver.saveByLumiSection = 1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),

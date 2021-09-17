@@ -23,11 +23,12 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -45,43 +46,32 @@ using namespace std;
 // class decleration
 //
 
-class GenHIEventProducer : public edm::EDProducer {
+class GenHIEventProducer : public edm::global::EDProducer<> {
 public:
   explicit GenHIEventProducer(const edm::ParameterSet&);
-  ~GenHIEventProducer() override;
+  ~GenHIEventProducer() override = default;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
-  edm::ESHandle<ParticleDataTable> pdt;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  const edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
+  const edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
+  const edm::EDPutTokenT<edm::GenHIEvent> putToken_;
 
   double ptCut_;
-  bool doParticleInfo_;
+  const bool doParticleInfo_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig) {
-  produces<edm::GenHIEvent>();
-  hepmcSrc_ = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getParameter<edm::InputTag>("src"));
-  doParticleInfo_ = iConfig.getUntrackedParameter<bool>("doParticleInfo", false);
+GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
+    : hepmcSrc_(consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getParameter<edm::InputTag>("src"))),
+      pdtToken_(esConsumes<ParticleDataTable, edm::DefaultRecord>()),
+      putToken_(produces<edm::GenHIEvent>()),
+      doParticleInfo_(iConfig.getUntrackedParameter<bool>("doParticleInfo", false)) {
   if (doParticleInfo_) {
     ptCut_ = iConfig.getParameter<double>("ptCut");
   }
-}
-
-GenHIEventProducer::~GenHIEventProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -89,11 +79,10 @@ GenHIEventProducer::~GenHIEventProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void GenHIEventProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  if (!(pdt.isValid()))
-    iSetup.getData(pdt);
+  const auto& pdt = iSetup.getData(pdtToken_);
 
   double b = -1;
   int npart = -1;
@@ -112,9 +101,8 @@ void GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   double EtMR = 0;       // Normalized of total energy bym
   double TotEnergy = 0;  // Total energy bym
 
-  Handle<CrossingFrame<edm::HepMCProduct> > hepmc;
-  iEvent.getByToken(hepmcSrc_, hepmc);
-  MixCollection<HepMCProduct> mix(hepmc.product());
+  const auto& hepmc = iEvent.get(hepmcSrc_);
+  MixCollection<HepMCProduct> mix(&hepmc);
 
   if (mix.size() < 1) {
     throw cms::Exception("MatchVtx") << "Mixing has " << mix.size() << " sub-events, should have been at least 1"
@@ -130,7 +118,7 @@ void GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if ((*it)->status() != 1)
         continue;
       int pdg_id = (*it)->pdg_id();
-      const ParticleData* part = pdt->particle(pdg_id);
+      const ParticleData* part = pdt.particle(pdg_id);
       int charge = static_cast<int>(part->charge());
 
       if (charge == 0)
@@ -185,10 +173,20 @@ void GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     meanPt /= nCharged;
   }
 
-  std::unique_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(
-      b, npart, ncoll, nhard, phi, ecc, nCharged, nChargedMR, meanPt, meanPtMR, EtMR, nChargedPtCut, nChargedPtCutMR));
-
-  iEvent.put(std::move(pGenHI));
+  iEvent.emplace(putToken_,
+                 b,
+                 npart,
+                 ncoll,
+                 nhard,
+                 phi,
+                 ecc,
+                 nCharged,
+                 nChargedMR,
+                 meanPt,
+                 meanPtMR,
+                 EtMR,
+                 nChargedPtCut,
+                 nChargedPtCutMR);
 }
 
 //define this as a plug-in

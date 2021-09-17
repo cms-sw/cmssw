@@ -49,6 +49,9 @@ DefaultHisto = cms.PSet(
   # Setting this to False hides all plots of this HistogramManager. It does not even record any data.
   enabled = cms.bool(True),
 
+  # If this is set to False Overflows will not be used for statistics evaluation (i.e. Mean,RMS)
+  statsOverflows = cms.bool(True),
+
   # a.k.a. online harvesting. Might be useful in offline for custom harvesting,
   # but the main purpose is online, where this is on by default.
   perLumiHarvesting = cms.bool(False),

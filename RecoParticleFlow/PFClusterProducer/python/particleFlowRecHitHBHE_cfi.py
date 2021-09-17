@@ -1,17 +1,14 @@
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCAL
 
 _thresholdsHB = cms.vdouble(0.8, 0.8, 0.8, 0.8)
 _thresholdsHE = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
 _thresholdsHBphase1 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 
-
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-            name = cms.string("PFRecHitHCALNavigator"),
-            sigmaCut = cms.double(4.0),
-            timeResolutionCalc = _timeResolutionHCAL
+            name = cms.string("PFRecHitHCALDenseIdNavigator"),
+            hcalEnums = cms.vint32(1,2)
     ),
     producers = cms.VPSet(
            cms.PSet(
@@ -55,4 +52,12 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1) } ) } ) },
+)
+
+# HCALonly WF
+particleFlowRecHitHBHEOnly = particleFlowRecHitHBHE.clone(
+    producers = { 0: dict(src = "hbheprereco") }
+)
+run3_HB.toModify(particleFlowRecHitHBHEOnly,
+    producers = { 0: dict(src = "hbhereco") }
 )

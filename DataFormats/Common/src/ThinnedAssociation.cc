@@ -6,12 +6,11 @@ namespace edm {
 
   ThinnedAssociation::ThinnedAssociation() {}
 
-  bool ThinnedAssociation::hasParentIndex(unsigned int parentIndex, unsigned int& thinnedIndex) const {
+  std::optional<unsigned int> ThinnedAssociation::getThinnedIndex(unsigned int parentIndex) const {
     auto iter = std::lower_bound(indexesIntoParent_.begin(), indexesIntoParent_.end(), parentIndex);
     if (iter != indexesIntoParent_.end() && *iter == parentIndex) {
-      thinnedIndex = iter - indexesIntoParent_.begin();
-      return true;
+      return iter - indexesIntoParent_.begin();
     }
-    return false;
+    return std::nullopt;
   }
 }  // namespace edm

@@ -11,7 +11,8 @@ ecalTrigPrimClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
         minEntries = cms.untracked.int32(minEntries),
         errorFractionThreshold = cms.untracked.double(errorFractionThreshold),
-        TTF4MaskingAlarmThreshold = cms.untracked.double(TTF4MaskingAlarmThreshold)
+        TTF4MaskingAlarmThreshold = cms.untracked.double(TTF4MaskingAlarmThreshold),
+        sourceFromEmul = cms.untracked.bool(True)
     ),
     sources = cms.untracked.PSet(
         EtEmulError = ecalTrigPrimTask.MEs.EtEmulError,

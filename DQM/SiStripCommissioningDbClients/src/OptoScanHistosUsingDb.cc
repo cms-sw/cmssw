@@ -10,9 +10,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+OptoScanHistosUsingDb::OptoScanHistosUsingDb(const edm::ParameterSet& pset,
+                                             DQMStore* bei,
+                                             SiStripConfigDb* const db,
+                                             edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("OptoScanParameters"), bei, sistrip::OPTO_SCAN),
-      CommissioningHistosUsingDb(db, sistrip::OPTO_SCAN),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::OPTO_SCAN),
       OptoScanHistograms(pset.getParameter<edm::ParameterSet>("OptoScanParameters"), bei) {
   LogTrace(mlDqmClient_) << "[OptoScanHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

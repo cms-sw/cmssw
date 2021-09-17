@@ -16,7 +16,7 @@ namespace edm {
 
     class RefHolderBase {
     public:
-      RefHolderBase() {}
+      RefHolderBase();
       template <class T>
       T const* getPtr() const;
       virtual ~RefHolderBase();

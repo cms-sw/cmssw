@@ -10,8 +10,8 @@ process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HcalGeom')
-    process.MessageLogger.categories.append('CaloTopology')
+    process.MessageLogger.HcalGeom=dict()
+    process.MessageLogger.CaloTopology=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -39,5 +39,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Geometry.CaloTopology.hcalDetId2DenseTester_cfi")
 process.hcalDetId2DenseTester.fileName = "hcaldetid2dense.txt"
+process.hcalDetId2DenseTester.testCalib = True
 
 process.p1 = cms.Path(process.generator*process.hcalDetId2DenseTester)

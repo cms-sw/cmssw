@@ -3,9 +3,10 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#include <boost/lexical_cast.hpp>
 #include <TChain.h>
 #include <TFile.h>
+#include <regex>
+#include <fstream>
 
 namespace sistrip {
 
@@ -55,7 +56,7 @@ namespace sistrip {
   std::map<uint32_t,LA_Filler_Fitter::Result> 
     module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);
   
-  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader(fp_.fullPath()).getAllDetIds()) {
+  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader::read(fp_.fullPath()).getAllDetIds()) {
     float la = module_results[detid].measure / module_results[detid].field ;
     lorentzAngle->putLorentzAngle( detid, la );
   }
@@ -70,7 +71,7 @@ namespace sistrip {
         calibrate(calibration_key(result.first, method), result.second);
         std::string label =
             laff.layerLabel(result.first) + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
-        label = boost::regex_replace(label, boost::regex("layer"), "");
+        label = std::regex_replace(label, std::regex("layer"), "");
 
         const double mu_H = -result.second.calMeasured.first / result.second.field;
         const double sigma_mu_H = result.second.calMeasured.second / result.second.field;
@@ -179,10 +180,10 @@ namespace sistrip {
 
   std::pair<uint32_t, LA_Filler_Fitter::Method> MeasureLA::calibration_key(
       const std::string layer, const LA_Filler_Fitter::Method method) const {
-    boost::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
-    const bool isTIB = "TIB" == boost::regex_replace(layer, format, "\\1");
-    const bool stereo = "s" == boost::regex_replace(layer, format, "\\3");
-    const unsigned layerNum = boost::lexical_cast<unsigned>(boost::regex_replace(layer, format, "\\2"));
+    std::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
+    const bool isTIB = "TIB" == std::regex_replace(layer, format, "\\1");
+    const bool stereo = "s" == std::regex_replace(layer, format, "\\3");
+    const unsigned layerNum = std::stoul(std::regex_replace(layer, format, "\\2"));
     return std::make_pair(LA_Filler_Fitter::layer_index(isTIB, stereo, layerNum), method);
   }
 

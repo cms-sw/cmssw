@@ -25,15 +25,17 @@ Cordic::Cordic(const uint32_t& aPhiScale, const uint32_t& aMagnitudeBits, const 
 
 Cordic::~Cordic() {}
 
-double Cordic::NormalizePhi(const uint32_t& aPhi) { return double(aPhi) / double(mPhiScale); }
+double Cordic::NormalizePhi(const uint32_t& aPhi) const { return double(aPhi) / double(mPhiScale); }
 
-double Cordic::NormalizeMagnitude(const uint32_t& aMagnitude) { return double(aMagnitude) / double(mMagnitudeScale); }
+double Cordic::NormalizeMagnitude(const uint32_t& aMagnitude) const {
+  return double(aMagnitude) / double(mMagnitudeScale);
+}
 
-int32_t Cordic::IntegerizeMagnitude(const double& aMagnitude) { return int32_t(aMagnitude * mMagnitudeScale); }
+int32_t Cordic::IntegerizeMagnitude(const double& aMagnitude) const { return int32_t(aMagnitude * mMagnitudeScale); }
 
-uint32_t Cordic::tower(const double& aRadians) { return uint32_t(round(mPhiScale * 0.5 * aRadians / mPi)); }
+uint32_t Cordic::tower(const double& aRadians) const { return uint32_t(round(mPhiScale * 0.5 * aRadians / mPi)); }
 
-void Cordic::operator()(int32_t aX, int32_t aY, int32_t& aPhi, uint32_t& aMagnitude) {
+void Cordic::operator()(int32_t aX, int32_t aY, int32_t& aPhi, uint32_t& aMagnitude) const {
   bool lSign(true);
 
   switch (((aY >= 0) ? 0x0 : 0x2) | ((aX >= 0) ? 0x0 : 0x1)) {

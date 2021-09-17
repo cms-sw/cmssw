@@ -4,10 +4,10 @@ INTRODUCTION
 This small README file is here to guide you in the process of running
 the Vertex Validation, slimmed version, on RelVal samples, in case you
 want to perform test on tracking and vertexing. The idea here is not
-to give you pre-cooked python configuration files, but to teach you
+to give you pre-cooked python3 configuration files, but to teach you
 how you could use the most common tool available in CMS to perform the
 same. We will mainly use cmsDriver and its powerful option to create
-the python cfg that we will run, and das_client to explore and find
+the python3 cfg that we will run, and das_client to explore and find
 suitable samples to run upon. At the end of this page there is the description of other standalone analyzers, configurations and Root macros. Let start with order.
 
 PREREQUISITES
@@ -64,7 +64,7 @@ RUN RECO AND VERTEX VALIDATION
 ==============================
 
 Inn order to run the vertex validation starting from RAW file, you
-need to create a proper python cfg. As said, instead of preparing a
+need to create a proper python3 cfg. As said, instead of preparing a
 pre-cooked one, we think its more useful to give you the cmsDriver
 command that will dynamically prepare it for you. To obtain such a cfg
 file, issue the following command:
@@ -73,7 +73,7 @@ file, issue the following command:
 cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s RAW2DIGI,RECO,VALIDATION:vertexValidationStandalone --datatier DQMIO --filein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1
 ```
 
-This will create the python configuration file **and will
+This will create the python3 configuration file **and will
 automatically run cmsRun on it. If instead you want to just produce
 the configuration, e.g. for inspection and further customization, you
 can add the option:

@@ -8,38 +8,45 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 
-SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf)
+SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf,
+                                                                 edm::ConsumesCollector iC)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
-      maskBad128StripBlocks(conf.existsAs<bool>("MaskBadAPVFibers") && conf.getParameter<bool>("MaskBadAPVFibers")),
-      tracker_cache_id(0),
-      cpe_cache_id(0),
-      quality_cache_id(0),
-      cpeTag(conf.getParameter<edm::ESInputTag>("StripCPE")),
-      matcherTag(conf.getParameter<edm::ESInputTag>("Matcher")),
-      qualityTag(conf.getParameter<edm::ESInputTag>("siStripQualityLabel")) {}
+      maskBad128StripBlocks(conf.getParameter<bool>("MaskBadAPVFibers")),
+      doMatching(conf.getParameter<bool>("doMatching")),
+      trackerToken(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      cpeToken(iC.esConsumes<StripClusterParameterEstimator, TkStripCPERecord>(
+          conf.getParameter<edm::ESInputTag>("StripCPE"))) {
+  if (doMatching) {
+    matcherToken = iC.esConsumes<SiStripRecHitMatcher, TkStripCPERecord>(conf.getParameter<edm::ESInputTag>("Matcher"));
+  }
+  if (useQuality) {
+    qualityToken =
+        iC.esConsumes<SiStripQuality, SiStripQualityRcd>(conf.getParameter<edm::ESInputTag>("siStripQualityLabel"));
+  }
+}
+
+void SiStripRecHitConverterAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("useSiStripQuality", false);
+  desc.add<bool>("MaskBadAPVFibers", false);
+  desc.add<bool>("doMatching", true);
+  desc.add<edm::ESInputTag>("StripCPE", edm::ESInputTag("StripCPEfromTrackAngleESProducer", "StripCPEfromTrackAngle"));
+  desc.add<edm::ESInputTag>("Matcher", edm::ESInputTag("SiStripRecHitMatcherESProducer", "StandardMatcher"));
+  desc.add<edm::ESInputTag>("siStripQualityLabel", edm::ESInputTag());
+}
 
 void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
-  uint32_t tk_cache_id = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-  uint32_t c_cache_id = es.get<TkStripCPERecord>().cacheIdentifier();
-  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
-
-  if (tk_cache_id != tracker_cache_id) {
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
-    tracker_cache_id = tk_cache_id;
+  tracker = &es.getData(trackerToken);
+  parameterestimator = &es.getData(cpeToken);
+  if (doMatching) {
+    matcher = &es.getData(matcherToken);
   }
-  if (c_cache_id != cpe_cache_id) {
-    es.get<TkStripCPERecord>().get(matcherTag, matcher);
-    es.get<TkStripCPERecord>().get(cpeTag, parameterestimator);
-    cpe_cache_id = c_cache_id;
-  }
-  if (useQuality && q_cache_id != quality_cache_id) {
-    es.get<SiStripQualityRcd>().get(qualityTag, quality);
-    quality_cache_id = q_cache_id;
+  if (useQuality) {
+    quality = &es.getData(qualityToken);
   }
 }
 
@@ -73,7 +80,9 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
     if (collector.empty())
       collector.abort();
   }
-  match(output, trackdirection);
+  if (doMatching) {
+    match(output, trackdirection);
+  }
 }
 
 namespace {

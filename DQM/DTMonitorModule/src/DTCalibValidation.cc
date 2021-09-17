@@ -13,12 +13,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -29,7 +27,8 @@
 using namespace edm;
 using namespace std;
 
-DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
+DTCalibValidation::DTCalibValidation(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   parameters = pset;
 
   //FR the following was previously in the beginJob
@@ -62,7 +61,7 @@ DTCalibValidation::~DTCalibValidation() {
 
 void DTCalibValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -101,14 +100,14 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
        ++segment) {
     if (detailedAnalysis) {
       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 1";
-      compute(dtGeom.product(), (*segment), recHitsPerWire_1S, 1);
+      compute(dtGeom, (*segment), recHitsPerWire_1S, 1);
 
       LogTrace("DTCalibValidation") << "Anlysis on recHit at step 2";
-      compute(dtGeom.product(), (*segment), recHitsPerWire_2S, 2);
+      compute(dtGeom, (*segment), recHitsPerWire_2S, 2);
     }
 
     LogTrace("DTCalibValidation") << "Anlysis on recHit at step 3";
-    compute(dtGeom.product(), (*segment), recHitsPerWire_3S, 3);
+    compute(dtGeom, (*segment), recHitsPerWire_3S, 3);
   }
 }
 

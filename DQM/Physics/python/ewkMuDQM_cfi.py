@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # DQM monitor module for EWK-WMuNu
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ewkMuDQM = DQMEDAnalyzer('EwkMuDQM',
+
+      stageL1Trigger = cms.uint32(1),
+
       # Input collections ->
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       MuonTag = cms.untracked.InputTag("muons"),
@@ -40,3 +43,5 @@ ewkMuDQM = DQMEDAnalyzer('EwkMuDQM',
       EJetMin = cms.untracked.double(40.),
       NJetMax = cms.untracked.int32(999999)
 )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(ewkMuDQM, stageL1Trigger = 2)

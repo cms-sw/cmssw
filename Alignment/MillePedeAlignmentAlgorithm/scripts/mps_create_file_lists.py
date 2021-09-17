@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -9,4 +9,4 @@ print("(in Alignment/CommonAlignment/scripts).")
 print("=======================================")
 print()
 import subprocess
-execfile(subprocess.check_output(["which", "tkal_create_file_lists.py"]).rstrip())
+exec(open(subprocess.check_output(["which", "tkal_create_file_lists.py"], universal_newlines=True).rstrip()).read())

@@ -16,6 +16,7 @@
 // Original Author: Ricardo Vasquez Sierra On August 29, 2007
 // user include files
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,10 +26,11 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
@@ -45,7 +47,6 @@
 
 // Include DQM core
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 typedef math::XYZTLorentzVectorD LV;
@@ -109,6 +110,10 @@ private:
   edm::EDGetTokenT<reco::PFTauCollection> tauProducerInputTagToken_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > currentDiscriminatorToken_;
+  std::vector<std::pair<edm::EDGetTokenT<reco::TauDiscriminatorContainer>, int> > currentDiscriminatorContainerToken_;
+  std::vector<std::string> currentDiscriminatorContainerProvCfgName_;
+  std::vector<std::pair<std::string, std::string> > currentDiscriminatorContainerIdName_;
+  edm::ProcessHistoryID phID_;
   std::string refCollection_;
 
   // In case you need to distinguish the output file
@@ -166,25 +171,6 @@ private:
   MonitorElement* nIsolated_NoChargedNoGammas_GammasSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_;
-
-  // Second for the CaloTaus
-  // Number of CaloJets with a Leading Track (within a cone of 0.1 around the jet axis and a minimum pt of 5. GeV)
-
-  MonitorElement* nCaloJet_LeadingTrack_signalTracksInvariantMass_;
-  MonitorElement* nCaloJet_LeadingTrack_signalTracks_;
-  MonitorElement* nCaloJet_LeadingTrack_isolationTracks_;
-  MonitorElement* nCaloJet_LeadingTrack_isolationECALhitsEtSum_;
-
-  // Track Isolated CaloTau with a Leading Track
-
-  MonitorElement* nTrackIsolated_isolationECALhitsEtSum_;
-  MonitorElement* nTrackIsolated_signalTracksInvariantMass_;
-  MonitorElement* nTrackIsolated_signalTracks_;
-
-  // EM Isolated CaloTau with a Leading with no tracks in the Isolation Annulus
-
-  MonitorElement* nEMIsolated_signalTracksInvariantMass_;
-  MonitorElement* nEMIsolated_signalTracks_;
 
   // book-keeping variables
   int numEvents_;

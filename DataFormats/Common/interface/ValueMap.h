@@ -169,7 +169,7 @@ namespace edm {
 
     struct const_iterator {
       typedef ptrdiff_t difference_type;
-      const_iterator() : values_(0) {}
+      const_iterator() : values_(nullptr) {}
       ProductID id() const { return i_->first; }
       typename container::const_iterator begin() const { return values_->begin() + i_->second; }
       typename container::const_iterator end() const {

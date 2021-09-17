@@ -19,7 +19,7 @@ DTLayerId::DTLayerId(uint32_t id) {
 }
 
 // Copy Constructor.
-DTLayerId::DTLayerId(const DTLayerId& layerId) {
+DTLayerId::DTLayerId(const DTLayerId& layerId) : DTSuperLayerId() {
   // The mask is required for proper slicing, i.e. if layerId is
   // actually a derived class.
   id_ = (layerId.rawId() & layerIdMask_);

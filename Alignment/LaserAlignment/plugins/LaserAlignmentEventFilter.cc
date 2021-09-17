@@ -7,9 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include <algorithm>
@@ -26,7 +24,8 @@ std::vector<T> copy_and_sort_vector(std::vector<U> const& input) {
 /// constructors and destructor
 ///
 LaserAlignmentEventFilter::LaserAlignmentEventFilter(const edm::ParameterSet& iConfig)
-    : FED_collection_token(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("FedInputTag"))),
+    : cablingToken_(esConsumes()),
+      FED_collection_token(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("FedInputTag"))),
       las_fed_ids(copy_and_sort_vector<uint16_t>(iConfig.getParameter<std::vector<int>>("FED_IDs"))),
       las_signal_ids(copy_and_sort_vector<uint32_t>(iConfig.getParameter<std::vector<int>>("SIGNAL_IDs"))),
       single_channel_thresh(iConfig.getParameter<unsigned>("SINGLE_CHANNEL_THRESH")),
@@ -49,8 +48,7 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
   iEvent.getByToken(FED_collection_token, buffers);
 
   // read the cabling map from the EventSetup
-  edm::ESHandle<SiStripFedCabling> cabling;
-  iSetup.get<SiStripFedCablingRcd>().get(cabling);
+  const auto& cabling = &iSetup.getData(cablingToken_);
 
   std::vector<uint16_t>::const_iterator ifed = las_fed_ids.begin();
   for (; ifed != las_fed_ids.end(); ifed++) {
@@ -67,7 +65,15 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
       continue;
 
     // construct FEDBuffer
-    sistrip::FEDBuffer buffer(input.data(), input.size());
+    const auto st_buffer = sistrip::preconstructCheckFEDBuffer(input);
+    if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+      throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+    }
+    sistrip::FEDBuffer buffer{input};
+    const auto st_chan = buffer.findChannels();
+    if (sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
+      throw cms::Exception("FEDBuffer") << st_chan << " (check debug output for more details)";
+    }
     if (not buffer.doChecks(true)) {
       edm::LogWarning("LaserAlignmentEventFilter") << "FED Buffer check fails for FED ID " << *ifed << ".";
       continue;

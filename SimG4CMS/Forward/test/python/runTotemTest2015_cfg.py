@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",Run2_2016)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
 process.load("Geometry.ForwardCommonData.totemTest2015_cff")
@@ -15,27 +16,10 @@ process.GlobalTag.globaltag = autoCond['run2_mc']
 process.VtxSmeared.MinZ = -10.5
 process.VtxSmeared.MaxZ = -9.5
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'ForwardSim'),
-    cout = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        ForwardSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-    )
-)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.ForwardSim=dict()
+    process.MessageLogger.SimG4FluxProducer=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -111,4 +95,3 @@ process.schedule = cms.Schedule(process.generation_step,
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
-

@@ -36,7 +36,6 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
-#include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ThrParameters.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"

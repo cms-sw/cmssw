@@ -6,24 +6,22 @@
 
 namespace btagbtvdeep {
 
-class SeedingTrackFeatures {
-
+  class SeedingTrackFeatures {
   public:
-
     float pt;
     float eta;
     float phi;
-    float mass;    
+    float mass;
     float dz;
     float dxy;
     float ip3D;
     float sip3D;
     float ip2D;
-    float sip2D;    
+    float sip2D;
     float signedIp3D;
     float signedSip3D;
     float signedIp2D;
-    float signedSip2D;  
+    float signedSip2D;
     float trackProbability3D;
     float trackProbability2D;
     float chi2reduced;
@@ -31,12 +29,10 @@ class SeedingTrackFeatures {
     float nHits;
     float jetAxisDistance;
     float jetAxisDlength;
-    
+
     std::vector<btagbtvdeep::TrackPairFeatures> nearTracks;
-    
+  };
 
-};
+}  // namespace btagbtvdeep
 
-}
-
-#endif 
+#endif

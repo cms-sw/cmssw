@@ -17,7 +17,6 @@ options.register ('buBaseDir',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
-
 options.register ('fuBaseDir',
                   'data', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -29,7 +28,6 @@ options.register ('fffBaseDir',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "FFF base directory")
-
 
 options.register ('numThreads',
                   2, # default value
@@ -69,32 +67,29 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileService = cms.untracked.bool(False),
-    fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
+    useFileBroker = cms.untracked.bool(False),
+    fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
-    baseDir = cms.untracked.string(options.fffBaseDir +"/"+options.fuBaseDir),
+    baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
-    directorIsBu = cms.untracked.bool(False),
-    testModeNoBuilderUnit = cms.untracked.bool(False)
+    directorIsBU = cms.untracked.bool(False)
 )
 
 try:
-  os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
+  os.makedirs(options.fffBaseDir+"/"+options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
 except Exception as ex:
   print(str(ex))
   pass
 
 process.source = cms.Source("FedRawDataInputSource",
-    runNumber = cms.untracked.uint32(options.runNumber),
     getLSFromFilename = cms.untracked.bool(True),
-    testModeNoBuilderUnit = cms.untracked.bool(False),
-    verifyAdler32 = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(True),
     eventChunkSize = cms.untracked.uint32(32),
+    eventChunkBlock = cms.untracked.uint32(32),
     numBuffers = cms.untracked.uint32(2),
-    eventChunkBlock = cms.untracked.uint32(32)
-    )
+    maxBufferedFiles = cms.untracked.uint32(2)
+) 
 
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),

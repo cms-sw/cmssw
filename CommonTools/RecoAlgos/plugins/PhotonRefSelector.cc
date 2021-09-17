@@ -26,10 +26,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
- typedef SingleObjectSelector<
-           reco::PhotonCollection, 
-           StringCutObjectSelector<reco::Photon>,
-           reco::PhotonRefVector
-         > PhotonRefSelector;
+typedef SingleObjectSelector<reco::PhotonCollection, StringCutObjectSelector<reco::Photon>, reco::PhotonRefVector>
+    PhotonRefSelector;
 
-DEFINE_FWK_MODULE( PhotonRefSelector );
+DEFINE_FWK_MODULE(PhotonRefSelector);

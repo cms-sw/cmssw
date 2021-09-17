@@ -9,6 +9,8 @@ trackingMaterialAnalyser = cms.EDAnalyzer("TrackingMaterialAnalyser",
     SaveDetailedPlots       = cms.bool(False),
     SaveParameters          = cms.bool(True),
     SaveXML                 = cms.bool(True),
+    isHGCal                 = cms.bool(False),
+    isHFNose                = cms.bool(False),
     Groups = cms.vstring(
 "TrackerRecMaterialPixelBarrelLayer0_External",
 "TrackerRecMaterialPixelBarrelLayer1_External",

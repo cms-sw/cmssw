@@ -23,7 +23,7 @@ namespace gs {
     if (searchId_) {
       // Make sure that the searchId_ item id is going to produce
       // a valid item
-      CPP11_shared_ptr<const CatalogEntry> record = archive_.catalogEntry(searchId_);
+      std::shared_ptr<const CatalogEntry> record = archive_.catalogEntry(searchId_);
       const unsigned long long idFound = record->id();
 
       // Check for valid id in the archive
@@ -88,7 +88,7 @@ namespace gs {
           "index out of range");
   }
 
-  CPP11_shared_ptr<const CatalogEntry> AbsReference::indexedCatalogEntry(const unsigned long index) const {
+  std::shared_ptr<const CatalogEntry> AbsReference::indexedCatalogEntry(const unsigned long index) const {
     return archive_.catalogEntry(id(index));
   }
 

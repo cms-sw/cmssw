@@ -15,9 +15,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
@@ -47,7 +46,7 @@ namespace totemds {
   };
 }  // namespace totemds
 
-class TotemTimingDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<totemds::Cache>> {
+class TotemTimingDQMSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<totemds::Cache>> {
 public:
   TotemTimingDQMSource(const edm::ParameterSet &);
   ~TotemTimingDQMSource() override;
@@ -59,7 +58,6 @@ protected:
   std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                              const edm::EventSetup &) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
   // Constants
@@ -98,12 +96,15 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> tokenLocalTrack_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi>> tokenDigi_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> tokenRecHit_;
-  // edm::EDGetTokenT<edm::DetSetVector<TotemTimingLocalTrack>> tokenTrack_;
   edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
+
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryTokenBeginRun_;
 
   double minimumStripAngleForTomography_;
   double maximumStripAngleForTomography_;
   unsigned int samplesForNoise_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
   unsigned int verbosity_;
   edm::TimeValue_t timeOfPreviousEvent_;
 
@@ -409,9 +410,12 @@ TotemTimingDQMSource::TotemTimingDQMSource(const edm::ParameterSet &ps)
       // tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(
       //     ps.getParameter<edm::InputTag>("tagLocalTracks"))),
       tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      geometryToken_(esConsumes()),
+      geometryTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()),
       minimumStripAngleForTomography_(ps.getParameter<double>("minimumStripAngleForTomography")),
       maximumStripAngleForTomography_(ps.getParameter<double>("maximumStripAngleForTomography")),
       samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
+      perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       timeOfPreviousEvent_(0) {}
 
@@ -423,21 +427,20 @@ TotemTimingDQMSource::~TotemTimingDQMSource() {}
 
 void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
-  const CTPPSGeometry *geom = geometry_.product();
+  auto const &geom = iSetup.getData(geometryTokenBeginRun_);
+
   const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0);
   const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7);
   verticalShiftTop_ = 0;
   verticalShiftBot_ = 0;
   {
-    const DetGeomDesc *det_top = geom->getSensorNoThrow(detid_top);
+    const DetGeomDesc *det_top = geom.sensorNoThrow(detid_top);
     if (det_top) {
-      verticalShiftTop_ = det_top->translation().y() + det_top->params().at(1);
+      verticalShiftTop_ = det_top->translation().y() + det_top->getDiamondDimensions().yHalfWidth;
     }
-    const DetGeomDesc *det_bot = geom->getSensorNoThrow(detid_bot);
+    const DetGeomDesc *det_bot = geom.sensorNoThrow(detid_bot);
     if (det_bot)
-      verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at(1);
+      verticalShiftBot_ = det_bot->translation().y() + det_bot->getDiamondDimensions().yHalfWidth;
   }
 }
 
@@ -471,9 +474,11 @@ std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock
                                                                                  const edm::EventSetup &) const {
   auto d = std::make_shared<totemds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  for (auto &plot : potPlots_)
-    d->hitDistribution2dMap[plot.first] =
-        std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  if (!perLSsaving_) {
+    for (auto &plot : potPlots_)
+      d->hitDistribution2dMap[plot.first] =
+          std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+  }
   return d;
 }
 
@@ -481,8 +486,7 @@ std::shared_ptr<totemds::Cache> TotemTimingDQMSource::globalBeginLuminosityBlock
 
 void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // get event setup data
-  edm::ESHandle<CTPPSGeometry> geometry;
-  eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+  auto const &geometry = eventSetup.getData(geometryToken_);
 
   // get event data
   edm::Handle<edm::DetSetVector<TotemRPLocalTrack>> stripTracks;
@@ -496,9 +500,6 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
   edm::Handle<edm::DetSetVector<TotemTimingRecHit>> timingRecHits;
   event.getByToken(tokenRecHit_, timingRecHits);
-
-  // edm::Handle<edm::DetSetVector<TotemTimingLocalTrack>> timingLocalTracks;
-  // event.getByToken(timingLocalTracks, timingLocalTracks);
 
   // check validity
   bool valid = true;
@@ -537,15 +538,15 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
         potPlots_[detId_pot].digiDistribution->Fill(detId.plane(), detId.channel());
 
-        for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
+        for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it)
           potPlots_[detId_pot].dataSamplesRaw->Fill(*it);
 
-        float boardId = digi.getEventInfo().getHardwareBoardId() + 0.5 * digi.getEventInfo().getHardwareSampicId();
-        potPlots_[detId_pot].digiSent->Fill(boardId, digi.getHardwareChannelId());
-        if (boardSet.find(digi.getEventInfo().getHardwareId()) == boardSet.end()) {
+        float boardId = digi.eventInfo().hardwareBoardId() + 0.5 * digi.eventInfo().hardwareSampicId();
+        potPlots_[detId_pot].digiSent->Fill(boardId, digi.hardwareChannelId());
+        if (boardSet.find(digi.eventInfo().hardwareId()) == boardSet.end()) {
           // This guarantees that every board is counted only once
-          boardSet.insert(digi.getEventInfo().getHardwareId());
-          std::bitset<16> chMap(digi.getEventInfo().getChannelMap());
+          boardSet.insert(digi.eventInfo().hardwareId());
+          std::bitset<16> chMap(digi.eventInfo().channelMap());
           for (int i = 0; i < 16; ++i) {
             if (chMap.test(i)) {
               potPlots_[detId_pot].digiAll->Fill(boardId, i);
@@ -570,13 +571,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
       if (channelPlots_.find(detId) != channelPlots_.end()) {
         channelPlots_[detId].activityPerBX->Fill(event.bunchCrossing());
 
-        for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
+        for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it)
           channelPlots_[detId].dataSamplesRaw->Fill(*it);
         for (unsigned short i = 0; i < samplesForNoise_; ++i)
-          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.getSampleAt(i));
+          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.sampleAt(i));
 
-        unsigned int cellOfMax =
-            std::max_element(digi.getSamplesBegin(), digi.getSamplesEnd()) - digi.getSamplesBegin();
+        unsigned int cellOfMax = std::max_element(digi.samplesBegin(), digi.samplesEnd()) - digi.samplesBegin();
         channelPlots_[detId].cellOfMax->Fill((int)cellOfMax);
 
         if (timeOfPreviousEvent_ != 0)
@@ -598,45 +598,46 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
     for (const auto &rechit : rechits) {
       if (potPlots_.find(detId_pot) != potPlots_.end()) {
-        potPlots_[detId_pot].amplitude->Fill(rechit.getAmplitude());
+        potPlots_[detId_pot].amplitude->Fill(rechit.amplitude());
 
         TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        float yCorrected = rechit.getY();
+        float yCorrected = rechit.y();
         yCorrected += (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? verticalShiftTop_ : verticalShiftBot_;
         float x_shift = detId.plane();
-        x_shift += (rechit.getX() > 2) ? 0.25 : 0;
-        int startBin = hitHistoTmpYAxis->FindBin(yCorrected - 0.5 * rechit.getYWidth());
-        int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        x_shift += (rechit.x() > 2) ? 0.25 : 0;
+        int startBin = hitHistoTmpYAxis->FindBin(yCorrected - 0.5 * rechit.yWidth());
+        int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
-          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                        hitHistoTmpYAxis->GetBinCenter(startBin + i));
-          potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
-                                                                   hitHistoTmpYAxis->GetBinCenter(startBin + i));
+          if (!perLSsaving_)
+            potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
+                                                                     hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
         //All plots with Time
-        if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE) {
+        if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
           for (int i = 0; i < numOfBins; ++i)
-            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                                  hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
-          potPlots_[detId_pot].recHitTime->Fill(rechit.getT());
+          potPlots_[detId_pot].recHitTime->Fill(rechit.time());
           potPlots_[detId_pot].planesWithTimeSet.insert(detId.plane());
 
           // Plane Plots
           if (planePlots_.find(detId_plane) != planePlots_.end()) {
             // Visualization tricks
-            float x_shift = (rechit.getX() > 2) ? 15 : 0;
+            float x_shift = (rechit.x() > 2) ? 15 : 0;
             TH1F *hitProfileHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-            int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+            int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
             if (detId.rp() == TOTEM_TIMING_TOP_RP_ID) {
-              float yCorrected = rechit.getY() + verticalShiftTop_ - 0.5 * rechit.getYWidth() + x_shift;
+              float yCorrected = rechit.y() + verticalShiftTop_ - 0.5 * rechit.yWidth() + x_shift;
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
               for (int i = 0; i < numOfBins; ++i)
                 hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(startBin + i));
             } else {
-              float yCorrected = rechit.getY() + verticalShiftBot_ + 0.5 * rechit.getYWidth() + (15 - x_shift);
+              float yCorrected = rechit.y() + verticalShiftBot_ + 0.5 * rechit.yWidth() + (15 - x_shift);
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
               int totBins = hitProfileHistoTmp->GetNbinsX();
               for (int i = 0; i < numOfBins; ++i)
@@ -650,10 +651,10 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
           }
 
           if (channelPlots_.find(detId) != channelPlots_.end()) {
-            potPlots_[detId_pot].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
-            channelPlots_[detId].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
-            channelPlots_[detId].recHitTime->Fill(rechit.getT());
-            channelPlots_[detId].amplitude->Fill(rechit.getAmplitude());
+            potPlots_[detId_pot].tirggerCellTime->Fill(rechit.sampicThresholdTime());
+            channelPlots_[detId].tirggerCellTime->Fill(rechit.sampicThresholdTime());
+            channelPlots_[detId].recHitTime->Fill(rechit.time());
+            channelPlots_[detId].amplitude->Fill(rechit.amplitude());
           }
         }
       }
@@ -673,7 +674,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
     float y_shift = (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? 20 : 5;
 
     for (const auto &rechit : rechits) {
-      if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
+      if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
           planePlots_.find(detId_plane) != planePlots_.end() && channelPlots_.find(detId) != channelPlots_.end()) {
         if (stripTracks.isValid()) {
           for (const auto &ds : *stripTracks) {
@@ -687,25 +688,21 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
             double rp_x = 0;
             double rp_y = 0;
             try {
-              rp_x =
-                  (geometry->getSensor(plId_V)->translation().x() + geometry->getSensor(plId_U)->translation().x()) / 2;
-              rp_y =
-                  (geometry->getSensor(plId_V)->translation().y() + geometry->getSensor(plId_U)->translation().y()) / 2;
+              rp_x = (geometry.sensor(plId_V)->translation().x() + geometry.sensor(plId_U)->translation().x()) / 2;
+              rp_y = (geometry.sensor(plId_V)->translation().y() + geometry.sensor(plId_U)->translation().y()) / 2;
             } catch (const cms::Exception &) {
               continue;
             }
 
             for (const auto &striplt : ds) {
               if (striplt.isValid() && stripId.arm() == detId.arm()) {
-                if (striplt.getTx() > maximumStripAngleForTomography_ ||
-                    striplt.getTy() > maximumStripAngleForTomography_)
+                if (striplt.tx() > maximumStripAngleForTomography_ || striplt.ty() > maximumStripAngleForTomography_)
                   continue;
-                if (striplt.getTx() < minimumStripAngleForTomography_ ||
-                    striplt.getTy() < minimumStripAngleForTomography_)
+                if (striplt.tx() < minimumStripAngleForTomography_ || striplt.ty() < minimumStripAngleForTomography_)
                   continue;
                 if (stripId.rp() - detId.rp() == (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID)) {
-                  double x = striplt.getX0() - rp_x;
-                  double y = striplt.getY0() - rp_y;
+                  double x = striplt.x0() - rp_x;
+                  double y = striplt.y0() - rp_y;
                   if (stripId.station() == TOTEM_STATION_210) {
                     potPlots_[detId_pot].stripTomography210->Fill(x + detId.plane() * 50, y + y_shift);
                     channelPlots_[detId].stripTomography210->Fill(x, y + y_shift);
@@ -743,52 +740,48 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
 void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  for (auto &plot : potPlots_) {
-    *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-  }
+  if (!perLSsaving_) {
+    for (auto &plot : potPlots_) {
+      *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
+    }
 
-  globalPlot_.digiSentPercentage->Reset();
-  TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
-  for (auto &plot : potPlots_) {
-    TH2F *hitHistoTmp = plot.second.digiSentPercentage->getTH2F();
-    TH2F *histoSent = plot.second.digiSent->getTH2F();
-    TH2F *histoAll = plot.second.digiAll->getTH2F();
+    globalPlot_.digiSentPercentage->Reset();
+    TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
+    for (auto &plot : potPlots_) {
+      TH2F *hitHistoTmp = plot.second.digiSentPercentage->getTH2F();
+      TH2F *histoSent = plot.second.digiSent->getTH2F();
+      TH2F *histoAll = plot.second.digiAll->getTH2F();
 
-    hitHistoTmp->Divide(histoSent, histoAll);
-    hitHistoTmp->Scale(100);
-    hitHistoGlobalTmp->Add(hitHistoTmp, 1);
+      hitHistoTmp->Divide(histoSent, histoAll);
+      hitHistoTmp->Scale(100);
+      hitHistoGlobalTmp->Add(hitHistoTmp, 1);
 
-    plot.second.baseline->Reset();
-    plot.second.noiseRMS->Reset();
-    plot.second.meanAmplitude->Reset();
-    plot.second.cellOfMax->Reset();
-    plot.second.hitRate->Reset();
-    TotemTimingDetId rpId(plot.first);
-    for (auto &chPlot : channelPlots_) {
-      TotemTimingDetId chId(chPlot.first);
-      if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
-        plot.second.baseline->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean());
-        plot.second.noiseRMS->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS());
-        plot.second.meanAmplitude->Fill(chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean());
-        plot.second.cellOfMax->Fill(chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean());
-        auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
-        plot.second.hitRate->Fill(chId.plane(), chId.channel(), (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
+      plot.second.baseline->Reset();
+      plot.second.noiseRMS->Reset();
+      plot.second.meanAmplitude->Reset();
+      plot.second.cellOfMax->Reset();
+      plot.second.hitRate->Reset();
+      TotemTimingDetId rpId(plot.first);
+      for (auto &chPlot : channelPlots_) {
+        TotemTimingDetId chId(chPlot.first);
+        if (chId.arm() == rpId.arm() && chId.rp() == rpId.rp()) {
+          plot.second.baseline->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean());
+          plot.second.noiseRMS->Fill(chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS());
+          plot.second.meanAmplitude->Fill(chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean());
+          plot.second.cellOfMax->Fill(chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean());
+          auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[chPlot.first];
+          plot.second.hitRate->Fill(chId.plane(), chId.channel(), (double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
+        }
+      }
+    }
+
+    for (auto &plot : channelPlots_) {
+      auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
+      if (hitsCounterPerLumisection != 0) {
+        plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
       }
     }
   }
-
-  for (auto &plot : channelPlots_) {
-    auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];
-    if (hitsCounterPerLumisection != 0) {
-      plot.second.hitRate->Fill((double)hitsCounterPerLumisection * HIT_RATE_FACTOR);
-    }
-  }
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemTimingDQMSource::endRun(const edm::Run &, const edm::EventSetup &) {}
-
-//----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemTimingDQMSource);

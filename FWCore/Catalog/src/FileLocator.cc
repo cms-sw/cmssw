@@ -2,10 +2,6 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
-#include "Utilities/Xerces/interface/XercesStrUtils.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
@@ -14,9 +10,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
-using namespace xercesc;
-using namespace cms::xerces;
 
 namespace {
 
@@ -36,29 +29,21 @@ namespace {
     // std::cerr << "Final string: " << result << std::endl;
     return result;
   }
+
+  constexpr char const* const kEmptyString = "";
+
+  const char* safe(const char* iCheck) {
+    if (iCheck == nullptr) {
+      return kEmptyString;
+    }
+    return iCheck;
+  }
+
 }  // namespace
 
 namespace edm {
-
-  int FileLocator::s_numberOfInstances = 0;
-
-  FileLocator::FileLocator(std::string const& catUrl, bool fallback) : m_destination("any") {
-    try {
-      //  << "Xerces-c initialization Number "
-      //   << s_numberOfInstances <<
-      if (s_numberOfInstances == 0) {
-        cms::concurrency::xercesInitialize();
-      }
-    } catch (XMLException const& e) {
-      // << "Xerces-c error in initialization \n"
-      //      << "Exception message is:  \n"
-      //      << toString(e.getMessage()) <<
-      throw cms::Exception("TrivialFileCatalog",
-                           std::string("Fatal Error on edm::FileLocator:") + toString(e.getMessage()));
-    }
-    ++s_numberOfInstances;
-
-    init(catUrl, fallback);
+  FileLocator::FileLocator(std::string const& catUrl, unsigned iCatalog) : m_destination("any") {
+    init(catUrl, iCatalog);
 
     // std::cout << m_protocols.size() << " protocols" << std::endl;
     // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
@@ -81,53 +66,47 @@ namespace edm {
     return out;
   }
 
-  void FileLocator::parseRule(DOMNode* ruleNode, ProtocolRules& rules) {
-    if (!ruleNode) {
+  void FileLocator::parseRule(tinyxml2::XMLElement* ruleElement, ProtocolRules& rules) {
+    if (!ruleElement) {
       throw cms::Exception("TrivialFileCatalog", std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
     }
 
-    // ruleNode is actually always a DOMElement because it's the result of
-    // a `getElementsByTagName()` in the calling method.
-    DOMElement* ruleElement = static_cast<DOMElement*>(ruleNode);
-
-    std::string const protocol = toString(ruleElement->getAttribute(uStr("protocol").ptr()));
-    std::string destinationMatchRegexp = toString(ruleElement->getAttribute(uStr("destination-match").ptr()));
-
-    if (destinationMatchRegexp.empty()) {
+    auto const protocol = safe(ruleElement->Attribute("protocol"));
+    auto destinationMatchRegexp = ruleElement->Attribute("destination-match");
+    if (destinationMatchRegexp == nullptr or destinationMatchRegexp[0] == 0) {
       destinationMatchRegexp = ".*";
     }
 
-    std::string const pathMatchRegexp = toString(ruleElement->getAttribute(uStr("path-match").ptr()));
-    std::string const result = toString(ruleElement->getAttribute(uStr("result").ptr()));
-    std::string const chain = toString(ruleElement->getAttribute(uStr("chain").ptr()));
+    auto const pathMatchRegexp = safe(ruleElement->Attribute("path-match"));
+    auto const result = safe(ruleElement->Attribute("result"));
+    auto const chain = safe(ruleElement->Attribute("chain"));
 
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
     rule.destinationMatch.assign(destinationMatchRegexp);
     rule.result = result;
     rule.chain = chain;
-    rules[protocol].push_back(rule);
+    rules[protocol].emplace_back(std::move(rule));
   }
 
-  void FileLocator::init(std::string const& catUrl, bool fallback) {
+  void FileLocator::init(std::string const& catUrl, unsigned iCatalog) {
     std::string m_url = catUrl;
 
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
         throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
-
-      m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
+      if (iCatalog >= localconfservice->dataCatalogs().size())
+        throw cms::Exception("TrivialFileCatalog", "edm::FileLocator: Request nonexistence data catalog");
+      m_url = localconfservice->dataCatalogs()[iCatalog];
     }
-
-    // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
     if (m_url.find("file:") == std::string::npos) {
       throw cms::Exception("TrivialFileCatalog",
                            "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
     }
 
-    m_url = m_url.erase(0, m_url.find(":") + 1);
+    m_url = m_url.erase(0, m_url.find(':') + 1);
 
     std::vector<std::string> tokens;
     boost::algorithm::split(tokens, m_url, boost::is_any_of(std::string("?")));
@@ -177,15 +156,13 @@ namespace edm {
 
     configFile.close();
 
-    auto parser = std::make_unique<XercesDOMParser>();
-    try {
-      parser->setValidationScheme(XercesDOMParser::Val_Auto);
-      parser->setDoNamespaces(false);
-      parser->parse(m_filename.c_str());
-      DOMDocument* doc = parser->getDocument();
-      assert(doc);
-
-      /* trivialFileCatalog matches the following xml schema
+    tinyxml2::XMLDocument doc;
+    auto loadErr = doc.LoadFile(m_filename.c_str());
+    if (loadErr != tinyxml2::XML_SUCCESS) {
+      throw cms::Exception("TrivialFileCatalog")
+          << "tinyxml file load failed with error : " << doc.ErrorStr() << std::endl;
+    }
+    /* trivialFileCatalog matches the following xml schema
 	 FIXME: write a proper DTD
 	 <storage-mapping>
 	 <lfn-to-pfn protocol="direct" destination-match=".*"
@@ -195,33 +172,18 @@ namespace edm {
 	 path-match="lfn/guid match regular expression"
 	 result="$1"/>
 	 </storage-mapping>
-      */
+    */
+    auto rootElement = doc.RootElement();
+    /*first of all do the lfn-to-pfn bit*/
+    for (auto el = rootElement->FirstChildElement("lfn-to-pfn"); el != nullptr;
+         el = el->NextSiblingElement("lfn-to-pfn")) {
+      parseRule(el, m_directRules);
+    }
 
-      /*first of all do the lfn-to-pfn bit*/
-      {
-        DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
-        XMLSize_t const ruleTagsNum = rules->getLength();
-
-        // FIXME: we should probably use a DTD for checking validity
-
-        for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-          DOMNode* ruleNode = rules->item(i);
-          parseRule(ruleNode, m_directRules);
-        }
-      }
-      /*Then we handle the pfn-to-lfn bit*/
-      {
-        DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
-        XMLSize_t ruleTagsNum = rules->getLength();
-
-        for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-          DOMNode* ruleNode = rules->item(i);
-          parseRule(ruleNode, m_inverseRules);
-        }
-      }
-    } catch (xercesc::DOMException const& e) {
-      throw cms::Exception("TrivialFileCatalog")
-          << "Xerces XML parser threw this exception: " << cStr(e.getMessage()).ptr() << std::endl;
+    /*Then we handle the pfn-to-lfn bit*/
+    for (auto el = rootElement->FirstChildElement("pfn-to-lfn"); el != nullptr;
+         el = el->NextSiblingElement("pfn-to-lfn")) {
+      parseRule(el, m_inverseRules);
     }
   }
 

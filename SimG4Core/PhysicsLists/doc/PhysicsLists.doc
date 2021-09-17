@@ -23,32 +23,32 @@ components provided by Geant4.
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - CMSEmNoDeltaRay          - obsolete EM physics
-- CMSEmStandardPhysics     - Option1 with custom msc: e+e- msc below 100 MeV
-                             by UrbanMscModel93, muons, pions, kaons, protons, 
-                             anti_proton G4WentzelVIModel+G4eSingleScattering
-- CMSEmStandardPhysics95   - Option1 with custom msc: G4UrbanMscModel for all
-- CMSEmStandardPhysics95msc93 - Option1 with custom msc configuration: electron msc by 
-                             UrbanMscModel93, muon msc by G4UrbanMscModel
-- CMSEmStandardPhysicsLPM  - Option1 with custom msc configuration: electron msc by 
-                             UrbanMscModel93, muon msc by combined 
-                             G4WentzelVIModel+G4eSingleScattering
+- CMSEmStandardPhysics     - EMM customised electromagnetic (EM) physics 
+                             configuration based on Geant4 10.7 EM configuration
+                             option1 with custom msc: e+e- msc below 100 MeV
+                             by the default Urban model for HCal and HGCal
+- CMSEmStandardPhysicsLPM  - EMM customised electromagnetic (EM) physics 
+                             configuration based on Geant4 10.6 EM configuration
+                             option1 with custom msc: e+e- msc below 100 MeV
+                             by the default Urban model for HCal and HGCal
+- CMSEmStandardPhysicsXS   - EMN customised electromagnetic (EM) physics 
+                             configuration based on Geant4 10.7 EM configuration
+                             option4 with custom msc: e+e- msc below 100 MeV
+                             by the default Urban model for HCal and HGCal
 - CMSMonopolePhysics       - extra constructor of magnetic monopole physics
 - DummyEMPhysics           - constructor where only electron and mu- ionisation
                              are defined
-- HadronPhysicsCMS         - constructor of hadron inelastic physics by name,
-                             likely obsolete
+- CMSHadronPhysicsFTFP_BERT  - custom constructor of CMS hadron inelastic 
+                             physics based on Geant4 10.7
+                           
 - HadronPhysicsQGSPCMS_FTFP_BERT - castom QGSP_FTFP_BERT hadron inelastic 
-                             physics created on top of Geant4 9.4,
-                             hyperons are simulated with LHEP
-- UrbanMscModel93          - copied from G4eant4 9.6p03 to be used with Geant4 10.X
+                             physics created on top of Geant4 10.7
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
-QGSPCMS_FTFP_BERT_EML       - use CMSEmStandardPhysics 
-QGSPCMS_FTFP_BERT_EML95     - use CMSEmStandardPhysics95
-QGSPCMS_FTFP_BERT_EML95msc93- use CMSEmStandardPhysics95msc93 and local 
-                              HadronPhysicsQGSPCMS_FTFP_BERT
-QGSPCMS_FTFP_BERT_EML_New   - G4EmStandardPhysics_option1
+FTFPCMS_BERT_EMM            - use CMSEmStandardPhysics
+FTFPCMS_BERT_EMN            - use CMSEmStandardPhysicsXS
+QGSPCMS_FTFP_BERT_EML       - use G4EmStandardPhysics_option1 
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
@@ -66,4 +66,3 @@ Unknown
 Last updated:
 @DATE@  Author: computer-generated.
 */
-

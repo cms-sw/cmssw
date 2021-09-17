@@ -1,7 +1,155 @@
+// -*- C++ -*-
+//
+// Package:    PATMHTProducer
+// Class:      PATMHTProducer
+//
+/**\class PATMHTProducer
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Xin Shi & Freya Blekman, Cornell University
+//         Created:  Fri Sep 12 17:58:29 CEST 2008
 //
 //
 
-#include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MHT.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
+#include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
+
+namespace pat {
+  class PATMHTProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATMHTProducer(const edm::ParameterSet&);
+    ~PATMHTProducer() override;
+
+  private:
+    void produce(edm::Event&, const edm::EventSetup&) override;
+
+    double getJets(edm::Event&, const edm::EventSetup&);
+    double getElectrons(edm::Event&, const edm::EventSetup&);
+    double getMuons(edm::Event&, const edm::EventSetup&);
+    void getTowers(edm::Event&, const edm::EventSetup&);
+
+    // ----------member data ---------------------------
+
+    double verbose_;
+
+    // input tags.
+    edm::InputTag mhtLabel_;
+    edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+    edm::EDGetTokenT<edm::View<pat::Electron> > eleToken_;
+    edm::EDGetTokenT<edm::View<pat::Muon> > muoToken_;
+    edm::EDGetTokenT<edm::View<pat::Tau> > tauToken_;
+    edm::EDGetTokenT<edm::View<pat::Photon> > phoToken_;
+
+    std::vector<metsig::SigInputObj> physobjvector_;
+
+    double uncertaintyScaleFactor_;  // scale factor for the uncertainty parameters.
+    bool controlledUncertainty_;     // use controlled uncertainty parameters.
+
+    //--- test the uncertainty parameters ---//
+
+    class uncertaintyFunctions {
+    public:
+      std::unique_ptr<TF1> etUncertainty;
+      std::unique_ptr<TF1> phiUncertainty;
+    };
+
+    void setUncertaintyParameters();  // fills the following uncertaintyFunctions objects:
+    uncertaintyFunctions ecalEBUncertainty;
+    uncertaintyFunctions ecalEEUncertainty;
+    uncertaintyFunctions hcalHBUncertainty;
+    uncertaintyFunctions hcalHEUncertainty;
+    uncertaintyFunctions hcalHOUncertainty;
+    uncertaintyFunctions hcalHFUncertainty;
+
+    uncertaintyFunctions jetUncertainty;
+    uncertaintyFunctions jetCorrUncertainty;
+    uncertaintyFunctions eleUncertainty;
+    uncertaintyFunctions muonUncertainty;
+    uncertaintyFunctions muonCorrUncertainty;
+
+    //--- tags and parameters ---//
+
+    bool useCaloTowers_;
+    bool useJets_;
+    bool useElectrons_;
+    bool useMuons_;
+    std::set<CaloTowerDetId> s_clusteredTowers;
+
+    bool noHF_;
+
+    double jetPtMin_;
+    double jetEtaMax_;
+    double jetEMfracMax_;
+
+    double elePtMin_;
+    double eleEtaMax_;
+
+    double muonPtMin_;
+    double muonEtaMax_;
+    double muonTrackD0Max_;
+    double muonTrackDzMax_;
+    int muonNHitsMin_;
+    double muonDPtMax_;
+    double muonChiSqMax_;
+
+    //  double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
+
+    double jetEtUncertaintyParameter0_;
+    double jetEtUncertaintyParameter1_;
+    double jetEtUncertaintyParameter2_;
+
+    double jetPhiUncertaintyParameter0_;
+    double jetPhiUncertaintyParameter1_;
+    double jetPhiUncertaintyParameter2_;
+
+    double eleEtUncertaintyParameter0_;
+    double elePhiUncertaintyParameter0_;
+
+    double muonEtUncertaintyParameter0_;
+    double muonPhiUncertaintyParameter0_;
+
+    edm::InputTag CaloJetAlgorithmTag_;
+    edm::InputTag CorJetAlgorithmTag_;
+    std::string JetCorrectionService_;
+    edm::InputTag MuonTag_;
+    edm::InputTag ElectronTag_;
+    edm::InputTag CaloTowerTag_;
+    std::string metCollectionLabel_;
+    std::string significanceLabel_;
+
+    //--- For Muon Calo Deposits ---//
+    //TrackDetectorAssociator   trackAssociator_;
+    //TrackAssociatorParameters trackAssociatorParameters_;
+
+    double towerEtThreshold_;
+    bool useHO_;
+  };
+  //define this as a plug-in
+
+}  // namespace pat
+
+#include <memory>
 
 pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet& iConfig) {
   // Initialize the configurables
@@ -340,63 +488,69 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   //-- Ecal Uncertainty Functions ------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Ecal Barrel --//
-  ecalEBUncertainty.etUncertainty.reset(new TF1("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  ecalEBUncertainty.etUncertainty =
+      std::make_unique<TF1>("ecalEBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEBUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEBUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEBUncertainty.etUncertainty->SetParameter(2, 0.005);
 
-  ecalEBUncertainty.phiUncertainty.reset(new TF1("ecalEBphiFunc", "[0]*x", 1));
+  ecalEBUncertainty.phiUncertainty = std::make_unique<TF1>("ecalEBphiFunc", "[0]*x", 1);
   ecalEBUncertainty.phiUncertainty->SetParameter(0, 0.0174);
 
   //-- Ecal Endcap --//
-  ecalEEUncertainty.etUncertainty.reset(new TF1("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  ecalEEUncertainty.etUncertainty =
+      std::make_unique<TF1>("ecalEEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   ecalEEUncertainty.etUncertainty->SetParameter(0, 0.2);
   ecalEEUncertainty.etUncertainty->SetParameter(1, 0.03);
   ecalEEUncertainty.etUncertainty->SetParameter(2, 0.005);
 
-  ecalEEUncertainty.phiUncertainty.reset(new TF1("ecalEEphiFunc", "[0]*x", 1));
+  ecalEEUncertainty.phiUncertainty = std::make_unique<TF1>("ecalEEphiFunc", "[0]*x", 1);
   ecalEEUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Uncertainty Functions --------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Hcal Barrel --//
-  hcalHBUncertainty.etUncertainty.reset(new TF1("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHBUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHBEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHBUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHBUncertainty.etUncertainty->SetParameter(1, 1.22);
   hcalHBUncertainty.etUncertainty->SetParameter(2, 0.05);
 
-  hcalHBUncertainty.phiUncertainty.reset(new TF1("ecalHBphiFunc", "[0]*x", 1));
+  hcalHBUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHBphiFunc", "[0]*x", 1);
   hcalHBUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Endcap --//
-  hcalHEUncertainty.etUncertainty.reset(new TF1("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHEUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHEEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHEUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHEUncertainty.etUncertainty->SetParameter(1, 1.3);
   hcalHEUncertainty.etUncertainty->SetParameter(2, 0.05);
 
-  hcalHEUncertainty.phiUncertainty.reset(new TF1("ecalHEphiFunc", "[0]*x", 1));
+  hcalHEUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHEphiFunc", "[0]*x", 1);
   hcalHEUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Outer --//
-  hcalHOUncertainty.etUncertainty.reset(new TF1("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHOUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHOEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHOUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHOUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHOUncertainty.etUncertainty->SetParameter(2, 0.09);
 
-  hcalHOUncertainty.phiUncertainty.reset(new TF1("ecalHOphiFunc", "[0]*x", 1));
+  hcalHOUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHOphiFunc", "[0]*x", 1);
   hcalHOUncertainty.phiUncertainty->SetParameter(0, 0.087);
 
   //-- Hcal Forward --//
-  hcalHFUncertainty.etUncertainty.reset(new TF1("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  hcalHFUncertainty.etUncertainty =
+      std::make_unique<TF1>("hcalHFEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   hcalHFUncertainty.etUncertainty->SetParameter(0, 0.);
   hcalHFUncertainty.etUncertainty->SetParameter(1, 1.82);
   hcalHFUncertainty.etUncertainty->SetParameter(2, 0.09);
 
-  hcalHFUncertainty.phiUncertainty.reset(new TF1("ecalHFphiFunc", "[0]*x", 1));
+  hcalHFUncertainty.phiUncertainty = std::make_unique<TF1>("ecalHFphiFunc", "[0]*x", 1);
   hcalHFUncertainty.phiUncertainty->SetParameter(0, 0.174);
 
   //--- Jet Uncertainty Functions --------------------------------------//
-  jetUncertainty.etUncertainty.reset(new TF1("jetEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  jetUncertainty.etUncertainty = std::make_unique<TF1>("jetEtFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   //-- values from PTDR 1, ch 11.4 --//
   jetUncertainty.etUncertainty->SetParameter(0, jetEtUncertaintyParameter0_);
   jetUncertainty.etUncertainty->SetParameter(1, jetEtUncertaintyParameter1_);
@@ -408,7 +562,8 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
 
   //-- phi Functions and values from
   // http://indico.cern.ch/getFile.py/access?contribId=9&sessionId=0&resId=0&materialId=slides&confId=46394
-  jetUncertainty.phiUncertainty.reset(new TF1("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3));
+  jetUncertainty.phiUncertainty =
+      std::make_unique<TF1>("jetPhiFunc", "x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))", 3);
   jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
   jetUncertainty.phiUncertainty->SetParameter(1, jetPhiUncertaintyParameter1_);
   jetUncertainty.phiUncertainty->SetParameter(2, jetPhiUncertaintyParameter2_);
@@ -425,21 +580,21 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   // https://twiki.cern.ch/twiki/bin/view/CMS/EgammaCMSSWVal
   // electron resolution in energy is around 3.4%, measured for 10 < pT < 50 at realistic events with pile-up.
 
-  eleUncertainty.etUncertainty.reset(new TF1("eleEtFunc", "[0] * x", 1));
+  eleUncertainty.etUncertainty = std::make_unique<TF1>("eleEtFunc", "[0] * x", 1);
   //  eleUncertainty.etUncertainty->SetParameter(0,0.034);
   eleUncertainty.etUncertainty->SetParameter(0, eleEtUncertaintyParameter0_);
 
-  eleUncertainty.phiUncertainty.reset(new TF1("elePhiFunc", "[0] * x", 1));
+  eleUncertainty.phiUncertainty = std::make_unique<TF1>("elePhiFunc", "[0] * x", 1);
   //  eleUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   eleUncertainty.phiUncertainty->SetParameter(0, elePhiUncertaintyParameter0_);
 
   //--- Muon Uncertainty Functions ------------------------------------//
   // and ambiguious values for the muons...
 
-  muonUncertainty.etUncertainty.reset(new TF1("muonEtFunc", "[0] * x", 1));
+  muonUncertainty.etUncertainty = std::make_unique<TF1>("muonEtFunc", "[0] * x", 1);
   //  muonUncertainty.etUncertainty->SetParameter(0,0.01);
   muonUncertainty.etUncertainty->SetParameter(0, muonEtUncertaintyParameter0_);
-  muonUncertainty.phiUncertainty.reset(new TF1("muonPhiFunc", "[0] * x", 1));
+  muonUncertainty.phiUncertainty = std::make_unique<TF1>("muonPhiFunc", "[0] * x", 1);
   //  muonUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   muonUncertainty.phiUncertainty->SetParameter(0, muonPhiUncertaintyParameter0_);
 
@@ -450,5 +605,6 @@ void pat::PATMHTProducer::setUncertaintyParameters() {
   muonCorrUncertainty.phiUncertainty->SetParameter(0,0.0*(3.14159/180.)); */
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 using namespace pat;
 DEFINE_FWK_MODULE(PATMHTProducer);

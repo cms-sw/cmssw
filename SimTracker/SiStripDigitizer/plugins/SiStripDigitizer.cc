@@ -21,7 +21,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,48 +32,68 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 //needed for the magnetic field:
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 //Data Base infromations
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandFlat.h"
 
-SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC)
-    : gainLabel(conf.getParameter<std::string>("Gain")),
-      hitsProducer(conf.getParameter<std::string>("hitsProducer")),
+SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
+                                   edm::ProducesCollector producesCollector,
+                                   edm::ConsumesCollector& iC)
+    : hitsProducer(conf.getParameter<std::string>("hitsProducer")),
       trackerContainers(conf.getParameter<std::vector<std::string>>("ROUList")),
       ZSDigi(conf.getParameter<edm::ParameterSet>("DigiModeList").getParameter<std::string>("ZSDigi")),
       SCDigi(conf.getParameter<edm::ParameterSet>("DigiModeList").getParameter<std::string>("SCDigi")),
       VRDigi(conf.getParameter<edm::ParameterSet>("DigiModeList").getParameter<std::string>("VRDigi")),
       PRDigi(conf.getParameter<edm::ParameterSet>("DigiModeList").getParameter<std::string>("PRDigi")),
-      geometryType(conf.getParameter<std::string>("GeometryType")),
       useConfFromDB(conf.getParameter<bool>("TrackerConfigurationFromDB")),
       zeroSuppression(conf.getParameter<bool>("ZeroSuppression")),
-      makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)) {
+      makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
+      includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
+      fracOfEventsToSimAPV_(conf.getParameter<double>("fracOfEventsToSimAPV")),
+      tTopoToken_(iC.esConsumes()),
+      pDDToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("GeometryType")))),
+      pSetupToken_(iC.esConsumes()),
+      gainToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("Gain")))),
+      noiseToken_(iC.esConsumes()),
+      thresholdToken_(iC.esConsumes()),
+      pedestalToken_(iC.esConsumes()) {
+  if (useConfFromDB) {
+    detCablingToken_ = iC.esConsumes();
+  }
+  if (includeAPVSimulation_) {
+    apvSimulationParametersToken_ = iC.esConsumes();
+  }
+
   const std::string alias("simSiStripDigis");
 
-  mixMod.produces<edm::DetSetVector<SiStripDigi>>(ZSDigi).setBranchAlias(ZSDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(SCDigi).setBranchAlias(alias + SCDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(VRDigi).setBranchAlias(alias + VRDigi);
-  mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(PRDigi).setBranchAlias(alias + PRDigi);
-  mixMod.produces<edm::DetSetVector<StripDigiSimLink>>().setBranchAlias(alias + "siStripDigiSimLink");
-  mixMod.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList").setBranchAlias(alias + "AffectedAPV");
+  producesCollector.produces<edm::DetSetVector<SiStripDigi>>(ZSDigi).setBranchAlias(ZSDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(SCDigi).setBranchAlias(alias + SCDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(VRDigi).setBranchAlias(alias + VRDigi);
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudes")
+      .setBranchAlias(alias + "StripAmplitudes");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAmplitudesPostAPV")
+      .setBranchAlias(alias + "StripAmplitudesPostAPV");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>("StripAPVBaselines")
+      .setBranchAlias(alias + "StripAPVBaselines");
+  producesCollector.produces<edm::DetSetVector<SiStripRawDigi>>(PRDigi).setBranchAlias(alias + PRDigi);
+  producesCollector.produces<edm::DetSetVector<StripDigiSimLink>>().setBranchAlias(alias + "siStripDigiSimLink");
+  producesCollector.produces<bool>("SimulatedAPVDynamicGain").setBranchAlias(alias + "SimulatedAPVDynamicGain");
+  producesCollector.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList")
+      .setBranchAlias(alias + "AffectedAPV");
   for (auto const& trackerContainer : trackerContainers) {
     edm::InputTag tag(hitsProducer, trackerContainer);
     iC.consumes<std::vector<PSimHit>>(edm::InputTag(hitsProducer, trackerContainer));
@@ -86,7 +105,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerB
            "which is not present in the configuration file.  You must add the service\n"
            "in the configuration file or remove the modules that require it.";
   }
-  theDigiAlgo.reset(new SiStripDigitizerAlgorithm(conf));
+  theDigiAlgo = std::make_unique<SiStripDigitizerAlgorithm>(conf, iC);
 }
 
 // Virtual destructor needed.
@@ -125,9 +144,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit>> hSi
 // Functions that gets called by framework every event
 void SiStripDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   // Step A: Get Inputs
   for (auto const& trackerContainer : trackerContainers) {
@@ -151,9 +168,7 @@ void SiStripDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup cons
 void SiStripDigitizer::accumulate(PileUpEventPrincipal const& iEvent,
                                   edm::EventSetup const& iSetup,
                                   edm::StreamID const& streamID) {
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   //Re-compute luminosity for accumulation for HIP effects
   theDigiAlgo->calculateInstlumiScale(PileupInfo_.get());
@@ -187,9 +202,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
   // Step A: Get Inputs
 
   if (useConfFromDB) {
-    edm::ESHandle<SiStripDetCabling> detCabling;
-    iSetup.get<SiStripDetCablingRcd>().get(detCabling);
-    detCabling->addConnected(theDetIdList);
+    iSetup.getData(detCablingToken_).addConnected(theDetIdList);
   }
 
   // Cache random number engine
@@ -198,8 +211,8 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
 
   theDigiAlgo->initializeEvent(iSetup);
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
-  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
+  pDD = &iSetup.getData(pDDToken_);
+  pSetup = &iSetup.getData(pSetupToken_);
 
   // FIX THIS! We only need to clear and (re)fill detectorUnits when the geometry type IOV changes.  Use ESWatcher to determine this.
   bool changes = true;
@@ -220,18 +233,28 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
 }
 
 void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  edm::ESHandle<SiStripGain> gainHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripThreshold> thresholdHandle;
-  edm::ESHandle<SiStripPedestals> pedestalHandle;
-  iSetup.get<SiStripGainSimRcd>().get(gainLabel, gainHandle);
-  iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
-  iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
-  iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
+  auto const& gain = iSetup.getData(gainToken_);
+  auto const& noise = iSetup.getData(noiseToken_);
+  auto const& threshold = iSetup.getData(thresholdToken_);
+  auto const& pedestal = iSetup.getData(pedestalToken_);
+  SiStripApvSimulationParameters const* apvSimulationParameters = nullptr;
 
+  std::unique_ptr<bool> simulateAPVInThisEvent = std::make_unique<bool>(false);
+  if (includeAPVSimulation_) {
+    if (CLHEP::RandFlat::shoot(randomEngine_) < fracOfEventsToSimAPV_) {
+      *simulateAPVInThisEvent = true;
+      apvSimulationParameters = &iSetup.getData(apvSimulationParametersToken_);
+    }
+  }
   std::vector<edm::DetSet<SiStripDigi>> theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi>> theRawDigiVector;
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVector(new edm::DetSetVector<SiStripRawDigi>());
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVectorPostAPV(
+      new edm::DetSetVector<SiStripRawDigi>());
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAPVBaselines(new edm::DetSetVector<SiStripRawDigi>());
   std::unique_ptr<edm::DetSetVector<StripDigiSimLink>> pOutputDigiSimLink(new edm::DetSetVector<StripDigiSimLink>);
+
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   // Step B: LOOP on StripGeomDetUnit
   theDigiVector.reserve(10000);
@@ -247,17 +270,38 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     if (sgd != nullptr) {
       edm::DetSet<SiStripDigi> collectorZS(iu->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorStripAmplitudes(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorStripAmplitudesPostAPV(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorStripAPVBaselines(iu->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> collectorLink(iu->geographicalId().rawId());
+
+      unsigned int detID = sgd->geographicalId().rawId();
+      DetId detId(detID);
+
       theDigiAlgo->digitize(collectorZS,
                             collectorRaw,
+                            collectorStripAmplitudes,
+                            collectorStripAmplitudesPostAPV,
+                            collectorStripAPVBaselines,
                             collectorLink,
                             sgd,
-                            gainHandle,
-                            thresholdHandle,
-                            noiseHandle,
-                            pedestalHandle,
+                            gain,
+                            threshold,
+                            noise,
+                            pedestal,
+                            *simulateAPVInThisEvent,
+                            apvSimulationParameters,
                             theAffectedAPVvector,
-                            randomEngine_);
+                            randomEngine_,
+                            tTopo);
+
+      if (!collectorStripAmplitudes.data.empty())
+        theStripAmplitudeVector->insert(collectorStripAmplitudes);
+      if (!collectorStripAmplitudesPostAPV.data.empty())
+        theStripAmplitudeVectorPostAPV->insert(collectorStripAmplitudesPostAPV);
+      if (!collectorStripAPVBaselines.data.empty())
+        theStripAPVBaselines->insert(collectorStripAPVBaselines);
+
       if (zeroSuppression) {
         if (!collectorZS.data.empty()) {
           theDigiVector.push_back(collectorZS);
@@ -281,12 +325,17 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     std::unique_ptr<edm::DetSetVector<SiStripDigi>> output(new edm::DetSetVector<SiStripDigi>(theDigiVector));
     std::unique_ptr<std::vector<std::pair<int, std::bitset<6>>>> AffectedAPVList(
         new std::vector<std::pair<int, std::bitset<6>>>(theAffectedAPVvector));
+
     // Step D: write output to file
     iEvent.put(std::move(output), ZSDigi);
     iEvent.put(std::move(output_scopemode), SCDigi);
     iEvent.put(std::move(output_virginraw), VRDigi);
+    iEvent.put(std::move(theStripAmplitudeVector), "StripAmplitudes");
+    iEvent.put(std::move(theStripAmplitudeVectorPostAPV), "StripAmplitudesPostAPV");
+    iEvent.put(std::move(theStripAPVBaselines), "StripAPVBaselines");
     iEvent.put(std::move(output_processedraw), PRDigi);
     iEvent.put(std::move(AffectedAPVList), "AffectedAPVList");
+    iEvent.put(std::move(simulateAPVInThisEvent), "SimulatedAPVDynamicGain");
     if (makeDigiSimLinks_)
       iEvent.put(
           std::move(pOutputDigiSimLink));  // The previous EDProducer didn't name this collection so I won't either
@@ -297,11 +346,16 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
     std::unique_ptr<edm::DetSetVector<SiStripDigi>> output(new edm::DetSetVector<SiStripDigi>());
+
     // Step D: write output to file
     iEvent.put(std::move(output), ZSDigi);
     iEvent.put(std::move(output_scopemode), SCDigi);
     iEvent.put(std::move(output_virginraw), VRDigi);
+    iEvent.put(std::move(theStripAmplitudeVector), "StripAmplitudes");
+    iEvent.put(std::move(theStripAmplitudeVectorPostAPV), "StripAmplitudesPostAPV");
+    iEvent.put(std::move(theStripAPVBaselines), "StripAPVBaselines");
     iEvent.put(std::move(output_processedraw), PRDigi);
+    iEvent.put(std::move(simulateAPVInThisEvent), "SimulatedAPVDynamicGain");
     if (makeDigiSimLinks_)
       iEvent.put(
           std::move(pOutputDigiSimLink));  // The previous EDProducer didn't name this collection so I won't either

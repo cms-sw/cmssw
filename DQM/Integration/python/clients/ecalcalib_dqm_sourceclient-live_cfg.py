@@ -23,6 +23,7 @@ process.load("DQM.Integration.config.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 
 ### Individual module setups ###
 
@@ -157,7 +158,6 @@ process.preScaler.prescaleFactor = 1
 
 process.source.streamLabel = "streamDQMCalibration"
 
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
@@ -186,8 +186,11 @@ process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUnca
 process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
-process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
-process.dqmSaver.tag = cms.untracked.string('EcalCalibration')
+process.dqmEnv.subSystemFolder = 'EcalCalibration'
+process.dqmSaver.tag = 'EcalCalibration'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'EcalCalibration'
+process.dqmSaverPB.runNumber = options.runNumber
 
 ### Sequences ###
 
@@ -202,7 +205,7 @@ process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequenc
 process.ecalClientPath = cms.Path(process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
 
 ### Schedule ###
 

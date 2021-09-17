@@ -2,20 +2,20 @@ import FWCore.ParameterSet.Config as cms
 
 PFHTPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v",
-        "HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v",
-        "HLT_PFHT750_4Jet_v",
-        "HLT_PFHT550_4JetPt50_v",
-        "HLT_PFHT650_4JetPt50_v",
-        "HLT_PFHT750_4JetPt50_v",
-        "HLT_PFHT650_4Jet_v", # Run2
-        "HLT_PFHT550_4Jet_v", # Run2
-        "HLT_PFHT800_v",
-        "HLT_PFHT650_v",
-        "HLT_PFHT800_4JetPt50_v",
-        "HLT_PFHT750_4JetPt70_v",
-        "HLT_PFHT850_4JetPt50_v",
-        "HLT_PFHT750_4JetPt80_v",
+#        "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v",
+#        "HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v",
+#        "HLT_PFHT750_4Jet_v",
+#        "HLT_PFHT550_4JetPt50_v",
+#        "HLT_PFHT650_4JetPt50_v",
+#        "HLT_PFHT750_4JetPt50_v",
+#        "HLT_PFHT650_4Jet_v", # Run2
+#        "HLT_PFHT550_4Jet_v", # Run2
+#        "HLT_PFHT800_v",
+#        "HLT_PFHT650_v",
+#        "HLT_PFHT800_4JetPt50_v",
+#        "HLT_PFHT750_4JetPt70_v",
+#        "HLT_PFHT850_4JetPt50_v",
+#        "HLT_PFHT750_4JetPt80_v",
         #"DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v", # Moved to DSTJets category
         #"DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v" # Moved to DSTJets category

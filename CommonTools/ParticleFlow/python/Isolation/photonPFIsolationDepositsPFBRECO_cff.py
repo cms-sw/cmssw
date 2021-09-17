@@ -25,15 +25,15 @@ phPFIsoDepositGammaPFBRECO= cms.EDProducer("CandIsoDepositProducer",
                                         )
                             )
 
-phPFIsoDepositChargedPFBRECO.ExtractorPSet.DR_Veto = cms.double(0)
-phPFIsoDepositChargedAllPFBRECO.ExtractorPSet.DR_Veto = cms.double(0)
-phPFIsoDepositNeutralPFBRECO.ExtractorPSet.DR_Veto = cms.double(0)
-phPFIsoDepositPUPFBRECO.ExtractorPSet.DR_Veto = cms.double(0)
+phPFIsoDepositChargedPFBRECO.ExtractorPSet.DR_Veto = 0
+phPFIsoDepositChargedAllPFBRECO.ExtractorPSet.DR_Veto = 0
+phPFIsoDepositNeutralPFBRECO.ExtractorPSet.DR_Veto = 0
+phPFIsoDepositPUPFBRECO.ExtractorPSet.DR_Veto = 0
 
-photonPFIsolationDepositsPFBRECOSequence = cms.Sequence(
-    phPFIsoDepositChargedPFBRECO+
-    phPFIsoDepositChargedAllPFBRECO+
-    phPFIsoDepositGammaPFBRECO+
-    phPFIsoDepositNeutralPFBRECO+
+photonPFIsolationDepositsPFBRECOTask = cms.Task(
+    phPFIsoDepositChargedPFBRECO,
+    phPFIsoDepositChargedAllPFBRECO,
+    phPFIsoDepositGammaPFBRECO,
+    phPFIsoDepositNeutralPFBRECO,
     phPFIsoDepositPUPFBRECO
     )

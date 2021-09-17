@@ -10,50 +10,18 @@
 //         Created:  Tue Aug 19 13:20:41 EDT 2008
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 namespace edm {
   namespace eventsetup {
 
-    //
-    // constants, enums and typedefs
-    //
-
-    //
-    // static data member definitions
-    //
-
-    //
-    // constructors and destructor
-    //
     IntersectingIOVRecordIntervalFinder::IntersectingIOVRecordIntervalFinder(const EventSetupRecordKey& iKey) {
       findingRecordWithKey(iKey);
     }
 
-    // IntersectingIOVRecordIntervalFinder::IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder& rhs)
-    // {
-    //    // do actual copying here;
-    // }
-
     IntersectingIOVRecordIntervalFinder::~IntersectingIOVRecordIntervalFinder() {}
 
-    //
-    // assignment operators
-    //
-    // const IntersectingIOVRecordIntervalFinder& IntersectingIOVRecordIntervalFinder::operator=(const IntersectingIOVRecordIntervalFinder& rhs)
-    // {
-    //   //An exception safe implementation is
-    //   IntersectingIOVRecordIntervalFinder temp(rhs);
-    //   swap(rhs);
-    //
-    //   return *this;
-    // }
-
-    //
-    // member functions
-    //
     void IntersectingIOVRecordIntervalFinder::swapFinders(
         std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>& iFinders) {
       finders_.swap(iFinders);
@@ -100,12 +68,30 @@ namespace edm {
       oInterval = newInterval;
     }
 
-    //
-    // const member functions
-    //
+    void IntersectingIOVRecordIntervalFinder::doResetInterval(const eventsetup::EventSetupRecordKey& key) {
+      for (auto& finder : finders_) {
+        finder->resetInterval(key);
+      }
+    }
 
-    //
-    // static member functions
-    //
+    bool IntersectingIOVRecordIntervalFinder::isConcurrentFinder() const {
+      for (auto const& finder : finders_) {
+        if (!finder->concurrentFinder()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    bool IntersectingIOVRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey& iKey,
+                                                                               const IOVSyncValue& iTime) const {
+      for (auto const& finder : finders_) {
+        if (finder->nonconcurrentAndIOVNeedsUpdate(iKey, iTime)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
   }  // namespace eventsetup
 }  // namespace edm

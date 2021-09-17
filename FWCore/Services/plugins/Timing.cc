@@ -90,18 +90,6 @@ namespace edm {
 
       double postCommon() const;
 
-      void preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                eventsetup::EventSetupRecordKey const&,
-                                eventsetup::DataKey const&);
-
-      void postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                 eventsetup::EventSetupRecordKey const&,
-                                 eventsetup::DataKey const&);
-
-      void postEventSetupGet(eventsetup::ComponentDescription const*,
-                             eventsetup::EventSetupRecordKey const&,
-                             eventsetup::DataKey const&);
-
       struct CountAndTime {
       public:
         CountAndTime(unsigned int count, double time) : count_(count), time_(time) {}
@@ -116,8 +104,8 @@ namespace edm {
       double curr_job_cpu_;                // seconds
       std::atomic<double> extra_job_cpu_;  //seconds
                                            //use last run time for determining end of processing
-      std::atomic<double> last_run_time_;
-      std::atomic<double> last_run_cpu_;
+      std::atomic<double> end_loop_time_;
+      std::atomic<double> end_loop_cpu_;
       std::vector<double> curr_events_time_;  // seconds
       bool summary_only_;
       bool report_summary_;
@@ -173,6 +161,16 @@ namespace edm {
       return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }
 
+    static double getChildrenCPU() {
+      struct rusage usage;
+
+      getrusage(RUSAGE_CHILDREN, &usage);
+      double totalCPUTime = (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
+      totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+
+      return totalCPUTime;
+    }
+
     static double getCPU() {
       struct rusage usage;
       getrusage(RUSAGE_SELF, &usage);
@@ -220,8 +218,8 @@ namespace edm {
         : curr_job_time_(0.),
           curr_job_cpu_(0.),
           extra_job_cpu_(0.0),
-          last_run_time_(0.0),
-          last_run_cpu_(0.0),
+          end_loop_time_(0.0),
+          end_loop_cpu_(0.0),
           curr_events_time_(),
           summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
           report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
@@ -240,14 +238,14 @@ namespace edm {
           nSubProcesses_{0} {
       iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
       iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
+      iRegistry.preEndJobSignal_.connect([this]() {
+        end_loop_time_ = getTime();
+        end_loop_cpu_ = getCPU();
+      });
       iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
       iRegistry.watchPreEvent(this, &Timing::preEvent);
       iRegistry.watchPostEvent(this, &Timing::postEvent);
-
-      iRegistry.watchPreLockEventSetupGet(this, &Timing::preLockEventSetupGet);
-      iRegistry.watchPostLockEventSetupGet(this, &Timing::postLockEventSetupGet);
-      iRegistry.watchPostEventSetupGet(this, &Timing::postEventSetupGet);
 
       bool checkThreshold = true;
       if (threshold_ <= 0.0) {
@@ -278,6 +276,9 @@ namespace edm {
 
         iRegistry.watchPreModuleConstruction(this, &Timing::preModule);
         iRegistry.watchPostModuleConstruction(this, &Timing::postModule);
+
+        iRegistry.watchPreModuleDestruction(this, &Timing::preModule);
+        iRegistry.watchPostModuleDestruction(this, &Timing::postModule);
 
         iRegistry.watchPreModuleBeginJob(this, &Timing::preModule);
         iRegistry.watchPostModuleBeginJob(this, &Timing::postModule);
@@ -323,11 +324,6 @@ namespace edm {
           countSubProcessesPreEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
           countSubProcessesPostEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
         }
-      });
-
-      iRegistry.postGlobalEndRunSignal_.connect([this](edm::GlobalContext const&) {
-        last_run_time_ = getTime();
-        last_run_cpu_ = getCPU();
       });
     }
 
@@ -396,6 +392,8 @@ namespace edm {
 
       double total_job_cpu = job_end_cpu + extra_job_cpu_;
 
+      const double job_end_children_cpu = getChildrenCPU();
+
       const double total_initialization_time = curr_job_time_ - jobStartTime();
       const double total_initialization_cpu = curr_job_cpu_;
 
@@ -408,10 +406,10 @@ namespace edm {
       double min_event_time = *(std::min_element(min_events_time_.begin(), min_events_time_.end()));
       double max_event_time = *(std::max_element(max_events_time_.begin(), max_events_time_.end()));
 
-      auto total_loop_time = last_run_time_ - curr_job_time_;
-      auto total_loop_cpu = last_run_cpu_ + extra_job_cpu_ - curr_job_cpu_;
+      auto total_loop_time = end_loop_time_ - curr_job_time_;
+      auto total_loop_cpu = end_loop_cpu_ + extra_job_cpu_ - curr_job_cpu_;
 
-      if (last_run_time_ == 0.0) {
+      if (end_loop_time_ == 0.0) {
         total_loop_time = 0.0;
         total_loop_cpu = 0.0;
       }
@@ -440,14 +438,15 @@ namespace edm {
                                  << " - Total loop:  " << total_loop_time << "\n"
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
-                                 << " - EventSetup Lock:   " << accumulatedTimeForLock_ << "\n"
-                                 << " - EventSetup Get:   " << accumulatedTimeForGet_ << "\n"
+                                 << " - EventSetup Lock: " << accumulatedTimeForLock_ << "\n"
+                                 << " - EventSetup Get:  " << accumulatedTimeForGet_ << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
-                                 << " - Total loop:  " << total_loop_cpu << "\n"
-                                 << " - Total init:  " << total_initialization_cpu << "\n"
-                                 << " - Total extra: " << extra_job_cpu_ << "\n"
-                                 << " - Total job:   " << total_job_cpu << "\n"
+                                 << " - Total loop:     " << total_loop_cpu << "\n"
+                                 << " - Total init:     " << total_initialization_cpu << "\n"
+                                 << " - Total extra:    " << extra_job_cpu_ << "\n"
+                                 << " - Total children: " << job_end_children_cpu << "\n"
+                                 << " - Total job:      " << total_job_cpu << "\n"
                                  << " Processing Summary: \n"
                                  << " - Number of Events:  " << total_event_count_ << "\n"
                                  << " - Number of Global Begin Lumi Calls:  " << begin_lumi_count_ << "\n"
@@ -463,6 +462,7 @@ namespace edm {
         reportData.insert(std::make_pair("EventThroughput", d2str(event_throughput)));
         reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
+        reportData.insert(std::make_pair("TotalJobChildrenCPU", d2str(job_end_children_cpu)));
         reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
@@ -603,31 +603,6 @@ namespace edm {
             << " seconds.";
       }
       return t;
-    }
-
-    void Timing::preLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                      eventsetup::EventSetupRecordKey const&,
-                                      eventsetup::DataKey const&) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      accumulateTimeBegin(countAndTimeForLock_, accumulatedTimeForLock_);
-    }
-
-    void Timing::postLockEventSetupGet(eventsetup::ComponentDescription const*,
-                                       eventsetup::EventSetupRecordKey const&,
-                                       eventsetup::DataKey const&) {
-      if (!configuredInTopLevelProcess_) {
-        return;
-      }
-      accumulateTimeEnd(countAndTimeForLock_, accumulatedTimeForLock_);
-      accumulateTimeBegin(countAndTimeForGet_, accumulatedTimeForGet_);
-    }
-
-    void Timing::postEventSetupGet(eventsetup::ComponentDescription const*,
-                                   eventsetup::EventSetupRecordKey const&,
-                                   eventsetup::DataKey const&) {
-      accumulateTimeEnd(countAndTimeForGet_, accumulatedTimeForGet_);
     }
 
     void Timing::accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {

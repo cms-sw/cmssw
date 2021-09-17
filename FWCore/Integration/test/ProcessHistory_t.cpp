@@ -79,61 +79,63 @@ int main() try {
   assert(pnl5 == pnl3);
   assert(pnl5.id() == pnl3.id());
 
-  edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-  edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-  edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-  edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-  edm::ProcessConfiguration pc5(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-  edm::ProcessConfiguration pc6(std::string("HLT"), psetID, std::string("500yz872djk999patch10"), edm::getPassID());
-  edm::ProcessConfiguration pc7(std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
-  edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
+  {
+    edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
+    edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
+    edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
+    edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
+    edm::ProcessConfiguration pc5(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+    edm::ProcessConfiguration pc6(std::string("HLT"), psetID, std::string("500yz872djk999patch10"), edm::getPassID());
+    edm::ProcessConfiguration pc7(std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
+    edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
 
-  pc1.setProcessConfigurationID();
-  pc2.setProcessConfigurationID();
-  pc3.setProcessConfigurationID();
-  pc4.setProcessConfigurationID();
-  pc5.setProcessConfigurationID();
-  pc6.setProcessConfigurationID();
-  pc7.setProcessConfigurationID();
-  pc8.setProcessConfigurationID();
+    pc1.setProcessConfigurationID();
+    pc2.setProcessConfigurationID();
+    pc3.setProcessConfigurationID();
+    pc4.setProcessConfigurationID();
+    pc5.setProcessConfigurationID();
+    pc6.setProcessConfigurationID();
+    pc7.setProcessConfigurationID();
+    pc8.setProcessConfigurationID();
 
-  pc1.reduce();
-  pc2.reduce();
-  pc3.reduce();
-  pc4.reduce();
-  pc5.reduce();
-  pc6.reduce();
-  pc7.reduce();
-  pc8.reduce();
+    pc1.reduce();
+    pc2.reduce();
+    pc3.reduce();
+    pc4.reduce();
+    pc5.reduce();
+    pc6.reduce();
+    pc7.reduce();
+    pc8.reduce();
 
-  edm::ProcessConfiguration pc1expected(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-  edm::ProcessConfiguration pc2expected(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-  edm::ProcessConfiguration pc3expected(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-  edm::ProcessConfiguration pc4expected(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-  edm::ProcessConfiguration pc5expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-  edm::ProcessConfiguration pc6expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-  edm::ProcessConfiguration pc7expected(std::string("HLT"), psetID, std::string("xb500yz872"), edm::getPassID());
-  edm::ProcessConfiguration pc8expected(std::string("HLT"), psetID, std::string("CMSSW_4_4"), edm::getPassID());
+    edm::ProcessConfiguration pc1expected(std::string("HLT"), psetID, std::string(""), edm::getPassID());
+    edm::ProcessConfiguration pc2expected(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
+    edm::ProcessConfiguration pc3expected(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
+    edm::ProcessConfiguration pc4expected(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
+    edm::ProcessConfiguration pc5expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+    edm::ProcessConfiguration pc6expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+    edm::ProcessConfiguration pc7expected(std::string("HLT"), psetID, std::string("xb500yz872"), edm::getPassID());
+    edm::ProcessConfiguration pc8expected(std::string("HLT"), psetID, std::string("CMSSW_4_4"), edm::getPassID());
 
-  assert(pc1 == pc1expected);
-  assert(pc2 == pc2expected);
-  assert(pc3 == pc3expected);
-  assert(pc4 == pc4expected);
-  assert(pc5 == pc5expected);
-  assert(pc6 == pc6expected);
-  assert(pc7 == pc7expected);
-  assert(pc8 == pc8expected);
+    assert(pc1 == pc1expected);
+    assert(pc2 == pc2expected);
+    assert(pc3 == pc3expected);
+    assert(pc4 == pc4expected);
+    assert(pc5 == pc5expected);
+    assert(pc6 == pc6expected);
+    assert(pc7 == pc7expected);
+    assert(pc8 == pc8expected);
 
-  assert(pc1.id() == pc1expected.id());
-  assert(pc2.id() == pc2expected.id());
-  assert(pc3.id() == pc3expected.id());
-  assert(pc4.id() == pc4expected.id());
-  assert(pc5.id() == pc5expected.id());
-  assert(pc6.id() == pc6expected.id());
-  assert(pc7.id() == pc7expected.id());
-  assert(pc8.id() == pc8expected.id());
+    assert(pc1.id() == pc1expected.id());
+    assert(pc2.id() == pc2expected.id());
+    assert(pc3.id() == pc3expected.id());
+    assert(pc4.id() == pc4expected.id());
+    assert(pc5.id() == pc5expected.id());
+    assert(pc6.id() == pc6expected.id());
+    assert(pc7.id() == pc7expected.id());
+    assert(pc8.id() == pc8expected.id());
 
-  assert(pc7.id() != pc8expected.id());
+    assert(pc7.id() != pc8expected.id());
+  }
 
   edm::ProcessConfiguration iHLTreduced(std::string("HLT"), psetID, std::string("CMSSW_5_100"), edm::getPassID());
   edm::ProcessConfiguration iRECOreduced(std::string("RECO"), psetID, std::string("5_100"), edm::getPassID());
@@ -166,10 +168,6 @@ int main() try {
     edm::ProcessHistory ph2b;
     edm::ProcessHistory ph3;
     edm::ProcessHistory ph4;
-
-    edm::ParameterSet dummyPset;
-    dummyPset.registerIt();
-    edm::ParameterSetID psetID = dummyPset.id();
 
     edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string("CMSSW_5_1_40"), std::string(""));
     edm::ProcessConfiguration pc1a(std::string("HLT"), psetID, std::string("CMSSW_5_1_40patch1"), std::string(""));

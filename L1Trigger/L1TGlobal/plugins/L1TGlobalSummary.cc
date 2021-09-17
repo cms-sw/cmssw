@@ -14,7 +14,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
@@ -67,7 +66,11 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig) {
   readPrescalesFromFile_ = iConfig.getParameter<bool>("ReadPrescalesFromFile");
   minBx_ = iConfig.getParameter<int>("MinBx");
   maxBx_ = iConfig.getParameter<int>("MaxBx");
-  gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_);
+  l1t::UseEventSetupIn useEventSetupIn = l1t::UseEventSetupIn::Run;
+  if (dumpTriggerResults_ || dumpTriggerSummary_) {
+    useEventSetupIn = l1t::UseEventSetupIn::RunAndEvent;
+  }
+  gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_, useEventSetupIn);
   finalOrCount = 0;
 
   if (readPrescalesFromFile_) {
@@ -140,7 +143,7 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&) {
 
         auto const& name = prescales.at(i).first;
         if (name != "NULL") {
-          int prescale = prescales.at(i).second;
+          double prescale = prescales.at(i).second;
           auto const& mask = masks.at(i).second;
           out << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name << "   " << setw(7)
               << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11)
@@ -177,7 +180,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const std::vector<std::pair<std::string, bool>> initialDecisions = gtUtil_->decisionsInitial();
     const std::vector<std::pair<std::string, bool>> intermDecisions = gtUtil_->decisionsInterm();
     const std::vector<std::pair<std::string, bool>> finalDecisions = gtUtil_->decisionsFinal();
-    const std::vector<std::pair<std::string, int>> prescales = gtUtil_->prescales();
+    const std::vector<std::pair<std::string, double>> prescales = gtUtil_->prescales();
     const std::vector<std::pair<std::string, std::vector<int>>> masks = gtUtil_->masks();
 
     if ((decisionCount_.size() != gtUtil_->decisionsInitial().size()) ||
@@ -211,7 +214,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       bool resultFin = (finalDecisions.at(i)).second;
 
       // get the prescale and mask (needs some error checking here)
-      int prescale = (prescales.at(i)).second;
+      double prescale = (prescales.at(i)).second;
       std::vector<int> mask = (masks.at(i)).second;
 
       if (resultInit)

@@ -1,25 +1,3 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-// Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/UncleanSCRecoveryProducer.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
 /*
 UncleanSCRecoveryProducer:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32,6 +10,47 @@ recovers the original collection of unclean SC.
 Nikolaos Rompotis and Chris Seez  - Imperial College London
 many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
 */
+
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <iostream>
+#include <memory>
+#include <vector>
+
+class UncleanSCRecoveryProducer : public edm::global::EDProducer<> {
+public:
+  UncleanSCRecoveryProducer(const edm::ParameterSet& ps);
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // the clean collection
+  const edm::EDGetTokenT<reco::BasicClusterCollection> cleanBcCollection_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> cleanScCollection_;
+  // the uncleaned collection
+  const edm::EDGetTokenT<reco::BasicClusterCollection> uncleanBcCollection_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> uncleanScCollection_;
+  // the names of the products to be produced:
+  const std::string bcCollection_;
+  const std::string scCollection_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(UncleanSCRecoveryProducer);
 
 UncleanSCRecoveryProducer::UncleanSCRecoveryProducer(const edm::ParameterSet& ps)
     : cleanBcCollection_(consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("cleanBcCollection"))),

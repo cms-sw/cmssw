@@ -1,5 +1,5 @@
-#ifndef CSCTMBHeader2013_h
-#define CSCTMBHeader2013_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader2013_h
+#define EventFilter_CSCRawToDigi_CSCTMBHeader2013_h
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -50,6 +50,7 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
   void addALCT1(const CSCALCTDigi& digi) override;
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
+  void addShower(const CSCShowerDigi& digi) override {}
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 

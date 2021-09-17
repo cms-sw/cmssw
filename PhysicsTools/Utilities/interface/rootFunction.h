@@ -904,10 +904,10 @@ namespace root {
 
   template <unsigned int args, typename Tag, typename F>
   typename helper::RootFunctionHelper<F, args, Tag>::root_function function_t(
-      F& f, const std::vector<boost::shared_ptr<double> >& pars) {
+      F& f, const std::vector<std::shared_ptr<double> >& pars) {
     typename helper::RootFunctionHelper<F, args, Tag>::root_function fun =
         helper::RootFunctionHelper<F, args, Tag>::fun(f);
-    std::vector<boost::shared_ptr<double> >::const_iterator i, b = pars.begin(), e = pars.end();
+    std::vector<std::shared_ptr<double> >::const_iterator i, b = pars.begin(), e = pars.end();
     for (i = b; i != e; ++i)
       helper::RootFunctionHelper<F, args, Tag>::addParameter(*i);
     return fun;
@@ -915,7 +915,7 @@ namespace root {
 
   template <unsigned int args, typename F>
   typename helper::RootFunctionHelper<F, args>::root_function function(
-      F& f, const std::vector<boost::shared_ptr<double> >& pars) {
+      F& f, const std::vector<std::shared_ptr<double> >& pars) {
     return function_t<args, helper::null_t>(f, pars);
   }
 

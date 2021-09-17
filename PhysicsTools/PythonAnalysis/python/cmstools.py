@@ -8,8 +8,6 @@ from __future__ import print_function
 from builtins import range
 import re
 import ROOT
-import exceptions
-import six
 import sys
 ### define tab completion
 try:
@@ -116,7 +114,7 @@ class EventTree(object):
       def tree(self):
           return self._tree
       def __setBranchIndicies(self):
-          for branch in six.itervalues(self._usedBranches):
+          for branch in self._usedBranches.values():
               branch.setIndex(self._index)
       def __getattr__(self, name):
           return self.branch(name)
@@ -174,7 +172,7 @@ class EventBranch(object):
         return self._buffer
 
 
-class cmserror(exceptions.Exception):
+class cmserror(Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
           print("="*length)

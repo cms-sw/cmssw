@@ -9,12 +9,15 @@
  */
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/View.h"
@@ -85,8 +88,8 @@ private:
   MonitorElement *r9_EB;
   MonitorElement *r9_EE;
 
-  edm::ESHandle<CaloGeometry> geomH;
-  edm::ESHandle<CaloTopology> caloTop;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomH;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTop;
 
   edm::EDGetTokenT<reco::VertexCollection> VertexCollection_;  // vertex collection
 

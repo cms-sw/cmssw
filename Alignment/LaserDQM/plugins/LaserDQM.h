@@ -11,16 +11,22 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <iostream>
 
-class LaserDQM : public edm::EDAnalyzer {
+class TrackerTopology;
+class TrackerTopologyRcd;
+class TrackerGeometry;
+class TrackerDigiGeometryRecord;
+
+class LaserDQM : public edm::one::EDAnalyzer<> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef std::vector<edm::ParameterSet> Parameters;
 
   /// constructor
@@ -46,6 +52,9 @@ private:
   void trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup);
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeoToken;
+
   int theDebugLevel;
   double theSearchPhiTIB;
   double theSearchPhiTOB;

@@ -31,8 +31,7 @@ LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler(edm::ParameterSet const& 
       m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
       m_fillPayload(),
       m_prevPayload(),
-      m_tmpBuffer(),
-      m_payloadBuffer() {
+      m_tmpBuffer() {
   if (pset.exists("startTime")) {
     m_startTime = boost::posix_time::time_from_string(pset.getUntrackedParameter<std::string>("startTime"));
   }
@@ -210,7 +209,7 @@ namespace LHCInfoImpl {
             break;
         }
       }
-      targetPayload.reset(new LHCInfo());
+      targetPayload = std::make_unique<LHCInfo>();
       targetPayload->setFillNumber(currentFill);
       targetPayload->setBunchesInBeam1(bunches1);
       targetPayload->setBunchesInBeam2(bunches2);
@@ -773,19 +772,18 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
 
 void LHCInfoPopConSourceHandler::addEmptyPayload(cond::Time_t iov) {
   bool add = false;
-  if (m_to_transfer.empty()) {
+  if (m_iovs.empty()) {
     if (!m_lastPayloadEmpty)
       add = true;
   } else {
-    LHCInfo* lastAdded = m_to_transfer.back().first;
+    auto lastAdded = m_iovs.rbegin()->second;
     if (lastAdded->fillNumber() != 0) {
       add = true;
     }
   }
   if (add) {
     auto newPayload = std::make_shared<LHCInfo>();
-    m_to_transfer.push_back(std::make_pair(newPayload.get(), iov));
-    m_payloadBuffer.push_back(newPayload);
+    m_iovs.insert(std::make_pair(iov, newPayload));
     m_prevPayload = newPayload;
   }
 }
@@ -816,26 +814,24 @@ namespace LHCInfoImpl {
   }
 
   size_t transferPayloads(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>& buffer,
-                          std::vector<std::shared_ptr<LHCInfo>>& payloadBuffer,
-                          std::vector<std::pair<LHCInfo*, cond::Time_t>>& vecToTransfer,
+                          std::map<cond::Time_t, std::shared_ptr<LHCInfo>>& iovsToTransfer,
                           std::shared_ptr<LHCInfo>& prevPayload) {
     size_t niovs = 0;
     for (auto& iov : buffer) {
       bool add = false;
-      LHCInfo& payload = *iov.second;
+      auto payload = iov.second;
       cond::Time_t since = iov.first;
-      if (vecToTransfer.empty()) {
+      if (iovsToTransfer.empty()) {
         add = true;
       } else {
-        LHCInfo& lastAdded = *vecToTransfer.back().first;
-        if (!comparePayloads(lastAdded, payload)) {
+        LHCInfo& lastAdded = *iovsToTransfer.rbegin()->second;
+        if (!comparePayloads(lastAdded, *payload)) {
           add = true;
         }
       }
       if (add) {
         niovs++;
-        vecToTransfer.push_back(std::make_pair(&payload, since));
-        payloadBuffer.push_back(iov.second);
+        iovsToTransfer.insert(std::make_pair(since, payload));
         prevPayload = iov.second;
       }
     }
@@ -853,15 +849,14 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
-    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ", IOVSequence token " << tagInfo().token
-                         << ": size " << tagInfo().size << ", last object valid since " << tagInfo().lastInterval.first
-                         << " ( "
+    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ": size " << tagInfo().size
+                         << ", last object valid since " << tagInfo().lastInterval.since << " ( "
                          << boost::posix_time::to_iso_extended_string(
-                                cond::time::to_boost(tagInfo().lastInterval.first))
+                                cond::time::to_boost(tagInfo().lastInterval.since))
                          << " ); from " << m_name << "::getNewObjects";
   }
 
-  cond::Time_t lastSince = tagInfo().lastInterval.first;
+  cond::Time_t lastSince = tagInfo().lastInterval.since;
   if (lastSince == 0) {
     // for a new or empty tag, an empty payload should be added on top with since=1
     addEmptyPayload(1);
@@ -896,10 +891,10 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   cond::persistency::Session session = connection.createSession(m_connectionString, false);
   cond::persistency::Session session2 = connection.createSession(m_ecalConnectionString, false);
   // fetch last payload when available
-  if (!tagInfo().lastPayloadToken.empty()) {
+  if (!tagInfo().lastInterval.payloadId.empty()) {
     cond::persistency::Session session3 = dbSession();
     session3.transaction().start(true);
-    m_prevPayload = session3.fetchPayload<LHCInfo>(tagInfo().lastPayloadToken);
+    m_prevPayload = session3.fetchPayload<LHCInfo>(tagInfo().lastInterval.payloadId);
     session3.transaction().commit();
   }
 
@@ -966,11 +961,10 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
     session2.transaction().commit();
     //
-    size_t niovs = LHCInfoImpl::transferPayloads(m_tmpBuffer, m_payloadBuffer, m_to_transfer, m_prevPayload);
+    size_t niovs = LHCInfoImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
     edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
     m_tmpBuffer.clear();
     iovAdded = true;
-    //if(m_prevPayload->fillNumber() and m_prevPayload->endTime()!=0ULL) addEmptyPayload( m_fillPayload->endTime() );
     if (m_prevPayload->fillNumber() and m_fillPayload->endTime() != 0ULL)
       addEmptyPayload(m_fillPayload->endTime());
   }

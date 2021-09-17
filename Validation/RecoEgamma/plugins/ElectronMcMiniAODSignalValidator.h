@@ -3,9 +3,6 @@
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 
-// system include files
-//#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 
@@ -29,10 +26,11 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_;  // prunedGenParticles
   edm::EDGetTokenT<pat::ElectronCollection> electronToken_;            // slimmedElectrons
+  edm::EDGetTokenT<pat::ElectronCollection> electronTokenEndcaps_;     // slimmedElectrons
 
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumChargedHadronPtTmp_;
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumNeutralHadronEtTmp_;
-  edm::EDGetTokenT<edm::ValueMap<float> > pfSumPhotonEtTmp_; /**/
+  edm::EDGetTokenT<edm::ValueMap<float> > pfSumPhotonEtTmp_;
   float pt_;
 
   double maxPt_;
@@ -41,13 +39,6 @@ private:
   std::vector<int> matchingIDs_;
   std::vector<int> matchingMotherIDs_;
   std::string outputInternalPath_;
-
-  float sumChargedHadronPt_recomp;
-  float sumNeutralHadronPt_recomp;
-  float sumPhotonPt_recomp;
-  float relisoChargedHadronPt_recomp;
-  float relisoNeutralHadronPt_recomp;
-  float relisoPhotonPt_recomp;
 
   // histos limits and binning
 
@@ -91,6 +82,9 @@ private:
   double poptrue_max;
   bool set_EfficiencyFlag;
   bool set_StatOverflowFlag;
+  int ele_nbin;
+  double ele_min;
+  double ele_max;
 
   // histos
 
@@ -137,10 +131,6 @@ private:
   MonitorElement *h1_ele_photonRelativeIso_mAOD;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
-
-  MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
-  MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
-  MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp;
 };
 
 #endif

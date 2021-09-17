@@ -18,7 +18,7 @@
 class PixelFakeCPE final : public PixelClusterParameterEstimator {
 public:
   PixelFakeCPE() = default;
-  ~PixelFakeCPE() = default;
+  ~PixelFakeCPE() override = default;
 
   typedef std::pair<LocalPoint, LocalError> LocalValues;
   typedef std::vector<LocalValues> VLocalValues;

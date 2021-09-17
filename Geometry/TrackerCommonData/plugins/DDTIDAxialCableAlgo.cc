@@ -3,18 +3,54 @@
 // Description: Create and position TID axial cables at prescribed phi values
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTIDAxialCableAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTIDAxialCableAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTIDAxialCableAlgo();
+  ~DDTIDAxialCableAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double zBend;              //Start z (at bending)........
+  double zEnd;               //End   z             ........
+  double rMin;               //Minimum radius      ........
+  double rMax;               //Maximum radius      ........
+  double rTop;               //Maximum radius (top)........
+  double width;              //Angular width
+  double thick;              //Thickness
+  vector<double> angles;     //Phi Angles
+  vector<double> zposWheel;  //Z position of wheels
+  vector<double> zposRing;   //Z position of rings inside wheels
+
+  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string childName;    //Child name
+  string matIn;        //Material name (for inner parts)
+  string matOut;       //Material name (for outer part)
+};
 
 DDTIDAxialCableAlgo::DDTIDAxialCableAlgo() { LogDebug("TIDGeom") << "DDTIDAxialCableAlgo info: Creating an instance"; }
 
@@ -63,7 +99,7 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments& nArgs,
 
 void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   DDName mother = parent().name();
-  std::vector<DDName> logs;
+  vector<DDName> logs;
   double thk = thick / zposRing.size();
   double r = rMin;
   double thktot = 0;
@@ -71,7 +107,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
 
   //Cables between the wheels
   for (int k = 0; k < (int)(zposWheel.size()); k++) {
-    std::vector<double> pconZ, pconRmin, pconRmax;
+    vector<double> pconZ, pconRmin, pconRmax;
     for (int i = 0; i < (int)(zposRing.size()); i++) {
       thktot += thk;
       z = zposWheel[k] + zposRing[i] - 0.5 * thk;
@@ -101,7 +137,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
     pconRmin.emplace_back(r);
     pconRmax.emplace_back(rMax);
 
-    std::string name = childName + std::to_string(k);
+    string name = childName + to_string(k);
     DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace), -0.5 * width, width, pconZ, pconRmin, pconRmax);
 
     LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << matIn
@@ -118,7 +154,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   }
 
   //Cable in the vertical part
-  std::vector<double> pconZ, pconRmin, pconRmax;
+  vector<double> pconZ, pconRmin, pconRmax;
   r = thktot * rMax / rTop;
   z = zBend - thktot;
   LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: Thk " << thk << " Total " << thktot << " rMax " << rMax << " rTop "
@@ -134,7 +170,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   pconRmin.emplace_back(rMax);
   pconRmax.emplace_back(rTop);
 
-  std::string name = childName + std::to_string(zposWheel.size());
+  string name = childName + to_string(zposWheel.size());
   DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace), -0.5 * width, width, pconZ, pconRmin, pconRmax);
 
   LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << matIn
@@ -149,7 +185,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   logs.emplace_back(DDName(name, idNameSpace));
 
   //Cable in the outer part
-  name = childName + std::to_string(zposWheel.size() + 1);
+  name = childName + to_string(zposWheel.size() + 1);
   r = rTop - r;
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5 * (zEnd - zBend), r, rTop, -0.5 * width, width);
   LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << matOut
@@ -168,7 +204,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
 
     DDRotation rotation;
     if (phideg != 0) {
-      std::string rotstr = childName + std::to_string(phideg * 10.);
+      string rotstr = childName + to_string(phideg * 10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: Creating a new "
@@ -188,3 +224,5 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTIDAxialCableAlgo, "track:DDTIDAxialCableAlgo");

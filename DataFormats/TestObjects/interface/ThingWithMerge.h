@@ -8,6 +8,7 @@ namespace edmtest {
   struct ThingWithMerge {
     ~ThingWithMerge() {}
     ThingWithMerge() : a() {}
+    explicit ThingWithMerge(cms_int32_t v) : a{v} {}
     bool mergeProduct(ThingWithMerge const& newThing);
     void swap(ThingWithMerge& iOther);
     cms_int32_t a;

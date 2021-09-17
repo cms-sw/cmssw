@@ -9,26 +9,22 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 
-class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
-
- public:
+class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
   SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet &);
   ~SiPixelFakeTemplateDBObjectESSource() override;
-  
-  typedef std::vector<std::string> vstring;
-  
-  virtual std::unique_ptr<SiPixelTemplateDBObject>  produce(const SiPixelTemplateDBObjectRcd &);
-  
- protected:
-  
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
-  
- private:
-  
- 	vstring templateCalibrations_;
-	float version_;
 
+  typedef std::vector<std::string> vstring;
+
+  virtual std::unique_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectRcd &);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                      const edm::IOVSyncValue &,
+                      edm::ValidityInterval &) override;
+
+private:
+  vstring templateCalibrations_;
+  float version_;
 };
 #endif

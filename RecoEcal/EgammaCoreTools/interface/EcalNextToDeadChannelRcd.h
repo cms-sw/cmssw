@@ -1,7 +1,7 @@
 #ifndef EcalNextToDeadChannelRcd_h
 #define EcalNextToDeadChannelRcd_h
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
@@ -11,6 +11,6 @@
 
 class EcalNextToDeadChannelRcd
     : public edm::eventsetup::DependentRecordImplementation<EcalNextToDeadChannelRcd,
-                                                            boost::mpl::vector<EcalChannelStatusRcd> > {};
+                                                            edm::mpl::Vector<EcalChannelStatusRcd> > {};
 
 #endif

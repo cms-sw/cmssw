@@ -3,18 +3,62 @@
 // Description: Equipping the side disks of TOB with cables etc
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTOBRadCableAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTOBRadCableAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTOBRadCableAlgo();
+  ~DDTOBRadCableAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;  // Namespace of this and ALL sub-parts
+
+  double diskDz;           // Disk  thickness
+  double rMax;             // Maximum radius
+  double cableT;           // Cable thickness
+  vector<double> rodRin;   // Radii for inner rods
+  vector<double> rodRout;  // Radii for outer rods
+  vector<string> cableM;   // Materials for cables
+  double connW;            // Connector width
+  double connT;            // Connector thickness
+  vector<string> connM;    // Materials for connectors
+  vector<double> coolR1;   // Radii for cooling manifold
+  vector<double> coolR2;   // Radii for return cooling manifold
+  double coolRin;          // Inner radius of cooling manifold
+  double coolRout1;        // Outer radius of cooling manifold
+  double coolRout2;        // Outer radius of cooling fluid in cooling manifold
+  double coolStartPhi1;    // Starting Phi of cooling manifold
+  double coolDeltaPhi1;    // Phi Range of cooling manifold
+  double coolStartPhi2;    // Starting Phi of cooling fluid in of cooling manifold
+  double coolDeltaPhi2;    // Phi Range of of cooling fluid in cooling manifold
+  string coolM1;           // Material for cooling manifold
+  string coolM2;           // Material for cooling fluid
+  vector<string> names;    // Names of layers
+};
 
 DDTOBRadCableAlgo::DDTOBRadCableAlgo()
     : rodRin(0),
@@ -102,7 +146,7 @@ void DDTOBRadCableAlgo::execute(DDCompactView& cpv) {
   // Loop over sub disks
   for (int i = 0; i < (int)(names.size()); i++) {
     DDSolid solid;
-    std::string name;
+    string name;
     double dz, rin, rout;
 
     // Cooling Manifolds
@@ -190,15 +234,15 @@ void DDTOBRadCableAlgo::execute(DDCompactView& cpv) {
     name = "TOBRadServices" + names[i];
     rin = 0.5 * (rodRin[i] + rodRout[i]);
     rout = (i + 1 == (int)(names.size()) ? rMax : 0.5 * (rodRin[i + 1] + rodRout[i + 1]));
-    std::vector<double> pgonZ;
+    vector<double> pgonZ;
     pgonZ.emplace_back(-0.5 * cableT);
     pgonZ.emplace_back(cableT * (rin / rMax - 0.5));
     pgonZ.emplace_back(0.5 * cableT);
-    std::vector<double> pgonRmin;
+    vector<double> pgonRmin;
     pgonRmin.emplace_back(rin);
     pgonRmin.emplace_back(rin);
     pgonRmin.emplace_back(rin);
-    std::vector<double> pgonRmax;
+    vector<double> pgonRmax;
     pgonRmax.emplace_back(rout);
     pgonRmax.emplace_back(rout);
     pgonRmax.emplace_back(rout);
@@ -220,3 +264,5 @@ void DDTOBRadCableAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TOBGeom") << "<<== End of DDTOBRadCableAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTOBRadCableAlgo, "track:DDTOBRadCableAlgo");

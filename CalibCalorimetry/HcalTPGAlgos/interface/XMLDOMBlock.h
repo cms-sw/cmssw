@@ -18,7 +18,6 @@
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
 //
 
-#include <boost/shared_ptr.hpp>
 #include <string>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>

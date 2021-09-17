@@ -93,6 +93,11 @@ public:
   enum Resolution { FIXED = 0, MAXIMALLY_STABLE, GLOBALLY_ADAPTIVE, LOCALLY_ADAPTIVE, FROM_GENJETS };
 
   explicit FFTJetProducer(const edm::ParameterSet&);
+  // Explicitly disable other ways to construct this object
+  FFTJetProducer() = delete;
+  FFTJetProducer(const FFTJetProducer&) = delete;
+  FFTJetProducer& operator=(const FFTJetProducer&) = delete;
+
   ~FFTJetProducer() override;
 
   // Parser for the resolution enum
@@ -170,11 +175,6 @@ protected:
 private:
   typedef fftjet::AbsVectorRecombinationAlg<fftjetcms::VectorLike, fftjetcms::BgData> RecoAlg;
   typedef fftjet::AbsRecombinationAlg<fftjetcms::Real, fftjetcms::VectorLike, fftjetcms::BgData> GridAlg;
-
-  // Explicitly disable other ways to construct this object
-  FFTJetProducer() = delete;
-  FFTJetProducer(const FFTJetProducer&) = delete;
-  FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
   // Useful local utilities
   template <class Real>

@@ -5,11 +5,11 @@
 //_______________________________________
 //
 
-#ifndef CSCTMBData_h
-#define CSCTMBData_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBData_h
+#define EventFilter_CSCRawToDigi_CSCTMBData_h
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCComparatorData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBMiniScope.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBBlockedCFEB.h"
@@ -37,7 +37,7 @@ public:
   const unsigned short size() const { return size_; }
 
   CSCTMBHeader* tmbHeader() { return &theTMBHeader; }
-  CSCCLCTData* clctData() { return &theCLCTData; }
+  CSCComparatorData* comparatorData() { return &theComparatorData; }
   /// check this before using TMB Scope
   bool hasTMBScope() const { return theTMBScopeIsPresent; }
   CSCTMBScope& tmbScope() const;
@@ -74,7 +74,7 @@ private:
   unsigned theE0FLine;
 
   CSCTMBHeader theTMBHeader;
-  CSCCLCTData theCLCTData;
+  CSCComparatorData theComparatorData;
   CSCRPCData theRPCData;
   /// The TMB scope is not present in most of data hence its dynamic
   bool theTMBScopeIsPresent;

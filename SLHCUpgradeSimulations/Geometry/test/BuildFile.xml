@@ -1,15 +1,15 @@
 <environment>
-  <library   file="StdHitNtuplizer.cc" name="StdHitNtuplizerExample">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="DataFormats/Common"/>
-    <use   name="DataFormats/TrackReco"/>
-    <use   name="DataFormats/StdDictionaries"/>
-    <use   name="FWCore/ParameterSet"/>
-    <use   name="SimTracker/Common"/>
-    <use   name="SimTracker/TrackerHitAssociation"/>
-    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+  <library file="StdHitNtuplizer.cc" name="StdHitNtuplizerExample">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/TrackReco"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/TrackerGeometryBuilder"/>
+    <use name="SimTracker/TrackerHitAssociation"/>
   </library>
+
   <library file="ModuleInfo_Phase2.cc" name="ModuleInfo_Phase2">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
@@ -17,26 +17,37 @@
     <use name="Geometry/TrackerGeometryBuilder"/>
     <use name="Geometry/TrackerNumberingBuilder"/>
     <use name="Geometry/CommonDetUnit"/>
-    <use name="CondFormats/Alignment"/>
   </library>
 
-  <library   file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="clhep"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="FWCore/ParameterSet"/>
-    <use   name="FWCore/ServiceRegistry"/>
-    <use   name="CommonTools/UtilAlgos"/>
-    <use   name="DataFormats/Common"/>
-    <use   name="DataFormats/TrackReco"/>
-    <use   name="DataFormats/StdDictionaries"/>
-    <use   name="SimTracker/TrackerHitAssociation"/>
-    <use   name="RecoLocalTracker/SiPixelRecHits"/>        
+  <library file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
+    <flags EDM_PLUGIN="1"/>
+    <use name="clhep"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/TrackReco"/>
+    <use name="SimTracker/TrackerHitAssociation"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/TrackerGeometryBuilder"/>
+    <use name="TrackingTools/TransientTrack"/>
+    <use name="TrackingTools/TransientTrackingRecHit"/>
+    <use name="TrackingTools/TrajectoryState"/>
+    <use name="TrackingTools/TrackAssociator"/>
+    <use name="TrackingTools/Records"/>
+    <use name="TrackingTools/TrackFitters"/>
+    <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
+  <bin name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_digi_reco_pixelntuple.sh "/>
+    <use name="FWCore/Utilities"/>
+  </bin>
 
-<bin   name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">
-  <flags   TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_digi_reco_pixelntuple.sh "/>
-  <use   name="FWCore/Utilities"/>
-</bin>
+  <bin name="testPhase2SkimmedGeometry" file="testPhase2SkimmedGeometry.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_skimmed_geometry.sh "/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
 </environment>

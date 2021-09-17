@@ -16,11 +16,12 @@ ME0BaseValidation::ME0BaseValidation(const edm::ParameterSet &ps) {
   layerLabel.push_back("4");
   layerLabel.push_back("5");
   layerLabel.push_back("6");
+  geomToken_ = esConsumes<ME0Geometry, MuonGeometryRecord>();
 }
 
 ME0BaseValidation::~ME0BaseValidation() {}
 
-MonitorElement *ME0BaseValidation::BookHistZR(
+ME0BaseValidation::MonitorElement *ME0BaseValidation::BookHistZR(
     DQMStore::IBooker &ibooker, const char *name, const char *label, unsigned int region_num, unsigned int layer_num) {
   string hist_name, hist_label;
   if (layer_num == 0 || layer_num == 1 || layer_num == 2 || layer_num == 3 || layer_num == 4 || layer_num == 5 ||
@@ -52,7 +53,7 @@ MonitorElement *ME0BaseValidation::BookHistZR(
   return ibooker.book2D(hist_name, hist_label, xbin, xmin, xmax, ybin, ymin, ymax);
 }
 
-MonitorElement *ME0BaseValidation::BookHistXY(
+ME0BaseValidation::MonitorElement *ME0BaseValidation::BookHistXY(
     DQMStore::IBooker &ibooker, const char *name, const char *label, unsigned int region_num, unsigned int layer_num) {
   string hist_name, hist_label;
   if (layer_num == 0 || layer_num == 1 || layer_num == 2 || layer_num == 3 || layer_num == 4 || layer_num == 5 ||

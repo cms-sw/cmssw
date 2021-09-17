@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESTrendTask.h"
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
@@ -88,8 +87,6 @@ void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSe
   hESFiberErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
   hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
 }
-
-void ESTrendTask::endJob(void) { LogInfo("ESTrendTask") << "analyzed " << ievt_ << " events"; }
 
 void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;

@@ -22,11 +22,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "CondFormats/SiPixelObjForHLTects/interface/SiPixelGainCalibration.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
 
 #include "TROOT.h"
@@ -40,16 +40,14 @@ namespace cms {
   public:
     explicit SiPixelCondObjForHLTReader(const edm::ParameterSet &iConfig);
 
-    ~SiPixelCondObjForHLTReader(){};
-    virtual void beginJob();
     virtual void analyze(const edm::Event &, const edm::EventSetup &);
     virtual void endJob();
 
   private:
     edm::ParameterSet conf_;
-    edm::ESHandle<TrackerGeometry> tkgeom;
     //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-    SiPixelGainCalibrationServiceBase *SiPixelGainCalibrationService_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+    std::unique_ptr<SiPixelGainCalibrationServiceBase> SiPixelGainCalibrationService_;
 
     std::map<uint32_t, TH1F *> _TH1F_Pedestals_m;
     std::map<uint32_t, TH1F *> _TH1F_Gains_m;

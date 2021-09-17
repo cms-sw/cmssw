@@ -34,8 +34,13 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+#include <Validation/EcalRecHits/interface/EcalRecHitsValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -73,6 +78,7 @@ private:
   edm::InputTag ESrechitCollection_;
   edm::InputTag EBuncalibrechitCollection_;
   edm::InputTag EEuncalibrechitCollection_;
+  bool enableEndcaps_;
   // fix for consumes
   edm::EDGetTokenT<edm::HepMCProduct> HepMCLabel_Token_;
   edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;
@@ -83,6 +89,9 @@ private:
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> pEcsToken;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> pttMapToken;
 
   MonitorElement *meGunEnergy_;
   MonitorElement *meGunEta_;

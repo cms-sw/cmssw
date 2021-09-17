@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,6 +38,10 @@
 //
 // class decleration
 //
+class L1MuTriggerScales;
+class L1MuTriggerScalesRcd;
+class L1MuTriggerPtScale;
+class L1MuTriggerPtScaleRcd;
 
 class L1TGMT : public DQMEDAnalyzer {
 public:
@@ -52,9 +55,6 @@ protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  // BeginJob
-
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -103,6 +103,8 @@ private:
   const bool verbose_;
   std::ofstream logFile_;
   const edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> l1muTrigscaleToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> l1TrigptscaleToken_;
 
   int bxnum_old_;  // bx of previous event
   int obnum_old_;  // orbit of previous event

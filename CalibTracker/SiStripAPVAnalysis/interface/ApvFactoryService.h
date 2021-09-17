@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "boost/cstdint.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>

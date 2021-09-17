@@ -27,10 +27,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -369,34 +369,28 @@ namespace edm {
                                     << " (productId = " << provenance->productID() << ")" << std::endl;
 
         if (listProvenance_) {
-          auto const& prov = iEvent.getProvenance(provenance->branchID());
-          auto const* productProvenance = prov.productProvenance();
-          if (productProvenance) {
-            const bool isAlias = productProvenance->branchID() != provenance->branchID();
-            std::string aliasForModLabel;
-            LogAbsolute("EventContent") << prov;
-            if (isAlias) {
-              aliasForModLabel = iEvent.getProvenance(productProvenance->branchID()).moduleLabel();
-              LogAbsolute("EventContent") << "Is an alias for " << aliasForModLabel;
-            }
-            ProcessHistory const* processHistory = prov.processHistoryPtr();
-            if (processHistory) {
-              for (ProcessConfiguration const& pc : *processHistory) {
-                if (pc.processName() == prov.processName()) {
-                  ParameterSetID const& psetID = pc.parameterSetID();
-                  pset::Registry const* psetRegistry = pset::Registry::instance();
-                  ParameterSet const* processPset = psetRegistry->getMapped(psetID);
-                  if (processPset) {
-                    if (processPset->existsAs<ParameterSet>(modLabel)) {
-                      if (isAlias) {
-                        LogAbsolute("EventContent") << "Alias PSet";
-                      }
-                      LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
-                    }
-                    if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
-                      LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
-                    }
+          const bool isAlias = provenance->branchDescription().isAlias();
+          std::string aliasForModLabel;
+          LogAbsolute("EventContent") << *provenance;
+          if (isAlias) {
+            aliasForModLabel = iEvent.getStableProvenance(provenance->originalBranchID()).moduleLabel();
+            LogAbsolute("EventContent") << "Is an alias for " << aliasForModLabel;
+          }
+          ProcessHistory const& processHistory = iEvent.processHistory();
+          for (ProcessConfiguration const& pc : processHistory) {
+            if (pc.processName() == provenance->processName()) {
+              ParameterSetID const& psetID = pc.parameterSetID();
+              pset::Registry const* psetRegistry = pset::Registry::instance();
+              ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+              if (processPset) {
+                if (processPset->existsAs<ParameterSet>(modLabel)) {
+                  if (isAlias) {
+                    LogAbsolute("EventContent") << "Alias PSet";
                   }
+                  LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
+                }
+                if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
+                  LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
                 }
               }
             }
@@ -442,11 +436,6 @@ namespace edm {
     for (nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
       LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
     }
-
-    // Test boost::lexical_cast  We don't need this right now so comment it out.
-    // int k = 137;
-    // std::string ktext = boost::lexical_cast<std::string>(k);
-    // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
   }
 
   void EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions& descriptions) {

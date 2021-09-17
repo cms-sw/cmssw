@@ -83,8 +83,8 @@ std::pair<bool, double> HelixArbitraryPlaneCrossing::pathLength(const Plane& pla
   double dSTotal;
   // Use existing 2nd order object at first pass
   std::tie(notFail, dSTotal) = theQuadraticCrossingFromStart.pathLength(plane);
-  if
-    UNLIKELY(!notFail) return std::make_pair(notFail, dSTotal);
+  if UNLIKELY (!notFail)
+    return std::make_pair(notFail, dSTotal);
   auto xnew = positionInDouble(dSTotal);
 
   auto propDir = thePropDir;
@@ -92,8 +92,8 @@ std::pair<bool, double> HelixArbitraryPlaneCrossing::pathLength(const Plane& pla
   if (propDir == anyDirection) {
     propDir = newDir;
   } else {
-    if
-      UNLIKELY(newDir != propDir) return std::pair<bool, double>(false, 0);
+    if UNLIKELY (newDir != propDir)
+      return std::pair<bool, double>(false, 0);
   }
 
   //
@@ -104,11 +104,10 @@ std::pair<bool, double> HelixArbitraryPlaneCrossing::pathLength(const Plane& pla
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
-    if
-      UNLIKELY(--iteration == 0) {
-        LogDebug("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
-        return std::pair<bool, double>(false, 0);
-      }
+    if UNLIKELY (--iteration == 0) {
+      LogDebug("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
+      return std::pair<bool, double>(false, 0);
+    }
 
     //
     // create temporary object for subsequent passes.
@@ -118,8 +117,8 @@ std::pair<bool, double> HelixArbitraryPlaneCrossing::pathLength(const Plane& pla
 
     auto deltaS2 = quadraticCrossing.pathLength(plane);
 
-    if
-      UNLIKELY(!deltaS2.first) return deltaS2;
+    if UNLIKELY (!deltaS2.first)
+      return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
     //
@@ -128,8 +127,8 @@ std::pair<bool, double> HelixArbitraryPlaneCrossing::pathLength(const Plane& pla
     if (propDir == anyDirection) {
       propDir = newDir;
     } else {
-      if
-        UNLIKELY(newDir != propDir) return std::pair<bool, double>(false, 0);
+      if UNLIKELY (newDir != propDir)
+        return std::pair<bool, double>(false, 0);
     }
     //
     // Step forward by dSTotal.
@@ -158,12 +157,11 @@ HelixArbitraryPlaneCrossing::PositionTypeDouble HelixArbitraryPlaneCrossing::pos
   //
   // Calculate delta phi (if not already available)
   //
-  if
-    UNLIKELY(s != theCachedS) {
-      theCachedS = s;
-      theCachedDPhi = theCachedS * theRho * theSinTheta;
-      vdt::fast_sincos(theCachedDPhi, theCachedSDPhi, theCachedCDPhi);
-    }
+  if UNLIKELY (s != theCachedS) {
+    theCachedS = s;
+    theCachedDPhi = theCachedS * theRho * theSinTheta;
+    vdt::fast_sincos(theCachedDPhi, theCachedSDPhi, theCachedCDPhi);
+  }
   //
   // Calculate with appropriate formulation of full helix formula or with
   //   2nd order approximation.
@@ -204,12 +202,11 @@ HelixArbitraryPlaneCrossing::DirectionTypeDouble HelixArbitraryPlaneCrossing::di
   //
   // Calculate delta phi (if not already available)
   //
-  if
-    UNLIKELY(s != theCachedS) {  // very very unlikely!
-      theCachedS = s;
-      theCachedDPhi = theCachedS * theRho * theSinTheta;
-      vdt::fast_sincos(theCachedDPhi, theCachedSDPhi, theCachedCDPhi);
-    }
+  if UNLIKELY (s != theCachedS) {  // very very unlikely!
+    theCachedS = s;
+    theCachedDPhi = theCachedS * theRho * theSinTheta;
+    vdt::fast_sincos(theCachedDPhi, theCachedSDPhi, theCachedCDPhi);
+  }
 
   if (std::abs(theCachedDPhi) > 1.e-4) {
     // full helix formula

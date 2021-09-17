@@ -4,13 +4,14 @@
 #ifdef SiStripMonitorHardware_BuildEventMatchingCode
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "boost/cstdint.hpp"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -51,7 +52,10 @@ namespace sistrip {
     const edm::InputTag primaryStreamRawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> primaryStreamRawDataToken_;
     std::unique_ptr<SpyEventMatcher> spyEventMatcher_;
-    std::unique_ptr<SpyUtilities> utils_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    const SiStripFedCabling* fedCabling_;
+    edm::ESWatcher<SiStripFedCablingRcd> cablingWatcher_;
+    void updateFedCabling(const SiStripFedCablingRcd& rcd);
   };
 
 }  // namespace sistrip
@@ -65,7 +69,8 @@ namespace sistrip {
         doMerge_(config.getParameter<bool>("MergeData")),
         primaryStreamRawDataTag_(config.getParameter<edm::InputTag>("PrimaryEventRawDataTag")),
         spyEventMatcher_(new SpyEventMatcher(config)),
-        utils_(new SpyUtilities) {
+        fedCablingToken_(esConsumes<>()),
+        cablingWatcher_(this, &SpyEventMatcherModule::updateFedCabling) {
     primaryStreamRawDataToken_ = consumes<FEDRawDataCollection>(primaryStreamRawDataTag_);
     if (doMerge_) {
       produces<FEDRawDataCollection>("RawSpyData");
@@ -81,14 +86,18 @@ namespace sistrip {
 
   SpyEventMatcherModule::~SpyEventMatcherModule() {}
 
+  void SpyEventMatcherModule::updateFedCabling(const SiStripFedCablingRcd& rcd) {
+    fedCabling_ = &rcd.get(fedCablingToken_);
+  }
+
   void SpyEventMatcherModule::beginJob() { spyEventMatcher_->initialize(); }
 
   bool SpyEventMatcherModule::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
-    const SiStripFedCabling& cabling = *(utils_->getCabling(eventSetup));
+    cablingWatcher_.check(eventSetup);
     uint8_t apvAddress = 0;
     uint32_t eventId = 0;
     try {
-      findL1IDandAPVAddress(event, cabling, eventId, apvAddress);
+      findL1IDandAPVAddress(event, *fedCabling_, eventId, apvAddress);
     } catch (const cms::Exception& e) {
       LogError(messageLabel_) << e.what();
       return (filterNonMatchingEvents_ ? false : true);
@@ -96,7 +105,7 @@ namespace sistrip {
     const SpyEventMatcher::SpyEventList* matches = spyEventMatcher_->matchesForEvent(eventId, apvAddress);
     if (matches) {
       if (doMerge_) {
-        copyData(eventId, apvAddress, matches, event, cabling);
+        copyData(eventId, apvAddress, matches, event, *fedCabling_);
       }
       return true;
     } else {
@@ -113,37 +122,39 @@ namespace sistrip {
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
     for (auto iFedId = cabling.fedIds().begin(); iFedId != cabling.fedIds().end(); ++iFedId) {
       const FEDRawData& data = fedRawData.FEDData(*iFedId);
-      if ((!data.data()) || (!data.size())) {
-        LogDebug(messageLabel_) << "Failed to get FED data for FED ID " << *iFedId;
+      const auto st_buffer = preconstructCheckFEDBuffer(data);
+      if (FEDBufferStatusCode::SUCCESS != st_buffer) {
+        LogInfo(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId
+                               << ". Exception was: An exception of category 'FEDBuffer' occurred.\n"
+                               << st_buffer << " (see debug output for details)";
         continue;
       }
-      std::unique_ptr<FEDBuffer> buffer;
-      try {
-        buffer.reset(new FEDBuffer(data.data(), data.size()));
-      } catch (const cms::Exception& e) {
-        LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was "
-                                << e.what();
+      FEDBuffer buffer{data};
+      const auto st_chan = buffer.findChannels();
+      if (FEDBufferStatusCode::SUCCESS != st_chan) {
+        LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << st_chan
+                                << " (see above for more details)";
         continue;
       }
-      if (!buffer->doChecks(true)) {
+      if (!buffer.doChecks(true)) {
         LogDebug(messageLabel_) << "Buffer check failed for FED ID " << *iFedId;
         continue;
       }
-      l1ID = buffer->daqLvl1ID();
-      apvAddress = buffer->trackerSpecialHeader().apveAddress();
+      l1ID = buffer.daqLvl1ID();
+      apvAddress = buffer.trackerSpecialHeader().apveAddress();
       if (apvAddress != 0) {
         return;
       } else {
-        if (buffer->trackerSpecialHeader().headerType() != HEADER_TYPE_FULL_DEBUG) {
+        if (buffer.trackerSpecialHeader().headerType() != HEADER_TYPE_FULL_DEBUG) {
           continue;
         }
-        const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer->feHeader());
+        const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer.feHeader());
         auto connections = cabling.fedConnections(*iFedId);
         for (auto iConn = connections.begin(); iConn != connections.end(); ++iConn) {
           if (!iConn->isConnected()) {
             continue;
           }
-          if (!buffer->channelGood(iConn->fedCh(), true)) {
+          if (!buffer.channelGood(iConn->fedCh(), true)) {
             continue;
           } else {
             apvAddress = header->feUnitMajorityAddress(iConn->fedCh() / FEDCH_PER_FEUNIT);
@@ -184,6 +195,7 @@ namespace sistrip {
 }  // namespace sistrip
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 typedef sistrip::SpyEventMatcherModule SiStripSpyEventMatcherModule;
 DEFINE_FWK_MODULE(SiStripSpyEventMatcherModule);
 

@@ -47,7 +47,8 @@ ConeAreaFunction::ConeAreaFunction() : ROOT::Math::ParamFunction<ROOT::Math::IPa
   integrator_ = new ROOT::Math::Integrator(*fTheta_);
 }
 
-ConeAreaFunction::ConeAreaFunction(const ConeAreaFunction& bluePrint) {
+ConeAreaFunction::ConeAreaFunction(const ConeAreaFunction& bluePrint)
+    : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(bluePrint) {
   theta0_ = bluePrint.theta0_;
   phi0_ = bluePrint.phi0_;
 

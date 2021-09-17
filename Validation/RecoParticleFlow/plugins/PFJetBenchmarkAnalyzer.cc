@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -49,6 +48,9 @@ using namespace std;
 
 class PFJetBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFJetBenchmarkAnalyzer(const edm::ParameterSet &);
   ~PFJetBenchmarkAnalyzer() override;
 
@@ -72,7 +74,7 @@ double deltaRMax = 0.1;
 string benchmarkLabel_;
 double recPt;
 double maxEta;
-DQMStore *dbe_;
+dqm::legacy::DQMStore *dbe_;
 //
 // constants, enums and typedefs
 //

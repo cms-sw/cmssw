@@ -210,7 +210,7 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
   // compute the final decision word per DAQ partition
   //
 
-  boost::uint16_t finalOrValue = 0;
+  uint16_t finalOrValue = 0;
 
   for (unsigned int iDaq = 0; iDaq < numberDaqPartitions; ++iDaq) {
     bool daqPartitionFinalOR = false;
@@ -319,7 +319,7 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
     }
 
     // push it in finalOrValue
-    boost::uint16_t daqPartitionFinalORValue = static_cast<boost::uint16_t>(daqPartitionFinalOR);
+    uint16_t daqPartitionFinalORValue = static_cast<uint16_t>(daqPartitionFinalOR);
 
     finalOrValue = finalOrValue | (daqPartitionFinalORValue << iDaq);
   }
@@ -339,9 +339,9 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
       // fill in emulator the same bunch crossing (12 bits - hardwired number of
       // bits...) and the same local bunch crossing for all boards
       int bxCross = iEvent.bunchCrossing();
-      boost::uint16_t bxCrossHw = 0;
+      uint16_t bxCrossHw = 0;
       if ((bxCross & 0xFFF) == bxCross) {
-        bxCrossHw = static_cast<boost::uint16_t>(bxCross);
+        bxCrossHw = static_cast<uint16_t>(bxCross);
       } else {
         bxCrossHw = 0;  // Bx number too large, set to 0!
         if (m_verbosity) {
@@ -354,7 +354,7 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
       m_gtFdlWord->setBxNr(bxCrossHw);
 
       // set event number since last L1 reset generated in FDL
-      m_gtFdlWord->setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+      m_gtFdlWord->setEventNr(static_cast<uint32_t>(iEvent.id().event()));
 
       // technical trigger decision word
       m_gtFdlWord->setGtTechnicalTriggerWord(techDecisionWord);
@@ -363,8 +363,8 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
       m_gtFdlWord->setGtDecisionWord(algoDecisionWord);
 
       // index of prescale factor set - technical triggers and algo
-      m_gtFdlWord->setGtPrescaleFactorIndexTech(static_cast<boost::uint16_t>(pfTechSetIndex));
-      m_gtFdlWord->setGtPrescaleFactorIndexAlgo(static_cast<boost::uint16_t>(pfAlgoSetIndex));
+      m_gtFdlWord->setGtPrescaleFactorIndexTech(static_cast<uint16_t>(pfTechSetIndex));
+      m_gtFdlWord->setGtPrescaleFactorIndexAlgo(static_cast<uint16_t>(pfAlgoSetIndex));
 
       // NoAlgo bit FIXME
 
@@ -372,10 +372,10 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
       m_gtFdlWord->setFinalOR(finalOrValue);
 
       // orbit number
-      m_gtFdlWord->setOrbitNr(static_cast<boost::uint32_t>(iEvent.orbitNumber()));
+      m_gtFdlWord->setOrbitNr(static_cast<uint32_t>(iEvent.orbitNumber()));
 
       // luminosity segment number
-      m_gtFdlWord->setLumiSegmentNr(static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+      m_gtFdlWord->setLumiSegmentNr(static_cast<uint16_t>(iEvent.luminosityBlock()));
 
       // local bunch crossing - set identical with absolute BxNr
       m_gtFdlWord->setLocalBxNr(bxCrossHw);
@@ -385,7 +385,7 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
 
 // fill the FDL block in the L1 GT DAQ record for iBxInEvent
 void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
-                                         const boost::uint16_t &activeBoardsGtDaq,
+                                         const uint16_t &activeBoardsGtDaq,
                                          const int recordLength0,
                                          const int recordLength1,
                                          const unsigned int altNrBxBoardDaq,
@@ -429,7 +429,7 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
 
 // fill the FDL block in the L1 GT EVM record for iBxInEvent
 void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
-                                         const boost::uint16_t &activeBoardsGtEvm,
+                                         const uint16_t &activeBoardsGtEvm,
                                          const int recordLength0,
                                          const int recordLength1,
                                          const unsigned int altNrBxBoardEvm,

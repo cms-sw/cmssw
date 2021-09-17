@@ -1,12 +1,9 @@
 #ifndef TOPSINGLELEPTONDQM
 #define TOPSINGLELEPTONDQM
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include <string>
 #include <vector>
-
-#include "FWCore/Framework/interface/Event.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
@@ -50,6 +47,8 @@
 */
 
 namespace TopSingleLepton {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:
@@ -156,7 +155,7 @@ namespace TopSingleLepton {
     std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
 
     /// jetCorrector
-    std::string jetCorrector_;
+    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
 
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
@@ -222,7 +221,6 @@ namespace TopSingleLepton {
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /**
    \class   TopSingleLeptonDQM TopSingleLeptonDQM.h
@@ -265,7 +263,7 @@ namespace TopSingleLepton {
 /// define MonitorEnsembple to be used
 // using TopSingleLepton::MonitorEnsemble;
 
-class TopSingleLeptonDQM : public DQMEDAnalyzer {
+class TopSingleLeptonDQM : public DQMOneEDAnalyzer<> {
 public:
   /// default constructor
   TopSingleLeptonDQM(const edm::ParameterSet& cfg);

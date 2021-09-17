@@ -47,8 +47,6 @@ namespace reco {
 
     GsfTransientTrack& operator=(const GsfTransientTrack& tt);
 
-    void setES(const edm::EventSetup&) override;
-
     void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>&) override;
 
     void setBeamSpot(const reco::BeamSpot& beamSpot) override;

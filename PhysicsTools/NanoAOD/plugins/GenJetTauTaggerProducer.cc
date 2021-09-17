@@ -2,7 +2,7 @@
 //
 // Package:    PhysicsTools/NanoAOD
 // Class:      GenJetTauTaggerProducer
-// 
+//
 /**\class GenJetTauTaggerProducer GenJetTauTaggerProducer.cc PhysicsTools/NanoAOD/plugins/GenJetTauTaggerProducer.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Wed, 08 May 2019 13:09:28 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -33,44 +32,33 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-
 //
 // class declaration
 //
 
 class GenJetTauTaggerProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit GenJetTauTaggerProducer(const edm::ParameterSet &iConfig):
-        src_(consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src")))
-        {
-          produces<edm::ValueMap<bool>>();
-        } 
-      ~GenJetTauTaggerProducer() override;
+public:
+  explicit GenJetTauTaggerProducer(const edm::ParameterSet& iConfig)
+      : src_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("src"))) {
+    produces<edm::ValueMap<bool>>();
+  }
+  ~GenJetTauTaggerProducer() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
-
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  edm::EDGetTokenT<std::vector<reco::GenJet>> src_;
 };
 
-
-
-GenJetTauTaggerProducer::~GenJetTauTaggerProducer()
-{
-
-}
-
+GenJetTauTaggerProducer::~GenJetTauTaggerProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   edm::Handle<reco::GenJetCollection> jets;
@@ -78,26 +66,23 @@ GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::vector<bool> tags;
 
-  for(auto jet = jets->begin(); jet != jets->end(); ++jet){
-
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     bool found = false;
-    for(auto cand : jet->getJetConstituentsQuick()){
-      if( abs(cand->pdgId()) == 15) found = true;
-      
+    for (auto cand : jet->getJetConstituentsQuick()) {
+      if (abs(cand->pdgId()) == 15)
+        found = true;
     }
     tags.push_back(found);
   }
 
   std::unique_ptr<edm::ValueMap<bool>> tagsV(new edm::ValueMap<bool>());
   edm::ValueMap<bool>::Filler fillerCorr(*tagsV);
-  fillerCorr.insert(jets,tags.begin(),tags.end());
+  fillerCorr.insert(jets, tags.begin(), tags.end());
   fillerCorr.fill();
   iEvent.put(std::move(tagsV));
 }
 
-
-void
-GenJetTauTaggerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void GenJetTauTaggerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -10,6 +10,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB161TimingLayerXML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 #process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -26,15 +27,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HGCSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # Input source
@@ -102,6 +102,10 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.StoreAllG4Hits = True
 process.HGCalTimingAnalyzer.GroupHits = False
+process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
+                             'HcalTB06BeamDetector']
+process.g4SimHits.HGCSD.Detectors = 1
+process.g4SimHits.HGCSD.UseDetector = 1
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

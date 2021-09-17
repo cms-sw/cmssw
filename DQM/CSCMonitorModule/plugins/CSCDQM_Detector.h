@@ -108,24 +108,6 @@ namespace cscdqm {
       return true;
     };
 
-    const Address* operator=(const Address& a) {
-      mask.side = a.mask.side;
-      side = a.side;
-      mask.station = a.mask.station;
-      station = a.station;
-      mask.ring = a.mask.ring;
-      ring = a.ring;
-      mask.chamber = a.mask.chamber;
-      chamber = a.chamber;
-      mask.layer = a.mask.layer;
-      layer = a.layer;
-      mask.cfeb = a.mask.cfeb;
-      cfeb = a.cfeb;
-      mask.hv = a.mask.hv;
-      hv = a.hv;
-      return this;
-    };
-
     friend std::ostream& operator<<(std::ostream& out, const Address& adr) {
       out << adr.name();
       return out;

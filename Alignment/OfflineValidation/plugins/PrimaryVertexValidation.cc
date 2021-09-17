@@ -20,6 +20,9 @@
 #include <vector>
 #include <regex>
 #include <cassert>
+#include <chrono>
+#include <iomanip>
+#include <boost/range/adaptor/indexed.hpp>
 
 // user include files
 #include "Alignment/OfflineValidation/plugins/PrimaryVertexValidation.h"
@@ -38,7 +41,6 @@
 #include "TVectorD.h"
 
 // CMSSW includes
-#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -48,18 +50,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 
@@ -67,7 +65,14 @@ const int PrimaryVertexValidation::nMaxtracks_;
 
 // Constructor
 PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfig)
-    : storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
+    : magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+      compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
+      storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
       useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
       vertexZMax_(iConfig.getUntrackedParameter<double>("vertexZMax", 99.)),
@@ -92,7 +97,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
-  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber", defaultRuns);
+  runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int>>("runControlNumber", defaultRuns);
 
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
   theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
@@ -100,24 +105,28 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   edm::InputTag VertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollectionTag");
   theVertexCollectionToken = consumes<reco::VertexCollection>(VertexCollectionTag_);
 
-  edm::InputTag BeamspotTag_ = edm::InputTag("offlineBeamSpot");
+  edm::InputTag BeamspotTag_ = iConfig.getParameter<edm::InputTag>("BeamSpotTag");
   theBeamspotToken = consumes<reco::BeamSpot>(BeamspotTag_);
 
   // select and configure the track filter
-  theTrackFilter_ = new TrackFilterForPVFinding(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
+  theTrackFilter_ =
+      std::make_unique<TrackFilterForPVFinding>(iConfig.getParameter<edm::ParameterSet>("TkFilterParameters"));
   // select and configure the track clusterizer
   std::string clusteringAlgorithm =
       iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<std::string>("algorithm");
   if (clusteringAlgorithm == "gap") {
-    theTrackClusterizer_ = new GapClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                                     .getParameter<edm::ParameterSet>("TkGapClusParameters"));
+    theTrackClusterizer_ =
+        std::make_unique<GapClusterizerInZ>(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                                .getParameter<edm::ParameterSet>("TkGapClusParameters"));
   } else if (clusteringAlgorithm == "DA") {
-    theTrackClusterizer_ = new DAClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                                    .getParameter<edm::ParameterSet>("TkDAClusParameters"));
+    theTrackClusterizer_ =
+        std::make_unique<DAClusterizerInZ>(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                               .getParameter<edm::ParameterSet>("TkDAClusParameters"));
     // provide the vectorized version of the clusterizer, if supported by the build
   } else if (clusteringAlgorithm == "DA_vect") {
-    theTrackClusterizer_ = new DAClusterizerInZ_vect(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
-                                                         .getParameter<edm::ParameterSet>("TkDAClusParameters"));
+    theTrackClusterizer_ =
+        std::make_unique<DAClusterizerInZ_vect>(iConfig.getParameter<edm::ParameterSet>("TkClusParameters")
+                                                    .getParameter<edm::ParameterSet>("TkDAClusParameters"));
   } else {
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);
   }
@@ -194,10 +203,6 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 PrimaryVertexValidation::~PrimaryVertexValidation() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  if (theTrackFilter_)
-    delete theTrackFilter_;
-  if (theTrackClusterizer_)
-    delete theTrackClusterizer_;
 }
 
 //
@@ -253,29 +258,27 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve the Magnetic Field information
   //=======================================================
 
-  edm::ESHandle<MagneticField> theMGField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  edm::ESHandle<MagneticField> theMGField = iSetup.getHandle(magFieldToken_);
 
   //=======================================================
   // Retrieve the Tracking Geometry information
   //=======================================================
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeomToken_);
 
   //=======================================================
   // Retrieve geometry information
   //=======================================================
 
   edm::LogInfo("read tracker geometry...");
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(geomToken_);
   edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
 
-  // switch on the phase1
-  if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
-    isPhase1_ = true;
+  // switch on the phase2
+  if ((pDD->isThere(GeomDetEnumerators::P2PXB)) || (pDD->isThere(GeomDetEnumerators::P2PXEC))) {
+    phase_ = PVValHelper::phase2;
     nLadders_ = 12;
+    nModZ_ = 9;
 
     if (h_dxy_ladderOverlap_.size() != nLadders_) {
       PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
@@ -291,27 +294,86 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
     }
 
     if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation") << " pixel phase1 setup, nLadders: " << nLadders_;
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase2 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
+    }
+
+  } else if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
+    // switch on the phase1
+    phase_ = PVValHelper::phase1;
+    nLadders_ = 12;
+    nModZ_ = 8;
+
+    if (h_dxy_ladderOverlap_.size() != nLadders_) {
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
+
+      if (debug_) {
+        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
+      }
+    }
+
+    if (h_dxy_modZ_.size() != nModZ_) {
+      PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+
+      if (debug_) {
+        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
+      }
+    }
+
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase1 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
     }
 
   } else {
-    isPhase1_ = false;
+    phase_ = PVValHelper::phase0;
     nLadders_ = 20;
+    nModZ_ = 8;
+
+    if (h_dxy_modZ_.size() != nModZ_) {
+      PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+
+      if (debug_) {
+        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
+      }
+    }
+
     if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation") << " pixel phase0 setup, nLadders: " << nLadders_;
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase0 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
     }
   }
 
-  if (isPhase1_) {
-    etaOfProbe_ = std::min(etaOfProbe_, 2.7);
-  } else {
-    etaOfProbe_ = std::min(etaOfProbe_, 2.5);
+  switch (phase_) {
+    case PVValHelper::phase0:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase0);
+      break;
+    case PVValHelper::phase1:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase1);
+      break;
+    case PVValHelper::phase2:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase2);
+      break;
+    default:
+      edm::LogWarning("LogicError") << "Unknown detector phase: " << phase_;
   }
 
   if (h_etaMax->GetEntries() == 0.) {
     h_etaMax->SetBinContent(1., etaOfProbe_);
     h_nbins->SetBinContent(1., nBins_);
     h_nLadders->SetBinContent(1., nLadders_);
+    h_nModZ->SetBinContent(1., nModZ_);
     h_pTinfo->SetBinContent(1., mypT_bins_.size());
     h_pTinfo->SetBinContent(2., minPt_);
     h_pTinfo->SetBinContent(3., maxPt_);
@@ -321,8 +383,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve the Transient Track Builder information
   //=======================================================
 
-  edm::ESHandle<TransientTrackBuilder> theB_;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB_);
+  edm::ESHandle<TransientTrackBuilder> theB_ = iSetup.getHandle(ttkToken_);
   double fBfield_ = ((*theB_).field()->inTesla(GlobalPoint(0., 0., 0.))).z();
 
   //=======================================================
@@ -339,8 +400,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve tracker topology from geometry
   //=======================================================
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //=======================================================
@@ -348,7 +408,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
 
   //edm::Handle<VertexCollection> vertices;
-  edm::Handle<std::vector<Vertex> > vertices;
+  edm::Handle<std::vector<Vertex>> vertices;
 
   try {
     iEvent.getByToken(theVertexCollectionToken, vertices);
@@ -439,17 +499,17 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
           float etaL = theDetails_.trendbins[PVValHelper::eta][i + 1];
 
           if (tracketa >= etaF && tracketa < etaL) {
-            PVValHelper::fillByIndex(a_dxyEtaBiasResiduals, i, dxyRes * cmToum);
-            PVValHelper::fillByIndex(a_dzEtaBiasResiduals, i, dzRes * cmToum);
-            PVValHelper::fillByIndex(n_dxyEtaBiasResiduals, i, (dxyRes) / dxy_err);
-            PVValHelper::fillByIndex(n_dzEtaBiasResiduals, i, (dzRes) / dz_err);
+            PVValHelper::fillByIndex(a_dxyEtaBiasResiduals, i, dxyRes * cmToum, "1");
+            PVValHelper::fillByIndex(a_dzEtaBiasResiduals, i, dzRes * cmToum, "2");
+            PVValHelper::fillByIndex(n_dxyEtaBiasResiduals, i, (dxyRes) / dxy_err, "3");
+            PVValHelper::fillByIndex(n_dzEtaBiasResiduals, i, (dzRes) / dz_err, "4");
           }
 
           if (trackphi >= phiF && trackphi < phiL) {
-            PVValHelper::fillByIndex(a_dxyPhiBiasResiduals, i, dxyRes * cmToum);
-            PVValHelper::fillByIndex(a_dzPhiBiasResiduals, i, dzRes * cmToum);
-            PVValHelper::fillByIndex(n_dxyPhiBiasResiduals, i, (dxyRes) / dxy_err);
-            PVValHelper::fillByIndex(n_dzPhiBiasResiduals, i, (dzRes) / dz_err);
+            PVValHelper::fillByIndex(a_dxyPhiBiasResiduals, i, dxyRes * cmToum, "5");
+            PVValHelper::fillByIndex(a_dzPhiBiasResiduals, i, dzRes * cmToum, "6");
+            PVValHelper::fillByIndex(n_dxyPhiBiasResiduals, i, (dxyRes) / dxy_err, "7");
+            PVValHelper::fillByIndex(n_dzPhiBiasResiduals, i, (dzRes) / dz_err, "8");
 
             for (int j = 0; j < nBins_; j++) {
               float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
@@ -512,6 +572,20 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   RunNumber_ = iEvent.eventAuxiliary().run();
   h_runNumber->Fill(RunNumber_);
 
+  if (!runNumbersTimesLog_.count(RunNumber_)) {
+    auto times = getRunTime(iSetup);
+
+    if (debug_) {
+      const time_t start_time = times.first / 1000000;
+      edm::LogInfo("PrimaryVertexValidation")
+          << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
+      edm::LogInfo("PrimaryVertexValidation")
+          << "human readable time: " << std::asctime(std::gmtime(&start_time)) << std::endl;
+    }
+
+    runNumbersTimesLog_[RunNumber_] = times;
+  }
+
   if (h_runFromEvent->GetEntries() == 0) {
     h_runFromEvent->SetBinContent(1, RunNumber_);
   }
@@ -549,7 +623,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // clusterize tracks in Z
   //======================================================
 
-  vector<vector<TransientTrack> > clusters = theTrackClusterizer_->clusterize(seltks);
+  vector<vector<TransientTrack>> clusters = theTrackClusterizer_->clusterize(seltks);
 
   if (debug_) {
     edm::LogInfo("PrimaryVertexValidation")
@@ -617,7 +691,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
       int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
       for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
         if ((*iHit)->isValid()) {
-          if (this->isHit2D(**iHit)) {
+          if (this->isHit2D(**iHit, phase_)) {
             ++nRecHit2D;
           } else {
             ++nRecHit1D;
@@ -669,7 +743,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
           edm::LogInfo("PrimaryVertexValidation") << "Transient Track Collection size: " << theFinalTracks.size();
         try {
           //AdaptiveVertexFitter* theFitter = new AdaptiveVertexFitter;
-          auto theFitter = std::unique_ptr<VertexFitter<5> >(new AdaptiveVertexFitter());
+          auto theFitter = std::unique_ptr<VertexFitter<5>>(new AdaptiveVertexFitter());
           TransientVertex theFittedVertex;
 
           if (forceBeamSpotContraint_) {
@@ -814,6 +888,13 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
               if (hit->isValid() && (subid == PixelSubdetector::PixelBarrel)) {
                 int layer = tTopo->pxbLayer(detId);
                 if (layer == 1) {
+                  const SiPixelRecHit* prechit = dynamic_cast<const SiPixelRecHit*>(
+                      hit);  //to be used to get the associated cluster and the cluster probability
+                  double clusterProbability = prechit->clusterProbability(0);
+                  if (clusterProbability > 0) {
+                    h_probeL1ClusterProb_->Fill(log10(clusterProbability));
+                  }
+
                   L1BPixHitCount += 1;
                   ladder_num = tTopo->pxbLadder(detId);
                   module_num = tTopo->pxbModule(detId);
@@ -823,7 +904,16 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
 
             h_probeL1Ladder_->Fill(ladder_num);
             h_probeL1Module_->Fill(module_num);
+            h2_probeLayer1Map_->Fill(module_num, ladder_num);
             h_probeHasBPixL1Overlap_->Fill(L1BPixHitCount);
+
+            // residuals vs ladder and module number for map
+            if (module_num > 0 && ladder_num > 0) {  // only if we are on BPix Layer 1
+              a_dxyL1ResidualsMap[ladder_num - 1][module_num - 1]->Fill(dxyFromMyVertex * cmToum);
+              a_dzL1ResidualsMap[ladder_num - 1][module_num - 1]->Fill(dzFromMyVertex * cmToum);
+              n_dxyL1ResidualsMap[ladder_num - 1][module_num - 1]->Fill(dxyFromMyVertex / s_ip2dpv_err);
+              n_dzL1ResidualsMap[ladder_num - 1][module_num - 1]->Fill(dzFromMyVertex / dz_err);
+            }
 
             // filling the pT-binned distributions
 
@@ -838,19 +928,19 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
               if (std::abs(tracketa) < 1.5 && (trackpt >= pTF && trackpt < pTL)) {
                 if (debug_)
                   edm::LogInfo("PrimaryVertexValidation") << "passes this cut: " << mypT_bins_[ipTBin] << std::endl;
-                PVValHelper::fillByIndex(h_dxy_pT_, ipTBin, dxyFromMyVertex * cmToum);
-                PVValHelper::fillByIndex(h_dz_pT_, ipTBin, dzFromMyVertex * cmToum);
-                PVValHelper::fillByIndex(h_norm_dxy_pT_, ipTBin, dxyFromMyVertex / s_ip2dpv_err);
-                PVValHelper::fillByIndex(h_norm_dz_pT_, ipTBin, dzFromMyVertex / dz_err);
+                PVValHelper::fillByIndex(h_dxy_pT_, ipTBin, dxyFromMyVertex * cmToum, "9");
+                PVValHelper::fillByIndex(h_dz_pT_, ipTBin, dzFromMyVertex * cmToum, "10");
+                PVValHelper::fillByIndex(h_norm_dxy_pT_, ipTBin, dxyFromMyVertex / s_ip2dpv_err, "11");
+                PVValHelper::fillByIndex(h_norm_dz_pT_, ipTBin, dzFromMyVertex / dz_err, "12");
 
                 if (std::abs(tracketa) < 1.) {
                   if (debug_)
                     edm::LogInfo("PrimaryVertexValidation")
                         << "passes tight eta cut: " << mypT_bins_[ipTBin] << std::endl;
-                  PVValHelper::fillByIndex(h_dxy_Central_pT_, ipTBin, dxyFromMyVertex * cmToum);
-                  PVValHelper::fillByIndex(h_dz_Central_pT_, ipTBin, dzFromMyVertex * cmToum);
-                  PVValHelper::fillByIndex(h_norm_dxy_Central_pT_, ipTBin, dxyFromMyVertex / s_ip2dpv_err);
-                  PVValHelper::fillByIndex(h_norm_dz_Central_pT_, ipTBin, dzFromMyVertex / dz_err);
+                  PVValHelper::fillByIndex(h_dxy_Central_pT_, ipTBin, dxyFromMyVertex * cmToum, "13");
+                  PVValHelper::fillByIndex(h_dz_Central_pT_, ipTBin, dzFromMyVertex * cmToum, "14");
+                  PVValHelper::fillByIndex(h_norm_dxy_Central_pT_, ipTBin, dxyFromMyVertex / s_ip2dpv_err, "15");
+                  PVValHelper::fillByIndex(h_norm_dz_Central_pT_, ipTBin, dzFromMyVertex / dz_err, "16");
                 }
               }
             }
@@ -890,12 +980,12 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
               h_probeHits_->Fill(theTrack.numberOfValidHits());
               h_probeHits1D_->Fill(nRecHit1D);
               h_probeHits2D_->Fill(nRecHit2D);
-              h_probeHitsInTIB_->Fill(nhitinBPIX);
-              h_probeHitsInTOB_->Fill(nhitinFPIX);
-              h_probeHitsInTID_->Fill(nhitinTIB);
-              h_probeHitsInTEC_->Fill(nhitinTID);
-              h_probeHitsInBPIX_->Fill(nhitinTOB);
-              h_probeHitsInFPIX_->Fill(nhitinTEC);
+              h_probeHitsInTIB_->Fill(nhitinTIB);
+              h_probeHitsInTOB_->Fill(nhitinTOB);
+              h_probeHitsInTID_->Fill(nhitinTID);
+              h_probeHitsInTEC_->Fill(nhitinTEC);
+              h_probeHitsInBPIX_->Fill(nhitinBPIX);
+              h_probeHitsInFPIX_->Fill(nhitinFPIX);
 
               float dxyRecoV = theTrack.dz(theRecoVertex);
               float dzRecoV = theTrack.dxy(theRecoVertex);
@@ -945,14 +1035,14 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
 
               if (ladder_num > 0 && module_num > 0) {
                 LogDebug("PrimaryVertexValidation")
-                    << " ladder_num" << ladder_num << " module_num" << module_num << std::endl;
+                    << " ladder_num: " << ladder_num << " module_num: " << module_num << std::endl;
 
-                PVValHelper::fillByIndex(h_dxy_modZ_, module_num - 1, dxyFromMyVertex * cmToum);
-                PVValHelper::fillByIndex(h_dz_modZ_, module_num - 1, dzFromMyVertex * cmToum);
-                PVValHelper::fillByIndex(h_norm_dxy_modZ_, module_num - 1, dxyFromMyVertex / s_ip2dpv_err);
-                PVValHelper::fillByIndex(h_norm_dz_modZ_, module_num - 1, dzFromMyVertex / dz_err);
+                PVValHelper::fillByIndex(h_dxy_modZ_, module_num - 1, dxyFromMyVertex * cmToum, "17");
+                PVValHelper::fillByIndex(h_dz_modZ_, module_num - 1, dzFromMyVertex * cmToum, "18");
+                PVValHelper::fillByIndex(h_norm_dxy_modZ_, module_num - 1, dxyFromMyVertex / s_ip2dpv_err, "19");
+                PVValHelper::fillByIndex(h_norm_dz_modZ_, module_num - 1, dzFromMyVertex / dz_err, "20");
 
-                PVValHelper::fillByIndex(h_dxy_ladder_, ladder_num - 1, dxyFromMyVertex * cmToum);
+                PVValHelper::fillByIndex(h_dxy_ladder_, ladder_num - 1, dxyFromMyVertex * cmToum, "21");
 
                 LogDebug("PrimaryVertexValidation") << "h_dxy_ladder size:" << h_dxy_ladder_.size() << std::endl;
 
@@ -962,9 +1052,11 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
                   PVValHelper::fillByIndex(h_dxy_ladderOverlap_, ladder_num - 1, dxyFromMyVertex * cmToum);
                 }
 
-                PVValHelper::fillByIndex(h_dz_ladder_, ladder_num - 1, dzFromMyVertex * cmToum);
-                PVValHelper::fillByIndex(h_norm_dxy_ladder_, ladder_num - 1, dxyFromMyVertex / s_ip2dpv_err);
-                PVValHelper::fillByIndex(h_norm_dz_ladder_, ladder_num - 1, dzFromMyVertex / dz_err);
+                h2_probePassingLayer1Map_->Fill(module_num, ladder_num);
+
+                PVValHelper::fillByIndex(h_dz_ladder_, ladder_num - 1, dzFromMyVertex * cmToum, "22");
+                PVValHelper::fillByIndex(h_norm_dxy_ladder_, ladder_num - 1, dxyFromMyVertex / s_ip2dpv_err, "23");
+                PVValHelper::fillByIndex(h_norm_dz_ladder_, ladder_num - 1, dzFromMyVertex / dz_err, "24");
               }
 
               // filling the binned distributions
@@ -976,37 +1068,37 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
                 float etaL = theDetails_.trendbins[PVValHelper::eta][i + 1];
 
                 if (tracketa >= etaF && tracketa < etaL) {
-                  PVValHelper::fillByIndex(a_dxyEtaResiduals, i, dxyFromMyVertex * cmToum, "1");
-                  PVValHelper::fillByIndex(a_dxEtaResiduals, i, my_dx * cmToum, "2");
-                  PVValHelper::fillByIndex(a_dyEtaResiduals, i, my_dy * cmToum, "3");
-                  PVValHelper::fillByIndex(a_dzEtaResiduals, i, dzFromMyVertex * cmToum, "4");
-                  PVValHelper::fillByIndex(n_dxyEtaResiduals, i, dxyFromMyVertex / s_ip2dpv_err, "5");
-                  PVValHelper::fillByIndex(n_dzEtaResiduals, i, dzFromMyVertex / dz_err, "6");
-                  PVValHelper::fillByIndex(a_IP2DEtaResiduals, i, s_ip2dpv_corr * cmToum, "7");
-                  PVValHelper::fillByIndex(n_IP2DEtaResiduals, i, s_ip2dpv_corr / s_ip2dpv_err, "8");
-                  PVValHelper::fillByIndex(a_reszEtaResiduals, i, restrkz * cmToum, "9");
-                  PVValHelper::fillByIndex(n_reszEtaResiduals, i, pulltrkz, "10");
-                  PVValHelper::fillByIndex(a_d3DEtaResiduals, i, ip3d_corr * cmToum, "11");
-                  PVValHelper::fillByIndex(n_d3DEtaResiduals, i, ip3d_corr / ip3d_err, "12");
-                  PVValHelper::fillByIndex(a_IP3DEtaResiduals, i, s_ip3dpv_corr * cmToum, "13");
-                  PVValHelper::fillByIndex(n_IP3DEtaResiduals, i, s_ip3dpv_corr / s_ip3dpv_err, "14");
+                  PVValHelper::fillByIndex(a_dxyEtaResiduals, i, dxyFromMyVertex * cmToum, "25");
+                  PVValHelper::fillByIndex(a_dxEtaResiduals, i, my_dx * cmToum, "26");
+                  PVValHelper::fillByIndex(a_dyEtaResiduals, i, my_dy * cmToum, "27");
+                  PVValHelper::fillByIndex(a_dzEtaResiduals, i, dzFromMyVertex * cmToum, "28");
+                  PVValHelper::fillByIndex(n_dxyEtaResiduals, i, dxyFromMyVertex / s_ip2dpv_err, "29");
+                  PVValHelper::fillByIndex(n_dzEtaResiduals, i, dzFromMyVertex / dz_err, "30");
+                  PVValHelper::fillByIndex(a_IP2DEtaResiduals, i, s_ip2dpv_corr * cmToum, "31");
+                  PVValHelper::fillByIndex(n_IP2DEtaResiduals, i, s_ip2dpv_corr / s_ip2dpv_err, "32");
+                  PVValHelper::fillByIndex(a_reszEtaResiduals, i, restrkz * cmToum, "33");
+                  PVValHelper::fillByIndex(n_reszEtaResiduals, i, pulltrkz, "34");
+                  PVValHelper::fillByIndex(a_d3DEtaResiduals, i, ip3d_corr * cmToum, "35");
+                  PVValHelper::fillByIndex(n_d3DEtaResiduals, i, ip3d_corr / ip3d_err, "36");
+                  PVValHelper::fillByIndex(a_IP3DEtaResiduals, i, s_ip3dpv_corr * cmToum, "37");
+                  PVValHelper::fillByIndex(n_IP3DEtaResiduals, i, s_ip3dpv_corr / s_ip3dpv_err, "38");
                 }
 
                 if (trackphi >= phiF && trackphi < phiL) {
-                  PVValHelper::fillByIndex(a_dxyPhiResiduals, i, dxyFromMyVertex * cmToum, "15");
-                  PVValHelper::fillByIndex(a_dxPhiResiduals, i, my_dx * cmToum, "16");
-                  PVValHelper::fillByIndex(a_dyPhiResiduals, i, my_dy * cmToum, "17");
-                  PVValHelper::fillByIndex(a_dzPhiResiduals, i, dzFromMyVertex * cmToum, "18");
-                  PVValHelper::fillByIndex(n_dxyPhiResiduals, i, dxyFromMyVertex / s_ip2dpv_err, "19");
-                  PVValHelper::fillByIndex(n_dzPhiResiduals, i, dzFromMyVertex / dz_err, "20");
-                  PVValHelper::fillByIndex(a_IP2DPhiResiduals, i, s_ip2dpv_corr * cmToum, "21");
-                  PVValHelper::fillByIndex(n_IP2DPhiResiduals, i, s_ip2dpv_corr / s_ip2dpv_err, "22");
-                  PVValHelper::fillByIndex(a_reszPhiResiduals, i, restrkz * cmToum, "23");
-                  PVValHelper::fillByIndex(n_reszPhiResiduals, i, pulltrkz, "24");
-                  PVValHelper::fillByIndex(a_d3DPhiResiduals, i, ip3d_corr * cmToum, "25");
-                  PVValHelper::fillByIndex(n_d3DPhiResiduals, i, ip3d_corr / ip3d_err, "26");
-                  PVValHelper::fillByIndex(a_IP3DPhiResiduals, i, s_ip3dpv_corr * cmToum, "27");
-                  PVValHelper::fillByIndex(n_IP3DPhiResiduals, i, s_ip3dpv_corr / s_ip3dpv_err, "28");
+                  PVValHelper::fillByIndex(a_dxyPhiResiduals, i, dxyFromMyVertex * cmToum, "39");
+                  PVValHelper::fillByIndex(a_dxPhiResiduals, i, my_dx * cmToum, "40");
+                  PVValHelper::fillByIndex(a_dyPhiResiduals, i, my_dy * cmToum, "41");
+                  PVValHelper::fillByIndex(a_dzPhiResiduals, i, dzFromMyVertex * cmToum, "42");
+                  PVValHelper::fillByIndex(n_dxyPhiResiduals, i, dxyFromMyVertex / s_ip2dpv_err, "43");
+                  PVValHelper::fillByIndex(n_dzPhiResiduals, i, dzFromMyVertex / dz_err, "44");
+                  PVValHelper::fillByIndex(a_IP2DPhiResiduals, i, s_ip2dpv_corr * cmToum, "45");
+                  PVValHelper::fillByIndex(n_IP2DPhiResiduals, i, s_ip2dpv_corr / s_ip2dpv_err, "46");
+                  PVValHelper::fillByIndex(a_reszPhiResiduals, i, restrkz * cmToum, "47");
+                  PVValHelper::fillByIndex(n_reszPhiResiduals, i, pulltrkz, "48");
+                  PVValHelper::fillByIndex(a_d3DPhiResiduals, i, ip3d_corr * cmToum, "49");
+                  PVValHelper::fillByIndex(n_d3DPhiResiduals, i, ip3d_corr / ip3d_err, "50");
+                  PVValHelper::fillByIndex(a_IP3DPhiResiduals, i, s_ip3dpv_corr * cmToum, "51");
+                  PVValHelper::fillByIndex(n_IP3DPhiResiduals, i, s_ip3dpv_corr / s_ip3dpv_err, "52");
 
                   for (int j = 0; j < nBins_; j++) {
                     float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
@@ -1066,15 +1158,15 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
 }
 
 // ------------ method called to discriminate 1D from 2D hits  ------------
-bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit) const {
+bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit, const PVValHelper::detectorPhase& thePhase) const {
   if (hit.dimension() < 2) {
     return false;  // some (muon...) stuff really has RecHit1D
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
       if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
-        return true;  // pixel is always 2D
-      } else {        // should be SiStrip now
+        return true;                                 // pixel is always 2D
+      } else if (thePhase != PVValHelper::phase2) {  // should be SiStrip now
         if (dynamic_cast<const SiStripRecHit2D*>(&hit))
           return false;  // normal hit
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit))
@@ -1082,14 +1174,16 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit& hit) const {
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit))
           return false;  // crazy hit...
         else {
-          edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
-                                      << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
-                                      << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+          edm::LogError("UnknownType") << "@SUB=PrimaryVertexValidation::isHit2D"
+                                       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
+                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
           return false;
         }
+      } else {
+        return false;
       }
     } else {  // not tracker??
-      edm::LogWarning("DetectorMismatch") << "@SUB=AlignmentTrackSelector::isHit2D"
+      edm::LogWarning("DetectorMismatch") << "@SUB=PrimaryVertexValidation::isHit2D"
                                           << "Hit not in tracker with 'official' dimension >=2.";
       return true;  // dimension() >= 2 so accept that...
     }
@@ -1138,6 +1232,9 @@ void PrimaryVertexValidation::beginJob() {
 
   // Define TTree for output
   Nevt_ = 0;
+  if (compressionSettings_ > 0) {
+    fs->file().SetCompressionSettings(compressionSettings_);
+  }
 
   //  rootFile_ = new TFile(filename_.c_str(),"recreate");
   rootTree_ = fs->make<TTree>("tree", "PV Validation tree");
@@ -1236,12 +1333,13 @@ void PrimaryVertexValidation::beginJob() {
                                              runControlNumbers_.size(),
                                              0.,
                                              runControlNumbers_.size());
-  for (const auto r : runControlNumbers_) {
-    h_runFromConfig->SetBinContent(r + 1, r);
+
+  for (const auto& run : runControlNumbers_ | boost::adaptors::indexed(1)) {
+    h_runFromConfig->SetBinContent(run.index(), run.value());
   }
 
   h_runFromEvent =
-      EventFeatures.make<TH1I>("h_runFromEvent", "run number from config;;run number (from event)", 1, -0.5, 0.5);
+      EventFeatures.make<TH1I>("h_runFromEvent", "run number from event;;run number (from event)", 1, -0.5, 0.5);
   h_nTracks =
       EventFeatures.make<TH1F>("h_nTracks", "number of tracks per event;n_{tracks}/event;n_{events}", 300, -0.5, 299.5);
   h_nClus =
@@ -1279,6 +1377,7 @@ void PrimaryVertexValidation::beginJob() {
 
   h_nbins = EventFeatures.make<TH1F>("nbins", "nbins", 1, -0.5, 0.5);
   h_nLadders = EventFeatures.make<TH1F>("nladders", "n. ladders", 1, -0.5, 0.5);
+  h_nModZ = EventFeatures.make<TH1F>("nModZ", "n. modules along z", 1, -0.5, 0.5);
 
   // probe track histograms
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
@@ -1287,23 +1386,24 @@ void PrimaryVertexValidation::beginJob() {
   h_probePtRebin_ = ProbeFeatures.make<TH1F>(
       "h_probePtRebin", "p_{T} of probe track;track p_{T} (GeV); tracks", mypT_bins_.size() - 1, mypT_bins_.data());
   h_probeP_ = ProbeFeatures.make<TH1F>("h_probeP", "momentum of probe track;track p (GeV); tracks", 100, 0., 100.);
-  h_probeEta_ = ProbeFeatures.make<TH1F>("h_probeEta", "#eta of the probe track;track #eta;tracks", 54, -2.8, 2.8);
+  h_probeEta_ = ProbeFeatures.make<TH1F>(
+      "h_probeEta", "#eta of the probe track;track #eta;tracks", 54, -etaOfProbe_, etaOfProbe_);
   h_probePhi_ = ProbeFeatures.make<TH1F>("h_probePhi", "#phi of probe track;track #phi (rad);tracks", 100, -3.15, 3.15);
 
   h2_probeEtaPhi_ =
       ProbeFeatures.make<TH2F>("h2_probeEtaPhi",
                                "probe track #phi vs #eta;#eta of probe track;track #phi of probe track (rad); tracks",
                                54,
-                               -2.8,
-                               2.8,
+                               -etaOfProbe_,
+                               etaOfProbe_,
                                100,
-                               -3.15,
-                               3.15);
+                               -M_PI,
+                               M_PI);
   h2_probeEtaPt_ = ProbeFeatures.make<TH2F>("h2_probeEtaPt",
                                             "probe track p_{T} vs #eta;#eta of probe track;track p_{T} (GeV); tracks",
                                             54,
-                                            -2.8,
-                                            2.8,
+                                            -etaOfProbe_,
+                                            etaOfProbe_,
                                             100,
                                             0.,
                                             50.);
@@ -1313,7 +1413,7 @@ void PrimaryVertexValidation::beginJob() {
   h_probeNormChi2_ = ProbeFeatures.make<TH1F>(
       "h_probeNormChi2", " normalized #chi^{2} of probe track;track #chi^{2}/ndof; tracks", 100, 0., 10.);
   h_probeCharge_ =
-      ProbeFeatures.make<TH1F>("h_probeCharge", "charge of profe track;track charge Q;tracks", 3, -1.5, 1.5);
+      ProbeFeatures.make<TH1F>("h_probeCharge", "charge of probe track;track charge Q;tracks", 3, -1.5, 1.5);
   h_probeQoverP_ =
       ProbeFeatures.make<TH1F>("h_probeQoverP", "q/p of probe track; track Q/p (GeV^{-1});tracks", 200, -1., 1.);
   h_probedzRecoV_ = ProbeFeatures.make<TH1F>(
@@ -1376,12 +1476,36 @@ void PrimaryVertexValidation::beginJob() {
   h_probeHitsInFPIX_ =
       ProbeFeatures.make<TH1F>("h_probeNRechitsFPIX", "N_{hits} FPIX;N_{hits} FPIX;tracks", 40, -0.5, 39.5);
 
-  h_probeL1Ladder_ =
-      ProbeFeatures.make<TH1F>("h_probeL1Ladder", "Ladder number (L1 hit); ladder number", 22, -1.5, 20.5);
-  h_probeL1Module_ =
-      ProbeFeatures.make<TH1F>("h_probeL1Module", "Module number (L1 hit); module number", 10, -1.5, 8.5);
+  h_probeL1Ladder_ = ProbeFeatures.make<TH1F>(
+      "h_probeL1Ladder", "Ladder number (L1 hit); ladder number", nLadders_ + 2, -1.5, nLadders_ + 0.5);
+  h_probeL1Module_ = ProbeFeatures.make<TH1F>(
+      "h_probeL1Module", "Module number (L1 hit); module number", nModZ_ + 2, -1.5, nModZ_ + 0.5);
+
+  h2_probeLayer1Map_ = ProbeFeatures.make<TH2F>("h2_probeLayer1Map",
+                                                "Position in Layer 1 of first hit;module number;ladder number",
+                                                nModZ_,
+                                                0.5,
+                                                nModZ_ + 0.5,
+                                                nLadders_,
+                                                0.5,
+                                                nLadders_ + 0.5);
+
+  h2_probePassingLayer1Map_ = ProbeFeatures.make<TH2F>("h2_probePassingLayer1Map",
+                                                       "Position in Layer 1 of first hit;module number;ladder number",
+                                                       nModZ_,
+                                                       0.5,
+                                                       nModZ_ + 0.5,
+                                                       nLadders_,
+                                                       0.5,
+                                                       nLadders_ + 0.5);
   h_probeHasBPixL1Overlap_ =
-      ProbeFeatures.make<TH1I>("h_probeHasBPixL1Overlap", "n. hits in L1;n. L1-BPix hits;tracks", 5, 0, 5);
+      ProbeFeatures.make<TH1I>("h_probeHasBPixL1Overlap", "n. hits in L1;n. L1-BPix hits;tracks", 5, -0.5, 4.5);
+  h_probeL1ClusterProb_ = ProbeFeatures.make<TH1F>(
+      "h_probeL1ClusterProb",
+      "log_{10}(Cluster Probability) for Layer1 hits;log_{10}(cluster probability); n. Layer1 hits",
+      100,
+      -10.,
+      0.);
 
   // refit vertex features
   TFileDirectory RefitVertexFeatures = fs->mkdir("RefitVertexFeatures");
@@ -1497,6 +1621,9 @@ void PrimaryVertexValidation::beginJob() {
   TFileDirectory AbsDoubleDiffRes = fs->mkdir("Abs_DoubleDiffResiduals");
   TFileDirectory NormDoubleDiffRes = fs->mkdir("Norm_DoubleDiffResiduals");
 
+  TFileDirectory AbsL1Map = fs->mkdir("Abs_L1Residuals");
+  TFileDirectory NormL1Map = fs->mkdir("Norm_L1Residuals");
+
   // book residuals vs pT histograms
 
   TFileDirectory AbsTranspTRes = fs->mkdir("Abs_Transv_pT_Residuals");
@@ -1530,10 +1657,10 @@ void PrimaryVertexValidation::beginJob() {
   // book residuals vs module number
 
   TFileDirectory AbsTransModZRes = fs->mkdir("Abs_Transv_modZ_Residuals");
-  h_dxy_modZ_ = bookResidualsHistogram(AbsTransModZRes, 8, PVValHelper::dxy, PVValHelper::modZ);
+  h_dxy_modZ_ = bookResidualsHistogram(AbsTransModZRes, nModZ_, PVValHelper::dxy, PVValHelper::modZ);
 
   TFileDirectory AbsLongModZRes = fs->mkdir("Abs_Long_modZ_Residuals");
-  h_dz_modZ_ = bookResidualsHistogram(AbsLongModZRes, 8, PVValHelper::dz, PVValHelper::modZ);
+  h_dz_modZ_ = bookResidualsHistogram(AbsLongModZRes, nModZ_, PVValHelper::dz, PVValHelper::modZ);
 
   //  _  _                    _ _           _   ___        _    _           _
   // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
@@ -1542,10 +1669,10 @@ void PrimaryVertexValidation::beginJob() {
   //
 
   TFileDirectory NormTransModZRes = fs->mkdir("Norm_Transv_modZ_Residuals");
-  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes, 8, PVValHelper::norm_dxy, PVValHelper::modZ, true);
+  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes, nModZ_, PVValHelper::norm_dxy, PVValHelper::modZ, true);
 
   TFileDirectory NormLongModZRes = fs->mkdir("Norm_Long_modZ_Residuals");
-  h_norm_dz_modZ_ = bookResidualsHistogram(NormLongModZRes, 8, PVValHelper::norm_dz, PVValHelper::modZ, true);
+  h_norm_dz_modZ_ = bookResidualsHistogram(NormLongModZRes, nModZ_, PVValHelper::norm_dz, PVValHelper::modZ, true);
 
   TFileDirectory AbsTransLadderRes = fs->mkdir("Abs_Transv_ladder_Residuals");
   h_dxy_ladder_ = bookResidualsHistogram(AbsTransLadderRes, nLadders_, PVValHelper::dxy, PVValHelper::ladder);
@@ -1568,6 +1695,40 @@ void PrimaryVertexValidation::beginJob() {
   TFileDirectory NormLongLadderRes = fs->mkdir("Norm_Long_ladder_Residuals");
   h_norm_dz_ladder_ =
       bookResidualsHistogram(NormLongLadderRes, nLadders_, PVValHelper::norm_dz, PVValHelper::ladder, true);
+
+  // book residuals as function of nLadders and nModules
+
+  for (unsigned int iLadder = 0; iLadder < nLadders_; iLadder++) {
+    for (unsigned int iModule = 0; iModule < nModZ_; iModule++) {
+      a_dxyL1ResidualsMap[iLadder][iModule] =
+          AbsL1Map.make<TH1F>(Form("histo_dxy_ladder%i_module%i", iLadder, iModule),
+                              Form("d_{xy} ladder=%i module=%i;d_{xy} [#mum];tracks", iLadder, iModule),
+                              theDetails_.histobins,
+                              -dzmax_eta,
+                              dzmax_eta);
+
+      a_dzL1ResidualsMap[iLadder][iModule] =
+          AbsL1Map.make<TH1F>(Form("histo_dz_ladder%i_module%i", iLadder, iModule),
+                              Form("d_{z} ladder=%i module=%i;d_{z} [#mum];tracks", iLadder, iModule),
+                              theDetails_.histobins,
+                              -dzmax_eta,
+                              dzmax_eta);
+
+      n_dxyL1ResidualsMap[iLadder][iModule] =
+          NormL1Map.make<TH1F>(Form("histo_norm_dxy_ladder%i_module%i", iLadder, iModule),
+                               Form("d_{xy} ladder=%i module=%i;d_{xy}/#sigma_{d_{xy}};tracks", iLadder, iModule),
+                               theDetails_.histobins,
+                               -dzmax_eta / 100,
+                               dzmax_eta / 100);
+
+      n_dzL1ResidualsMap[iLadder][iModule] =
+          NormL1Map.make<TH1F>(Form("histo_norm_dz_ladder%i_module%i", iLadder, iModule),
+                               Form("d_{z} ladder=%i module=%i;d_{z}/#sigma_{d_{z}};tracks", iLadder, iModule),
+                               theDetails_.histobins,
+                               -dzmax_eta / 100,
+                               dzmax_eta / 100);
+    }
+  }
 
   // book residuals as function of phi and eta
 
@@ -2504,6 +2665,32 @@ void PrimaryVertexValidation::beginJob() {
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void PrimaryVertexValidation::endJob() {
+  // shring the histograms to fit
+  h_probeL1Ladder_->GetXaxis()->SetRangeUser(-1.5, nLadders_ + 0.5);
+  h_probeL1Module_->GetXaxis()->SetRangeUser(-1.5, nModZ_ + 0.5);
+  h2_probeLayer1Map_->GetXaxis()->SetRangeUser(0.5, nModZ_ + 0.5);
+  h2_probeLayer1Map_->GetYaxis()->SetRangeUser(0.5, nLadders_ + 0.5);
+  h2_probePassingLayer1Map_->GetXaxis()->SetRangeUser(0.5, nModZ_ + 0.5);
+  h2_probePassingLayer1Map_->GetYaxis()->SetRangeUser(0.5, nLadders_ + 0.5);
+
+  TFileDirectory RunFeatures = fs->mkdir("RunFeatures");
+  h_runStartTimes = RunFeatures.make<TH1I>(
+      "runStartTimes", "run start times", runNumbersTimesLog_.size(), 0, runNumbersTimesLog_.size());
+  h_runEndTimes =
+      RunFeatures.make<TH1I>("runEndTimes", "run end times", runNumbersTimesLog_.size(), 0, runNumbersTimesLog_.size());
+
+  unsigned int count = 1;
+  for (const auto& run : runNumbersTimesLog_) {
+    // strip down the microseconds
+    h_runStartTimes->SetBinContent(count, run.second.first / 10e6);
+    h_runStartTimes->GetXaxis()->SetBinLabel(count, (std::to_string(run.first)).c_str());
+
+    h_runEndTimes->SetBinContent(count, run.second.second / 10e6);
+    h_runEndTimes->GetXaxis()->SetBinLabel(count, (std::to_string(run.first)).c_str());
+
+    count++;
+  }
+
   edm::LogInfo("PrimaryVertexValidation") << "######################################\n"
                                           << "# PrimaryVertexValidation::endJob()\n"
                                           << "# Number of analyzed events: " << Nevt_ << "\n"
@@ -2602,6 +2789,83 @@ void PrimaryVertexValidation::endJob() {
       0.,
       nLadders_);
 
+  // 2D maps of residuals in bins of L1 modules
+
+  a_dxyL1MeanMap = Mean2DMapsDir.make<TH2F>("means_dxy_l1map",
+                                            "#LT d_{xy} #GT map;module number [z];ladder number [#varphi]",
+                                            nModZ_,
+                                            0.,
+                                            nModZ_,
+                                            nLadders_,
+                                            0.,
+                                            nLadders_);
+
+  a_dzL1MeanMap = Mean2DMapsDir.make<TH2F>("means_dz_l1map",
+                                           "#LT d_{z} #GT map;module number [z];ladder number [#varphi]",
+                                           nModZ_,
+                                           0.,
+                                           nModZ_,
+                                           nLadders_,
+                                           0.,
+                                           nLadders_);
+
+  n_dxyL1MeanMap =
+      Mean2DMapsDir.make<TH2F>("norm_means_dxy_l1map",
+                               "#LT d_{xy}/#sigma_{d_{xy}} #GT map;module number [z];ladder number [#varphi]",
+                               nModZ_,
+                               0.,
+                               nModZ_,
+                               nLadders_,
+                               0.,
+                               nLadders_);
+
+  n_dzL1MeanMap = Mean2DMapsDir.make<TH2F>("norm_means_dz_l1map",
+                                           "#LT d_{z}/#sigma_{d_{z}} #GT map;module number [z];ladder number [#varphi]",
+                                           nModZ_,
+                                           0.,
+                                           nModZ_,
+                                           nLadders_,
+                                           0.,
+                                           nLadders_);
+
+  a_dxyL1WidthMap = Width2DMapsDir.make<TH2F>("widths_dxy_l1map",
+                                              "#sigma_{d_{xy}} map;module number [z];ladder number [#varphi]",
+                                              nModZ_,
+                                              0.,
+                                              nModZ_,
+                                              nLadders_,
+                                              0.,
+                                              nLadders_);
+
+  a_dzL1WidthMap = Width2DMapsDir.make<TH2F>("widths_dz_l1map",
+                                             "#sigma_{d_{z}} map;module number [z];ladder number [#varphi]",
+                                             nModZ_,
+                                             0.,
+                                             nModZ_,
+                                             nLadders_,
+                                             0.,
+                                             nLadders_);
+
+  n_dxyL1WidthMap =
+      Width2DMapsDir.make<TH2F>("norm_widths_dxy_l1map",
+                                "width(d_{xy}/#sigma_{d_{xy}}) map;module number [z];ladder number [#varphi]",
+                                nModZ_,
+                                0.,
+                                nModZ_,
+                                nLadders_,
+                                0.,
+                                nLadders_);
+
+  n_dzL1WidthMap =
+      Width2DMapsDir.make<TH2F>("norm_widths_dz_l1map",
+                                "width(d_{z}/#sigma_{d_{z}}) map;module number [z];ladder number [#varphi]",
+                                nModZ_,
+                                0.,
+                                nModZ_,
+                                nLadders_,
+                                0.,
+                                nLadders_);
+
   if (useTracksFromRecoVtx_) {
     fillTrendPlotByIndex(a_dxyPhiMeanBiasTrend, a_dxyPhiBiasResiduals, PVValHelper::MEAN, PVValHelper::phi);
     fillTrendPlotByIndex(a_dxyPhiWidthBiasTrend, a_dxyPhiBiasResiduals, PVValHelper::WIDTH, PVValHelper::phi);
@@ -2647,15 +2911,15 @@ void PrimaryVertexValidation::endJob() {
 
     // 2d Maps
 
-    fillMap(a_dxyMeanBiasMap, a_dxyBiasResidualsMap, PVValHelper::MEAN);
-    fillMap(a_dxyWidthBiasMap, a_dxyBiasResidualsMap, PVValHelper::WIDTH);
-    fillMap(a_dzMeanBiasMap, a_dzBiasResidualsMap, PVValHelper::MEAN);
-    fillMap(a_dzWidthBiasMap, a_dzBiasResidualsMap, PVValHelper::WIDTH);
+    fillMap(a_dxyMeanBiasMap, a_dxyBiasResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+    fillMap(a_dxyWidthBiasMap, a_dxyBiasResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
+    fillMap(a_dzMeanBiasMap, a_dzBiasResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+    fillMap(a_dzWidthBiasMap, a_dzBiasResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
 
-    fillMap(n_dxyMeanBiasMap, n_dxyBiasResidualsMap, PVValHelper::MEAN);
-    fillMap(n_dxyWidthBiasMap, n_dxyBiasResidualsMap, PVValHelper::WIDTH);
-    fillMap(n_dzMeanBiasMap, n_dzBiasResidualsMap, PVValHelper::MEAN);
-    fillMap(n_dzWidthBiasMap, n_dzBiasResidualsMap, PVValHelper::WIDTH);
+    fillMap(n_dxyMeanBiasMap, n_dxyBiasResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+    fillMap(n_dxyWidthBiasMap, n_dxyBiasResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
+    fillMap(n_dzMeanBiasMap, n_dzBiasResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+    fillMap(n_dzWidthBiasMap, n_dzBiasResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
   }
 
   // do profiles
@@ -2749,24 +3013,46 @@ void PrimaryVertexValidation::endJob() {
 
   // 2D Maps
 
-  fillMap(a_dxyMeanMap, a_dxyResidualsMap, PVValHelper::MEAN);
-  fillMap(a_dxyWidthMap, a_dxyResidualsMap, PVValHelper::WIDTH);
-  fillMap(a_dzMeanMap, a_dzResidualsMap, PVValHelper::MEAN);
-  fillMap(a_dzWidthMap, a_dzResidualsMap, PVValHelper::WIDTH);
+  fillMap(a_dxyMeanMap, a_dxyResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+  fillMap(a_dxyWidthMap, a_dxyResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
+  fillMap(a_dzMeanMap, a_dzResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+  fillMap(a_dzWidthMap, a_dzResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
 
-  fillMap(n_dxyMeanMap, n_dxyResidualsMap, PVValHelper::MEAN);
-  fillMap(n_dxyWidthMap, n_dxyResidualsMap, PVValHelper::WIDTH);
-  fillMap(n_dzMeanMap, n_dzResidualsMap, PVValHelper::MEAN);
-  fillMap(n_dzWidthMap, n_dzResidualsMap, PVValHelper::WIDTH);
+  fillMap(n_dxyMeanMap, n_dxyResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+  fillMap(n_dxyWidthMap, n_dxyResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
+  fillMap(n_dzMeanMap, n_dzResidualsMap, PVValHelper::MEAN, nBins_, nBins_);
+  fillMap(n_dzWidthMap, n_dzResidualsMap, PVValHelper::WIDTH, nBins_, nBins_);
+
+  // 2D Maps of residuals in bins of L1 modules
+
+  fillMap(a_dxyL1MeanMap, a_dxyL1ResidualsMap, PVValHelper::MEAN, nModZ_, nLadders_);
+  fillMap(a_dxyL1WidthMap, a_dxyL1ResidualsMap, PVValHelper::WIDTH, nModZ_, nLadders_);
+  fillMap(a_dzL1MeanMap, a_dzL1ResidualsMap, PVValHelper::MEAN, nModZ_, nLadders_);
+  fillMap(a_dzL1WidthMap, a_dzL1ResidualsMap, PVValHelper::WIDTH, nModZ_, nLadders_);
+
+  fillMap(n_dxyL1MeanMap, n_dxyL1ResidualsMap, PVValHelper::MEAN, nModZ_, nLadders_);
+  fillMap(n_dxyL1WidthMap, n_dxyL1ResidualsMap, PVValHelper::WIDTH, nModZ_, nLadders_);
+  fillMap(n_dzL1MeanMap, n_dzL1ResidualsMap, PVValHelper::MEAN, nModZ_, nLadders_);
+  fillMap(n_dzL1WidthMap, n_dzL1ResidualsMap, PVValHelper::WIDTH, nModZ_, nLadders_);
+}
+
+//*************************************************************
+std::pair<long long, long long> PrimaryVertexValidation::getRunTime(const edm::EventSetup& iSetup) const
+//*************************************************************
+{
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
+  if (debug_) {
+    edm::LogInfo("PrimaryVertexValidation")
+        << runInfo.product()->m_start_time_str << " " << runInfo.product()->m_stop_time_str << std::endl;
+  }
+  return std::make_pair(runInfo.product()->m_start_time_ll, runInfo.product()->m_stop_time_ll);
 }
 
 //*************************************************************
 bool PrimaryVertexValidation::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo;
-  iSetup.get<RunInfoRcd>().get(runInfo);
-
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
   double average_current = runInfo.product()->m_avg_current;
   bool isOn = (average_current > 2000.);
   bool is0T = (ptOfProbe_ == 0.);
@@ -2973,23 +3259,31 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], PVValHelper::estimator fitPar_)
+void PrimaryVertexValidation::fillMap(TH2F* trendMap,
+                                      TH1F* residualsMapPlot[100][100],
+                                      PVValHelper::estimator fitPar_,
+                                      const int nXBins_,
+                                      const int nYBins_)
 //*************************************************************
 {
-  for (int i = 0; i < nBins_; ++i) {
+  for (int i = 0; i < nYBins_; ++i) {
     char phibincenter[129];
     auto phiBins = theDetails_.trendbins[PVValHelper::phi];
     sprintf(phibincenter, "%.f", (phiBins[i] + phiBins[i + 1]) / 2.);
 
-    trendMap->GetYaxis()->SetBinLabel(i + 1, phibincenter);
+    if (nXBins_ == nYBins_) {
+      trendMap->GetYaxis()->SetBinLabel(i + 1, phibincenter);
+    }
 
-    for (int j = 0; j < nBins_; ++j) {
+    for (int j = 0; j < nXBins_; ++j) {
       char etabincenter[129];
       auto etaBins = theDetails_.trendbins[PVValHelper::eta];
       sprintf(etabincenter, "%.1f", (etaBins[j] + etaBins[j + 1]) / 2.);
 
       if (i == 0) {
-        trendMap->GetXaxis()->SetBinLabel(j + 1, etabincenter);
+        if (nXBins_ == nYBins_) {
+          trendMap->GetXaxis()->SetBinLabel(j + 1, etabincenter);
+        }
       }
 
       switch (fitPar_) {
@@ -3378,6 +3672,67 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*>& h,
   }
   PVValHelper::fill(h, "nbarrelhits_" + ttype, float(nbarrel));
   //-------------------------------------------------------------------
+}
+
+void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by evaluating unbiased track paramter resisuals to vertices");
+
+  // PV Validation specific
+
+  desc.addUntracked<int>("compressionSettings", -1);
+  desc.add<bool>("storeNtuple", false);
+  desc.add<bool>("isLightNtuple", true);
+  desc.add<bool>("useTracksFromRecoVtx", false);
+  desc.addUntracked<double>("vertexZMax", 99);
+  desc.addUntracked<double>("intLumi", 0.);
+  desc.add<bool>("askFirstLayerHit", false);
+  desc.addUntracked<bool>("doBPix", true);
+  desc.addUntracked<bool>("doFPix", true);
+  desc.addUntracked<double>("probePt", 0.);
+  desc.addUntracked<double>("probeP", 0.);
+  desc.addUntracked<double>("probeEta", 2.4);
+  desc.addUntracked<double>("probeNHits", 0.);
+  desc.addUntracked<int>("numberOfBins", 24);
+  desc.addUntracked<double>("minPt", 1.);
+  desc.addUntracked<double>("maxPt", 20.);
+  desc.add<bool>("Debug", false);
+  desc.addUntracked<bool>("runControl", false);
+  desc.addUntracked<bool>("forceBeamSpot", false);
+
+  std::vector<unsigned int> defaultRuns;
+  defaultRuns.push_back(0);
+  desc.addUntracked<std::vector<unsigned int>>("runControlNumber", defaultRuns);
+
+  // event sources
+
+  desc.add<edm::InputTag>("TrackCollectionTag", edm::InputTag("ALCARECOTkAlMinBias"));
+  desc.add<edm::InputTag>("VertexCollectionTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
+
+  // track filtering
+  edm::ParameterSetDescription psd0;
+  TrackFilterForPVFinding::fillPSetDescription(psd0);
+  psd0.add<int>("numTracksThreshold", 0);  // HI only
+  desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
+
+  // PV Clusterization
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      DAClusterizerInZ_vect::fillPSetDescription(psd1);
+      psd0.add<edm::ParameterSetDescription>("TkDAClusParameters", psd1);
+
+      edm::ParameterSetDescription psd2;
+      GapClusterizerInZ::fillPSetDescription(psd2);
+      psd0.add<edm::ParameterSetDescription>("TkGapClusParameters", psd2);
+    }
+    psd0.add<std::string>("algorithm", "DA_vect");
+    desc.add<edm::ParameterSetDescription>("TkClusParameters", psd0);
+  }
+
+  descriptions.add("primaryVertexValidation", desc);
 }
 
 //define this as a plug-in

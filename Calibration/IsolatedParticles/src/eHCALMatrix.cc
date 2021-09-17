@@ -1,11 +1,10 @@
 #include "Calibration/IsolatedParticles/interface/DebugInfo.h"
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
-#include <iostream>
-
-//#define EDM_ML_DEBUG
+#include <sstream>
 
 namespace spr {
   double eHCALmatrix(const HcalTopology* topology,
@@ -20,29 +19,22 @@ namespace spr {
                      double hoThr,
                      double tMin,
                      double tMax,
-                     bool
-#ifdef EDM_ML_DEBUG
-                         debug
-#endif
-  ) {
-
+                     bool debug) {
     HcalDetId hcid0(det0.rawId());
     HcalDetId hcid(hcid0.subdet(), hcid0.ieta(), hcid0.iphi(), 1);
     DetId det(hcid.rawId());
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "Inside eHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1 << " Inclusion of HO Flag " << includeHO
-                << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Inside eHCALmatrix " << 2 * ieta + 1 << "X" << 2 * iphi + 1
+                                   << " Inclusion of HO Flag " << includeHO;
+
     double energySum(0);
     std::vector<DetId> dets(1, det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
-#ifdef EDM_ML_DEBUG
     if (debug) {
-      std::cout << "matrixHCALIds::Total number of cells found is " << vdets.size() << std::endl;
+      edm::LogVerbatim("IsoTrack") << "matrixHCALIds::Total number of cells found is " << vdets.size();
       spr::debugHcalDets(0, vdets);
     }
-#endif
+
     int khit(0);
     for (unsigned int i = 0; i < vdets.size(); i++) {
       std::vector<std::vector<PCaloHit>::const_iterator> hit = spr::findHit(hits, vdets[i]);
@@ -52,11 +44,10 @@ namespace spr {
       for (unsigned int ihit = 0; ihit < hit.size(); ihit++) {
         if (hit[ihit] != hits.end()) {
           khit++;
-#ifdef EDM_ML_DEBUG
           if (debug)
-            std::cout << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E " << hit[ihit]->energy()
-                      << " t " << hit[ihit]->time() << std::endl;
-#endif
+            edm::LogVerbatim("IsoTrack") << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E "
+                                         << hit[ihit]->energy() << " t " << hit[ihit]->time();
+
           if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) {
             energy += hit[ihit]->energy();
           }
@@ -66,10 +57,8 @@ namespace spr {
         energySum += energy;
     }
 
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "eHCALmatrix::Total energy " << energySum << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "eHCALmatrix::Total energy " << energySum;
     return energySum;
   }
 
@@ -142,21 +131,15 @@ namespace spr {
                       double tMin,
                       double tMax,
                       int depthHE,
-                      bool
-#ifdef EDM_ML_DEBUG
-                          debug
-#endif
-  ) {
-
+                      bool debug) {
     energyCell.clear();
     int subdet = detId.subdet();
     double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
     bool hbhe = (detId.ietaAbs() == 16);
-#ifdef EDM_ML_DEBUG
     if (debug)
-      std::cout << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth << " Threshold (E) " << eThr
-                << " (T) " << tMin << ":" << tMax << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth
+                                   << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax;
+
     for (int i = 0; i < maxDepth; i++) {
       HcalSubdetector subdet0 = (hbhe) ? ((i + 1 >= depthHE) ? HcalEndcap : HcalBarrel) : detId.subdet();
       HcalDetId hcid(subdet0, detId.ieta(), detId.iphi(), i + 1);
@@ -166,30 +149,27 @@ namespace spr {
       for (unsigned int ihit = 0; ihit < hit.size(); ++ihit) {
         if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax)
           energy += hit[ihit]->energy();
-#ifdef EDM_ML_DEBUG
         if (debug)
-          std::cout << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E " << hit[ihit]->energy() << " t "
-                    << hit[ihit]->time() << std::endl;
-#endif
+          edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Hit[" << ihit << "] " << hcid << " E "
+                                       << hit[ihit]->energy() << " t " << hit[ihit]->time();
       }
-#ifdef EDM_ML_DEBUG
+
       if (debug)
-        std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold "
-                  << eThr << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size()
+                                     << " threshold " << eThr;
       if (energy > eThr && !hit.empty()) {
         energyCell.push_back(std::pair<double, int>(energy, i + 1));
       }
     }
-#ifdef EDM_ML_DEBUG
+
     if (debug) {
-      std::cout << "energyHCALCell:: " << energyCell.size() << " entries from " << maxDepth << " depths:";
+      std::ostringstream st1;
+      st1 << "energyHCALCell:: " << energyCell.size() << " entries from " << maxDepth << " depths:";
       for (unsigned int i = 0; i < energyCell.size(); ++i) {
-        std::cout << " [" << i << "] (" << energyCell[i].first << ":" << energyCell[i].second << ")";
+        st1 << " [" << i << "] (" << energyCell[i].first << ":" << energyCell[i].second << ")";
       }
-      std::cout << std::endl;
+      edm::LogVerbatim("IsoTrack") << st1.str();
     }
-#endif
   }
 
   HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, int useRaw, bool) {

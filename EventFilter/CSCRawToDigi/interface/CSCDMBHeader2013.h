@@ -1,5 +1,5 @@
-#ifndef CSCDMBHeader2013_h
-#define CSCDMBHeader2013_h
+#ifndef EventFilter_CSCRawToDigi_CSCDMBHeader2013_h
+#define EventFilter_CSCRawToDigi_CSCDMBHeader2013_h
 
 /*
  DMB-DDU 2013 Header/Trailer bit definitions (some bits get repeated for bit error mitigation)

@@ -19,13 +19,14 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer {
 public:
@@ -42,8 +43,11 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
-  MuonServiceProxy *theService;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+
+  edm::ESHandle<TransientTrackBuilder> theB;
+
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trasientTrackToken_;
 
   // Switch for verbosity
   std::string metname;

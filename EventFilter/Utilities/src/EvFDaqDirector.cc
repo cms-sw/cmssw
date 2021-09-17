@@ -13,15 +13,15 @@
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/DataPoint.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include <iostream>
-//#include <istream>
+#include <fstream>
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
 //using boost::asio::ip::tcp;
@@ -36,21 +36,22 @@ namespace evf {
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"", "DAT", "PB", "JSNDATA"};
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet& pset, edm::ActivityRegistry& reg)
-      : base_dir_(pset.getUntrackedParameter<std::string>("baseDir", ".")),
-        bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir", ".")),
-        directorBu_(pset.getUntrackedParameter<bool>("directorIsBu", false)),
-        run_(pset.getUntrackedParameter<unsigned int>("runNumber", 0)),
-        useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker", false)),
-        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost", "")),
+      : base_dir_(pset.getUntrackedParameter<std::string>("baseDir")),
+        bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir")),
+        run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
+        useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
+        fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg", true)),
+        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost", "InValid")),
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
         fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock", true)),
+        fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval", 2000)),
         outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck", false)),
         requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet", false)),
         selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode", "")),
+        mergeTypePset_(pset.getUntrackedParameter<std::string>("mergingPset", "")),
+        directorBU_(pset.getUntrackedParameter<bool>("directorIsBU", false)),
         hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory", "")),
-        fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval", 2000)),
-        mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset", "")),
         hostname_(""),
         bu_readlock_fd_(-1),
         bu_writelock_fd_(-1),
@@ -79,65 +80,66 @@ namespace evf {
     gethostname(hostname, 32);
     hostname_ = hostname;
 
-    char* fuLockPollIntervalPtr = getenv("FFF_LOCKPOLLINTERVAL");
+    char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
     if (fuLockPollIntervalPtr) {
       try {
-        fuLockPollInterval_ = boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
+        fuLockPollInterval_ = std::stoul(std::string(fuLockPollIntervalPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting fu lock poll interval by environment string: " << fuLockPollInterval_
                                        << " us";
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fuLockPollIntervalPtr);
       }
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerParamPtr = getenv("FFF_USEFILEBROKER");
+    char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
     if (fileBrokerParamPtr) {
       try {
-        useFileBroker_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr))) > 0;
+        useFileBroker_ = (std::stoul(std::string(fileBrokerParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting useFileBroker parameter by environment string: " << useFileBroker_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerParamPtr);
       }
     }
     if (useFileBroker_) {
-      if (fileBrokerHost_.empty()) {
+      if (fileBrokerHostFromCfg_) {
         //find BU data address from hltd configuration
+        fileBrokerHost_ = std::string();
         struct stat buf;
         if (stat("/etc/appliance/bus.config", &buf) == 0) {
           std::ifstream busconfig("/etc/appliance/bus.config", std::ifstream::in);
           std::getline(busconfig, fileBrokerHost_);
         }
-      }
-      if (!fileBrokerHost_.empty()) {
-        resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
-        query_ =
-            std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);  //default port
-        endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
-        socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
-      } else {
-        throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
-      }
+        if (fileBrokerHost_.empty())
+          throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
+      } else if (fileBrokerHost_.empty() || fileBrokerHost_ == "InValid")
+        throw cms::Exception("EvFDaqDirector")
+            << "fileBrokerHostFromCfg must be set to true if fileBrokerHost parameter is not valid or empty";
+
+      resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
+      query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
+      endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
+      socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
-    char* startFromLSPtr = getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_START_LUMISECTION");
     if (startFromLSPtr) {
       try {
-        startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
+        startFromLS_ = std::stoul(std::string(startFromLSPtr));
         edm::LogInfo("EvFDaqDirector") << "Setting start from LS by environment string: " << startFromLS_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(startFromLSPtr);
       }
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerUseLockParamPtr = getenv("FFF_FILEBROKERUSELOCALLOCK");
+    char* fileBrokerUseLockParamPtr = std::getenv("FFF_FILEBROKERUSELOCALLOCK");
     if (fileBrokerUseLockParamPtr) {
       try {
-        fileBrokerUseLocalLock_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr))) > 0;
+        fileBrokerUseLocalLock_ = (std::stoul(std::string(fileBrokerUseLockParamPtr))) > 0;
         edm::LogInfo("EvFDaqDirector") << "Setting fileBrokerUseLocalLock parameter by environment string: "
                                        << fileBrokerUseLocalLock_;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
@@ -171,7 +173,7 @@ namespace evf {
     }
 
     //create fu-local.lock in run open dir
-    if (!directorBu_) {
+    if (!directorBU_) {
       createRunOpendirMaybe();
       std::string fulocal_lock_ = getRunOpenDirPath() + "/fu-local.lock";
       fulocal_rwlock_fd_ =
@@ -191,7 +193,7 @@ namespace evf {
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
-    if (directorBu_) {
+    if (directorBU_) {
       bu_run_dir_ = base_dir_ + "/" + run_string_;
       std::string bulockfile = bu_run_dir_ + "/bu.lock";
       fulockfile_ = bu_run_dir_ + "/fu.lock";
@@ -236,11 +238,18 @@ namespace evf {
             throw cms::Exception("DaqDirector")
                 << " Error creating bu run dir -: " << hltdir << " mkdir error:" << strerror(errno) << "\n";
 
-          boost::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
+          std::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
+          std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
 
-          boost::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
+          std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
+          for (auto& optfile : optfiles) {
+            try {
+              std::filesystem::copy_file(hltSourceDirectory_ + "/" + optfile, tmphltdir + "/" + optfile);
+            } catch (...) {
+            }
+          }
 
-          boost::filesystem::rename(tmphltdir, hltdir);
+          std::filesystem::rename(tmphltdir, hltdir);
         } else
           throw cms::Exception("DaqDirector") << " Error looking for HLT configuration -: " << hltSourceDirectory_;
       }
@@ -266,7 +275,7 @@ namespace evf {
     sstp << stopFilePath_ << "_pid" << pid_;
     stopFilePathPid_ = sstp.str();
 
-    if (!directorBu_) {
+    if (!directorBU_) {
       std::string defPath = bu_run_dir_ + "/jsd/rawData.jsd";
       struct stat statbuf;
       if (!stat(defPath.c_str(), &statbuf))
@@ -274,9 +283,9 @@ namespace evf {
       else {
         //look in source directory if not present in ramdisk
         std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
-        defPath = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+        defPath = std::string(std::getenv("CMSSW_BASE")) + "/" + defPathSuffix;
         if (stat(defPath.c_str(), &statbuf)) {
-          defPath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+          defPath = std::string(std::getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
           if (stat(defPath.c_str(), &statbuf)) {
             defPath = defPathSuffix;
           }
@@ -323,23 +332,26 @@ namespace evf {
     desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
     desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<std::string>("fileBrokerHost", "")->setComment("BU file service host");
+    desc.addUntracked<bool>("fileBrokerHostFromCfg", true)
+        ->setComment("Allow service to discover BU address from hltd configuration");
+    desc.addUntracked<std::string>("fileBrokerHost", "InValid")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
         ->setComment("Use keep alive to avoid using large number of sockets");
     desc.addUntracked<bool>("fileBrokerUseLocalLock", true)
         ->setComment("Use local lock file to synchronize appearance of index and EoLS file markers for hltd");
+    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
+        ->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<bool>("outputAdler32Recheck", false)
         ->setComment("Check Adler32 of per-process output files while micro-merging");
     desc.addUntracked<bool>("requireTransfersPSet", false)
         ->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode", "")
         ->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
-    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
-        ->setComment("Lock polling interval in microseconds for the input directory file lock");
+    desc.addUntracked<bool>("directorIsBU", false)->setComment("BU director mode used for testing");
+    desc.addUntracked<std::string>("hltSourceDirectory", "")->setComment("BU director mode source directory");
     desc.addUntracked<std::string>("mergingPset", "")
         ->setComment("Name of merging PSet to look for merging type definitions for streams");
-    desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
   }
 
@@ -361,7 +373,7 @@ namespace evf {
   void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
-    if (directorBu_) {
+    if (directorBU_) {
       std::string filename = bu_run_dir_ + "/bu.lock";
       removeFile(filename);
     }
@@ -379,31 +391,6 @@ namespace evf {
     auto it = filesToDeletePtr_->begin();
     while (it != filesToDeletePtr_->end()) {
       if (it->second->lumi_ == ls) {
-        const boost::filesystem::path filePath(it->second->fileName_);
-        LogDebug("EvFDaqDirector") << "Deleting input file -:" << it->second->fileName_;
-        try {
-          //rarely this fails but file gets deleted
-          boost::filesystem::remove(filePath);
-        } catch (boost::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector")
-              << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
-          usleep(10000);
-          try {
-            boost::filesystem::remove(filePath);
-          } catch (
-              const boost::filesystem::filesystem_error&) { /*file gets deleted first time but exception is still thrown*/
-          }
-        } catch (std::exception const& ex) {
-          edm::LogError("EvFDaqDirector")
-              << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
-          usleep(10000);
-          try {
-            boost::filesystem::remove(filePath);
-          } catch (std::exception const&) { /*file gets deleted first time but exception is still thrown*/
-          }
-        }
-
-        delete it->second;
         it = filesToDeletePtr_->erase(it);
       } else
         it++;
@@ -515,8 +502,11 @@ namespace evf {
   EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls,
                                                           std::string& nextFile,
                                                           uint32_t& fsize,
-                                                          uint64_t& lockWaitTime) {
+                                                          uint16_t& rawHeaderSize,
+                                                          uint64_t& lockWaitTime,
+                                                          bool& setExceptionState) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
+    rawHeaderSize = 0;
 
     int retval = -1;
     int lock_attempts = 0;
@@ -625,7 +615,7 @@ namespace evf {
           ls++;
         else {
           // try to bump (look for new index or EoLS file)
-          bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
+          bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, rawHeaderSize, stopFileLS, setExceptionState);
           //avoid 2 lumisections jump
           if (ls && readLs > currentLs && currentLs > ls) {
             ls++;
@@ -659,8 +649,10 @@ namespace evf {
             fileStatus = newFile;
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
           } else {
-            throw cms::Exception("EvFDaqDirector")
+            edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+            setExceptionState = true;
+            return noFile;
           }
         } else if (currentLs < readLs) {
           //there is no new file in next LS (yet), but lock file can be updated to the next LS
@@ -673,8 +665,10 @@ namespace evf {
             fsync(fu_readwritelock_fd2);
             LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex;
           } else {
-            throw cms::Exception("EvFDaqDirector")
+            edm::LogError("EvFDaqDirector")
                 << "seek on fu read/write lock for updating failed with error " << strerror(errno);
+            setExceptionState = true;
+            return noFile;
           }
         }
       } else {
@@ -721,7 +715,7 @@ namespace evf {
   }
 
   int EvFDaqDirector::getNFilesFromEoLS(std::string BUEoLSFile) {
-    boost::filesystem::ifstream ij(BUEoLSFile);
+    std::ifstream ij(BUEoLSFile);
     Json::Value deserializeRoot;
     Json::Reader reader;
 
@@ -778,11 +772,16 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << " error reading number of files from BU JSON -: " << BUEoLSFile;
       return -1;
     }
-    return boost::lexical_cast<int>(data);
+    return std::stoi(data);
   }
 
-  bool EvFDaqDirector::bumpFile(
-      unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls,
+                                unsigned int& index,
+                                std::string& nextFile,
+                                uint32_t& fsize,
+                                uint16_t& rawHeaderSize,
+                                int maxLS,
+                                bool& setExceptionState) {
     if (previousFileSize_ != 0) {
       if (!fms_) {
         fms_ = (FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
@@ -791,6 +790,7 @@ namespace evf {
         fms_->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;
     }
+    nextFile = "";
 
     //reached limit
     if (maxLS >= 0 && ls > (unsigned int)maxLS)
@@ -802,21 +802,34 @@ namespace evf {
     nextIndex++;
 
     // 1. Check suggested file
-    nextFile = getInputJsonFilePath(ls, index);
-    if (stat(nextFile.c_str(), &buf) == 0) {
-      previousFileSize_ = buf.st_size;
-      fsize = buf.st_size;
+    std::string nextFileJson = getInputJsonFilePath(ls, index);
+    if (stat(nextFileJson.c_str(), &buf) == 0) {
+      fsize = previousFileSize_ = buf.st_size;
+      nextFile = nextFileJson;
       return true;
     }
     // 2. No file -> lumi ended? (and how many?)
     else {
+      // 3. No file -> check for standalone raw file
+      std::string nextFileRaw = getRawFilePath(ls, index);
+      if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
+        fsize = previousFileSize_ = buf.st_size;
+        nextFile = nextFileRaw;
+        return true;
+      }
+
       std::string BUEoLSFile = getEoLSFilePathOnBU(ls);
-      bool eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
-      while (eolFound) {
+
+      if (stat(BUEoLSFile.c_str(), &buf) == 0) {
         // recheck that no raw file appeared in the meantime
-        if (stat(nextFile.c_str(), &buf) == 0) {
-          previousFileSize_ = buf.st_size;
-          fsize = buf.st_size;
+        if (stat(nextFileJson.c_str(), &buf) == 0) {
+          fsize = previousFileSize_ = buf.st_size;
+          nextFile = nextFileJson;
+          return true;
+        }
+        if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
+          fsize = previousFileSize_ = buf.st_size;
+          nextFile = nextFileRaw;
           return true;
         }
 
@@ -831,6 +844,7 @@ namespace evf {
             edm::LogError("EvFDaqDirector")
                 << "Potential miss of index file in LS -: " << ls << ". Missing " << nextFile << " because "
                 << indexFilesInLS - 1 << " is the highest index expected. Will not update fu.lock file";
+            setExceptionState = true;
             return false;
           }
         }
@@ -842,18 +856,20 @@ namespace evf {
         if (maxLS >= 0 && ls > (unsigned int)maxLS)
           return false;
 
-        nextFile = getInputJsonFilePath(ls, 0);
-        if (stat(nextFile.c_str(), &buf) == 0) {
+        nextFileJson = getInputJsonFilePath(ls, 0);
+        nextFileRaw = getRawFilePath(ls, 0);
+        if (stat(nextFileJson.c_str(), &buf) == 0) {
           // a new file was found at new lumisection, index 0
-          previousFileSize_ = buf.st_size;
-          fsize = buf.st_size;
+          fsize = previousFileSize_ = buf.st_size;
+          nextFile = nextFileJson;
           return true;
-        } else {
-          //change of policy: we need to cycle through each LS
-          return false;
         }
-        BUEoLSFile = getEoLSFilePathOnBU(ls);
-        eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
+        if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
+          fsize = previousFileSize_ = buf.st_size;
+          nextFile = nextFileRaw;
+          return true;
+        }
+        return false;
       }
     }
     // no new file found
@@ -925,20 +941,241 @@ namespace evf {
 
   void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection,
                                               const uint32_t currentLumiSection,
-                                              bool doCreateBoLS) {
+                                              bool doCreateBoLS,
+                                              bool doCreateEoLS) {
     if (currentLumiSection > 0) {
       const std::string fuEoLS = getEoLSFilePathOnFU(currentLumiSection);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if (!found) {
-        int eol_fd = open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-        close(eol_fd);
+        if (doCreateEoLS) {
+          int eol_fd =
+              open(fuEoLS.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+          close(eol_fd);
+        }
         if (doCreateBoLS)
           createBoLSFile(lumiSection, false);
       }
     } else if (doCreateBoLS) {
       createBoLSFile(lumiSection, true);  //needed for initial lumisection
     }
+  }
+
+  int EvFDaqDirector::parseFRDFileHeader(std::string const& rawSourcePath,
+                                         int& rawFd,
+                                         uint16_t& rawHeaderSize,
+                                         uint32_t& lsFromHeader,
+                                         int32_t& eventsFromHeader,
+                                         int64_t& fileSizeFromHeader,
+                                         bool requireHeader,
+                                         bool retry,
+                                         bool closeFile) {
+    int infile;
+
+    if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+      if (retry) {
+        edm::LogWarning("EvFDaqDirector")
+            << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
+        return parseFRDFileHeader(rawSourcePath,
+                                  rawFd,
+                                  rawHeaderSize,
+                                  lsFromHeader,
+                                  eventsFromHeader,
+                                  fileSizeFromHeader,
+                                  requireHeader,
+                                  false,
+                                  closeFile);
+      } else {
+        if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+          edm::LogError("EvFDaqDirector")
+              << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
+          if (errno == ENOENT)
+            return 1;  // error && file not found
+          else
+            return -1;
+        }
+      }
+    }
+
+    constexpr std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
+    FRDFileHeader_v1 fileHead;
+
+    ssize_t sz_read = ::read(infile, (char*)&fileHead, buf_sz);
+    if (closeFile) {
+      close(infile);
+      infile = -1;
+    }
+
+    if (sz_read < 0) {
+      edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - unable to read " << rawSourcePath << " : "
+                                      << strerror(errno);
+      if (infile != -1)
+        close(infile);
+      return -1;
+    }
+    if ((size_t)sz_read < buf_sz) {
+      edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - file smaller than header: " << rawSourcePath;
+      if (infile != -1)
+        close(infile);
+      return -1;
+    }
+
+    uint16_t frd_version = getFRDFileHeaderVersion(fileHead.id_, fileHead.version_);
+
+    if (frd_version == 0) {
+      //no header (specific sequence not detected)
+      if (requireHeader) {
+        edm::LogError("EvFDaqDirector") << "no header or invalid version string found in:" << rawSourcePath;
+        if (infile != -1)
+          close(infile);
+        return -1;
+      } else {
+        //no header, but valid file
+        lseek(infile, 0, SEEK_SET);
+        rawHeaderSize = 0;
+        lsFromHeader = 0;
+        eventsFromHeader = -1;
+        fileSizeFromHeader = -1;
+      }
+    } else {
+      //version 1 header
+      uint32_t headerSizeRaw = fileHead.headerSize_;
+      if (headerSizeRaw < buf_sz) {
+        edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
+                                        << " v:" << frd_version;
+        if (infile != -1)
+          close(infile);
+        return -1;
+      }
+      //allow header size to exceed read size. Future header versions will not break this, but the size can change.
+      lsFromHeader = fileHead.lumiSection_;
+      eventsFromHeader = (int32_t)fileHead.eventCount_;
+      fileSizeFromHeader = (int64_t)fileHead.fileSize_;
+      rawHeaderSize = fileHead.headerSize_;
+    }
+    rawFd = infile;
+    return 0;  //OK
+  }
+
+  bool EvFDaqDirector::rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize) {
+    int infile;
+    if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
+      edm::LogWarning("EvFDaqDirector") << "rawFileHasHeader - failed to open input file -: " << rawSourcePath << " : "
+                                        << strerror(errno);
+      return false;
+    }
+    constexpr std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
+    FRDFileHeader_v1 fileHead;
+
+    ssize_t sz_read = ::read(infile, (char*)&fileHead, buf_sz);
+
+    if (sz_read < 0) {
+      edm::LogError("EvFDaqDirector") << "rawFileHasHeader - unable to read " << rawSourcePath << " : "
+                                      << strerror(errno);
+      if (infile != -1)
+        close(infile);
+      return false;
+    }
+    if ((size_t)sz_read < buf_sz) {
+      edm::LogError("EvFDaqDirector") << "rawFileHasHeader - file smaller than header: " << rawSourcePath;
+      if (infile != -1)
+        close(infile);
+      return false;
+    }
+
+    uint16_t frd_version = getFRDFileHeaderVersion(fileHead.id_, fileHead.version_);
+
+    close(infile);
+
+    if (frd_version > 0) {
+      rawHeaderSize = fileHead.headerSize_;
+      return true;
+    }
+
+    rawHeaderSize = 0;
+    return false;
+  }
+
+  int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
+                                          int& rawFd,
+                                          uint16_t& rawHeaderSize,
+                                          int64_t& fileSizeFromHeader,
+                                          bool& fileFound,
+                                          uint32_t serverLS,
+                                          bool closeFile) {
+    fileFound = true;
+
+    //take only first three tokens delimited by "_" in the renamed raw file name
+    std::string jsonStem = std::filesystem::path(rawSourcePath).stem().string();
+    size_t pos = 0, n_tokens = 0;
+    while (n_tokens++ < 3 && (pos = jsonStem.find('_', pos + 1)) != std::string::npos) {
+    }
+    std::string reducedJsonStem = jsonStem.substr(0, pos);
+
+    std::ostringstream fileNameWithPID;
+    //should be ported to use fffnaming
+    fileNameWithPID << reducedJsonStem << "_pid" << std::setfill('0') << std::setw(5) << pid_ << ".jsn";
+
+    std::string jsonDestPath = baseRunDir() + "/" + fileNameWithPID.str();
+
+    LogDebug("EvFDaqDirector") << "RAW parse -: " << rawSourcePath << " and JSON create " << jsonDestPath;
+
+    //parse RAW file header if it exists
+    uint32_t lsFromRaw;
+    int32_t nbEventsWrittenRaw;
+    int64_t fileSizeFromRaw;
+    auto ret = parseFRDFileHeader(
+        rawSourcePath, rawFd, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true, closeFile);
+    if (ret != 0) {
+      if (ret == 1)
+        fileFound = false;
+      return -1;
+    }
+
+    int outfile;
+    int oflag = O_CREAT | O_WRONLY | O_TRUNC | O_EXCL;  //file should not exist
+    int omode = S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH;
+    if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode)) < 0) {
+      if (errno == EEXIST) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - destination file already exists -: " << jsonDestPath
+                                        << " : ";
+        return -1;
+      }
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to open output file -: " << jsonDestPath << " : "
+                                      << strerror(errno);
+      struct stat out_stat;
+      if (stat(jsonDestPath.c_str(), &out_stat) == 0) {
+        edm::LogWarning("EvFDaqDirector")
+            << "grabNextJsonFromRaw - output file possibly got created with error, deleting and retry -: "
+            << jsonDestPath;
+        if (unlink(jsonDestPath.c_str()) == -1) {
+          edm::LogWarning("EvFDaqDirector")
+              << "grabNextJsonFromRaw - failed to remove -: " << jsonDestPath << " : " << strerror(errno);
+        }
+      }
+      if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode)) < 0) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to open output file (on retry) -: "
+                                        << jsonDestPath << " : " << strerror(errno);
+        return -1;
+      }
+    }
+    //write JSON file (TODO: use jsoncpp)
+    std::stringstream ss;
+    ss << "{\"data\":[" << nbEventsWrittenRaw << "," << fileSizeFromRaw << ",\"" << rawSourcePath << "\"]}";
+    std::string sstr = ss.str();
+
+    if (::write(outfile, sstr.c_str(), sstr.size()) < 0) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to write to output file file -: " << jsonDestPath
+                                      << " : " << strerror(errno);
+      return -1;
+    }
+    close(outfile);
+    if (serverLS && serverLS != lsFromRaw)
+      edm::LogWarning("EvFDaqDirector") << "grabNextJsonFromRaw - mismatch in expected (server) LS " << serverLS
+                                        << " and raw file header LS " << lsFromRaw;
+
+    fileSizeFromHeader = fileSizeFromRaw;
+    return nbEventsWrittenRaw;
   }
 
   int EvFDaqDirector::grabNextJsonFile(std::string const& jsonSourcePath,
@@ -949,7 +1186,7 @@ namespace evf {
 
     //should be ported to use fffnaming
     std::ostringstream fileNameWithPID;
-    fileNameWithPID << boost::filesystem::path(rawSourcePath).stem().string() << "_pid" << std::setfill('0')
+    fileNameWithPID << std::filesystem::path(rawSourcePath).stem().string() << "_pid" << std::setfill('0')
                     << std::setw(5) << pid_ << ".jsn";
 
     // assemble json destination path
@@ -962,7 +1199,6 @@ namespace evf {
     if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY)) < 0) {
       edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - failed to open input file -: " << jsonSourcePath << " : "
                                         << strerror(errno);
-      usleep(100000);
       if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY)) < 0) {
         edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open input file (on retry) -: "
                                         << jsonSourcePath << " : " << strerror(errno);
@@ -983,7 +1219,6 @@ namespace evf {
       }
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open output file -: " << jsonDestPath << " : "
                                       << strerror(errno);
-      usleep(100000);
       struct stat out_stat;
       if (stat(jsonDestPath.c_str(), &out_stat) == 0) {
         edm::LogWarning("EvFDaqDirector")
@@ -1047,10 +1282,10 @@ namespace evf {
       } else {
         //json will normally not be bigger than buf_sz bytes
         try {
-          boost::filesystem::ifstream ij(jsonDestPath);
+          std::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
-        } catch (boost::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+        } catch (std::filesystem::filesystem_error const& ex) {
+          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
         result = reader.parse(ss.str(), deserializeRoot);
@@ -1092,21 +1327,24 @@ namespace evf {
       for (unsigned int i = 0; i < dpd_->getNames().size(); i++) {
         if (dpd_->getNames().at(i) == "NBytes") {
           if (i < dp.getData().size()) {
-            data = dp.getData()[i];
+            std::string dataSize = dp.getData()[i];
             try {
-              fileSizeFromJson = boost::lexical_cast<long>(data);
-            } catch (boost::bad_lexical_cast const&) {
+              fileSizeFromJson = std::stol(dataSize);
+            } catch (const std::exception&) {
               //non-fatal currently, processing can continue without this value
               edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
-                                                << "Input value is -: " << data;
+                                                << "Input value is -: " << dataSize;
             }
             break;
           }
         }
       }
-      return boost::lexical_cast<int>(data);
-    } catch (boost::bad_lexical_cast const& e) {
+      return std::stoi(data);
+    } catch (const std::out_of_range& e) {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument& e) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::runtime_error const& e) {
       //Can be thrown by Json parser
@@ -1123,11 +1361,11 @@ namespace evf {
     return -1;
   }
 
-  int EvFDaqDirector::grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath) {
+  int EvFDaqDirector::grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath) {
     std::string data;
     try {
       // assemble json destination path
-      boost::filesystem::path jsonDestPath(baseRunDir());
+      std::filesystem::path jsonDestPath(baseRunDir());
 
       //should be ported to use fffnaming
       std::ostringstream fileNameWithPID;
@@ -1137,20 +1375,20 @@ namespace evf {
 
       LogDebug("EvFDaqDirector") << "JSON rename -: " << jsonSourcePath << " to " << jsonDestPath;
       try {
-        boost::filesystem::copy(jsonSourcePath, jsonDestPath);
-      } catch (boost::filesystem::filesystem_error const& ex) {
+        std::filesystem::copy(jsonSourcePath, jsonDestPath);
+      } catch (std::filesystem::filesystem_error const& ex) {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
         //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
         sleep(1);
-        boost::filesystem::copy(jsonSourcePath, jsonDestPath);
+        std::filesystem::copy(jsonSourcePath, jsonDestPath);
       }
       unlockFULocal();
 
       try {
         //sometimes this fails but file gets deleted
-        boost::filesystem::remove(jsonSourcePath);
-      } catch (boost::filesystem::filesystem_error const& ex) {
+        std::filesystem::remove(jsonSourcePath);
+      } catch (std::filesystem::filesystem_error const& ex) {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
       } catch (std::exception const& ex) {
@@ -1158,7 +1396,7 @@ namespace evf {
         edm::LogError("EvFDaqDirector") << "grabNextFile std::exception CAUGHT -: " << ex.what();
       }
 
-      boost::filesystem::ifstream ij(jsonDestPath);
+      std::ifstream ij(jsonDestPath);
       Json::Value deserializeRoot;
       Json::Reader reader;
 
@@ -1191,8 +1429,8 @@ namespace evf {
           throw cms::Exception("EvFDaqDirector::grabNextJsonFileUnlock")
               << " error reading number of events from BU JSON -: No input value " << data;
       }
-      return boost::lexical_cast<int>(data);
-    } catch (boost::filesystem::filesystem_error const& ex) {
+      return std::stoi(data);
+    } catch (std::filesystem::filesystem_error const& ex) {
       // Input dir gone?
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
@@ -1200,8 +1438,11 @@ namespace evf {
       // Another process grabbed the file and NFS did not register this
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile runtime Exception -: " << e.what();
-    } catch (boost::bad_lexical_cast const&) {
+    } catch (const std::out_of_range&) {
       edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    } catch (const std::invalid_argument&) {
+      edm::LogError("EvFDaqDirector") << "grabNextFile argument error parsing events from BU JSON. "
                                       << "Input value is -: " << data;
     } catch (std::exception const& e) {
       // BU run directory disappeared?
@@ -1218,6 +1459,7 @@ namespace evf {
                                                                uint32_t& closedServerLS,
                                                                std::string& nextFileJson,
                                                                std::string& nextFileRaw,
+                                                               bool& rawHeader,
                                                                int maxLS) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
     serverError = false;
@@ -1304,7 +1546,7 @@ namespace evf {
         std::string fileInfo;
         std::map<std::string, std::string> serverMap;
         while (std::getline(response_stream, fileInfo) && fileInfo != "\r") {
-          auto pos = fileInfo.find("=");
+          auto pos = fileInfo.find('=');
           if (pos == std::string::npos)
             continue;
           auto stitle = fileInfo.substr(0, pos);
@@ -1327,6 +1569,26 @@ namespace evf {
         assert(server_eols != serverMap.end());
 
         auto server_ls = serverMap.find("lumisection");
+
+        int version_maj = 1;
+        int version_min = 0;
+        int version_rev = 0;
+        {
+          auto* s_ptr = server_version->second.c_str();
+          if (!server_version->second.empty() && server_version->second[0] == '"')
+            s_ptr++;
+          auto res = sscanf(s_ptr, "%d.%d.%d", &version_maj, &version_min, &version_rev);
+          if (res < 3) {
+            res = sscanf(s_ptr, "%d.%d", &version_maj, &version_min);
+            if (res < 2) {
+              res = sscanf(s_ptr, "%d", &version_maj);
+              if (res < 1) {
+                //expecting at least 1 number (major version)
+                edm::LogWarning("EvFDaqDirector") << "Can not parse server version " << server_version->second;
+              }
+            }
+          }
+        }
 
         closedServerLS = (uint64_t)std::max(0, atoi(server_eols->second.c_str()));
         if (server_ls != serverMap.end())
@@ -1370,9 +1632,17 @@ namespace evf {
             else
               filestem = server_file->second;
             assert(!filestem.empty());
-            nextFileRaw = bu_run_dir_ + "/" + filestem + ".raw";  //raw files are not moved
-            filestem = bu_run_dir_ + "/" + fileprefix + filestem;
-            nextFileJson = filestem + ".jsn";
+            if (version_maj > 1) {
+              nextFileRaw = bu_run_dir_ + "/" + fileprefix + filestem + ".raw";  //filestem should be raw
+              filestem = bu_run_dir_ + "/" + fileprefix + filestem;
+              nextFileJson = "";
+              rawHeader = true;
+            } else {
+              nextFileRaw = bu_run_dir_ + "/" + filestem + ".raw";  //raw files are not moved
+              filestem = bu_run_dir_ + "/" + fileprefix + filestem;
+              nextFileJson = filestem + ".jsn";
+              rawHeader = false;
+            }
             fileStatus = newFile;
             edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " new LS "
                                            << serverLS << " file:" << filestem;
@@ -1416,8 +1686,10 @@ namespace evf {
             serverError = true;
           }
         }
+
         break;
       }
+
     } catch (std::exception const& e) {
       edm::LogWarning("EvFDaqDirector") << "Exception in socket handling";
       serverError = true;
@@ -1443,14 +1715,17 @@ namespace evf {
       fileStatus = noFile;
       sleep(1);  //back-off if error detected
     }
+
     return fileStatus;
   }
 
   EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileBroker(const unsigned int currentLumiSection,
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
-                                                                   int& serverEventsInNewFile,
-                                                                   int64_t& fileSizeFromJson,
+                                                                   int& rawFd,
+                                                                   uint16_t& rawHeaderSize,
+                                                                   int32_t& serverEventsInNewFile,
+                                                                   int64_t& fileSizeFromMetadata,
                                                                    uint64_t& thisLockWaitTimeUs) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
@@ -1497,38 +1772,52 @@ namespace evf {
 
     //local lock to force index json and EoLS files to appear in order
     if (fileBrokerUseLocalLock_)
-      lockFULocal2();
+      lockFULocal();
 
     int maxLS = stopFileLS < 0 ? -1 : std::max(stopFileLS, (int)currentLumiSection);
-    fileStatus =
-        contactFileBroker(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
+    bool rawHeader = false;
+    fileStatus = contactFileBroker(
+        serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, rawHeader, maxLS);
 
     if (serverError) {
       //do not update anything
       if (fileBrokerUseLocalLock_)
-        unlockFULocal2();
+        unlockFULocal();
       return noFile;
     }
 
-    //handle creation of EoLS and BoLS files if lumisection has changed
+    //handle creation of BoLS files if lumisection has changed
     if (currentLumiSection == 0) {
-      if (fileStatus == runEnded) {
-        createLumiSectionFiles(closedServerLS, 0);
-        createLumiSectionFiles(serverLS, closedServerLS, false);  // +1
-      } else
-        createLumiSectionFiles(serverLS, 0);
+      if (fileStatus == runEnded)
+        createLumiSectionFiles(closedServerLS, 0, true, false);
+      else
+        createLumiSectionFiles(serverLS, 0, true, false);
     } else {
-      //loop over and create any EoLS files missing
       if (closedServerLS >= currentLumiSection) {
+        //only BoLS files
         for (uint32_t i = std::max(currentLumiSection, 1U); i <= closedServerLS; i++)
-          createLumiSectionFiles(i + 1, i);
+          createLumiSectionFiles(i + 1, i, true, false);
       }
     }
 
     bool fileFound = true;
 
-    if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromJson, fileFound);
+    if (fileStatus == newFile) {
+      if (rawHeader > 0)
+        serverEventsInNewFile =
+            grabNextJsonFromRaw(nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS, false);
+      else
+        serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
+    }
+    //closing file in case of any error
+    if (serverEventsInNewFile < 0 && rawFd != -1) {
+      close(rawFd);
+      rawFd = -1;
+    }
+
+    //can unlock because all files have been created locally
+    if (fileBrokerUseLocalLock_)
+      unlockFULocal();
 
     if (!fileFound) {
       //catch condition where directory got deleted
@@ -1540,9 +1829,26 @@ namespace evf {
       }
     }
 
-    //can unlock because all files have been created locally
-    if (fileBrokerUseLocalLock_)
+    //handle creation of EoLS files if lumisection has changed, this needs to be locked exclusively
+    //so that EoLS files can not appear locally before index files
+    if (currentLumiSection == 0) {
+      lockFULocal2();
+      if (fileStatus == runEnded) {
+        createLumiSectionFiles(closedServerLS, 0, false, true);
+        createLumiSectionFiles(serverLS, closedServerLS, false, true);  // +1
+      } else {
+        createLumiSectionFiles(serverLS, 0, false, true);
+      }
       unlockFULocal2();
+    } else {
+      if (closedServerLS >= currentLumiSection) {
+        //lock exclusive to create EoLS files
+        lockFULocal2();
+        for (uint32_t i = std::max(currentLumiSection, 1U); i <= closedServerLS; i++)
+          createLumiSectionFiles(i + 1, i, false, true);
+        unlockFULocal2();
+      }
+    }
 
     if (fileStatus == runEnded)
       ls = std::max(currentLumiSection, serverLS);
@@ -1565,15 +1871,15 @@ namespace evf {
   void EvFDaqDirector::createRunOpendirMaybe() {
     // create open dir if not already there
 
-    boost::filesystem::path openPath = getRunOpenDirPath();
-    if (!boost::filesystem::is_directory(openPath)) {
+    std::filesystem::path openPath = getRunOpenDirPath();
+    if (!std::filesystem::is_directory(openPath)) {
       LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
-      boost::filesystem::create_directories(openPath);
+      std::filesystem::create_directories(openPath);
     }
   }
 
   int EvFDaqDirector::readLastLSEntry(std::string const& file) {
-    boost::filesystem::ifstream ij(file);
+    std::ifstream ij(file);
     Json::Value deserializeRoot;
     Json::Reader reader;
 
@@ -1590,7 +1896,7 @@ namespace evf {
     std::string fileprefix = run_dir_ + "/" + run_string_ + "_ls";
     std::string fullpath;
     struct stat buf;
-    unsigned int lscount = startFromLS_;
+    unsigned int lscount = 1;
     do {
       std::stringstream ss;
       ss << fileprefix << std::setfill('0') << std::setw(4) << lscount << "_EoLS.jsn";
@@ -1717,7 +2023,7 @@ namespace evf {
     edm::ParameterSet const& topPset = edm::getParameterSet(pc.parameterSetID());
     if (topPset.existsAs<edm::ParameterSet>(mergeTypePset_, true)) {
       const edm::ParameterSet& tsPset(topPset.getParameterSet(mergeTypePset_));
-      for (std::string pname : tsPset.getParameterNames()) {
+      for (const std::string& pname : tsPset.getParameterNames()) {
         std::string streamType = tsPset.getParameter<std::string>(pname);
         tbb::concurrent_hash_map<std::string, std::string>::accessor ac;
         mergeTypeMap_.insert(ac, pname);

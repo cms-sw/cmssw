@@ -12,6 +12,9 @@ POOL container to store Pedestal values 4xCapId, using template
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
+#include <vector>
+#include <string>
+
 //typedef HcalCondObjectContainer<HcalPedestal> HcalPedestals;
 
 class HcalPedestals : public HcalCondObjectContainer<HcalPedestal> {

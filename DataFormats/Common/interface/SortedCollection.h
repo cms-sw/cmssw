@@ -33,8 +33,6 @@ unreliable if such duplicate entries are made.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include <algorithm>
 #include <typeinfo>
 #include <vector>

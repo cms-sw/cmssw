@@ -26,7 +26,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // helper files
 #include <iostream>
@@ -63,10 +62,12 @@ class MEtoEDMConverter : public edm::one::EDProducer<edm::RunCache<meedm::Void>,
                                                      edm::EndRunProducer,
                                                      edm::one::SharedResources> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit MEtoEDMConverter(const edm::ParameterSet&);
   ~MEtoEDMConverter() override;
   void beginJob() override;
-  void endJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   std::shared_ptr<meedm::Void> globalBeginRun(edm::Run const&, const edm::EventSetup&) const override;
   void globalEndRun(edm::Run const&, const edm::EventSetup&) override;
@@ -85,8 +86,6 @@ private:
   std::string fName;
   int verbosity;
   int frequency;
-  bool deleteAfterCopy;
-  bool enableMultiThread_;
   std::string path;
 
   // private statistics information

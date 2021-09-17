@@ -360,7 +360,7 @@ namespace edm {
       return;
     delete data_[i];
     data_[i] = d;
-    d = 0;
+    d = nullptr;
   }
 
   template <typename T, typename P>
@@ -394,7 +394,7 @@ namespace edm {
   template <typename D>
   inline void OwnVector<T, P>::insert(const_iterator it, D*& d) {
     data_.insert(it.base_iter(), d);
-    d = 0;
+    d = nullptr;
   }
 
   template <typename T, typename P>

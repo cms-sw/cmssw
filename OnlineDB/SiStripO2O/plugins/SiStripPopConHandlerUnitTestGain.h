@@ -56,10 +56,9 @@ namespace popcon {
         ss << "\n\n------- " << m_name << " - > getNewObjects\n";
         if (this->tagInfo().size) {
           //check whats already inside of database
-          ss << "got offlineInfo" << this->tagInfo().name << ", size " << this->tagInfo().size << " "
-             << this->tagInfo().token << " , last object valid since " << this->tagInfo().lastInterval.first
-             << " token " << this->tagInfo().lastPayloadToken << "\n\n UserText " << this->userTextLog()
-             << "\n LogDBEntry \n"
+          ss << "got offlineInfo" << this->tagInfo().name << ", size " << this->tagInfo().size
+             << " , last object valid since " << this->tagInfo().lastInterval.since << " token "
+             << this->tagInfo().lastInterval.payloadId << "\n\n UserText " << this->userTextLog() << "\n LogDBEntry \n"
              << this->logDBEntry().logId << "\n"
              << this->logDBEntry().destinationDB << "\n"
              << this->logDBEntry().provenance << "\n"
@@ -72,7 +71,7 @@ namespace popcon {
              << this->logDBEntry().exectime << "\n"
              << this->logDBEntry().execmessage << "\n"
              << "\n\n-- user text "
-             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
         } else {
           ss << " First object for this tag ";
         }
@@ -110,7 +109,7 @@ namespace popcon {
 
       //get log information from previous upload
       if (this->tagInfo().size)
-        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
       else
         ss_logdb << "";
 
@@ -120,7 +119,7 @@ namespace popcon {
         //string are equal, no need to do transfer
         edm::LogInfo("SiStripPopPopConConfigDbObjHandler")
             << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("
-            << this->tagInfo().lastInterval.first << ") open for the object " << this->logDBEntry().payloadClass
+            << this->tagInfo().lastInterval.since << ") open for the object " << this->logDBEntry().payloadClass
             << " in the db " << this->logDBEntry().destinationDB << " parameters: " << ss.str()
             << "\n NO TRANSFER NEEDED";
         return false;
@@ -146,7 +145,7 @@ namespace popcon {
       if (!this->tagInfo().size)
         m_since = 1;
       else if (m_debugMode)
-        m_since = this->tagInfo().lastInterval.first + 1;
+        m_since = this->tagInfo().lastInterval.since + 1;
 
       if (obj != nullptr) {
         edm::LogInfo("SiStripPopPopConConfigDbObjHandler") << "setting since = " << m_since << std::endl;
@@ -173,33 +172,28 @@ namespace popcon {
 
         obj = new SiStripApvGain();
 
-        edm::FileInPath fp_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        SiStripDetInfoFileReader reader(fp_.fullPath());
-
-        const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
-
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
         int count = -1;
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-             it != DetInfos.end();
-             it++) {
+        for (const auto& it : detInfo.getAllData()) {
           count++;
           //Generate Gains for det detid
           SiStripApvGain::InputVector inputApvGain;
-          for (int apv = 0; apv < it->second.nApvs; ++(++apv)) {
+          for (int apv = 0; apv < it.second.nApvs; ++(++apv)) {
             float MeanTick = 555.;
             float RmsTick = 55.;
 
             float tick = CLHEP::RandGauss::shoot(MeanTick, RmsTick);
 
             if (count < 6)
-              edm::LogInfo("SiStripGainBuilder") << "detid " << it->first << " \t"
+              edm::LogInfo("SiStripGainBuilder") << "detid " << it.first << " \t"
                                                  << " APV " << apv << " \t" << tick << " \t" << std::endl;
             inputApvGain.push_back(tick);  //APV0
             inputApvGain.push_back(tick);  //APV1
           }
 
           SiStripApvGain::Range gain_range(inputApvGain.begin(), inputApvGain.end());
-          if (!obj->put(it->first, gain_range))
+          if (!obj->put(it.first, gain_range))
             edm::LogError("SiStripGainBuilder") << "[SiStripGainBuilder::analyze] detid already exists" << std::endl;
         }
       }

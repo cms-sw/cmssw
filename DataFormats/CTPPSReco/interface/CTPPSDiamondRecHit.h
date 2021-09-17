@@ -39,19 +39,19 @@ public:
   static constexpr int TIMESLICE_WITHOUT_LEADING = -10;
 
   inline void setToT(float tot) { tot_ = tot; }
-  inline float getToT() const { return tot_; }
+  inline float toT() const { return tot_; }
 
   inline void setTPrecision(float tPrecision) { tPrecision_ = tPrecision; }
-  inline float getTPrecision() const { return tPrecision_; }
+  inline float tPrecision() const { return tPrecision_; }
 
   inline void setOOTIndex(int i) { tsIndex_ = i; }
-  inline int getOOTIndex() const { return tsIndex_; }
+  inline int ootIndex() const { return tsIndex_; }
 
   inline void setMultipleHits(bool mh) { mh_ = mh; }
-  inline bool getMultipleHits() const { return mh_; }
+  inline bool multipleHits() const { return mh_; }
 
   inline void setHPTDCErrorFlags(const HPTDCErrorFlags &err) { hptdcErr_ = err; }
-  inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdcErr_; }
+  inline HPTDCErrorFlags hptdcErrorFlags() const { return hptdcErr_; }
 
 private:
   /// Time over threshold

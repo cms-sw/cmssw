@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 ################################################################################
 # RelMon: a tool for automatic Release Comparison
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon

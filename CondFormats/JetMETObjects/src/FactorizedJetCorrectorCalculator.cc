@@ -215,7 +215,7 @@ std::vector<std::string> FactorizedJetCorrectorCalculator::parseLevels(const std
   //---- The ss string must be of the form: "LX:LY:...:LZ"
   while (pos < ss.length()) {
     tmp = "";
-    i = ss.find(":", pos);
+    i = ss.find(':', pos);
     if (i < 0 && pos == 0) {
       result.push_back(ss);
       pos = ss.length();
@@ -245,7 +245,7 @@ std::string FactorizedJetCorrectorCalculator::parseOption(const std::string& ss,
   if (pos1 < 0)
     result = "";
   else {
-    pos2 = ss.find("&", pos1 + type.length() + 1);
+    pos2 = ss.find('&', pos1 + type.length() + 1);
     if (pos2 < 0)
       result = ss.substr(pos1 + type.length() + 1, ss.length() - pos1 - type.length() - 1);
     else

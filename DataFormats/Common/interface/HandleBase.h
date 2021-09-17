@@ -78,7 +78,7 @@ namespace edm {
     HandleBase(HandleBase const&) = default;
 
     ///Used when the attempt to get the data failed
-    HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed)
+    HandleBase(std::shared_ptr<HandleExceptionFactory const>&& iWhyFailed)
         : product_(), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
 
     HandleBase& operator=(HandleBase&& rhs) {
@@ -95,7 +95,7 @@ namespace edm {
       return std::shared_ptr<cms::Exception>();
     }
 
-    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const { return whyFailedFactory_; }
+    std::shared_ptr<HandleExceptionFactory const> const& whyFailedFactory() const { return whyFailedFactory_; }
 
     explicit operator bool() const { return isValid(); }
 
@@ -107,7 +107,7 @@ namespace edm {
   private:
     void const* product_;
     Provenance const* prov_;
-    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+    std::shared_ptr<HandleExceptionFactory const> whyFailedFactory_;
   };
 
   // Free swap function

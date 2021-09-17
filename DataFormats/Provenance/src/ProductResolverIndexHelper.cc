@@ -1,9 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 
@@ -24,17 +24,20 @@ namespace edm {
       static std::string const refToBaseVector("edm::RefToBaseVector<");
       static std::string const ptrVector("edm::PtrVector<");
       static std::string const vectorPtr("std::vector<edm::Ptr<");
+      static std::string const vectorUniquePtr("std::vector<std::unique_ptr<");
       static std::string const associationMap("edm::AssociationMap<");
       static std::string const newDetSetVector("edmNew::DetSetVector<");
       static size_t const rvsize = refVector.size();
       static size_t const rtbvsize = refToBaseVector.size();
       static size_t const pvsize = ptrVector.size();
       static size_t const vpsize = vectorPtr.size();
+      static size_t const vupsize = vectorUniquePtr.size();
       static size_t const amsize = associationMap.size();
       static size_t const ndsize = newDetSetVector.size();
       bool mayBeRefVector = (className.substr(0, rvsize) == refVector) ||
                             (className.substr(0, rtbvsize) == refToBaseVector) ||
-                            (className.substr(0, pvsize) == ptrVector) || (className.substr(0, vpsize) == vectorPtr);
+                            (className.substr(0, pvsize) == ptrVector) || (className.substr(0, vpsize) == vectorPtr) ||
+                            (className.substr(0, vupsize) == vectorUniquePtr);
       // AssociationMap and edmNew::DetSetVector do not support View and
       // this function is used to get a contained type that can be accessed
       // using a View. So return the void type in these cases.
@@ -124,6 +127,17 @@ namespace edm {
     unsigned int startInProcessNames =
         productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames();
     return &productResolverIndexHelper_->processNames_[startInProcessNames];
+  }
+
+  char const* ProductResolverIndexHelper::Matches::productInstanceName(unsigned int i) const {
+    if (i >= numberOfMatches_) {
+      throw Exception(errors::LogicError)
+          << "ProductResolverIndexHelper::Matches::productInstanceName - Argument is out of range.\n";
+    }
+    unsigned int start =
+        productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInBigNamesContainer();
+    auto moduleLabelSize = strlen(&productResolverIndexHelper_->bigNamesContainer_[start]);
+    return &productResolverIndexHelper_->bigNamesContainer_[start + moduleLabelSize + 1];
   }
 
   char const* ProductResolverIndexHelper::Matches::moduleLabel(unsigned int i) const {

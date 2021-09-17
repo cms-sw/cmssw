@@ -4,11 +4,11 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
 #include <ostream>
 #include <sstream>
+#include <cstdint>
 
 class SiStripConfigDb;
 class SiStripPartition;

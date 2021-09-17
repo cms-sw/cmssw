@@ -9,6 +9,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuHI_Output_cff import *
 # AlCaReco for track based alignment using ZMuMu events for PA data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMuPA_Output_cff import *
+# AlCaReco for track based alignment using ZMuMu + Vertices events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlDiMuonAndVertex_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff import *
@@ -39,7 +41,9 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
-from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonLoose_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonTight_Output_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_Output_cff import *
@@ -47,8 +51,10 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_Output_cff 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff import *
 # AlCaReco for SiPixel Bad Component using ZeroBias events
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_Output_cff import *
-# AlCaReco for tracker calibration using Cosmics events 
+# AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmicsNano_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_Output_cff import *
 
 # AlCaReco for tracker based alignment using beam halo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
@@ -132,6 +138,13 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalib_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalibHI_Output_cff import *
 from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
+
+###############################################################
+# PPS calibration
+###############################################################
+from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_Output_cff import *
 
 ###############################################################
 # stream for prompt-calibration @ Tier0

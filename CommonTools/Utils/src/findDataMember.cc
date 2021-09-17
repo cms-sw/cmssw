@@ -15,7 +15,7 @@
 #include "TInterpreter.h"
 #include "TVirtualMutex.h"
 
-#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/findDataMember.h"

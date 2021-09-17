@@ -108,7 +108,7 @@ bool HLTDisplacedtktkFilter::hltFilter(edm::Event& iEvent,
   bool triggered = false;
 
   // loop over vertex collection
-  for (auto displacedVertex : displacedVertexColl) {
+  for (const auto& displacedVertex : displacedVertexColl) {
     // check if the vertex actually consists of exactly two track tracks, reject the event if not
     if (displacedVertex.tracksSize() != 2) {
       edm::LogError("HLTDisplacedtktkFilter") << "HLTDisplacedtktkFilter: ERROR: the Jpsi vertex must have exactly two "

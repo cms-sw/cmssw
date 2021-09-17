@@ -3,6 +3,7 @@
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachOnHelices.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Given two trajectory states, computes the two points of closest approach 
  *  in the transverse plane for the helices extrapolated from these states. 

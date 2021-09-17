@@ -103,8 +103,11 @@ PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",
     InputProducer = cms.InputTag( ELECTRON_COLL ),                          
     hltTags = cms.untracked.string( HLTPath ),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)   
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName),
+    stageL1Trigger = cms.uint32(1)
 )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(PassingHLT, stageL1Trigger = 2)
 
 ##    _____             ____        __ _       _ _   _             
 ##   |_   _|_ _  __ _  |  _ \  ___ / _(_)_ __ (_) |_(_) ___  _ __  

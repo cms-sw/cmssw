@@ -31,9 +31,6 @@
 - RPCDcsInfoClient
 - RPCDeadChannelTest
 - RPCDqmClient
-- RPCEfficiencyPerRingLayer
-- RPCEfficiencySecond
-- RPCEfficiencyShiftHisto
 - RPCEventSummary
 - RPCFEDIntegrity
 - RPCLinkSynchroHistoMaker
@@ -76,9 +73,6 @@
 - RPCDqmClient
 - RPCRecHitProbabilityClient
 - RPCChamberQuality
-- RPCEfficiencySecond
-- RPCEfficiencyShiftHisto
-- RPCEfficiencyPerRingLayer
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

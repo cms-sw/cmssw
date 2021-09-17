@@ -5,17 +5,49 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalForwardAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 //#define EDM_ML_DEBUG
+
+class DDHCalForwardAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalForwardAlgo();  //const std::string & name);
+  ~DDHCalForwardAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  std::string cellMat;                 //Cell material
+  double cellDx, cellDy, cellDz;       //Cell size
+  double startY;                       //Starting Y for Cell
+  std::vector<std::string> childName;  //Children name
+  std::vector<int> number;             //Number of cells
+  std::vector<int> size;               //Number of children
+  std::vector<int> type;               //First child
+
+  std::string idNameSpace;  //Namespace for aLL sub-parts
+};
 
 DDHCalForwardAlgo::DDHCalForwardAlgo() : number(0), size(0), type(0) {
 #ifdef EDM_ML_DEBUG
@@ -106,3 +138,5 @@ void DDHCalForwardAlgo::execute(DDCompactView& cpv) {
   edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalForwardAlgo construction";
 #endif
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalForwardAlgo, "hcal:DDHCalForwardAlgo");

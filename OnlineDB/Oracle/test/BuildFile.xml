@@ -3,5 +3,5 @@
     <use name="oracleocci"/>
     <flags TEST_RUNNER_ARGS="12154"/>
   </bin>
-</architecture>
 
+</architecture>

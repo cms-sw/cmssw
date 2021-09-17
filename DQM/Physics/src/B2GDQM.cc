@@ -4,7 +4,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -56,10 +55,6 @@
 // JetCorrection
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-// Substructure
-#include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
-#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
-
 // ROOT
 #include "TLorentzVector.h"
 
@@ -97,8 +92,8 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
        ++jetlabel) {
     jetTokens_.push_back(consumes<edm::View<reco::Jet> >(*jetlabel));
   }
-  cmsTagLabel_ = ps.getParameter<edm::InputTag>("cmsTagLabel");
-  cmsTagToken_ = consumes<edm::View<reco::BasicJet> >(cmsTagLabel_);
+  sdjetLabel_ = ps.getParameter<edm::InputTag>("sdjetLabel");
+  sdjetToken_ = consumes<edm::View<reco::BasicJet> >(sdjetLabel_);
 
   muonToken_ = consumes<edm::View<reco::Muon> >(ps.getParameter<edm::InputTag>("muonSrc"));
   electronToken_ = consumes<edm::View<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("electronSrc"));
@@ -169,8 +164,7 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventS
     boostedJet_subjetM.push_back(bei.book1D("boostedJet_subjetM", "Mass of subjets (GeV)", 50, 0.0, 250.));
     boostedJet_subjetN.push_back(bei.book1D("boostedJet_subjetN", "Number of subjets", 10, 0, 10));
     boostedJet_massDrop.push_back(bei.book1D("boostedJet_massDrop", "Mass drop for W-like jets", 50, 0.0, 1.0));
-    boostedJet_minMass.push_back(
-        bei.book1D("boostedJet_minMass", "Minimum Mass Pairing for top-like jets", 50, 0.0, 250.0));
+    boostedJet_wMass.push_back(bei.book1D("boostedJet_wMass", "W Mass for top-like jets", 50, 0.0, 250.0));
   }
 
   bei.setCurrentFolder("Physics/B2G/MET");
@@ -192,8 +186,8 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventS
       "semiMu_hadJetPhi", "#phi of Leading Hadronic Jet in #mu+Jets Channel (radians)", 60, -3.14159, 3.14159);
   semiMu_hadJetMass =
       bei.book1D("semiMu_hadJetMass", "Mass of Leading Hadronic Jet in #mu+Jets Channel (GeV)", 50, 0.0, 500);
-  semiMu_hadJetMinMass = bei.book1D(
-      "semiMu_hadJetminMass", "Minimum Mass Pairing for Leading Hadronic Jet in #mu+Jets Channel (GeV)", 50, 0.0, 250.0);
+  semiMu_hadJetWMass =
+      bei.book1D("semiMu_hadJetwMass", "W Mass for Leading Hadronic Jet in #mu+Jets Channel (GeV)", 50, 0.0, 250.0);
   semiMu_mttbar = bei.book1D("semiMu_mttbar", "Mass of #mu+Jets ttbar Candidate", 100, 0., 5000.);
 
   //--- E+Jets
@@ -210,8 +204,8 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventS
       bei.book1D("semiE_hadJetPhi", "#phi of Leading Hadronic Jet in e+Jets Channel (radians)", 60, -3.14159, 3.14159);
   semiE_hadJetMass =
       bei.book1D("semiE_hadJetMass", "Mass of Leading Hadronic Jet in e+Jets Channel (GeV)", 50, 0.0, 500);
-  semiE_hadJetMinMass = bei.book1D(
-      "semiE_hadJetminMass", "Minimum Mass Pairing for Leading Hadronic Jet in e+Jets Channel (GeV)", 50, 0.0, 250.0);
+  semiE_hadJetWMass =
+      bei.book1D("semiE_hadJetwMass", "W Mass for Leading Hadronic Jet in e+Jets Channel (GeV)", 50, 0.0, 250.0);
   semiE_mttbar = bei.book1D("semiE_mttbar", "Mass of e+Jets ttbar Candidate", 100, 0., 5000.);
 
   //--- All-hadronic
@@ -220,14 +214,12 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventS
   allHad_y0 = bei.book1D("allHad_y0", "Rapidity of Leading All-Hadronic PFJet", 60, -6.0, 6.0);
   allHad_phi0 = bei.book1D("allHad_phi0", "#phi of Leading All-Hadronic PFJet (radians)", 60, -3.14159, 3.14159);
   allHad_mass0 = bei.book1D("allHad_mass0", "Mass of Leading All-Hadronic PFJet (GeV)", 50, 0.0, 500);
-  allHad_minMass0 =
-      bei.book1D("allHad_minMass0", "Minimum Mass Pairing for Leading All-Hadronic PFJet (GeV)", 50, 0.0, 250.0);
+  allHad_wMass0 = bei.book1D("allHad_wMass0", "W Mass for Leading All-Hadronic PFJet (GeV)", 50, 0.0, 250.0);
   allHad_pt1 = bei.book1D("allHad_pt1", "Pt of Subleading All-Hadronic PFJet (GeV)", 50, 0.0, 1000);
   allHad_y1 = bei.book1D("allHad_y1", "Rapidity of Subleading All-Hadronic PFJet", 60, -6.0, 6.0);
   allHad_phi1 = bei.book1D("allHad_phi1", "#phi of Subleading All-Hadronic PFJet (radians)", 60, -3.14159, 3.14159);
   allHad_mass1 = bei.book1D("allHad_mass1", "Mass of Subleading All-Hadronic PFJet (GeV)", 50, 0.0, 500);
-  allHad_minMass1 =
-      bei.book1D("allHad_minMass1", "Minimum Mass Pairing for Subleading All-Hadronic PFJet (GeV)", 50, 0.0, 250.0);
+  allHad_wMass1 = bei.book1D("allHad_wMass1", "W Mass for Subleading All-Hadronic PFJet (GeV)", 50, 0.0, 250.0);
   allHad_mttbar = bei.book1D("allHad_mttbar", "Mass of All-Hadronic ttbar Candidate", 100, 0., 5000.);
 }
 
@@ -293,33 +285,23 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
           boostedJet_subjetM[icoll]->Fill(subjet->mass());
         }
         // Check the various tagging algorithms
-
-        // For top-tagging, check the minimum mass pairing
-        if (jetLabels_[icoll].label() == "cmsTopTagPFJetsCHS") {
-          CATopJetHelper helper(173., 80.4);
-          reco::CATopJetProperties properties = helper(*basicjet);
-          if (jet->numberOfDaughters() > 2) {
-            boostedJet_minMass[icoll]->Fill(properties.minMass);
-          } else {
-            boostedJet_minMass[icoll]->Fill(-1.0);
-          }
-
-          // For W-tagging, check the mass drop
-        } else if ((jetLabels_[icoll].label() == "ak8PFJetsCHSPruned") ||
-                   (jetLabels_[icoll].label() == "ak8PFJetsCHSSoftdrop")) {
+        if ((jetLabels_[icoll].label() == "ak8PFJetsPuppiSoftdrop")) {
           if (jet->numberOfDaughters() > 1) {
             reco::Candidate const* da0 = jet->daughter(0);
             reco::Candidate const* da1 = jet->daughter(1);
             if (da0->mass() > da1->mass()) {
+              boostedJet_wMass[icoll]->Fill(da0->mass());
               boostedJet_massDrop[icoll]->Fill(da0->mass() / jet->mass());
             } else {
+              boostedJet_wMass[icoll]->Fill(da1->mass());
               boostedJet_massDrop[icoll]->Fill(da1->mass() / jet->mass());
             }
+
           } else {
             boostedJet_massDrop[icoll]->Fill(-1.0);
           }
 
-        }  // end if collection is AK8 PFJets CHS Pruned
+        }  // end if collection is AK8 PFJets Puppi soft-drop
 
       }  // end if basic jet != 0
       countJet++;
@@ -338,7 +320,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
 
 void B2GDQM::analyzeAllHad(const Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::BasicJet> > jetCollection;
-  bool validJets = iEvent.getByToken(cmsTagToken_, jetCollection);
+  bool validJets = iEvent.getByToken(sdjetToken_, jetCollection);
   if (!validJets)
     return;
 
@@ -356,28 +338,28 @@ void B2GDQM::analyzeAllHad(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (std::abs(reco::deltaPhi(jet0->phi(), jet1->phi())) < M_PI * 0.5)
     return;
 
-  CATopJetHelper helper(173., 80.4);
-
   allHad_pt0->Fill(jet0->pt());
   allHad_y0->Fill(jet0->rapidity());
   allHad_phi0->Fill(jet0->phi());
   allHad_mass0->Fill(jet0->mass());
-  reco::CATopJetProperties properties0 = helper(*jet0);
   if (jet0->numberOfDaughters() > 2) {
-    allHad_minMass0->Fill(properties0.minMass);
+    double wMass =
+        jet0->daughter(0)->mass() >= jet0->daughter(1)->mass() ? jet0->daughter(0)->mass() : jet0->daughter(1)->mass();
+    allHad_wMass0->Fill(wMass);
   } else {
-    allHad_minMass0->Fill(-1.0);
+    allHad_wMass0->Fill(-1.0);
   }
 
   allHad_pt1->Fill(jet1->pt());
   allHad_y1->Fill(jet1->rapidity());
   allHad_phi1->Fill(jet1->phi());
   allHad_mass1->Fill(jet1->mass());
-  reco::CATopJetProperties properties1 = helper(*jet1);
   if (jet1->numberOfDaughters() > 2) {
-    allHad_minMass1->Fill(properties1.minMass);
+    double wMass =
+        jet1->daughter(0)->mass() >= jet1->daughter(1)->mass() ? jet1->daughter(0)->mass() : jet1->daughter(1)->mass();
+    allHad_wMass1->Fill(wMass);
   } else {
-    allHad_minMass1->Fill(-1.0);
+    allHad_wMass1->Fill(-1.0);
   }
 
   auto p4cand = (jet0->p4() + jet1->p4());
@@ -397,7 +379,7 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
     return;
 
   edm::Handle<edm::View<reco::BasicJet> > jetCollection;
-  bool validJets = iEvent.getByToken(cmsTagToken_, jetCollection);
+  bool validJets = iEvent.getByToken(sdjetToken_, jetCollection);
   if (!validJets)
     return;
   if (jetCollection->size() < 2)
@@ -444,8 +426,6 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (!pass2D)
     return;
 
-  CATopJetHelper helper(173., 80.4);
-
   semiMu_muPt->Fill(muon.pt());
   semiMu_muEta->Fill(muon.eta());
   semiMu_muPhi->Fill(muon.phi());
@@ -459,11 +439,12 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   semiMu_hadJetY->Fill(hadJet->rapidity());
   semiMu_hadJetPhi->Fill(hadJet->phi());
   semiMu_hadJetMass->Fill(hadJet->mass());
-  reco::CATopJetProperties properties0 = helper(*hadJet);
   if (hadJet->numberOfDaughters() > 2) {
-    semiMu_hadJetMinMass->Fill(properties0.minMass);
+    double wMass = hadJet->daughter(0)->mass() >= hadJet->daughter(1)->mass() ? hadJet->daughter(0)->mass()
+                                                                              : hadJet->daughter(1)->mass();
+    semiMu_hadJetWMass->Fill(wMass);
   } else {
-    semiMu_hadJetMinMass->Fill(-1.0);
+    semiMu_hadJetWMass->Fill(-1.0);
   }
 }
 
@@ -480,7 +461,7 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
     return;
 
   edm::Handle<edm::View<reco::BasicJet> > jetCollection;
-  bool validJets = iEvent.getByToken(cmsTagToken_, jetCollection);
+  bool validJets = iEvent.getByToken(sdjetToken_, jetCollection);
   if (!validJets)
     return;
   if (jetCollection->size() < 2)
@@ -527,8 +508,6 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (!pass2D)
     return;
 
-  CATopJetHelper helper(173., 80.4);
-
   semiE_ePt->Fill(electron.pt());
   semiE_eEta->Fill(electron.eta());
   semiE_ePhi->Fill(electron.phi());
@@ -542,10 +521,11 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   semiE_hadJetY->Fill(hadJet->rapidity());
   semiE_hadJetPhi->Fill(hadJet->phi());
   semiE_hadJetMass->Fill(hadJet->mass());
-  reco::CATopJetProperties properties0 = helper(*hadJet);
   if (hadJet->numberOfDaughters() > 2) {
-    semiE_hadJetMinMass->Fill(properties0.minMass);
+    double wMass = hadJet->daughter(0)->mass() >= hadJet->daughter(1)->mass() ? hadJet->daughter(0)->mass()
+                                                                              : hadJet->daughter(1)->mass();
+    semiE_hadJetWMass->Fill(wMass);
   } else {
-    semiE_hadJetMinMass->Fill(-1.0);
+    semiE_hadJetWMass->Fill(-1.0);
   }
 }

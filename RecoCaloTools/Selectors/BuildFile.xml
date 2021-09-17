@@ -1,4 +1,3 @@
-<use   name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloGeometry"/>
 <export>
-  <lib   name="1"/>
 </export>

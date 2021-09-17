@@ -31,13 +31,14 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class ConfigurationDescriptions;
-
-class PixelLumiDQM : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class TrackerGeometry;
+class TrackerDigiGeometryRecord;
+class PixelLumiDQM : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet &);
   ~PixelLumiDQM() override;
@@ -59,8 +60,6 @@ public:
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
   void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
   void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
@@ -114,6 +113,7 @@ private:
   };
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fPixelClusterLabel;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 
   UInt_t fRunNo;
   UInt_t fEvtNo;

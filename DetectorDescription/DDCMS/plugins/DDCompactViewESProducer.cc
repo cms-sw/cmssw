@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -45,13 +44,12 @@ public:
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
-  const string m_label;
+  const edm::ESGetToken<DDDetector, IdealGeometryRecord> m_detToken;
 };
 
 DDCompactViewESProducer::DDCompactViewESProducer(const edm::ParameterSet& iConfig)
-    : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
-  setWhatProduced(this);
-}
+    : m_detToken(setWhatProduced(this).consumes<DDDetector>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("appendToDataLabel")))) {}
 
 DDCompactViewESProducer::~DDCompactViewESProducer() {}
 
@@ -61,10 +59,7 @@ void DDCompactViewESProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 DDCompactViewESProducer::ReturnType DDCompactViewESProducer::produce(const IdealGeometryRecord& iRecord) {
-  edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
-
-  auto product = std::make_unique<DDCompactView>(*det);
+  auto product = std::make_unique<DDCompactView>(iRecord.get(m_detToken));
   return product;
 }
 

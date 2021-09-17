@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from FWCore.PythonUtilities.LumiList import LumiList as ll
 import warnings

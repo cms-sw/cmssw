@@ -21,7 +21,7 @@
 #include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWEnumParameterSetter.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"

@@ -65,6 +65,8 @@ public:
   /** Constructor
    */
   DTLVStatus();
+  DTLVStatus(DTLVStatus const&) = delete;
+  DTLVStatus& operator=(DTLVStatus const&) = delete;
   DTLVStatus(const std::string& version);
 
   /** Destructor
@@ -102,9 +104,6 @@ public:
   void initialize();
 
 private:
-  DTLVStatus(DTLVStatus const&) = delete;
-  DTLVStatus& operator=(DTLVStatus const&) = delete;
-
   std::string dataVersion;
 
   std::vector<std::pair<DTLVStatusId, DTLVStatusData> > dataList;

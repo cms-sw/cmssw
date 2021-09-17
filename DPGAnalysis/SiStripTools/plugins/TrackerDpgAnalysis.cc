@@ -42,7 +42,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,7 +57,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
 #include <Geometry/CommonTopologies/interface/StripTopology.h>
-#include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h>
 #include <Geometry/CommonTopologies/interface/PixelTopology.h>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -96,7 +95,7 @@
 #include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include <RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h>
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
 // topology
 #include "DPGAnalysis/SiStripTools/interface/EventShape.h"
@@ -130,7 +129,7 @@ protected:
   void insertMeasurement(std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> >&,
                          const TrackingRecHit*,
                          int);
-  std::string toStringName(uint32_t, const TrackerTopology*);
+  std::string toStringName(uint32_t, const TrackerTopology&);
   std::string toStringId(uint32_t);
   double sumPtSquared(const reco::Vertex&);
   float delay(const SiStripEventSummary&);
@@ -143,6 +142,7 @@ private:
 
   // ----------member data ---------------------------
   static const int nMaxPVs_ = 50;
+  SiStripClusterInfo siStripClusterInfo_;
   edm::EDGetTokenT<SiStripEventSummary> summaryToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelclusterToken_;
@@ -159,8 +159,11 @@ private:
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens_;
   std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens_;
   std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> > trajTrackAssoTokens_;
-  edm::ESHandle<SiStripFedCabling> cabling_;
-  edm::ESHandle<TrackerGeometry> tracker_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const TrackerGeometry* tracker_;
   std::multimap<const uint32_t, const FedChannelConnection*> connections_;
   bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_,
       functionality_pixvertices_, functionality_missingHits_, functionality_tracks_, functionality_vertices_,
@@ -221,7 +224,13 @@ private:
 //
 // constructors and destructor
 //
-TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig) : hltConfig_() {
+TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
+    : siStripClusterInfo_(consumesCollector(), std::string("")),
+      magFieldToken_(esConsumes()),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      hltConfig_() {
   // members
   moduleName_ = new char[256];
   moduleId_ = new char[256];
@@ -546,10 +555,9 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
     delay_ = 0.;
 
   // -- Magnetic field
-  ESHandle<MagneticField> MF;
-  iSetup.get<IdealMagneticFieldRecord>().get(MF);
-  const MagneticField* theMagneticField = MF.product();
-  fBz_ = fabs(theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z());
+  fBz_ = fabs(iSetup.getData(magFieldToken_).inTesla(GlobalPoint(0, 0, 0)).z());
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   // load trigger info
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
@@ -909,15 +917,14 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (functionality_offtrackClusters_ || functionality_ontrackClusters_) {
       for (edmNew::DetSet<SiStripCluster>::const_iterator iter = begin; iter != end;
            ++iter, ++angleIt, ++localCounter) {
-        SiStripClusterInfo* siStripClusterInfo =
-            new SiStripClusterInfo(*iter, iSetup, detid, std::string(""));  //string = quality label
+        siStripClusterInfo_.setCluster(*iter, detid);
         // general quantities
         for (size_t i = 0; i < trackSize; ++i) {
           trackid_[i] = stripClusterOntrackIndices[i][localCounter];
         }
         onTrack_ = (trackid_[0] != (uint32_t)-1);
-        clWidth_ = siStripClusterInfo->width();
-        clPosition_ = siStripClusterInfo->baryStrip();
+        clWidth_ = siStripClusterInfo_.width();
+        clPosition_ = siStripClusterInfo_.baryStrip();
         angle_ = *angleIt;
         thickness_ = ((((DSViter->id() >> 25) & 0x7f) == 0xd) ||
                       ((((DSViter->id() >> 25) & 0x7f) == 0xe) && (((DSViter->id() >> 5) & 0x7) > 4)))
@@ -925,16 +932,16 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
                          : 300;
         stripLength_ = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().stripLength();
         int nstrips = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().nstrips();
-        maxCharge_ = siStripClusterInfo->maxCharge();
+        maxCharge_ = siStripClusterInfo_.maxCharge();
         // signal and noise with gain corrections
-        clNormalizedCharge_ = siStripClusterInfo->charge();
-        clNormalizedNoise_ = siStripClusterInfo->noiseRescaledByGain();
-        clSignalOverNoise_ = siStripClusterInfo->signalOverNoise();
+        clNormalizedCharge_ = siStripClusterInfo_.charge();
+        clNormalizedNoise_ = siStripClusterInfo_.noiseRescaledByGain();
+        clSignalOverNoise_ = siStripClusterInfo_.signalOverNoise();
         // signal and noise with gain corrections and angle corrections
         clCorrectedCharge_ = clNormalizedCharge_ * fabs(cos(angle_));          // corrected for track angle
         clCorrectedSignalOverNoise_ = clSignalOverNoise_ * fabs(cos(angle_));  // corrected for track angle
         // signal and noise without gain corrections
-        clBareNoise_ = siStripClusterInfo->noise();
+        clBareNoise_ = siStripClusterInfo_.noise();
         clBareCharge_ = clSignalOverNoise_ * clBareNoise_;
         // global position
         const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid));
@@ -950,7 +957,6 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
           lldChannel_ = 3;
         if ((functionality_offtrackClusters_ && !onTrack_) || (functionality_ontrackClusters_ && onTrack_))
           clusters_->Fill();
-        delete siStripClusterInfo;
       }
     }
   }
@@ -1016,13 +1022,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
+  const auto& tTopo = iSetup.getData(tTopoToken_);
+  tracker_ = &iSetup.getData(tkGeomToken_);
 
   //HLT names
   bool changed(true);
@@ -1042,10 +1043,10 @@ void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& i
   TrackerMap tmap("Delays");
 
   // cabling I (readout)
-  iSetup.get<SiStripFedCablingRcd>().get(cabling_);
-  auto feds = cabling_->fedIds();
+  const auto& cabling = iSetup.getData(fedCablingToken_);
+  auto feds = cabling.fedIds();
   for (auto fedid = feds.begin(); fedid < feds.end(); ++fedid) {
-    auto connections = cabling_->fedConnections(*fedid);
+    auto connections = cabling.fedConnections(*fedid);
     for (auto conn = connections.begin(); conn < connections.end(); ++conn) {
       // Fill the "old" map to be used for lookup during analysis
       if (conn->isConnected())
@@ -1368,7 +1369,7 @@ void TrackerDpgAnalysis::insertMeasurement(
   }
 }
 
-std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopology* tTopo) {
+std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopology& tTopo) {
   SiStripDetId detid(rawid);
   std::string out;
   std::stringstream output;
@@ -1376,76 +1377,78 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
     case 3: {
       output << "TIB";
 
-      output << (tTopo->tibIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tibIsZPlusSide(rawid) ? "+" : "-");
       output << " layer ";
-      output << tTopo->tibLayer(rawid);
+      output << tTopo.tibLayer(rawid);
       output << ", string ";
-      output << tTopo->tibString(rawid);
-      output << (tTopo->tibIsExternalString(rawid) ? " external" : " internal");
+      output << tTopo.tibString(rawid);
+      output << (tTopo.tibIsExternalString(rawid) ? " external" : " internal");
       output << ", module ";
-      output << tTopo->tibModule(rawid);
-      if (tTopo->tibIsDoubleSide(rawid)) {
+      output << tTopo.tibModule(rawid);
+      if (tTopo.tibIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tibIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tibIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 4: {
       output << "TID";
 
-      output << (tTopo->tidIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tidIsZPlusSide(rawid) ? "+" : "-");
       output << " disk ";
-      output << tTopo->tidWheel(rawid);
+      output << tTopo.tidWheel(rawid);
       output << ", ring ";
-      output << tTopo->tidRing(rawid);
-      output << (tTopo->tidIsFrontRing(rawid) ? " front" : " back");
+      output << tTopo.tidRing(rawid);
+      output << (tTopo.tidIsFrontRing(rawid) ? " front" : " back");
       output << ", module ";
-      output << tTopo->tidModule(rawid);
-      if (tTopo->tidIsDoubleSide(rawid)) {
+      output << tTopo.tidModule(rawid);
+      if (tTopo.tidIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tidIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tidIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 5: {
       output << "TOB";
 
-      output << (tTopo->tobIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tobIsZPlusSide(rawid) ? "+" : "-");
       output << " layer ";
-      output << tTopo->tobLayer(rawid);
+      output << tTopo.tobLayer(rawid);
       output << ", rod ";
-      output << tTopo->tobRod(rawid);
+      output << tTopo.tobRod(rawid);
       output << ", module ";
-      output << tTopo->tobModule(rawid);
-      if (tTopo->tobIsDoubleSide(rawid)) {
+      output << tTopo.tobModule(rawid);
+      if (tTopo.tobIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tobIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tobIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 6: {
       output << "TEC";
 
-      output << (tTopo->tecIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tecIsZPlusSide(rawid) ? "+" : "-");
       output << " disk ";
-      output << tTopo->tecWheel(rawid);
+      output << tTopo.tecWheel(rawid);
       output << " sector ";
-      output << tTopo->tecPetalNumber(rawid);
-      output << (tTopo->tecIsFrontPetal(rawid) ? " Front Petal" : " Back Petal");
+      output << tTopo.tecPetalNumber(rawid);
+      output << (tTopo.tecIsFrontPetal(rawid) ? " Front Petal" : " Back Petal");
       output << ", module ";
-      output << tTopo->tecRing(rawid);
-      output << tTopo->tecModule(rawid);
-      if (tTopo->tecIsDoubleSide(rawid)) {
+      output << tTopo.tecRing(rawid);
+      output << tTopo.tecModule(rawid);
+      if (tTopo.tecIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tecIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tecIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
-    default: { output << "UNKNOWN"; }
+    default: {
+      output << "UNKNOWN";
+    }
   }
   out = output.str();
   return out;
@@ -1504,12 +1507,12 @@ std::map<uint32_t, float> TrackerDpgAnalysis::delay(const std::vector<std::strin
         // one line containing dcuid
         if (pos != std::string::npos) {
           // decode dcuid
-          std::string dcuids = line.substr(pos + 7, line.find(" ", pos) - pos - 8);
+          std::string dcuids = line.substr(pos + 7, line.find(' ', pos) - pos - 8);
           std::istringstream dcuidstr(dcuids);
           dcuidstr >> std::hex >> dcuid;
           // decode delay
           pos = line.find("difpll");
-          std::string diffs = line.substr(pos + 8, line.find(" ", pos) - pos - 9);
+          std::string diffs = line.substr(pos + 8, line.find(' ', pos) - pos - 9);
           std::istringstream diffstr(diffs);
           diffstr >> delay;
           // fill the map

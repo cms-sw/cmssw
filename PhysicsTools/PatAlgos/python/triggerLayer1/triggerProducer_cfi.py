@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patTrigger = cms.EDProducer( "PATTriggerProducer"
 , onlyStandAlone = cms.bool( False )
+, stageL1Trigger = cms.uint32(1)
 ,l1GtRecordInputTag = cms.InputTag("gtDigis")
 ,l1GtReadoutRecordInputTag = cms.InputTag("gtDigis")
 ,l1GtTriggerMenuLiteInputTag = cms.InputTag("gtDigis")
@@ -32,4 +33,5 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 # , exludeCollections = cms.vstring()
 , packTriggerLabels = cms.bool(False)
 )
-
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(patTrigger, stageL1Trigger = 2)

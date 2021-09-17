@@ -31,6 +31,7 @@ void SiPixelPerformanceSummary::clear() {
 pair<bool, vector<SiPixelPerformanceSummary::DetSummary>::iterator> SiPixelPerformanceSummary::initDet(
     const uint32_t detId) {
   vector<float> performanceValues;
+  performanceValues.reserve(kDetSummarySize);
   for (int i = 0; i < kDetSummarySize; ++i)
     performanceValues.push_back(kDefaultValue);
   return setDet(detId, performanceValues);

@@ -2,8 +2,6 @@
 // File: DDTIDModuleAlgo.cc
 // Description: Creation of a TID Module
 ///////////////////////////////////////////////////////////////////////////////
-#include <cmath>
-#include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -11,9 +9,93 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTIDModuleAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTIDModuleAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTIDModuleAlgo();
+  ~DDTIDModuleAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string genMat;       //General material name
+  int detectorN;       //Detector planes
+  double moduleThick;  //Module thickness
+  double detTilt;      //Tilt of stereo detector
+  double fullHeight;   //Height
+  double dlTop;        //Width at top of wafer
+  double dlBottom;     //Width at bottom of wafer
+  double dlHybrid;     //Width at the hybrid end
+  bool doComponents;   //Components to be made
+
+  string boxFrameName;           //Top frame     name
+  string boxFrameMat;            //              material
+  double boxFrameHeight;         //              height
+  double boxFrameThick;          //              thickness
+  double boxFrameWidth;          //              extra width
+  double bottomFrameHeight;      //Bottom of the frame
+  double bottomFrameOver;        //              overlap
+  double topFrameHeight;         //Top    of the frame
+  double topFrameOver;           //              overlap
+  vector<string> sideFrameName;  //Side frame    name
+  string sideFrameMat;           //              material
+  double sideFrameWidth;         //              width
+  double sideFrameThick;         //              thickness
+  double sideFrameOver;          //              overlap (wrt wafer)
+  vector<string> holeFrameName;  //Hole in the frame   name
+  vector<string> holeFrameRot;   //              Rotation matrix
+
+  vector<string> kaptonName;  //Kapton circuit name
+  string kaptonMat;           //               material
+  //  double                   kaptonWidth;   //               width -> computed internally from sideFrameWidth and kaptonOver
+  double kaptonThick;             //               thickness
+  double kaptonOver;              //               overlap (wrt Wafer)
+  vector<string> holeKaptonName;  //Hole in the kapton circuit name
+  vector<string> holeKaptonRot;   //              Rotation matrix
+
+  vector<string> waferName;       //Wafer         name
+  string waferMat;                //              material
+  double sideWidthTop;            //              width on the side Top
+  double sideWidthBottom;         //                                Bottom
+  vector<string> activeName;      //Sensitive     name
+  string activeMat;               //              material
+  double activeHeight;            //              height
+  vector<double> waferThick;      //              wafer thickness (active = wafer - backplane)
+  string activeRot;               //              Rotation matrix
+  vector<double> backplaneThick;  //              thickness
+  string hybridName;              //Hybrid        name
+  string hybridMat;               //              material
+  double hybridHeight;            //              height
+  double hybridWidth;             //              width
+  double hybridThick;             //              thickness
+  vector<string> pitchName;       //Pitch adapter name
+  string pitchMat;                //              material
+  double pitchHeight;             //              height
+  double pitchThick;              //              thickness
+  double pitchStereoTol;          //              tolerance in dimensions of the stereo
+  string coolName;                // Cool insert name
+  string coolMat;                 //              material
+  double coolHeight;              //              height
+  double coolThick;               //              thickness
+  double coolWidth;               //              width
+};
 
 DDTIDModuleAlgo::DDTIDModuleAlgo() { LogDebug("TIDGeom") << "DDTIDModuleAlgo info: Creating an instance"; }
 
@@ -38,7 +120,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments& nArgs,
   dlTop = nArgs["DlTop"];
   dlBottom = nArgs["DlBottom"];
   dlHybrid = nArgs["DlHybrid"];
-  std::string comp = sArgs["DoComponents"];
+  string comp = sArgs["DoComponents"];
   if (comp == "No" || comp == "NO" || comp == "no")
     doComponents = false;
   else
@@ -249,7 +331,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
                           << h1 << ", " << bbl2 << ", " << bbl2 << ", 0";
       DDLogicalPart sideFrame(solid.ddname(), matter, solid);
 
-      std::string rotstr, rotns;
+      string rotstr, rotns;
       DDRotation rot;
 
       // Hole in the frame below the wafer
@@ -324,7 +406,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
       // For the stereo create the uncut solid, the solid to be removed and then the subtraction solid
       if (k == 1) {
         // Uncut solid
-        std::string kaptonUncutName = kaptonName[k] + "Uncut";
+        string kaptonUncutName = kaptonName[k] + "Uncut";
         solidUncut = DDSolidFactory::trap(DDName(DDSplit(kaptonUncutName).first, DDSplit(kaptonUncutName).second),
                                           dz,
                                           0,
@@ -339,7 +421,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
                                           0);
 
         // Piece to be cut
-        std::string kaptonCutName = kaptonName[k] + "Cut";
+        string kaptonCutName = kaptonName[k] + "Cut";
 
         if (dlHybrid > dlTop) {
           dz = 0.5 * dlTop;
@@ -363,7 +445,7 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
                                         bbl2,
                                         0);
 
-        std::string aRot("tidmodpar:9PYX");
+        string aRot("tidmodpar:9PYX");
         rotstr = DDSplit(aRot).first;
         rotns = DDSplit(aRot).second;
         rot = DDRotation(DDName(rotstr, rotns));
@@ -549,3 +631,5 @@ void DDTIDModuleAlgo::execute(DDCompactView& cpv) {
   }
   LogDebug("TIDGeom") << "<<== End of DDTIDModuleAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTIDModuleAlgo, "track:DDTIDModuleAlgo");

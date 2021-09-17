@@ -55,6 +55,11 @@ namespace hcaldqm {
     uint32_t hash_TTdepth(HcalTrigTowerDetId const &);
     uint32_t hash_TChannel(HcalTrigTowerDetId const &);
 
+    /**
+ *      by Mixed ElectronicsId and TrigTowerDetId
+ */
+    uint32_t hash_TTSubdetFW(HcalTrigTowerDetId const &, HcalElectronicsId const &);
+
     std::string name_Subdet(HcalDetId const &);
     std::string name_Subdetiphi(HcalDetId const &);
     std::string name_Subdetieta(HcalDetId const &);
@@ -119,6 +124,10 @@ namespace hcaldqm {
     uint32_t hash_TTdepth(std::string const &);
     uint32_t hash_TChannel(std::string const &);
 
+    std::string name_TTSubdetFW(HcalTrigTowerDetId const &, HcalElectronicsId const &);
+
+    uint32_t hash_TTSubdetFW(std::string const &);
+
     enum HashType {
       fSubdet = 0,
       fSubdetiphi = 1,
@@ -152,14 +161,18 @@ namespace hcaldqm {
       fTTdepth = 29,
       fTChannel = 30,
       nHashType_tid = 31,
-      nHashType = 32
+      fTTSubdetFW = 32,
+      nHashType_mixid = 33,
+      nHashType = 34
     };
     typedef uint32_t (*hash_function_did)(HcalDetId const &);
     typedef uint32_t (*hash_function_eid)(HcalElectronicsId const &);
     typedef uint32_t (*hash_function_tid)(HcalTrigTowerDetId const &);
+    typedef uint32_t (*hash_function_mixid)(HcalTrigTowerDetId const &, HcalElectronicsId const &);
     typedef std::string (*name_function_did)(HcalDetId const &);
     typedef std::string (*name_function_eid)(HcalElectronicsId const &);
     typedef std::string (*name_function_tid)(HcalTrigTowerDetId const &);
+    typedef std::string (*name_function_mixid)(HcalTrigTowerDetId const &, HcalElectronicsId const &);
     hash_function_did const hash_did[nHashType_did] = {hash_Subdet,
                                                        hash_Subdetiphi,
                                                        hash_Subdetieta,
@@ -185,6 +198,7 @@ namespace hcaldqm {
                                                                            hash_EChannel};
     hash_function_tid const hash_tid[nHashType_tid - nHashType_eid - 1] = {
         hash_TTSubdet, hash_TTSubdetPM, hash_TTSubdetPMiphi, hash_TTSubdetieta, hash_TTdepth, hash_TChannel};
+    hash_function_mixid const hash_mixid[nHashType_mixid - nHashType_tid - 1] = {hash_TTSubdetFW};
     name_function_did const name_did[nHashType_did] = {name_Subdet,
                                                        name_Subdetiphi,
                                                        name_Subdetieta,
@@ -210,15 +224,19 @@ namespace hcaldqm {
                                                                            name_EChannel};
     name_function_tid const name_tid[nHashType_tid - nHashType_eid - 1] = {
         name_TTSubdet, name_TTSubdetPM, name_TTSubdetPMiphi, name_TTSubdetieta, name_TTdepth, name_TChannel};
-    int const nhashes = nHashType_did + (nHashType_eid - nHashType_did - 1) + (nHashType_tid - nHashType_eid - 1);
+    name_function_mixid const name_mixid[nHashType_mixid - nHashType_tid - 1] = {name_TTSubdetFW};
+    int const nhashes = nHashType_did + (nHashType_eid - nHashType_did - 1) + (nHashType_tid - nHashType_eid - 1) +
+                        (nHashType_mixid - nHashType_tid - 1);
     std::string const hash_names[nhashes] = {
-        "Subdet",   "Subdetiphi",   "Subdetieta",     "Subdetdepth",  "SubdetPM",      "SubdetPMiphi",
-        "iphi",     "ieta",         "depth",          "HFPMiphi",     "HBHEPartition", "DChannel",
+        "Subdet",    "Subdetiphi",   "Subdetieta",     "Subdetdepth",  "SubdetPM",      "SubdetPMiphi",
+        "iphi",      "ieta",         "depth",          "HFPMiphi",     "HBHEPartition", "DChannel",
 
-        "FED",      "FEDSpigot",    "FEDSlot",        "Crate",        "CrateSpigot",   "CrateSlot",
-        "Fiber",    "FiberFiberCh", "FiberCh",        "Electronics",  "EChannel",
+        "FED",       "FEDSpigot",    "FEDSlot",        "Crate",        "CrateSpigot",   "CrateSlot",
+        "Fiber",     "FiberFiberCh", "FiberCh",        "Electronics",  "EChannel",
 
-        "TTSubdet", "TTSubdetPM",   "TTSubdetPMiphi", "TTSubdetieta", "TTdepth",       "TChannel"};
+        "TTSubdet",  "TTSubdetPM",   "TTSubdetPMiphi", "TTSubdetieta", "TTdepth",       "TChannel",
+
+        "TTSubdetFW"};
   }  // namespace hashfunctions
 }  // namespace hcaldqm
 

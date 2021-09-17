@@ -9,7 +9,9 @@
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -52,5 +54,6 @@ private:
   edm::EDGetTokenT<RPCDigiCollection> dataLabel_;
   edm::ESWatcher<RPCEMapRcd> recordWatcher_;
   const RPCReadOutMapping* theCabling;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> readoutMappingToken_;
 };
 #endif

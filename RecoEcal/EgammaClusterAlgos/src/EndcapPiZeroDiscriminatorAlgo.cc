@@ -103,6 +103,7 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
   // vector of size=11, content of vout_stripE is copied into vout_ElevenStrips_Energy
   // to avoid problem in case number of strips is less than 11
   vector<float> vout_ElevenStrips_Energy;
+  vout_ElevenStrips_Energy.reserve(11);
   for (int i = 0; i < 11; i++) {
     vout_ElevenStrips_Energy.push_back(0.);
   }

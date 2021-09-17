@@ -4,8 +4,8 @@ from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_c
 from RecoEgamma.EgammaPhotonProducers.chi2EstimatorForOutInFit_cfi import *
 import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
 # KFTrajectorySmootherESProducer
-KFTrajectorySmootherForOutIn = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone()
-KFTrajectorySmootherForOutIn.ComponentName = 'KFSmootherForOutIn'
-KFTrajectorySmootherForOutIn.Propagator = 'oppositeToMomElePropagator'
-KFTrajectorySmootherForOutIn.Estimator = 'Chi2ForOutIn'
-
+KFTrajectorySmootherForOutIn = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
+    ComponentName = 'KFSmootherForOutIn',
+    Propagator    = 'oppositeToMomElePropagator',
+    Estimator     = 'Chi2ForOutIn'
+)

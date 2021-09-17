@@ -54,7 +54,7 @@ class MuonServiceProxy;
 class DTTimingExtractor {
 public:
   /// Constructor
-  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher* segMatcher);
+  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher* segMatcher, edm::ConsumesCollector&);
 
   /// Destructor
   ~DTTimingExtractor();

@@ -6,7 +6,7 @@
  */
 
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
-#include "DataFormats/MuonDetId/src/DTWireId.cc"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include <iostream>
 
 using std::cout;

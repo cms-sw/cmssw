@@ -39,8 +39,8 @@ AlCa_EcalPhiSym_v*
 HLT_HcalNZS_v*
 HLT_HcalPhiSym_v*
 AlCa_RPCMuonNormalisation_v*
-AlCa_LumiPixels_Random_v*
-AlCa_LumiPixels_ZeroBias_v*
+AlCa_LumiPixelsCounts_Random_v*		#	CMSHLT-2114
+AlCa_LumiPixelsCounts_ZeroBias_v*	#	CMSHLT-2114
 
 ## EndPath ##
 
@@ -52,7 +52,8 @@ RPCMONOutput
 CalibrationOutput
 EcalCalibrationOutput
 ALCAPHISYMOutput
-ALCALUMIPIXELSOutput
+ALCALumiPixelCountsExpressOutput	#	CMSHLT-2114
+ALCALumiPixelCountsPromptOutput		#	CMSHLT-2114
 ExpressCosmicsOutput
 NanoDSTOutput
 

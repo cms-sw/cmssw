@@ -6,8 +6,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 class TrackerTopology;
 

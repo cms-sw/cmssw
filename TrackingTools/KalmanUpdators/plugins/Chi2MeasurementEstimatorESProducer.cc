@@ -16,32 +16,34 @@ namespace {
   class Chi2MeasurementEstimatorESProducer : public edm::ESProducer {
   public:
     Chi2MeasurementEstimatorESProducer(const edm::ParameterSet& p);
-    ~Chi2MeasurementEstimatorESProducer() override;
+
     std::unique_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    edm::ParameterSet const m_pset;
+    const double maxChi2_;
+    const double nSigma_;
+    const double maxDis_;
+    const double maxSag_;
+    const double minTol_;
+    const double minpt_;
   };
 
-  Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm::ParameterSet& p) : m_pset(p) {
+  Chi2MeasurementEstimatorESProducer::Chi2MeasurementEstimatorESProducer(const edm::ParameterSet& p)
+      : maxChi2_(p.getParameter<double>("MaxChi2")),
+        nSigma_(p.getParameter<double>("nSigma")),
+        maxDis_(p.getParameter<double>("MaxDisplacement")),
+        maxSag_(p.getParameter<double>("MaxSagitta")),
+        minTol_(p.getParameter<double>("MinimalTolerance")),
+        minpt_(p.getParameter<double>("MinPtForHitRecoveryInGluedDet")) {
     std::string myname = p.getParameter<std::string>("ComponentName");
     setWhatProduced(this, myname);
   }
 
-  Chi2MeasurementEstimatorESProducer::~Chi2MeasurementEstimatorESProducer() {}
-
   std::unique_ptr<Chi2MeasurementEstimatorBase> Chi2MeasurementEstimatorESProducer::produce(
       const TrackingComponentsRecord& iRecord) {
-    auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
-    auto nSigma = m_pset.getParameter<double>("nSigma");
-    auto maxDis = m_pset.getParameter<double>("MaxDisplacement");
-    auto maxSag = m_pset.getParameter<double>("MaxSagitta");
-    auto minTol = m_pset.getParameter<double>("MinimalTolerance");
-    auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
-
-    return std::make_unique<Chi2MeasurementEstimator>(maxChi2, nSigma, maxDis, maxSag, minTol, minpt);
+    return std::make_unique<Chi2MeasurementEstimator>(maxChi2_, nSigma_, maxDis_, maxSag_, minTol_, minpt_);
   }
 
   void Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

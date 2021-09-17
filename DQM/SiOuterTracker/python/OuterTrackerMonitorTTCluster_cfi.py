@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTCluster = DQMEDAnalyzer('OuterTrackerMonitorTTCluster',
@@ -38,8 +37,8 @@ OuterTrackerMonitorTTCluster = DQMEDAnalyzer('OuterTrackerMonitorTTCluster',
 # Cluster phi distribution
     TH1TTCluster_Phi = cms.PSet(
         Nbinsx = cms.int32(60),
-        xmax = cms.double(math.pi),
-        xmin = cms.double(-math.pi)
+        xmax = cms.double(3.5),
+        xmin = cms.double(-3.5)
         ),
 
 # Cluster R distribution

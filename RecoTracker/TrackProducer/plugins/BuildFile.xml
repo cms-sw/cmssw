@@ -1,12 +1,11 @@
-<use   name="RecoTracker/Record"/>
-<use   name="RecoTracker/SiTrackerMRHTools"/>
-<use   name="RecoTracker/TrackProducer"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="FWCore/Utilities"/>
-<library   file="*.cc" name="RecoTrackerTrackProducerPlugins">
-  <use   name="Alignment/TwoBodyDecay"/>
-  <use   name="Alignment/ReferenceTrajectories"/>
-  <use   name="TrackingTools/GsfTracking"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/SiTrackerMRHTools"/>
+<use name="RecoTracker/TrackProducer"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="FWCore/Utilities"/>
+<library file="*.cc" name="RecoTrackerTrackProducerPlugins">
+  <use name="Alignment/TwoBodyDecay"/>
+  <use name="Alignment/ReferenceTrajectories"/>
+  <use name="TrackingTools/GsfTracking"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

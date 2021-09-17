@@ -21,10 +21,8 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,7 +47,6 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -67,8 +64,10 @@
 
 #include "TH1F.h"
 
-class ValidationHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
+class ValidationHcalIsoTrackAlCaReco : public edm::one::EDAnalyzer<> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet&);
   ~ValidationHcalIsoTrackAlCaReco();
 

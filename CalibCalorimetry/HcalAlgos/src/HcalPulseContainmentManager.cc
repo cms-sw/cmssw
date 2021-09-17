@@ -1,18 +1,24 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include <iostream>
 
-HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror)
-    : entries_(), shapes_(), max_fracerror_(max_fracerror) {
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror, bool phaseAsInSim)
+    : entries_(), shapes_(), max_fracerror_(max_fracerror), phaseAsInSim_(phaseAsInSim) {
   hcalTimeSlew_delay_ = nullptr;
 }
 
+HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror,
+                                                         bool phaseAsInSim,
+                                                         edm::ConsumesCollector iC)
+    : entries_(),
+      shapes_(iC),
+      max_fracerror_(max_fracerror),
+      phaseAsInSim_(phaseAsInSim),
+      delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))) {}
+
 void HcalPulseContainmentManager::beginRun(edm::EventSetup const& es) {
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(delayToken_);
 
   shapes_.beginRun(es);
 }
@@ -72,7 +78,7 @@ const HcalPulseContainmentCorrection* HcalPulseContainmentManager::get(const Hca
       toAdd,
       fixedphase_ns,
       shape,
-      HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
+      HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, phaseAsInSim_, max_fracerror_, hcalTimeSlew_delay_));
   entries_.push_back(entry);
   return &(entries_.back().correction_);
 }

@@ -54,7 +54,7 @@ process.printEvent = cms.EDAnalyzer("printGenJetRatio",
 
 process.p = cms.Path(process.generator*process.pgen*process.printList*process.BCRatio*process.printEvent)
 
-process.MessageLogger.destinations = cms.untracked.vstring('cout','cerr')
 #process.MessageLogger.cout = cms.PSet(
+#    enable = cms.untracked.bool(True),
 #    threshold = cms.untracked.string('ERROR')
 #)

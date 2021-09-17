@@ -31,6 +31,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2FirmwareFactory.h"
@@ -70,8 +71,10 @@ private:
 
   // ----------member data ---------------------------
 
-  // input token
+  // input tokens
   edm::EDGetTokenT<CaloTowerBxCollection> m_towerToken;
+  edm::ESGetToken<CaloParams, L1TCaloParamsRcd> m_candidateToken;
+  edm::ESGetToken<CaloParams, L1TCaloParamsO2ORcd> m_o2oProtoToken;
 
   // put tokens
   edm::EDPutTokenT<CaloTowerBxCollection> m_towerMPToken;
@@ -112,6 +115,7 @@ L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
 
   // register what you consume and keep token for later access:
   m_towerToken = consumes<CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("towerToken"));
+  m_candidateToken = esConsumes<CaloParams, L1TCaloParamsRcd, edm::Transition::BeginRun>();
 
   // placeholder for the parameters
   m_params = new CaloParamsHelper;
@@ -121,6 +125,9 @@ L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
 
   // get static config flag
   m_useStaticConfig = ps.getParameter<bool>("useStaticConfig");
+  if (!m_useStaticConfig) {
+    m_o2oProtoToken = esConsumes<CaloParams, L1TCaloParamsO2ORcd, edm::Transition::BeginRun>();
+  }
 
   //initialize
   m_paramsCacheId = 0;
@@ -253,14 +260,12 @@ void L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup con
     m_paramsCacheId = id;
 
     // fetch payload corresponding to the current run from the CondDB
-    edm::ESHandle<CaloParams> candidateHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(candidateHandle);
+    edm::ESHandle<CaloParams> candidateHandle = iSetup.getHandle(m_candidateToken);
     std::unique_ptr<l1t::CaloParams> candidate(new l1t::CaloParams(*candidateHandle.product()));
 
     if (!m_useStaticConfig) {
       // fetch the latest greatest prototype (equivalent of static payload)
-      edm::ESHandle<CaloParams> o2oProtoHandle;
-      iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
+      edm::ESHandle<CaloParams> o2oProtoHandle = iSetup.getHandle(m_o2oProtoToken);
       std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams(*o2oProtoHandle.product()));
 
       // prepare to set the emulator's configuration

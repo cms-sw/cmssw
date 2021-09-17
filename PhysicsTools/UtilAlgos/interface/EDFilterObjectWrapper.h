@@ -40,7 +40,6 @@
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/shared_ptr.hpp>
 
 namespace edm {
 
@@ -53,7 +52,7 @@ namespace edm {
 
     /// default contructor. Declares the output (type "C") and the filter (of type T, operates on C::value_type)
     FilterObjectWrapper(const edm::ParameterSet& cfg) : src_(consumes<C>(cfg.getParameter<edm::InputTag>("src"))) {
-      filter_ = boost::shared_ptr<T>(new T(cfg.getParameter<edm::ParameterSet>("filterParams")));
+      filter_ = std::shared_ptr<T>(new T(cfg.getParameter<edm::ParameterSet>("filterParams")));
       if (cfg.exists("filter")) {
         doFilter_ = cfg.getParameter<bool>("filter");
       } else {
@@ -89,7 +88,7 @@ namespace edm {
     /// InputTag of the input source
     edm::EDGetTokenT<C> src_;
     /// shared pointer to analysis class of type BasicAnalyzer
-    boost::shared_ptr<T> filter_;
+    std::shared_ptr<T> filter_;
     /// whether or not to filter based on size
     bool doFilter_;
   };

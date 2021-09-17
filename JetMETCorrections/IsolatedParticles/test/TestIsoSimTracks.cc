@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -191,8 +190,12 @@ void TestIsoSimTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //	  << " GeV" << std::endl;
 
     //      std::cout << "Details:\n" <<std::endl;
-    TrackDetMatchInfo info = trackAssociator_.associate(
-        iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex), trackAssociatorParameters_);
+    TrackDetMatchInfo info =
+        trackAssociator_.associate(iEvent,
+                                   iSetup,
+                                   trackAssociator_.getFreeTrajectoryState(
+                                       &iSetup.getData(trackAssociatorParameters_.bFieldToken), *tracksCI, vertex),
+                                   trackAssociatorParameters_);
     //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
     //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
     //      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;

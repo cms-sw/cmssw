@@ -9,7 +9,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -28,7 +27,6 @@ protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   //virtual std::vector<int> SortMinBiasBit(std::vector<int>, std::vector<int>);
   virtual std::vector<int> SortMinBiasBit(uint16_t, uint16_t);

@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerDefault_cfi import SiPixelClusterizerDefault as _SiPixelClusterizerDefault
@@ -17,16 +16,29 @@ phase1Pixel.toModify(siPixelClusters,
   ClusterThreshold_L1     = 2000
 )
 
+# Run3, changes in the gain calibration scheme 
+#from Configuration.Eras.Era_Run3_cff import Run3
+#Run3.toModify(siPixelClusters,
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(siPixelClusters,
+  VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
+  VCaltoElectronGain_L1   = 1,   
+  VCaltoElectronOffset    = 0,   
+  VCaltoElectronOffset_L1 = 0  
+)
+
+
 # Need these until phase2 pixel templates are used
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import PixelDigitizerAlgorithmCommon
 phase2_tracker.toModify(siPixelClusters, # FIXME
   src = 'simSiPixelDigis:Pixel',
   MissCalibrate = False,
   Phase2Calibration = True,
-  Phase2ReadoutMode = -1, # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
-  Phase2DigiBaseline = 1200.,
+  Phase2ReadoutMode = PixelDigitizerAlgorithmCommon.Phase2ReadoutMode.value(), # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
+  Phase2DigiBaseline = PixelDigitizerAlgorithmCommon.ThresholdInElectrons_Barrel.value(), #Same for barrel and endcap
   Phase2KinkADC = 8,
-  ElectronPerADCGain = 600. # it can be changed to something else (e.g. 135e) if needed
+  ElectronPerADCGain = PixelDigitizerAlgorithmCommon.ElectronPerAdc.value()
 )
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (premix_stage2 & phase2_tracker).toModify(siPixelClusters,

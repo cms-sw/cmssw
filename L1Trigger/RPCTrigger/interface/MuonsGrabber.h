@@ -31,7 +31,7 @@
 #include <map>
 #include <vector>
 
-//#include "FWCore/Concurrency/interface/Xerces.h"
+//#include "Utilities/Xerces/interface/Xerces.h"
 //#include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOM.hpp>
 //#include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -54,6 +54,10 @@ class MuonsGrabber {
 public:
   static MuonsGrabber& Instance();
 
+  MuonsGrabber(const MuonsGrabber&) = delete;  // stop default
+
+  const MuonsGrabber& operator=(const MuonsGrabber&) = delete;  // stop default
+
   void setRPCBasicTrigConfig(RPCBasicTrigConfig* c) { m_trigConfig = c; };
 
   void startNewEvent(int event, int bx);
@@ -61,9 +65,6 @@ public:
   void addMuon(RPCTBMuon& mu, int lvl, int region, int hs, int index);
 
 private:
-  MuonsGrabber(const MuonsGrabber&) = delete;  // stop default
-
-  const MuonsGrabber& operator=(const MuonsGrabber&) = delete;  // stop default
   std::string IntToString(int i);
 
   // ---------- member data --------------------------------

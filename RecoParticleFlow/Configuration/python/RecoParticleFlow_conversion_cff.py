@@ -9,7 +9,7 @@ particleFlowBlock.useConversions =True
 
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 
-particleFlowRecoConversion = cms.Sequence( particleFlowTrackWithConversion*
-                                           particleFlowBlock*
+particleFlowRecoConversionTask = cms.Task( particleFlowTrackWithConversionTask,
+                                           particleFlowBlock,
                                            particleFlowTmp )
-
+particleFlowRecoConversion = cms.Sequence(particleFlowRecoConversionTask)

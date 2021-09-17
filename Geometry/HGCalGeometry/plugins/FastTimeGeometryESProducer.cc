@@ -26,6 +26,7 @@
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometryLoader.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //#define EDM_ML_DEBUG
 

@@ -33,8 +33,7 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
   edm::ParameterSet algoConf = ps.getParameter<edm::ParameterSet>("algoPSet");
 
   edm::ConsumesCollector c{consumesCollector()};
-  worker_ = std::unique_ptr<EcalUncalibRecHitWorkerBaseClass>{
-      EcalUncalibRecHitWorkerFactory::get()->create(componentType, algoConf, c)};
+  worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, algoConf, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer() = default;

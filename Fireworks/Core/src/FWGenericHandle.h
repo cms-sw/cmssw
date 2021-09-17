@@ -34,7 +34,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"

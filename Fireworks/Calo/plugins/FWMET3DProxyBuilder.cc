@@ -68,10 +68,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWMET3DProxyBuilder(const FWMET3DProxyBuilder&) = delete;                   // stop default
   const FWMET3DProxyBuilder& operator=(const FWMET3DProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::MET>::build;
   void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*) override;
 

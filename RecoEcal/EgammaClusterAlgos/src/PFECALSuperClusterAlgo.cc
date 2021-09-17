@@ -1,26 +1,23 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
-#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
-#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
-#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "TVector2.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <stdexcept>
-#include <string>
-#include <sstream>
+#include <memory>
+
 #include <cmath>
 #include <functional>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 using namespace std;
 using namespace std::placeholders;  // for _1, _2, _3...
@@ -87,20 +84,23 @@ namespace {
   bool isClustered(const CalibClusterPtr& x,
                    const CalibClusterPtr seed,
                    const PFECALSuperClusterAlgo::clustering_type type,
+                   const EcalMustacheSCParameters* mustache_params,
+                   const EcalSCDynamicDPhiParameters* dynamic_dphi_params,
                    const bool dyn_dphi,
                    const double etawidthSuperCluster,
                    const double phiwidthSuperCluster) {
     const double dphi = std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi()));
-    const bool passes_dphi = ((!dyn_dphi && dphi < phiwidthSuperCluster) ||
-                              (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(
-                                               seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi())));
+    const bool passes_dphi =
+        ((!dyn_dphi && dphi < phiwidthSuperCluster) ||
+         (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(
+                          dynamic_dphi_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi())));
 
     if (type == PFECALSuperClusterAlgo::kBOX) {
       return (std::abs(seed->eta() - x->eta()) < etawidthSuperCluster && passes_dphi);
     }
     if (type == PFECALSuperClusterAlgo::kMustache) {
-      return (passes_dphi &&
-              reco::MustacheKernel::inMustache(seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
+      return (passes_dphi && reco::MustacheKernel::inMustache(
+                                 mustache_params, seed->eta(), seed->phi(), x->energy_nocalib(), x->eta(), x->phi()));
     }
     return false;
   }
@@ -119,10 +119,21 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
       cc.consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("ESAssociation"));
   inputTagBeamSpot_ = cc.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpot"));
 
+  esEEInterCalibToken_ =
+      cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
+  esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd, edm::Transition::BeginLuminosityBlock>();
+
+  if (_clustype == PFECALSuperClusterAlgo::kMustache) {
+    ecalMustacheSCParametersToken_ = cc.esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
+  }
+  if (useDynamicDPhi_) {
+    ecalSCDynamicDPhiParametersToken_ = cc.esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
+  }
+
   if (useRegression_) {
     const edm::ParameterSet& regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
 
-    regr_.reset(new SCEnergyCorrectorSemiParm());
+    regr_ = std::make_unique<SCEnergyCorrectorSemiParm>();
     regr_->setTokens(regconf, cc);
   }
 
@@ -137,13 +148,20 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
     regr_->setEventSetup(setup);
   }
 
-  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
-  setup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_ = setup.getHandle(esEEInterCalibToken_);
   _pfEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
 
-  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
-  setup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_ = setup.getHandle(esChannelStatusToken_);
   channelStatus_ = esChannelStatusHandle_.product();
+}
+
+void PFECALSuperClusterAlgo::updateSCParams(const edm::EventSetup& setup) {
+  if (_clustype == PFECALSuperClusterAlgo::kMustache) {
+    mustacheSCParams_ = &setup.getData(ecalMustacheSCParametersToken_);
+  }
+  if (useDynamicDPhi_) {
+    scDynamicDPhiParams_ = &setup.getData(ecalSCDynamicDPhiParametersToken_);
+  }
 }
 
 void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {
@@ -268,8 +286,15 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
     default:
       break;
   }
-  auto isClusteredWithSeed =
-      std::bind(isClustered, _1, seed, _clustype, useDynamicDPhi_, etawidthSuperCluster, phiwidthSuperCluster);
+  auto isClusteredWithSeed = std::bind(isClustered,
+                                       _1,
+                                       seed,
+                                       _clustype,
+                                       mustacheSCParams_,
+                                       scDynamicDPhiParams_,
+                                       useDynamicDPhi_,
+                                       etawidthSuperCluster,
+                                       phiwidthSuperCluster);
   auto matchesSeedByRecHit = std::bind(isLinkedByRecHit, _1, seed, satelliteThreshold_, fractionForMajority_, 0.1, 0.2);
 
   // this function shuffles the list of clusters into a list
@@ -317,62 +342,25 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
-  double posX(0), posY(0), posZ(0), corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), ePS1(0), ePS2(0),
-      energyweight(0), energyweighttot(0);
-  std::vector<double> ps1_energies, ps2_energies;
-  int condP1(1), condP2(1);
+  double posX(0), posY(0), posZ(0), corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), energyweight(0),
+      energyweighttot(0);
   for (auto& clus : clustered) {
-    ePS1 = ePS2 = 0;
+    double ePS1 = 0.0;
+    double ePS2 = 0.0;
     energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
     // update EE calibrated super cluster energies
     if (isEE) {
-      ePS1 = ePS2 = 0;
-      condP1 = condP2 = 1;
-      ps1_energies.clear();
-      ps2_energies.clear();
       auto ee_key_val = std::make_pair(clus->the_ptr().key(), edm::Ptr<reco::PFCluster>());
       const auto clustops = std::equal_range(EEtoPS_->begin(), EEtoPS_->end(), ee_key_val, sortByKey);
+      std::vector<reco::PFCluster const*> psClusterPointers;
       for (auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
-        edm::Ptr<reco::PFCluster> psclus(i_ps->second);
-
-        auto const& recH_Frac = psclus->recHitFractions();
-
-        switch (psclus->layer()) {
-          case PFLayer::PS1:
-            ps1_energies.push_back(psclus->energy());
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip1 = recH.recHitRef()->detId();
-              if (strip1 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
-                // getStatusCode() == 1 => dead channel
-                //apply correction if all recHits in dead region
-                if (status_p1->getStatusCode() == 0)
-                  condP1 = 0;  //active
-              }
-            }
-            break;
-          case PFLayer::PS2:
-            ps2_energies.push_back(psclus->energy());
-            for (auto const& recH : recH_Frac) {
-              ESDetId strip2 = recH.recHitRef()->detId();
-              if (strip2 != ESDetId(0)) {
-                ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
-                if (status_p2->getStatusCode() == 0)
-                  condP2 = 0;
-              }
-            }
-            break;
-          default:
-            break;
-        }
+        psClusterPointers.push_back(i_ps->second.get());
       }
-      if (condP1 == 1)
-        ePS1 = -1.;
-      if (condP2 == 1)
-        ePS2 = -1.;
-      _pfEnergyCalibration->energyEm(
-          *(clus->the_ptr()), ps1_energies, ps2_energies, ePS1, ePS2, applyCrackCorrections_);
+      auto calibratedEnergies = _pfEnergyCalibration->calibrateEndcapClusterEnergies(
+          *(clus->the_ptr()), psClusterPointers, *channelStatus_, applyCrackCorrections_);
+      ePS1 = calibratedEnergies.ps1Energy;
+      ePS2 = calibratedEnergies.ps2Energy;
     }
 
     if (ePS1 == -1.)

@@ -8,10 +8,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class FreeTrajectoryState;
 

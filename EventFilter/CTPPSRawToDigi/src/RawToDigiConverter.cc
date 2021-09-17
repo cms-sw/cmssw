@@ -17,12 +17,8 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace std;
 using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
@@ -40,8 +36,6 @@ RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf)
 
       EC_fraction(conf.getUntrackedParameter<double>("EC_fraction", 0.6)),
       BC_fraction(conf.getUntrackedParameter<double>("BC_fraction", 0.6)) {}
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::runCommon(const VFATFrameCollection &input,
                                    const TotemDAQMapping &mapping,
@@ -179,8 +173,6 @@ void RawToDigiConverter::runCommon(const VFATFrameCollection &input,
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-
 void RawToDigiConverter::run(const VFATFrameCollection &input,
                              const TotemDAQMapping &mapping,
                              const TotemAnalysisMask &analysisMask,
@@ -199,7 +191,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
     // calculate ids
     TotemRPDetId chipId(record.info->symbolicID.symbolicID);
     uint8_t chipPosition = chipId.chip();
-    TotemRPDetId detId = chipId.getPlaneId();
+    TotemRPDetId detId = chipId.planeId();
 
     // update chipPosition in status
     record.status.setChipPosition(chipPosition);
@@ -228,7 +220,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
         // skip masked channels
         if (!anMa.fullMask && anMa.maskedChannels.find(ch) == anMa.maskedChannels.end()) {
           DetSet<TotemRPDigi> &digiDetSet = rpData.find_or_insert(detId);
-          digiDetSet.push_back(TotemRPDigi(offset + ch));
+          digiDetSet.emplace_back(offset + ch);
         }
       }
     }
@@ -238,8 +230,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
     statusDetSet.push_back(record.status);
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::run(const VFATFrameCollection &coll,
                              const TotemDAQMapping &mapping,
@@ -260,19 +250,16 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);
 
     if (record.status.isOK()) {
-      const VFATFrame *fr = record.frame;
-      const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame *>(fr);
-
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),
-                                            diamondframe->getTrailingEdgeTime(),
-                                            diamondframe->getThresholdVoltage(),
-                                            diamondframe->getMultihit(),
-                                            diamondframe->getHptdcErrorFlag()));
+      digiDetSet.emplace_back(pps::diamond::vfat::getLeadingEdgeTime(*record.frame),
+                              pps::diamond::vfat::getTrailingEdgeTime(*record.frame),
+                              pps::diamond::vfat::getThresholdVoltage(*record.frame),
+                              pps::diamond::vfat::getMultihit(*record.frame),
+                              pps::diamond::vfat::getHptdcErrorFlag(*record.frame));
     }
 
     // save status
@@ -280,8 +267,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
     statusDetSet.push_back(record.status);
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::run(const VFATFrameCollection &coll,
                              const TotemDAQMapping &mapping,
@@ -393,8 +378,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
     }
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::printSummaries() const {
   // print error summary

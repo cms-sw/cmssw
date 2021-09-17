@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_LINEARIZER_H
-#define ECAL_FENIX_LINEARIZER_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXLINEARIZER_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXLINEARIZER_H
 
 #include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>

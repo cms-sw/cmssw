@@ -26,7 +26,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 namespace edm {
@@ -44,7 +44,7 @@ namespace simproducer {
 
     const std::string &instanceName() const { return m_instanceName; }
 
-    virtual void registerProduct(edm::ProducerBase *) const = 0;
+    virtual void registerProduct(edm::ProducesCollector) const = 0;
 
   private:
     std::string m_instanceName;
@@ -55,8 +55,8 @@ namespace simproducer {
   public:
     ProductInfo(const std::string &iInstanceName) : ProductInfoBase(iInstanceName) {}
 
-    void registerProduct(edm::ProducerBase *iProd) const override {
-      (*iProd).template produces<T>(this->instanceName());
+    void registerProduct(edm::ProducesCollector producesCollector) const override {
+      producesCollector.produces<T>(this->instanceName());
     }
   };
 }  // namespace simproducer
@@ -64,20 +64,19 @@ namespace simproducer {
 class SimProducer : public SimWatcher {
 public:
   SimProducer() {}
-  // virtual ~SimProducer();
 
-  // ---------- const member functions ---------------------
-
-  // ---------- static member functions --------------------
-
-  // ---------- member functions ---------------------------
   virtual void produce(edm::Event &, const edm::EventSetup &) = 0;
 
-  void registerProducts(edm::ProducerBase &iProd) {
+  void registerProducts(edm::ProducesCollector producesCollector) {
     std::for_each(m_info.begin(),
                   m_info.end(),
-                  std::bind(&simproducer::ProductInfoBase::registerProduct, std::placeholders::_1, &iProd));
+                  [&producesCollector](std::shared_ptr<simproducer::ProductInfoBase> const &ptr) mutable {
+                    ptr->registerProduct(producesCollector);
+                  });
   }
+
+  SimProducer(const SimProducer &) = delete;
+  const SimProducer &operator=(const SimProducer &) = delete;
 
 protected:
   template <class T>
@@ -91,11 +90,6 @@ protected:
   }
 
 private:
-  SimProducer(const SimProducer &) = delete;  // stop default
-
-  const SimProducer &operator=(const SimProducer &) = delete;  // stop default
-
-  // ---------- member data --------------------------------
   std::vector<std::shared_ptr<simproducer::ProductInfoBase>> m_info;
 };
 

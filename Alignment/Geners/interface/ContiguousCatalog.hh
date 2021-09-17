@@ -1,11 +1,11 @@
 #ifndef GENERS_CONTIGUOUSCATALOG_HH_
 #define GENERS_CONTIGUOUSCATALOG_HH_
 
-#include <map>
-#include <vector>
-
 #include "Alignment/Geners/interface/AbsCatalog.hh"
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
+
+#include <map>
+#include <memory>
+#include <vector>
 
 namespace gs {
   class ContiguousCatalog : public AbsCatalog {
@@ -19,7 +19,7 @@ namespace gs {
     inline unsigned long long largestId() const override { return firstId_ + records_.size() - 1; }
     inline bool isContiguous() const override { return true; }
 
-    CPP11_shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long id) const override;
+    std::shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long id) const override;
 
     bool retrieveStreampos(unsigned long long id,
                            unsigned *compressionCode,
@@ -53,7 +53,7 @@ namespace gs {
     bool isEqual(const AbsCatalog &) const override;
 
   private:
-    typedef CPP11_shared_ptr<const CatalogEntry> SPtr;
+    typedef std::shared_ptr<const CatalogEntry> SPtr;
 
     // In the following multimap, item name is the key and
     // item id is the value

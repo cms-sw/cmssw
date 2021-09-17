@@ -683,16 +683,16 @@ void lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result) const {
   if (m_source.length() == 0)
     throw lumi::Exception("lumi source is not set", "parseSourceString", "Lumi2DB");
   //std::cout<<"source "<<m_source<<std::endl;
-  size_t tempIndex = m_source.find_last_of(".");
+  size_t tempIndex = m_source.find_last_of('.');
   size_t nameLength = m_source.length();
   std::string FileSuffix = m_source.substr(tempIndex + 1, nameLength - tempIndex);
-  std::string::size_type lastPos = m_source.find_first_not_of("_", 0);
-  std::string::size_type pos = m_source.find_first_of("_", lastPos);
+  std::string::size_type lastPos = m_source.find_first_not_of('_', 0);
+  std::string::size_type pos = m_source.find_first_of('_', lastPos);
   std::vector<std::string> pieces;
   while (std::string::npos != pos || std::string::npos != lastPos) {
     pieces.push_back(m_source.substr(lastPos, pos - lastPos));
-    lastPos = m_source.find_first_not_of("_", pos);
-    pos = m_source.find_first_of("_", lastPos);
+    lastPos = m_source.find_first_not_of('_', pos);
+    pos = m_source.find_first_of('_', lastPos);
   }
   if (pieces[1] != "LUMI" || pieces[2] != "RAW" || FileSuffix != "root") {
     throw lumi::Exception("not lumi raw data file CMS_LUMI_RAW", "parseSourceString", "Lumi2DB");

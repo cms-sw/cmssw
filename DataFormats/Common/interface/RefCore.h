@@ -86,11 +86,13 @@ namespace edm {
 
     WrapperBase const* tryToGetProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const;
 
-    WrapperBase const* getThinnedProductPtr(std::type_info const& type,
-                                            unsigned int& thinnedKey,
-                                            EDProductGetter const* prodGetter) const;
+    // argument 'key' is the key to parent, key to thinned is returned
+    std::tuple<WrapperBase const*, unsigned int> getThinnedProductPtr(std::type_info const& type,
+                                                                      unsigned int key,
+                                                                      EDProductGetter const* prodGetter) const;
 
-    bool isThinnedAvailable(unsigned int thinnedKey, EDProductGetter const* prodGetter) const;
+    // argument 'key' is the key to parent
+    bool isThinnedAvailable(unsigned int key, EDProductGetter const* prodGetter) const;
 
     void productNotFoundException(std::type_info const& type) const;
 

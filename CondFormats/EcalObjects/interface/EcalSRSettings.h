@@ -14,8 +14,6 @@
 #include <string>
 #include <ostream>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 /** Class to hold ECAL Selective readout settings.
  * Up to CMSSW release 3.8.X, selective readout emulation settings was done from
  * CMSSW configuration file. From 3.8.X configuration is stored in condition database.

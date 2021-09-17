@@ -1,8 +1,9 @@
 #ifndef SimG4Core_DDG4ProductionCuts_H
 #define SimG4Core_DDG4ProductionCuts_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+#include <DD4hep/SpecParRegistry.h>
+#include <DDG4/Geant4GeometryInfo.h>
 
 #include <string>
 #include <vector>
@@ -10,29 +11,38 @@
 class DDLogicalPart;
 class G4Region;
 class G4LogicalVolume;
-class G4ProductionCuts;
 
 class DDG4ProductionCuts {
 public:
-  DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap&, int, const edm::ParameterSet& p);
-  ~DDG4ProductionCuts();
-  void update();
-  void SetVerbosity(int verb) {
-    m_Verbosity = verb;
-    return;
-  }
+  explicit DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap*, int, bool);
+
+  explicit DDG4ProductionCuts(const dd4hep::SpecParRegistry*,
+                              const dd4hep::sim::Geant4GeometryMaps::VolumeMap*,
+                              int,
+                              bool);
 
 private:
   void initialize();
-  void setProdCuts(const DDLogicalPart lpart, G4LogicalVolume* lvolume);
-  G4Region* getRegion(const std::string& region);
-  G4ProductionCuts* getProductionCuts(G4Region* region);
+  void setProdCuts(const DDLogicalPart, G4Region*);
 
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  std::string m_KeywordRegion;
-  int m_Verbosity;
-  bool m_protonCut;
+  const G4LogicalVolumeToDDLogicalPartMap* map_ = nullptr;
   G4LogicalVolumeToDDLogicalPartMap::Vector vec_;
+
+  // ---------------------------------
+  // DD4hep specific initialization,
+  //   methods, and local variables...
+  void dd4hepInitialize();
+  void setProdCuts(const dd4hep::SpecPar*, G4Region*);
+
+  const dd4hep::sim::Geant4GeometryMaps::VolumeMap* dd4hepMap_ = nullptr;
+  std::vector<std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>> dd4hepVec_;
+  const dd4hep::SpecParRegistry* specPars_;
+  // ... end here.
+  // ---------------------------------
+
+  const std::string keywordRegion_;
+  const int verbosity_;
+  const bool protonCut_;
 };
 
 #endif

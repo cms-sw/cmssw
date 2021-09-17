@@ -1,6 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
 
 #include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
@@ -144,13 +143,6 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
         spotIter->getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(), spotIter->getTime());
-
-    // if there is a watcher defined in a job and the flag is turned on
-    if (theWatcherOn) {
-      theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
-      SteppingAction *userSteppingAction = (SteppingAction *)G4EventManager::GetEventManager()->GetUserSteppingAction();
-      userSteppingAction->m_g4StepSignal(theGflashStep);
-    }
 
     G4VPhysicalVolume *aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
     if (aCurrentVolume == nullptr)

@@ -17,6 +17,8 @@
 #include <iostream>
 #include <map>
 
+//#define EDM_ML_DEBUG
+
 namespace {
   GeomDetEnumerators::SubDetector geometricDetToGeomDet(GeometricTimingDet::GTDEnumType gdenum) {
     // provide a map between the GeometricTimingDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
@@ -44,54 +46,63 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   }
   GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
 
-  LogDebug("BuildingSubDetTypeMap") << "GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors"
-                                    << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("BuildingSubDetTypeMap")
+      << "MTD GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors" << std::endl;
+#endif
   for (unsigned int i = 0; i < subdetgd.size(); ++i) {
     MTDDetId mtdid(subdetgd[i]->geographicalId());
     assert(mtdid.mtdSubDetector() > 0 && mtdid.mtdSubDetector() < 3);
     theSubDetTypeMap[mtdid.mtdSubDetector() - 1] = geometricDetToGeomDet(subdetgd[i]->type());
     theNumberOfLayers[mtdid.mtdSubDetector() - 1] = subdetgd[i]->components().size();
-    LogTrace("BuildingSubDetTypeMap").log([&](auto& debugstr) {
-      debugstr << "subdet " << i << " Geometric Det type " << subdetgd[i]->type() << " Geom Det type "
-               << theSubDetTypeMap[mtdid.mtdSubDetector() - 1] << " detid " << std::hex
-               << subdetgd[i]->geographicalId().rawId() << std::dec << " subdetid " << mtdid.mtdSubDetector()
-               << " number of layers " << subdetgd[i]->components().size() << std::endl;
-    });
+#ifdef EDM_ML_DEBUG
+    LogTrace("BuildingSubDetTypeMap") << "MTD subdet " << i << " Geometric Det type " << subdetgd[i]->type()
+                                      << " Geom Det type " << theSubDetTypeMap[mtdid.mtdSubDetector() - 1] << " detid "
+                                      << std::hex << subdetgd[i]->geographicalId().rawId() << std::dec << " subdetid "
+                                      << mtdid.mtdSubDetector() << " number of layers "
+                                      << subdetgd[i]->components().size();
+#endif
   }
-  LogDebug("SubDetTypeMapContent").log([&](auto& debugstr) {
-    debugstr << "Content of theSubDetTypeMap" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("SubDetTypeMapContent").log([&](auto& debugstr) {
+    debugstr << "MTD Content of theSubDetTypeMap"
+             << "\n";
     for (unsigned int i = 1; i <= 2; ++i) {
-      debugstr << " detid subdet " << i << " Geom Det type " << geomDetSubDetector(i) << std::endl;
+      debugstr << " detid subdet " << i << " Geom Det type " << geomDetSubDetector(i) << "\n";
     }
   });
-  LogDebug("NumberOfLayers").log([&](auto& debugstr) {
-    debugstr << "Content of theNumberOfLayers" << std::endl;
+  edm::LogInfo("NumberOfLayers").log([&](auto& debugstr) {
+    debugstr << "MTD Content of theNumberOfLayers"
+             << "\n";
     for (unsigned int i = 1; i <= 2; ++i) {
-      debugstr << " detid subdet " << i << " number of layers " << numberOfLayers(i) << std::endl;
+      debugstr << " detid subdet " << i << " number of layers " << numberOfLayers(i) << "\n";
     }
   });
+#endif
   std::vector<const GeometricTimingDet*> deepcomp;
   gd->deepComponents(deepcomp);
 
   sort(deepcomp.begin(), deepcomp.end(), DetIdComparator());
 
-  LogDebug("ThicknessAndType") << " Total Number of Detectors " << deepcomp.size() << std::endl;
-  LogDebug("ThicknessAndType") << "Dump of sensors names and bounds" << std::endl;
-  LogDebug("ThicknessAndType").log([&](auto& debugstr) {
-    for (auto det : deepcomp) {
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("ThicknessAndType") << "MTD Total Number of Detectors " << deepcomp.size() << std::endl;
+  edm::LogInfo("ThicknessAndType") << "MTD Dump of sensors names and bounds" << std::endl;
+  edm::LogInfo("ThicknessAndType").log([&](auto& debugstr) {
+    for (const auto& det : deepcomp) {
       fillTestMap(det);
-      debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name().fullname() << " "
-               << det->bounds()->thickness();
+      debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name() << " "
+               << det->bounds()->thickness() << "\n";
     }
   });
-  LogDebug("DetTypeList").log([&](auto& debugstr) {
-    debugstr << " Content of DetTypetList : size " << theDetTypetList.size() << std::endl;
-    for (auto iVal : theDetTypetList) {
+  edm::LogInfo("DetTypeList").log([&](auto& debugstr) {
+    debugstr << "MTD Content of DetTypeList : size " << theDetTypetList.size() << "\n";
+    for (const auto& iVal : theDetTypetList) {
       debugstr << " DetId " << std::get<0>(iVal).rawId() << " Type "
                << static_cast<std::underlying_type<MTDGeometry::ModuleType>::type>(std::get<1>(iVal)) << " Thickness "
-               << std::get<2>(iVal) << std::endl;
+               << std::get<2>(iVal) << "\n";
     }
   });
+#endif
 }
 
 MTDGeometry::~MTDGeometry() {
@@ -190,8 +201,8 @@ bool MTDGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 }
 
 void MTDGeometry::fillTestMap(const GeometricTimingDet* gd) {
-  std::string temp = gd->name().fullname();
-  std::string name = temp.substr(temp.find(":") + 1);
+  const std::string& temp = gd->name();
+  std::string name = temp.substr(temp.find(':') + 1);
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();
   std::string nameTag;
@@ -210,7 +221,7 @@ void MTDGeometry::fillTestMap(const GeometricTimingDet* gd) {
 }
 
 MTDGeometry::ModuleType MTDGeometry::getDetectorType(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     MTDGeometry::ModuleType mtype = std::get<1>(iVal);
     if (detid.rawId() <= detid_max.rawId())
@@ -220,7 +231,7 @@ MTDGeometry::ModuleType MTDGeometry::getDetectorType(DetId detid) const {
 }
 
 float MTDGeometry::getDetectorThickness(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     if (detid.rawId() <= detid_max.rawId())
       return std::get<2>(iVal);

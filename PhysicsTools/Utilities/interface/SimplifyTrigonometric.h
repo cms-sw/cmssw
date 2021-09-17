@@ -10,8 +10,6 @@
 #include "PhysicsTools/Utilities/interface/Ratio.h"
 #include "PhysicsTools/Utilities/interface/Sum.h"
 #include "PhysicsTools/Utilities/interface/ParametricTrait.h"
-#include <boost/mpl/if.hpp>
-
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
 namespace funct {
@@ -107,7 +105,7 @@ namespace funct {
   };
 
   TEMPL(N2T1) struct SimpifyS2C2Sum<n, m, A, false> {
-    static const int p = ::boost::mpl::if_c<(n < m), ::boost::mpl::int_<n>, ::boost::mpl::int_<m> >::type::value;
+    static constexpr int p = n < m ? n : m;
     typedef SUM(SUM(PROD(NUM(n - p), SIN2(A)), PROD(NUM(m - p), COS2(A))), NUM(p)) type;
     COMBINE(PROD(NUM(n), SIN2(A)), PROD(NUM(m), COS2(A)), (num<n - p>() * _1._2 + num<m - p>() * _2._2) + num<p>());
   };

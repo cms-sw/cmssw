@@ -275,7 +275,9 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx& rnrCtx, TGLOvlSelectRecord& selRec, Even
       }
       return kTRUE;
     }
-    default: { return kFALSE; }
+    default: {
+      return kFALSE;
+    }
   }
 
   return false;

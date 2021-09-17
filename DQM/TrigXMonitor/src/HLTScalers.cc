@@ -72,7 +72,6 @@
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace edm;
 
@@ -293,6 +292,6 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const e
   LogDebug("HLTScalers") << "End of luminosity block.";
 }
 
-void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c) {
+void HLTScalers::dqmEndRun(const edm::Run& run, const edm::EventSetup& c) {
   LogDebug("HLTScalers") << "HLTScalers::endRun , run " << run.id();
 }

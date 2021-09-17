@@ -10,7 +10,7 @@
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
 //
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -33,7 +33,7 @@ TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTable
 FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName, std::string geoName)
     : FWViewManagerBase(), m_fileName(fileName), m_TGeoName(geoName) {
   FWGUIManager::ViewBuildFunctor f;
-  f = boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);
+  f = std::bind(&FWGeometryTableViewManager::buildView, this, std::placeholders::_1, std::placeholders::_2);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kGeometryTable), f);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kOverlapTable), f);
 }
@@ -54,7 +54,7 @@ FWViewBase* FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const
 
   view->setBackgroundColor();
   m_views.push_back(std::shared_ptr<FWGeometryTableViewBase>(view));
-  view->beingDestroyed_.connect(boost::bind(&FWGeometryTableViewManager::beingDestroyed, this, _1));
+  view->beingDestroyed_.connect(std::bind(&FWGeometryTableViewManager::beingDestroyed, this, std::placeholders::_1));
 
   return view.get();
 }
@@ -94,18 +94,18 @@ void FWGeometryTableViewManager::setGeoManagerFromFile() {
   TFile* file = FWGeometry::findFile(m_fileName.c_str());
   fwLog(fwlog::kInfo) << "Geometry table file: " << m_fileName.c_str() << std::endl;
   try {
-    if (!file)
-      throw std::runtime_error("No root file.");
-
-    file->ls();
-
-    s_geoManager = (TGeoManager*)file->Get(m_TGeoName.c_str());
+    if (!file) {
+      // Try it as a GDML file
+      s_geoManager = TGeoManager::Import(m_fileName.c_str(), m_TGeoName.c_str());
+    } else {
+      file->ls();
+      s_geoManager = (TGeoManager*)file->Get(m_TGeoName.c_str());
+    }
     if (!s_geoManager)
       throw std::runtime_error("Can't find TGeoManager object in selected file.");
 
   } catch (std::runtime_error& e) {
-    fwLog(fwlog::kError)
-        << "Failed to find simulation geometry file. Please set the file path with --sim-geom-file option.\n";
+    fwLog(fwlog::kError) << e.what();
     exit(0);
   }
 }

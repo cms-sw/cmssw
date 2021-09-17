@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
 
 #include "PhysicsTools/UtilAlgos/interface/StringBasedNTupler.h"
@@ -25,13 +26,13 @@ public:
     */
   }
 
-  uint registerleaves(edm::ProducerBase* producer) override {
+  uint registerleaves(edm::ProducesCollector producesCollector) override {
     uint nLeaves = 0;
-    nLeaves += sN->registerleaves(producer);
+    nLeaves += sN->registerleaves(producesCollector);
     if (vN)
-      nLeaves += vN->registerleaves(producer);
+      nLeaves += vN->registerleaves(producesCollector);
     //    if (aN)
-    //      nLeaves+=aN->registerleaves(producer);
+    //      nLeaves+=aN->registerleaves(producesCollector);
     return nLeaves;
   }
   void fill(edm::Event& iEvent) override {

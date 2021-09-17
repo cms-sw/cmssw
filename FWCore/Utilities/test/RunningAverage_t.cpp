@@ -7,7 +7,8 @@ namespace {
 }
 
 #include "tbb/parallel_for.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/task_arena.h"
+#include "tbb/global_control.h"
 #include <iostream>
 #include <vector>
 #include <atomic>
@@ -18,8 +19,8 @@ namespace {
 namespace test_average {
   namespace running_average {
     int test() {
-      //tbb::task_scheduler_init init;  // Automatic number of threads
-      tbb::task_scheduler_init init(tbb::task_scheduler_init::default_num_threads());  // Explicit number of threads
+      tbb::global_control control(tbb::global_control::max_allowed_parallelism,
+                                  tbb::this_task_arena::max_concurrency());  // Explicit number of threads
 
       // std::random_device rd;
       std::mt19937 e2;  // (rd());

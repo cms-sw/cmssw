@@ -47,7 +47,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 //#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -59,6 +58,8 @@ private:
   std::ofstream textfile_;
 
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   //   typedef std::pair<int,double> CountLS_t;
   //   //typedef std::deque<CountLS_t> CountLSFifo_t;
   //   typedef std::map<int,double> CountLSFifo_t;

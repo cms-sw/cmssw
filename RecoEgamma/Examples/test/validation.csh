@@ -464,7 +464,7 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd();
 TH1F *h_old = (TH1F*)file_old->Get("$i");
-Double_t nold;
+double nold;
 if (h_old) {
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
@@ -477,7 +477,7 @@ nold=$i->GetEntries();
 file_new->cd();
 TH1F *h_new = (TH1F*)file_new->Get("$i");
 if (h_new) {
-Double_t nnew;
+double nnew;
 nnew=$i->GetEntries();
 $i->SetLineColor(2);
 $i->SetLineWidth(3);

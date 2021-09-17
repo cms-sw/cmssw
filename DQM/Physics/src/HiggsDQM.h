@@ -30,7 +30,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
@@ -38,8 +38,6 @@
 #include <string>
 #include <vector>
 #include <map>
-
-class DQMStore;
 
 class HiggsDQM : public DQMEDAnalyzer {
 public:
@@ -50,7 +48,6 @@ protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
   double Distance(const reco::Candidate& c1, const reco::Candidate& c2);

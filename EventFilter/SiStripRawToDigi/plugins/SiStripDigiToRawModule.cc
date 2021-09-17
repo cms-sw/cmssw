@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <cstdlib>
@@ -42,7 +41,8 @@ namespace sistrip {
         digiToRaw_(nullptr),
         eventCounter_(0),
         inputDigiTag_(pset.getParameter<edm::InputTag>("InputDigis")),
-        rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag")) {
+        rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag")),
+        tokenCabling(esConsumes<SiStripFedCabling, SiStripFedCablingRcd>()) {
     if (edm::isDebugEnabled()) {
       LogDebug("DigiToRawModule") << "[sistrip::DigiToRawModule::DigiToRawModule]"
                                   << " Constructing object...";
@@ -156,8 +156,7 @@ namespace sistrip {
 
     auto buffers = std::make_unique<FEDRawDataCollection>();
 
-    edm::ESHandle<SiStripFedCabling> cabling;
-    iSetup.get<SiStripFedCablingRcd>().get(cabling);
+    edm::ESHandle<SiStripFedCabling> cabling = iSetup.getHandle(tokenCabling);
 
     //get buffer header from original rawdata
     edm::Handle<FEDRawDataCollection> rawbuffers;

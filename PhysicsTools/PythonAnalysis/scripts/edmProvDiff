@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # A script to compare the provenance of two input root files.
 # It prints out informations about those modules which are common to the input files,

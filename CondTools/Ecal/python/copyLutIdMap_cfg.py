@@ -32,7 +32,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+db_reader_account = 'CMS_ECAL_R'
+db_service,db_user,db_pwd = auth.get_db_credentials( db_reader_account )
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalTPGLutIdMapAnalyzer",
     record = cms.string('EcalTPGLutIdMapRcd'),

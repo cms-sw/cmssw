@@ -19,5 +19,6 @@
 #include "TProfile3D.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
+#include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 #include "TString.h"
 #include <stdint.h>

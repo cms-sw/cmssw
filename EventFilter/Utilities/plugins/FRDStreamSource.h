@@ -35,13 +35,15 @@ private:
 private:
   // member data
   std::vector<std::string>::const_iterator itFileName_;
+  std::vector<std::string>::const_iterator endFileName_;
   std::ifstream fin_;
   std::unique_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
-  unsigned int detectedFRDversion_ = 0;
+  uint16_t detectedFRDversion_ = 0;
+  uint16_t flags_ = 0;
 };
 
 #endif  // EventFilter_Utilities_FRDStreamSource_h

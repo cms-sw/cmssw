@@ -62,12 +62,13 @@ protected:
                          FWViewType::EType viewType,
                          const FWViewContext* vc) override;
 
-private:
+public:
   // Disable default copy constructor
   FWPFEcalRecHitLegoProxyBuilder(const FWPFEcalRecHitLegoProxyBuilder&) = delete;
   // Disable default assignment operator
   const FWPFEcalRecHitLegoProxyBuilder& operator=(const FWPFEcalRecHitLegoProxyBuilder&) = delete;
 
+private:
   // ----------------------- Data Members ----------------------------
   float m_maxEnergy;
   float m_maxEt;

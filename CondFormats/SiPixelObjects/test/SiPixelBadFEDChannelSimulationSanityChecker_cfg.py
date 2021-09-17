@@ -6,11 +6,13 @@ process = cms.Process("ProcessOne")
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiPixelBadFEDChannelSimulationSanityChecker")  
-process.MessageLogger.categories.append("SiPixelFEDChannelContainer")
-process.MessageLogger.categories.append("SiPixelQualityProbabilities")    
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiPixelBadFEDChannelSimulationSanityChecker=dict()  
+process.MessageLogger.SiPixelFEDChannelContainer=dict()
+process.MessageLogger.SiPixelQualityProbabilities=dict()    
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -20,7 +22,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     SiPixelFEDChannelContainer              = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelQualityProbabilities             = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.statistics.append('cout')  
+process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)  
 
 ##
 ## Empty Source
@@ -40,8 +42,7 @@ CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://Frontier
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBQualityCollection,
                                toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                          #tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v0_mc') # choose tag you want
-                                                          tag = cms.string('SiPixelFEDChannelContainer_2018_run_322633_v0_mc') # choose tag you want
+                                                          tag = cms.string('SiPixelStatusScenarios_UltraLegacy2018_v0_mc') # choose tag you want
                                                           )
                                                  )
                                )
@@ -51,8 +52,7 @@ CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierProd
 process.dbInput2 = cms.ESSource("PoolDBESSource",
                                 CondDBProbabilities,
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                                           #tag = cms.string('SiPixelQualityProbabilities_2018_noPU_v0_mc') # choose tag you want
-                                                           tag = cms.string('SiPixelQualityProbabilities_2018_322633_v0_mc') # choose tag you want
+                                                           tag = cms.string('SiPixelQualityProbabilities_UltraLegacy2018_v0_mc') # choose tag you want
                                                            )
                                                   )
                                 )

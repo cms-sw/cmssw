@@ -37,6 +37,7 @@
       std::cout << fooHandle->value()<<std::endl;
     }
 
+    NOTE: This class is not safe to use across threads
 */
 //
 // Original Author:
@@ -51,6 +52,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 class TFile;
@@ -66,6 +68,11 @@ namespace fwlite {
   class EventSetup {
   public:
     EventSetup(TFile*);
+
+    EventSetup(const EventSetup&) = delete;  // stop default
+
+    const EventSetup& operator=(const EventSetup&) = delete;  // stop default
+
     virtual ~EventSetup();
 
     // ---------- const member functions ---------------------
@@ -95,17 +102,14 @@ namespace fwlite {
     //void autoSyncTo(const edm::EventBase&);
 
   private:
-    EventSetup(const EventSetup&) = delete;  // stop default
-
-    const EventSetup& operator=(const EventSetup&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     edm::EventID m_syncedEvent;
     edm::Timestamp m_syncedTimestamp;
 
-    mutable TFile* m_file;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable TFile* m_file;
 
-    mutable std::vector<Record*> m_records;
+    CMS_SA_ALLOW mutable std::vector<Record*> m_records;
   };
 }  // namespace fwlite
 

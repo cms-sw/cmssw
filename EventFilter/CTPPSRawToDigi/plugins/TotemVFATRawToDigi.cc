@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -24,8 +25,8 @@
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
@@ -34,8 +35,6 @@
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 
 #include <string>
-
-//----------------------------------------------------------------------------------------------------
 
 class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -53,20 +52,18 @@ private:
   std::vector<unsigned int> fedIds;
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
 
-  ctpps::RawDataUnpacker rawDataUnpacker;
+  pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
 
   template <typename DigiType>
   void run(edm::Event &, const edm::EventSetup &);
 };
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace edm;
 using namespace std;
-
-//----------------------------------------------------------------------------------------------------
 
 TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     : subSystemName(conf.getParameter<string>("subSystem")),
@@ -125,13 +122,12 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   // conversion status
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
+
+  totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
 }
 
-//----------------------------------------------------------------------------------------------------
-
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
   if (subSystem == ssTrackingStrip)
@@ -144,17 +140,13 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
     run<DetSetVector<TotemTimingDigi>>(event, es);
 }
 
-//----------------------------------------------------------------------------------------------------
-
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
-  ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
+  ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
 
   // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
+  ESHandle<TotemAnalysisMask> analysisMask = es.getHandle(analysisMaskToken);
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;
@@ -181,8 +173,6 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   event.put(make_unique<DigiType>(digi), subSystemName);
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystemName);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
 

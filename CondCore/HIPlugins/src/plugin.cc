@@ -1,4 +1,4 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"
 #include "CondFormats/DataRecord/interface/HeavyIonUERcd.h"

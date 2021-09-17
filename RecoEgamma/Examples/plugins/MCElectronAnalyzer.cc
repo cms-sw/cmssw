@@ -1,40 +1,78 @@
-#include <iostream>
-//
-#include "RecoEgamma/Examples/plugins/MCElectronAnalyzer.h"
-#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-//
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-//
-#include "DataFormats/Common/interface/Handle.h"
-//
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-//
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
-//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
+
+#include <iostream>
+#include <map>
+#include <vector>
+
+class MCElectronAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit MCElectronAnalyzer(const edm::ParameterSet&);
+  ~MCElectronAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+  float phiNormalization(float& a);
+
+  //
+  ElectronMCTruthFinder* theElectronMCTruthFinder_;
+
+  const TrackerGeometry* trackerGeom;
+
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
+
+  int nEvt_;
+  int nMatched_;
+
+  /// global variable for the MC photon
+  double mcPhi_;
+  double mcEta_;
+
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
+
+  TH1F* h_MCEleE_;
+  TH1F* h_MCEleEta_;
+  TH1F* h_MCElePhi_;
+  TH1F* h_BremFrac_;
+  TH1F* h_BremEnergy_;
+
+  TProfile* p_BremVsR_;
+  TProfile* p_BremVsEta_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MCElectronAnalyzer);
 
 using namespace std;
 

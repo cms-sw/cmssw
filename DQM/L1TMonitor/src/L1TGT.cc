@@ -27,6 +27,7 @@ L1TGT::L1TGT(const edm::ParameterSet& ps)
       preGps_(0ULL),
       preOrb_(0ULL) {
   m_histFolder = ps.getUntrackedParameter<std::string>("HistFolder", "L1T/L1TGT");
+  l1gtTrigmenuToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 L1TGT::~L1TGT() {
@@ -274,10 +275,10 @@ void L1TGT::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::Eve
 
   //--------book AlgoBits/TechBits vs Bx Histogram-----------
 
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  //edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  //evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+  //menuRcd.product();
+  const L1GtTriggerMenu* menu = &evSetup.getData(l1gtTrigmenuToken_);
 
   h_L1AlgoBX1 = ibooker.book2D("h_L1AlgoBX1", "L1 Algo Trigger BX (algo bit 0 to 31)", 32, -0.5, 31.5, 5, -2.5, 2.5);
   h_L1AlgoBX2 = ibooker.book2D("h_L1AlgoBX2", "L1 Algo Trigger BX (algo bit 32 to 63)", 32, 31.5, 63.5, 5, -2.5, 2.5);
@@ -382,13 +383,13 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
       evnum_trignum_lumi->Fill(lsNumber,
                                static_cast<double>(tcsWord.eventNr()) / static_cast<double>(tcsWord.partTrigNr()));
 
-      boost::uint16_t master = gtfeEvmExtWord.bstMasterStatus();
-      boost::uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
-      boost::uint32_t lhcFill = gtfeEvmExtWord.lhcFillNumber();
-      boost::uint16_t beam = gtfeEvmExtWord.beamMode();
-      boost::uint16_t momentum = gtfeEvmExtWord.beamMomentum();
-      boost::uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
-      boost::uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
+      uint16_t master = gtfeEvmExtWord.bstMasterStatus();
+      uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
+      uint32_t lhcFill = gtfeEvmExtWord.lhcFillNumber();
+      uint16_t beam = gtfeEvmExtWord.beamMode();
+      uint16_t momentum = gtfeEvmExtWord.beamMomentum();
+      uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
+      uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
 
       BST_MasterStatus->Fill(lsNumber, static_cast<double>(master));
       BST_turnCountNumber->Fill(lsNumber, static_cast<double>(turnCount));
@@ -404,10 +405,10 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
                               << std::endl;
       }
 
-      boost::uint64_t gpsr = gtfeEvmExtWord.gpsTime();
-      boost::uint64_t gpshi = (gpsr >> 32) & 0xffffffff;
-      boost::uint64_t gpslo = gpsr & 0xffffffff;
-      boost::uint64_t gps = gpshi * 1000000 + gpslo;
+      uint64_t gpsr = gtfeEvmExtWord.gpsTime();
+      uint64_t gpshi = (gpsr >> 32) & 0xffffffff;
+      uint64_t gpslo = gpsr & 0xffffffff;
+      uint64_t gps = gpshi * 1000000 + gpslo;
       //  edm::LogInfo("L1TGT") << "  gpsr = " << std::hex << gpsr << " hi=" << gpshi << " lo=" << gpslo << " gps=" << gps << std::endl;
 
       Long64_t delorb = orbitTcs - preOrb_;
@@ -659,7 +660,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // fill the index of actual prescale factor set
     // the index for technical triggers and algorithm trigger is the same (constraint in L1 GT TS)
-    // so we read only pfIndexAlgoTrig (boost::uint16_t)
+    // so we read only pfIndexAlgoTrig (uint16_t)
 
     const int pfIndexAlgoTrig = fdlWord.gtPrescaleFactorIndexAlgo();
     m_monL1PrescaleFactorSet->Fill(lsNumber, static_cast<float>(pfIndexAlgoTrig));

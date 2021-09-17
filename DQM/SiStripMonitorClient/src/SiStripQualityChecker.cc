@@ -1,8 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/QReport.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
@@ -195,26 +193,25 @@ void SiStripQualityChecker::resetStatus() {
 // -- Fill Status
 //
 void SiStripQualityChecker::fillStatus(DQMStore& dqm_store,
-                                       const edm::ESHandle<SiStripDetCabling>& cabling,
-                                       const edm::EventSetup& eSetup) {
+                                       const SiStripDetCabling* cabling,
+                                       const TkDetMap* tkDetMap,
+                                       const TrackerTopology* tTopo) {
   if (!bookedStripStatus_)
     bookStatus(dqm_store);
 
-  edm::ESHandle<TkDetMap> tkMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkMapHandle);
-  tkDetMap_ = tkMapHandle.product();
+  tkDetMap_ = tkDetMap;
 
   fillDummyStatus();
   fillDetectorStatus(dqm_store, cabling);
 
   int faulty_moduleflag = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
   if (faulty_moduleflag)
-    fillFaultyModuleStatus(dqm_store, eSetup);
+    fillFaultyModuleStatus(dqm_store, tTopo);
 }
 //
 // Fill Detector Status
 //
-void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling) {
+void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const SiStripDetCabling* cabling) {
   unsigned int xbin = 0;
   float global_flag = 0;
   dqm_store.cd();
@@ -233,7 +230,7 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const edm::E
       continue;
     dqm_store.cd(dname);
     ++xbin;
-    float flag;
+    float flag = 0;
     fillSubDetStatus(dqm_store, cabling, local_mes, xbin, flag);
     global_flag += flag;
   }
@@ -245,11 +242,8 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const edm::E
 //
 // -- Fill Sub detector Reports
 //
-void SiStripQualityChecker::fillSubDetStatus(DQMStore& dqm_store,
-                                             const edm::ESHandle<SiStripDetCabling>& cabling,
-                                             SubDetMEs& mes,
-                                             unsigned int xbin,
-                                             float& gflag) {
+void SiStripQualityChecker::fillSubDetStatus(
+    DQMStore& dqm_store, const SiStripDetCabling* cabling, SubDetMEs& mes, unsigned int xbin, float& gflag) {
   int status_flag = pSet_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   if (status_flag < 1)
     return;
@@ -280,7 +274,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore& dqm_store,
     int errdet_hasDcsErr = 0;
 
     int ston_stat = 1;
-    int lnum = atoi(dname.substr(dname.find_last_of("_") + 1).c_str());
+    int lnum = atoi(dname.substr(dname.find_last_of('_') + 1).c_str());
     ndet = cabling->connectedNumber(mes.detectorTag, lnum);
 
     getModuleStatus(dqm_store,
@@ -407,10 +401,10 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       continue;
     std::string name = me->getName();
     std::vector<DQMChannel> bad_channels_me;
-    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+    if (me->kind() == MonitorElement::Kind::TPROFILE) {
       bad_channels_me = qreports[0]->getBadChannels();
       lname = "";
-    } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && name.find("TkHMap") != std::string::npos) {
+    } else if (me->kind() == MonitorElement::Kind::TPROFILE2D && name.find("TkHMap") != std::string::npos) {
       bad_channels_me = qreports[0]->getBadChannels();
       lname = name.substr(name.find("TkHMap_") + 7);
       lname = lname.substr(lname.find("_T") + 1);
@@ -433,7 +427,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
         detid_str << detId;
         // now in the layer/wheel dir
         const std::string& currentdir = dqm_store.pwd();
-        std::string thisMEpath = currentdir.substr(0, currentdir.rfind("/")) + "/BadModuleList/" + detid_str.str();
+        std::string thisMEpath = currentdir.substr(0, currentdir.rfind('/')) + "/BadModuleList/" + detid_str.str();
 
         MonitorElement* meBadModule = dqm_store.get(thisMEpath);
         if (meBadModule) {
@@ -477,7 +471,7 @@ void SiStripQualityChecker::fillStatusHistogram(MonitorElement const* me,
                                                 int const xbin,
                                                 int const ybin,
                                                 float const val) {
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me && me->kind() == MonitorElement::Kind::TH2F) {
     auto th2d = me->getTH2F();
     th2d->SetBinContent(xbin, ybin, val);
   }
@@ -485,14 +479,9 @@ void SiStripQualityChecker::fillStatusHistogram(MonitorElement const* me,
 //
 // -- Create Monitor Elements for Modules
 //
-void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup) {
+void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore& dqm_store, const TrackerTopology* tTopo) {
   if (badModuleList.empty())
     return;
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   dqm_store.cd();
   std::string mdir = "MechanicalView";
@@ -550,7 +539,7 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore& dqm_store) {
     return;
   std::string fullpath = dqm_store.pwd() + "/PerLumiSection/" + "lumiErrorFraction";
   MonitorElement* me = dqm_store.get(fullpath);
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me && me->kind() == MonitorElement::Kind::TH1F) {
     TH1F* th1 = me->getTH1F();
     float global_fraction = 0.0;
     float dets = 0.0;

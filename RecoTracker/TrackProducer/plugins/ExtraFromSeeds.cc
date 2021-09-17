@@ -60,12 +60,9 @@ void ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
     if (!track.quality(reco::TrackBase::highPurity))
       continue;
 
-    TrajectorySeed::range seedRange = extra.seedRef()->recHits();
-    TrajectorySeed::const_iterator seedHit;
     (*exxtralOut)[ie] = extra.seedRef()->nHits();
-    for (seedHit = seedRange.first; seedHit != seedRange.second; ++seedHit) {
-      TrackingRecHit* hit = seedHit->clone();
-      hitOut->push_back(hit);
+    for (auto const& seedHit : extra.seedRef()->recHits()) {
+      hitOut->push_back(seedHit.clone());
     }
   }
 

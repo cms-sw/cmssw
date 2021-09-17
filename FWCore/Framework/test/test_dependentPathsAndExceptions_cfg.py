@@ -6,7 +6,7 @@ process.source = cms.Source("EmptySource")
 
 process.fail = cms.EDProducer("FailingProducer")
 
-process.readFail = cms.EDProducer("AddIntsProducer", labels = cms.vstring("fail"))
+process.readFail = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("fail"))
 
 process.a = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(5), iterations = cms.uint32(10000))
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import range
 import os,subprocess,sys,re,time,random
@@ -66,7 +66,7 @@ class BuildThread(Thread):
           depsCompleted=False
           deps.BThread.IsComplete.acquire() 
           deps.BThread.IsComplete.wait()
-          #deps.BThread.isAlive() and sys.stdout.write("Wait time exeded %s %s\n" % (deps.LibName,deps.Module))
+          #deps.BThread.is_alive() and sys.stdout.write("Wait time exeded %s %s\n" % (deps.LibName,deps.Module))
           deps.BThread.IsComplete.release()
       
     self.putInServerQueue()

@@ -44,6 +44,7 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
       m_usefed(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFED", false))),
       m_usefec(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFEC", false))),
       m_debug(static_cast<bool>(pset.getUntrackedParameter<bool>("DebugMode", false))),
+      m_detInfo(SiStripDetInfoFileReader::read(pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath())),
       tTopo(buildTrackerTopology()) {
   LogTrace(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
                          << " Constructing object...";
@@ -328,8 +329,7 @@ vector<const FedChannelConnection*> SiStripCondObjBuilderFromDb::buildConnection
 //retrieve number of APV pairs per detid
 uint16_t SiStripCondObjBuilderFromDb::retrieveNumberAPVPairs(uint32_t det_id) {
   uint16_t nApvPairs;
-  SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  nApvPairs = fr->getNumberOfApvsAndStripLength(det_id).first / 2;
+  nApvPairs = m_detInfo.getNumberOfApvsAndStripLength(det_id).first / 2;
   return nApvPairs;
 }
 
@@ -472,8 +472,7 @@ bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency& latency_,
                                                       uint32_t detid,
                                                       uint16_t apvnr,
                                                       SiStripConfigDb::DeviceDescriptionsRange apvs) {
-  SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  fr->getNumberOfApvsAndStripLength(detid);
+  m_detInfo.getNumberOfApvsAndStripLength(detid);
 
   SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
   SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
@@ -747,18 +746,15 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects(SiStripConfigDb* c
   }
 
   // Get all detIds from the ideal geometry to build the payload
-  SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = fr->getAllData();
-
-  for (auto it = DetInfos.begin(); it != DetInfos.end(); ++it) {
+  for (const auto& it : m_detInfo.getAllData()) {
     // check if det id is correct and if it is actually cabled in the detector
-    if (it->first == 0 || it->first == sistrip::invalid32_) {
+    if (it.first == 0 || it.first == sistrip::invalid32_) {
       edm::LogError("DetIdNotGood") << "@SUB=analyze"
-                                    << "Invalid detid: " << it->first << "  ... neglecting!" << std::endl;
+                                    << "Invalid detid: " << it.first << "  ... neglecting!" << std::endl;
       continue;
     }
 
-    uint32_t detid = it->first;
+    uint32_t detid = it.first;
     bool update_ = true;
     i_trackercon det_iter =
         std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon& p) { return p.first == detid; });
@@ -786,7 +782,7 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects(SiStripConfigDb* c
       }  //connections
 
     } else {
-      uint32_t nApvPairs = it->second.nApvs / 2;
+      uint32_t nApvPairs = it.second.nApvs / 2;
       for (uint32_t apvPair = 0; apvPair < nApvPairs; ++apvPair) {
         setDefaultValuesApvTiming(detid, apvPair);
       }
@@ -876,7 +872,7 @@ void SiStripCondObjBuilderFromDb::buildFEDRelatedObjects(SiStripConfigDb* const 
   pedestals_ = new SiStripPedestals();
   noises_ = new SiStripNoises();
   threshold_ = new SiStripThreshold();
-  quality_ = new SiStripQuality();
+  quality_ = new SiStripQuality(m_detInfo);
 
   i_trackercon detids_end = tc.end();
 

@@ -75,7 +75,6 @@ pyout = open(pyout_name, 'a')
 
 #Added to py config: input, output file name, dqm settings
 pyout.write("\n\n##additions to cmsDriver output \n")
-pyout.write("#DQMStore.referenceFileName = ''\n")
 pyout.write("process.dqmSaver.workflow = '" + dsetpath + "'\n")
 pyout.write("process.source.fileNames = cms.untracked.vstring(\n")
 

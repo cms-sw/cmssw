@@ -1,7 +1,0 @@
-<environment>
-  <use name="SimCalorimetry/HGCalSimProducers"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <flags EDM_PLUGIN="1"/>
-  <library file="HGCHEbackSignalScalerAnalyzer.cc" name="HGCHEbackSignalScalerAnalyzer">
-  </library>
-</environment>

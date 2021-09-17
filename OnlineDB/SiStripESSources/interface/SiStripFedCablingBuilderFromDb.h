@@ -5,9 +5,9 @@
 #include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
+#include <cstdint>
 
 class SiStripFedCablingRcd;
 class SiStripFedCabling;

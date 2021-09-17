@@ -43,6 +43,8 @@ namespace edmtest {
     explicit IntProduct(int i = 0) : value(i) {}
     ~IntProduct() {}
 
+    bool operator==(IntProduct const& rhs) const { return value == rhs.value; }
+
     cms_int32_t value;
   };
 

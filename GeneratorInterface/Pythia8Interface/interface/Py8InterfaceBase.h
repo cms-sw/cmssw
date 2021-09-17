@@ -12,9 +12,11 @@
 
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
-#include <Dire/Dire.h>
+//#include <Dire/Dire.h>
 
-class EvtGenDecays;
+namespace Pythia8 {
+  class EvtGenDecays;
+}
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -28,8 +30,9 @@ namespace gen {
     ~Py8InterfaceBase() override {}
 
     virtual bool generatePartonsAndHadronize() = 0;
-    bool decay() { return true; }  // NOT used - let's call it "design imperfection"
-    bool readSettings(int);        // common func
+    bool decay() { return true; }          // NOT used - let's call it "design imperfection"
+    bool readSettings(int);                // common func
+    void makeTmpSLHA(const std::string&);  //helper for above
     virtual bool initializeForInternalPartons() = 0;
     bool declareStableParticles(const std::vector<int>&);          // common func
     bool declareSpecialSettings(const std::vector<std::string>&);  // common func
@@ -56,7 +59,7 @@ namespace gen {
     // EvtGen plugin
     //
     bool useEvtGen;
-    std::shared_ptr<EvtGenDecays> evtgenDecays;
+    std::shared_ptr<Pythia8::EvtGenDecays> evtgenDecays;
     std::string evtgenDecFile;
     std::string evtgenPdlFile;
     std::vector<std::string> evtgenUserFiles;

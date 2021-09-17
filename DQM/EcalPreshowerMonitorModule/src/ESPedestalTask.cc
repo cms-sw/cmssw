@@ -14,7 +14,6 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalPreshowerMonitorModule/interface/ESPedestalTask.h"
@@ -72,8 +71,6 @@ void ESPedestalTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Even
     }
   }
 }
-
-void ESPedestalTask::endJob(void) { LogInfo("ESPedestalTask") << "analyzed " << ievt_ << " events"; }
 
 void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   ievt_++;

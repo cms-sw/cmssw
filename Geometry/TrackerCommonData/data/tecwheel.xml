@@ -2,6 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 	<ConstantsSection label="tecwheel.xml" eval="true">
 		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="angularEpsilon" value="1E-10*deg"/>
 		<Constant name="WheelRmax" value="110.30*cm"/>
 		<Constant name="WheelT" value="12.22*cm"/>
 		<Constant name="DiskT" value="1.680*cm"/>
@@ -46,6 +47,7 @@
 		<Constant name="OptConnHeight" value="171*mm"/>
 		<Constant name="OptConnThick" value="46*mm"/>
 		<Constant name="OptConnW" value="45*deg-[tecpetpar:PetalContWidth]"/>
+		<Constant name="OptConnWEpsilonShrink" value="[OptConnW]-[angularEpsilon]"/>
 		<!--there is not enough room for the real width-->
 		<Constant name="OptConnN" value="8"/>
 		<Constant name="OptConnT1" value="2.475*cm"/>
@@ -87,7 +89,7 @@
 		<!-- the same for every petal -->
 		<Tubs name="TECInnerManifold" rMin="[tecpetpar:PetalRmax]-[PetalInManifHeight]" rMax="[tecpetpar:PetalRmax]" dz="[PetalManifThick]/2" startPhi="-[PetalInManifWidth]/2" deltaPhi="[PetalInManifWidth]"/>
 		<Tubs name="TECOuterManifold" rMin="[tecpetpar:PetalRmax]" rMax="[tecpetpar:PetalRmax]+[PetalOutManifHeight]" dz="[PetalManifThick]/2" startPhi="-[PetalOutManifWidth]/2" deltaPhi="[PetalOutManifWidth]"/>
-		<Tubs name="TECOptConnector" rMin="[tecpetpar:PetalRmax]-[OptConnHeight]" rMax="[tecpetpar:PetalRmax]" dz="[OptConnThick]/2" startPhi="-[OptConnW]/2" deltaPhi="[OptConnW]"/>
+		<Tubs name="TECOptConnector" rMin="[tecpetpar:PetalRmax]-[OptConnHeight]" rMax="[tecpetpar:PetalRmax]" dz="[OptConnThick]/2" startPhi="-[OptConnWEpsilonShrink]/2" deltaPhi="[OptConnWEpsilonShrink]"/>
 		<Box name="TECCCUM" dx="[tecpetpar:CCUMWidth]/2" dy="[tecpetpar:CCUMHeight]/2" dz="[tecpetpar:CCUMThick]/2"/>
 	</SolidSection>
 	<LogicalPartSection label="tecwheel.xml">

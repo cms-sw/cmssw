@@ -15,7 +15,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
-#include "GluedDetFromDetUnit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -33,6 +32,11 @@
 #include <sstream>
 
 using namespace std;
+
+inline DetId gluedId(const DetId& du) {
+  unsigned int mask = ~3;  // mask the last two bits
+  return DetId(du.rawId() & mask);
+}
 
 CkfDebugger::CkfDebugger(edm::EventSetup const& es, edm::ConsumesCollector&& iC)
     : trackerHitAssociatorConfig_(std::move(iC)), totSeeds(0) {

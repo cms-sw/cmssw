@@ -33,6 +33,18 @@ options.register('skipFirstLumis',
                  VarParsing.VarParsing.varType.bool,
                  "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing. ")
 
+options.register('transDelay',
+                 0, #default value, int limit -3
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "delay in seconds for the commit of the db transaction")
+
+options.register('noDB',
+                 True, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't upload the BeamSpot conditions to the DB")
+
 # Parameters for runType
 
 options.register ('runkey',
@@ -40,6 +52,14 @@ options.register ('runkey',
           VarParsing.VarParsing.multiplicity.singleton,
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
+
+# Parameter for frontierKey
+
+options.register ('runUniqueKey',
+          'InValid',
+          VarParsing.VarParsing.multiplicity.singleton,
+          VarParsing.VarParsing.varType.string,
+          "Unique run key from RCMS for Frontier")
 
 options.parseArguments()
 

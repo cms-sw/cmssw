@@ -24,13 +24,22 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+/*** Geometry ***/
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+
+/*** Thresholds from DB ***/
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 /*** Records for ESWatcher ***/
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /*** MillePede ***/
@@ -50,6 +59,8 @@ private:  //===================================================================
 
   void bookHistograms(DQMStore::IBooker&);
 
+  void fillStatusHisto(MonitorElement* statusHisto);
+
   void fillExpertHistos();
 
   void fillExpertHisto(MonitorElement* histo,
@@ -66,6 +77,13 @@ private:  //===================================================================
   //========================== PRIVATE DATA ====================================
   //============================================================================
 
+  // esConsumes
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> gDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
+  const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> aliThrToken_;
+
   const edm::ParameterSet mpReaderConfig_;
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;
@@ -81,6 +99,10 @@ private:  //===================================================================
   MonitorElement* h_yRot;
   MonitorElement* h_zPos;
   MonitorElement* h_zRot;
+
+  MonitorElement* statusResults;
+  MonitorElement* binariesAvalaible;
+  MonitorElement* exitCode;
 };
 
 // define this as a plug-in

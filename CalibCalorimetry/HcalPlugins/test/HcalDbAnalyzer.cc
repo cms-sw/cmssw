@@ -29,7 +29,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -87,6 +86,7 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_setup_;
 };
 
 //
@@ -101,6 +101,8 @@ private:
 // constructors and destructor
 //
 HcalDbAnalyzer::HcalDbAnalyzer(const edm::ParameterSet& iConfig) {
+  tok_setup_ = esConsumes<HcalDbService, HcalDbRecord>();
+
   std::cout << "HcalDbAnalyzer::HcalDbAnalyzer->..." << std::endl;
   //now do what ever initialization is needed
 }
@@ -117,8 +119,7 @@ HcalDbAnalyzer::~HcalDbAnalyzer() {
 // ------------ method called to produce the data  ------------
 void HcalDbAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << "HcalDbAnalyzer::analyze->..." << std::endl;
-  edm::ESHandle<HcalDbService> pSetup;
-  iSetup.get<HcalDbRecord>().get(pSetup);
+  const HcalDbService* pSetup = &iSetup.getData(tok_setup_);
   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
   std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
   HcalDetId cell(HcalBarrel, 1, 1, 1);

@@ -6,12 +6,13 @@
 
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 
 #include "TGTextEntry.h"
 #include "TGPicture.h"
 #include "TSystem.h"
 #include "TGClient.h"
+#include "TVirtualX.h"
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer {
 protected:

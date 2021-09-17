@@ -29,12 +29,10 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 class L1MuDTSectorProcessor;
 class L1MuDTTrackSegPhi;
@@ -45,19 +43,19 @@ class L1MuDTERS;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTSEU : public L1AbstractProcessor {
+class L1MuDTSEU {
 public:
   /// constructor
   L1MuDTSEU(const L1MuDTSectorProcessor& sp, Extrapolation ext, unsigned int tsId);
 
   /// destructor
-  ~L1MuDTSEU() override;
+  ~L1MuDTSEU();
 
   /// run SEU
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset SEU
-  void reset() override;
+  void reset();
 
   /// reset single extrapolation
   void reset(unsigned int relAdr);

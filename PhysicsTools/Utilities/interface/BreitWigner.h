@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_ZMuMu_BreitWigner_h
 #define PhysicsTools_Utilities_ZMuMu_BreitWigner_h
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include <boost/shared_ptr.hpp>
+
 #include <cmath>
 
 namespace funct {
@@ -9,7 +9,7 @@ namespace funct {
 
   struct BreitWigner {
     BreitWigner(const Parameter& m, const Parameter& g) : mass(m.ptr()), width(g.ptr()) {}
-    BreitWigner(boost::shared_ptr<double> m, boost::shared_ptr<double> g) : mass(m), width(g) {}
+    BreitWigner(std::shared_ptr<double> m, std::shared_ptr<double> g) : mass(m), width(g) {}
     BreitWigner(double m, double g) : mass(new double(m)), width(new double(g)) {}
     double operator()(double x) const {
       double m2 = *mass * (*mass);
@@ -24,7 +24,7 @@ namespace funct {
       }
       return lineShape;
     }
-    boost::shared_ptr<double> mass, width;
+    std::shared_ptr<double> mass, width;
   };
 
 }  // namespace funct

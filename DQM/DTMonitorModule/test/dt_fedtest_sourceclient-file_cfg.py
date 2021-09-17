@@ -46,11 +46,11 @@ process.GlobalTag.globaltag ="GR10_P_V4::All"
 process.load("DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cfi")
 
 process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
-process.dtunpacker = process.muonDTDigis.clone()
 # enable DQM monitoring in unpacker
-process.dtunpacker.performDataIntegrityMonitor = cms.untracked.bool(True)
-process.dtunpacker.readOutParameters.performDataIntegrityMonitor = cms.untracked.bool(True)
-
+process.dtunpacker = process.muonDTDigis.clone(
+   performDataIntegrityMonitor = True,
+   readOutParameters.performDataIntegrityMonitor = True
+)
 # DQM Modules
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 

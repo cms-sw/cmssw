@@ -38,10 +38,10 @@ private:
   int correctedPhiB(const L1MuKBMTCombinedStubRef&);
   void propagate(L1MuKBMTrack&);
   void updateEta(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&);
-  bool update(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&, int);
+  bool update(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&, int, int);
   bool updateOffline(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&);
   bool updateOffline1D(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&);
-  bool updateLUT(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&, int);
+  bool updateLUT(L1MuKBMTrack&, const L1MuKBMTCombinedStubRef&, int, int);
   void vertexConstraint(L1MuKBMTrack&);
   void vertexConstraintOffline(L1MuKBMTrack&);
   void vertexConstraintLUT(L1MuKBMTrack&);
@@ -106,6 +106,26 @@ private:
   std::vector<int> combos2_;
   std::vector<int> combos1_;
 
+  //bits for fixed point precision
+  static const int BITSCURV = 14;
+  static const int BITSPHI = 12;
+  static const int BITSPHIB = 13;
+  static const int BITSPARAM = 14;
+  static const int GAIN_0 = 9;
+  static const int GAIN_0INT = 6;
+  static const int GAIN_4 = 9;
+  static const int GAIN_4INT = 4;
+  static const int GAIN_V0 = 9;
+  static const int GAIN_V0INT = 3;
+
+  static const int GAIN2_0 = 12;
+  static const int GAIN2_0INT = 8;
+  static const int GAIN2_1 = 12;
+  static const int GAIN2_1INT = 4;
+  static const int GAIN2_4 = 12;
+  static const int GAIN2_4INT = 4;
+  static const int GAIN2_5 = 12;
+  static const int GAIN2_5INT = 0;
   //STUFF NOT USED IN THE FIRMWARE BUT ONLY FOR DEBUGGING
   ///////////////////////////////////////////////////////
 
@@ -116,6 +136,9 @@ private:
   double pointResolutionPhi_;
   //point resolution for phiB
   double pointResolutionPhiB_;
+  std::vector<double> pointResolutionPhiBH_;
+  std::vector<double> pointResolutionPhiBL_;
+  //double pointResolutionPhiB_;
   //point resolution for vertex
   double pointResolutionVertex_;
 

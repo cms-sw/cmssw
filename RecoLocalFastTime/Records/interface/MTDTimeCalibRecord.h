@@ -6,11 +6,11 @@
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MTDTimeCalibRecord
     : public edm::eventsetup::DependentRecordImplementation<MTDTimeCalibRecord,
-                                                            boost::mpl::vector<MTDDigiGeometryRecord, MTDTopologyRcd> > {
+                                                            edm::mpl::Vector<MTDDigiGeometryRecord, MTDTopologyRcd> > {
 };
 
 #endif

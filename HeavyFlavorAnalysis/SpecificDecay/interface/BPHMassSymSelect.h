@@ -37,6 +37,10 @@ public:
   BPHMassSymSelect(const std::string& np, const std::string& nn, const BPHMassSelect* ms)
       : nPos(np), nNeg(nn), mSel(ms) {}
 
+  // deleted copy constructor and assignment operator
+  BPHMassSymSelect(const BPHMassSymSelect& x) = delete;
+  BPHMassSymSelect& operator=(const BPHMassSymSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHMassSymSelect() override {}
@@ -61,14 +65,10 @@ public:
 
     delete pc;
     delete nc;
-    return ((mass > mSel->getMassMin()) && (mass < mSel->getMassMax()));
+    return ((mass >= mSel->getMassMin()) && (mass <= mSel->getMassMax()));
   }
 
 private:
-  // private copy and assigment constructors
-  BPHMassSymSelect(const BPHMassSymSelect& x) = delete;
-  BPHMassSymSelect& operator=(const BPHMassSymSelect& x) = delete;
-
   std::string nPos;
   std::string nNeg;
   const BPHMassSelect* mSel;

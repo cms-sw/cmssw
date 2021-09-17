@@ -88,20 +88,18 @@ namespace edm {
           BranchDescription const& desc2 = prov.branchDescription();
           std::string const& process = desc2.processName();
           std::string const& label = desc2.moduleLabel();
-          ProcessHistory const* processHistory = prov.processHistoryPtr();
+          ProcessHistory const& processHistory = e.processHistory();
 
-          if (processHistory) {
-            for (ProcessConfiguration const& pc : *processHistory) {
-              if (pc.processName() == process) {
-                ParameterSetID const& psetID = pc.parameterSetID();
-                pset::Registry const* psetRegistry = pset::Registry::instance();
-                ParameterSet const* processPset = psetRegistry->getMapped(psetID);
-                if (processPset) {
-                  if (desc.isAlias()) {
-                    LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
-                  }
-                  LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
+          for (ProcessConfiguration const& pc : processHistory) {
+            if (pc.processName() == process) {
+              ParameterSetID const& psetID = pc.parameterSetID();
+              pset::Registry const* psetRegistry = pset::Registry::instance();
+              ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+              if (processPset) {
+                if (desc.isAlias()) {
+                  LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
                 }
+                LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
               }
             }
           }

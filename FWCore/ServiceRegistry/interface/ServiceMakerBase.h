@@ -37,6 +37,8 @@ namespace edm {
     class ServiceMakerBase {
     public:
       ServiceMakerBase();
+      ServiceMakerBase(ServiceMakerBase const&) = delete;                   // stop default
+      ServiceMakerBase const& operator=(ServiceMakerBase const&) = delete;  // stop default
       virtual ~ServiceMakerBase();
 
       // ---------- const member functions ---------------------
@@ -57,10 +59,6 @@ namespace edm {
       bool testSaveConfiguration(void const*) const { return false; }
 
     private:
-      ServiceMakerBase(ServiceMakerBase const&) = delete;  // stop default
-
-      ServiceMakerBase const& operator=(ServiceMakerBase const&) = delete;  // stop default
-
       // ---------- member data --------------------------------
     };
   }  // namespace serviceregistry

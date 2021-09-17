@@ -4,20 +4,17 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("TestProcess")
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
-from Configuration.StandardSequences.VtxSmeared import VtxSmeared
-#process.load(VtxSmeared['Flat'])
-process.load(VtxSmeared['NoSmear'])
-
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")
-
 process.load("Configuration.EventContent.EventContent_cff")
+from Configuration.StandardSequences.VtxSmeared import VtxSmeared
+process.load(VtxSmeared['NoSmear'])
 
 options = VarParsing('analysis')
 
 options.register('nEvents',
-                 10000,
+                 100000,
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.int,
                  "Maximum number of events"
@@ -42,8 +39,8 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
-        MinEta = cms.double(-5.5),
-        MaxEta = cms.double(5.5),
+        MinEta = cms.double(-6.0),
+        MaxEta = cms.double(6.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
         MinE   = cms.double(10.0),
@@ -60,4 +57,3 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared)
 process.outpath = cms.EndPath(process.o1)
-

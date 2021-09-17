@@ -1,5 +1,4 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "CondTools/SiStrip/plugins/SiStripDetVOffReader.h"
 
@@ -8,13 +7,12 @@
 #include <sys/time.h>
 
 SiStripDetVOffReader::SiStripDetVOffReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", true)) {}
+    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", true)), detVOffToken_(esConsumes()) {}
 
 SiStripDetVOffReader::~SiStripDetVOffReader() {}
 
 void SiStripDetVOffReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripDetVOff> SiStripDetVOff_;
-  iSetup.get<SiStripDetVOffRcd>().get(SiStripDetVOff_);
+  const auto& detVOff = iSetup.getData(detVOffToken_);
   edm::LogInfo("SiStripDetVOffReader") << "[SiStripDetVOffReader::analyze] End Reading SiStripDetVOff" << std::endl;
 
   // put here a vector of DetIds to compare
@@ -22,14 +20,14 @@ void SiStripDetVOffReader::analyze(const edm::Event& e, const edm::EventSetup& i
 
   // replace this code, with Your own detids
   std::vector<uint32_t> detid;
-  SiStripDetVOff_->getDetIds(detid);
+  detVOff.getDetIds(detid);
   //
 
   if (printdebug_) {
     for (uint32_t id = 0; id <= detid.size(); id++) {
-      bool hvflag = SiStripDetVOff_->IsModuleHVOff(detid[id]);
-      bool lvflag = SiStripDetVOff_->IsModuleLVOff(detid[id]);
-      bool vflag = SiStripDetVOff_->IsModuleVOff(detid[id]);
+      bool hvflag = detVOff.IsModuleHVOff(detid[id]);
+      bool lvflag = detVOff.IsModuleLVOff(detid[id]);
+      bool vflag = detVOff.IsModuleVOff(detid[id]);
       if (hvflag == true) {
         edm::LogInfo("SiStripDetVOffReader") << "detid: " << detid[id] << " HV\t OFF\n";
       } else {

@@ -2,7 +2,7 @@
 #define DQM_L1TMONITORCLIENT_L1TStage2CaloLayer2DECLIENTSUMMARY_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class L1TStage2CaloLayer2DEClientSummary : public DQMEDHarvester {

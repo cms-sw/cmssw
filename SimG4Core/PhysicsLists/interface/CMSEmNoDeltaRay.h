@@ -1,7 +1,6 @@
 #ifndef SimG4Core_PhysicsLists_CMSEmNoDeltaRay_h
 #define SimG4Core_PhysicsLists_CMSEmNoDeltaRay_h
 
-#include "HepPDT/ParticleDataTable.hh"
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 #include <string>
@@ -15,7 +14,6 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int verbose;
   std::string region;
 };
 

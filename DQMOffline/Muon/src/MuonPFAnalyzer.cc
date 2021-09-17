@@ -30,7 +30,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 using namespace edm;
@@ -273,7 +272,7 @@ void MuonPFAnalyzer::bookHistos(DQMStore::IBooker &ibooker, const string &group)
   }
 }
 
-MonitorElement *MuonPFAnalyzer::getPlot(const string &group, const string &type) {
+MuonPFAnalyzer::MonitorElement *MuonPFAnalyzer::getPlot(const string &group, const string &type) {
   map<string, map<string, MonitorElement *> >::iterator groupIt = thePlots.find(group);
   if (groupIt == thePlots.end()) {
     LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] GROUP : " << group << " is not a valid plot group. Returning 0.\n";

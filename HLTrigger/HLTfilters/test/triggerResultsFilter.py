@@ -14,8 +14,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.MessageLogger.cerr_stats.threshold = 'INFO' # also info in statistics
 
 # load conditions from the global tag
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # read back the trigger decisions
@@ -179,6 +179,6 @@ process.path_false_pattern       = cms.Path( process.filter_false_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','TEST' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults', '', 'TEST' )
 )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltTrigReport )

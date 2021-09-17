@@ -5,15 +5,13 @@
 #include <iostream>
 #include <sstream>
 
-#include <boost/bind.hpp>
-
 bool SiStripBaseDelay::put(const uint32_t detId, const uint16_t coarseDelay, const uint16_t fineDelay) {
   delays_.push_back(Delay(detId, coarseDelay, fineDelay));
   return true;
 }
 
 uint16_t SiStripBaseDelay::coarseDelay(const uint32_t detId) {
-  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), boost::bind(&Delay::detId, _1) == detId);
+  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), [&](auto& x) { return x.detId == detId; });
   if (it != delays_.end()) {
     return it->coarseDelay;
   }
@@ -21,7 +19,7 @@ uint16_t SiStripBaseDelay::coarseDelay(const uint32_t detId) {
 }
 
 uint16_t SiStripBaseDelay::fineDelay(const uint32_t detId) const {
-  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), boost::bind(&Delay::detId, _1) == detId);
+  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), [&](auto& x) { return x.detId == detId; });
   if (it != delays_.end()) {
     return it->fineDelay;
   }
@@ -29,7 +27,7 @@ uint16_t SiStripBaseDelay::fineDelay(const uint32_t detId) const {
 }
 
 double SiStripBaseDelay::delay(const uint32_t detId) const {
-  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), boost::bind(&Delay::detId, _1) == detId);
+  delayConstIt it = std::find_if(delays_.begin(), delays_.end(), [&](auto& x) { return x.detId == detId; });
   if (it != delays_.end()) {
     return makeDelay(it->coarseDelay, it->fineDelay);
   }

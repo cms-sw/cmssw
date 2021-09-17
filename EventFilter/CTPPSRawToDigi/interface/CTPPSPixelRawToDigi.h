@@ -11,9 +11,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -34,6 +35,8 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> CTPPSPixelDAQMapping_;
+
   std::set<unsigned int> fedIds_;
 
   edm::InputTag label_;
@@ -41,5 +44,6 @@ private:
   std::string mappingLabel_;
 
   bool includeErrors_;
+  bool isRun3_;
 };
 #endif

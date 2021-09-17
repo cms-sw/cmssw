@@ -1,5 +1,4 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
@@ -8,34 +7,21 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <sstream>
 
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const SiPixelFedCabling* map)
-    : map_(map), DetToFedMap(map->det2PathMap()) {
-  // Build map
-  // buildStructure(iSetup);
-}
+SiPixelFrameReverter::SiPixelFrameReverter(const SiPixelFedCabling* map) : map_(map), DetToFedMap(map->det2PathMap()) {}
 
-void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup) {
+void SiPixelFrameReverter::buildStructure(const TrackerGeometry* trackerGeometry) {
   // Create map connecting each detId to appropriate SiPixelFrameConverter
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-
-  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = trackerGeometry->dets().begin(); it != trackerGeometry->dets().end(); it++) {
     if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();

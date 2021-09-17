@@ -26,7 +26,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -66,9 +65,9 @@ private:
   int _absthr;
   int _modthr;
   bool _useQuality;
-  std::string _qualityLabel;
-  edm::ESHandle<SiStripQuality> _qualityHandle;
+  const SiStripQuality* _qualityHandle = nullptr;
   edm::ESWatcher<SiStripQualityRcd> _qualityWatcher;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> _qualityToken;
 };
 
 //
@@ -88,7 +87,7 @@ LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig)
       _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
       _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
       _useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
-      _qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")) {
+      _qualityToken(esConsumes(edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("qualityLabel", "")})) {
   //now do what ever initialization is needed
 }
 
@@ -109,7 +108,7 @@ bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if (_useQuality) {
     if (_qualityWatcher.check(iSetup)) {
-      iSetup.get<SiStripQualityRcd>().get(_qualityLabel, _qualityHandle);
+      _qualityHandle = &iSetup.getData(_qualityToken);
       LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
     }
   }

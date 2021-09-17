@@ -32,6 +32,7 @@ At the main level, only the following vstrings are allowed:
 
     debugModules	vstring
     suppressInfo     	vstring
+    suppressFwkInfo    vstring
     suppressDebug    	vstring
     suppressWarning	vstring
 

@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace sistripvvi {
 
@@ -85,7 +85,7 @@ namespace sistripvvi {
     }
     ul = lq - 6.5;
     //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-    VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1, h_));
+    VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f2, std::placeholders::_1, h_));
     q = 1. / u;
     t1_ = h4 * q - h5 - (beta2 * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
     t_ = t1_ - t0_;
@@ -98,7 +98,7 @@ namespace sistripvvi {
     h_[2] = h6 * omega_;
     h_[3] = omega_ * 1.5707963250000001;
     //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-    VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1, h_));
+    VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f1, std::placeholders::_1, h_));
     n = x0_ + 1.;
     d = exp(kappa * (beta2 * (.57721566 - h5) + 1.)) * .31830988654751274;
     a_[n - 1] = 0.;

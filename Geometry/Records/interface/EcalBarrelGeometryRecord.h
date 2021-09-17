@@ -18,15 +18,15 @@
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class EcalBarrelGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<EcalBarrelGeometryRecord,
-                                                            boost::mpl::vector<IdealGeometryRecord,
-                                                                               EBAlignmentRcd,
-                                                                               EBAlignmentErrorRcd,
-                                                                               EBAlignmentErrorExtendedRcd,
-                                                                               GlobalPositionRcd,
-                                                                               PEcalBarrelRcd> > {};
+                                                            edm::mpl::Vector<IdealGeometryRecord,
+                                                                             EBAlignmentRcd,
+                                                                             EBAlignmentErrorRcd,
+                                                                             EBAlignmentErrorExtendedRcd,
+                                                                             GlobalPositionRcd,
+                                                                             PEcalBarrelRcd> > {};
 
 #endif /* RECORDS_ECALBARRELGEOMETRYRECORD_H */

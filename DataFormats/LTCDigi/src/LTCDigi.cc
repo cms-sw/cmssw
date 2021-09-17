@@ -89,7 +89,7 @@ std::string LTCDigi::utcTime(cms_uint64_t t)  //const
   tm *utct = gmtime(&tsmall);
   std::string tstr("UTC: ");
   tstr += asctime(utct);
-  tstr.replace(tstr.find("\n"), tstr.size(), "");
+  tstr.replace(tstr.find('\n'), tstr.size(), "");
   return tstr;
 }
 
@@ -98,6 +98,6 @@ std::string LTCDigi::locTime(cms_uint64_t t)  //const
   time_t tsmall = t / 1000000;
   std::string a("LOC: ");
   a += std::string(ctime(&tsmall));
-  a.replace(a.find("\n"), a.size(), "");
+  a.replace(a.find('\n'), a.size(), "");
   return a;
 }

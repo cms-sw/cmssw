@@ -13,7 +13,6 @@
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
@@ -34,7 +33,6 @@ using namespace std;
 DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTLocalTriggerLut");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   thresholdPhiMean = ps.getUntrackedParameter<double>("thresholdPhiMean", 1.5);
   thresholdPhiRMS = ps.getUntrackedParameter<double>("thresholdPhiRMS", .5);
   thresholdPhibMean = ps.getUntrackedParameter<double>("thresholdPhibMean", 1.5);
@@ -275,6 +273,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMS
             switch (static_cast<int>(phiWhSummary->GetBinContent(sect, stat))) {
               case 1:
                 phiNoData++;
+                [[fallthrough]];
               case 2:
               case 3:
                 phiErr++;
@@ -282,6 +281,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMS
             switch (static_cast<int>(phibWhSummary->GetBinContent(sect, stat))) {
               case 1:
                 phibNoData++;
+                [[fallthrough]];
               case 2:
               case 3:
                 phibErr++;

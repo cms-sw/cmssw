@@ -54,10 +54,10 @@ public:
 
   const std::map<Long_t, std::string>& entryMap() const { return m_enumEntries; }
 
-private:
   FWEnumParameter(const FWEnumParameter&) = delete;                   // stop default
   const FWEnumParameter& operator=(const FWEnumParameter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::map<Long_t, std::string> m_enumEntries;
 };

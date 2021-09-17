@@ -3,15 +3,87 @@
 // Description: Positioning constituents of a TOB rod
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTOBRodAlgo.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTOBRodAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTOBRodAlgo();
+  ~DDTOBRodAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string central;      // Name of the central piece
+  string idNameSpace;  // Namespace of this and ALL sub-parts
+
+  double shift;             // Shift in z
+  vector<string> sideRod;   // Name of the Side Rod
+  vector<double> sideRodX;  // x-positions
+  vector<double> sideRodY;  // y-positions
+  vector<double> sideRodZ;  // z-positions
+  string endRod1;           // Name of the End Rod of type 1
+  vector<double> endRod1Y;  // y-positions
+  vector<double> endRod1Z;  // z-positions
+  string endRod2;           // Name of the End Rod of type 2
+  double endRod2Y;          // y-position
+  double endRod2Z;          // z-position
+
+  string cable;   // Name of the Mother cable
+  double cableZ;  // z-position
+
+  string clamp;              // Name of the clamp
+  vector<double> clampX;     // x-positions
+  vector<double> clampZ;     // z-positions
+  string sideCool;           // Name of the Side Cooling Tube
+  vector<double> sideCoolX;  // x-positions
+  vector<double> sideCoolY;  // y-positions to avoid overlap with the module (be at the same level of EndCool)
+  vector<double> sideCoolZ;  // z-positions
+  string endCool;            // Name of the End Cooling Tube
+  string endCoolRot;         // Rotation matrix name for end cool
+  double endCoolY;           // y-position to avoid overlap with the module
+  double endCoolZ;           // z-position
+
+  string optFibre;           // Name of the Optical Fibre
+  vector<double> optFibreX;  // x-positions
+  vector<double> optFibreZ;  // z-positions
+
+  string sideClamp1;            // Name of the side clamp of type 1
+  vector<double> sideClampX;    // x-positions
+  vector<double> sideClamp1DZ;  // Delta(z)-positions
+  string sideClamp2;            // Name of the side clamp of type 2
+  vector<double> sideClamp2DZ;  // Delta(z)-positions
+
+  string module;             // Name of the detector modules
+  vector<string> moduleRot;  // Rotation matrix name for module
+  vector<double> moduleY;    // y-positions
+  vector<double> moduleZ;    // z-positions
+  vector<string> connect;    // Name of the connectors
+  vector<double> connectY;   // y-positions
+  vector<double> connectZ;   // z-positions
+
+  string aohName;            // AOH name
+  vector<double> aohCopies;  // AOH copies to be positioned on each ICC
+  vector<double> aohX;       // AOH translation with respect small-ICC center (X)
+  vector<double> aohY;       // AOH translation with respect small-ICC center (Y)
+  vector<double> aohZ;       // AOH translation with respect small-ICC center (Z)
+};
 
 DDTOBRodAlgo::DDTOBRodAlgo()
     : sideRod(0),
@@ -241,8 +313,8 @@ void DDTOBRodAlgo::execute(DDCompactView& cpv) {
 
   // End cooling tubes
   DDTranslation r2(0, endCoolY, shift + endCoolZ);
-  std::string rotstr = DDSplit(endCoolRot).first;
-  std::string rotns = DDSplit(endCoolRot).second;
+  string rotstr = DDSplit(endCoolRot).first;
+  string rotns = DDSplit(endCoolRot).second;
   DDRotation rot2(DDName(rotstr, rotns));
   DDName child2(DDSplit(endCool).first, DDSplit(endCool).second);
   cpv.position(child2, centName, 1, r2, rot2);
@@ -333,3 +405,5 @@ void DDTOBRodAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TOBGeom") << "<<== End of DDTOBRodAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTOBRodAlgo, "track:DDTOBRodAlgo");

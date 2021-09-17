@@ -7,31 +7,17 @@
  * Created:     12 Mar 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmBin_hh
 #define tmEventSetup_L1TUtmBin_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
 #include <limits>
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
 
 /**
  *  This class implements data structure for Bin
  */
 class L1TUtmBin {
 public:
-  // ctor
   L1TUtmBin()
       : hw_index(std::numeric_limits<unsigned int>::max()),
         minimum(std::numeric_limits<double>::min()),
@@ -41,8 +27,7 @@ public:
   L1TUtmBin(const unsigned int id, const double min, const double max)
       : hw_index(id), minimum(min), maximum(max), version(0){};
 
-  // dtor
-  virtual ~L1TUtmBin(){};
+  virtual ~L1TUtmBin() = default;
 
   unsigned int hw_index; /**< HW index of bin */
   double minimum;        /**< minimum value of bin */
@@ -52,4 +37,3 @@ public:
 };
 
 #endif  // tmEventSetup_L1TUtmBin_hh
-/* eof */

@@ -1,8 +1,8 @@
 <library name="FireworksCandidatesPlugins" file="*.cc">
- <use name="DataFormats/Candidate"/>
- <use name="Fireworks/Candidates"/>
- <use name="Fireworks/Core"/>
- <lib name="Eve"/>
- <lib name="RGL"/>
- <flags EDM_PLUGIN="1"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="Fireworks/Candidates"/>
+  <use name="Fireworks/Core"/>
+  <use name="rooteve"/>
+  <use name="rootrgl"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

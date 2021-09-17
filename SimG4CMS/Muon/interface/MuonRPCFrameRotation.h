@@ -12,15 +12,16 @@
  */
 
 #include "SimG4CMS/Muon/interface/MuonFrameRotation.h"
+#include "CondFormats/GeometryObjects/interface/MuonOffsetMap.h"
 
 #include "G4Step.hh"
 
 class MuonG4Numbering;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class MuonRPCFrameRotation : public MuonFrameRotation {
 public:
-  MuonRPCFrameRotation(const MuonDDDConstants& constants);
+  MuonRPCFrameRotation(const MuonGeometryConstants& constants, const MuonOffsetMap* offMap, bool dd4hep);
   ~MuonRPCFrameRotation() override;
   Local3DPoint transformPoint(const Local3DPoint&, const G4Step*) const override;
 

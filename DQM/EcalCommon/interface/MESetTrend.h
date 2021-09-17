@@ -24,17 +24,17 @@ namespace ecaldqm {
 
     MESet *clone(std::string const & = "") const override;
 
-    void book(DQMStore::IBooker &) override;
+    void book(DQMStore::IBooker &, EcalElectronicsMapping const *) override;
 
-    void fill(DetId const &, double, double = 1., double = 1.) override;
-    void fill(EcalElectronicsId const &, double, double = 1., double = 1.) override;
-    void fill(int, double, double = 1., double = 1.) override;
-    void fill(double, double = 1., double = 1.) override;
+    void fill(EcalDQMSetupObjects const, DetId const &, double, double = 1., double = 1.) override;
+    void fill(EcalDQMSetupObjects const, EcalElectronicsId const &, double, double = 1., double = 1.) override;
+    void fill(EcalDQMSetupObjects const, int, double, double = 1., double = 1.) override;
+    void fill(EcalDQMSetupObjects const, double, double = 1., double = 1.) override;
 
-    int findBin(DetId const &, double, double = 0.) const override;
-    int findBin(EcalElectronicsId const &, double, double = 0.) const override;
-    int findBin(int, double, double = 0.) const override;
-    int findBin(double, double = 0.) const;
+    int findBin(EcalDQMSetupObjects const, DetId const &, double, double = 0.) const override;
+    int findBin(EcalDQMSetupObjects const, EcalElectronicsId const &, double, double = 0.) const override;
+    int findBin(EcalDQMSetupObjects const, int, double, double = 0.) const override;
+    int findBin(EcalDQMSetupObjects const, double, double = 0.) const;
 
     bool isVariableBinning() const override { return true; }
 

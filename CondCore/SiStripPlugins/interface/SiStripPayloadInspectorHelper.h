@@ -169,7 +169,7 @@ namespace SiStripPI {
   enum estimator { min, max, mean, rms };
 
   /*--------------------------------------------------------------------*/
-  std::string estimatorType(SiStripPI::estimator e)
+  inline std::string estimatorType(SiStripPI::estimator e)
   /*--------------------------------------------------------------------*/
   {
     switch (e) {
@@ -187,7 +187,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::string getStringFromSubdet(StripSubdetector::SubDetector sub)
+  inline std::string getStringFromSubdet(StripSubdetector::SubDetector sub)
   /*-------------------------------------------------------------------*/
   {
     switch (sub) {
@@ -247,7 +247,7 @@ namespace SiStripPI {
   };
 
   /*--------------------------------------------------------------------*/
-  std::pair<int, const char*> regionType(int index)
+  inline std::pair<int, const char*> regionType(int index)
   /*--------------------------------------------------------------------*/
   {
     auto region = static_cast<std::underlying_type_t<SiStripPI::TrackerRegion>>(index);
@@ -330,14 +330,14 @@ namespace SiStripPI {
       case SiStripPI::TID3s:
         return std::make_pair(38, "TID D3 stereo");
       case SiStripPI::END_OF_REGIONS:
-        std::make_pair(-1, "undefined");
+        return std::make_pair(-1, "undefined");
       default:
         return std::make_pair(999, "should never be here");
     }
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float, float> getTheRange(std::map<uint32_t, float> values, const float nsigma)
+  inline std::pair<float, float> getTheRange(std::map<uint32_t, float> values, const float nsigma)
   /*--------------------------------------------------------------------*/
   {
     float sum = std::accumulate(
@@ -362,13 +362,13 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void drawStatBox(std::map<std::string, std::shared_ptr<TH1F>> histos,
-                   std::map<std::string, int> colormap,
-                   std::vector<std::string> legend,
-                   double X = 0.15,
-                   double Y = 0.93,
-                   double W = 0.15,
-                   double H = 0.10)
+  inline void drawStatBox(std::map<std::string, std::shared_ptr<TH1F>> histos,
+                          std::map<std::string, int> colormap,
+                          std::vector<std::string> legend,
+                          double X = 0.15,
+                          double Y = 0.93,
+                          double W = 0.15,
+                          double H = 0.10)
   /*--------------------------------------------------------------------*/
   {
     char buffer[255];
@@ -399,7 +399,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  std::pair<float, float> getExtrema(TH1* h1, TH1* h2)
+  inline std::pair<float, float> getExtrema(TH1* h1, TH1* h2)
   /*--------------------------------------------------------------------*/
   {
     float theMax(-9999.);
@@ -415,7 +415,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void makeNicePlotStyle(TH1* hist)
+  inline void makeNicePlotStyle(TH1* hist)
   /*--------------------------------------------------------------------*/
   {
     hist->SetStats(kFALSE);
@@ -435,7 +435,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void printSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map)
+  inline void printSummary(const std::map<unsigned int, SiStripDetSummary::Values>& map)
   /*--------------------------------------------------------------------*/
   {
     for (const auto& element : map) {
@@ -476,7 +476,7 @@ namespace SiStripPI {
   // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
 
   /*--------------------------------------------------------------------*/
-  void setBadComponents(int i, int component, const SiStripQuality::BadComponent& BC, int NBadComponent[4][19][4])
+  inline void setBadComponents(int i, int component, const SiStripQuality::BadComponent& BC, int NBadComponent[4][19][4])
   /*--------------------------------------------------------------------*/
   {
     if (BC.BadApvs) {
@@ -497,9 +497,9 @@ namespace SiStripPI {
 
   // generic code to fill a SiStripDetSummary with Noise payload info
   /*--------------------------------------------------------------------*/
-  void fillNoiseDetSummary(SiStripDetSummary& summaryNoise,
-                           std::shared_ptr<SiStripNoises> payload,
-                           SiStripPI::estimator est)
+  inline void fillNoiseDetSummary(SiStripDetSummary& summaryNoise,
+                                  std::shared_ptr<SiStripNoises> payload,
+                                  SiStripPI::estimator est)
   /*--------------------------------------------------------------------*/
   {
     SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
@@ -557,17 +557,16 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void fillTotalComponents(int NTkComponents[4], int NComponents[4][19][4], const TrackerTopology m_trackerTopo)
+  inline void fillTotalComponents(int NTkComponents[4], int NComponents[4][19][4], const TrackerTopology m_trackerTopo)
   /*--------------------------------------------------------------------*/
   {
-    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader->getAllData();
-    for (const auto& det : DetInfos) {
-      int nAPVs = reader->getNumberOfApvsAndStripLength(det.first).first;
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+    for (const auto& det : detInfo.getAllData()) {
+      int nAPVs = detInfo.getNumberOfApvsAndStripLength(det.first).first;
       // one fiber connects to 2 APVs
       int nFibers = nAPVs / 2;
-      int nStrips = (128 * reader->getNumberOfApvsAndStripLength(det.first).first);
+      int nStrips = (128 * detInfo.getNumberOfApvsAndStripLength(det.first).first);
       NTkComponents[0]++;
       NTkComponents[1] += nFibers;
       NTkComponents[2] += nAPVs;
@@ -604,15 +603,14 @@ namespace SiStripPI {
       NComponents[subDetIndex][component][2] += nAPVs;
       NComponents[subDetIndex][component][3] += nStrips;
     }
-    delete reader;
   }
 
   // generic code to fill the vectors of bad components
   /*--------------------------------------------------------------------*/
-  void fillBCArrays(const SiStripQuality* siStripQuality_,
-                    int NTkBadComponent[4],
-                    int NBadComponent[4][19][4],
-                    const TrackerTopology m_trackerTopo)
+  inline void fillBCArrays(const SiStripQuality* siStripQuality_,
+                           int NTkBadComponent[4],
+                           int NBadComponent[4][19][4],
+                           const TrackerTopology m_trackerTopo)
   /*--------------------------------------------------------------------*/
   {
     std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
@@ -678,8 +676,8 @@ namespace SiStripPI {
     // Single Strip Info
     //&&&&&&&&&&&&&&&&&&
 
-    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
     float percentage = 0;
 
@@ -721,17 +719,15 @@ namespace SiStripPI {
         percentage += range;
       }
       if (percentage != 0)
-        percentage /= 128. * reader->getNumberOfApvsAndStripLength(detid).first;
+        percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(detid).first;
       if (percentage > 1)
         edm::LogError("SiStripBadStrip_PayloadInspector")
             << "PROBLEM detid " << detid << " value " << percentage << std::endl;
     }
-
-    delete reader;
   }
 
   /*--------------------------------------------------------------------*/
-  void printBCDebug(int NTkBadComponent[4], int NBadComponent[4][19][4])
+  inline void printBCDebug(int NTkBadComponent[4], int NBadComponent[4][19][4])
   /*--------------------------------------------------------------------*/
   {
     //&&&&&&&&&&&&&&&&&&
@@ -786,7 +782,7 @@ namespace SiStripPI {
   enum palette { HALFGRAY, GRAY, BLUES, REDS, ANTIGRAY, FIRE, ANTIFIRE, LOGREDBLUE, BLUERED, LOGBLUERED, DEFAULT };
 
   /*--------------------------------------------------------------------*/
-  void setPaletteStyle(SiStripPI::palette palette)
+  inline void setPaletteStyle(SiStripPI::palette palette)
   /*--------------------------------------------------------------------*/
   {
     TStyle* palettestyle = new TStyle("palettestyle", "Style for P-TDR");
@@ -837,19 +833,21 @@ namespace SiStripPI {
       } break;
 
       case FIRE: {
-        double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
-        double red[NRGBs] = {1.00, 1.00, 1.00, 0.50};
-        double green[NRGBs] = {1.00, 1.00, 0.00, 0.00};
-        double blue[NRGBs] = {0.20, 0.00, 0.00, 0.00};
-        TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+        const int NCOLs = 4;
+        double stops[NCOLs] = {0.00, 0.20, 0.80, 1.00};
+        double red[NCOLs] = {1.00, 1.00, 1.00, 0.50};
+        double green[NCOLs] = {1.00, 1.00, 0.00, 0.00};
+        double blue[NCOLs] = {0.20, 0.00, 0.00, 0.00};
+        TColor::CreateGradientColorTable(NCOLs, stops, red, green, blue, NCont);
       } break;
 
       case ANTIFIRE: {
-        double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
-        double red[NRGBs] = {0.50, 1.00, 1.00, 1.00};
-        double green[NRGBs] = {0.00, 0.00, 1.00, 1.00};
-        double blue[NRGBs] = {0.00, 0.00, 0.00, 0.20};
-        TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+        const int NCOLs = 4;
+        double stops[NCOLs] = {0.00, 0.20, 0.80, 1.00};
+        double red[NCOLs] = {0.50, 1.00, 1.00, 1.00};
+        double green[NCOLs] = {0.00, 0.00, 1.00, 1.00};
+        double blue[NCOLs] = {0.00, 0.00, 0.00, 0.20};
+        TColor::CreateGradientColorTable(NCOLs, stops, red, green, blue, NCont);
       } break;
 
       case LOGREDBLUE: {

@@ -2,8 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("APVGAINBUILDER")
 process.MessageLogger = cms.Service("MessageLogger",
-    threshold = cms.untracked.string('INFO'),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.source = cms.Source("EmptySource",
@@ -48,6 +53,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('SiStripApvGain_gaussian')
     ))
 )
+
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.trackerGeometry.applyAlignment = False
 
 process.prod = cms.EDAnalyzer("SiStripApvGainBuilderFromTag",
                             genMode = cms.string("gaussian"),

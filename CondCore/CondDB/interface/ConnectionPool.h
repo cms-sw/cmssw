@@ -15,6 +15,7 @@ namespace edm {
 namespace coral {
   class IConnectionServiceConfiguration;
   class ISessionProxy;
+  class IMsgReporter;
 }  // namespace coral
 
 namespace cond {
@@ -25,6 +26,9 @@ namespace cond {
 
   namespace persistency {
     //
+    class CoralMsgReporter;
+    class Logger;
+
     enum DbAuthenticationSystem { UndefinedAuthentication = 0, CondDbKey, CoralXMLFile };
 
     // a wrapper for the coral connection service.
@@ -34,6 +38,7 @@ namespace cond {
       ~ConnectionPool();
 
       void setMessageVerbosity(coral::MsgLevel level);
+      void setLogDestination(Logger& logger);
       void setAuthenticationPath(const std::string& p);
       void setAuthenticationSystem(int authSysCode);
       void setFrontierSecurity(const std::string& signature);
@@ -58,14 +63,15 @@ namespace cond {
     private:
       std::string m_authPath = std::string("");
       int m_authSys = 0;
+      std::string m_authenticationService = std::string("");
       coral::MsgLevel m_messageLevel = coral::Error;
+      CoralMsgReporter* m_msgReporter = nullptr;
       bool m_loggingEnabled = false;
       //The frontier security option is turned on for all sessions
       //usig this wrapper of the CORAL connection setup for configuring the server access
       std::string m_frontierSecurity = std::string("");
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = nullptr;
-      std::map<std::string, int> m_dbTypes;
     };
   }  // namespace persistency
 }  // namespace cond

@@ -1,11 +1,8 @@
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/L1TObjects"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/HLTReco"/>
-<use name="DataFormats/JetReco"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/RecoCandidate"/>
@@ -19,6 +16,5 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="RecoEcal/EgammaCoreTools"/>
-<use name="RecoEgamma/EgammaElectronAlgos"/>
-<use name="RecoEgamma/EgammaTools"/>
+<use name="TrackingTools/TrajectoryState"/>
 <flags EDM_PLUGIN="1"/>

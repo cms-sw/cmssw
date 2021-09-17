@@ -9,34 +9,28 @@
 
 /// Operations
 template <>
-edm::Ptr<TrackingParticle> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
-  if (trackToTrackingParticleMap.find(aTrack) != trackToTrackingParticleMap.end()) {
-    return trackToTrackingParticleMap.find(aTrack)->second;
+const TrackingParticlePtr& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTrackingParticlePtr(
+    TTTrackPtr aTrack) const {
+  if (trackToTrackingParticleMap_.find(aTrack) != trackToTrackingParticleMap_.end()) {
+    return trackToTrackingParticleMap_.find(aTrack)->second;
+  } else {
+    return nullTrackingParticlePtr_;
   }
-
-  /// Default: return NULL
-  edm::Ptr<TrackingParticle>* temp = new edm::Ptr<TrackingParticle>();
-  return *temp;
 }
 
 template <>
-std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
-    edm::Ptr<TrackingParticle> aTrackingParticle) const {
-  if (trackingParticleToTrackVectorMap.find(aTrackingParticle) != trackingParticleToTrackVectorMap.end()) {
-    return trackingParticleToTrackVectorMap.find(aTrackingParticle)->second;
+const std::vector<TTTrackPtr>& TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTTTrackPtrs(
+    TrackingParticlePtr aTrackingParticle) const {
+  if (trackingParticleToTrackVectorMap_.find(aTrackingParticle) != trackingParticleToTrackVectorMap_.end()) {
+    return trackingParticleToTrackVectorMap_.find(aTrackingParticle)->second;
+  } else {
+    return nullVecTTTrackPtr_;
   }
-
-  /// Default: return empty vector
-  std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > > tempVec;
-  tempVec.clear();
-  return tempVec;
 }
 
 /// MC truth
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(TTTrackPtr aTrack) const {
   /// Check if there is a TrackingParticle
   if ((this->findTrackingParticlePtr(aTrack)).isNull())
     return false;
@@ -46,24 +40,30 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isLooselyGenuine(
 
 /// MC truth
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
-  /// Check if there is a TrackingParticle
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(TTTrackPtr aTrack) const {
+  /// Check if there is an associated TrackingParticle
   if ((this->findTrackingParticlePtr(aTrack)).isNull())
     return false;
 
-  /// Get all the stubs from this TrackingParticle
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      TP_Stubs = theStubAssociationMap->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      TRK_Stubs = aTrack->getStubRefs();
+  /// Get all the stubs from this track & associated TrackingParticle
+  const std::vector<TTStubRef>& TRK_Stubs = aTrack->getStubRefs();
+  const std::vector<TTStubRef>& TP_Stubs =
+      theStubAssociationMap_->findTTStubRefs(this->findTrackingParticlePtr(aTrack));
 
+  bool one2SStub = false;
   for (unsigned int js = 0; js < TRK_Stubs.size(); js++) {
     /// We want that all the stubs of the track are included in the container of
     /// all the stubs produced by this particular TrackingParticle which we
     /// already know is one of the TrackingParticles that released hits
     /// in this track we are evaluating right now
+    /// Now modifying to allow one and only one false 2S stub in the track  idr 06/19
     if (std::find(TP_Stubs.begin(), TP_Stubs.end(), TRK_Stubs.at(js)) == TP_Stubs.end()) {
-      return false;
+      if (!AllowOneFalse2SStub || TRK_Stubs.at(js)->moduleTypePS() || one2SStub)  // Has to be first false 2S stub
+      {
+        return false;
+      } else {
+        one2SStub = true;
+      }
     }
   }
 
@@ -71,8 +71,7 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isGenuine(edm::Ptr<TTTrack<R
 }
 
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(TTTrackPtr aTrack) const {
   /// Defined by exclusion
   if (this->isLooselyGenuine(aTrack))
     return false;
@@ -84,14 +83,13 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isCombinatoric(
 }
 
 template <>
-bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > aTrack) const {
-  /// UNKNOWN means that more than 2 stubs are unknown
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(TTTrackPtr aTrack) const {
+  /// UNKNOWN means that >= 2 stubs are unknown
   int unknownstubs = 0;
 
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      theseStubs = aTrack->getStubRefs();
+  const std::vector<TTStubRef>& theseStubs = aTrack->getStubRefs();
   for (unsigned int i = 0; i < theseStubs.size(); i++) {
-    if (theStubAssociationMap->isUnknown(theseStubs.at(i)) == false) {
+    if (theStubAssociationMap_->isUnknown(theseStubs.at(i)) == false) {
       ++unknownstubs;
       if (unknownstubs >= 2)
         return false;
@@ -99,4 +97,14 @@ bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::isUnknown(edm::Ptr<TTTrack<R
   }
 
   return true;
+}
+
+template <>
+void TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::setAllowOneFalse2SStub(bool allowFalse2SStub) {
+  AllowOneFalse2SStub = allowFalse2SStub;
+}
+
+template <>
+bool TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::getAllowOneFalse2SStub() {
+  return AllowOneFalse2SStub;
 }

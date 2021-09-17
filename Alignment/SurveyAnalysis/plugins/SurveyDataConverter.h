@@ -19,11 +19,11 @@
 //
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 
-class SurveyDataConverter : public edm::EDAnalyzer {
+class SurveyDataConverter : public edm::one::EDAnalyzer<> {
   typedef SurveyDataReader::MapType MapType;
   typedef SurveyDataReader::PairType PairType;
   typedef SurveyDataReader::MapTypeOr MapTypeOr;
@@ -31,7 +31,6 @@ class SurveyDataConverter : public edm::EDAnalyzer {
 
 public:
   explicit SurveyDataConverter(const edm::ParameterSet& iConfig);
-
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void endJob() override{};
 
@@ -47,6 +46,8 @@ private:
 
   void applyAPEs(TrackerAlignment& tr_align);
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> ttrackerGeometryToken;
   edm::ParameterSet theParameterSet;
   edm::ParameterSet MisalignScenario;
 

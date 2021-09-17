@@ -232,7 +232,18 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy z+(far) - z-(near)'),
             description = cms.untracked.string('Filtered rechit occupancy difference.')
+        ),
+	LaserCorrProjEta = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/%(prefix)sOT Laser Transparency correction from DB %(suffix)s eta projection'),
+            kind = cms.untracked.string('TProfile'),
+	    yaxis = cms.untracked.PSet(
+		title= cms.untracked.string('Laser transparency correction')
+	    ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('ProjEta'),
+            description = cms.untracked.string('Projection of average laser transparency correction from DB.')
         )
+
 #        TPDigiProjPhi = cms.untracked.PSet(
 #            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection phi'),
 #            kind = cms.untracked.string('TH1F'),

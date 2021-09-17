@@ -30,6 +30,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/es_impl/MayConsumeChooser.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -38,15 +39,31 @@
 #include <vector>
 #include <memory>
 namespace edm {
-  using ESConsumesInfo =
-      std::vector<std::tuple<edm::eventsetup::EventSetupRecordKey, edm::eventsetup::DataKey, std::string> >;
+  class ESConsumesCollectorAdaptor;
+  class ESConsumesCollectorWithTagAdaptor;
+
+  struct ESConsumesInfoEntry {
+    ESConsumesInfoEntry(edm::eventsetup::EventSetupRecordKey const& iRecord,
+                        edm::eventsetup::DataKey const& iProduct,
+                        std::string moduleLabel,
+                        std::unique_ptr<edm::eventsetup::impl::MayConsumeChooserCore> chooser)
+        : recordKey_{iRecord},
+          productKey_{iProduct},
+          moduleLabel_{std::move(moduleLabel)},
+          chooser_{std::move(chooser)} {}
+    edm::eventsetup::EventSetupRecordKey recordKey_;
+    edm::eventsetup::DataKey productKey_;
+    std::string moduleLabel_;
+    std::unique_ptr<edm::eventsetup::impl::MayConsumeChooserCore> chooser_;
+  };
+  using ESConsumesInfo = std::vector<ESConsumesInfoEntry>;
 
   class ESConsumesCollector {
   public:
     ESConsumesCollector() = delete;
-    ESConsumesCollector(ESConsumesCollector const&) = default;
+    ESConsumesCollector(ESConsumesCollector const&) = delete;
     ESConsumesCollector(ESConsumesCollector&&) = default;
-    ESConsumesCollector& operator=(ESConsumesCollector const&) = default;
+    ESConsumesCollector& operator=(ESConsumesCollector const&) = delete;
     ESConsumesCollector& operator=(ESConsumesCollector&&) = default;
 
     // ---------- member functions ---------------------------
@@ -56,10 +73,11 @@ namespace edm {
       ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
       m_consumer->emplace_back(EventSetupRecordKey::makeKey<Record>(),
                                DataKey(DataKey::makeTypeTag<Product>(), tag.data().c_str()),
-                               tag.module());
+                               tag.module(),
+                               nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
     template <typename Product, typename Record>
@@ -67,27 +85,35 @@ namespace edm {
       using namespace edm::eventsetup;
       ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
       m_consumer->emplace_back(
-          EventSetupRecordKey::makeKey<Record>(), DataKey(DataKey::makeTypeTag<Product>(), ""), "");
+          EventSetupRecordKey::makeKey<Record>(), DataKey(DataKey::makeTypeTag<Product>(), ""), "", nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token, ESInputTag const& tag) {
-      token = consumesFrom<Product, Record>(tag);
-      return *this;
-    }
-
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token) {
-      token = consumesFrom<Product, Record>();
-      return *this;
-    }
+    ESConsumesCollectorAdaptor consumes();
+    ESConsumesCollectorWithTagAdaptor consumes(ESInputTag tag);
 
   protected:
     explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
         : m_consumer{iConsumer}, m_transitionID{iTransitionID} {}
+
+    template <typename Product, typename Record, typename Collector, typename PTag>
+    auto registerMayConsume(std::unique_ptr<Collector> iCollector, PTag const& productTag) {
+      //NOTE: for now, just treat like standard consumes request for the product needed to
+      // do the decision
+      iCollector->token() = consumes(productTag.inputTag());
+
+      using namespace edm::eventsetup;
+      ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
+      m_consumer->emplace_back(EventSetupRecordKey::makeKey<Record>(),
+                               DataKey(DataKey::makeTypeTag<Product>(), "@mayConsume"),
+                               "@mayConsume",
+                               std::move(iCollector));
+      //even though m_consumer may expand, the address for
+      // name().value() remains the same since it is 'moved'.
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
+    }
 
   private:
     // ---------- member data --------------------------------
@@ -106,6 +132,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
 
+    using ESConsumesCollector::consumes;
     template <typename Product>
     auto consumes(ESInputTag const& tag) {
       return consumesFrom<Product, RECORD>(tag);
@@ -116,6 +143,20 @@ namespace edm {
       return consumesFrom<Product, RECORD>();
     }
 
+    template <typename Product, typename FromRecord, typename Func, typename PTag>
+    auto mayConsumeFrom(Func&& func, PTag const& productTag) {
+      return registerMayConsume<Product, FromRecord>(
+          std::make_unique<eventsetup::impl::MayConsumeChooser<RECORD, Product, FromRecord, Func, PTag>>(
+              std::forward<Func>(func)),
+          productTag);
+    }
+
+    template <typename Product, typename FromRecord, typename Func, typename PTag>
+    ESConsumesCollector& setMayConsume(ESGetToken<Product, FromRecord>& token, Func&& func, PTag const& productTag) {
+      token = mayConsumeFrom<Product, FromRecord>(std::forward<Func>(func), productTag);
+      return *this;
+    }
+
   private:
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
@@ -123,6 +164,43 @@ namespace edm {
     explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
         : ESConsumesCollector(iConsumer, iTransitionID) {}
   };
+
+  class ESConsumesCollectorAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template consumesFrom<TYPE, REC>();
+    }
+
+  private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    explicit ESConsumesCollectorAdaptor(ESConsumesCollector* iBase) : m_consumer(iBase) {}
+
+    ESConsumesCollector* m_consumer;
+  };
+
+  class ESConsumesCollectorWithTagAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template consumesFrom<TYPE, REC>(m_tag);
+    }
+
+  private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    ESConsumesCollectorWithTagAdaptor(ESConsumesCollector* iBase, ESInputTag iTag)
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    ESConsumesCollector* m_consumer;
+    ESInputTag const m_tag;
+  };
+
+  inline ESConsumesCollectorAdaptor ESConsumesCollector::consumes() { return ESConsumesCollectorAdaptor(this); }
+  inline ESConsumesCollectorWithTagAdaptor ESConsumesCollector::consumes(ESInputTag tag) {
+    return ESConsumesCollectorWithTagAdaptor(this, std::move(tag));
+  }
 
 }  // namespace edm
 

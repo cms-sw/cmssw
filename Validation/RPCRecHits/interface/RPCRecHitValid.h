@@ -9,8 +9,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -41,6 +43,9 @@ private:
   edm::EDGetTokenT<SimParticles> simParticleToken_;
   edm::EDGetTokenT<SimHitAssoc> simHitAssocToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomTokenInRun_;
 
   typedef MonitorElement *MEP;
   RPCValidHistograms h_;

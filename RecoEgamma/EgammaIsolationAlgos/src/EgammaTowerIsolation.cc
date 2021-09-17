@@ -58,11 +58,12 @@ double EgammaTowerIsolation::getSum(bool et,
   tls.newAlgo->setRadius(&extRadius, &intRadius);
 
   EgammaTowerIsolationNew<1>::Sum sum;
-  tls.newAlgo->compute(et,
-                       sum,
-                       sc,
-                       (detIdToExclude == nullptr) ? nullptr : &((*detIdToExclude).front()),
-                       (detIdToExclude == nullptr) ? nullptr : (&(*detIdToExclude).back()) + 1);
+  if (detIdToExclude == nullptr) {
+    tls.newAlgo->compute(
+        et, sum, sc, static_cast<CaloTowerDetId const*>(nullptr), static_cast<CaloTowerDetId const*>(nullptr));
+  } else {
+    tls.newAlgo->compute(et, sum, sc, detIdToExclude->cbegin(), detIdToExclude->cend());
+  }
 
   switch (depth_) {
     case AllDepths:

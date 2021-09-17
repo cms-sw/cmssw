@@ -22,12 +22,12 @@ namespace edm {
     using element_type = T;
 
     ValidHandle() = delete;
-    ValidHandle(T const* prod, ProductID id) noexcept(false) : product_(prod), id_(std::move(id)) {
+    ValidHandle(T const* prod, ProductID id) noexcept(false) : product_(prod), id_(id) {
       vhhelper::throwIfNotValid(prod);
     }
 
     //NOTE: C++ disallows references to null
-    ValidHandle(T const& prod, ProductID id) noexcept(true) : product_(&prod), id_(std::move(id)) {}
+    ValidHandle(T const& prod, ProductID id) noexcept(true) : product_(&prod), id_(id) {}
     ValidHandle(const ValidHandle<T>&) = default;
     ValidHandle<T>& operator=(ValidHandle<T> const& rhs) = default;
     ~ValidHandle() = default;

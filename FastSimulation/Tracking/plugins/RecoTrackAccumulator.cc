@@ -1,19 +1,21 @@
 #include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
+
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
-                                           edm::ProducerBase& mixMod,
+                                           edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector& iC)
     : signalTracksTag(conf.getParameter<edm::InputTag>("signalTracks")),
       pileUpTracksTag(conf.getParameter<edm::InputTag>("pileUpTracks")),
       outputLabel(conf.getParameter<std::string>("outputLabel")) {
-  mixMod.produces<reco::TrackCollection>(outputLabel);
-  mixMod.produces<TrackingRecHitCollection>(outputLabel);
-  mixMod.produces<reco::TrackExtraCollection>(outputLabel);
+  producesCollector.produces<reco::TrackCollection>(outputLabel);
+  producesCollector.produces<TrackingRecHitCollection>(outputLabel);
+  producesCollector.produces<reco::TrackExtraCollection>(outputLabel);
 
   iC.consumes<reco::TrackCollection>(signalTracksTag);
   iC.consumes<TrackingRecHitCollection>(signalTracksTag);
@@ -23,9 +25,9 @@ RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf,
 RecoTrackAccumulator::~RecoTrackAccumulator() {}
 
 void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-  newTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
-  newHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-  newTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+  newTracks_ = std::make_unique<reco::TrackCollection>();
+  newHits_ = std::make_unique<TrackingRecHitCollection>();
+  newTrackExtras_ = std::make_unique<reco::TrackExtraCollection>();
 
   // this is needed to get the ProductId of the TrackExtra and TrackingRecHit and Track collections
   rNewTracks = const_cast<edm::Event&>(e).getRefBeforePut<reco::TrackCollection>(outputLabel);

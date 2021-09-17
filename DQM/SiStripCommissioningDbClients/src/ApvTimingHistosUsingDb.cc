@@ -11,9 +11,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb(const edm::ParameterSet& pset,
+                                               DQMStore* bei,
+                                               SiStripConfigDb* const db,
+                                               edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("ApvTimingParameters"), bei, sistrip::APV_TIMING),
-      CommissioningHistosUsingDb(db, sistrip::APV_TIMING),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::APV_TIMING),
       ApvTimingHistograms(pset.getParameter<edm::ParameterSet>("ApvTimingParameters"), bei) {
   LogTrace(mlDqmClient_) << "[ApvTimingHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

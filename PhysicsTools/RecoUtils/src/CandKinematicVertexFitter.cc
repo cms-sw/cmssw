@@ -73,6 +73,7 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate &c) const {
             px *= scale;
             py *= scale;
             pz *= scale;
+            [[fallthrough]];
           default:
             double mass = (*particleIt)->currentState().mass();
             energy = sqrt(p * p + mass * mass);

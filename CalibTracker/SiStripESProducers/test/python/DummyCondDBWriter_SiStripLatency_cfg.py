@@ -9,11 +9,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Builder")
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('siStripLatencyDummyDBWriter'),
-    threshold = cms.untracked.string('INFO'),
-    destinations = cms.untracked.vstring('LatencyBuilder.log')
+    files = cms.untracked.PSet(
+        LatencyBuilder = cms.untracked.PSet(
+
+        )
+    ),
+    threshold = cms.untracked.string('INFO')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -24,7 +30,6 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1),
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripLatencyDummyDBWriter_cfi")
 

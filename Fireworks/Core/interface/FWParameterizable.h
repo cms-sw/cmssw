@@ -43,11 +43,10 @@ public:
   //base class implementation does not take ownership of added parameters
   void add(FWParameterBase*);
 
-private:
   FWParameterizable(const FWParameterizable&) = delete;  // stop default
 
   const FWParameterizable& operator=(const FWParameterizable&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
   std::vector<FWParameterBase*> m_parameters;
 };

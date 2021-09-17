@@ -22,7 +22,6 @@
 // user include files
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TFile.h"
 
 using namespace edm;
@@ -49,7 +48,6 @@ TestSuite::~TestSuite() {
 void TestSuite::beginJob() {
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
   dbe_->setCurrentFolder("MixingV/Mixing");
 }
 

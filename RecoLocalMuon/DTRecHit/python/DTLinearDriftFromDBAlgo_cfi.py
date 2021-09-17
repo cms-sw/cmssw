@@ -19,7 +19,8 @@ DTLinearDriftFromDBAlgo = cms.PSet(
             # Switch on/off the TOF correction from pulses
             doT0Correction = cms.bool(True),
             debug = cms.untracked.bool(False),
-            tTrigLabel = cms.string('')
+            tTrigLabel = cms.string(''),
+            t0Label = cms.string('')
         ),
         maxTime = cms.double(420.0),
         # Forcing Step 2 to go back to digi time 
@@ -28,7 +29,9 @@ DTLinearDriftFromDBAlgo = cms.PSet(
         tTrigMode = cms.string('DTTTrigSyncFromDB'),
         # perform a correction to vdrift in MB1s of external wheels
         doVdriftCorr = cms.bool(True),
-        useUncertDB = cms.bool(True)
+        useUncertDB = cms.bool(True),
+        readLegacyTTrigDB = cms.bool(True),
+        readLegacyVDriftDB = cms.bool(True),
     ),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )

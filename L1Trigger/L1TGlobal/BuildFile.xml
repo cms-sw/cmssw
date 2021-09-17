@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/L1TGlobal"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="xerces-c"/>
+<export>
+  <lib name="1"/>
+</export>

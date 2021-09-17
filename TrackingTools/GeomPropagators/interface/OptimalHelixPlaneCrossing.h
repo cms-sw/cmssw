@@ -12,7 +12,7 @@ public:
   using Base = HelixPlaneCrossing;
 
   template <typename... Args>
-  OptimalHelixPlaneCrossing(Plane const &plane, Args &&... args) {
+  OptimalHelixPlaneCrossing(Plane const &plane, Args &&...args) {
     GlobalVector u = plane.normalVector();
     constexpr float small = 1.e-6;  // for orientation of planes
 

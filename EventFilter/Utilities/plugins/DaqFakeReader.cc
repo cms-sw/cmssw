@@ -7,6 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
@@ -19,6 +20,8 @@
 #include <cmath>
 #include <sys/time.h>
 #include <cstring>
+#include <cstdlib>
+#include <chrono>
 
 using namespace std;
 using namespace edm;
@@ -32,12 +35,23 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
     : runNum(1),
       eventNum(1),
       empty_events(pset.getUntrackedParameter<bool>("emptyEvents", false)),
+      fillRandom_(pset.getUntrackedParameter<bool>("fillRandom", false)),
       meansize(pset.getUntrackedParameter<unsigned int>("meanSize", 1024)),
       width(pset.getUntrackedParameter<unsigned int>("width", 1024)),
       injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
+      tcdsFEDID_(pset.getUntrackedParameter<unsigned int>("tcdsFEDID", 1024)),
       modulo_error_events(injected_errors_per_million_events ? 1000000 / injected_errors_per_million_events
                                                              : 0xffffffff) {
   // mean = pset.getParameter<float>("mean");
+  if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
+    throw cms::Exception("DaqFakeReader::DaqFakeReader")
+        << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
+  if (fillRandom_) {
+    //intialize random seed
+    auto time_count =
+        static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    srand(time_count & 0xffffffff);
+  }
   produces<FEDRawDataCollection>();
 }
 
@@ -53,6 +67,7 @@ int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
   // a null pointer is passed, need to allocate the fed collection
   data = new FEDRawDataCollection();
   EventID eID = e.id();
+  auto ls = e.luminosityBlock();
 
   if (!empty_events) {
     // Fill the EventID
@@ -69,8 +84,7 @@ int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
 
     timeval now;
     gettimeofday(&now, nullptr);
-    fillGTPFED(eID, *data, &now);
-    //TODO: write fake TCDS FED filler
+    fillTCDSFED(eID, *data, ls, &now);
   }
   return 1;
 }
@@ -97,6 +111,18 @@ void DaqFakeReader::fillFEDs(
     // Allocate space for header+trailer+payload
     feddata.resize(size + 16);
 
+    if (fillRandom_) {
+      //fill FED with random values
+      size_t size_ui = size - size % sizeof(unsigned int);
+      for (size_t i = 0; i < size_ui; i += sizeof(unsigned int)) {
+        *((unsigned int*)(feddata.data() + i)) = (unsigned int)rand();
+      }
+      //remainder
+      for (size_t i = size_ui; i < size; i++) {
+        *(feddata.data() + i) = rand() & 0xff;
+      }
+    }
+
     // Generate header
     FEDHeader::set(feddata.data(),
                    1,            // Trigger type
@@ -116,42 +142,58 @@ void DaqFakeReader::fillFEDs(
   }
 }
 
-void DaqFakeReader::fillGTPFED(EventID& eID, FEDRawDataCollection& data, timeval* now) {
-  uint32_t fedId = FEDNumbering::MINTriggerGTPFEDID;
+void DaqFakeReader::fillTCDSFED(EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now) {
+  uint32_t fedId = tcdsFEDID_;
   FEDRawData& feddata = data.FEDData(fedId);
-  uint32_t size = evf::evtn::SLINK_WORD_SIZE * 37 - 16;  //BST52_3BX
+  uint32_t size = sizeof(tcds::Raw_v1);
   feddata.resize(size + 16);
+
+  uint64_t orbitnr = 0;
+  uint16_t bxid = 0;
 
   FEDHeader::set(feddata.data(),
                  1,            // Trigger type
                  eID.event(),  // LV1_id (24 bits)
-                 0,            // BX_id
+                 bxid,         // BX_id
                  fedId);       // source_id
 
-  int crc = 0;  // FIXME : get CRC
+  tcds::Raw_v1* tcds = reinterpret_cast<tcds::Raw_v1*>(feddata.data() + FEDHeader::length);
+  tcds::BST_v1* bst = const_cast<tcds::BST_v1*>(&tcds->bst);
+  tcds::Header_v1* header = const_cast<tcds::Header_v1*>(&tcds->header);
+
+  const_cast<uint32_t&>(bst->gpstimehigh) = now->tv_sec;
+  const_cast<uint32_t&>(bst->gpstimelow) = now->tv_usec;
+  const_cast<uint16_t&>(bst->lhcFillHigh) = 0;
+  const_cast<uint16_t&>(bst->lhcFillLow) = 0;
+
+  const_cast<uint32_t&>(header->orbitHigh) = orbitnr & 0xffff00;
+  const_cast<uint16_t&>(header->orbitLow) = orbitnr & 0xff;
+  const_cast<uint16_t&>(header->bxid) = bxid;
+
+  const_cast<uint64_t&>(header->eventNumber) = eID.event();
+  const_cast<uint32_t&>(header->lumiSection) = ls;
+
+  int crc = 0;  // only full event crc32c checked in HLT, not FED CRC16
   FEDTrailer::set(feddata.data() + 8 + size,
                   size / 8 + 2,  // in 64 bit words!!!
                   crc,
                   0,   // Evt_stat
                   0);  // TTS bits
-
-  unsigned char* pOffset = feddata.data() + FEDHeader::length;
-  //fill in event ID
-  *((uint32_t*)(pOffset + evf::evtn::EVM_BOARDID_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) =
-      evf::evtn::EVM_BOARDID_VALUE << evf::evtn::EVM_BOARDID_SHIFT;
-  *((uint32_t*)(pOffset + FEDHeader::length +
-                (9 * 2 + evf::evtn::EVM_TCS_TRIGNR_OFFSET) * evf::evtn::SLINK_WORD_SIZE / 2)) = eID.event();
-  //fill in timestamp
-  *((uint32_t*)(pOffset + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = now->tv_sec;
-  *((uint32_t*)(pOffset + FEDHeader::length + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2 +
-                evf::evtn::SLINK_HALFWORD_SIZE)) = now->tv_usec;
-
-  //*( (uint16_t*) (pOffset + (evtn::EVM_GTFE_BLOCK*2 + evtn::EVM_TCS_LSBLNR_OFFSET)*evtn::SLINK_HALFWORD_SIZE)) = (unsigned short)fakeLs_-1;
-
-  //we could also generate lumiblock, bcr, orbit,... but they are not currently used by the FRD input source
 }
 
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   std::cout << "DaqFakeReader begin Lumi " << iL.luminosityBlock() << std::endl;
   fakeLs_ = iL.luminosityBlock();
+}
+
+void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Injector of generated raw FED data for DAQ testing");
+  desc.addUntracked<bool>("emptyEvents", false);
+  desc.addUntracked<bool>("fillRandom", false);
+  desc.addUntracked<unsigned int>("meanSize", 1024);
+  desc.addUntracked<unsigned int>("width", 1024);
+  desc.addUntracked<unsigned int>("injectErrPpm", 1024);
+  desc.addUntracked<unsigned int>("tcdsFEDID", 1024);
+  descriptions.add("DaqFakeReader", desc);
 }

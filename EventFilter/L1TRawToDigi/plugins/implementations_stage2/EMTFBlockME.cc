@@ -93,9 +93,9 @@ namespace l1t {
           int arr[] = {_station, new_csc_ID, new_sector, -1, 0};
           std::vector<int> vec(arr, arr + 5);
           return vec;
-        } else if (_station == 5)
+        } else if (_station == 5) {
           new_sector = (_sector != 1) ? _sector - 1 : 6;  // Indicates neighbor chamber, don't return yet
-        else {
+        } else {
           int arr[] = {_station, _csc_ID, _sector, -99, -99};
           std::vector<int> vec(arr, arr + 5);
           return vec;

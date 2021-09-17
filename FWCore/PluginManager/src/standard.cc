@@ -22,9 +22,9 @@ namespace edmplugin {
       PluginManager::Config returnValue;
 
 #ifdef __APPLE__
-      const char* path = getenv("DYLD_FALLBACK_LIBRARY_PATH");
+      const char* path = std::getenv("DYLD_FALLBACK_LIBRARY_PATH");
 #else
-      const char* path = getenv("LD_LIBRARY_PATH");
+      const char* path = std::getenv("LD_LIBRARY_PATH");
 #endif
       if (!path)
         path = "";
@@ -44,13 +44,13 @@ namespace edmplugin {
       return returnValue;
     }
 
-    const boost::filesystem::path& cachefileName() {
-      static const boost::filesystem::path s_path(".edmplugincache");
+    const std::filesystem::path& cachefileName() {
+      static const std::filesystem::path s_path(".edmplugincache");
       return s_path;
     }
 
-    const boost::filesystem::path& poisonedCachefileName() {
-      static const boost::filesystem::path s_path(".poisonededmplugincache");
+    const std::filesystem::path& poisonedCachefileName() {
+      static const std::filesystem::path s_path(".poisonededmplugincache");
       return s_path;
     }
 

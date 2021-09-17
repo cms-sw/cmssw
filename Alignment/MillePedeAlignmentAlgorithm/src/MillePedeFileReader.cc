@@ -5,9 +5,6 @@
 #include <cmath>  // include floating-point std::abs functions
 #include <fstream>
 
-/*** core framework functionality ***/
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 /*** Alignment ***/
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -20,10 +17,12 @@ MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const AlignPCLThresholds>& theThresholds)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
+      millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
       millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
       millePedeResFile_(config.getParameter<std::string>("millePedeResFile")) {}
 
 void MillePedeFileReader ::read() {
+  readMillePedeEndFile();
   readMillePedeLogFile();
   readMillePedeResultFile();
 }
@@ -33,6 +32,34 @@ bool MillePedeFileReader ::storeAlignments() { return (updateDB_ && !vetoUpdateD
 //=============================================================================
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
+void MillePedeFileReader ::readMillePedeEndFile() {
+  std::ifstream endFile;
+  endFile.open(millePedeEndFile_.c_str());
+
+  if (endFile.is_open()) {
+    edm::LogInfo("MillePedeFileReader") << "Reading millepede end-file";
+    std::string line;
+    getline(endFile, line);
+    std::string trash;
+    if (line.find("-1") != std::string::npos) {
+      getline(endFile, line);
+      exitMessage_ = line;
+      std::istringstream iss(line);
+      iss >> exitCode_ >> trash;
+      edm::LogInfo("MillePedeFileReader")
+          << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
+    } else {
+      exitMessage_ = line;
+      std::istringstream iss(line);
+      iss >> exitCode_ >> trash;
+      edm::LogInfo("MillePedeFileReader")
+          << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
+    }
+  } else {
+    edm::LogError("MillePedeFileReader") << "Could not read millepede end-file.";
+    exitMessage_ = "no exit code found";
+  }
+}
 
 void MillePedeFileReader ::readMillePedeLogFile() {
   std::ifstream logFile;
@@ -44,6 +71,7 @@ void MillePedeFileReader ::readMillePedeLogFile() {
 
     while (getline(logFile, line)) {
       std::string Nrec_string = "NREC =";
+      std::string Binaries_string = "C_binary";
 
       if (line.find(Nrec_string) != std::string::npos) {
         std::istringstream iss(line);
@@ -56,8 +84,11 @@ void MillePedeFileReader ::readMillePedeLogFile() {
           updateDB_ = false;
         }
       }
-    }
 
+      if (line.find(Binaries_string) != std::string::npos) {
+        binariesAmount_ += 1;
+      }
+    }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede log-file.";
 
@@ -166,18 +197,23 @@ void MillePedeFileReader ::readMillePedeResultFile() {
           edm::LogWarning("MillePedeFileReader") << "Aborting payload creation."
                                                  << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove)
                                                  << " for" << detLabel << "(" << coord << ")";
+          updateBits_.set(0);
           vetoUpdateDB_ = true;
           continue;
 
         } else if (std::abs(ObsMove) > cutoffs_[detLabel][alignableIndex]) {
+          updateBits_.set(1);
+
           if (std::abs(ObsErr) > errors_[detLabel][alignableIndex]) {
             edm::LogWarning("MillePedeFileReader") << "Aborting payload creation."
                                                    << " Exceeding maximum thresholds for error: " << std::abs(ObsErr)
                                                    << " for" << detLabel << "(" << coord << ")";
+            updateBits_.set(2);
             vetoUpdateDB_ = true;
             continue;
           } else {
             if (std::abs(ObsMove / ObsErr) < significances_[detLabel][alignableIndex]) {
+              updateBits_.set(3);
               continue;
             }
           }

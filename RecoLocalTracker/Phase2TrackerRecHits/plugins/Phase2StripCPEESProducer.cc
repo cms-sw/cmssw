@@ -7,8 +7,9 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPEGeometric.h"
@@ -21,12 +22,14 @@
 class Phase2StripCPEESProducer : public edm::ESProducer {
 public:
   Phase2StripCPEESProducer(const edm::ParameterSet&);
-  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord& iRecord);
+  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkPhase2OTCPERecord& iRecord);
 
 private:
   enum CPE_t { DEFAULT, GEOMETRIC };
-  std::map<std::string, CPE_t> enumMap_;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  edm::ESGetToken<SiPhase2OuterTrackerLorentzAngle, SiPhase2OuterTrackerLorentzAngleRcd> lorentzAngleToken_;
   CPE_t cpeNum_;
   edm::ParameterSet pset_;
 };
@@ -34,28 +37,31 @@ private:
 Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
   std::string name = p.getParameter<std::string>("ComponentType");
 
-  enumMap_[std::string("Phase2StripCPE")] = DEFAULT;
-  enumMap_[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
-  if (enumMap_.find(name) == enumMap_.end())
+  std::map<std::string, CPE_t> enumMap;
+  enumMap[std::string("Phase2StripCPE")] = DEFAULT;
+  enumMap[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
+  if (enumMap.find(name) == enumMap.end())
     throw cms::Exception("Unknown StripCPE type") << name;
 
-  cpeNum_ = enumMap_[name];
+  cpeNum_ = enumMap[name];
   pset_ = p.getParameter<edm::ParameterSet>("parameters");
-  setWhatProduced(this, name);
+  auto c = setWhatProduced(this, name);
+  if (cpeNum_ != GEOMETRIC) {
+    magfieldToken_ = c.consumes();
+    pDDToken_ = c.consumes();
+    lorentzAngleToken_ = c.consumes();
+  }
 }
 
 std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(
-    const TkStripCPERecord& iRecord) {
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> pDD;
-
+    const TkPhase2OTCPERecord& iRecord) {
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
   switch (cpeNum_) {
     case DEFAULT:
-      iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-      iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
-      cpe_ = std::make_unique<Phase2StripCPE>(pset_, *magfield, *pDD);
+      cpe_ = std::make_unique<Phase2StripCPE>(
+          pset_, iRecord.get(magfieldToken_), iRecord.get(pDDToken_), iRecord.get(lorentzAngleToken_));
       break;
+
     case GEOMETRIC:
       cpe_ = std::make_unique<Phase2StripCPEGeometric>(pset_);
       break;

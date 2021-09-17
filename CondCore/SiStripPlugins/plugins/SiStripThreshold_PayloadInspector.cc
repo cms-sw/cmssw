@@ -44,22 +44,22 @@ using namespace std;
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiStripThresholdTest : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
+  class SiStripThresholdTest : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdTest()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold>(
-              "SiStrip Threshold test", "SiStrip Threshold test", 10, 0.0, 10.0),
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip Threshold test", "SiStrip Threshold test", 10, 0.0, 10.0),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      Base::setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -85,22 +85,19 @@ namespace {
     1d histogram of SiStripThresholds of 1 IOV - High Threshold 
   *************************************************************/
 
-  class SiStripThresholdValueHigh : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
+  class SiStripThresholdValueHigh : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdValueHigh()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip High threshold values (checked per APV)",
-                                                                "SiStrip High threshold values (cheched per APV)",
-                                                                10,
-                                                                0.0,
-                                                                10) {
-      Base::setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-
-      for (auto const& iov : iovs) {
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip High threshold values (checked per APV)",
+                                                    "SiStrip High threshold values (cheched per APV)",
+                                                    10,
+                                                    0.0,
+                                                    10) {}
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -110,7 +107,7 @@ namespace {
             //std::cout<<d<<std::endl;
             SiStripThreshold::Range range = payload->getRange(d);
 
-            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
+            int nAPVs = detInfo.getNumberOfApvsAndStripLength(d).first;
 
             for (int it = 0; it < nAPVs; ++it) {
               auto hth = payload->getData(it * 128, range).getHth();
@@ -121,7 +118,6 @@ namespace {
         }
       }
 
-      delete reader;
       return true;
     }
   };
@@ -130,22 +126,19 @@ namespace {
     1d histogram of SiStripThresholds of 1 IOV - Low Threshold 
   *************************************************************/
 
-  class SiStripThresholdValueLow : public cond::payloadInspector::Histogram1D<SiStripThreshold> {
+  class SiStripThresholdValueLow : public Histogram1D<SiStripThreshold, SINGLE_IOV> {
   public:
     SiStripThresholdValueLow()
-        : cond::payloadInspector::Histogram1D<SiStripThreshold>("SiStrip Low threshold values (checked per APV)",
-                                                                "SiStrip Low threshold values (cheched per APV)",
-                                                                10,
-                                                                0.0,
-                                                                10) {
-      Base::setSingleIov(true);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-
-      for (auto const& iov : iovs) {
+        : Histogram1D<SiStripThreshold, SINGLE_IOV>("SiStrip Low threshold values (checked per APV)",
+                                                    "SiStrip Low threshold values (cheched per APV)",
+                                                    10,
+                                                    0.0,
+                                                    10) {}
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripThreshold> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<uint32_t> detid;
@@ -155,7 +148,7 @@ namespace {
             //std::cout<<d<<std::endl;
             SiStripThreshold::Range range = payload->getRange(d);
 
-            int nAPVs = reader->getNumberOfApvsAndStripLength(d).first;
+            int nAPVs = detInfo.getNumberOfApvsAndStripLength(d).first;
 
             for (int it = 0; it < nAPVs; ++it) {
               auto lth = payload->getData(it * 128, range).getLth();
@@ -166,7 +159,6 @@ namespace {
         }
       }
 
-      delete reader;
       return true;
     }
   };

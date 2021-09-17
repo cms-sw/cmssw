@@ -38,9 +38,9 @@ namespace dqmoffline {
       TH1 *h_diff;
       TH1 *h1;
       TH1 *h2;
-      bool is1D(histType1_ == MonitorElement::DQM_KIND_TH1F || histType1_ == MonitorElement::DQM_KIND_TH1D);
-      bool is2D(histType1_ == MonitorElement::DQM_KIND_TH2F || histType1_ == MonitorElement::DQM_KIND_TH2D);
-      bool isProfile(histType1_ == MonitorElement::DQM_KIND_TPROFILE);
+      bool is1D(histType1_ == MonitorElement::Kind::TH1F || histType1_ == MonitorElement::Kind::TH1D);
+      bool is2D(histType1_ == MonitorElement::Kind::TH2F || histType1_ == MonitorElement::Kind::TH2D);
+      bool isProfile(histType1_ == MonitorElement::Kind::TPROFILE);
 
       if (is1D) {
         h_diff = h_diff_->getTH1F();
@@ -75,8 +75,10 @@ namespace dqmoffline {
 
       if (!h1_ || !h2_) {
         edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
-            << (!h1_ && !h2_ ? h1Name + " && " + h2Name : !h1_ ? h1Name : h2Name) << " not gettable. Quitting booking"
-            << std::endl;
+            << (!h1_ && !h2_ ? h1Name + " && " + h2Name
+                : !h1_       ? h1Name
+                             : h2Name)
+            << " not gettable. Quitting booking" << std::endl;
 
         return;
       }
@@ -86,7 +88,7 @@ namespace dqmoffline {
     }
 
     bool L1TDiffHarvesting::L1TDiffPlotHandler::isValid() const {
-      if (histType1_ == MonitorElement::DQM_KIND_INVALID) {
+      if (histType1_ == MonitorElement::Kind::INVALID) {
         edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::isValid")
             << " Could not find a supported histogram type" << std::endl;
         return false;
@@ -102,9 +104,9 @@ namespace dqmoffline {
     void L1TDiffHarvesting::L1TDiffPlotHandler::bookDiff(DQMStore::IBooker &ibooker) {
       ibooker.setCurrentFolder(outputDir_);
 
-      bool is1D(histType1_ == MonitorElement::DQM_KIND_TH1F || histType1_ == MonitorElement::DQM_KIND_TH1D);
-      bool is2D(histType1_ == MonitorElement::DQM_KIND_TH2F || histType1_ == MonitorElement::DQM_KIND_TH2D);
-      bool isProfile(histType1_ == MonitorElement::DQM_KIND_TPROFILE);
+      bool is1D(histType1_ == MonitorElement::Kind::TH1F || histType1_ == MonitorElement::Kind::TH1D);
+      bool is2D(histType1_ == MonitorElement::Kind::TH2F || histType1_ == MonitorElement::Kind::TH2D);
+      bool isProfile(histType1_ == MonitorElement::Kind::TPROFILE);
 
       if (is1D) {
         TH1F *h1 = h1_->getTH1F();
@@ -140,9 +142,9 @@ namespace dqmoffline {
 
     L1TDiffHarvesting::L1TDiffHarvesting(const edm::ParameterSet &ps) : plotHandlers_() {
       using namespace std;
-      for (auto plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
+      for (const auto &plotConfig : ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("plotCfgs")) {
         vector<string> plots = plotConfig.getUntrackedParameter<vector<string>>("plots");
-        for (auto plot : plots) {
+        for (const auto &plot : plots) {
           plotHandlers_.push_back(L1TDiffPlotHandler(plotConfig, plot));
         }
       }

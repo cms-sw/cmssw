@@ -1,9 +1,9 @@
-#include "FWCore/Framework/src/GlobalSchedule.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/interface/GlobalSchedule.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -91,15 +91,16 @@ namespace edm {
   void GlobalSchedule::endJob(ExceptionCollector& collector) { workerManagers_[0].endJob(collector); }
 
   void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
-                                eventsetup::ESRecordsToProxyIndices const& iESIndices) {
-    workerManagers_[0].beginJob(iRegistry, iESIndices);
+                                eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                                ProcessBlockHelperBase const& processBlockHelperBase) {
+    workerManagers_[0].beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }
 
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     Worker* found = nullptr;
     for (auto& wm : workerManagers_) {
       for (auto const& worker : wm.allWorkers()) {
-        if (worker->description().moduleLabel() == iLabel) {
+        if (worker->description()->moduleLabel() == iLabel) {
           found = worker;
           break;
         }
@@ -113,12 +114,18 @@ namespace edm {
     }
   }
 
+  void GlobalSchedule::deleteModule(std::string const& iLabel) {
+    for (auto& wm : workerManagers_) {
+      wm.deleteModuleIfExists(iLabel);
+    }
+  }
+
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;

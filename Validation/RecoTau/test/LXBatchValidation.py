@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Script to submit Tau Validation jobs to lxbatch
 #  Author: Evan Friis evan.klose.friis@cern.ch
@@ -17,7 +17,7 @@ if not CMSSWEnvironmentIsCurrent():
    sys.exit()
 
 if options.nJobs == 0:
-   print("Must specify nJobs > 0. Run 'python LXBatchValidation.py help' for options")
+   print("Must specify nJobs > 0. Run 'python3 LXBatchValidation.py help' for options")
    sys.exit()
 
 if options.maxEvents == -1 and options.nJobs > 1:

@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,6 +19,8 @@
 #include <iterator>
 
 using namespace edm;
+
+using Trig = detail::TriggerResultsBasedEventSelector::handle_t;
 
 namespace {
 
@@ -53,12 +55,14 @@ namespace {
 }  // namespace
 namespace edmtest {
 
-  class TestOutputModule : public edm::OutputModule {
+  class TestOutputModule : public edm::one::OutputModule<> {
   public:
     explicit TestOutputModule(edm::ParameterSet const&);
     virtual ~TestOutputModule();
 
   private:
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventForOutput const& e) const;
+
     virtual void write(edm::EventForOutput const& e) override;
     virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
     virtual void writeRun(edm::RunForOutput const&) override;
@@ -74,14 +78,20 @@ namespace edmtest {
   // -----------------------------------------------------------------
 
   TestOutputModule::TestOutputModule(edm::ParameterSet const& ps)
-      : edm::OutputModule(ps),
+      : edm::one::OutputModuleBase(ps),
+        edm::one::OutputModule<>(ps),
         name_(ps.getParameter<std::string>("name")),
         bitMask_(ps.getParameter<int>("bitMask")),
         hltbits_(0),
         expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults", true)),
-        resultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {}
+        resultsToken_(consumes(edm::InputTag("TriggerResults"))) {}
 
   TestOutputModule::~TestOutputModule() {}
+
+  Trig TestOutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token,
+                                           EventForOutput const& event) const {
+    return event.getHandle(token);
+  }
 
   void TestOutputModule::write(edm::EventForOutput const& e) {
     assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == description().moduleLabel());

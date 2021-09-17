@@ -1,0 +1,14 @@
+<bin name="cmsTestInterProcess" file="interprocess.cc">
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="FWCore/SharedMemory"/>
+</bin>
+
+<bin name="cmsTestInterProcessRandom" file="interprocess_random.cc">
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/TestProcessor"/>
+  <use name="FWCore/SharedMemory"/>
+  <use name="FWCore/Services"/>
+</bin>

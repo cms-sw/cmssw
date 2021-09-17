@@ -5,8 +5,8 @@
     p_int_untracked         untracked int32                -2147483647
     p_int_opt               int32                 optional 0
     p_int_optuntracked      untracked int32       optional 7
-    p_int_opt_nd            int32                 optional none (do not write to cfi)
-    p_int_optuntracked_nd   untracked int32       optional none (do not write to cfi)
+    p_int_opt_nd            int32                 optional none
+    p_int_optuntracked_nd   untracked int32       optional none
     vint1                   vint32                         empty
     vint2                   vint32                         (vector size = 1)
       [0]: 2147483647
@@ -146,6 +146,19 @@
       [1]: 'One:Two'
       [2]: 'One'
       [3]: 'One::Three'
+    esinputTagv1            ESInputTag                     'One:Two'
+    esinputTagv2            ESInputTag                     'One:'
+    esinputTagv3            ESInputTag                     ':Two'
+    vESInputTagv1           VESInputTag                    empty
+    vESInputTagv2           VESInputTag                    (vector size = 1)
+      [0]: 'One:Two'
+    vESInputTagv3           VESInputTag                    (vector size = 2)
+      [0]: 'One:Two'
+      [1]: 'One:'
+    vESInputTagv4           VESInputTag                    (vector size = 3)
+      [0]: 'One:Two'
+      [1]: 'One:'
+      [2]: ':Two'
     fileInPath              FileInPath                     'FWCore/Integration/test/ProducerWithPSetDesc.cc'
     Empty group description
     bar                     PSet                           see Section 1.1.2
@@ -173,7 +186,7 @@
     noDefaultPset4          PSet                           see Section 1.1.21
     plugin                  PSet                           see Section 1.1.22
     plugin1                 PSet                           see Section 1.1.23
-    mightGet                untracked vstring     optional none (do not write to cfi)
+    mightGet                untracked vstring     optional none
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
         [1]: 0
@@ -204,8 +217,8 @@
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
-        ndoDrinks  uint32           optional none (do not write to cfi)
-        ndouDrinks untracked uint32 optional none (do not write to cfi)
+        ndoDrinks  uint32           optional none
+        ndouDrinks untracked uint32 optional none
     Section 1.1.6 test104 VPSet description:
         All elements will be validated using the PSet description in Section 1.1.6.1.
         The default VPSet has 1 element.
@@ -215,8 +228,8 @@
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
-        ndoDrinks  uint32           optional none (do not write to cfi)
-        ndouDrinks untracked uint32 optional none (do not write to cfi)
+        ndoDrinks  uint32           optional none
+        ndouDrinks untracked uint32 optional none
     Section 1.1.6.2 PSet description of default VPSet element [0]
         Description is empty
     Section 1.1.7 test105 VPSet description:
@@ -227,8 +240,8 @@
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
-        ndoDrinks  uint32           optional none (do not write to cfi)
-        ndouDrinks untracked uint32 optional none (do not write to cfi)
+        ndoDrinks  uint32           optional none
+        ndouDrinks untracked uint32 optional none
     Section 1.1.8 AND group description:
     This optional AND group requires all or none of the following to be in the PSet
         testA string  'fooA'
@@ -313,8 +326,8 @@
         uDrinks          untracked uint32          5
         oDrinks          uint32           optional 5
         ouDrinks         untracked uint32 optional 5
-        ndoDrinks        uint32           optional none (do not write to cfi)
-        ndouDrinks       untracked uint32 optional none (do not write to cfi)
+        ndoDrinks        uint32           optional none
+        ndouDrinks       untracked uint32 optional none
         testDeeplyNested PSet                      see Section 1.1.11.1.1
         anotherVPSet     VPSet                     see Section 1.1.11.1.2
     Section 1.1.11.1.1 testDeeplyNested PSet description:
@@ -490,8 +503,8 @@
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
-        ndoDrinks  uint32           optional none (do not write to cfi)
-        ndouDrinks untracked uint32 optional none (do not write to cfi)
+        ndoDrinks  uint32           optional none
+        ndouDrinks untracked uint32 optional none
     Section 1.1.16 orPset PSet description:
         OR group: see Section 1.1.16.1
         OR group: see Section 1.1.16.2
@@ -523,8 +536,8 @@
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
-        ndoDrinks  uint32           optional none (do not write to cfi)
-        ndouDrinks untracked uint32 optional none (do not write to cfi)
+        ndoDrinks  uint32           optional none
+        ndouDrinks untracked uint32 optional none
     Section 1.1.17 andPset PSet description:
         AND group: see Section 1.1.17.1
         AND group: see Section 1.1.17.2
@@ -622,55 +635,55 @@
         oDrinks   uint32           optional 5
         ouDrinks  untracked uint32 optional 5
     Section 1.1.20 noDefaultPset3 PSet description:
-        noDefault1  int32                 optional none (do not write to cfi)
-        noDefault2  vint32                optional none (do not write to cfi)
-        noDefault3  uint32                optional none (do not write to cfi)
-        noDefault4  vuint32               optional none (do not write to cfi)
-        noDefault5  int64                 optional none (do not write to cfi)
-        noDefault6  vint64                optional none (do not write to cfi)
-        noDefault7  uint64                optional none (do not write to cfi)
-        noDefault8  vuint64               optional none (do not write to cfi)
-        noDefault9  double                optional none (do not write to cfi)
-        noDefault10 vdouble               optional none (do not write to cfi)
-        noDefault11 bool                  optional none (do not write to cfi)
-        noDefault12 string                optional none (do not write to cfi)
-        noDefault13 vstring               optional none (do not write to cfi)
-        noDefault14 EventID               optional none (do not write to cfi)
-        noDefault15 VEventID              optional none (do not write to cfi)
-        noDefault16 LuminosityBlockID     optional none (do not write to cfi)
-        noDefault17 VLuminosityBlockID    optional none (do not write to cfi)
-        noDefault18 InputTag              optional none (do not write to cfi)
-        noDefault19 VInputTag             optional none (do not write to cfi)
-        noDefault20 FileInPath            optional none (do not write to cfi)
-        noDefault21 LuminosityBlockRange  optional none (do not write to cfi)
-        noDefault22 VLuminosityBlockRange optional none (do not write to cfi)
-        noDefault23 EventRange            optional none (do not write to cfi)
-        noDefault24 VEventRange           optional none (do not write to cfi)
+        noDefault1  int32                 optional none
+        noDefault2  vint32                optional none
+        noDefault3  uint32                optional none
+        noDefault4  vuint32               optional none
+        noDefault5  int64                 optional none
+        noDefault6  vint64                optional none
+        noDefault7  uint64                optional none
+        noDefault8  vuint64               optional none
+        noDefault9  double                optional none
+        noDefault10 vdouble               optional none
+        noDefault11 bool                  optional none
+        noDefault12 string                optional none
+        noDefault13 vstring               optional none
+        noDefault14 EventID               optional none
+        noDefault15 VEventID              optional none
+        noDefault16 LuminosityBlockID     optional none
+        noDefault17 VLuminosityBlockID    optional none
+        noDefault18 InputTag              optional none
+        noDefault19 VInputTag             optional none
+        noDefault20 FileInPath            optional none
+        noDefault21 LuminosityBlockRange  optional none
+        noDefault22 VLuminosityBlockRange optional none
+        noDefault23 EventRange            optional none
+        noDefault24 VEventRange           optional none
     Section 1.1.21 noDefaultPset4 PSet description:
-        noDefault1  untracked int32                 optional none (do not write to cfi)
-        noDefault2  untracked vint32                optional none (do not write to cfi)
-        noDefault3  untracked uint32                optional none (do not write to cfi)
-        noDefault4  untracked vuint32               optional none (do not write to cfi)
-        noDefault5  untracked int64                 optional none (do not write to cfi)
-        noDefault6  untracked vint64                optional none (do not write to cfi)
-        noDefault7  untracked uint64                optional none (do not write to cfi)
-        noDefault8  untracked vuint64               optional none (do not write to cfi)
-        noDefault9  untracked double                optional none (do not write to cfi)
-        noDefault10 untracked vdouble               optional none (do not write to cfi)
-        noDefault11 untracked bool                  optional none (do not write to cfi)
-        noDefault12 untracked string                optional none (do not write to cfi)
-        noDefault13 untracked vstring               optional none (do not write to cfi)
-        noDefault14 untracked EventID               optional none (do not write to cfi)
-        noDefault15 untracked VEventID              optional none (do not write to cfi)
-        noDefault16 untracked LuminosityBlockID     optional none (do not write to cfi)
-        noDefault17 untracked VLuminosityBlockID    optional none (do not write to cfi)
-        noDefault18 untracked InputTag              optional none (do not write to cfi)
-        noDefault19 untracked VInputTag             optional none (do not write to cfi)
-        noDefault20 untracked FileInPath            optional none (do not write to cfi)
-        noDefault21 untracked LuminosityBlockRange  optional none (do not write to cfi)
-        noDefault22 untracked VLuminosityBlockRange optional none (do not write to cfi)
-        noDefault23 untracked EventRange            optional none (do not write to cfi)
-        noDefault24 untracked VEventRange           optional none (do not write to cfi)
+        noDefault1  untracked int32                 optional none
+        noDefault2  untracked vint32                optional none
+        noDefault3  untracked uint32                optional none
+        noDefault4  untracked vuint32               optional none
+        noDefault5  untracked int64                 optional none
+        noDefault6  untracked vint64                optional none
+        noDefault7  untracked uint64                optional none
+        noDefault8  untracked vuint64               optional none
+        noDefault9  untracked double                optional none
+        noDefault10 untracked vdouble               optional none
+        noDefault11 untracked bool                  optional none
+        noDefault12 untracked string                optional none
+        noDefault13 untracked vstring               optional none
+        noDefault14 untracked EventID               optional none
+        noDefault15 untracked VEventID              optional none
+        noDefault16 untracked LuminosityBlockID     optional none
+        noDefault17 untracked VLuminosityBlockID    optional none
+        noDefault18 untracked InputTag              optional none
+        noDefault19 untracked VInputTag             optional none
+        noDefault20 untracked FileInPath            optional none
+        noDefault21 untracked LuminosityBlockRange  optional none
+        noDefault22 untracked VLuminosityBlockRange optional none
+        noDefault23 untracked EventRange            optional none
+        noDefault24 untracked VEventRange           optional none
     Section 1.1.22 plugin PSet description:
         Section 1.1.22.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
         Section 1.1.22.1.1 edmtestAnotherOneMaker Plugin description:
@@ -681,70 +694,70 @@
     Section 1.1.23 plugin1 PSet description:
         Section 1.1.23.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
         Section 1.1.23.1.1 edmtestAnotherOneMaker Plugin description:
-        type string  none (do not write to cfi)
+        type string  none
         Section 1.1.23.1.2 edmtestAnotherValueMaker Plugin description:
         value int32   5
-        type  string  none (do not write to cfi)
+        type  string  none
   1.2 testLabel1
     Description allows anything. If the configured PSet contains illegal parameters,
     then validation will ignore them instead of throwing an exception.
     p_int          int32                      1
     noDefaultPset1 PSet                       see Section 1.2.1
     noDefaultPset2 PSet                       see Section 1.2.2
-    mightGet       untracked vstring optional none (do not write to cfi)
+    mightGet       untracked vstring optional none
     Section 1.2.1 noDefaultPset1 PSet description:
-        noDefault1  int32                  none (do not write to cfi)
-        noDefault2  vint32                 none (do not write to cfi)
-        noDefault3  uint32                 none (do not write to cfi)
-        noDefault4  vuint32                none (do not write to cfi)
-        noDefault5  int64                  none (do not write to cfi)
-        noDefault6  vint64                 none (do not write to cfi)
-        noDefault7  uint64                 none (do not write to cfi)
-        noDefault8  vuint64                none (do not write to cfi)
-        noDefault9  double                 none (do not write to cfi)
-        noDefault10 vdouble                none (do not write to cfi)
-        noDefault11 bool                   none (do not write to cfi)
-        noDefault12 string                 none (do not write to cfi)
-        noDefault13 vstring                none (do not write to cfi)
-        noDefault14 EventID                none (do not write to cfi)
-        noDefault15 VEventID               none (do not write to cfi)
-        noDefault16 LuminosityBlockID      none (do not write to cfi)
-        noDefault17 VLuminosityBlockID     none (do not write to cfi)
-        noDefault18 InputTag               none (do not write to cfi)
-        noDefault19 VInputTag              none (do not write to cfi)
-        noDefault20 FileInPath             none (do not write to cfi)
-        noDefault21 LuminosityBlockRange   none (do not write to cfi)
-        noDefault22 VLuminosityBlockRange  none (do not write to cfi)
-        noDefault23 EventRange             none (do not write to cfi)
-        noDefault24 VEventRange            none (do not write to cfi)
+        noDefault1  int32                  none
+        noDefault2  vint32                 none
+        noDefault3  uint32                 none
+        noDefault4  vuint32                none
+        noDefault5  int64                  none
+        noDefault6  vint64                 none
+        noDefault7  uint64                 none
+        noDefault8  vuint64                none
+        noDefault9  double                 none
+        noDefault10 vdouble                none
+        noDefault11 bool                   none
+        noDefault12 string                 none
+        noDefault13 vstring                none
+        noDefault14 EventID                none
+        noDefault15 VEventID               none
+        noDefault16 LuminosityBlockID      none
+        noDefault17 VLuminosityBlockID     none
+        noDefault18 InputTag               none
+        noDefault19 VInputTag              none
+        noDefault20 FileInPath             none
+        noDefault21 LuminosityBlockRange   none
+        noDefault22 VLuminosityBlockRange  none
+        noDefault23 EventRange             none
+        noDefault24 VEventRange            none
     Section 1.2.2 noDefaultPset2 PSet description:
-        noDefault1  untracked int32                  none (do not write to cfi)
-        noDefault2  untracked vint32                 none (do not write to cfi)
-        noDefault3  untracked uint32                 none (do not write to cfi)
-        noDefault4  untracked vuint32                none (do not write to cfi)
-        noDefault5  untracked int64                  none (do not write to cfi)
-        noDefault6  untracked vint64                 none (do not write to cfi)
-        noDefault7  untracked uint64                 none (do not write to cfi)
-        noDefault8  untracked vuint64                none (do not write to cfi)
-        noDefault9  untracked double                 none (do not write to cfi)
-        noDefault10 untracked vdouble                none (do not write to cfi)
-        noDefault11 untracked bool                   none (do not write to cfi)
-        noDefault12 untracked string                 none (do not write to cfi)
-        noDefault13 untracked vstring                none (do not write to cfi)
-        noDefault14 untracked EventID                none (do not write to cfi)
-        noDefault15 untracked VEventID               none (do not write to cfi)
-        noDefault16 untracked LuminosityBlockID      none (do not write to cfi)
-        noDefault17 untracked VLuminosityBlockID     none (do not write to cfi)
-        noDefault18 untracked InputTag               none (do not write to cfi)
-        noDefault19 untracked VInputTag              none (do not write to cfi)
-        noDefault20 untracked FileInPath             none (do not write to cfi)
-        noDefault21 untracked LuminosityBlockRange   none (do not write to cfi)
-        noDefault22 untracked VLuminosityBlockRange  none (do not write to cfi)
-        noDefault23 untracked EventRange             none (do not write to cfi)
-        noDefault24 untracked VEventRange            none (do not write to cfi)
+        noDefault1  untracked int32                  none
+        noDefault2  untracked vint32                 none
+        noDefault3  untracked uint32                 none
+        noDefault4  untracked vuint32                none
+        noDefault5  untracked int64                  none
+        noDefault6  untracked vint64                 none
+        noDefault7  untracked uint64                 none
+        noDefault8  untracked vuint64                none
+        noDefault9  untracked double                 none
+        noDefault10 untracked vdouble                none
+        noDefault11 untracked bool                   none
+        noDefault12 untracked string                 none
+        noDefault13 untracked vstring                none
+        noDefault14 untracked EventID                none
+        noDefault15 untracked VEventID               none
+        noDefault16 untracked LuminosityBlockID      none
+        noDefault17 untracked VLuminosityBlockID     none
+        noDefault18 untracked InputTag               none
+        noDefault19 untracked VInputTag              none
+        noDefault20 untracked FileInPath             none
+        noDefault21 untracked LuminosityBlockRange   none
+        noDefault22 untracked VLuminosityBlockRange  none
+        noDefault23 untracked EventRange             none
+        noDefault24 untracked VEventRange            none
   1.3 producerWithPSetDesc
     p_int    int32                      3
-    mightGet untracked vstring optional none (do not write to cfi)
+    mightGet untracked vstring optional none
   1.4 description without a module label
     p_int    int32                      2
-    mightGet untracked vstring optional none (do not write to cfi)
+    mightGet untracked vstring optional none

@@ -180,7 +180,7 @@ void DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       TEveStraightLineSet* ls = nullptr;
       if (m_MF_plane_draw_dir) {
-        new TEveStraightLineSet("MF_line_direction");
+        ls = new TEveStraightLineSet("MF_line_direction");
         ls->SetPickable(false);
         ls->SetLineColor(kGreen);
         ls->SetMarkerColor(kGreen);

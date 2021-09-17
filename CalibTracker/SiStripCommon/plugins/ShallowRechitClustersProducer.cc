@@ -1,7 +1,5 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowRechitClustersProducer.h"
+#include "ShallowRechitClustersProducer.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,9 +11,10 @@
 ShallowRechitClustersProducer::ShallowRechitClustersProducer(const edm::ParameterSet& iConfig)
     : Suffix(iConfig.getParameter<std::string>("Suffix")),
       Prefix(iConfig.getParameter<std::string>("Prefix")),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       clusters_token_(consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("Clusters"))) {
   std::vector<edm::InputTag> rec_hits_tags = iConfig.getParameter<std::vector<edm::InputTag>>("InputTags");
-  for (auto itag : rec_hits_tags) {
+  for (const auto& itag : rec_hits_tags) {
     rec_hits_tokens_.push_back(consumes<SiStripRecHit2DCollection>(itag));
   }
 
@@ -44,8 +43,7 @@ void ShallowRechitClustersProducer::produce(edm::Event& iEvent, const edm::Event
   auto globaly = std::make_unique<std::vector<float>>(size, -10000);
   auto globalz = std::make_unique<std::vector<float>>(size, -10000);
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry = iSetup.getHandle(geomToken_);
 
   for (auto recHit_token : rec_hits_tokens_) {
     edm::Handle<SiStripRecHit2DCollection> recHits;

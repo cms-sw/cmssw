@@ -1,0 +1,3 @@
+from RecoEgamma.EgammaElectronProducers.gsfElectrons_cfi import ecalDrivenGsfElectrons
+
+lowPtGsfElectronsPreRegression = ecalDrivenGsfElectrons.clone(gsfElectronCoresTag = "lowPtGsfElectronCores")

@@ -34,26 +34,26 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <cmath>
+
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
+
 class TBeamTest : public DQMEDAnalyzer {
 public:
   explicit TBeamTest(const edm::ParameterSet&);
   ~TBeamTest() override;
-  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -107,12 +107,6 @@ TBeamTest::~TBeamTest() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   edm::LogInfo("TBeamTest") << ">>> Destroy TBeamTest ";
-}
-//
-// -- DQM Begin Run
-//
-void TBeamTest::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::LogInfo("TBeamTest") << "Initialize TBeamTest ";
 }
 //
 // -- Analyze

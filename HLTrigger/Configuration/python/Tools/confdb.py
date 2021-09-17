@@ -4,11 +4,9 @@ from __future__ import absolute_import
 import sys
 import re
 import os
-import urllib, urllib2
 from .pipe import pipe as _pipe
 from .options import globalTag
 from itertools import islice
-import six
 
 def splitter(iterator, n):
   i = iterator.__iter__()
@@ -69,7 +67,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in six.iteritems(self.options):
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -86,8 +84,10 @@ class HLTProcess(object):
       args = ['--runNumber', self.config.menu.run]
     else:
       args = ['--configName', self.config.menu.name ]
-    args.append('--noedsources')
-    for key, vals in six.iteritems(self.options):
+    if not self.config.hilton:
+        # keep the original Source when running on Hilton
+        args.append('--noedsources')
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
 
@@ -181,11 +181,16 @@ class HLTProcess(object):
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 fragment = customizeHLTforAll(fragment,"%s")
 """ % (self.config.type)
+    elif self.config.hilton:
+      # do not apply the STORM-specific customisation
+      pass
     else:
       if self.config.type=="Fake":
         prefix = "run1"
-      else:
+      elif self.config.type in ("Fake1","Fake2","2018"):
         prefix = "run2"
+      else:
+        prefix = "run3"
       _gtData = "auto:"+prefix+"_hlt_"+self.config.type
       _gtMc   = "auto:"+prefix+"_mc_" +self.config.type
       self.data += """
@@ -230,6 +235,7 @@ modifyHLTforEras(%(process)s)
             self.data += "from "+customiseValues[0]+" import "+customiseValues[1]+"\n"
             self.data += "process = "+customiseValues[1]+"(process)\n"
 
+
   # customize the configuration according to the options
   def customize(self):
 
@@ -266,7 +272,7 @@ modifyHLTforEras(%(process)s)
 
     if self.config.fragment:
       self.data += """
-# dummyfy hltGetConditions in cff's
+# dummify hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
@@ -324,7 +330,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     wantSummary = cms.untracked.bool( True ),
     numberOfThreads = cms.untracked.uint32( 4 ),
     numberOfStreams = cms.untracked.uint32( 0 ),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 """
 
@@ -458,12 +463,13 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       self.data += text
 
   def overrideOutput(self):
-    # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
-    self.data = re.sub(
-      r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
-      r'%(process)s.hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
-      self.data
-    )
+    # if not runnign on Hilton, override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
+    if not self.config.hilton:
+      self.data = re.sub(
+        r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
+        r'%(process)s.hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),',
+        self.data
+      )
 
     if not self.config.fragment and self.config.output == 'minimal':
       # add a single output to keep the TriggerResults and TriggerEvent
@@ -539,11 +545,12 @@ if 'PrescaleService' in process.__dict__:
     # request summary informations from the MessageLogger
     self.data += """
 if 'MessageLogger' in %(dict)s:
-    %(process)s.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    %(process)s.MessageLogger.categories.append('L1GtTrigReport')
-    %(process)s.MessageLogger.categories.append('L1TGlobalSummary')
-    %(process)s.MessageLogger.categories.append('HLTrigReport')
-    %(process)s.MessageLogger.categories.append('FastReport')
+    %(process)s.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    %(process)s.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    %(process)s.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    %(process)s.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    %(process)s.MessageLogger.FastReport = cms.untracked.PSet()
+    %(process)s.MessageLogger.ThroughputService = cms.untracked.PSet()
 """
 
 
@@ -636,7 +643,6 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
       dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-      dqmstore += "%(process)s.DQMStore.enableMultiThread = True\n"
       dqmstore += """
 %(process)s.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
@@ -754,7 +760,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['essources'].append( "-es_hardcode" )
       self.options['essources'].append( "-magfield" )
 
-      self.options['esmodules'].append( "-AutoMagneticFieldESProducer" )
       self.options['esmodules'].append( "-SlaveField0" )
       self.options['esmodules'].append( "-SlaveField20" )
       self.options['esmodules'].append( "-SlaveField30" )
@@ -786,6 +791,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
       self.options['esmodules'].append( "-SiStripQualityESProducer" )
       self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+      self.options['esmodules'].append( "-TrackerAdditionalParametersPerDetESModule" )
       self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
       self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
       self.options['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
@@ -852,6 +858,10 @@ if 'GlobalTag' in %%(dict)s:
     return files
 
   def build_source(self):
+    if self.config.hilton:
+      # use the DAQ source
+      return
+
     if self.config.input:
       # if a dataset or a list of input files was given, use it
       self.source = self.expand_filenames(self.config.input)

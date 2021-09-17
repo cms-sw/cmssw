@@ -49,7 +49,6 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using edm::LogInfo;
 using edm::LogWarning;
@@ -83,7 +82,6 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet &ps)
   }
   // get back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(1);
   dbe_->setCurrentFolder(folderName_);
 
   std::string rawdir(folderName_ + "/raw");
@@ -132,10 +130,6 @@ void HLTScalersClient::endRun(const edm::Run &run, const edm::EventSetup &c) {
 /// DQM Client Diagnostic should be performed here
 void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) {
   nLumi_ = lumiSeg.id().luminosityBlock();
-  // PWDEBUG
-  if (first_ && debug_)
-    dbe_->showDirStructure();
-  // PWDEBUG END
 
   // get raw data
   std::string scalHisto = folderName_ + "/raw/hltScalers";
@@ -198,7 +192,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
     dbe_->setCurrentFolder(folderName_);
 
     // split hlt scalers up into groups of 20
-    const int maxlen = 40;
+    const int maxlen = 64;
     char metitle[maxlen];                     // histo name
     char mename[maxlen];                      // ME name
     int numHistos = int(npaths / kPerHisto);  // this hasta be w/o remainders
@@ -270,7 +264,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
         std::istringstream fnames(line);
         std::string label;
         int bin;
-        if (fnames.str().find("#") == 0)  // skip comment lines
+        if (fnames.str().find('#') == 0)  // skip comment lines
           continue;
         if (fnames >> bin >> label) {
           if (debug_) {

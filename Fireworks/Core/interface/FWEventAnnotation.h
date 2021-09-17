@@ -22,10 +22,10 @@ public:
   void setLevel(long x);
   void setEvent();
 
-private:
   FWEventAnnotation(const FWEventAnnotation&) = delete;                   // stop default
   const FWEventAnnotation& operator=(const FWEventAnnotation&) = delete;  // stop default
 
+private:
   void updateOverlayText();
 
   int m_level;

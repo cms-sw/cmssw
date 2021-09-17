@@ -45,7 +45,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -71,8 +70,6 @@ const Int_t MAXPARTICLE = 10000;
 const Double_t BarrelEta = 2.0;
 const Double_t EndcapEta = 3.0;
 const Double_t ForwardEta = 5.0;
-
-class MonitorElement;
 
 class JetTester_HeavyIons : public DQMEDAnalyzer {
 public:

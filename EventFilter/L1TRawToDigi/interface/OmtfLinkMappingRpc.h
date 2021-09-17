@@ -9,11 +9,9 @@
 
 #include "EventFilter/L1TRawToDigi/interface/OmtfEleIndex.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
+#include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 
 class RPCReadOutMapping;
-namespace edm {
-  class EventSetup;
-}
 
 namespace omtf {
 
@@ -33,7 +31,7 @@ namespace omtf {
   public:
     RpcLinkMap() {}
 
-    void init(const edm::EventSetup& es);
+    void init(const RPCAMCLinkMap& es);
 
     void init(const std::string& fName);
 

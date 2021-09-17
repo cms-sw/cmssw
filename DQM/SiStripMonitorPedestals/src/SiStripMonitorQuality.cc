@@ -20,7 +20,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -44,9 +43,10 @@
 SiStripMonitorQuality::SiStripMonitorQuality(edm::ParameterSet const &iConfig)
     : dqmStore_(edm::Service<DQMStore>().operator->()),
       conf_(iConfig),
-      m_cacheID_(0)
-
-{
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      qualityToken_(esConsumes<edm::Transition::BeginRun>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("StripQualityLabel")})) {
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality  "
                                         << " Constructing....... ";
 }
@@ -59,20 +59,13 @@ SiStripMonitorQuality::~SiStripMonitorQuality() {
 void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
                                            const edm::Run &run,
                                            const edm::EventSetup &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
-  if (m_cacheID_ == cacheID)
+  if (!qualityWatcher_.check(eSetup))
     return;
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const auto tTopo = &eSetup.getData(tTopoToken_);
 
-  m_cacheID_ = cacheID;
-
-  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
-  eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  stripQuality_ = &eSetup.getData(qualityToken_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;
@@ -115,7 +108,6 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
     hid = hidmanager.createHistoId("StripQualityFromCondDB", "det", detid);
 
     det_me = ibooker.book1D(hid, hid, nStrip, 0.5, nStrip + 0.5);
-    ibooker.tag(det_me, detid);
     det_me->setAxisTitle("Strip Number", 1);
     det_me->setAxisTitle("Quality Flag from CondDB ", 2);
     QualityMEs.insert(std::make_pair(detid, det_me));
@@ -124,20 +116,12 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
 
 // ------------ method called to produce the data  ------------
 void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup const &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
-  if (m_cacheID_ == cacheID)
+  if (!qualityWatcher_.check(eSetup))
     return;
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
-  m_cacheID_ = cacheID;
-
-  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
-  eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  const auto tTopo = &eSetup.getData(tTopoToken_);
+  stripQuality_ = &eSetup.getData(qualityToken_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;
@@ -181,11 +165,10 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup co
 //
 // -- End Run
 //
-void SiStripMonitorQuality::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SiStripMonitorQuality::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
-    // dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 }
@@ -199,7 +182,8 @@ void SiStripMonitorQuality::endJob(void) {
 //
 // -- End Job
 //
-MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology *tTopo) {
+SiStripMonitorQuality::MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet,
+                                                                           const TrackerTopology *tTopo) {
   std::map<uint32_t, MonitorElement *>::iterator pos = QualityMEs.find(idet);
   MonitorElement *det_me = nullptr;
   if (pos != QualityMEs.end()) {

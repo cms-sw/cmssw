@@ -1,5 +1,5 @@
 #include "DQM/TrackingMonitorClient/interface/TrackingUtility.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 //
@@ -7,9 +7,9 @@
 //
 int TrackingUtility::getMEList(std::string name, std::vector<std::string>& values) {
   values.clear();
-  std::string prefix_str = name.substr(0, (name.find(":")));
+  std::string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++)
     (*it).insert(0, prefix_str);
@@ -20,9 +20,9 @@ int TrackingUtility::getMEList(std::string name, std::vector<std::string>& value
 //
 int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
-  dir_path = name.substr(0, (name.find(":")));
+  dir_path = name.substr(0, (name.find(':')));
   dir_path += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
 }
@@ -31,9 +31,9 @@ int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vec
 bool TrackingUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos)
     return false;
-  std::string prefix_str = name.substr(0, (name.find(":")));
+  std::string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  std::string temp_str = name.substr(name.find(":") + 1);
+  std::string temp_str = name.substr(name.find(':') + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
   for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); it++) {
@@ -179,9 +179,12 @@ int TrackingUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
 //
 void TrackingUtility::getMEValue(MonitorElement* me, std::string& val) {
   val = "";
-  if (me && (me->kind() == MonitorElement::DQM_KIND_REAL || me->kind() == MonitorElement::DQM_KIND_INT)) {
-    val = me->valueString();
-    val = val.substr(val.find("=") + 1);
+  if (me) {
+    if (me->kind() == MonitorElement::Kind::REAL) {
+      val = std::to_string(me->getFloatValue());
+    } else if (me->kind() == MonitorElement::Kind::INT) {
+      val = std::to_string(me->getIntValue());
+    }
   }
 }
 //
@@ -189,7 +192,7 @@ void TrackingUtility::getMEValue(MonitorElement* me, std::string& val) {
 //
 bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string name) {
   std::string currDir = ibooker.pwd();
-  std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
+  std::string dirName = currDir.substr(currDir.find_last_of('/') + 1);
   if (dirName.find(name) == 0) {
     return true;
   }

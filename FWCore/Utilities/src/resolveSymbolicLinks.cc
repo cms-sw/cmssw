@@ -1,15 +1,13 @@
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 #include "FWCore/Utilities/interface/Parse.h"
 
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
-
+#include <filesystem>
 #include <vector>
 
 namespace edm {
 
   namespace {
-    namespace bf = boost::filesystem;
+    namespace bf = std::filesystem;
     bool resolveOneSymbolicLink(std::string& fullPath) {
       if (fullPath.empty())
         return false;

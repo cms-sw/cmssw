@@ -1,22 +1,22 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <DQM/DTMonitorClient/src/DTResolutionTest.h>
+#include "DQM/DTMonitorClient/src/DTResolutionTest.h"
 DEFINE_FWK_MODULE(DTResolutionTest);
 
-#include <DQM/DTMonitorClient/src/DTEfficiencyTest.h>
+#include "DQM/DTMonitorClient/src/DTEfficiencyTest.h"
 DEFINE_FWK_MODULE(DTEfficiencyTest);
 
-#include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
+#include "DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h"
 DEFINE_FWK_MODULE(DTChamberEfficiencyTest);
 
-#include <DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h>
+#include "DQM/DTMonitorClient/src/DTChamberEfficiencyClient.h"
 DEFINE_FWK_MODULE(DTChamberEfficiencyClient);
 
-#include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
+#include "DQM/DTMonitorClient/src/DTDataIntegrityTest.h"
 DEFINE_FWK_MODULE(DTDataIntegrityTest);
 
-#include <DQM/DTMonitorClient/src/DTSegmentAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTSegmentAnalysisTest.h"
 DEFINE_FWK_MODULE(DTSegmentAnalysisTest);
 
 #include "DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h"
@@ -49,19 +49,19 @@ DEFINE_FWK_MODULE(DTSummaryClients);
 #include "DQM/DTMonitorClient/src/DTOfflineSummaryClients.h"
 DEFINE_FWK_MODULE(DTOfflineSummaryClients);
 
-#include <DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h>
+#include "DQM/DTMonitorClient/src/DTResolutionAnalysisTest.h"
 DEFINE_FWK_MODULE(DTResolutionAnalysisTest);
 
-#include <DQM/DTMonitorClient/src/DTDAQInfo.h>
+#include "DQM/DTMonitorClient/src/DTDAQInfo.h"
 DEFINE_FWK_MODULE(DTDAQInfo);
 
-#include <DQM/DTMonitorClient/src/DTDCSSummary.h>
+#include "DQM/DTMonitorClient/src/DTDCSSummary.h"
 DEFINE_FWK_MODULE(DTDCSSummary);
 
-#include <DQM/DTMonitorClient/src/DTDCSByLumiSummary.h>
+#include "DQM/DTMonitorClient/src/DTDCSByLumiSummary.h"
 DEFINE_FWK_MODULE(DTDCSByLumiSummary);
 
-#include <DQM/DTMonitorClient/src/DTCertificationSummary.h>
+#include "DQM/DTMonitorClient/src/DTCertificationSummary.h"
 DEFINE_FWK_MODULE(DTCertificationSummary);
 
 #include "DQM/DTMonitorClient/src/DTTriggerEfficiencyTest.h"

@@ -30,19 +30,23 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include <TFormula.h>
 
 class PFTauPrimaryVertexProducerBase : public edm::stream::EDProducer<> {
- public:
-  enum Alg{useInputPV=0, useFrontPV};
+public:
+  enum Alg { useInputPV = 0, useFrontPV };
 
-  struct DiscCutPair{
-    DiscCutPair():discr_(nullptr),cutFormula_(nullptr){}
-    ~DiscCutPair(){delete cutFormula_;}
+  struct DiscCutPair {
+    DiscCutPair() : discr_(nullptr), cutFormula_(nullptr) {}
+    ~DiscCutPair() { delete cutFormula_; }
     const reco::PFTauDiscriminator* discr_;
     edm::EDGetTokenT<reco::PFTauDiscriminator> inputToken_;
     double cut_;
@@ -52,25 +56,26 @@ class PFTauPrimaryVertexProducerBase : public edm::stream::EDProducer<> {
 
   explicit PFTauPrimaryVertexProducerBase(const edm::ParameterSet& iConfig);
   ~PFTauPrimaryVertexProducerBase() override;
-  void produce(edm::Event&,const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   static edm::ParameterSetDescription getDescriptionsBase();
 
   // called at the beginning of every event - override if necessary
   virtual void beginEvent(const edm::Event&, const edm::EventSetup&) {}
 
- protected:
+protected:
   // abstract function implemented in derived classes
   virtual void nonTauTracksInPV(const reco::VertexRef&,
-				const std::vector<edm::Ptr<reco::TrackBase> >&,
-				std::vector<const reco::Track*>&) = 0;
+                                const std::vector<edm::Ptr<reco::TrackBase> >&,
+                                std::vector<const reco::Track*>&) = 0;
 
- private:
+private:
   edm::EDGetTokenT<std::vector<reco::PFTau> > pftauToken_;
   edm::EDGetTokenT<edm::View<reco::Electron> > electronToken_;
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackBuilderToken_;
   int algorithm_;
   edm::ParameterSet qualityCutsPSet_;
   bool useBeamSpot_;

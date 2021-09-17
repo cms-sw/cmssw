@@ -48,7 +48,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
@@ -104,7 +104,9 @@ private:
   edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
   edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility>> muonCosmicCompatibilityValueMapH_;
   edm::Handle<edm::ValueMap<reco::MuonShower>> muonShowerInformationValueMapH_;
+
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
 
   // trackerMuon == 0; globalMuon == 1
   // energy deposits

@@ -49,8 +49,9 @@ ntuple_digis = cms.PSet(
     HGCDigisBH = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(False)
+    bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
+    isSimhitComp = cms.bool(False),
+    digiBXselect = cms.vuint32(2)
 )
 
 ntuple_triggercells = cms.PSet(
@@ -59,7 +60,7 @@ ntuple_triggercells = cms.PSet(
     Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'), 
     FillSimEnergy = cms.bool(False),
     FillTruthMap = cms.bool(False),
     fcPerMip = fcPerMip,
@@ -67,6 +68,16 @@ ntuple_triggercells = cms.PSet(
     layerWeights = layerWeights,
     thicknessCorrections = thicknessCorrections,
     FilterCellsInMulticlusters = cms.bool(False)
+)
+
+ntuple_triggersums = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
+    TriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+)
+
+ntuple_econdata = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCConcentratorData'),
+    ConcentratorData = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
 )
 
 ntuple_clusters = cms.PSet(
@@ -81,12 +92,8 @@ ntuple_multiclusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
     Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     EGIdentification = egamma_identification_histomax.clone(),
-    FillLayerInfo = cms.bool(False)
-)
-
-ntuple_panels = cms.PSet(
-    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
-    TriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection')
+    FillLayerInfo = cms.bool(False),
+    FillInterpretationInfo = cms.bool(True)
 )
 
 ntuple_towers = cms.PSet(
@@ -103,6 +110,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
+        ntuple_triggersums,
         ntuple_multiclusters,
         ntuple_towers
     )

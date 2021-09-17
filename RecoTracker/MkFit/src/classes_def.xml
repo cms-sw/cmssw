@@ -1,0 +1,16 @@
+<lcgdict>
+  <class name="MkFitHitWrapper" persistent="false"/>
+  <class name="edm::Wrapper<MkFitHitWrapper>" persistent="false"/>
+
+  <class name="MkFitEventOfHits" persistent="false"/>
+  <class name="edm::Wrapper<MkFitEventOfHits>" persistent="false"/>
+
+  <class name="MkFitClusterIndexToHit" persistent="false"/>
+  <class name="edm::Wrapper<MkFitClusterIndexToHit>" persistent="false"/>
+
+  <class name="MkFitSeedWrapper" persistent="false"/>
+  <class name="edm::Wrapper<MkFitSeedWrapper>" persistent="false"/>
+
+  <class name="MkFitOutputWrapper" persistent="false"/>
+  <class name="edm::Wrapper<MkFitOutputWrapper>" persistent="false"/>
+</lcgdict>

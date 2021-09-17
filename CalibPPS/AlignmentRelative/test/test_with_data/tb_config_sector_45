@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# what to optimise
+sector="45"
+z0="-210000"
+rps="3,4,5,23,24,25"
+
+# planes 4.4, 23.5
+excludePlanes="1981939712,2023555072"
+
+# event selection
+minimumHitsPerProjectionPerRP=3
+requireNumberOfUnits="2"
+requireOverlap="False"
+requireAtLeast3PotsInOverlap="True"
+
+additionalAcceptedRPSets=""
+
+# even number limit
+#maxEvents="-1" # process all events
+maxEvents="1E4"
+
+# iteration settings
+iterations=5
+optimize=("s" "s" "sr")
+iterationsWithOneRotZPerPot=0
+maxResidualToSigma=(30 10 10 3)
+chiSqPerNdfCut=(500 50 50 5)
+maxTrackAx=("0.5E-3")
+maxTrackAy=("0.5E-3")
+
+# constraint settings
+constraintsType="standard"
+constraintsLabel="std"
+final_constraints_units="1,21"
+useEqualMeanUMeanVRotZConstraints="True"
+
+# diagonistics
+iterationsWithDiagnostics="1"
+
+# input settings
+reco_dir="/eos/totem/data/offline/2018/450GeV/beta11/ZeroBias/version1"
+
+# geometry settings
+geometry="CalibPPS/AlignmentRelative/test/test_with_data"
+
+initial_alignment=()
+
+# output settings
+subdir="data"
+label=""  # for non-standard settings, e.g. ",test"
+
+NewDataSet
+tasks=(
+	324579.1-25
+	324579.26-50
+	324579.51-75
+	324579.76-99
+)
+
+SubmitTrackBasedAlignment

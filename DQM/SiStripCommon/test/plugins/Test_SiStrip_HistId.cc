@@ -19,9 +19,9 @@
 class Test_SiStrip_HistId : public edm::EDAnalyzer {
 public:
   explicit Test_SiStrip_HistId(const edm::ParameterSet&);
-  ~Test_SiStrip_HistId();
+  ~Test_SiStrip_HistId() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE

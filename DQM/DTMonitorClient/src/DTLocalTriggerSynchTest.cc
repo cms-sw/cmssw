@@ -13,7 +13,6 @@
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
@@ -23,7 +22,6 @@
 
 // DB & Calib
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
-#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -38,10 +36,10 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
+DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps)
+    : wPhaseMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   setConfig(ps, "DTLocalTriggerSynch");
   baseFolderTM = "DT/90-LocalTriggerSynch/";
-  baseFolderDDU = "DT/90-LocalTriggerSynch/";
 
   bookingdone = false;
 }
@@ -92,9 +90,7 @@ void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   LogVerbatim(category()) << "[" << testName << "Test]: book Histograms" << endl;
 
   if (parameters.getParameter<bool>("fineParamDiff")) {
-    ESHandle<DTTPGParameters> wPhaseHandle;
-    c.get<DTTPGParametersRcd>().get(wPhaseHandle);
-    wPhaseMap = (*wPhaseHandle);
+    wPhaseMap = &c.getData(wPhaseMapToken_);
   }
 
   bookingdone = true;
@@ -152,7 +148,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
                             << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
-    hwSource = parameters.getParameter<bool>("dbFromTM") ? "TM" : "DDU";
+    hwSource = "TM";
     std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
     std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
     for (; chambIt != chambEnd; ++chambIt) {
@@ -178,7 +174,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
       if (fineDiff || coarseDiff) {
         float wFine;
         int wCoarse;
-        wPhaseMap.get(chId, wCoarse, wFine, DTTimeUnits::ns);
+        wPhaseMap->get(chId, wCoarse, wFine, DTTimeUnits::ns);
         if (fineDiff) {
           fineDelay = wFine - fineDelay;
         }
@@ -215,8 +211,7 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter, DTCham
   stringstream sector;
   sector << chId.sector();
 
-  string folderName =
-      topFolder(hwSource == "TM") + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
+  string folderName = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
 
   string histoname =
       sourceFolder + folderName + meType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -244,10 +239,9 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker& ibooker,
   sector << chambId.sector();
 
   string fullType = fullName(htype);
-  bool isTM = hwSource == "TM";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  string folder = topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
+  string folder = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if (!subfolder.empty()) {
     folder += "7" + subfolder;
   }

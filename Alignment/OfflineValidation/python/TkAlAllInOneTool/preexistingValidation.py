@@ -17,7 +17,7 @@ class PreexistingValidation(GenericValidation):
     but should be included in plots.
     """
     defaults = {"title": ".oO[name]Oo."}
-    mandatories = {"file", "color", "style"}
+    mandatories = {"file", "color", "style", "originalValName", "eosdirName", "multiIOV"}
     removemandatories = {"dataset", "maxevents", "trackcollection"}
     def __init__(self, valName, config):
         self.general = config.getGeneral()
@@ -29,6 +29,7 @@ class PreexistingValidation(GenericValidation):
                                                demandPars = self.mandatories)
         self.general.update(theUpdate)
 
+        self.originalValName = self.general["originalValName"]
         self.title = self.general["title"]
         if "|" in self.title or "," in self.title or '"' in self.title:
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"

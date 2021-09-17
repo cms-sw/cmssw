@@ -16,6 +16,7 @@ particleFlowClusterHBHE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string("LocalMaximumSeedFinder"),
         thresholdsByDetector = cms.VPSet(
@@ -139,4 +140,9 @@ run3_HB.toModify(particleFlowClusterHBHE,
         positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
     ),
+)
+
+# HCALonly WF
+particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
+    recHitsSource = "particleFlowRecHitHBHEOnly"
 )

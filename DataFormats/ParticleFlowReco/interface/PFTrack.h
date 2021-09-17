@@ -77,10 +77,6 @@ namespace reco {
       trajectoryPoints_[index] = measurement;
     }
 
-    /// calculate posrep_ once and for all for each point
-    /// \todo where is posrep? profile and see if it's necessary.
-    void calculatePositionREP();
-
     /// \return electric charge
     double charge() const { return charge_; }
 
@@ -112,10 +108,6 @@ namespace reco {
       return trajectoryPoints_.begin() + indexOutermost_;
     }
 
-    void setColor(int color) { color_ = color; }
-
-    int color() const { return color_; }
-
   protected:
     /// maximal number of tracking layers
     static const unsigned int nMaxTrackingLayers_;
@@ -131,9 +123,6 @@ namespace reco {
 
     /// index outermost tracker measurement
     unsigned int indexOutermost_;
-
-    /// color (transient)
-    int color_;
   };
   std::ostream& operator<<(std::ostream& out, const PFTrack& track);
 

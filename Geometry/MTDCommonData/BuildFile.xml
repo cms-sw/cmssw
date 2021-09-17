@@ -1,5 +1,4 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="DataFormats/ForwardDetId"/>
+<use name="DataFormats/ForwardDetId"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

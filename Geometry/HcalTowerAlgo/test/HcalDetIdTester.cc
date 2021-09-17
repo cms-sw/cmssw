@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -21,27 +20,27 @@ public:
 
 private:
   bool geomDB_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
 HcalDetIdTester::HcalDetIdTester(const edm::ParameterSet& iConfig) {
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 HcalDetIdTester::~HcalDetIdTester(void) {}
 
 void HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> hDRCons;
-  iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
-  const HcalDDDRecConstants hcons = (*hDRCons);
-  edm::ESHandle<HcalTopology> topologyHandle;
-  iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
-  const HcalTopology topology = (*topologyHandle);
+  const HcalDDDRecConstants hcons = iSetup.getData(tok_ddrec_);
+  const HcalTopology topology = iSetup.getData(tok_htopo_);
 
   CaloSubdetectorGeometry* caloGeom(nullptr);
   if (geomDB_) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
+    const CaloGeometry* geo = &iSetup.getData(tok_geom_);
     caloGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   } else {
     HcalFlexiHardcodeGeometryLoader m_loader;

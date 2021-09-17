@@ -18,9 +18,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
-//----------------------------------------------------------------------------------------------------
-
-namespace ctpps {
+namespace pps {
   /// \brief Collection of code for unpacking of TOTEM raw-data.
   class RawDataUnpacker {
   public:
@@ -76,6 +74,6 @@ namespace ctpps {
   private:
     unsigned char verbosity;
   };
-}  // namespace ctpps
+}  // namespace pps
 
 #endif

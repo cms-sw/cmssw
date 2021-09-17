@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/Merger.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "CommonTools/UtilAlgos/interface/ProductFromFwdPtrProducer.h"
@@ -15,9 +14,9 @@
 
 typedef Merger<reco::PFCandidateCollection> PFCandidateListMerger;
 typedef edm::ProductFromFwdPtrProducer<reco::PFCandidate, reco::PFCandidateWithSrcPtrFactory>
-        PFCandidateProductFromFwdPtrProducer;
+    PFCandidateProductFromFwdPtrProducer;
 typedef edm::FwdPtrProducer<reco::PFCandidate, reco::PFCandidateFwdPtrFactory> PFCandidateFwdPtrProducer;
 
-DEFINE_FWK_MODULE( PFCandidateListMerger );
+DEFINE_FWK_MODULE(PFCandidateListMerger);
 DEFINE_FWK_MODULE(PFCandidateProductFromFwdPtrProducer);
 DEFINE_FWK_MODULE(PFCandidateFwdPtrProducer);

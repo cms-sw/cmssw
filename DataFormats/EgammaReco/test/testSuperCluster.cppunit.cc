@@ -86,7 +86,7 @@ void testSuperCluster::CopyCtorTest() {
 
   OrphanHandle<CaloClusterCollection> handle(&clusters, pid);
 
-  CaloClusterPtr pc1(handle, 1), pc2(handle, 2), pc3(handle, 3);
+  CaloClusterPtr pc1(handle, 0), pc2(handle, 1), pc3(handle, 2);
 
   SuperCluster sc(5.0, math::XYZPoint(0, 0, 0));
   sc.setSeed(pc1);

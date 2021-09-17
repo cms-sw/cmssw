@@ -9,7 +9,7 @@
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *          Vladimir Rekovic - extend for indexing
- *
+ *          Rick Cavanaugh - include displaced muons
  *
  */
 
@@ -246,7 +246,21 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             }
           }
 
-          if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && posCount == 2))) {
+          // Original OS 4 muon condition (disagreement with firmware):
+          //    if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && posCount == 2))) {
+          // Fix by R. Cavanaugh:
+          //       Note that negative charge => hwCharge = 0
+          //                 positive charge => hwCharge = 1
+          //       Hence:  (0,0,0,0) => (posCount = 0) => 4 SS muons
+          //               (1,0,0,0) => (posCount = 1) => 1 OS muon pair, 1 SS muon pair
+          //               (1,1,0,0) => (posCount = 2) => 2 OS muon pairs
+          //               (1,0,1,0) => (posCount = 2) => 2 OS muon pairs
+          //               (0,0,1,1) => (posCount = 2) => 2 OS muon pairs
+          //               (1,1,1,0) => (posCount = 3) => 1 SS muon pair, 1 OS muon pair
+          //               (1,1,1,1) => (posCount = 4) => 4 SS muons
+          //       A requirement (posCount == 2) implies there must be exactly 2 OS pairs of muons
+          //       A requirement of at least 1 pair of OS muons implies condition should be (posCount > 0 && posCount < 4)
+          if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && (posCount > 0 && posCount < 4)))) {
             LogDebug("L1TGlobal") << "===> MuCondition:: 4 Muon Fail Charge Correlation Condition = " << chargeCorr
                                   << " posCnt " << posCount << std::endl;
             continue;
@@ -382,6 +396,33 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
                         << "\n\t hwQual     = 0x " << cand.hwQual() << "\n\t hwIso      = 0x " << cand.hwIso()
                         << std::dec << std::endl;
 
+  if (objPar.unconstrainedPtHigh > 0)  // Rick Cavanaugh:  Check if unconstrained pT cut-window is valid
+  {
+    if (!checkUnconstrainedPt(objPar.unconstrainedPtLow,
+                              objPar.unconstrainedPtHigh,
+                              cand.hwPtUnconstrained(),
+                              m_gtMuonTemplate->condGEq())) {
+      LogDebug("L1TGlobal") << "\t\t Muon Failed unconstrainedPt checkThreshold; iCondition = " << iCondition
+                            << std::endl;
+      return false;
+    }
+  }
+  if (objPar.impactParameterLUT !=
+      0)  // Rick Cavanaugh:  Check if impact parameter LUT is valid.  0xF is default; 0x0 is invalid
+  {
+    // check impact parameter ( bit check ) with impact parameter LUT
+    // sanity check on candidate impact parameter
+    if (cand.hwDXY() > 3) {
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwDXY = " << cand.hwDXY() << std::endl;
+      return false;
+    }
+    bool passImpactParameterLUT = ((objPar.impactParameterLUT >> cand.hwDXY()) & 1);
+    if (!passImpactParameterLUT) {
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed impact parameter requirement" << std::endl;
+      return false;
+    }
+  }
+
   if (!checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq())) {
     LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
     return false;
@@ -447,7 +488,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
   }
 
   // A number of values is required to trigger (at least one).
-  // "Don’t care" means that all values are allowed.
+  // "Don't care" means that all values are allowed.
   // Qual = 000 means then NO MUON (GTL module)
 
   // if (cand.hwQual() == 0) {

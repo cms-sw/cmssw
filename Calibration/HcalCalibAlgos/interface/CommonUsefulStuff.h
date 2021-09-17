@@ -1,9 +1,8 @@
-#ifndef CommonUsefulStuff_h
-#define CommonUsefulStuff_h
+#ifndef Calibration_HcalCalibALgos_CommonUsefulStuff_h
+#define Calibration_HcalCalibALgos_CommonUsefulStuff_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

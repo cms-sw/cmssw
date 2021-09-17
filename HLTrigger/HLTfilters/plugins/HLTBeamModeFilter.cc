@@ -19,8 +19,6 @@
 #include <vector>
 #include <iostream>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -113,7 +111,7 @@ bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent,
     return false;
   }
 
-  const boost::uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
+  const uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
 
   edm::LogInfo("HLTBeamModeFilter") << "Beam mode: " << beamModeValue;
 
@@ -134,4 +132,5 @@ bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent,
 
 // register as framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 DEFINE_FWK_MODULE(HLTBeamModeFilter);

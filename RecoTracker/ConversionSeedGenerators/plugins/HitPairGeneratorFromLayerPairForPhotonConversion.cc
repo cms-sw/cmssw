@@ -9,7 +9,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -89,7 +88,10 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   float innerPhimin, innerPhimax;
 
   /*Getting only the Hits in the outer layer that are compatible with the conversion region*/
-  if (!getPhiRange(outerPhimin, outerPhimax, *outerLayerObj.detLayer(), convRegion, es))
+  edm::ESHandle<MagneticField> hfield;
+  es.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+  if (!getPhiRange(outerPhimin, outerPhimax, *outerLayerObj.detLayer(), convRegion, field))
     return;
   outerHitsMap.hits(outerPhimin, outerPhimax, outerHits);
 
@@ -119,7 +121,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     if (phiRange.empty()) continue;
     */
 
-    const HitRZCompatibility* checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
     if (!checkRZ) {
 #ifdef mydebug_Seed
       ss << "*******\nNo valid checkRZ\n*******" << std::endl;
@@ -129,7 +131,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
 
     /*Get only the inner hits compatible with the conversion region*/
     innerHits.clear();
-    if (!getPhiRange(innerPhimin, innerPhimax, *innerLayerObj.detLayer(), convRegion, es))
+    if (!getPhiRange(innerPhimin, innerPhimax, *innerLayerObj.detLayer(), convRegion, field))
       continue;
     innerHitsMap.hits(innerPhimin, innerPhimax, innerHits);
 
@@ -180,10 +182,6 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
           result.resize(oldSize);
 #ifdef mydebug_Seed
           edm::LogError("TooManySeeds") << "number of pairs exceed maximum, no pairs produced";
-#endif
-          delete checkRZ;
-
-#ifdef mydebug_Seed
           std::cout << ss.str();
 #endif
           return;
@@ -191,7 +189,6 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
         result.push_back(OrderedHitPair(*ih, ohit));
       }
     }
-    delete checkRZ;
   }
 
 #ifdef mydebug_Seed
@@ -286,19 +283,19 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(float& Phimin
                                                                    float& Phimax,
                                                                    const DetLayer& layer,
                                                                    const ConversionRegion& convRegion,
-                                                                   const edm::EventSetup& es) {
+                                                                   const MagneticField& field) {
   if (layer.location() == GeomDetEnumerators::barrel) {
-    return getPhiRange(Phimin, Phimax, getLayerRadius(layer), convRegion, es);
+    return getPhiRange(Phimin, Phimax, getLayerRadius(layer), convRegion, field);
   } else if (layer.location() == GeomDetEnumerators::endcap) {
     float Z = getLayerZ(layer);
     float R = Z / convRegion.cotTheta();
-    return getPhiRange(Phimin, Phimax, R, convRegion, es);  //FIXME
+    return getPhiRange(Phimin, Phimax, R, convRegion, field);  //FIXME
   }
   return false;
 }
 
 bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(
-    float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const edm::EventSetup& es) {
+    float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const MagneticField& field) {
   Phimin = reco::deltaPhi(convRegion.convPoint().phi(), 0.);
 
   float dphi;
@@ -311,7 +308,7 @@ bool HitPairGeneratorFromLayerPairForPhotonConversion::getPhiRange(
     return false;
   }
 
-  float theRCurvatureMin = PixelRecoUtilities::bendingRadius(ptmin, es);
+  float theRCurvatureMin = PixelRecoUtilities::bendingRadius(ptmin, field);
 
   if (theRCurvatureMin < DeltaL)
     dphi = atan(DeltaL / layerR);

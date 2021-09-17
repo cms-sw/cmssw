@@ -232,6 +232,7 @@ void TestProductResolverIndexHelper::testManyEntries() {
   CPPUNIT_ASSERT(indexB3 == 17);
 
   CPPUNIT_ASSERT(std::string(matches.moduleLabel(4)) == "labelB");
+  CPPUNIT_ASSERT(std::string(matches.productInstanceName(4)) == "instanceB");
   CPPUNIT_ASSERT(std::string(matches.processName(4)) == "processB3");
   CPPUNIT_ASSERT(std::string(matches.processName(0)) == "");
 

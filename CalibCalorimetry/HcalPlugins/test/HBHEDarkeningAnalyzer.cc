@@ -4,7 +4,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,6 +50,10 @@ private:
 
   // ----------member data ---------------------------
   double intlumi;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> tok_hbdark_;
+  edm::ESGetToken<HBHEDarkening, HBHEDarkeningRecord> tok_hedark_;
+
   const HBHEDarkening* hb_darkening;
   const HBHEDarkening* he_darkening;
   HBHERecalibration hb_recalibration, he_recalibration;
@@ -66,7 +69,11 @@ HBHEDarkeningAnalyzer::HBHEDarkeningAnalyzer(const edm::ParameterSet& iConfig)
       he_darkening(NULL),
       hb_recalibration(intlumi, 0, iConfig.getParameter<edm::FileInPath>("HBmeanenergies").fullPath()),
       he_recalibration(intlumi, 0, iConfig.getParameter<edm::FileInPath>("HEmeanenergies").fullPath()),
-      theTopology(NULL) {}
+      theTopology(NULL) {
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_hbdark_ = esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag("", "HB"));
+  tok_hedark_ = esConsumes<HBHEDarkening, HBHEDarkeningRecord, edm::Transition::BeginRun>(edm::ESInputTag("", "HE"));
+}
 
 HBHEDarkeningAnalyzer::~HBHEDarkeningAnalyzer() {}
 
@@ -77,17 +84,9 @@ HBHEDarkeningAnalyzer::~HBHEDarkeningAnalyzer() {}
 void HBHEDarkeningAnalyzer::beginJob() {}
 
 void HBHEDarkeningAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology = &*htopo;
-
-  edm::ESHandle<HBHEDarkening> hbdark;
-  iSetup.get<HBHEDarkeningRecord>().get("HB", hbdark);
-  hb_darkening = &*hbdark;
-
-  edm::ESHandle<HBHEDarkening> hedark;
-  iSetup.get<HBHEDarkeningRecord>().get("HE", hedark);
-  he_darkening = &*hedark;
+  theTopology = &iSetup.getData(tok_topo_);
+  hb_darkening = &iSetup.getData(tok_hbdark_);
+  he_darkening = &iSetup.getData(tok_hedark_);
 
   //initialize recalibration classes
   std::vector<std::vector<int>> m_segmentation;
@@ -96,10 +95,8 @@ void HBHEDarkeningAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup
   for (int i = 0; i < maxEta; i++) {
     theTopology->getDepthSegmentation(i + 1, m_segmentation[i]);
   }
-  std::cout << "HB: Eta " << theTopology->firstHBRing() 
-	    << ":" << theTopology->lastHBRing() << " HE: Eta "
-	    << theTopology->firstHERing() << ":" << theTopology->lastHERing()
-	    << std::endl;
+  std::cout << "HB: Eta " << theTopology->firstHBRing() << ":" << theTopology->lastHBRing() << " HE: Eta "
+            << theTopology->firstHERing() << ":" << theTopology->lastHERing() << std::endl;
   hb_recalibration.setup(m_segmentation, hb_darkening);
   he_recalibration.setup(m_segmentation, he_darkening);
 }
@@ -133,8 +130,7 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
                                   int lay_max,
                                   const HBHEDarkening* darkening,
                                   const HBHERecalibration& recalibration) {
-  std::cout << "Darkening: ieta " << ieta_min << ":" << ieta_max << " layer "
-	    << lay_min << ":" << lay_max << std::endl;
+  std::cout << "Darkening: ieta " << ieta_min << ":" << ieta_max << " layer " << lay_min << ":" << lay_max << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int lay = lay_min; lay <= lay_max; ++lay) {
@@ -143,8 +139,8 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
     std::cout << std::endl;
   }
 
-  std::cout << "Recalibration: ieta " << ieta_min << ":" << ieta_max 
-	    << " layer " << lay_min << ":" << lay_max << std::endl;
+  std::cout << "Recalibration: ieta " << ieta_min << ":" << ieta_max << " layer " << lay_min << ":" << lay_max
+            << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int depth = 1; depth <= recalibration.maxDepth(); ++depth) {

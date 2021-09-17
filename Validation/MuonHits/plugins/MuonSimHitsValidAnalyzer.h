@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +14,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /// muon CSC, DT and RPC geometry info
@@ -88,6 +86,7 @@ private:
 
   /// Input tags
   edm::EDGetTokenT<edm::PSimHitContainer> DTHitsToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> geomToken_;
 
   // Monitor elements
   // DT

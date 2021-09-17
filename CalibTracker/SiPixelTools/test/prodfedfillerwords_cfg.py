@@ -6,23 +6,44 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring ('file:/afs/cern.ch/user/f/florez/CMSSW_2_0_4/src/FedFillerWords/Data/mysimple.root') 
                             )
 			    
-process.MessageLogger = cms.Service("MessageLogger", 
-                                    destinations = cms.untracked.vstring('output'),
-                                    threshold = cms.untracked.string('INFO'),                              
-                                    noLineBreaks = cms.untracked.bool(True)
-                                    )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        output = cms.untracked.PSet(
+
+        )
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('WARNING')
+)
 				    
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('output'),
-				    threshold = cms.untracked.string('ERROR'),
-				    noLineBreaks = cms.untracked.bool(True)
-				    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        output = cms.untracked.PSet(
+
+        )
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('WARNING')
+)
 				    
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('output'),
-				    threshold = cms.untracked.string('WARNING'),
-				    noLineBreaks = cms.untracked.bool(True)
-				    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        output = cms.untracked.PSet(
+
+        )
+    ),
+    noLineBreaks = cms.untracked.bool(True),
+    threshold = cms.untracked.string('WARNING')
+)
 				    				    
 process.filler = cms.EDProducer("SiPixelFedFillerWordEventNumber",
                                 InputLabel = cms.untracked.string('source'),

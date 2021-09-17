@@ -8,20 +8,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 
-
 class BasicToPFJet : public edm::EDProducer {
-
- public:
-
+public:
   explicit BasicToPFJet(const edm::ParameterSet& PSet);
   ~BasicToPFJet() override;
-  void produce(edm::Event & event, const edm::EventSetup & EventSetup) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  void produce(edm::Event& event, const edm::EventSetup& EventSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   edm::InputTag src_;
   const edm::EDGetTokenT<reco::BasicJetCollection> inputToken_;
 };
-
 
 #endif

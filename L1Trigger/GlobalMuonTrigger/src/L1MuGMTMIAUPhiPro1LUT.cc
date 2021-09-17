@@ -115,8 +115,12 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction(
   if (charge == 0 && calophi < 0.) {  // plus charge
     edm::LogWarning("LUTMismatch")
         << "warning: calo offset goes into wrong direction. charge is plus and calophi < 0deg" << endl
-        << "SYS=" << (isys == 0 ? "DT" : isys == 1 ? "CSC" : isys == 2 ? "BRPC" : "FRPC") << " ISO = " << isISO
-        << " etabin = " << eta << " pval = "
+        << "SYS="
+        << (isys == 0   ? "DT"
+            : isys == 1 ? "CSC"
+            : isys == 2 ? "BRPC"
+                        : "FRPC")
+        << " ISO = " << isISO << " etabin = " << eta << " pval = "
         << theTriggerPtScale->getPtScale()->getLowEdge(pt)
         // << " pval = " << theTriggerScales->getPtScale()->getLowEdge(pt)
         << " charge = " << (charge == 0 ? "pos" : "neg") << " phi_fine = " << phi_fine
@@ -124,8 +128,12 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction(
   } else if (charge == 1 && calophi > 20. / 180. * M_PI) {  // neg charge
     edm::LogWarning("LUTMismatch")
         << "warning: calo offset goes into wrong direction. charge is minus and calophi > 20deg" << endl
-        << "SYS=" << (isys == 0 ? "DT" : isys == 1 ? "CSC" : isys == 2 ? "BRPC" : "FRPC") << " ISO = " << isISO
-        << " etabin = " << eta << " pval = "
+        << "SYS="
+        << (isys == 0   ? "DT"
+            : isys == 1 ? "CSC"
+            : isys == 2 ? "BRPC"
+                        : "FRPC")
+        << " ISO = " << isISO << " etabin = " << eta << " pval = "
         << theTriggerPtScale->getPtScale()->getLowEdge(pt)
         // << " pval = " << theTriggerScales->getPtScale()->getLowEdge(pt)
         << " charge = " << (charge == 0 ? "pos" : "neg") << " phi_fine = " << phi_fine

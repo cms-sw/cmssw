@@ -12,14 +12,14 @@
 
 // system include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <algorithm>
 
 #include "TEveManager.h"
 #include "TClass.h"
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -44,7 +44,7 @@
 //
 FWTableViewManager::FWTableViewManager(FWGUIManager *iGUIMgr) : FWViewManagerBase() {
   FWGUIManager::ViewBuildFunctor f;
-  f = boost::bind(&FWTableViewManager::buildView, this, _1, _2);
+  f = std::bind(&FWTableViewManager::buildView, this, std::placeholders::_1, std::placeholders::_2);
   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTable), f);
 
   // ---------- for some object types, we have default table contents ----------
@@ -192,6 +192,10 @@ FWTableViewManager::FWTableViewManager(FWGUIManager *iGUIMgr) : FWViewManagerBas
       .column("charge", 0)
       .column("dxy", 3)
       .column("dzAssociatedPV", 3, "dzAssociatedPV()");
+
+  table("l1t::HGCalTriggerCell").column("pT", 1, "pt").column("eta", 3).column("phi", 3).column("detId", 0);
+
+  table("CaloParticle").column("eta", 3).column("phi", 3).column("energy", 3);
 }
 
 FWTableViewManager::~FWTableViewManager() {}
@@ -339,7 +343,7 @@ class FWViewBase *FWTableViewManager::buildView(TEveWindowSlot *iParent, const s
   auto view = std::make_shared<FWTableView>(iParent, this);
   view->setBackgroundColor(colorManager().background());
   m_views.push_back(view);
-  view->beingDestroyed_.connect(boost::bind(&FWTableViewManager::beingDestroyed, this, _1));
+  view->beingDestroyed_.connect(std::bind(&FWTableViewManager::beingDestroyed, this, std::placeholders::_1));
   return view.get();
 }
 
@@ -354,7 +358,7 @@ void FWTableViewManager::beingDestroyed(const FWViewBase *iView) {
 
 void FWTableViewManager::newItem(const FWEventItem *iItem) {
   m_items.push_back(iItem);
-  iItem->goingToBeDestroyed_.connect(boost::bind(&FWTableViewManager::destroyItem, this, _1));
+  iItem->goingToBeDestroyed_.connect(std::bind(&FWTableViewManager::destroyItem, this, std::placeholders::_1));
   notifyViews();
 }
 

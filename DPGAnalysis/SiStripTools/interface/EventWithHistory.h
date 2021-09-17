@@ -12,6 +12,7 @@ namespace edm {
 class EventBXHistory;
 class L1AcceptBunchCrossing;
 typedef std::vector<L1AcceptBunchCrossing> L1AcceptBunchCrossingCollection;
+class TCDSRecord;
 
 class EventWithHistory : public TinyEvent {
 public:
@@ -23,6 +24,10 @@ public:
   EventWithHistory(const std::vector<edm::EventAuxiliary>& he);
   EventWithHistory(const edm::Event& event,
                    const L1AcceptBunchCrossingCollection& l11bcc,
+                   const long long orbitoffset = 0,
+                   const int bxoffset = 0);
+  EventWithHistory(const edm::Event& event,
+                   const TCDSRecord& tcdsRecord,
                    const long long orbitoffset = 0,
                    const int bxoffset = 0);
   EventWithHistory(const EventWithHistory& he);

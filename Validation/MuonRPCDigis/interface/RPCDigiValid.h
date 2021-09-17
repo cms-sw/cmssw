@@ -2,7 +2,7 @@
 #define RPCDigiValid_h
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,6 +13,9 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class RPCDigiValid : public DQMEDAnalyzer {
 public:
@@ -81,6 +84,8 @@ private:
   // Tokens for accessing run data. Used for passing to edm::Event. - stanislav
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken;
   edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken;
+
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 };
 
 #endif

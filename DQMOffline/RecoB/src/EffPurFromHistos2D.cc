@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 using namespace std;
@@ -370,7 +369,7 @@ void EffPurFromHistos2D::compute(DQMStore::IBooker& ibook, vector<double> fixedE
         (prov.book1D(hX + fixedEfficiency + hE, hX + fixedEfficiency + hE, nBinOutputX, startOutputX, endOutputX)));
     X_vs_Y_eff_at_fixedZeff[ieff]->setEfficiencyFlag();
 
-    X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetXTitle("Light mistag");
+    X_vs_Y_eff_at_fixedZeff[ieff]->setAxisTitle("Light mistag");
     X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetYTitle("B mistag");
     if (!doCTagPlots_)
       X_vs_Y_eff_at_fixedZeff[ieff]->getTH1F()->SetYTitle("C mistag");

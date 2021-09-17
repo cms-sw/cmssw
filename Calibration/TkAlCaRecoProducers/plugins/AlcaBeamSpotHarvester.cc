@@ -8,7 +8,6 @@
 #include "Calibration/TkAlCaRecoProducers/interface/AlcaBeamSpotHarvester.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -50,15 +49,6 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet &iConfig)
       outTxtFileName_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters")
                           .getUntrackedParameter<std::string>("TxtFileName")),
       theAlcaBeamSpotManager_(iConfig, consumesCollector()) {}
-
-//--------------------------------------------------------------------------------------------------
-AlcaBeamSpotHarvester::~AlcaBeamSpotHarvester() {}
-
-//--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::beginJob() {}
-
-//--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endJob() {}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::analyze(const edm::Event &iEvent, const edm::EventSetup &) {

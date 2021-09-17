@@ -3,7 +3,7 @@
 #include <ostream>
 #include <iostream>
 
-const HGCalTriggerDetId HGCalTriggerDetId::Undefined(HGCalEE, 0, 0, 0, 0, 0, 0, 0);
+const HGCalTriggerDetId HGCalTriggerDetId::Undefined(HGCalEETrigger, 0, 0, 0, 0, 0, 0, 0);
 
 HGCalTriggerDetId::HGCalTriggerDetId() : DetId() {}
 
@@ -27,8 +27,7 @@ HGCalTriggerDetId::HGCalTriggerDetId(
 
 HGCalTriggerDetId::HGCalTriggerDetId(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det() != HGCalTrigger) || (((gen.subdetId() & kHGCalSubdetMask) != HGCalEETrigger) &&
-                                        ((gen.subdetId() & kHGCalSubdetMask) != HGCalHSiTrigger))) {
+    if (gen.det() != HGCalTrigger) {
       throw cms::Exception("Invalid DetId")
           << "Cannot initialize HGCalTriggerDetId from " << std::hex << gen.rawId() << std::dec;
     }
@@ -38,8 +37,7 @@ HGCalTriggerDetId::HGCalTriggerDetId(const DetId& gen) {
 
 HGCalTriggerDetId& HGCalTriggerDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det() != HGCalTrigger) || (((gen.subdetId() & kHGCalSubdetMask) != HGCalEETrigger) &&
-                                        ((gen.subdetId() & kHGCalSubdetMask) != HGCalHSiTrigger))) {
+    if (gen.det() != HGCalTrigger) {
       throw cms::Exception("Invalid DetId")
           << "Cannot assign HGCalTriggerDetId from " << std::hex << gen.rawId() << std::dec;
     }
@@ -57,7 +55,7 @@ int HGCalTriggerDetId::triggerCellX() const {
   for (auto const& v : vc) {
     x += (3 * (v - N) + 2);
   }
-  return (x / vc.size());
+  return (x / static_cast<int>(vc.size()));
 }
 
 int HGCalTriggerDetId::triggerCellY() const {
@@ -70,7 +68,7 @@ int HGCalTriggerDetId::triggerCellY() const {
   for (unsigned int k = 0; k < uc.size(); ++k) {
     y += (2 * uc[k] - (N + vc[k]));
   }
-  return (y / vc.size());
+  return (y / static_cast<int>(vc.size()));
 }
 
 std::vector<int> HGCalTriggerDetId::cellU() const {

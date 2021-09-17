@@ -9,8 +9,9 @@ StripClusterParameterEstimator::LocalValues StripCPEgeometric::localParameters(
 
   const LocalPoint& pos = ltp.position();
   LocalVector track = ltp.momentum();
-  track *= (track.z() < 0) ? fabs(p.thickness / track.z())
-                           : (track.z() > 0) ? -fabs(p.thickness / track.z()) : p.maxLength / track.mag();
+  track *= (track.z() < 0)   ? fabs(p.thickness / track.z())
+           : (track.z() > 0) ? -fabs(p.thickness / track.z())
+                             : p.maxLength / track.mag();
 
   const float fullProjection = p.coveredStrips(track + p.drift, pos);
   stats_t<float> projection;
@@ -21,7 +22,8 @@ StripClusterParameterEstimator::LocalValues StripCPEgeometric::localParameters(
     projection = stats_t<float>::from_relative_uncertainty2(std::max(absProj, minProj), projection_rel_err2);
   }
 
-  const std::vector<stats_t<float> > Q = reco::InverseCrosstalkMatrix::unfold(cluster, xtalk1[static_cast<int>(p.moduleGeom)]);
+  const std::vector<stats_t<float> > Q =
+      reco::InverseCrosstalkMatrix::unfold(cluster, xtalk1[static_cast<int>(p.moduleGeom)]);
   const stats_t<float> strip = cluster.firstStrip() + offset_from_firstStrip(Q, projection);
 
   const float corrected =

@@ -33,12 +33,14 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "TLorentzVector.h"
 
 struct hltPlot {
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   std::pair<MonitorElement*, bool> nME;
   std::pair<MonitorElement*, bool> etaME;
   std::pair<MonitorElement*, bool> phiME;

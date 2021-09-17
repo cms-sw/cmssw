@@ -1,13 +1,11 @@
 #include <algorithm>
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -21,7 +19,7 @@ using namespace PhysicsTools;
 static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &params,
                                                      std::unique_ptr<TagInfoMVACategorySelector> &selector) {
   if (params.getParameter<bool>("useCategories")) {
-    selector = std::unique_ptr<TagInfoMVACategorySelector>(new TagInfoMVACategorySelector(params));
+    selector = std::make_unique<TagInfoMVACategorySelector>(params);
 
     return selector->getCategoryLabels();
   } else {
@@ -33,22 +31,17 @@ static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &pa
   }
 }
 
-GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet &params)
-    : computerCache_(getCalibrationLabels(params, categorySelector_)),
-      recordLabel_(params.getParameter<std::string>("recordLabel")) {}
+GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::ESConsumesCollector &&cc)
+    : calib_(cc.consumes(edm::ESInputTag{"", params.getParameter<std::string>("recordLabel")})) {}
+
+GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet &params, Tokens tokens)
+    : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{tokens} {}
 
 GenericMVAJetTagComputer::~GenericMVAJetTagComputer() {}
 
 void GenericMVAJetTagComputer::initialize(const JetTagComputerRecord &record) {
-  const BTauGenericMVAJetTagComputerRcd &dependentRecord = record.getRecord<BTauGenericMVAJetTagComputerRcd>();
-
-  // retrieve MVAComputer calibration container
-  edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
-  dependentRecord.get(recordLabel_, calibHandle);
-  const Calibration::MVAComputerContainer *calib = calibHandle.product();
-
   // check for updates
-  computerCache_.update(calib);
+  computerCache_.update(&record.get(tokens_.calib_));
 }
 
 float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const {

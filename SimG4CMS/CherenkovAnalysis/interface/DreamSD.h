@@ -1,10 +1,17 @@
 #ifndef SimG4CMS_DreamSD_h
 #define SimG4CMS_DreamSD_h
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
-#include "G4PhysicsOrderedFreeVector.hh"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
+#include "G4PhysicsFreeVector.hh"
+
+#include <DD4hep/DD4hepUnits.h>
 
 #include <map>
 
@@ -15,7 +22,8 @@ class G4LogicalVolume;
 class DreamSD : public CaloSD {
 public:
   DreamSD(const std::string &,
-          const DDCompactView &,
+          const DDCompactView *,
+          const cms::DDCompactView *,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);
@@ -31,7 +39,8 @@ private:
   typedef std::pair<double, double> Doubles;
   typedef std::map<G4LogicalVolume *, Doubles> DimensionMap;
 
-  void initMap(const std::string &, const DDCompactView &);
+  void initMap(const std::string &);
+  void fillMap(const std::string &, double, double);
   double curve_LY(const G4Step *, int);
   double crystalLength(G4LogicalVolume *) const;
   double crystalWidth(G4LogicalVolume *) const;
@@ -48,16 +57,22 @@ private:
   /// Sets material properties at run-time...
   bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
-  bool useBirk, doCherenkov_, readBothSide_;
-  double birk1, birk2, birk3;
-  double slopeLY;
-  DimensionMap xtalLMap;  // Store length and width
+  static constexpr double k_ScaleFromDDDToG4 = 1.0;
+  static constexpr double k_ScaleFromDD4HepToG4 = 1.0 / dd4hep::mm;
 
-  int side;
+  const DDCompactView *cpvDDD_;
+  const cms::DDCompactView *cpvDD4Hep_;
+
+  bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
+  double birk1_, birk2_, birk3_;
+  double slopeLY_;
+  DimensionMap xtalLMap_;  // Store length and width
+
+  int side_;
 
   /// Table of Cherenkov angle integrals vs photon momentum
-  std::unique_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
-  G4MaterialPropertiesTable *materialPropertiesTable;
+  std::unique_ptr<G4PhysicsFreeVector> chAngleIntegrals_;
+  G4MaterialPropertiesTable *materialPropertiesTable_;
 
   int nphotons_;
 };

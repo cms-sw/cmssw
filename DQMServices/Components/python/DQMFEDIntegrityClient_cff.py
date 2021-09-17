@@ -9,7 +9,8 @@ dqmFEDIntegrity = cms.EDAnalyzer("DQMFEDIntegrityClient",
    fedFolderName = cms.untracked.string('FEDIntegrity')
    )
 
-dqmQTestDQMFED = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+dqmQTestDQMFED = DQMQualityTester(
    prescaleFactor = cms.untracked.int32(1),
    qtList = cms.untracked.FileInPath('DQMServices/Components/data/DQMFEDQualityTests.xml'),
    getQualityTestsFromFile = cms.untracked.bool(True),

@@ -19,7 +19,7 @@
 #ifndef CSCMonitorObject_H
 #define CSCMonitorObject_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CSCDQM_MonitorObject.h"
 
 /**
@@ -27,6 +27,10 @@
  * @brief cscdqm::MonitorObject implementation used in CSCMonitorModuleCmn
  */
 class CSCMonitorObject : public cscdqm::MonitorObject {
+protected:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
 private:
   MonitorElement *me;
 
@@ -113,7 +117,7 @@ public:
     me->getTH1()->SetMaximum(d);
   }
 
-  const TObject *getRefRootObject(void) const override { return me->getRefRootObject(); }
+  const TObject *getRefRootObject(void) const override { return nullptr; }
 
   const double GetBinError(const int bin) override {
     cscdqm::LockType lock(mutex);

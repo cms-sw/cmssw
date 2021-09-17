@@ -12,13 +12,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('TrackerRecoGeometryAnalyzer'),
-                                    destinations = cms.untracked.vstring('TrackerRecoGeometryAnalyzer_infos'),
-                                    TrackerRecoGeometryAnalyzer_infos = cms.untracked.PSet(
-                                      threshold = cms.untracked.string('INFO') 
-                                      ),
-                                    categories = cms.untracked.vstring('TrackerRecoGeometryAnalyzer')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('TrackerRecoGeometryAnalyzer'),
+    files = cms.untracked.PSet(
+        TrackerRecoGeometryAnalyzer_infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
+)
 
 process.source = cms.Source("EmptySource")
 

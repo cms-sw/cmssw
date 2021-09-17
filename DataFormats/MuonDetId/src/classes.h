@@ -1,6 +1,5 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
-#include <boost/cstdint.hpp>
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"

@@ -47,7 +47,7 @@ public:
   ~PrescaleEventFilter() override;
 
   static std::unique_ptr<prescale::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<prescale::Efficiency>(new prescale::Efficiency());
+    return std::make_unique<prescale::Efficiency>();
   };
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

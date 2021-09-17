@@ -42,6 +42,9 @@ namespace edmplugin {
     using TemplateArgType = R*(Args...);
     using CreatedType = R;
 
+    PluginFactory(const PluginFactory&) = delete;                   // stop default
+    const PluginFactory& operator=(const PluginFactory&) = delete;  // stop default
+
     struct PMakerBase {
       virtual std::unique_ptr<R> create(Args...) const = 0;
       virtual ~PMakerBase() {}
@@ -79,9 +82,6 @@ namespace edmplugin {
 
   private:
     PluginFactory() { finishedConstruction(); }
-    PluginFactory(const PluginFactory&) = delete;  // stop default
-
-    const PluginFactory& operator=(const PluginFactory&) = delete;  // stop default
   };
 }  // namespace edmplugin
 #define FWCORE_CONCATENATE_HIDDEN(a, b) a##b

@@ -15,41 +15,50 @@
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
 //
 //
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
-#include <sys/time.h>
-
 SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iConfig)
-    : m_cacheID_(0),
-      dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
-      TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName", "")),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+    : TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName", "")),
       saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap", true)),
       tkMap(nullptr),
-      tkMapFullIOVs(nullptr) {
-  reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      tkMapFullIOVs(nullptr),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
+      tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
+      withFedErrHelper_{iConfig, consumesCollector(), true} {
+  detInfo_ = SiStripDetInfoFileReader::read(
+      iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))
+          .fullPath());
 
   tkMapFullIOVs = new TrackerMap("BadComponents");
   tkhisto = nullptr;
 }
 
-SiStripQualityStatistics::~SiStripQualityStatistics() { this->EndJob(); }
+void SiStripQualityStatistics::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("TkMapFileName", "");
+  desc.addUntracked<bool>("SaveTkHistoMap", true);
+  desc.addUntracked<edm::FileInPath>("file", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile));
+  SiStripQualityWithFromFedErrorsHelper::fillDescription(desc);
+  descriptions.add("siStripQualityStatistics", desc);
+}
 
-void SiStripQualityStatistics::EndJob() {
+void SiStripQualityStatistics::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
+  if (withFedErrHelper_.addBadCompFromFedErr()) {
+    updateAndSave(&withFedErrHelper_.getMergedQuality(getter));
+  }
   std::string filename = TkMapFileName_;
   if (!filename.empty()) {
     tkMapFullIOVs->save(false, 0, 0, filename);
-    filename.erase(filename.begin() + filename.find("."), filename.end());
+    filename.erase(filename.begin() + filename.find('.'), filename.end());
     tkMapFullIOVs->print(false, 0, 0, filename);
 
     if (saveTkHistoMap_) {
@@ -59,34 +68,20 @@ void SiStripQualityStatistics::EndJob() {
   }
 }
 
-void SiStripQualityStatistics::bookHistograms(DQMStore::IBooker& ibooker,
-                                              const edm::Run& run,
-                                              const edm::EventSetup& es) {}
-
-void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+void SiStripQualityStatistics::endRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+  tTopo_ = std::make_unique<TrackerTopology>(iSetup.getData(tTopoToken_));
   if ((!tkhisto) && (!TkMapFileName_.empty())) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
     //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-    tkhisto = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "BadComp", "BadComp", -1.);
+    tkhisto = std::make_unique<TkHistoMap>(&iSetup.getData(tkDetMapToken_), "BadComp", "BadComp", -1.);
   }
 
-  unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
+  if (withFedErrHelper_.endRun(iSetup) && !withFedErrHelper_.addBadCompFromFedErr()) {
+    run_ = run.id();
+    updateAndSave(&iSetup.getData(withFedErrHelper_.qualityToken()));
+  }
+}
 
-  std::stringstream ss;
-
-  if (m_cacheID_ == cacheID)
-    return;
-
-  m_cacheID_ = cacheID;
-
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
-  iSetup.get<SiStripQualityRcd>().get(dataLabel_, SiStripQuality_);
-
+void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQuality) {
   for (int i = 0; i < 4; ++i) {
     NTkBadComponent[i] = 0;
     for (int j = 0; j < 19; ++j) {
@@ -100,17 +95,17 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
     delete tkMap;
   tkMap = new TrackerMap("BadComponents");
 
-  ss.str("");
-  std::vector<uint32_t> detids = reader->getAllDetIds();
+  std::stringstream ss;
+  std::vector<uint32_t> detids = detInfo_.getAllDetIds();
   std::vector<uint32_t>::const_iterator idet = detids.begin();
   for (; idet != detids.end(); ++idet) {
-    ss << "detid " << (*idet) << " IsModuleUsable " << SiStripQuality_->IsModuleUsable((*idet)) << "\n";
-    if (SiStripQuality_->IsModuleUsable((*idet)))
+    ss << "detid " << (*idet) << " IsModuleUsable " << siStripQuality->IsModuleUsable((*idet)) << "\n";
+    if (siStripQuality->IsModuleUsable((*idet)))
       tkMap->fillc(*idet, 0x00ff00);
   }
   LogDebug("SiStripQualityStatistics") << ss.str() << std::endl;
 
-  std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
+  std::vector<SiStripQuality::BadComponent> BC = siStripQuality->getBadComponentList();
 
   for (size_t i = 0; i < BC.size(); ++i) {
     //&&&&&&&&&&&&&
@@ -136,7 +131,7 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
       //TIB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tibLayer(BC[i].detid);
+      component = tTopo_->tibLayer(BC[i].detid);
       SetBadComponents(0, component, BC[i]);
 
     } else if (subDet == StripSubdetector::TID) {
@@ -144,7 +139,7 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tidSide(BC[i].detid) == 2 ? tTopo->tidWheel(BC[i].detid) : tTopo->tidWheel(BC[i].detid) + 3;
+      component = tTopo_->tidSide(BC[i].detid) == 2 ? tTopo_->tidWheel(BC[i].detid) : tTopo_->tidWheel(BC[i].detid) + 3;
       SetBadComponents(1, component, BC[i]);
 
     } else if (subDet == StripSubdetector::TOB) {
@@ -152,7 +147,7 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
       //TOB
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tobLayer(BC[i].detid);
+      component = tTopo_->tobLayer(BC[i].detid);
       SetBadComponents(2, component, BC[i]);
 
     } else if (subDet == StripSubdetector::TEC) {
@@ -160,7 +155,7 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component = tTopo->tecSide(BC[i].detid) == 2 ? tTopo->tecWheel(BC[i].detid) : tTopo->tecWheel(BC[i].detid) + 9;
+      component = tTopo_->tecSide(BC[i].detid) == 2 ? tTopo_->tecWheel(BC[i].detid) : tTopo_->tecWheel(BC[i].detid) + 9;
       SetBadComponents(3, component, BC[i]);
     }
   }
@@ -170,8 +165,8 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
   //&&&&&&&&&&&&&&&&&&
   float percentage = 0;
 
-  SiStripQuality::RegistryIterator rbegin = SiStripQuality_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = SiStripQuality_->getRegistryVectorEnd();
+  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
+  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
@@ -182,31 +177,31 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
     int subDet = detectorId.subdetId();
     if (subDet == StripSubdetector::TIB) {
       subdet = 0;
-      component = tTopo->tibLayer(detid);
+      component = tTopo_->tibLayer(detid);
     } else if (subDet == StripSubdetector::TID) {
       subdet = 1;
-      component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
+      component = tTopo_->tidSide(detid) == 2 ? tTopo_->tidWheel(detid) : tTopo_->tidWheel(detid) + 3;
     } else if (subDet == StripSubdetector::TOB) {
       subdet = 2;
-      component = tTopo->tobLayer(detid);
+      component = tTopo_->tobLayer(detid);
     } else if (subDet == StripSubdetector::TEC) {
       subdet = 3;
-      component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
+      component = tTopo_->tecSide(detid) == 2 ? tTopo_->tecWheel(detid) : tTopo_->tecWheel(detid) + 9;
     }
 
-    SiStripQuality::Range sqrange = SiStripQuality::Range(SiStripQuality_->getDataVectorBegin() + rp->ibegin,
-                                                          SiStripQuality_->getDataVectorBegin() + rp->iend);
+    SiStripQuality::Range sqrange = SiStripQuality::Range(siStripQuality->getDataVectorBegin() + rp->ibegin,
+                                                          siStripQuality->getDataVectorBegin() + rp->iend);
 
     percentage = 0;
     for (int it = 0; it < sqrange.second - sqrange.first; it++) {
-      unsigned int range = SiStripQuality_->decode(*(sqrange.first + it)).range;
+      unsigned int range = siStripQuality->decode(*(sqrange.first + it)).range;
       NTkBadComponent[3] += range;
       NBadComponent[subdet][0][3] += range;
       NBadComponent[subdet][component][3] += range;
       percentage += range;
     }
     if (percentage != 0)
-      percentage /= 128. * reader->getNumberOfApvsAndStripLength(detid).first;
+      percentage /= 128. * detInfo_.getNumberOfApvsAndStripLength(detid).first;
     if (percentage > 1)
       edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
 
@@ -221,9 +216,7 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
   //&&&&&&&&&&&&&&&&&&
 
   ss.str("");
-  ss << "\n-----------------\nNew IOV starting from run " << e.id().run() << " event " << e.id().event()
-     << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << " chacheID " << m_cacheID_
-     << "\n-----------------\n";
+  ss << "\n-----------------\nNew IOV starting from run " << run_.run() << "\n-----------------\n";
   ss << "\n-----------------\nGlobal Info\n-----------------";
   ss << "\nBadComponent \t   Modules \tFibers "
         "\tApvs\tStrips\n----------------------------------------------------------------";
@@ -283,21 +276,21 @@ void SiStripQualityStatistics::analyze(const edm::Event& e, const edm::EventSetu
 
   edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
 
-  std::string filetype = TkMapFileName_, filename = TkMapFileName_;
+  std::string filename = TkMapFileName_;
   std::stringstream sRun;
   sRun.str("");
-  sRun << "_Run_" << std::setw(6) << std::setfill('0') << e.id().run() << std::setw(0);
+  sRun << "_Run_" << std::setw(6) << std::setfill('0') << run_.run() << std::setw(0);
 
   if (!filename.empty()) {
-    filename.insert(filename.find("."), sRun.str());
+    filename.insert(filename.find('.'), sRun.str());
     tkMap->save(true, 0, 0, filename);
-    filename.erase(filename.begin() + filename.find("."), filename.end());
+    filename.erase(filename.begin() + filename.find('.'), filename.end());
     tkMap->print(true, 0, 0, filename);
   }
 }
 
 void SiStripQualityStatistics::SetBadComponents(int i, int component, SiStripQuality::BadComponent& BC) {
-  int napv = reader->getNumberOfApvsAndStripLength(BC.detid).first;
+  int napv = detInfo_.getNumberOfApvsAndStripLength(BC.detid).first;
 
   ssV[i][component] << "\n\t\t " << BC.detid << " \t " << BC.BadModule << " \t " << ((BC.BadFibers) & 0x1) << " ";
   if (napv == 4)

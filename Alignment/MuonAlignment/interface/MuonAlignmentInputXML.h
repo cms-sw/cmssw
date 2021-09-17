@@ -32,7 +32,7 @@
 
 class MuonAlignmentInputXML : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputXML(const std::string &fileName);
+  MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel);
   ~MuonAlignmentInputXML() override;
 
   // ---------- const member functions ---------------------
@@ -43,11 +43,11 @@ public:
 
   AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
-private:
   MuonAlignmentInputXML(const MuonAlignmentInputXML &) = delete;  // stop default
 
   const MuonAlignmentInputXML &operator=(const MuonAlignmentInputXML &) = delete;  // stop default
 
+private:
   void recursiveGetId(std::map<unsigned int, Alignable *> &alignableNavigator,
                       const align::Alignables &alignables) const;
 
@@ -96,7 +96,7 @@ private:
                            std::map<Alignable *, Alignable *> &alitoideal) const;
 
   // ---------- member data --------------------------------
-  std::string m_fileName;
+  std::string m_fileName, idealGeometryLabel;
 
   XMLCh *str_operation;
   XMLCh *str_collection;

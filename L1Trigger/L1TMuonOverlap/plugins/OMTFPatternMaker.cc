@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
@@ -27,7 +28,8 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg)
   inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
   inputTokenSimHit = consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("g4SimTrackSrc"));
 
-  myInputMaker = new OMTFinputMaker();
+  edm::ConsumesCollector consumesColl(consumesCollector());
+  myInputMaker = new OMTFinputMaker(consumesColl);
 
   makeGoldenPatterns = theConfig.getParameter<bool>("makeGoldenPatterns");
   makeConnectionsMaps = theConfig.getParameter<bool>("makeConnectionsMaps");

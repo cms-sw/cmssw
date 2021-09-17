@@ -1,27 +1,32 @@
-<library   file="ReadMath.cc,WriteMath.cc,SealModule.cc" name="DataFormatsMath_test">
-  <use   name="FWCore/Framework"/>
-  <use   name="DataFormats/Common"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="ReadMath.cc,WriteMath.cc,SealModule.cc" name="DataFormatsMath_test">
+  <use name="FWCore/Framework"/>
+  <use name="DataFormats/Common"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<use   name="rootmath"/>
-<use   name="rootgraphics"/>
-<use   name="DataFormats/Math"/>
-<bin   file="Matrices_t.cpp" name="DataFormatsMatrices_t">
+
+<use name="rootmath"/>
+<use name="rootgraphics"/>
+<use name="DataFormats/Math"/>
+<bin file="Matrices_t.cpp" name="DataFormatsMatrices_t">
 </bin>
-<bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
+
+<bin file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
-<bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
+
+<bin file="FastMath_t.cpp" name="DataFormatsFastMath_t">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat -ansi"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
 </bin>
-<bin   file="testApproximations.cpp" name="testMathApproximations">
+
+<bin file="testApproximations.cpp" name="testMathApproximations">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
-<bin   file="testApproxMath.cpp" name="testMathApproxMath">
+
+<bin file="testApproxMath.cpp" name="testMathApproxMath">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
@@ -29,75 +34,97 @@
 </bin>
 
 <release name="!.*ICC_X.*">
-  <bin   file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
-  </bin>
-</release>
-<bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
+  <bin file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
 </bin>
-<bin   file="crossV4_t.cpp" name="DataFormatscrossV4_t">
+
+</release>
+<bin file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
+</bin>
+
+<bin file="crossV4_t.cpp" name="DataFormatscrossV4_t">
   <use name="ofast-flag"/>
 </bin>
-<bin   file="sign_t.cpp" name="DataFormatsSign_t">
+
+<bin file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
-<bin   file="eta_t.cpp" name="DataFormatsEta_t">
+
+<bin file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
-<bin   file="arc.cpp" name="DataFormatsAsin_t">
+
+<bin file="arc.cpp" name="DataFormatsAsin_t">
 </bin>
+
 <bin file="testAtan2.cpp">
   <flags CXXFLAGS="-fwrapv"/>
 </bin>
+
 <bin file="testAtan2.cpp" name="testAtan2FastMath">
   <use name="ofast-flag"/>
   <flags CXXFLAGS="-fwrapv"/>
 </bin>
+
 <bin file="testAtan2.cpp" name="testAtan2VDT">
-  <use   name="vdt"/>
+  <use name="vdt"/>
   <flags CXXFLAGS="-fwrapv"/>
 </bin>
 
-<bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
+<bin file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
-<bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
+
+<bin file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
-<bin   file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
+
+<bin file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
   <use name="ofast-flag"/>
 </bin>
 
-<bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+<bin file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+</bin>
+
+<bin file="CholeskyInvert_t.cpp" name="CholeskyInvert_t">
+  <flags CXXFLAGS="-O3"/>
 </bin>
 
 <bin file="testGraph.cpp">
 </bin>
 
 <bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
-  <use   name="cppunit"/>
+  <use name="cppunit"/>
 </bin>
+
 <iftool name="cuda-gcc-support">
-<bin file="cudaAtan2Test.cu" name="DFM_Atan2">
-  <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
-  <use   name="vdt_headers"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
-  <flags CXXFLAGS="-O3 -fwrapv"/>
-</bin>
+  <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+    <flags CXXFLAGS="-O3 -fwrapv"/>
+  </bin>
 
-<bin file="cudaMathTest.cu" name="DFM_Math">
-  <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
-  <use   name="vdt_headers"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
-  <flags CXXFLAGS="-O3 -fwrapv"/>
-</bin>
+  <bin file="cudaMathTest.cu" name="DFM_Math">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+    <flags CXXFLAGS="-O3 -fwrapv"/>
+  </bin>
 
-<bin file="cudaMathTest.cu" name="DFM_MathRepr">
-  <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
-  <use   name="vdt_headers"/>
-  <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
-  <flags CXXFLAGS="-ffp-contract=off"/>
-</bin>
+  <bin file="cudaMathTest.cu" name="DFM_MathRepr">
+    <use name="cuda"/>
+    <use name="vdt_headers"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
+    <flags CXXFLAGS="-ffp-contract=off"/>
+  </bin>
+
+  <bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags CUDA_FLAGS="-w"/>
+  </bin>
+
 </iftool>

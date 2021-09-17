@@ -1,44 +1,43 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
+#include "Validation/CSCRecHits/interface/CSCRecHit2DValidation.h"
 
-CSCRecHit2DValidation::CSCRecHit2DValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
-    : CSCBaseValidation(inputTag), theNPerEventPlot(nullptr) {
-  rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
+CSCRecHit2DValidation::CSCRecHit2DValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC)
+    : CSCBaseValidation(ps), theNPerEventPlot(nullptr) {
+  const auto &pset = ps.getParameterSet("cscRecHit");
+  inputTag_ = pset.getParameter<edm::InputTag>("inputTag");
+  rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag_);
 }
 
-CSCRecHit2DValidation::~CSCRecHit2DValidation() {
-  for (int i = 0; i < 10; ++i) {
-    edm::LogInfo("CSCRecHitValidation") << "Resolution of " << theResolutionPlots[i]->getName() << " is "
-                                        << theResolutionPlots[i]->getRMS();
-    edm::LogInfo("CSCRecHitValidation") << "Peak Time is " << theTPeaks[i]->getMean();
-  }
-}
+CSCRecHit2DValidation::~CSCRecHit2DValidation() {}
 
 void CSCRecHit2DValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   theNPerEventPlot = iBooker.book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500);
-  for (int i = 0; i < 10; ++i) {
-    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200],
-        title9[200];
-    sprintf(title1, "CSCRecHitResolution%d", i + 1);
-    sprintf(title2, "CSCRecHitPull%d", i + 1);
-    sprintf(title3, "CSCRecHitYResolution%d", i + 1);
-    sprintf(title4, "CSCRecHitYPull%d", i + 1);
-    sprintf(title5, "CSCRecHitPosInStrip%d", i + 1);
-    sprintf(title6, "CSCSimHitPosInStrip%d", i + 1);
-    sprintf(title7, "CSCRecHit%d", i + 1);
-    sprintf(title8, "CSCSimHit%d", i + 1);
-    sprintf(title9, "CSCTPeak%d", i + 1);
+  // 10 chamber types, if you consider ME1/a and ME1/b separate
+  for (int i = 1; i <= 10; ++i) {
+    const std::string cn(CSCDetId::chamberName(i));
+    const std::string t1("CSCRecHitResolution_" + cn);
+    const std::string t2("CSCRecHitPull_" + cn);
+    const std::string t3("CSCRecHitYResolution_" + cn);
 
-    theResolutionPlots[i] = iBooker.book1D(title1, title1, 100, -0.2, 0.2);
-    thePullPlots[i] = iBooker.book1D(title2, title2, 100, -3, 3);
-    theYResolutionPlots[i] = iBooker.book1D(title3, title3, 100, -5, 5);
-    theYPullPlots[i] = iBooker.book1D(title4, title4, 100, -3, 3);
-    theRecHitPosInStrip[i] = iBooker.book1D(title5, title5, 100, -2, 2);
-    theSimHitPosInStrip[i] = iBooker.book1D(title6, title6, 100, -2, 2);
-    theScatterPlots[i] = iBooker.book2D(title7, title7, 200, -20, 20, 200, -250, 250);
-    theSimHitScatterPlots[i] = iBooker.book2D(title8, title8, 200, -20, 20, 200, -250, 250);
-    theTPeaks[i] = iBooker.book1D(title9, title9, 200, 0, 400);
+    const std::string t4("CSCRecHitYPull_" + cn);
+    const std::string t5("CSCRecHitPosInStrip_" + cn);
+    const std::string t6("CSCSimHitPosInStrip_" + cn);
+
+    const std::string t7("CSCRecHit_" + cn);
+    const std::string t8("CSCSimHit_" + cn);
+    const std::string t9("CSCTPeak_" + cn);
+
+    theResolutionPlots[i - 1] = iBooker.book1D(t1, t1 + ";R*dPhi Resolution [cm];Entries", 100, -0.2, 0.2);
+    thePullPlots[i - 1] = iBooker.book1D(t2, t2 + ";dPhi Pull;Entries", 100, -3, 3);
+    theYResolutionPlots[i - 1] = iBooker.book1D(t3, t3 + ";Local Y Resolution [cm];Entries", 100, -5, 5);
+    theYPullPlots[i - 1] = iBooker.book1D(t4, t4 + ";Local Y Pull;Entries", 100, -3, 3);
+    theRecHitPosInStrip[i - 1] = iBooker.book1D(t5, t5 + ";Position in Strip;Entries", 100, -2, 2);
+    theSimHitPosInStrip[i - 1] = iBooker.book1D(t6, t6 + ";Position in Strip;Entries", 100, -2, 2);
+
+    theScatterPlots[i - 1] = iBooker.book2D(t7, t7 + ";Local Phi;Local Y [cm]", 200, -20, 20, 200, -250, 250);
+    theSimHitScatterPlots[i - 1] = iBooker.book2D(t8, t8 + ";Local Phi;Local Y [cm]", 200, -20, 20, 200, -250, 250);
+    theTPeaks[i - 1] = iBooker.book1D(t9, t9 + ";Peak Time [ns];Entries", 200, 0, 400);
   }
 }
 
@@ -50,8 +49,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event &e, const edm::EventSetup &
 
   unsigned nPerEvent = 0;
 
-  for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin(); recHitItr != cscRecHits->end();
-       recHitItr++) {
+  for (auto recHitItr = cscRecHits->begin(); recHitItr != cscRecHits->end(); recHitItr++) {
     ++nPerEvent;
     int detId = (*recHitItr).cscDetId().rawId();
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
@@ -63,32 +61,30 @@ void CSCRecHit2DValidation::analyze(const edm::Event &e, const edm::EventSetup &
     }
     float localX = recHitItr->localPosition().x();
     float localY = recHitItr->localPosition().y();
-    // theYPlots[chamberType-1]->Fill(localY);
     // find a local phi
     float globalR = layer->toGlobal(LocalPoint(0., 0., 0.)).perp();
     GlobalPoint axisThruChamber(globalR + localY, localX, 0.);
     float localPhi = axisThruChamber.phi().degrees();
-    // thePhiPlots[chamberType-1]->Fill(axisThruChamber.phi().degrees());
     theScatterPlots[chamberType - 1]->Fill(localPhi, localY);
   }
   theNPerEventPlot->Fill(nPerEvent);
-  return;
-  // fill sim hits
-  std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
-  for (unsigned i = 0; i < layersWithSimHits.size(); ++i) {
-    edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
-    for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
-      const CSCLayer *layer = findLayer(layersWithSimHits[i]);
-      int chamberType = layer->chamber()->specs()->chamberType();
-      float localX = hitItr->localPosition().x();
-      float localY = hitItr->localPosition().y();
-      // theYPlots[chamberType-1]->Fill(localY);
-      // find a local phi
-      float globalR = layer->toGlobal(LocalPoint(0., 0., 0.)).perp();
-      GlobalPoint axisThruChamber(globalR + localY, localX, 0.);
-      float localPhi = axisThruChamber.phi().degrees();
-      // thePhiPlots[chamberType-1]->Fill(axisThruChamber.phi().degrees());
-      theSimHitScatterPlots[chamberType - 1]->Fill(localPhi, localY);
+
+  if (doSim_) {
+    // fill sim hits
+    std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
+    for (unsigned i = 0; i < layersWithSimHits.size(); ++i) {
+      edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
+      for (auto hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
+        const CSCLayer *layer = findLayer(layersWithSimHits[i]);
+        int chamberType = layer->chamber()->specs()->chamberType();
+        float localX = hitItr->localPosition().x();
+        float localY = hitItr->localPosition().y();
+        // find a local phi
+        float globalR = layer->toGlobal(LocalPoint(0., 0., 0.)).perp();
+        GlobalPoint axisThruChamber(globalR + localY, localX, 0.);
+        float localPhi = axisThruChamber.phi().degrees();
+        theSimHitScatterPlots[chamberType - 1]->Fill(localPhi, localY);
+      }
     }
   }
 }

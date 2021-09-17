@@ -12,25 +12,29 @@
 #include <memory>
 
 template <unsigned int N>
-DistanceBetweenComponentsESProducer<N>::DistanceBetweenComponentsESProducer(const edm::ParameterSet& p) {
+DistanceBetweenComponentsESProducer<N>::DistanceBetweenComponentsESProducer(const edm::ParameterSet& p)
+    : useKullbackLeibler_(p.getParameter<std::string>("DistanceMeasure") == "KullbackLeibler") {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
   setWhatProduced(this, myname);
 }
 
 template <unsigned int N>
-DistanceBetweenComponentsESProducer<N>::~DistanceBetweenComponentsESProducer() {}
-
-template <unsigned int N>
 typename std::unique_ptr<DistanceBetweenComponents<N> > DistanceBetweenComponentsESProducer<N>::produce(
     const TrackingComponentsRecord& iRecord) {
-  std::string distName = pset_.getParameter<std::string>("DistanceMeasure");
-
   std::unique_ptr<DistanceBetweenComponents<N> > distance;
-  if (distName == "KullbackLeibler")
+  if (useKullbackLeibler_)
     distance = std::unique_ptr<DistanceBetweenComponents<N> >(new KullbackLeiblerDistance<N>());
   // //   else if ( distName == "Mahalanobis" )
   // //     distance = std::unique_ptr<DistanceBetweenComponents>(new MahalanobisDistance());
 
   return distance;
+}
+
+template <unsigned int N>
+void DistanceBetweenComponentsESProducer<N>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("DistanceMeasure");
+  desc.add<std::string>("ComponentName");
+
+  descriptions.addDefault(desc);
 }

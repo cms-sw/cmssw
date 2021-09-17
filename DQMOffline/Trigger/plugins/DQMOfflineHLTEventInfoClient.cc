@@ -5,9 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <cstdio>
 #include <sstream>
 #include <cmath>
@@ -59,9 +57,6 @@ protected:
 
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
 
 private:
 
@@ -125,25 +120,12 @@ void DQMOfflineHLTEventInfoClient::beginJob() {
 
   dbe_->setCurrentFolder("HLT/EventInfo");
 
-  // reportSummary
-  reportSummary_ = dbe_->get("HLT/EventInfo/reportSummary");
-
-  if (reportSummary_) {
-    dbe_->removeElement(reportSummary_->getName());
-  }
-
   reportSummary_ = dbe_->bookFloat("reportSummary");
   //initialize reportSummary to 1
   if (reportSummary_)
     reportSummary_->Fill(1);
 
   // CertificationSummary
-  CertificationSummary_ = dbe_->get("HLT/EventInfo/CertificationSummary");
-
-  if (CertificationSummary_) {
-    dbe_->removeElement(CertificationSummary_->getName());
-  }
-
   CertificationSummary_ = dbe_->bookFloat("CertificationSummary");
   //initialize CertificationSummary to 1
   if (CertificationSummary_)
@@ -158,11 +140,6 @@ void DQMOfflineHLTEventInfoClient::beginJob() {
   // reportSummaryMap
   dbe_->setCurrentFolder("HLT/EventInfo");
 
-  reportSummaryMap_ = dbe_->get("HLT/EventInfo/reportSummaryMap");
-  if (reportSummaryMap_) {
-    dbe_->removeElement(reportSummaryMap_->getName());
-  }
-
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 6, 1, 7);
   reportSummaryMap_->setAxisTitle("", 1);
   reportSummaryMap_->setAxisTitle("", 2);
@@ -173,11 +150,6 @@ void DQMOfflineHLTEventInfoClient::beginJob() {
   reportSummaryMap_->setBinLabel(5, "BJet", 2);
   reportSummaryMap_->setBinLabel(6, "Tau", 2);
   reportSummaryMap_->setBinLabel(1, " ", 1);
-
-  CertificationSummaryMap_ = dbe_->get("HLT/EventInfo/CertificationSummaryMap");
-  if (CertificationSummaryMap_) {
-    dbe_->removeElement(CertificationSummaryMap_->getName());
-  }
 
   CertificationSummaryMap_ = dbe_->book2D("CertificationSummaryMap", "CertificationSummaryMap", 1, 1, 2, 6, 1, 7);
   CertificationSummaryMap_->setAxisTitle("", 1);
@@ -276,6 +248,3 @@ void DQMOfflineHLTEventInfoClient::endRun(const Run& r, const EventSetup& contex
   CertificationSummaryMap_->setBinContent(1, 5, 1);              //BJet
   CertificationSummaryMap_->setBinContent(1, 6, tauValue);       //Tau
 }
-
-//--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::endJob() {}

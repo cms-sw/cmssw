@@ -61,9 +61,3 @@ ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD           1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_barrel    1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_endcaps   1 1 1 1
 
-recomputed pflow over pT
-
-ElectronMcSignalValidatorMiniAOD/h_ele_chargedHadronRelativeIso_mAOD_recomp           1 1 1 0
-ElectronMcSignalValidatorMiniAOD/h_ele_neutralHadronRelativeIso_mAOD_recomp           1 1 1 0
-ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_recomp                  1 1 1 0
-

@@ -320,7 +320,7 @@ void TEcnaParPaths::GetCMSSWParameters() {
 
   //------------ CMSSW_BASE
 
-  char *ch_cmssw_base = getenv("CMSSW_BASE");
+  char *ch_cmssw_base = std::getenv("CMSSW_BASE");
   if (ch_cmssw_base == nullptr) {
     std::cout << "*TEcnaParPaths::GetCMSSWParameters()> CMSSW_BASE not defined."
               << " Please, set up the environment (command: eval `scramv1 runtime -csh`)" << fTTBELL << std::endl;
@@ -330,7 +330,7 @@ void TEcnaParPaths::GetCMSSWParameters() {
 
   //------------ SCRAM_ARCH
 
-  char *ch_scram_arch = getenv("SCRAM_ARCH");
+  char *ch_scram_arch = std::getenv("SCRAM_ARCH");
   if (ch_scram_arch == nullptr) {
     std::cout << "*TEcnaParPaths::GetCMSSWParameters()> SCRAM_ARCH not defined."
               << " Please, set up the environment (command: eval `scramv1 runtime -csh`)" << fTTBELL << std::endl;

@@ -22,7 +22,7 @@ ME0SegmentBuilder::ME0SegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
   LogDebug("ME0SegmentBuilder") << "ME0SegmentBuilder algorithm name: " << algoName;
 
   // Ask factory to build this algorithm, giving it appropriate ParameterSet
-  algo = std::unique_ptr<ME0SegmentAlgorithmBase>(ME0SegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet));
+  algo = ME0SegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet);
 }
 
 ME0SegmentBuilder::~ME0SegmentBuilder() {}

@@ -1,0 +1,14 @@
+<use name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/CTPPSReco"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="Geometry/VeryForwardGeometry" source_only="1"/>
+<use name="Geometry/VeryForwardRPTopology"/>
+<use name="CondFormats/PPSObjects"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="CommonTools/Utils"/>
+<export>
+  <lib name="1"/>
+</export>

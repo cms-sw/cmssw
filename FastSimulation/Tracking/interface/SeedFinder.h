@@ -51,7 +51,7 @@ public:
     std::vector<TrajectorySeedHitCandidate> seedHitCandidates;
     for (const FastTrackerRecHit* trackerRecHit : trackerRecHits) {
       TrajectorySeedHitCandidate seedHitCandidate(trackerRecHit, _trackerTopology);
-      seedHitCandidates.push_back(std::move(seedHitCandidate));
+      seedHitCandidates.push_back(seedHitCandidate);
     }
     return iterateHits(0, seedHitCandidates, hitIndicesInTree, true);
 

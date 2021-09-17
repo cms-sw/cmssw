@@ -1,5 +1,6 @@
 #include "Fireworks/Core/src/FWEveOverlap.h"
 #include "TGeoOverlap.h"
+#include "TEveGeoShape.h"
 #include "Fireworks/Core/src/FWOverlapTableView.h"
 #include "Fireworks/Core/src/FWOverlapTableManager.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"

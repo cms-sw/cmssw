@@ -15,7 +15,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProdExt);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProdExt);
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
 
 // Central L1 records
@@ -40,6 +40,11 @@ REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
 
 REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"

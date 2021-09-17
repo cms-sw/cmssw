@@ -11,9 +11,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
- typedef SingleObjectSelector<
-           reco::PhotonCollection, 
-           EtMinSelector
-         > EtMinPhotonSelector;
+typedef SingleObjectSelector<reco::PhotonCollection, EtMinSelector> EtMinPhotonSelector;
 
-DEFINE_FWK_MODULE( EtMinPhotonSelector );
+DEFINE_FWK_MODULE(EtMinPhotonSelector);

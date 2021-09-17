@@ -10,7 +10,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -32,7 +31,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <ctime>
@@ -48,6 +47,7 @@ const unsigned int PixelLumiDQM::lastBunchCrossing;
 PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet &iConfig)
     : fPixelClusterLabel(consumes<edmNew::DetSetVector<SiPixelCluster>>(
           iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters")))),
+      tkGeomToken_(esConsumes()),
       fIncludePixelClusterInfo(iConfig.getUntrackedParameter<bool>("includePixelClusterInfo", true)),
       fIncludePixelQualCheckHistos(iConfig.getUntrackedParameter<bool>("includePixelQualCheckHistos", true)),
       fResetIntervalInLumiSections(iConfig.getUntrackedParameter<int>("resetEveryNLumiSections", 1)),
@@ -99,12 +99,9 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.find(fBXNo);
   if (it == fNumPixelClusters.end())
     fNumPixelClusters[fBXNo] = PixelClusterCount();
-
+  // Find tracker geometry.
+  const TrackerGeometry *trackerGeo = &iSetup.getData(tkGeomToken_);
   if (fIncludePixelClusterInfo) {
-    // Find tracker geometry.
-    edm::ESHandle<TrackerGeometry> trackerGeo;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeo);
-
     // Find pixel clusters.
     edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
@@ -171,10 +168,6 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
   // Fill some pixel cluster quality check histograms if requested.
   if (fIncludePixelQualCheckHistos) {
-    // Find tracker geometry.
-    edm::ESHandle<TrackerGeometry> trackerGeo;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeo);
-
     // Find pixel clusters.
     edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
@@ -375,12 +368,6 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
     }
   }
 }
-
-// ------------ Method called when ending the processing of a run.  ------------
-void PixelLumiDQM::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {}
-
-// ------------ Method called when ending the processing of a run.  ------------
-void PixelLumiDQM::endRun(edm::Run const &, edm::EventSetup const &) {}
 
 // ------------ Method called when starting to process a luminosity block.
 // ------------

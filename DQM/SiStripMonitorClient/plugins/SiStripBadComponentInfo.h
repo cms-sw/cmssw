@@ -22,14 +22,16 @@
 #include <string>
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "CalibTracker/SiStripQuality/interface/SiStripQualityWithFromFedErrorsHelper.h"
 
 #include <fstream>
 #include <iostream>
@@ -37,14 +39,17 @@
 #include <string>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
-
 class SiStripBadComponentInfo : public DQMEDHarvester {
 public:
   /// Constructor
   SiStripBadComponentInfo(edm::ParameterSet const& ps);
   ~SiStripBadComponentInfo() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    SiStripQualityWithFromFedErrorsHelper::fillDescription(desc);
+    descriptions.add("siStripBadComponentInfo", desc);
+  }
 
 protected:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -54,6 +59,7 @@ protected:
 private:
   void checkBadComponents(edm::EventSetup const& eSetup);
   void bookBadComponentHistos(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void fillBadComponentMaps(const SiStripQuality* siStripQuality);
   void fillBadComponentMaps(int xbin, int component, SiStripQuality::BadComponent const& BC);
   void createSummary(MonitorElement* me, const std::map<std::pair<int, int>, float>& map);
 
@@ -67,9 +73,9 @@ private:
 
   bool bookedStatus_;
   int nSubSystem_;
-  std::string qualityLabel_;
 
-  edm::ESHandle<SiStripQuality> siStripQuality_;
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  std::unique_ptr<TrackerTopology> tTopo_;
+  SiStripQualityWithFromFedErrorsHelper withFedErrHelper_;
 };
 #endif

@@ -5,10 +5,14 @@
  Giovanni.Organtini@roma1.infn.it 2010
  */
 
-#include <stdexcept>
+#include <algorithm>
+#include <cstring>
 #include <iostream>
+#include <list>
 #include <map>
-#include <boost/ptr_container/ptr_list.hpp>
+#include <memory>
+#include <stdexcept>
+
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/IUniqueDBObject.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -70,7 +74,7 @@ public:
   inline void debug() { m_debug = 1; }
   inline void nodebug() { m_debug = 0; }
 
-  virtual boost::ptr_list<LMFUnique> fetchAll() const noexcept(false);
+  virtual std::list<std::unique_ptr<LMFUnique>> fetchAll() const noexcept(false);
 
   virtual bool operator<(const LMFUnique &r) { return (m_ID < r.m_ID); }
   virtual bool operator<=(const LMFUnique &r) { return (m_ID <= r.m_ID); }

@@ -240,6 +240,6 @@ void HistogramBase::bookProfile2D(DQMStore::IBooker& ibooker,
       ibooker, aConfig, name, title, aConfig.nBins, aConfig.min, aConfig.max, nBinsy, ymin, ymax, xAxisTitle, yAxisTitle);
 
   //automatically set the axis range: will accomodate new values keeping the same number of bins.
-  if (aConfig.monitorEle && aConfig.monitorEle->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+  if (aConfig.monitorEle && aConfig.monitorEle->kind() == MonitorElement::Kind::TPROFILE2D)
     aConfig.monitorEle->getTProfile2D()->SetCanExtend(TH1::kAllAxes);
 }

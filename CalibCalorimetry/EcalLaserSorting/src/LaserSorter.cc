@@ -308,7 +308,7 @@ void LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es) {
   if (disableOutput_) {
     /* NO OP*/
   } else {
-    OutStreamRecord* out = getStream(triggeredFedId, lumiBlock_);
+    auto& out = getStream(triggeredFedId, lumiBlock_);
 
     if (out != nullptr) {
       assignedLB = out->startingLumiBlock();
@@ -456,14 +456,14 @@ void LaserSorter::closeOldStreams(edm::LuminosityBlockNumber_t lumiBlock) {
   const edm::LuminosityBlockNumber_t maxLumiBlock = lumiBlock + lumiBlockSpan_;
   //If container type is ever changed, beware that
   //closeOutStream call in the loop removes it from outStreamList
-  for (boost::ptr_list<OutStreamRecord>::iterator it = outStreamList_.begin(); it != outStreamList_.end();
+  for (OutStreamList::iterator it = outStreamList_.begin(); it != outStreamList_.end();
        /*NOOP*/) {
-    if (it->startingLumiBlock() < minLumiBlock || it->startingLumiBlock() > maxLumiBlock) {
+    if ((*it)->startingLumiBlock() < minLumiBlock || (*it)->startingLumiBlock() > maxLumiBlock) {
       //event older than 2 lumi block => stream can be closed
       if (verbosity_)
         cout << "[LaserSorter " << now() << "] "
              << "Closing file for "
-             << "FED " << it->fedId() << " LB " << it->startingLumiBlock() << "\n";
+             << "FED " << (*it)->fedId() << " LB " << (*it)->startingLumiBlock() << "\n";
       it = closeOutStream(it);
     } else {
       ++it;
@@ -471,7 +471,10 @@ void LaserSorter::closeOldStreams(edm::LuminosityBlockNumber_t lumiBlock) {
   }
 }
 
-LaserSorter::OutStreamRecord* LaserSorter::getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock) {
+std::unique_ptr<LaserSorter::OutStreamRecord>& LaserSorter::getStream(int fedId,
+                                                                      edm::LuminosityBlockNumber_t lumiBlock) {
+  static std::unique_ptr<LaserSorter::OutStreamRecord> streamNotFound(nullptr);
+
   if ((fedId != -1) && (fedId < ecalDccFedIdMin_ || fedId > ecalDccFedIdMax_))
     fedId = -1;
 
@@ -481,9 +484,9 @@ LaserSorter::OutStreamRecord* LaserSorter::getStream(int fedId, edm::LuminosityB
 
   //first look if stream is already open:
   for (OutStreamList::iterator it = outStreamList_.begin(); it != outStreamList_.end(); ++it) {
-    if (it->fedId() == fedId && (abs((int)it->startingLumiBlock() - (int)lumiBlock) <= lumiBlockSpan_)) {
+    if ((*it)->fedId() == fedId && (abs((int)(*it)->startingLumiBlock() - (int)lumiBlock) <= lumiBlockSpan_)) {
       //stream found!
-      return &(*it);
+      return (*it);
     }
   }
   //stream was not found. Let's create one
@@ -493,7 +496,7 @@ LaserSorter::OutStreamRecord* LaserSorter::getStream(int fedId, edm::LuminosityB
          << "File not yet opened. Opening it.\n";
 
   OutStreamList::iterator streamRecord = createOutStream(fedId, lumiBlock);
-  return streamRecord != outStreamList_.end() ? &(*streamRecord) : nullptr;
+  return streamRecord != outStreamList_.end() ? (*streamRecord) : streamNotFound;
 }
 
 bool LaserSorter::writeEvent(OutStreamRecord& outRcd,
@@ -726,7 +729,7 @@ LaserSorter::OutStreamList::iterator LaserSorter::createOutStream(int fedId, edm
     }
   }
 
-  return outStreamList_.insert(outStreamList_.end(), outRcd);
+  return outStreamList_.emplace(outStreamList_.end(), outRcd);
 }
 
 void LaserSorter::writeFileHeader(std::ofstream& out) {
@@ -841,22 +844,22 @@ LaserSorter::OutStreamList::iterator LaserSorter::closeOutStream(LaserSorter::Ou
 
   if (verbosity_)
     cout << "[LaserSorter " << now() << "] "
-         << "Writing Index table of file " << streamRecord->finalFileName() << "\n";
-  ofstream& out = *streamRecord->out();
+         << "Writing Index table of file " << (*streamRecord)->finalFileName() << "\n";
+  ofstream& out = *(*streamRecord)->out();
   out.clear();
-  if (!writeIndexTable(out, *streamRecord->indices())) {
-    cout << "Error while writing index table for file " << streamRecord->finalFileName() << ". "
+  if (!writeIndexTable(out, *(*streamRecord)->indices())) {
+    cout << "Error while writing index table for file " << (*streamRecord)->finalFileName() << ". "
          << "Resulting file might be corrupted. "
          << "The error can be due to a lack of disk space.";
   }
 
   if (verbosity_)
     cout << "[LaserSorter " << now() << "] "
-         << "Closing file " << streamRecord->finalFileName() << ".\n";
+         << "Closing file " << (*streamRecord)->finalFileName() << ".\n";
   out.close();
 
-  const std::string& tmpFileName = streamRecord->tmpFileName();
-  const std::string& finalFileName = streamRecord->finalFileName();
+  const std::string& tmpFileName = (*streamRecord)->tmpFileName();
+  const std::string& finalFileName = (*streamRecord)->finalFileName();
 
   if (verbosity_)
     cout << "[LaserSorter " << now() << "] "

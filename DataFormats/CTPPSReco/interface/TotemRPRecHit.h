@@ -19,10 +19,10 @@ class TotemRPRecHit {
 public:
   TotemRPRecHit(double position = 0, double sigma = 0) : position_(position), sigma_(sigma) {}
 
-  inline double getPosition() const { return position_; }
+  inline double position() const { return position_; }
   inline void setPosition(double position) { position_ = position; }
 
-  inline double getSigma() const { return sigma_; }
+  inline double sigma() const { return sigma_; }
   inline void setSigma(double sigma) { sigma_ = sigma; }
 
 private:
@@ -36,12 +36,12 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 inline bool operator<(const TotemRPRecHit &l, const TotemRPRecHit &r) {
-  if (l.getPosition() < r.getPosition())
+  if (l.position() < r.position())
     return true;
-  if (l.getPosition() > r.getPosition())
+  if (l.position() > r.position())
     return false;
 
-  if (l.getSigma() < r.getSigma())
+  if (l.sigma() < r.sigma())
     return true;
 
   return false;

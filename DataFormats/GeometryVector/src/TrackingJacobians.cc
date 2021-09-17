@@ -36,10 +36,8 @@ AlgebraicMatrix65 jacobianCurvilinearToCartesian(const GlobalVector& momentum, i
   R(5, 5) = 1.;
 
   double p = pvec.mag(), p2 = p * p;
-  double lambda = 0.5 * M_PI - pvec.theta();
-  double phi = pvec.phi();
-  double sinlambda = sin(lambda), coslambda = cos(lambda);
-  double sinphi = sin(phi), cosphi = cos(phi);
+  double sinlambda = pvec.z() / p, coslambda = pt / p;
+  double sinphi = pvec.y() / pt, cosphi = pvec.x() / pt;
 
   theJacobian(1, 3) = 1.;
   theJacobian(2, 4) = 1.;

@@ -10,15 +10,20 @@
 #include <cstring>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
 
 class CSCMuonPortCard;
-class CSCTFSectorProcessor;
 class L1MuTriggerScales;
 class L1MuTriggerPtScale;
 
 class CSCTFTrackBuilder {
 public:
-  void initialize(const edm::EventSetup& c);
+  using Tokens = CSCTFSectorProcessor::Tokens;
+  static Tokens consumes(const edm::ParameterSet& pset, edm::ConsumesCollector iC) {
+    return CSCTFSectorProcessor::consumes(pset, iC);
+  }
+
+  void initialize(const edm::EventSetup& c, const Tokens& tokens);
 
   enum { nEndcaps = 2, nSectors = 6 };
 

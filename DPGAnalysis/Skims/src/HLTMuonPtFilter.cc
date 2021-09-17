@@ -24,24 +24,22 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-HLTMuonPtFilter::HLTMuonPtFilter(const edm::ParameterSet& pset) :
-  HLTFilter(pset)
-{
+HLTMuonPtFilter::HLTMuonPtFilter(const edm::ParameterSet& pset) : HLTFilter(pset) {
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<std::string>("SALabel");
 
-  theMinPt = pset.getParameter<double>("minPt"); // pt min (GeV)
+  theMinPt = pset.getParameter<double>("minPt");  // pt min (GeV)
 
-  LogDebug("HLTMuonPt") << " SALabel : " << theSTAMuonLabel
-    << " Min Pt : " << theMinPt;
+  LogDebug("HLTMuonPt") << " SALabel : " << theSTAMuonLabel << " Min Pt : " << theMinPt;
 }
 
 /// Destructor
-HLTMuonPtFilter::~HLTMuonPtFilter() {
-}
+HLTMuonPtFilter::~HLTMuonPtFilter() {}
 
 /* Operations */
-bool HLTMuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+bool HLTMuonPtFilter::hltFilter(edm::Event& event,
+                                const edm::EventSetup& eventSetup,
+                                trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);
@@ -49,7 +47,7 @@ bool HLTMuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventS
   reco::TrackCollection::const_iterator staTrack;
 
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
-    if (staTrack->pt()>theMinPt)
+    if (staTrack->pt() > theMinPt)
       return true;
   }
 

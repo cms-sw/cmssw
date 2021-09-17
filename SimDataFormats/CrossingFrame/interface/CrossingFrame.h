@@ -22,7 +22,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class T>
 class PCrossingFrame;

@@ -20,34 +20,34 @@
 
 class PedestalTask : public hcaldqm::DQTask {
 public:
-  PedestalTask(edm::ParameterSet const&);
+  PedestalTask(edm::ParameterSet const &);
   ~PedestalTask() override {}
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndRun(edm::Run const &, edm::EventSetup const &) override;
 
 protected:
   //	funcs
-  void _process(edm::Event const&, edm::EventSetup const&) override;
+  void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
-  bool _isApplicable(edm::Event const&) override;
+  bool _isApplicable(edm::Event const &) override;
   virtual void _dump();
 
   //	tags and tokens
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHE;
+  edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
+  edm::InputTag _tagQIE10;
   edm::InputTag _tagTrigger;
   edm::InputTag _taguMN;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
+  edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   std::vector<hcaldqm::flag::Flag> _vflags;
   enum PedestalFlag { fMsn = 0, fBadM = 1, fBadR = 2, nPedestalFlag = 3 };

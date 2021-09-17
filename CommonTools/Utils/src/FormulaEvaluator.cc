@@ -581,6 +581,32 @@ namespace {
   const std::string k_TMath__Sqrt("TMath::Sqrt");
   const std::string k_abs("abs");
   const std::string k_TMath__Abs("TMath::Abs");
+  const std::string k_cos("cos");
+  const std::string k_TMath__Cos("TMath::Cos");
+  const std::string k_sin("sin");
+  const std::string k_TMath__Sin("TMath::Sin");
+  const std::string k_tan("tan");
+  const std::string k_TMath__Tan("TMath::Tan");
+  const std::string k_acos("acos");
+  const std::string k_TMath__ACos("TMath::ACos");
+  const std::string k_asin("asin");
+  const std::string k_TMath__ASin("TMath::ASin");
+  const std::string k_atan("atan");
+  const std::string k_TMath__ATan("TMath::ATan");
+  const std::string k_atan2("atan2");
+  const std::string k_TMath__ATan2("TMath::ATan2");
+  const std::string k_cosh("cosh");
+  const std::string k_TMath__CosH("TMath::CosH");
+  const std::string k_sinh("sinh");
+  const std::string k_TMath__SinH("TMath::SinH");
+  const std::string k_tanh("tanh");
+  const std::string k_TMath__TanH("TMath::TanH");
+  const std::string k_acosh("acosh");
+  const std::string k_TMath__ACosH("TMath::ACosH");
+  const std::string k_asinh("asinh");
+  const std::string k_TMath__ASinH("TMath::ASinH");
+  const std::string k_atanh("atanh");
+  const std::string k_TMath__ATanH("TMath::ATanH");
 
   EvaluatorInfo FunctionFinder::createEvaluator(std::string::const_iterator iBegin,
                                                 std::string::const_iterator iEnd) const {
@@ -648,6 +674,165 @@ namespace {
 
     info = checkForSingleArgFunction(
         iBegin, iEnd, m_expressionFinder, k_TMath__Abs, [](double iArg) -> double { return std::abs(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_cos, [](double iArg) -> double { return std::cos(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__Cos, [](double iArg) -> double { return std::cos(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_sin, [](double iArg) -> double { return std::sin(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__Sin, [](double iArg) -> double { return std::sin(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_tan, [](double iArg) -> double { return std::tan(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__Tan, [](double iArg) -> double { return std::tan(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_acos, [](double iArg) -> double { return std::acos(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ACos, [](double iArg) -> double { return std::acos(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_asin, [](double iArg) -> double { return std::asin(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ASin, [](double iArg) -> double { return std::asin(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_atan, [](double iArg) -> double { return std::atan(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ATan, [](double iArg) -> double { return std::atan(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_cosh, [](double iArg) -> double { return std::cosh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__CosH, [](double iArg) -> double { return std::cosh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_sinh, [](double iArg) -> double { return std::sinh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__SinH, [](double iArg) -> double { return std::sinh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_tanh, [](double iArg) -> double { return std::tanh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__TanH, [](double iArg) -> double { return std::tanh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_acosh, [](double iArg) -> double { return std::acosh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ACosH, [](double iArg) -> double { return std::acosh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_asinh, [](double iArg) -> double { return std::asinh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ASinH, [](double iArg) -> double { return std::asinh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_atanh, [](double iArg) -> double { return std::atanh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ATanH, [](double iArg) -> double { return std::atanh(iArg); });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder, k_atan2, [](double iArg1, double iArg2) -> double {
+      return std::atan2(iArg1, iArg2);
+    });
+    if (info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(
+        iBegin, iEnd, m_expressionFinder, k_TMath__ATan2, [](double iArg1, double iArg2) -> double {
+          return std::atan2(iArg1, iArg2);
+        });
     if (info.evaluator.get() != nullptr) {
       return info;
     }

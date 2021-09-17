@@ -9,7 +9,7 @@
 
 namespace clangcms {
   class FiniteMathChecker : public clang::ento::Checker<clang::ento::check::PreStmt<clang::CallExpr> > {
-    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BugType> BT;
+    CMS_SA_ALLOW mutable std::unique_ptr<clang::ento::BugType> BT;
 
   public:
     void checkPreStmt(const clang::CallExpr *ref, clang::ento::CheckerContext &C) const;

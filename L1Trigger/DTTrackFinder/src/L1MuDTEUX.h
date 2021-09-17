@@ -28,13 +28,12 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 class L1MuDTTrackSegPhi;
 class L1MuDTSectorProcessor;
 class L1MuDTSEU;
@@ -45,22 +44,22 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTEUX : public L1AbstractProcessor {
+class L1MuDTEUX {
 public:
   /// constructor
   L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id);
 
   /// destructor
-  ~L1MuDTEUX() override;
+  ~L1MuDTEUX();
 
   /// equal operator
   bool operator==(const L1MuDTEUX&) const;
 
   /// run Extrapolator
-  void run(const edm::EventSetup& c) override;
+  void run(const edm::EventSetup& c);
 
   /// reset Extrapolator
-  void reset() override;
+  void reset();
 
   /// load data into EUX
   void load(const L1MuDTTrackSegPhi* start_ts, const L1MuDTTrackSegPhi* target_ts);

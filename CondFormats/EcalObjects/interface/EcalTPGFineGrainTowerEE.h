@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class EcalTPGFineGrainTowerEE {
 public:

@@ -392,7 +392,7 @@ if overrideGlobalTag == True :
     globalTag = myGlobalTag
   
 if globalTag.count('auto') :
-    from Configuration.AlCa.autoCond_condDBv2 import autoCond
+    from Configuration.AlCa.autoCond import autoCond
     useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
     useGlobalTag = globalTag   

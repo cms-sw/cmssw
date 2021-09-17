@@ -4,8 +4,8 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
 
-AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
-    : AlignmentMonitorBase(cfg, "AlignmentMonitorSurvey"),
+AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+    : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorSurvey"),
       levelNames_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")) {}
 
 void AlignmentMonitorSurvey::book() {

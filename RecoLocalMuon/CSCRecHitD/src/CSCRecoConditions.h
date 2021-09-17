@@ -18,13 +18,14 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 class CSCRecoConditions {
 public:
   // Passed a PSet just in case we need to configure in some way
-  explicit CSCRecoConditions(const edm::ParameterSet& pset);
+  explicit CSCRecoConditions(const edm::ParameterSet& pset, edm::ConsumesCollector);
   ~CSCRecoConditions();
 
   /// fetch the cond data from the database

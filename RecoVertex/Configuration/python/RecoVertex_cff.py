@@ -14,11 +14,19 @@ from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import *
 from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
-offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles="trackRefsForJetsBeforeSorting")
-trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
-trackWithVertexRefSelectorBeforeSorting.ptMax=9e99
-trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
+offlinePrimaryVertices=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(
+    vertices="unsortedOfflinePrimaryVertices:WithBS", 
+    particles="trackRefsForJetsBeforeSorting"
+)
+trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(
+    vertexTag="unsortedOfflinePrimaryVertices",
+    ptMax=9e99,
+    ptErrorCut=9e99
+)
 trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 
@@ -46,11 +54,7 @@ from RecoVertex.Configuration.RecoVertex_phase2_timing_cff import (tpClusterProd
                                                                   offlinePrimaryVertices4DwithPID ,
                                                                   offlinePrimaryVertices4DwithPIDWithBS,
                                                                   tofPID,
-                                                                  unsortedOfflinePrimaryVertices4Dfastsim,
-                                                                  trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
-                                                                  trackRefsForJetsBeforeSorting4Dfastsim ,
-                                                                  offlinePrimaryVertices4Dfastsim,
-                                                                  offlinePrimaryVertices4DfastsimWithBS,
+                                                                  tofPID4DnoPID,
                                                                   unsortedOfflinePrimaryVertices4D,
                                                                   trackWithVertexRefSelectorBeforeSorting4D,
                                                                   trackRefsForJetsBeforeSorting4D,
@@ -75,21 +79,17 @@ _phase2_tktiming_layer_vertexrecoTask = cms.Task( _phase2_tktiming_vertexrecoTas
                                             offlinePrimaryVertices4DnoPID ,
                                             offlinePrimaryVertices4DnoPIDWithBS,
                                             tofPID,
-                                            unsortedOfflinePrimaryVertices4Dfastsim,
-                                            trackWithVertexRefSelectorBeforeSorting4Dfastsim ,
-                                            trackRefsForJetsBeforeSorting4Dfastsim ,
-                                            offlinePrimaryVertices4Dfastsim,
-                                            offlinePrimaryVertices4DfastsimWithBS,
+                                            tofPID4DnoPID,
                                             )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(vertexrecoTask, _phase2_tktiming_vertexrecoTask)
 
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(vertexrecoTask, _phase2_tktiming_layer_vertexrecoTask)
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(unsortedOfflinePrimaryVertices4D, unsortedOfflinePrimaryVertices4DwithPID.clone())
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(offlinePrimaryVertices4D, offlinePrimaryVertices4DwithPID.clone())
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimaryVertices4DwithPIDWithBS.clone())
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toReplaceWith(vertexrecoTask, _phase2_tktiming_layer_vertexrecoTask)
+phase2_timing_layer.toReplaceWith(unsortedOfflinePrimaryVertices4D, unsortedOfflinePrimaryVertices4DwithPID.clone())
+phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4D, offlinePrimaryVertices4DwithPID.clone())
+phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimaryVertices4DwithPIDWithBS.clone())
+phase2_timing_layer.toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
+phase2_timing_layer.toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
+

@@ -45,7 +45,7 @@ public:
   /// Find the Jacobian for a local point to be used in HIP algo.
   /// Does not check the range of index of local point.
   AlgebraicMatrix derivatives(unsigned int index  // index of point
-                              ) const;
+  ) const;
 
 private:
   AlignableSurface theSurface;  // surface of det from survey info

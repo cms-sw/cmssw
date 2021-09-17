@@ -23,7 +23,7 @@ void testParameter::checkAll() {
   CPPUNIT_ASSERT(a.value() == aVal);
   double av = a;
   CPPUNIT_ASSERT(av == aVal);
-  boost::shared_ptr<double> ap = a;
+  std::shared_ptr<double> ap = a;
   CPPUNIT_ASSERT(*ap == aVal);
   aVal = 234;
   a = aVal;

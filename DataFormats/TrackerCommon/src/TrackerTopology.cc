@@ -396,6 +396,7 @@ SiStripModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) const {
         case 3:
           return SiStripModuleGeometry::W3A;
       }
+      return SiStripModuleGeometry::UNKNOWNGEOMETRY;
     case SiStripSubdetector::TEC:
       switch (tecRing(id)) {
         case 1:

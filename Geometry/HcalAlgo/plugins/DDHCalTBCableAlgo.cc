@@ -5,18 +5,58 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalTBCableAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
+
+class DDHCalTBCableAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalTBCableAlgo();  //const std::string & name);
+  ~DDHCalTBCableAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  std::string genMat;         //General material
+  int nsectors;               //Number of potenital straight edges
+  int nsectortot;             //Number of straight edges (actual)
+  int nhalf;                  //Number of half modules
+  double rin;                 //(see Figure of hcalbarrel)
+  std::vector<double> theta;  //  .... (in degrees)
+  std::vector<double> rmax;   //  ....
+  std::vector<double> zoff;   //  ....
+  std::string absMat;         //Absorber material
+  double thick;               //Thickness of absorber
+  double width1, length1;     //Width, length of absorber type 1
+  double width2, length2;     //Width, length of absorber type 2
+  double gap2;                //Gap between abosrbers of type 2
+
+  std::string idName;       //Name of the "parent" volume.
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string rotns;        //Namespace for rotation matrix
+};
 
 DDHCalTBCableAlgo::DDHCalTBCableAlgo() : theta(0), rmax(0), zoff(0) {
 #ifdef EDM_ML_DEBUG
@@ -244,3 +284,5 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalTBCableAlgo construction";
 #endif
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalTBCableAlgo, "hcal:DDHCalTBCableAlgo");

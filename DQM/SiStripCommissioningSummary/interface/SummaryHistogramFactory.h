@@ -2,10 +2,10 @@
 #define DQM_SiStripCommissioningSummary_SummaryHistogramFactory_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include "TH1.h"
 #include <string>
 #include <map>
+#include <cstdint>
 
 class SummaryGenerator;
 

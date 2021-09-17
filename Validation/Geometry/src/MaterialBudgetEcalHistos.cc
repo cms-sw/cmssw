@@ -12,7 +12,7 @@ MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(std::shared_ptr<MaterialBudge
 }
 
 void MaterialBudgetEcalHistos::book() {
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetEcalHistos: Booking user histos";
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetEcalHistos: Booking user histos";
 
   // total X0
   hmgr->addHistoProf1(new TProfile("10", "MB prof Eta ", 250, -5., 5.));
@@ -94,7 +94,7 @@ void MaterialBudgetEcalHistos::book() {
   hmgr->addHistoProf1(new TProfile("1013", "MB prof Eta ECAL Preshower -", 100, -2.6, -1.65));
   hmgr->addHistoProf1(new TProfile("1014", "MB prof Phi ECAL Preshower -", 180, -3.1416, 3.1416));
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetEcalHistos: booking user histos done";
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetEcalHistos: booking user histos done";
 }
 
 void MaterialBudgetEcalHistos::fillStartTrack() {}
@@ -146,6 +146,6 @@ void MaterialBudgetEcalHistos::fillEndTrack() {
 }
 
 void MaterialBudgetEcalHistos::endOfRun() {
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetEcalHistos: Writing histos ROOT file to:" << theFileName;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetEcalHistos: Writing histos ROOT file to:" << theFileName;
   hmgr->save(theFileName);
 }

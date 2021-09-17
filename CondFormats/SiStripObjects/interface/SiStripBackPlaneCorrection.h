@@ -6,9 +6,9 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
 // #include "CondFormats/SiStripObjects/interface/SiStripBaseObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include <cstdint>
 
 /**
  * Author: Loic Quertenmont.  THis class is adapted from SiStripLorentzAngle

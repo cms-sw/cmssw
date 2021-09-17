@@ -205,6 +205,7 @@
     <PartSelector path="//HGCalAH"/>
     <Parameter name="CMSCutsRegion" value="HGCalAHcalRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+<Parameter name="ProdCutsForProtons" value="1.0*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
     <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
   </SpecPar>

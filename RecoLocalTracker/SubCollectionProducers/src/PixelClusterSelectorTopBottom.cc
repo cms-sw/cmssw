@@ -5,9 +5,7 @@ void PixelClusterSelectorTopBottom::produce(edm::StreamID, edm::Event& event, co
   edm::Handle<SiPixelClusterCollectionNew> input;
   event.getByToken(token_, input);
 
-  edm::ESHandle<TrackerGeometry> geom;
-  setup.get<TrackerDigiGeometryRecord>().get(geom);
-  const TrackerGeometry& theTracker(*geom);
+  const TrackerGeometry& theTracker = setup.getData(tTrackerGeom_);
 
   auto output = std::make_unique<SiPixelClusterCollectionNew>();
 

@@ -5,15 +5,47 @@
 // Em 17Sep07: Cool inserts moved to DDTIDModulePosAlgo.h
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTIDRingAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTIDRingAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTIDRingAlgo();
+  ~DDTIDRingAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;         //Namespace of this & ALL subparts
+  vector<string> moduleName;  //Name of the module
+  string iccName;             //Name of the ICC
+
+  int number;              //Number of copies
+  double startAngle;       //Phi offset
+  double rModule;          //Location of module in R
+  vector<double> zModule;  //                   in Z
+  double rICC;             //Location of ICC    in R
+  double sICC;             //Shift of ICC       per to R
+  vector<double> zICC;     //                   in Z
+};
 
 DDTIDRingAlgo::DDTIDRingAlgo() { LogDebug("TIDGeom") << "DDTIDRingAlgo info: Creating an instance"; }
 
@@ -81,7 +113,7 @@ void DDTIDRingAlgo::execute(DDCompactView& cpv) {
     DDTranslation trmod(xpos, ypos, zpos);
     double phideg = phiz / CLHEP::deg;
     DDRotation rotation;
-    std::string rotstr = mother.name() + std::to_string(phideg * 10.);
+    string rotstr = mother.name() + to_string(phideg * 10.);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TIDGeom") << "DDTIDRingAlgo test: Creating a new rotation " << rotstr << "\t" << theta / CLHEP::deg
@@ -110,3 +142,5 @@ void DDTIDRingAlgo::execute(DDCompactView& cpv) {
                         << tricc << " with " << rotation;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTIDRingAlgo, "track:DDTIDRingAlgo");

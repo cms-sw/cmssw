@@ -32,8 +32,7 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  L1MuBMTFSetup* setup1;
-  const edm::ParameterSet* m_ps;
+  std::unique_ptr<L1MuBMTFSetup> setup1;
 };
 
 #endif

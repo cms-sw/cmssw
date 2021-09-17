@@ -10,13 +10,12 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
@@ -27,8 +26,7 @@
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 // Database
-#include <CondFormats/DTObjects/interface/DTTtrig.h>
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
 
 #include <sstream>
 #include <string>
@@ -36,7 +34,10 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
+DTNoiseTask::DTNoiseTask(const ParameterSet& ps)
+    : evtNumber(0),
+      muonGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTrigMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: Constructor" << endl;
 
   //switch for timeBox booking
@@ -217,10 +218,10 @@ void DTNoiseTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: Begin of run" << endl;
 
   // tTrig Map
-  setup.get<DTTtrigRcd>().get(tTrigMap);
+  tTrigMap = &setup.getData(tTrigMapToken_);
 
   // get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTNoiseTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const& setup) {

@@ -18,7 +18,7 @@ namespace root {
         adapter_ = RootFunctionAdapter<F, args>(f);
         return &fun_;
       }
-      static void addParameter(const boost::shared_ptr<double> &par) { adapter_.addParameter(par); }
+      static void addParameter(const std::shared_ptr<double> &par) { adapter_.addParameter(par); }
 
     private:
       static double fun_(const double *x, const double *par) {

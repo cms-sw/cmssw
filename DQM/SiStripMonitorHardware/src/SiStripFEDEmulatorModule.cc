@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -78,8 +78,19 @@ namespace sistrip {
 
     std::unique_ptr<SiStripRawProcessingAlgorithms> algorithms_;  //!< object for zero-suppression
 
-    //utilities for cabling etc...
-    SpyUtilities utility_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
+    edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noisesToken_;
+    const SiStripFedCabling* fedCabling_;
+    const SiStripPedestals* pedestals_;
+    const SiStripNoises* noises_;
+
+    edm::ESWatcher<SiStripFedCablingRcd> cablingWatcher_;
+    edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
+    edm::ESWatcher<SiStripNoisesRcd> noisesWatcher_;
+    void updateFedCabling(const SiStripFedCablingRcd& rcd);
+    void updatePedestals(const SiStripPedestalsRcd& rcd);
+    void updateNoises(const SiStripNoisesRcd& rcd);
   };
 
 }  // namespace sistrip
@@ -95,7 +106,14 @@ namespace sistrip {
       : spyReorderedDigisTag_(iConfig.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
         spyVirginRawDigisTag_(iConfig.getParameter<edm::InputTag>("SpyVirginRawDigisTag")),
         byModule_(iConfig.getParameter<bool>("ByModule")),
-        algorithms_(SiStripRawProcessingFactory::create(iConfig.getParameter<edm::ParameterSet>("Algorithms"))) {
+        algorithms_(SiStripRawProcessingFactory::create(iConfig.getParameter<edm::ParameterSet>("Algorithms"),
+                                                        consumesCollector())),
+        fedCablingToken_(esConsumes<>()),
+        pedestalsToken_(esConsumes<>()),
+        noisesToken_(esConsumes<>()),
+        cablingWatcher_(this, &sistrip::FEDEmulatorModule::updateFedCabling),
+        pedestalsWatcher_(this, &sistrip::FEDEmulatorModule::updatePedestals),
+        noisesWatcher_(this, &sistrip::FEDEmulatorModule::updateNoises) {
     spyReorderedDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyReorderedDigisTag_);
     spyVirginRawDigisToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(spyVirginRawDigisTag_);
 
@@ -121,12 +139,17 @@ namespace sistrip {
 
   FEDEmulatorModule::~FEDEmulatorModule() {}
 
+  void FEDEmulatorModule::updateFedCabling(const SiStripFedCablingRcd& rcd) {
+    fedCabling_ = &rcd.get(fedCablingToken_);
+  }
+  void FEDEmulatorModule::updatePedestals(const SiStripPedestalsRcd& rcd) { pedestals_ = &rcd.get(pedestalsToken_); }
+  void FEDEmulatorModule::updateNoises(const SiStripNoisesRcd& rcd) { noises_ = &rcd.get(noisesToken_); }
+
   // ------------ method called to for each event  ------------
   void FEDEmulatorModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    //update cabling and pedestals
-    const SiStripFedCabling* lCabling = utility_.getCabling(iSetup);
-    edm::ESHandle<SiStripPedestals> lPedsHandle = utility_.getPedestalHandle(iSetup);
-    edm::ESHandle<SiStripNoises> lNoiseHandle = utility_.getNoiseHandle(iSetup);
+    cablingWatcher_.check(iSetup);
+    pedestalsWatcher_.check(iSetup);
+    noisesWatcher_.check(iSetup);
 
     //initialise the algorithms object for the zero suppression
     algorithms_->initialize(iSetup);
@@ -201,7 +224,7 @@ namespace sistrip {
         uint16_t lFedChannel = 0;
         sistrip::SpyUtilities::fedIndex(lDetId, lFedId, lFedChannel);
 
-        const FedChannelConnection& lConnection = lCabling->fedConnection(lFedId, lFedChannel);
+        const FedChannelConnection& lConnection = fedCabling_->fedConnection(lFedId, lFedChannel);
         lDetId = lConnection.detId();
         lNPairs = lConnection.nApvPairs();
         lPair = lConnection.apvPairNumber();
@@ -211,8 +234,8 @@ namespace sistrip {
 
       //get the pedestal values
       //stored by module in the database
-      fedEmulator_.retrievePedestals(lPedsHandle);
-      fedEmulator_.retrieveNoises(lNoiseHandle);
+      fedEmulator_.retrievePedestals(pedestals_);  // FIXME maybe move into FEDEmulator then?
+      fedEmulator_.retrieveNoises(noises_);
 
       //last option: fill medians from these ped subtr data
       //if want something else, need to call a method to fill

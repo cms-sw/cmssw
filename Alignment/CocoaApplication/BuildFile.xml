@@ -1,0 +1,7 @@
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="dd4hep"/>
+<use   name="Alignment/CocoaFit"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="DetectorDescription/DDCMS"/>
+<flags   EDM_PLUGIN="1"/>

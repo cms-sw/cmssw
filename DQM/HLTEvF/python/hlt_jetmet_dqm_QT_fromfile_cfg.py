@@ -18,7 +18,6 @@ from DQM.HLTEvF.HLTMonJetMET_E28_cfi import *
 process.load("DQMServices.Core.DQM_cfg")
 
 ### include your reference file
-###process.DQMStore.referenceFileName = 'ref.root'
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -61,7 +60,8 @@ process.source = cms.Source("PoolSource",
 ###                                   )
 
 ### run the quality tests as defined in QualityTests.xml
-#@#process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+#@#process.qTester = DQMQualityTester(
 #@#    qtList = cms.untracked.FileInPath('DQM/HLTEvF/python/JetMETQualityTests.xml'),
 #@#    prescaleFactor = cms.untracked.int32(1),                               
 #@#    testInEventloop = cms.untracked.bool(True),

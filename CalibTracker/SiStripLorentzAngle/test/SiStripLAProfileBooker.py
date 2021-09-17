@@ -55,9 +55,9 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('sistripLAProfile')
-process.MessageLogger.destinations = cms.untracked.vstring('LAProfileDebug')
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.LAProfileDebug =  cms.untracked.PSet(
+process.MessageLogger.files.LAProfileDebug =  cms.untracked.PSet(
       threshold = cms.untracked.string('DEBUG'),
       noLineBreaks = cms.untracked.bool(False),
       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))

@@ -41,6 +41,8 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   const std::map<AlignmentPI::partitions, std::pair<AlignmentPI::regions, AlignmentPI::regions> > partLimits = {
       {AlignmentPI::BPix, std::make_pair(AlignmentPI::BPixL1o, AlignmentPI::BPixL4i)},
       {AlignmentPI::FPix, std::make_pair(AlignmentPI::FPixmL1, AlignmentPI::FPixpL3)},
@@ -55,20 +57,19 @@ namespace {
 
   // inherit from one of the predefined plot class: Histogram1D
   template <AlignmentPI::index i>
-  class TrackerAlignmentErrorExtendedValue : public cond::payloadInspector::Histogram1D<AlignmentErrorsExtended> {
+  class TrackerAlignmentErrorExtendedValue : public Histogram1D<AlignmentErrorsExtended, SINGLE_IOV> {
   public:
     TrackerAlignmentErrorExtendedValue()
-        : cond::payloadInspector::Histogram1D<AlignmentErrorsExtended>(
+        : Histogram1D<AlignmentErrorsExtended, SINGLE_IOV>(
               "TrackerAlignmentErrorExtendedValue",
               "TrackerAlignmentErrorExtendedValue sqrt(d_{" + getStringFromIndex(i) + "})",
               500,
               0.0,
-              500.0) {
-      Base::setSingleIov(true);
-    }
+              500.0) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<AlignmentErrorsExtended> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
@@ -107,16 +108,15 @@ namespace {
   // *************************************************/
 
   template <AlignmentPI::index i>
-  class TrackerAlignmentErrorExtendedSummary : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  class TrackerAlignmentErrorExtendedSummary : public PlotImage<AlignmentErrorsExtended, SINGLE_IOV> {
   public:
     TrackerAlignmentErrorExtendedSummary()
-        : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>("Summary per Tracker Partition of sqrt(d_{" +
-                                                                     getStringFromIndex(i) + "}) of APE matrix") {
-      setSingleIov(true);
-    }
+        : PlotImage<AlignmentErrorsExtended, SINGLE_IOV>("Summary per Tracker Partition of sqrt(d_{" +
+                                                         getStringFromIndex(i) + "}) of APE matrix") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload(std::get<1>(iov));
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
 
@@ -194,7 +194,7 @@ namespace {
             }
             break;
           default:
-            std::cout << "will do nothing" << std::endl;
+            COUT << "will do nothing" << std::endl;
             break;
         }
       }
@@ -242,21 +242,20 @@ namespace {
   //   TrackerMap of sqrt(d_ii) of 1 IOV
   // *************************************************/
   template <AlignmentPI::index i>
-  class TrackerAlignmentErrorExtendedTrackerMap : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  class TrackerAlignmentErrorExtendedTrackerMap : public PlotImage<AlignmentErrorsExtended, SINGLE_IOV> {
   public:
     TrackerAlignmentErrorExtendedTrackerMap()
-        : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>("Tracker Map of sqrt(d_{" + getStringFromIndex(i) +
-                                                                     "}) of APE matrix") {
-      setSingleIov(true);
-    }
+        : PlotImage<AlignmentErrorsExtended, SINGLE_IOV>("Tracker Map of sqrt(d_{" + getStringFromIndex(i) +
+                                                         "}) of APE matrix") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload(std::get<1>(iov));
 
       std::string titleMap = "APE #sqrt{d_{" + getStringFromIndex(i) + "}} value (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dii"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("APE_dii");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -324,18 +323,16 @@ namespace {
   //  Partition details of 1 IOV
   // *************************************************/
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentErrorExtendedDetail : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  class TrackerAlignmentErrorExtendedDetail : public PlotImage<AlignmentErrorsExtended, SINGLE_IOV> {
   public:
     TrackerAlignmentErrorExtendedDetail()
-        : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>("Details for " +
-                                                                     AlignmentPI::getStringFromPart(q)) {
-      setSingleIov(true);
-    }
+        : PlotImage<AlignmentErrorsExtended, SINGLE_IOV>("Details for " + AlignmentPI::getStringFromPart(q)) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+
       gStyle->SetPaintTextFormat(".1f");
-
-      auto iov = iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
@@ -375,7 +372,7 @@ namespace {
             0,
             range);
 
-        //std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
+        //COUT<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
         for (int j = begin; j <= end; j++) {
           AlignmentPI::regions part = (AlignmentPI::regions)j;
@@ -505,30 +502,36 @@ namespace {
   //  Tracker Aligment Extended Errors grand summary comparison of 2 IOVs
   // *************************************************/
 
-  template <AlignmentPI::index i>
-  class TrackerAlignmentErrorExtendedComparator : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  template <AlignmentPI::index i, int ntags, IOVMultiplicity nIOVs>
+  class TrackerAlignmentErrorExtendedComparatorBase : public PlotImage<AlignmentErrorsExtended, nIOVs, ntags> {
   public:
-    TrackerAlignmentErrorExtendedComparator()
-        : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>("Summary per Tracker region of sqrt(d_{" +
-                                                                     getStringFromIndex(i) + "}) of APE matrix") {
-      setSingleIov(false);
-    }
+    TrackerAlignmentErrorExtendedComparatorBase()
+        : PlotImage<AlignmentErrorsExtended, nIOVs, ntags>("Summary per Tracker region of sqrt(d_{" +
+                                                           getStringFromIndex(i) + "}) of APE matrix") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
       gStyle->SetPaintTextFormat(".1f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
-
-      std::shared_ptr<AlignmentErrorsExtended> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<AlignmentErrorsExtended> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<AlignmentErrorsExtended> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<AlignmentErrorsExtended> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::vector<AlignTransformErrorExtended> f_alignErrors = first_payload->m_alignError;
       std::vector<AlignTransformErrorExtended> l_alignErrors = last_payload->m_alignError;
@@ -730,13 +733,19 @@ namespace {
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
 
     }  // ends fill method
   };
+
+  template <AlignmentPI::index i>
+  using TrackerAlignmentErrorExtendedComparator = TrackerAlignmentErrorExtendedComparatorBase<i, 1, MULTI_IOV>;
+
+  template <AlignmentPI::index i>
+  using TrackerAlignmentErrorExtendedComparatorTwoTags = TrackerAlignmentErrorExtendedComparatorBase<i, 2, SINGLE_IOV>;
 
   // diagonal elements
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXComparator;
@@ -747,6 +756,22 @@ namespace {
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYComparator;
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZComparator;
   typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZComparator;
+
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XX>
+      TrackerAlignmentErrorExtendedXXComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::YY>
+      TrackerAlignmentErrorExtendedYYComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::ZZ>
+      TrackerAlignmentErrorExtendedZZComparatorTwoTags;
+
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XY>
+      TrackerAlignmentErrorExtendedXYComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::XZ>
+      TrackerAlignmentErrorExtendedXZComparatorTwoTags;
+  typedef TrackerAlignmentErrorExtendedComparatorTwoTags<AlignmentPI::YZ>
+      TrackerAlignmentErrorExtendedYZComparatorTwoTags;
 
 }  // namespace
 
@@ -782,4 +807,10 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYComparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZComparator);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZComparatorTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZComparatorTwoTags);
 }

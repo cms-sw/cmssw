@@ -19,7 +19,6 @@ process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Removing other DQM modules form the DQMOffline_SecondStep_PreDPG
-process.DQMOffline_SecondStep_PreDPG.remove(process.dqmDcsInfoClient)
 process.DQMOffline_SecondStep_PreDPG.remove(process.ecal_dqm_client_offline)
 process.DQMOffline_SecondStep_PreDPG.remove(process.hcalOfflineDQMClient)
 process.DQMOffline_SecondStep_PreDPG.remove(process.SiStripOfflineDQMClient)

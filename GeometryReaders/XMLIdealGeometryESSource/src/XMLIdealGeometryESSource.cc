@@ -1,5 +1,7 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
+
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -9,10 +11,10 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -22,6 +24,8 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet &p)
     : rootNodeName_(p.getParameter<std::string>("rootNodeName")),
       userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
       geoConfig_(p) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
+
   if (rootNodeName_.empty() || rootNodeName_ == "\\") {
     throw cms::Exception("DDException") << "XMLIdealGeometryESSource must have a root node name.";
   }

@@ -5,7 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -555,7 +554,8 @@ struct RecoMuonValidator::CommonME {
 //
 RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
     : selector_(pset.getParameter<std::string>("selection")) {
-  //  pset=ps;
+  // dump cfg parameters
+  edm::LogVerbatim("RecoMuonValidator") << "constructing RecoMuonValidator: " << pset.dump();
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
@@ -626,8 +626,13 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
 
   // Labels for simulation and reconstruction tracks
   simLabel_ = pset.getParameter<InputTag>("simLabel");
+  tpRefVector = pset.getParameter<bool>("tpRefVector");
+  if (tpRefVector)
+    tpRefVectorToken_ = consumes<TrackingParticleRefVector>(simLabel_);
+  else
+    simToken_ = consumes<TrackingParticleCollection>(simLabel_);
+
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
-  simToken_ = consumes<TrackingParticleCollection>(simLabel_);
   muonToken_ = consumes<edm::View<reco::Muon> >(muonLabel_);
 
   // Labels for sim-reco association
@@ -672,7 +677,6 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset)
 
   // the service parameters
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
-  theMuonService = new MuonServiceProxy(serviceParameters);
 
   // retrieve the instance of DQMService
   dbe_ = Service<DQMStore>().operator->();
@@ -793,24 +797,18 @@ void RecoMuonValidator::bookHistograms(DQMStore::IBooker& ibooker,
 //
 //Destructor
 //
-RecoMuonValidator::~RecoMuonValidator() {
-  if (theMuonService)
-    delete theMuonService;
-}
+RecoMuonValidator::~RecoMuonValidator() {}
 
 //
 //Begin run
 //
 
-void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {
-  if (theMuonService)
-    theMuonService->update(eventSetup);
-}
+void RecoMuonValidator::dqmBeginRun(const edm::Run&, const EventSetup& eventSetup) {}
 
 //
 //End run
 //
-void RecoMuonValidator::endRun(edm::Run const&, edm::EventSetup const&) {
+void RecoMuonValidator::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
   if (dbe_ && !outputFileName_.empty())
     dbe_->save(outputFileName_);
 }
@@ -847,9 +845,23 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   const reco::Vertex thePrimaryVertex(posVtx, errVtx);
 
   // Get TrackingParticles
+  TrackingParticleRefVector TPrefV;
+  const TrackingParticleRefVector* ptr_TPrefV = nullptr;
   Handle<TrackingParticleCollection> simHandle;
-  event.getByToken(simToken_, simHandle);
-  const TrackingParticleCollection simColl = *(simHandle.product());
+  Handle<TrackingParticleRefVector> TPCollectionRefVector_H;
+
+  if (tpRefVector) {
+    event.getByToken(tpRefVectorToken_, TPCollectionRefVector_H);
+    ptr_TPrefV = TPCollectionRefVector_H.product();
+    TPrefV = *ptr_TPrefV;
+  } else {
+    event.getByToken(simToken_, simHandle);
+    size_t nTP = simHandle->size();
+    for (size_t i = 0; i < nTP; ++i) {
+      TPrefV.push_back(TrackingParticleRef(simHandle, i));
+    }
+    ptr_TPrefV = &TPrefV;
+  }
 
   // Get Muons
   Handle<edm::View<Muon> > muonHandle;
@@ -863,16 +875,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     assoByHits = associatorBase.product();
   }
 
-  const TrackingParticleCollection::size_type nSim = simColl.size();
+  const size_t nSim = ptr_TPrefV->size();
 
   edm::RefToBaseVector<reco::Muon> Muons;
   for (size_t i = 0; i < muonHandle->size(); ++i) {
     Muons.push_back(muonHandle->refAt(i));
-  }
-
-  edm::RefVector<TrackingParticleCollection> allTPs;
-  for (size_t i = 0; i < nSim; ++i) {
-    allTPs.push_back(TrackingParticleRef(simHandle, i));
   }
 
   muonME_->hNSim_->Fill(nSim);
@@ -882,7 +889,12 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   reco::SimToMuonCollection simToMuonColl;
 
   if (doAssoc_) {
-    assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs);
+    edm::LogVerbatim("RecoMuonValidator")
+        << "\n >>> MuonToSim association : " << muAssocLabel_ << " <<< \n"
+        << "     muon collection : " << muonLabel_ << " (size = " << muonHandle->size() << ") \n"
+        << "     TrackingParticle collection : " << simLabel_ << " (size = " << nSim << ")";
+
+    assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, TPrefV);
   } else {
     /*
     // SimToMuon associations
@@ -1026,8 +1038,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   }  //end of reco muon loop
 
   // Associate by hits
-  for (TrackingParticleCollection::size_type i = 0; i < nSim; i++) {
-    TrackingParticleRef simRef(simHandle, i);
+  for (size_t i = 0; i < nSim; i++) {
+    TrackingParticleRef simRef = TPrefV[i];
     const TrackingParticle* simTP = simRef.get();
     if (!tpSelector_(*simTP))
       continue;
@@ -1103,4 +1115,3 @@ int RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
   }
   return count;
 }
-/* vim:set ts=2 sts=2 sw=2 expandtab: */

@@ -26,9 +26,10 @@ pfcandidateClustered = cms.EDProducer(
     )
 )
 
-pfcandidateForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
-    src  = cms.InputTag("packedPFCandidates"),
-    veto = cms.InputTag("pfcandidateClustered"),
+import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
+pfcandidateForUnclusteredUnc = _mod.candPtrProjector.clone(
+    src  = "packedPFCandidates",
+    veto = "pfcandidateClustered",
 )
 
 

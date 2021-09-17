@@ -38,7 +38,6 @@ Implementation:
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -65,8 +64,6 @@ private:
   void FillHistoHFCompare(const LUMI_SECTION &);
   void FillReportSummary();
   void FillEventInfo(const LUMI_SECTION &, const edm::Event &e);
-
-  void ResetAll();
 
   void EndRun();
 
@@ -235,8 +232,6 @@ private:
   unsigned int set2BelowIndex;
   unsigned int set2BetweenIndex;
   unsigned int set2AboveIndex;
-
-  bool ResetAtNewRun;
 
   std::string eventInfoFolderHLX_;
   std::string eventInfoFolder_;

@@ -1,13 +1,14 @@
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/Records"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
 <bin file="HcalShapeIntegrator.cpp"/>
 <library name="MapTester" file="MapTester.cc">
-    <flags EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin   name="testHcalPulseContainmentTest" file="TestDriver.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash CalibCalorimetry/HcalAlgos/test HcalPulseContainmentTest.sh"/>
-  <use   name="FWCore/Utilities"/>
+
+<bin name="testHcalPulseContainmentTest" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash CalibCalorimetry/HcalAlgos/test HcalPulseContainmentTest.sh"/>
+  <use name="FWCore/Utilities"/>
 </bin>

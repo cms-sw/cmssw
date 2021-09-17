@@ -44,10 +44,10 @@ public:
 
   void doUpdate(Long_t);
 
-private:
   FWLongParameterSetter(const FWLongParameterSetter&) = delete;                   // stop default
   const FWLongParameterSetter& operator=(const FWLongParameterSetter&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   FWLongParameter* m_param;

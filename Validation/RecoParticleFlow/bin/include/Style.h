@@ -4,7 +4,7 @@
 #include "TStyle.h"
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
-TStyle genStyle() {
+inline TStyle genStyle() {
   TStyle myStyle("myStyle", "Style similar to P-TDR");
 
   // For the canvas:

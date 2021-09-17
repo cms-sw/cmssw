@@ -33,21 +33,22 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     1d histogram of SiStripBackPlaneCorrection of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripBackPlaneCorrectionValue : public cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection> {
+  class SiStripBackPlaneCorrectionValue : public Histogram1D<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrectionValue()
-        : cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection>(
-              "SiStrip BackPlaneCorrection values", "SiStrip BackPlaneCorrection values", 100, 0.0, 0.1) {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripBackPlaneCorrection, SINGLE_IOV>(
+              "SiStrip BackPlaneCorrection values", "SiStrip BackPlaneCorrection values", 100, 0.0, 0.1) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      for (auto const &iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const &iov : tag.iovs) {
         std::shared_ptr<SiStripBackPlaneCorrection> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           std::map<uint32_t, float> BPMap_ = payload->getBackPlaneCorrections();
@@ -64,18 +65,17 @@ namespace {
   /************************************************
     TrackerMap of SiStrip BackPlane Correction
   *************************************************/
-  class SiStripBackPlaneCorrection_TrackerMap : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
+  class SiStripBackPlaneCorrection_TrackerMap : public PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrection_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>("Tracker Map SiStrip Backplane correction") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV>("Tracker Map SiStrip Backplane correction") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBackPlaneCorrection> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBackPlaneCorrection"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBackPlaneCorrection");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of SiStrip BP correction per module, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -105,17 +105,16 @@ namespace {
     Plot SiStrip BackPlane Correction averages by partition 
   *************************************************/
 
-  class SiStripBackPlaneCorrectionByRegion : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
+  class SiStripBackPlaneCorrectionByRegion : public PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV> {
   public:
     SiStripBackPlaneCorrectionByRegion()
-        : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>("SiStripBackPlaneCorrection By Region"),
+        : PlotImage<SiStripBackPlaneCorrection, SINGLE_IOV>("SiStripBackPlaneCorrection By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBackPlaneCorrection> payload = fetchPayload(std::get<1>(iov));
 
       SiStripDetSummary summaryBP{&m_trackerTopo};
@@ -131,12 +130,12 @@ namespace {
 
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("byRegion",
-                   "SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",
-                   map.size(),
-                   0.,
-                   map.size()));
+      auto h1 = std::make_unique<TH1F>(
+          "byRegion",
+          "SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",
+          map.size(),
+          0.,
+          map.size());
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);

@@ -14,6 +14,7 @@
 
 #include "DQM/DTMonitorClient/src/DTLocalTriggerBaseTest.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
+#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 
 class DTTrigGeomUtils;
 
@@ -62,7 +63,8 @@ private:
   int nBXHigh;
   int minEntries;
   bool writeDB;
-  DTTPGParameters wPhaseMap;
+  edm::ESGetToken<DTTPGParameters, DTTPGParametersRcd> wPhaseMapToken_;
+  const DTTPGParameters *wPhaseMap;
 
   bool bookingdone;
 };

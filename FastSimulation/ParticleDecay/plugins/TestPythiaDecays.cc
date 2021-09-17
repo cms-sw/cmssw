@@ -40,6 +40,11 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 
+#if PYTHIA_VERSION_INTEGER < 8304
+typedef Pythia8::ParticleDataEntry* ParticleDataEntryPtr;
+#else
+typedef Pythia8::ParticleDataEntryPtr ParticleDataEntryPtr;
+#endif
 //
 // class declaration
 //
@@ -119,7 +124,7 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
       std::cout << "ERROR: BAD PARTICLE, pythia is not aware of pid " << pid << std::endl;
       std::exit(1);
     }
-    Pythia8::ParticleDataEntry* pd = pdt.particleDataEntryPtr(pid);
+    ParticleDataEntryPtr pd = pdt.particleDataEntryPtr(pid);
 
     // mass histograms
     double m0 = pd->m0();

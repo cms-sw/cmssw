@@ -52,8 +52,7 @@ SeedForPhotonConversionFromQuadruplets::SeedForPhotonConversionFromQuadruplets(
     : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) {
   std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
   if (comparitorName != "none") {
-    theComparitor =
-        std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create(comparitorName, SeedComparitorPSet, iC)};
+    theComparitor = SeedComparitorFactory::get()->create(comparitorName, SeedComparitorPSet, iC);
   }
 }
 

@@ -1,7 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <cstdlib>
 
 using namespace std;
@@ -10,9 +9,9 @@ using namespace std;
 //
 int SiPixelUtility::getMEList(string name, vector<string> &values) {
   values.clear();
-  string prefix_str = name.substr(0, (name.find(":")));
+  string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin(); it != values.end(); it++)
     (*it).insert(0, prefix_str);
@@ -23,9 +22,9 @@ int SiPixelUtility::getMEList(string name, vector<string> &values) {
 //
 int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &values) {
   values.clear();
-  dir_path = name.substr(0, (name.find(":")));
+  dir_path = name.substr(0, (name.find(':')));
   dir_path += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
 }
@@ -34,9 +33,9 @@ int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &val
 bool SiPixelUtility::checkME(string name, string me_name, string &full_path) {
   if (name.find(name) == string::npos)
     return false;
-  string prefix_str = name.substr(0, (name.find(":")));
+  string prefix_str = name.substr(0, (name.find(':')));
   prefix_str += "/";
-  string temp_str = name.substr(name.find(":") + 1);
+  string temp_str = name.substr(name.find(':') + 1);
   vector<string> values;
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin(); it != values.end(); it++) {
@@ -161,28 +160,6 @@ int SiPixelUtility::computeErrorCode(int status) {
       code = 3;
       break;
   }  // end switch
-
-  return code;
-}
-
-int SiPixelUtility::computeErrorCode(DQMStore *bei, string &module_path) {
-  int status = bei->getStatus(module_path);
-
-  int code = -1;
-  switch (status) {
-    case dqm::qstatus::STATUS_OK:
-      code = 0;
-      break;
-    case dqm::qstatus::INSUF_STAT:
-      code = 1;
-      break;
-    case dqm::qstatus::WARNING:
-      code = 2;
-      break;
-    case dqm::qstatus::ERROR:
-      code = 3;
-      break;
-  }  // end of switch
 
   return code;
 }

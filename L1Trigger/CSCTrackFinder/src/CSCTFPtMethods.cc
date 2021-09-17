@@ -5663,11 +5663,6 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-        v[0] = 0;
-        lpt1_1 = 1.;
-        lpt1_2 = 2.;
-        lpt2_1 = 1.;
-        lpt2_2 = 2.;
         v[0] = pt;
         lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
         v[0] = pt + dpt;
@@ -5714,8 +5709,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
         if (pt > 25) {
           dpt = 0.1;
           step = 5.;
-        }
-        if (pt <= 25) {
+        } else if (pt <= 25) {
           dpt = 0.01;
           step = 0.5;
         }
@@ -5731,11 +5725,6 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-        v[0] = 0;
-        lpt1_1 = 1.;
-        lpt1_2 = 2.;
-        lpt2_1 = 1.;
-        lpt2_2 = 2.;
         v[0] = pt;
         lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
         v[0] = pt + dpt;
@@ -5782,8 +5771,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
         if (pt > 25) {
           dpt = 0.1;
           step = 5.;
-        }
-        if (pt <= 25) {
+        } else if (pt <= 25) {
           dpt = 0.01;
           step = 0.5;
         }
@@ -6263,11 +6251,6 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-        v[0] = 0;
-        lpt1_1 = 1.;
-        lpt1_2 = 2.;
-        lpt2_1 = 1.;
-        lpt2_2 = 2.;
         v[0] = pt;
         lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
         v[0] = pt + dpt;
@@ -6314,8 +6297,7 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
         if (pt > 25) {
           dpt = 0.1;
           step = 5.;
-        }
-        if (pt <= 25) {
+        } else if (pt <= 25) {
           dpt = 0.01;
           step = 0.5;
         }
@@ -6331,11 +6313,6 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-        v[0] = 0;
-        lpt1_1 = 1.;
-        lpt1_2 = 2.;
-        lpt2_1 = 1.;
-        lpt2_2 = 2.;
         v[0] = pt;
         lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
         v[0] = pt + dpt;
@@ -6382,8 +6359,7 @@ float CSCTFPtMethods::Pt2Stn2011(int type, float eta, float dphi, int fr, int me
         if (pt > 25) {
           dpt = 0.1;
           step = 5.;
-        }
-        if (pt <= 25) {
+        } else if (pt <= 25) {
           dpt = 0.01;
           step = 0.5;
         }
@@ -6699,11 +6675,6 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-          v[0] = 0;
-          lpt1_1 = 1.;
-          lpt1_2 = 2.;
-          lpt2_1 = 1.;
-          lpt2_2 = 2.;
           v[0] = pt;
           lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
           v[0] = pt + dpt;
@@ -6750,8 +6721,7 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           if (pt > 25) {
             dpt = 0.1;
             step = 5.;
-          }
-          if (pt <= 25) {
+          } else if (pt <= 25) {
             dpt = 0.01;
             step = 0.5;
           }
@@ -6769,11 +6739,6 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-          v[0] = 0;
-          lpt1_1 = 1.;
-          lpt1_2 = 2.;
-          lpt2_1 = 1.;
-          lpt2_2 = 2.;
           v[0] = pt;
           lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
           v[0] = pt + dpt;
@@ -6821,8 +6786,7 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           if (pt > 25) {
             dpt = 0.1;
             step = 5.;
-          }
-          if (pt <= 25) {
+          } else if (pt <= 25) {
             dpt = 0.01;
             step = 0.5;
           }
@@ -7289,12 +7253,6 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-          v[0] = 0;
-          lpt1_1 = 1.;
-          lpt1_2 = 2.;
-          lpt2_1 = 1.;
-          lpt2_2 = 2.;
-          v[0] = pt;
           lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
           v[0] = pt + dpt;
           lpt1_2 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
@@ -7322,8 +7280,7 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           if (pt > 25) {
             dpt = 0.1;
             step = 5.;
-          }
-          if (pt <= 25) {
+          } else if (pt <= 25) {
             dpt = 0.01;
             step = 0.5;
           }
@@ -7341,11 +7298,6 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1, lpt1_2, lpt2_1, lpt2_2;
-          v[0] = 0;
-          lpt1_1 = 1.;
-          lpt1_2 = 2.;
-          lpt2_1 = 1.;
-          lpt2_2 = 2.;
           v[0] = pt;
           lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
           v[0] = pt + dpt;
@@ -7374,8 +7326,7 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
           if (pt > 25) {
             dpt = 0.1;
             step = 5.;
-          }
-          if (pt <= 25) {
+          } else if (pt <= 25) {
             dpt = 0.01;
             step = 0.5;
           }
@@ -7611,8 +7562,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1;
-        v[0] = 0;
-        lpt1_1 = 1.;
         v[0] = pt;
         lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
 
@@ -7621,22 +7570,17 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
           PTsolv = pt;
         }
 
-        if (pt <= 100) {
-          step = 10.0 / 4.0;
-        }
-        if (pt <= 50) {
-          step = 5.0 / 4.0;
-        }
-        if (pt <= 20) {
-          step = 2.0 / 4.0;
-        }
-        if (pt <= 10) {
-          step = 1.0 / 4.0;
-        }
         if (pt <= 5) {
           step = 0.5 / 4.0;
+        } else if (pt <= 10) {
+          step = 1.0 / 4.0;
+        } else if (pt <= 20) {
+          step = 2.0 / 4.0;
+        } else if (pt <= 50) {
+          step = 5.0 / 4.0;
+        } else if (pt <= 100) {
+          step = 10.0 / 4.0;
         }
-
         pt = pt - step;
       }  // end while
       muPlusMaxLH = maxLH;
@@ -7652,8 +7596,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1;
-        v[0] = 0;
-        lpt1_1 = 1.;
         v[0] = pt;
         lpt1_1 = Likelihood2(par_phi12, par1, par_sig1, v);
 
@@ -7677,7 +7619,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
         if (pt <= 5) {
           step = 0.5 / 4.0;
         }
-
         pt = pt - step;
       }  // end while
       muMinusMaxLH = maxLH;
@@ -8026,8 +7967,6 @@ float CSCTFPtMethods::Pt3Stn2012(
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1;
-          v[0] = 0;
-          lpt1_1 = 1.;
           v[0] = pt;
           lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
 
@@ -8036,22 +7975,17 @@ float CSCTFPtMethods::Pt3Stn2012(
             PTsolv = pt;
           }
 
-          if (pt <= 100) {
-            step = 10.0 / 4.0;
-          }
-          if (pt <= 50) {
-            step = 5.0 / 4.0;
-          }
-          if (pt <= 20) {
-            step = 2.0 / 4.0;
-          }
-          if (pt <= 10) {
-            step = 1.0 / 4.0;
-          }
           if (pt <= 5) {
             step = 0.5 / 4.0;
+          } else if (pt <= 10) {
+            step = 1.0 / 4.0;
+          } else if (pt <= 20) {
+            step = 2.0 / 4.0;
+          } else if (pt <= 50) {
+            step = 5.0 / 4.0;
+          } else if (pt <= 100) {
+            step = 10.0 / 4.0;
           }
-
           pt = pt - step;
         }  // end while
         muPlusMaxLH = maxLH;
@@ -8070,8 +8004,6 @@ float CSCTFPtMethods::Pt3Stn2012(
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1;
-          v[0] = 0;
-          lpt1_1 = 1.;
           v[0] = pt;
           lpt1_1 = Likelihood(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
 
@@ -8080,22 +8012,17 @@ float CSCTFPtMethods::Pt3Stn2012(
             PTsolvMinus = pt;
           }
 
-          if (pt <= 100) {
-            step = 10.0 / 4.0;
-          }
-          if (pt <= 50) {
-            step = 5.0 / 4.0;
-          }
-          if (pt <= 20) {
-            step = 2.0 / 4.0;
-          }
-          if (pt <= 10) {
-            step = 1.0 / 4.0;
-          }
           if (pt <= 5) {
             step = 0.5 / 4.0;
+          } else if (pt <= 10) {
+            step = 1.0 / 4.0;
+          } else if (pt <= 20) {
+            step = 2.0 / 4.0;
+          } else if (pt <= 50) {
+            step = 5.0 / 4.0;
+          } else if (pt <= 100) {
+            step = 10.0 / 4.0;
           }
-
           pt = pt - step;
         }  // end while
         muMinusMaxLH = maxLH;
@@ -8592,8 +8519,6 @@ float CSCTFPtMethods::Pt3Stn2012_DT(
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1;
-          v[0] = 0;
-          lpt1_1 = 1.;
           v[0] = pt;
           lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
 
@@ -8602,22 +8527,17 @@ float CSCTFPtMethods::Pt3Stn2012_DT(
             PTsolv = pt;
           }
 
-          if (pt <= 100) {
-            step = 10.0 / 4.0;
-          }
-          if (pt <= 50) {
-            step = 5.0 / 4.0;
-          }
-          if (pt <= 20) {
-            step = 2.0 / 4.0;
-          }
-          if (pt <= 10) {
-            step = 1.0 / 4.0;
-          }
           if (pt <= 5) {
             step = 0.5 / 4.0;
+          } else if (pt <= 10) {
+            step = 1.0 / 4.0;
+          } else if (pt <= 20) {
+            step = 2.0 / 4.0;
+          } else if (pt <= 50) {
+            step = 5.0 / 4.0;
+          } else if (pt <= 100) {
+            step = 10.0 / 4.0;
           }
-
           pt = pt - step;
         }  // end while
         muPlusMaxLH = maxLH;
@@ -8635,8 +8555,6 @@ float CSCTFPtMethods::Pt3Stn2012_DT(
           double par_phi12[1] = {dphi1};
           double par_phi23[1] = {dphi2};
           double v[1], lpt1_1;
-          v[0] = 0;
-          lpt1_1 = 1.;
           v[0] = pt;
           lpt1_1 = Likelihood2011(par_phi12, par_phi23, par1, par2, par_sig1, par_sig2, par_rho, v);
 
@@ -8645,20 +8563,16 @@ float CSCTFPtMethods::Pt3Stn2012_DT(
             PTsolvMinus = pt;
           }
 
-          if (pt <= 100) {
-            step = 10.0 / 4.0;
-          }
-          if (pt <= 50) {
-            step = 5.0 / 4.0;
-          }
-          if (pt <= 20) {
-            step = 2.0 / 4.0;
-          }
-          if (pt <= 10) {
-            step = 1.0 / 4.0;
-          }
           if (pt <= 5) {
             step = 0.5 / 4.0;
+          } else if (pt <= 10) {
+            step = 1.0 / 4.0;
+          } else if (pt <= 20) {
+            step = 2.0 / 4.0;
+          } else if (pt <= 50) {
+            step = 5.0 / 4.0;
+          } else if (pt <= 100) {
+            step = 10.0 / 4.0;
           }
           pt = pt - step;
         }  // end while
@@ -9144,8 +9058,6 @@ float CSCTFPtMethods::Pt2Stn2012_DT(
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1;
-        v[0] = 0;
-        lpt1_1 = 1.;
         v[0] = pt;
         lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
 
@@ -9154,22 +9066,17 @@ float CSCTFPtMethods::Pt2Stn2012_DT(
           PTsolv = pt;
         }
 
-        if (pt <= 100) {
-          step = 10.0 / 4.0;
-        }
-        if (pt <= 50) {
-          step = 5.0 / 4.0;
-        }
-        if (pt <= 20) {
-          step = 2.0 / 4.0;
-        }
-        if (pt <= 10) {
-          step = 1.0 / 4.0;
-        }
         if (pt <= 5) {
           step = 0.5 / 4.0;
+        } else if (pt <= 10) {
+          step = 1.0 / 4.0;
+        } else if (pt <= 20) {
+          step = 2.0 / 4.0;
+        } else if (pt <= 50) {
+          step = 5.0 / 4.0;
+        } else if (pt <= 100) {
+          step = 10.0 / 4.0;
         }
-
         pt = pt - step;
       }  // end while
       muPlusMaxLH = maxLH;
@@ -9185,8 +9092,6 @@ float CSCTFPtMethods::Pt2Stn2012_DT(
       while (pt > 2.) {
         double par_phi12[1] = {dphi};
         double v[1], lpt1_1;
-        v[0] = 0;
-        lpt1_1 = 1.;
         v[0] = pt;
         lpt1_1 = Likelihood2_2011(par_phi12, par1, par_sig1, v);
 
@@ -9195,22 +9100,17 @@ float CSCTFPtMethods::Pt2Stn2012_DT(
           PTsolvMinus = pt;
         }
 
-        if (pt <= 100) {
-          step = 10.0 / 4.0;
-        }
-        if (pt <= 50) {
-          step = 5.0 / 4.0;
-        }
-        if (pt <= 20) {
-          step = 2.0 / 4.0;
-        }
-        if (pt <= 10) {
-          step = 1.0 / 4.0;
-        }
         if (pt <= 5) {
           step = 0.5 / 4.0;
+        } else if (pt <= 10) {
+          step = 1.0 / 4.0;
+        } else if (pt <= 20) {
+          step = 2.0 / 4.0;
+        } else if (pt <= 50) {
+          step = 5.0 / 4.0;
+        } else if (pt <= 100) {
+          step = 10.0 / 4.0;
         }
-
         pt = pt - step;
       }  // end while
       muMinusMaxLH = maxLH;

@@ -286,7 +286,7 @@ namespace dqmservices {
     } else if (!found_lbracket && !found_rbracket)  // assume single trigger or wildcard (parsing)
     {
       bool ignore_if_missing = true;
-      size_t chr_pos = str_.find("@");
+      size_t chr_pos = str_.find('@');
       if (chr_pos != std::string::npos) {
         ignore_if_missing = false;
         str_ = str_.substr(0, chr_pos);
@@ -321,11 +321,11 @@ namespace dqmservices {
 
   std::string TriggerSelector::trim(std::string input) {
     if (!input.empty()) {
-      std::string::size_type pos = input.find_first_not_of(" ");
+      std::string::size_type pos = input.find_first_not_of(' ');
       if (pos != std::string::npos)
         input.erase(0, pos);
 
-      pos = input.find_last_not_of(" ");
+      pos = input.find_last_not_of(' ');
       if (pos != std::string::npos)
         input.erase(pos + 1);
     }

@@ -19,7 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm includes
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //dataFormats
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -37,7 +36,6 @@ public:
   ~BxTiming() override;
 
 protected:
-  void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 

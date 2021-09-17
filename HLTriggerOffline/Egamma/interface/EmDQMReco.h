@@ -5,7 +5,6 @@
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -20,10 +19,9 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HepMC/GenParticle.h"
 #include "TDirectory.h"
-#include <vector>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <memory>
+#include <vector>
 
 class EmDQMReco;
 
@@ -54,8 +52,8 @@ class EmDQMReco : public DQMEDAnalyzer {
   class FourVectorMonitorElements {
   public:
     /** @param histogramNameTemplate should be a format string (like used in
-     * printf(..) or boost::format(..) for the histogram NAME where the first %s
-     * is replaced with et,eta or phi.
+     * printf(..) for the histogram NAME where the first %s is replaced with 
+     * et,eta or phi.
      *
      *  @param histogramTitleTemplate should be a format string (see
      * histogramNameTemplate) for the histogram TITLE where the first %s is
@@ -162,22 +160,22 @@ private:
   //  std::vector<MonitorElement*> ethist;
   //  std::vector<MonitorElement*> phiHist;
 
-  boost::ptr_vector<FourVectorMonitorElements> standardHist;
+  std::vector<std::unique_ptr<FourVectorMonitorElements>> standardHist;
 
   //  std::vector<MonitorElement*> etahistmatchreco;
   //  std::vector<MonitorElement*> ethistmatchreco;
   //  std::vector<MonitorElement*> phiHistMatchReco;
-  boost::ptr_vector<FourVectorMonitorElements> histMatchReco;
+  std::vector<std::unique_ptr<FourVectorMonitorElements>> histMatchReco;
 
   //  std::vector<MonitorElement*> etahistmatchrecomonpath;
   //  std::vector<MonitorElement*> ethistmatchrecomonpath;
   //  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
-  boost::ptr_vector<FourVectorMonitorElements> histMatchRecoMonPath;
+  std::vector<std::unique_ptr<FourVectorMonitorElements>> histMatchRecoMonPath;
 
   //  std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
   //  std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
   //  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
-  boost::ptr_vector<FourVectorMonitorElements> histHltObjMatchToReco;
+  std::vector<std::unique_ptr<FourVectorMonitorElements>> histHltObjMatchToReco;
 
   /** @} */
 
@@ -206,17 +204,17 @@ private:
   //  MonitorElement* etreco;
   //  MonitorElement* etareco;
   //  MonitorElement* phiReco;
-  boost::scoped_ptr<FourVectorMonitorElements> histReco;
+  std::unique_ptr<FourVectorMonitorElements> histReco;
 
   //  MonitorElement* etrecomonpath;
   //  MonitorElement* etarecomonpath;
   //  MonitorElement* phiRecoMonPath;
-  boost::scoped_ptr<FourVectorMonitorElements> histRecoMonpath;
+  std::unique_ptr<FourVectorMonitorElements> histRecoMonpath;
 
   //  MonitorElement* etahistmonpath;
   //  MonitorElement* ethistmonpath;
   //  MonitorElement* phiHistMonPath;
-  boost::scoped_ptr<FourVectorMonitorElements> histMonpath;
+  std::unique_ptr<FourVectorMonitorElements> histMonpath;
   /** @} */
 
   int eventnum;

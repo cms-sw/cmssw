@@ -3,7 +3,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceLookup.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -37,7 +37,7 @@ namespace {
   // ProductsResolver which for SubProcesses could lead to a different
   // retriever. In SubProcesses, the following function follows the
   // links in the retrievers themselves. Both should give the same answer.
-  void getAncestorsFromRetriever(edm::ProductProvenanceRetriever const* retriever,
+  void getAncestorsFromRetriever(edm::ProductProvenanceLookup const* retriever,
                                  edm::BranchID const& branchID,
                                  std::set<edm::BranchID>& ancestors) {
     edm::ProductProvenance const* productProvenance = retriever->branchIDToProvenance(branchID);
@@ -110,7 +110,7 @@ namespace edmtest {
       }
     }
 
-    edm::ProductProvenanceRetriever const* retriever = prov->store();
+    auto const* retriever = prov->store();
     std::set<edm::BranchID> ancestorsFromRetriever;
     getAncestorsFromRetriever(retriever, prov->originalBranchID(), ancestorsFromRetriever);
 

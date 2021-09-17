@@ -1,7 +1,6 @@
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 //#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,144 +54,144 @@ void ElectronDqmAnalyzerBase::bookHistograms(DQMStore::IBooker &ibooker_, edm::R
   edm::LogInfo("DQMAnalyzeBase::bookHistograms") << std::endl;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
-                                                         const std::string &name,
-                                                         const std::string &title,
-                                                         int nchX,
-                                                         double lowX,
-                                                         double highX,
-                                                         const std::string &titleX,
-                                                         const std::string &titleY,
-                                                         Option_t *option) {
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
+                                                                                  const std::string &name,
+                                                                                  const std::string &title,
+                                                                                  int nchX,
+                                                                                  double lowX,
+                                                                                  double highX,
+                                                                                  const std::string &titleX,
+                                                                                  const std::string &titleY,
+                                                                                  Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (me->getTH1F()->GetSumw2N() == 0)
-    me->getTH1F()->Sumw2();
+    me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
-    me->getTH1F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                int nchY,
-                                                double lowY,
-                                                double highY,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         int nchY,
+                                                                         double lowY,
+                                                                         double highY,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
-                                                         const std::string &name,
-                                                         const std::string &title,
-                                                         int nchX,
-                                                         double lowX,
-                                                         double highX,
-                                                         int nchY,
-                                                         double lowY,
-                                                         double highY,
-                                                         const std::string &titleX,
-                                                         const std::string &titleY,
-                                                         Option_t *option) {
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
+                                                                                  const std::string &name,
+                                                                                  const std::string &title,
+                                                                                  int nchX,
+                                                                                  double lowX,
+                                                                                  double highX,
+                                                                                  int nchY,
+                                                                                  double lowY,
+                                                                                  double highY,
+                                                                                  const std::string &titleX,
+                                                                                  const std::string &titleY,
+                                                                                  Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (me->getTH2F()->GetSumw2N() == 0)
-    me->getTH2F()->Sumw2();
+    me->enableSumw2();
   if (!titleX.empty()) {
-    me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
-    me->getTH2F()->SetOption(option);
+    me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                double lowY,
-                                                double highY,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         double lowY,
+                                                                         double highY,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.bookProfile(newName(name), title, nchX, lowX, highX, lowY, highY, " ");
   if (!titleX.empty()) {
     me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->getTProfile()->SetOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }

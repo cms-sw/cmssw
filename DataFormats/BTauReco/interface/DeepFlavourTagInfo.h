@@ -6,10 +6,10 @@
 
 namespace reco {
 
-typedef  FeaturesTagInfo<btagbtvdeep::DeepFlavourFeatures> DeepFlavourTagInfo;
+  typedef FeaturesTagInfo<btagbtvdeep::DeepFlavourFeatures> DeepFlavourTagInfo;
 
-DECLARE_EDM_REFS( DeepFlavourTagInfo )
+  DECLARE_EDM_REFS(DeepFlavourTagInfo)
 
-}
+}  // namespace reco
 
-#endif // DataFormats_BTauReco_DeepFlavourTagInfo_h
+#endif  // DataFormats_BTauReco_DeepFlavourTagInfo_h

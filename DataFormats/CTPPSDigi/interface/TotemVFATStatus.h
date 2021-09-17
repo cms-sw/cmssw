@@ -1,10 +1,10 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Maciej Wróbel (wroblisko@gmail.com)
 *   Jan Kašpar (jan.kaspar@gmail.com)
-*    
+*
 ****************************************************************************/
 
 #ifndef DataFormats_CTPPSDigi_TotemVFATStatus
@@ -20,12 +20,12 @@
  */
 class TotemVFATStatus {
 public:
-  TotemVFATStatus(uint8_t _cp = 0)
-      : chipPosition(_cp), status(0), numberOfClustersSpecified(false), numberOfClusters(0), eventCounter(0) {}
+  TotemVFATStatus(uint8_t cp = 0)
+      : chipPosition_(cp), status(0), numberOfClustersSpecified(false), numberOfClusters_(0), eventCounter(0) {}
 
   /// Chip position
-  inline uint8_t getChipPosition() const { return chipPosition; }
-  inline void setChipPosition(uint8_t _cp) { chipPosition = _cp; }
+  inline uint8_t chipPosition() const { return chipPosition_; }
+  inline void setChipPosition(uint8_t cp) { chipPosition_ = cp; }
 
   /// VFAT is present in mapping but no data is present int raw event
   inline bool isMissing() const { return status[0]; }
@@ -69,27 +69,27 @@ public:
   inline bool isNumberOfClustersSpecified() const { return numberOfClustersSpecified; }
   inline void setNumberOfClustersSpecified(bool v) { numberOfClustersSpecified = v; }
 
-  inline uint8_t getNumberOfClusters() const { return numberOfClusters; }
-  inline void setNumberOfClusters(uint8_t v) { numberOfClusters = v; }
+  inline uint8_t numberOfClusters() const { return numberOfClusters_; }
+  inline void setNumberOfClusters(uint8_t v) { numberOfClusters_ = v; }
 
   bool operator<(const TotemVFATStatus& cmp) const { return (status.to_ulong() < cmp.status.to_ulong()); }
 
   friend std::ostream& operator<<(std::ostream& s, const TotemVFATStatus& st);
 
   /// event Counter
-  inline uint8_t getEC() const { return eventCounter; }
+  inline uint8_t ec() const { return eventCounter; }
   inline void setEC(const uint8_t ec) { eventCounter = ec; }
 
 private:
   /// describes placement of the VFAT within the detector
-  uint8_t chipPosition;
+  uint8_t chipPosition_;
 
   /// the status bits
   std::bitset<8> status;
 
   /// the number of hit clusters before DAQ trimming
   bool numberOfClustersSpecified;
-  uint8_t numberOfClusters;
+  uint8_t numberOfClusters_;
 
   /// event counter in the VFAT frame
   uint8_t eventCounter;

@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TCanvas.h"
@@ -88,8 +87,8 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
   MonitorElement *me_mean;
   MonitorElement *me_sigma;
 
-  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) || (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
-      (me->kind() == MonitorElement::DQM_KIND_TH2D)) {
+  if ((me->kind() == MonitorElement::Kind::TH2F) || (me->kind() == MonitorElement::Kind::TH2S) ||
+      (me->kind() == MonitorElement::Kind::TH2D)) {
     TH2 *th = me->getTH2F();
     // size_t nbinx = me->getNbinsX();
     size_t nbinx = PtBins_.size() - 1;
@@ -168,7 +167,6 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
       me_mean->setBinContent(ix, mean);
       me_sigma->setBinContent(ix, sigma);
     }
-    // if (me_slice) igetter.removeElement(me_slice->getName());
     delete[] xbins;
   }
 }
@@ -185,7 +183,7 @@ void PFClient_JetRes::getHistogramParameters(
 
   if (!me_slice)
     return;
-  if (me_slice->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me_slice->kind() == MonitorElement::Kind::TH1F) {
     average = me_slice->getMean();
     rms = me_slice->getRMS();
     TH1F *th_slice = me_slice->getTH1F();
@@ -211,7 +209,7 @@ void PFClient_JetRes::createEfficiencyPlots(DQMStore::IBooker &ibooker,
   if (!me1 || !me2)
     return;
   MonitorElement *me_eff;
-  if ((me1->kind() == MonitorElement::DQM_KIND_TH1F) && (me1->kind() == MonitorElement::DQM_KIND_TH1F)) {
+  if ((me1->kind() == MonitorElement::Kind::TH1F) && (me1->kind() == MonitorElement::Kind::TH1F)) {
     TH1 *th1 = me1->getTH1F();
     size_t nbinx = me1->getNbinsX();
 

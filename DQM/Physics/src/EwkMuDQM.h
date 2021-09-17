@@ -14,6 +14,7 @@
 // #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
   class Muon;
@@ -24,9 +25,6 @@ namespace reco {
   class BeamSpot;
 }  // namespace reco
 
-class DQMStore;
-class MonitorElement;
-
 class EwkMuDQM : public DQMEDAnalyzer {
 public:
   EwkMuDQM(const edm::ParameterSet&);
@@ -36,7 +34,6 @@ protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
 

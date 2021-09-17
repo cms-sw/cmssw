@@ -3,7 +3,6 @@
 #include <map>
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,6 +18,9 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace {
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   struct MEbinning {
     int nbins;
     double xmin;
@@ -26,7 +28,7 @@ namespace {
   };
 
   struct Histograms {
-    ConcurrentMonitorElement psColumnIndexVsLS;
+    dqm::reco::MonitorElement* psColumnIndexVsLS;
   };
 }  // namespace
 
@@ -42,7 +44,7 @@ public:
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset, int value);
 
 protected:
-  void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
   void dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const&) const override;
 
 private:
@@ -77,7 +79,7 @@ void PSMonitor::getHistoPSet(edm::ParameterSet& pset, MEbinning& mebinning) {
   mebinning.xmax = double(pset.getParameter<int32_t>("nbins"));
 }
 
-void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
+void PSMonitor::bookHistograms(DQMStore::IBooker& booker,
                                edm::Run const& run,
                                edm::EventSetup const& setup,
                                Histograms& histograms) const {
@@ -104,14 +106,15 @@ void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
 
   histname = "psColumnIndexVsLS";
   histtitle = "PS column index vs LS";
-  histograms.psColumnIndexVsLS =
+  auto me =
       booker.book2D(histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, nbins, xmin, xmax);
-  histograms.psColumnIndexVsLS.setAxisTitle("LS", 1);
-  histograms.psColumnIndexVsLS.setAxisTitle("PS column index", 2);
+  me->setAxisTitle("LS", 1);
+  me->setAxisTitle("PS column index", 2);
+  histograms.psColumnIndexVsLS = me;
 
   int bin = 1;
   for (auto const& l : labels) {
-    histograms.psColumnIndexVsLS.setBinLabel(bin, l, 2);
+    histograms.psColumnIndexVsLS->setBinLabel(bin, l, 2);
     bin++;
   }
 }
@@ -125,7 +128,7 @@ void PSMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup
   if (ugtBXhandle.isValid() and not ugtBXhandle->isEmpty(0)) {
     psColumn = ugtBXhandle->at(0, 0).getPreScColumn();
   }
-  histograms.psColumnIndexVsLS.fill(ls, psColumn);
+  histograms.psColumnIndexVsLS->Fill(ls, psColumn);
 }
 
 void PSMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset, int value) {

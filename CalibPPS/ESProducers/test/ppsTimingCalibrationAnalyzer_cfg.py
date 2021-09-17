@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('test')
 
 # minimum logging
-process.MessageLogger = cms.Service('MessageLogger',
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cout'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('INFO')
     )
 )

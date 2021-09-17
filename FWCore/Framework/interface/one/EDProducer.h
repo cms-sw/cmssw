@@ -37,18 +37,32 @@ namespace edm {
                     "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
 
       EDProducer() = default;
+      EDProducer(const EDProducer&) = delete;
+      const EDProducer& operator=(const EDProducer&) = delete;
+
 #ifdef __INTEL_COMPILER
       virtual ~EDProducer() = default;
 #endif
       //
 
       // ---------- const member functions ---------------------
+      bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
+      bool wantsInputProcessBlocks() const final { return WantsInputProcessBlockTransitions<T...>::value; }
       bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
       bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
 
-      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
+      bool hasAbilityToProduceInBeginProcessBlocks() const final {
+        return HasAbilityToProduceInBeginProcessBlocks<T...>::value;
+      }
+      bool hasAbilityToProduceInEndProcessBlocks() const final {
+        return HasAbilityToProduceInEndProcessBlocks<T...>::value;
+      }
 
-      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
+      bool hasAbilityToProduceInBeginRuns() const final { return HasAbilityToProduceInBeginRuns<T...>::value; }
+      bool hasAbilityToProduceInEndRuns() const final { return HasAbilityToProduceInEndRuns<T...>::value; }
+
+      bool hasAbilityToProduceInBeginLumis() const final { return HasAbilityToProduceInBeginLumis<T...>::value; }
+      bool hasAbilityToProduceInEndLumis() const final { return HasAbilityToProduceInEndLumis<T...>::value; }
 
       SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue(); }
       SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue(); }
@@ -58,9 +72,6 @@ namespace edm {
       // ---------- member functions ---------------------------
 
     private:
-      EDProducer(const EDProducer&) = delete;
-      const EDProducer& operator=(const EDProducer&) = delete;
-
       // ---------- member data --------------------------------
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value>

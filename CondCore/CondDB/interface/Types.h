@@ -13,7 +13,7 @@
 //
 
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/functional/hash.hpp>
+#include <functional>
 //
 #include "CondCore/CondDB/interface/Time.h"
 
@@ -58,7 +58,7 @@ namespace cond {
   struct Tag_t {
     virtual ~Tag_t() = default;
     virtual void clear();
-    std::string tag;
+    std::string name;
     std::string payloadType;
     TimeType timeType;
     SynchronizationType synchronizationType;
@@ -68,16 +68,12 @@ namespace cond {
 
   struct TagInfo_t {
     // FIX ME: to be simplyfied, currently keeping the same interface as CondCore/DBCommon/interface/TagInfo.h
-    TagInfo_t() : name(""), token(""), lastInterval(0, 0), lastPayloadToken(""), size(0) {}
+    TagInfo_t() : name(""), lastInterval() {}
     std::string name;
-    std::string token;
-    cond::ValidityInterval lastInterval;
-    std::string lastPayloadToken;
-    size_t size;
+    Iov_t lastInterval;
+    size_t size = 0;
+    bool isEmpty() const { return lastInterval.since != time::MAX_VAL; }
   };
-
-  // temporarely, to minimize changes in the clients code
-  typedef TagInfo_t TagInfo;
 
   struct TagMetadata_t {
     SynchronizationType synchronizationType;
@@ -127,7 +123,7 @@ namespace cond {
     std::size_t hashvalue() const {
       // Derived from CondDB v1 TagMetadata implementation.
       // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
-      boost::hash<std::string> hasher;
+      std::hash<std::string> hasher;
       std::string key = recordName();
       if (!recordLabel().empty())
         key = key + "_" + recordLabel();
@@ -141,8 +137,15 @@ namespace cond {
   };
 
   struct RunInfo_t {
+    RunInfo_t() : run(0), start(), end() {}
     RunInfo_t(const std::tuple<long long unsigned int, boost::posix_time::ptime, boost::posix_time::ptime>& data)
         : run(std::get<0>(data)), start(std::get<1>(data)), end(std::get<2>(data)) {}
+    bool isOnGoing() {
+      if (run == 0)
+        return false;
+      auto now = boost::posix_time::second_clock::universal_time();
+      return (start < now) && (end == start);
+    }
     Time_t run;
     boost::posix_time::ptime start;
     boost::posix_time::ptime end;

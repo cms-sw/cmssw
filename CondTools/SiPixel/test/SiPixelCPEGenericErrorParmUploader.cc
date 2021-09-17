@@ -19,7 +19,7 @@ void SiPixelCPEGenericErrorParmUploader::analyze(const edm::Event& iEvent, const
 void SiPixelCPEGenericErrorParmUploader::endJob() {
   //--- Make the POOL-ORA thingy to store the vector of error structs (DbEntry)
   SiPixelCPEGenericErrorParm* obj = new SiPixelCPEGenericErrorParm;
-  obj->fillCPEGenericErrorParm(theVersion, (theFileName.fullPath()).c_str());
+  obj->fillCPEGenericErrorParm(theVersion, theFileName.fullPath());
   //	std::cout << *obj << std::endl;
 
   //--- Create a new IOV

@@ -18,24 +18,19 @@ namespace edm {
   // ----------------------------------------------------------------------
 
   bool ELextendedID::operator<(const ELextendedID& xid) const {
-    return (severity < xid.severity)
-               ? true
-               : (severity > xid.severity)
-                     ? false
+    return (severity < xid.severity)   ? true
+           : (severity > xid.severity) ? false
 
-                     : (id < xid.id)
-                           ? true
-                           : (id > xid.id) ? false
+           : (id < xid.id) ? true
+           : (id > xid.id) ? false
 
-                                           : (module < xid.module)
-                                                 ? true
-                                                 : (module > xid.module) ? false
+           : (module < xid.module) ? true
+           : (module > xid.module) ? false
 
-                                                                         : (subroutine < xid.subroutine)
-                                                                               ? true
-                                                                               : (subroutine > xid.subroutine) ? false
+           : (subroutine < xid.subroutine) ? true
+           : (subroutine > xid.subroutine) ? false
 
-                                                                                                               : false;
+                                           : false;
 
   }  // ELextendedID::operator<()
 
@@ -45,7 +40,7 @@ namespace edm {
 
   void ELextendedID::clear() {
     id = "";
-    severity = ELunspecified;
+    severity = messagelogger::ELunspecified;
     module = "";
     subroutine = "";
 

@@ -10,6 +10,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
 
 class EcalTrigTowerConstituentsMap;
 
@@ -23,7 +25,7 @@ namespace ecaldqm {
     void addDependencies(DependencySet&) override;
 
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
 
     bool analyze(void const*, Collections) override;
 
@@ -33,6 +35,7 @@ namespace ecaldqm {
     void runOnSrFlags(SRFlagCollection const&, Collections);
     template <typename DigiCollection>
     void runOnDigis(DigiCollection const&, Collections);
+    void setTokens(edm::ConsumesCollector&) override;
 
     enum Constants {
       nFIRTaps = 6,
@@ -51,6 +54,7 @@ namespace ecaldqm {
 
     std::set<std::pair<int, int> > suppressed_;
     std::vector<short> flags_;
+    edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSr;
   };
 
   inline bool SelectiveReadoutTask::analyze(void const* _p, Collections _collection) {

@@ -12,7 +12,7 @@
 
 // system include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
@@ -75,7 +75,7 @@ void FWViewManagerManager::registerEventItem(const FWEventItem* iItem) {
     return;
   }
   m_typeToItems[iItem->name()] = iItem;
-  iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem, this, _1));
+  iItem->goingToBeDestroyed_.connect(std::bind(&FWViewManagerManager::removeEventItem, this, std::placeholders::_1));
 
   //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
   for (std::vector<std::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();

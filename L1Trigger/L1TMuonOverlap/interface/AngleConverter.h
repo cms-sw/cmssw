@@ -1,21 +1,20 @@
 #ifndef ANGLECONVERTER_H
 #define ANGLECONVERTER_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include <memory>
 
-namespace edm {
-  class EventSetup;
-}
-
-class RPCGeometry;
-class CSCGeometry;
 class CSCLayer;
-class DTGeometry;
 
 class L1MuDTChambPhDigi;
 class L1MuDTChambThContainer;
@@ -26,7 +25,7 @@ class RPCDetId;
 
 class AngleConverter {
 public:
-  AngleConverter();
+  AngleConverter(edm::ConsumesCollector &, bool getDuringEvent = true);
   ~AngleConverter();
 
   ///Update the Geometry with current Event Setup
@@ -62,11 +61,15 @@ private:
   ///Find BTI group
   const int findBTIgroup(const L1MuDTChambPhDigi &aDigi, const L1MuDTChambThContainer *dtThDigis);
 
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
+
   // pointers to the current geometry records
   unsigned long long _geom_cache_id;
-  edm::ESHandle<RPCGeometry> _georpc;
-  edm::ESHandle<CSCGeometry> _geocsc;
-  edm::ESHandle<DTGeometry> _geodt;
+  RPCGeometry const *_georpc;
+  CSCGeometry const *_geocsc;
+  DTGeometry const *_geodt;
 
   ///Number of phi bins along 2Pi.
   unsigned int nPhiBins;

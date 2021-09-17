@@ -1,9 +1,9 @@
-#include "CommonTools/Utils/src/MethodInvoker.h"
+#include "CommonTools/Utils/interface/MethodInvoker.h"
 
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/src/MethodSetter.h"
+#include "CommonTools/Utils/interface/MethodSetter.h"
 #include "CommonTools/Utils/src/findMethod.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
@@ -71,7 +71,7 @@ MethodInvoker& MethodInvoker::operator=(const MethodInvoker& rhs) {
 
 void MethodInvoker::setArgs() {
   for (size_t i = 0; i < ints_.size(); ++i) {
-    args_.push_back(boost::apply_visitor(AnyMethodArgument2VoidPtr(), ints_[i]));
+    args_.push_back(std::visit(AnyMethodArgument2VoidPtr(), ints_[i]));
   }
 }
 

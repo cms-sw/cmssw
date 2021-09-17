@@ -2,7 +2,7 @@
 //
 // Package:    HCALHighEnergyFilter
 // Class:      HCALHighEnergyFilter
-// 
+//
 /**\class HCALHighEnergyFilter HCALHighEnergyFilter.cc 
 
  Description: <one line class summary>
@@ -17,13 +17,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,18 +45,16 @@
 using namespace edm;
 //using namespace l1extra;
 
-class HCALHighEnergyFilter : public edm::EDFilter {
-   public:
-      explicit HCALHighEnergyFilter(const edm::ParameterSet&);
-      ~HCALHighEnergyFilter() override;
+class HCALHighEnergyFilter : public edm::stream::EDFilter<> {
+public:
+  explicit HCALHighEnergyFilter(const edm::ParameterSet&);
+  ~HCALHighEnergyFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   //  bool jetGood(L1JetParticleCollection::const_iterator &);
-  bool jetGood(reco::CaloJetCollection::const_iterator &);
-      // ----------member data ---------------------------
+  bool jetGood(reco::CaloJetCollection::const_iterator&);
+  // ----------member data ---------------------------
 
   //  edm::InputTag centralTag, tauTag;
   edm::InputTag jet_tag;
@@ -77,26 +74,18 @@ class HCALHighEnergyFilter : public edm::EDFilter {
 // constructors and destructor
 //
 HCALHighEnergyFilter::HCALHighEnergyFilter(const edm::ParameterSet& iConfig)
-  :
-  //  centralTag(iConfig.getUntrackedParameter<edm::InputTag>("CentralJets")),
-  //  tauTag(iConfig.getUntrackedParameter<edm::InputTag>("TauJets")),
-  jet_tag(iConfig.getParameter<edm::InputTag>("JetTag")),
-  jet_threshold(iConfig.getParameter<double>("JetThreshold")),
-  eta_cut(iConfig.getParameter<double>("EtaCut"))
-{
-   //now do what ever initialization is needed
-
+    :  //  centralTag(iConfig.getUntrackedParameter<edm::InputTag>("CentralJets")),
+      //  tauTag(iConfig.getUntrackedParameter<edm::InputTag>("TauJets")),
+      jet_tag(iConfig.getParameter<edm::InputTag>("JetTag")),
+      jet_threshold(iConfig.getParameter<double>("JetThreshold")),
+      eta_cut(iConfig.getParameter<double>("EtaCut")) {
+  //now do what ever initialization is needed
 }
 
-
-HCALHighEnergyFilter::~HCALHighEnergyFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+HCALHighEnergyFilter::~HCALHighEnergyFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -104,28 +93,26 @@ HCALHighEnergyFilter::~HCALHighEnergyFilter()
 
 bool
 //HCALHighEnergyFilter::jetGood(L1JetParticleCollection::const_iterator &cit) {
-HCALHighEnergyFilter::jetGood(reco::CaloJetCollection::const_iterator &cit) {
+HCALHighEnergyFilter::jetGood(reco::CaloJetCollection::const_iterator& cit) {
   if (cit->energy() >= jet_threshold && std::fabs(cit->eta()) <= eta_cut)
     return true;
   return false;
 }
 
 // ------------ method called on each new Event  ------------
-bool
-HCALHighEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool HCALHighEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   //Handle<L1JetParticleCollection> JetsCentral;
-   //iEvent.getByLabel(centralTag,JetsCentral);
+  //Handle<L1JetParticleCollection> JetsCentral;
+  //iEvent.getByLabel(centralTag,JetsCentral);
 
-   //Handle<L1JetParticleCollection> JetsTau;
-   //iEvent.getByLabel(tauTag,JetsTau);
+  //Handle<L1JetParticleCollection> JetsTau;
+  //iEvent.getByLabel(tauTag,JetsTau);
 
-   Handle<reco::CaloJetCollection> Jets;
-   iEvent.getByLabel(jet_tag, Jets);
+  Handle<reco::CaloJetCollection> Jets;
+  iEvent.getByLabel(jet_tag, Jets);
 
-   /*
+  /*
    for (L1JetParticleCollection::const_iterator cit = JetsCentral->begin();
 	cit != JetsCentral->end(); cit++) {
      if (jetGood(cit)) return true;
@@ -137,23 +124,12 @@ HCALHighEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    */
 
-   for (reco::CaloJetCollection::const_iterator cit = Jets->begin();
-	cit != Jets->end(); cit++) {
-     if (jetGood(cit)) return true;
-   }
+  for (reco::CaloJetCollection::const_iterator cit = Jets->begin(); cit != Jets->end(); cit++) {
+    if (jetGood(cit))
+      return true;
+  }
 
-   return false;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HCALHighEnergyFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HCALHighEnergyFilter::endJob() {
+  return false;
 }
 
 //define this as a plug-in

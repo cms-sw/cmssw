@@ -1,7 +1,9 @@
 #ifndef SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 #define SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
@@ -9,7 +11,6 @@
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -19,7 +20,7 @@ class PileUpEventPrincipal;
 
 class EcalTBDigiProducer : public EcalDigiProducer {
 public:
-  EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducesCollector, edm::ConsumesCollector &iC);
   ~EcalTBDigiProducer() override;
 
   void initializeEvent(edm::Event const &, edm::EventSetup const &) override;
@@ -39,6 +40,7 @@ private:
   std::string m_ecalTBInfoLabel;
   std::string m_EBdigiFinalTag;
   std::string m_EBdigiTempTag;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
 
   bool m_doPhaseShift;
   double m_thisPhaseShift;

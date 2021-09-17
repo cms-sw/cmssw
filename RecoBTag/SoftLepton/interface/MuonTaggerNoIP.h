@@ -16,6 +16,8 @@
 
 class MuonTaggerNoIP : public JetTagComputer {
 public:
+  using Tokens = void;
+
   /// explicit ctor
   explicit MuonTaggerNoIP(const edm::ParameterSet& configuration) : m_selector(configuration) { uses("slTagInfos"); }
 

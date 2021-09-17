@@ -62,6 +62,7 @@ private:
   std::map<uint32_t, std::vector<std::map<int, int> > > noisyPixelsKeeper_;
 
   bool appendMode_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
   SiPixelGainCalibrationService theGainCalibrationDbInputService_;
   std::unique_ptr<TH2F> defaultGain_;
   std::unique_ptr<TH2F> defaultPed_;

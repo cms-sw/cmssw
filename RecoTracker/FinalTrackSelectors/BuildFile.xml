@@ -1,15 +1,14 @@
-<use   name="ofast-flag"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="TrackingTools/Records"/>
-<use   name="roottmva"/>
-<use   name="lwtnn"/>
+<use name="ofast-flag"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/GBRForest"/>
+<use name="PhysicsTools/TensorFlow"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="roottmva"/>
+<use name="lwtnn"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

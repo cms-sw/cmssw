@@ -1,5 +1,5 @@
-#ifndef CSCRPCData_h
-#define CSCRPCData_h
+#ifndef EventFilter_CSCRawToDigi_CSCRPCData_h
+#define EventFilter_CSCRawToDigi_CSCRPCData_h
 
 #include <vector>
 #ifndef LOCAL_UNPACK

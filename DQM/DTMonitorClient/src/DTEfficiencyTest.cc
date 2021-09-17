@@ -7,19 +7,17 @@
  *
  */
 
-#include <DQM/DTMonitorClient/src/DTEfficiencyTest.h>
+#include "DQM/DTMonitorClient/src/DTEfficiencyTest.h"
 
 // Framework
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdio>
@@ -29,7 +27,8 @@
 using namespace edm;
 using namespace std;
 
-DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps) {
+DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest]: Constructor";
 
   parameters = ps;
@@ -49,7 +48,7 @@ void DTEfficiencyTest::beginRun(edm::Run const& run, edm::EventSetup const& cont
   nevents = 0;
 
   // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
@@ -153,7 +152,6 @@ void DTEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
           // Loop over the TH1F bin and fill the ME to be used for the Quality Test
           for (int bin = firstWire; bin <= lastWire; bin++) {
             if ((recSegmOccupancy_histo_root->GetBinContent(bin)) != 0) {
-              //cout<<"book histos"<<endl;
               if (EfficiencyHistos.find(lID) == EfficiencyHistos.end())
                 bookHistos(ibooker, lID, firstWire, lastWire);
               float efficiency =

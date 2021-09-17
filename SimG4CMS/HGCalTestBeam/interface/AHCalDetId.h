@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_HGCalTestBeam_HCALDETID_H
-#define SimG4CMS_HGCalTestBeam_HCALDETID_H 1
+#ifndef SimG4CMS_HGCalTestBeam_AHCALDETID_H
+#define SimG4CMS_HGCalTestBeam_AHCALDETID_H 1
 
 #include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -32,22 +32,18 @@ public:
   int zside() const { return 1; }
   /// get the row number
   int irow() const;
-  int irowAbs() const { return ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2); }
+  int irowAbs() const { return ((id_ >> HcalDetId::kHcalEtaOffset1) & HcalDetId::kHcalEtaMask1); }
   /// get the column number
   int icol() const;
-  int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask2); }
+  int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask1); }
   /// get the layer number
-  static const int MaxDepth = 12;
   int depth() const;
-  /// get the local coordinate in the plane and along depth
-  std::pair<double, double> getXY() const;
-  double getZ() const;
 
   static const AHCalDetId Undefined;
-  const double deltaX_ = 3.0;   // Size of tile along X
-  const double deltaY_ = 3.0;   // Size of tile along Y
-  const double deltaZ_ = 8.1;   // Thickness of a single layer
-  const double zFirst_ = 1.76;  // Position of the center
+
+private:
+  static constexpr int kMaxRowCol = 16;
+  static constexpr uint32_t kHcalDepthMask = 0x3F;
 };
 
 std::ostream& operator<<(std::ostream&, const AHCalDetId& id);

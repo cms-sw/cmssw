@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 //
@@ -74,7 +73,7 @@
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -87,7 +86,7 @@
 #include <map>
 #include <string>
 
-class METAnalyzer : public DQMEDAnalyzer {
+class METAnalyzer : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   METAnalyzer(const edm::ParameterSet&);
@@ -110,15 +109,15 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
-  //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  //  void dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
   void fillMESet(const edm::Event&,
                  std::string,
                  const reco::MET&,
-                 const pat::MET&,
-                 const reco::PFMET&,
-                 const reco::CaloMET&,
+                 const pat::MET*,
+                 const reco::PFMET*,
+                 const reco::CaloMET*,
                  const reco::Candidate::PolarLorentzVector&,
                  std::map<std::string, MonitorElement*>&,
                  std::vector<bool>,
@@ -127,9 +126,9 @@ public:
                           std::string,
                           std::string,
                           const reco::MET&,
-                          const pat::MET&,
-                          const reco::PFMET&,
-                          const reco::CaloMET&,
+                          const pat::MET*,
+                          const reco::PFMET*,
+                          const reco::CaloMET*,
                           const reco::Candidate::PolarLorentzVector&,
                           std::map<std::string, MonitorElement*>&,
                           bool,
@@ -201,6 +200,8 @@ private:
 
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
+
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigMenuToken_;
 
   JetIDSelectionFunctor jetIDFunctorLoose;
   PFJetIDSelectionFunctor pfjetIDFunctorLoose;

@@ -8,7 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -240,8 +239,6 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)", ptThrForPhoton_);
   phEta_ = ibooker.book1D("phEta", chtitle, 100, -2.5, 2.5);
 }
-
-void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {}
 
 void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   // Muon collection

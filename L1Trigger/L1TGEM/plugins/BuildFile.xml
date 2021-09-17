@@ -1,0 +1,5 @@
+<use name="L1Trigger/L1TGEM"/>
+<use name="Geometry/Records"/>
+<library file="*.cc" name="L1TGEMPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

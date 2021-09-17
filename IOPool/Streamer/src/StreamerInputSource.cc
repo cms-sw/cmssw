@@ -17,6 +17,8 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "zlib.h"
+#include "lzma.h"
+#include "zstd.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -25,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -54,8 +56,6 @@ namespace edm {
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-  std::unique_ptr<FileBlock> StreamerInputSource::readFile_() { return std::make_unique<FileBlock>(); }
-
   void StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
                                               ProductRegistry& reg,
                                               BranchIDListHelper& branchIDListHelper,
@@ -207,10 +207,21 @@ namespace edm {
     }
     if (origsize != 78 && origsize != 0) {
       // compressed
-      dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
-                                   eventView.eventLength(),
-                                   dest_,
-                                   origsize);
+      if (isBufferLZMA((unsigned char const*)eventView.eventData(), eventView.eventLength())) {
+        dest_size = uncompressBufferLZMA(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                         eventView.eventLength(),
+                                         dest_,
+                                         origsize);
+      } else if (isBufferZSTD((unsigned char const*)eventView.eventData(), eventView.eventLength())) {
+        dest_size = uncompressBufferZSTD(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                         eventView.eventLength(),
+                                         dest_,
+                                         origsize);
+      } else
+        dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                     eventView.eventLength(),
+                                     dest_,
+                                     origsize);
     } else {  // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
@@ -249,7 +260,8 @@ namespace edm {
     processHistoryRegistryForUpdate().registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
-    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run()) {
+    if (runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run() ||
+        runAuxiliary()->processHistoryID() != sendEvent_->processHistory().id()) {
       RunAuxiliary* runAuxiliary =
           new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
@@ -275,7 +287,8 @@ namespace edm {
     EventSelectionIDVector ids(sendEvent_->eventSelectionIDs());
     BranchListIndexes indexes(sendEvent_->branchListIndexes());
     branchIDListHelper()->fixBranchListIndexes(indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), std::move(ids), std::move(indexes));
+    auto history = processHistoryRegistry().getMapped(sendEvent_->aux().processHistoryID());
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), history, std::move(ids), std::move(indexes));
 
     //We now know which eventPrincipal to use and we can reuse the slot in
     // streamToEventPrincipalHolders to own the memory
@@ -299,19 +312,20 @@ namespace edm {
       BranchDescription const branchDesc(*spitem.desc());
       // This ProductProvenance constructor inserts into the entry description registry
       if (spitem.parents()) {
-        ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
+        std::optional<ProductProvenance> productProvenance{std::in_place, spitem.branchID(), *spitem.parents()};
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(
-              branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc,
+                                   std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())),
+                                   std::move(productProvenance));
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), &productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), std::move(productProvenance));
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
       } else {
-        ProductProvenance const* productProvenance = nullptr;
+        std::optional<ProductProvenance> productProvenance;
         if (spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(
@@ -362,6 +376,85 @@ namespace edm {
     return (unsigned int)uncompressedSize;
   }
 
+  bool StreamerInputSource::isBufferLZMA(unsigned char const* inputBuffer, unsigned int inputSize) {
+    if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "XZ"))
+      return true;
+    else
+      return false;
+  }
+
+  unsigned int StreamerInputSource::uncompressBufferLZMA(unsigned char* inputBuffer,
+                                                         unsigned int inputSize,
+                                                         std::vector<unsigned char>& outputBuffer,
+                                                         unsigned int expectedFullSize,
+                                                         bool hasHeader) {
+    unsigned long origSize = expectedFullSize;
+    unsigned long uncompressedSize = expectedFullSize * 1.1;
+    FDEBUG(1) << "Uncompress: original size = " << origSize << ", compressed size = " << inputSize << std::endl;
+    outputBuffer.resize(uncompressedSize);
+
+    lzma_stream stream = LZMA_STREAM_INIT;
+    lzma_ret returnStatus;
+
+    returnStatus = lzma_stream_decoder(&stream, UINT64_MAX, 0U);
+    if (returnStatus != LZMA_OK) {
+      throw cms::Exception("StreamDeserializationLZM", "LZMA stream decoder error")
+          << "Error code = " << returnStatus << "\n ";
+    }
+
+    size_t hdrSize = hasHeader ? 4 : 0;
+    stream.next_in = (const uint8_t*)(inputBuffer + hdrSize);
+    stream.avail_in = (size_t)(inputSize - hdrSize);
+    stream.next_out = (uint8_t*)&outputBuffer[0];
+    stream.avail_out = (size_t)uncompressedSize;
+
+    returnStatus = lzma_code(&stream, LZMA_FINISH);
+    if (returnStatus != LZMA_STREAM_END) {
+      lzma_end(&stream);
+      throw cms::Exception("StreamDeserializationLZM", "LZMA uncompression error")
+          << "Error code = " << returnStatus << "\n ";
+    }
+    lzma_end(&stream);
+
+    uncompressedSize = (unsigned int)stream.total_out;
+
+    FDEBUG(10) << " original size = " << origSize << " final size = " << uncompressedSize << std::endl;
+    if (origSize != uncompressedSize) {
+      // we throw an error and return without event! null pointer
+      throw cms::Exception("StreamDeserialization", "LZMA uncompression error")
+          << "mismatch event lengths should be" << origSize << " got " << uncompressedSize << "\n";
+    }
+
+    return uncompressedSize;
+  }
+
+  bool StreamerInputSource::isBufferZSTD(unsigned char const* inputBuffer, unsigned int inputSize) {
+    if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "ZS"))
+      return true;
+    else
+      return false;
+  }
+
+  unsigned int StreamerInputSource::uncompressBufferZSTD(unsigned char* inputBuffer,
+                                                         unsigned int inputSize,
+                                                         std::vector<unsigned char>& outputBuffer,
+                                                         unsigned int expectedFullSize,
+                                                         bool hasHeader) {
+    unsigned long uncompressedSize = expectedFullSize * 1.1;
+    FDEBUG(1) << "Uncompress: original size = " << expectedFullSize << ", compressed size = " << inputSize << std::endl;
+    outputBuffer.resize(uncompressedSize);
+
+    size_t hdrSize = hasHeader ? 4 : 0;
+    size_t ret = ZSTD_decompress(
+        (void*)&(outputBuffer[0]), uncompressedSize, (const void*)(inputBuffer + hdrSize), inputSize - hdrSize);
+
+    if (ZSTD_isError(ret)) {
+      throw cms::Exception("StreamDeserializationZSTD", "ZSTD uncompression error")
+          << "Error core " << ret << ", message:" << ZSTD_getErrorName(ret);
+    }
+    return (unsigned int)ret;
+  }
+
   void StreamerInputSource::resetAfterEndRun() {
     // called from an online streamer source to reset after a stop command
     // so an enable command will work
@@ -387,9 +480,11 @@ namespace edm {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }
 
-  WrapperBase const* StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id,
-                                                                                  unsigned int& index) const {
-    return eventPrincipal_ ? eventPrincipal_->getThinnedProduct(id, index) : nullptr;
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>>
+  StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id, unsigned int index) const {
+    if (eventPrincipal_)
+      return eventPrincipal_->getThinnedProduct(id, index);
+    return std::nullopt;
   }
 
   void StreamerInputSource::EventPrincipalHolder::getThinnedProducts(ProductID const& pid,
@@ -397,6 +492,15 @@ namespace edm {
                                                                      std::vector<unsigned int>& keys) const {
     if (eventPrincipal_)
       eventPrincipal_->getThinnedProducts(pid, wrappers, keys);
+  }
+
+  edm::OptionalThinnedKey StreamerInputSource::EventPrincipalHolder::getThinnedKeyFrom(
+      edm::ProductID const& parent, unsigned int index, edm::ProductID const& thinned) const {
+    if (eventPrincipal_) {
+      return eventPrincipal_->getThinnedKeyFrom(parent, index, thinned);
+    } else {
+      return std::monostate{};
+    }
   }
 
   unsigned int StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {

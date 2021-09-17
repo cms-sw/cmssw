@@ -8,6 +8,8 @@ namespace lumi {
   class DataPipe {
   public:
     explicit DataPipe(const std::string&);
+    DataPipe(const DataPipe&) = delete;
+    const DataPipe& operator=(const DataPipe&) = delete;
     virtual unsigned long long retrieveData(unsigned int) = 0;
     virtual const std::string dataType() const = 0;
     virtual const std::string sourceType() const = 0;
@@ -31,9 +33,6 @@ namespace lumi {
     bool m_novalidate;
     float m_norm;                 //Lumi2DB specific
     bool m_nocheckingstablebeam;  //Lumi2DB specific
-  private:
-    DataPipe(const DataPipe&) = delete;
-    const DataPipe& operator=(const DataPipe&) = delete;
-  };  //class DataPipe
+  };                              //class DataPipe
 }  // namespace lumi
 #endif

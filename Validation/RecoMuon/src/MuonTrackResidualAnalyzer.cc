@@ -1,6 +1,7 @@
 #include "Validation/RecoMuon/src/MuonTrackResidualAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +40,7 @@ MuonTrackResidualAnalyzer::MuonTrackResidualAnalyzer(const edm::ParameterSet &ps
   // service parameters
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   theMuonTrackLabel = pset.getParameter<InputTag>("MuonTrack");
   theMuonTrackToken = consumes<reco::TrackCollection>(theMuonTrackLabel);
@@ -82,8 +83,6 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                                edm::EventSetup const & /* iSetup */) {
   LogDebug("MuonTrackResidualAnalyzer") << "Begin Run";
 
-  //ibooker.showDirStructure();
-
   ibooker.cd();
   InputTag algo = theMuonTrackLabel;
   string dirName = dirName_;
@@ -116,7 +115,7 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
       ibooker.book2D("DeltaPtVsEtaSim2", "#Delta P_{t} vs #eta gen, sim quantity", 120, -3., 3., 500, -250., 250.);
 }
 
-void MuonTrackResidualAnalyzer::endRun(edm::Run const &, edm::EventSetup const &) {
+void MuonTrackResidualAnalyzer::dqmEndRun(edm::Run const &, edm::EventSetup const &) {
   if (!out.empty() && dbe_)
     dbe_->save(out);
 }

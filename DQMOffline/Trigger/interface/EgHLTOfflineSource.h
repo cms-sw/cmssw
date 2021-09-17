@@ -41,7 +41,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class HLTConfigProvider;
 
@@ -93,12 +93,13 @@ private:
   bool filterInactiveTriggers_;
   std::string hltTag_;
 
+public:
+  explicit EgHLTOfflineSource(const edm::ParameterSet&);
+
   //disabling copying/assignment (copying this class would be bad, mkay)
   EgHLTOfflineSource(const EgHLTOfflineSource& rhs) = delete;
   EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs) = delete;
 
-public:
-  explicit EgHLTOfflineSource(const edm::ParameterSet&);
   ~EgHLTOfflineSource() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;

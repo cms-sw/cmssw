@@ -8,10 +8,51 @@
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+
+struct mpPCLresults {
+private:
+  bool m_isDBUpdated;
+  bool m_isDBUpdateVetoed;
+  int m_nRecords;
+  int m_exitCode;
+  std::string m_exitMessage;
+  std::bitset<4> m_updateBits;
+
+public:
+  mpPCLresults(bool isDBUpdated,
+               bool isDBUpdateVetoed,
+               int nRecords,
+               int exitCode,
+               std::string exitMessage,
+               std::bitset<4> updateBits)
+      : m_isDBUpdated(isDBUpdated),
+        m_isDBUpdateVetoed(isDBUpdateVetoed),
+        m_nRecords(nRecords),
+        m_exitCode(exitCode),
+        m_exitMessage(exitMessage),
+        m_updateBits(updateBits) {}
+
+  const bool getDBUpdated() { return m_isDBUpdated; }
+  const bool getDBVetoed() { return m_isDBUpdateVetoed; }
+  const bool exceedsThresholds() { return m_updateBits.test(0); }
+  const bool exceedsCutoffs() { return m_updateBits.test(1); }
+  const bool exceedsMaxError() { return m_updateBits.test(2); }
+  const bool belowSignificance() { return m_updateBits.test(3); }
+  const int getNRecords() { return m_nRecords; }
+  const int getExitCode() { return m_exitCode; }
+  const std::string getExitMessage() { return m_exitMessage; }
+
+  void print() {
+    edm::LogInfo("MillePedeFileReader") << " is DB updated: " << m_isDBUpdated
+                                        << " is DB update vetoed: " << m_isDBUpdateVetoed << " nRecords: " << m_nRecords
+                                        << " exitCode: " << m_exitCode << " (" << m_exitMessage << ")" << std::endl;
+  }
+};
 
 class MillePedeFileReader {
   //========================== PUBLIC METHODS ==================================
@@ -42,6 +83,12 @@ public:  //====================================================================
 
   const AlignPCLThresholds::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
 
+  const int binariesAmount() const { return binariesAmount_; }
+
+  const mpPCLresults getResults() const {
+    return mpPCLresults(updateDB_, vetoUpdateDB_, Nrec_, exitCode_, exitMessage_, updateBits_);
+  }
+
 private:
   //========================= PRIVATE ENUMS ====================================
   //============================================================================
@@ -59,6 +106,7 @@ private:
   //========================= PRIVATE METHODS ==================================
   //============================================================================
 
+  void readMillePedeEndFile();
   void readMillePedeLogFile();
   void readMillePedeResultFile();
   PclHLS getHLS(const Alignable*);
@@ -74,6 +122,7 @@ private:
   const std::shared_ptr<const AlignPCLThresholds> theThresholds_;
 
   // file-names
+  const std::string millePedeEndFile_;
   const std::string millePedeLogFile_;
   const std::string millePedeResFile_;
 
@@ -87,7 +136,20 @@ private:
 
   bool updateDB_{false};
   bool vetoUpdateDB_{false};
+
+  // stores in a compact format the 4 decisions:
+  // 1st bit: exceeds maximum thresholds
+  // 2nd bit: exceeds cutoffs (significant movement)
+  // 3rd bit: exceeds maximum errors
+  // 4th bit: is below the significance
+  std::bitset<4> updateBits_;
+
+  // pede binaries available
+  int binariesAmount_{0};
+
   int Nrec_{0};
+  int exitCode_{-1};
+  std::string exitMessage_{""};
 
   std::array<double, 6> Xobs_ = {{0., 0., 0., 0., 0., 0.}};
   std::array<double, 6> XobsErr_ = {{0., 0., 0., 0., 0., 0.}};
@@ -107,7 +169,7 @@ private:
 
 const std::array<std::string, 8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};
 inline std::ostream& operator<<(std::ostream& os, const AlignPCLThresholds::coordType& c) {
-  if (c >= AlignPCLThresholds::endOfTypes || c < 0)
+  if (c >= AlignPCLThresholds::endOfTypes || c < AlignPCLThresholds::X)
     return os << "unrecongnized coordinate";
   return os << coord_str[c];
 }

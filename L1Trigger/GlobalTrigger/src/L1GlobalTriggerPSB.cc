@@ -571,7 +571,7 @@ void L1GlobalTriggerPSB::receiveTechnicalTriggers(edm::Event &iEvent,
 
 // fill the content of active PSB boards
 void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
-                                      const boost::uint16_t &activeBoardsGtDaq,
+                                      const uint16_t &activeBoardsGtDaq,
                                       const int recordLength0,
                                       const int recordLength1,
                                       const unsigned int altNrBxBoardDaq,
@@ -581,9 +581,9 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
   // fill in emulator the same bunch crossing (12 bits - hardwired number of
   // bits...) and the same local bunch crossing for all boards
   int bxCross = iEvent.bunchCrossing();
-  boost::uint16_t bxCrossHw = 0;
+  uint16_t bxCrossHw = 0;
   if ((bxCross & 0xFFF) == bxCross) {
-    bxCrossHw = static_cast<boost::uint16_t>(bxCross);
+    bxCrossHw = static_cast<uint16_t>(bxCross);
   } else {
     bxCrossHw = 0;  // Bx number too large, set to 0!
     if (m_verbosity) {
@@ -651,15 +651,15 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
         psbWordValue.setBxInEvent(iBxInEvent);
 
         // set bunch cross number of the actual bx
-        boost::uint16_t bxNrValue = bxCrossHw;
+        uint16_t bxNrValue = bxCrossHw;
         psbWordValue.setBxNr(bxNrValue);
 
         // set event number since last L1 reset generated in PSB
-        psbWordValue.setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+        psbWordValue.setEventNr(static_cast<uint32_t>(iEvent.id().event()));
 
         // set local bunch cross number of the actual bx
         // set identical to bxCrossHw - other solution?
-        boost::uint16_t localBxNrValue = bxCrossHw;
+        uint16_t localBxNrValue = bxCrossHw;
         psbWordValue.setLocalBxNr(localBxNrValue);
 
         // get the objects coming to this PSB and the quadruplet index
@@ -670,8 +670,8 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
         std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
         int nrCables = quadInPsb.size();
 
-        boost::uint16_t aDataVal = 0;
-        boost::uint16_t bDataVal = 0;
+        uint16_t aDataVal = 0;
+        uint16_t bDataVal = 0;
 
         int iCable = -1;
         for (std::vector<L1GtPsbQuad>::const_iterator itQuad = quadInPsb.begin(); itQuad != quadInPsb.end(); ++itQuad) {
@@ -696,7 +696,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
               aDataVal = 0;
 
               int iBit = 0;
-              boost::uint16_t bitVal = 0;
+              uint16_t bitVal = 0;
 
               for (int i = 0; i < bitsPerWord; ++i) {
                 if (m_gtTechnicalTriggers[iBit]) {

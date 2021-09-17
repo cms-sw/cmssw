@@ -17,7 +17,7 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
-#include "RecoEgamma/EgammaTools/interface/SCEnergyCorrectorSemiParm.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,8 +25,17 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+
+#include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
+#include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
 
 #include <vector>
 #include <memory>
@@ -102,6 +111,7 @@ public:
 
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
   void update(const edm::EventSetup&);
+  void updateSCParams(const edm::EventSetup&);
 
   std::unique_ptr<reco::SuperClusterCollection>& getEBOutputSCCollection() { return superClustersEB_; }
   std::unique_ptr<reco::SuperClusterCollection>& getEEOutputSCCollection() { return superClustersEE_; }
@@ -115,8 +125,15 @@ private:
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> inputTagPFClustersES_;
   edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
 
+  edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
+  edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
+  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
+
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
+  const EcalMustacheSCParameters* mustacheSCParams_;
+  const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;

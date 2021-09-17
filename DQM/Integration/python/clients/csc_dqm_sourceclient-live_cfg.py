@@ -1,5 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("CSCDQMLIVE")
 
@@ -8,12 +9,12 @@ process = cms.Process("CSCDQMLIVE")
 #-------------------------------------------------
 
 process.load("DQM.CSCMonitorModule.csc_dqm_sourceclient_cfi")
-process.dqmCSCClient.EventProcessor.BINCHECKER_MODE_DDU = cms.untracked.bool(False)
-process.dqmCSCClient.EventProcessor.EFF_COLD_SIGFAIL = cms.untracked.double(2.0)
-process.dqmCSCClient.EventProcessor.EFF_HOT_THRESHOLD = cms.untracked.double(2.0)
-process.dqmCSCClient.EventProcessor.EFF_HOT_SIGFAIL = cms.untracked.double(10.0)
-process.dqmCSCClient.EventProcessor.EFF_NODATA_THRESHOLD = cms.untracked.double(0.99)
-process.dqmCSCClient.EventProcessor.PREBOOK_ALL_HISTOS = cms.untracked.bool(True)
+process.dqmCSCClient.EventProcessor.BINCHECKER_MODE_DDU = False
+process.dqmCSCClient.EventProcessor.EFF_COLD_SIGFAIL = 2.0
+process.dqmCSCClient.EventProcessor.EFF_HOT_THRESHOLD = 2.0
+process.dqmCSCClient.EventProcessor.EFF_HOT_SIGFAIL = 10.0
+process.dqmCSCClient.EventProcessor.EFF_NODATA_THRESHOLD = 0.99
+process.dqmCSCClient.EventProcessor.PREBOOK_ALL_HISTOS = True
 
 #process.dqmCSCClient.FractUpdateEventFreq = cms.untracked.uint32(100)
 #process.dqmCSCClient.effParameters.threshold_hot = cms.untracked.double(10.0)
@@ -27,16 +28,27 @@ process.load("DQMOffline.Muon.CSCMonitor_cfi")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.csc2DRecHits.readBadChambers = cms.bool(False)
+process.csc2DRecHits.readBadChambers = False
 
 #----------------------------
 # Event Source
 #-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+unitTest=False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
+
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+  # for live online DQM in P5
+  process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Environment
@@ -49,8 +61,10 @@ process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 process.dqmSaver.tag = "CSC"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "CSC"
+process.dqmSaverPB.runNumber = options.runNumber
 
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/csc_reference.root'
 
 #process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
 #process.DQM.collectorHost = 'localhost'
@@ -85,8 +99,8 @@ process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
 process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
 process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
-process.csc2DRecHits.readBadChannels = cms.bool(False)
-process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+process.csc2DRecHits.readBadChannels = False
+process.csc2DRecHits.CSCUseGasGainCorrections = False
 
 
 """ Pick up upgrade condions data directly from DB tags using ESPrefer's.
@@ -158,27 +172,27 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
+#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
+process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 
 
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.cscMonitor.FEDRawDataCollectionTag = cms.InputTag("rawDataCollector")
-process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = "rawDataCollector"
+process.csctfDigis.producer = "rawDataCollector"
+process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
+process.ecalDigis.cpu.InputLabel = "rawDataCollector"
+process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
+process.gctDigis.inputLabel = "rawDataCollector"
+process.gtDigis.DaqGtInputTag = "rawDataCollector"
+process.gtEvmDigis.EvmGtInputTag = "rawDataCollector"
+process.hcalDigis.InputLabel = "rawDataCollector"
+process.muonCSCDigis.InputObjects = "rawDataCollector"
+process.muonDTDigis.inputLabel = "rawDataCollector"
+process.muonRPCDigis.InputLabel = "rawDataCollector"
+process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
+process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siStripDigis.ProductLabel = "rawDataCollector"
+process.cscMonitor.FEDRawDataCollectionTag = "rawDataCollector"
+process.dqmCSCClient.InputObjects = "rawDataCollector"
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -187,23 +201,23 @@ process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataCollector")
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.cscMonitor.FEDRawDataCollectionTag = cms.InputTag("rawDataRepacker")
-    process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.csctfDigis.producer = "rawDataRepacker"
+    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+    process.gctDigis.inputLabel = "rawDataRepacker"
+    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+    process.gtEvmDigis.EvmGtInputTag = "rawDataRepacker"
+    process.hcalDigis.InputLabel = "rawDataRepacker"
+    process.muonCSCDigis.InputObjects = "rawDataRepacker"
+    process.muonDTDigis.inputLabel = "rawDataRepacker"
+    process.muonRPCDigis.InputLabel = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel = "rawDataRepacker"
+    process.cscMonitor.FEDRawDataCollectionTag = "rawDataRepacker"
+    process.dqmCSCClient.InputObjects = "rawDataRepacker"
 
 
 ### process customizations included here

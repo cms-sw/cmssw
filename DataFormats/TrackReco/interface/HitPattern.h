@@ -33,7 +33,7 @@
 // | mu  = 0    |    DT  = 1    | 4*(stat-1)+superlayer     |                 | hit type = 0-3 |
 // | mu  = 0    |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
 // | mu  = 0    |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
-// | mu  = 0    |    GEM = 4    | 2*(stat-1)+2*(layer-1)    |                 | hit type = 0-3 |
+// | mu  = 0    |    GEM = 4    | 1xxx=st0, 0yxx=st y-1 la x|                 | hit type = 0-3 |
 // | mu  = 0    |    ME0 = 5    | roll                      |                 | hit type = 0-3 |
 // | mtd = 2    |    BTL = 1    | moduleType = 1-3          |                 | hit type = 0-3 |
 // | mtd = 2    |    ETL = 2    | ring = 1-12               |                 | hit type = 0-3 |
@@ -126,7 +126,6 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 #include <utility>
@@ -215,7 +214,7 @@ namespace reco {
     /// GEM station: 1,2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMStation(uint16_t pattern);
 
-    /// GEM layer: 1,2. Only valid for muon GEM patterns, of course.
+    /// GEM layer: 1-6 for station 0, 1-2 for stations 1 and 2. Only valid for muon GEM patterns, of course.
     static uint16_t getGEMLayer(uint16_t pattern);
 
     /// BTL Module type: 1,2,3. Only valid for BTL patterns of course.
@@ -522,16 +521,18 @@ namespace reco {
   template <typename I>
   bool HitPattern::appendHits(const I &begin, const I &end, const TrackerTopology &ttopo) {
     for (I hit = begin; hit != end; hit++) {
-      if
-        UNLIKELY((!appendHit(*hit, ttopo))) { return false; }
+      if UNLIKELY ((!appendHit(*hit, ttopo))) {
+        return false;
+      }
     }
     return true;
   }
 
   inline uint16_t HitPattern::getHitPattern(HitCategory category, int position) const {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    if
-      UNLIKELY((position < 0 || (position + range.first) >= range.second)) { return HitPattern::EMPTY_PATTERN; }
+    if UNLIKELY ((position < 0 || (position + range.first) >= range.second)) {
+      return HitPattern::EMPTY_PATTERN;
+    }
 
     return getHitPatternByAbsoluteIndex(range.first + position);
   }
@@ -572,24 +573,27 @@ namespace reco {
   }
 
   inline bool HitPattern::pixelHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!trackerHitFilter(pattern)) { return false; }
+    if UNLIKELY (!trackerHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == PixelSubdetector::PixelBarrel || substructure == PixelSubdetector::PixelEndcap);
   }
 
   inline bool HitPattern::pixelBarrelHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!trackerHitFilter(pattern)) { return false; }
+    if UNLIKELY (!trackerHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == PixelSubdetector::PixelBarrel);
   }
 
   inline bool HitPattern::pixelEndcapHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!trackerHitFilter(pattern)) { return false; }
+    if UNLIKELY (!trackerHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == PixelSubdetector::PixelEndcap);
@@ -600,8 +604,9 @@ namespace reco {
   }
 
   inline bool HitPattern::stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure) {
-    if
-      UNLIKELY(!trackerHitFilter(pattern)) { return false; }
+    if UNLIKELY (!trackerHitFilter(pattern)) {
+      return false;
+    }
 
     return substructure == getSubStructure(pattern);
   }
@@ -623,40 +628,44 @@ namespace reco {
   }
 
   inline bool HitPattern::muonDTHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!muonHitFilter(pattern)) { return false; }
+    if UNLIKELY (!muonHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == (uint32_t)MuonSubdetId::DT);
   }
 
   inline bool HitPattern::muonCSCHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!muonHitFilter(pattern)) { return false; }
+    if UNLIKELY (!muonHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == (uint32_t)MuonSubdetId::CSC);
   }
 
   inline bool HitPattern::muonRPCHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!muonHitFilter(pattern)) { return false; }
+    if UNLIKELY (!muonHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == (uint32_t)MuonSubdetId::RPC);
   }
 
   inline bool HitPattern::muonGEMHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!muonHitFilter(pattern)) { return false; }
+    if UNLIKELY (!muonHitFilter(pattern)) {
+      return false;
+    }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == (uint32_t)MuonSubdetId::GEM);
   }
 
   inline bool HitPattern::muonME0HitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!muonHitFilter(pattern)) return false;
+    if UNLIKELY (!muonHitFilter(pattern))
+      return false;
     uint16_t substructure = getSubStructure(pattern);
     return (substructure == (uint16_t)MuonSubdetId::ME0);
   }
@@ -666,36 +675,39 @@ namespace reco {
   }
 
   inline bool HitPattern::muonHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return false; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return false;
+    }
 
     return (((pattern >> SubDetectorOffset) & SubDetectorMask) == 0);
   }
 
   inline bool HitPattern::timingBTLHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!timingHitFilter(pattern)) return false;
+    if UNLIKELY (!timingHitFilter(pattern))
+      return false;
     uint16_t substructure = getSubStructure(pattern);
     return (substructure == (uint16_t)MTDDetId::BTL);
   }
 
   inline bool HitPattern::timingETLHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(!timingHitFilter(pattern)) return false;
+    if UNLIKELY (!timingHitFilter(pattern))
+      return false;
     uint16_t substructure = getSubStructure(pattern);
     return (substructure == (uint16_t)MTDDetId::ETL);
   }
 
   inline bool HitPattern::timingHitFilter(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return false; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return false;
+    }
 
     return (((pattern >> SubDetectorOffset) & SubDetectorMask) == 2);
   }
 
   inline uint32_t HitPattern::getSubStructure(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return NULL_RETURN; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return NULL_RETURN;
+    }
 
     return ((pattern >> SubstrOffset) & SubstrMask);
   }
@@ -703,34 +715,40 @@ namespace reco {
   inline uint32_t HitPattern::getLayer(uint16_t pattern) { return HitPattern::getSubSubStructure(pattern); }
 
   inline uint32_t HitPattern::getSubSubStructure(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return NULL_RETURN; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return NULL_RETURN;
+    }
 
     return ((pattern >> LayerOffset) & LayerMask);
   }
 
   inline uint32_t HitPattern::getSubDetector(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return NULL_RETURN; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return NULL_RETURN;
+    }
 
     return ((pattern >> SubDetectorOffset) & SubDetectorMask);
   }
 
   inline uint32_t HitPattern::getSide(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return NULL_RETURN; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return NULL_RETURN;
+    }
 
     return (pattern >> SideOffset) & SideMask;
   }
 
   inline uint32_t HitPattern::getHitType(uint16_t pattern) {
-    if
-      UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) { return NULL_RETURN; }
+    if UNLIKELY (pattern == HitPattern::EMPTY_PATTERN) {
+      return NULL_RETURN;
+    }
 
     return ((pattern >> HitTypeOffset) & HitTypeMask);
   }
 
-  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) { return (getSubSubStructure(pattern) >> 2) + 1; }
+  inline uint16_t HitPattern::getMuonStation(uint16_t pattern) {
+    return muonGEMHitFilter(pattern) ? getGEMStation(pattern) : (getSubSubStructure(pattern) >> 2) + 1;
+  }
 
   inline uint16_t HitPattern::getDTSuperLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 3); }
 
@@ -740,8 +758,9 @@ namespace reco {
     uint16_t subSubStructure = getSubSubStructure(pattern);
     uint16_t stat = subSubStructure >> 2;
 
-    if
-      LIKELY(stat <= 1) { return ((subSubStructure >> 1) & 1) + 1; }
+    if LIKELY (stat <= 1) {
+      return ((subSubStructure >> 1) & 1) + 1;
+    }
 
     return 0;
   }
@@ -749,11 +768,11 @@ namespace reco {
   inline uint16_t HitPattern::getRPCregion(uint16_t pattern) { return getSubSubStructure(pattern) & 1; }
 
   ////////////////////////////// GEM
-  inline uint16_t HitPattern::getGEMStation(uint16_t pattern)
-
-  {
-    uint16_t sss = getSubSubStructure(pattern), stat = sss >> 1;
-    return stat + 1;
+  inline uint16_t HitPattern::getGEMStation(uint16_t pattern) {
+    uint16_t sss = getSubSubStructure(pattern);
+    if (sss & 0b1000)
+      return 0;
+    return (sss >> 2) + 1;
   }
 
   /// MTD
@@ -761,7 +780,12 @@ namespace reco {
 
   inline uint16_t HitPattern::getETLRing(uint16_t pattern) { return getSubSubStructure(pattern); }
 
-  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) { return (getSubSubStructure(pattern) & 1) + 1; }
+  inline uint16_t HitPattern::getGEMLayer(uint16_t pattern) {
+    uint16_t sss = getSubSubStructure(pattern);
+    if (sss & 0b1000)
+      return (sss & 0b0111) + 1;
+    return (sss & 0b11) + 1;
+  }
 
   inline bool HitPattern::validHitFilter(uint16_t pattern) { return getHitType(pattern) == HitPattern::VALID; }
 

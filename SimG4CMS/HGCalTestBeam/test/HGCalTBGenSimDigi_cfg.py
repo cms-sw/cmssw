@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import six
 
 process = cms.Process('SIMDIGI')
 
@@ -13,6 +12,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
 process.load('Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
@@ -92,7 +92,11 @@ process.VtxSmeared.MeanY  = 0.0
 process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
-process.HGCalTBAnalyzer.DoRecHits = False
+process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -109,7 +113,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in six.iteritems(process.producers_()):
+for label, prod in process.producers_().items():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

@@ -1,10 +1,11 @@
 #include "HFEGammaSLCorrector.h"
-#include "CLHEP/Vector/LorentzVector.h"
+
+#include <cmath>
 
 namespace hf_egamma {
 
   double eSeLCorrected(double es, double el, double pc, double px, double py) {
-    double x = log(el / 100);
+    double x = std::log(el / 100);
     double y = es / el;
     return pc + px * x + py * y;
   }

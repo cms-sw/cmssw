@@ -46,10 +46,10 @@ private:
     std::unique_ptr<TH1D> h_de_x, h_de_y;
 
     RPPlots()
-        : h2_xr_vs_xs(new TH2D("", "", 100, -10., +10., 100, -10, +10.)),
-          h2_yr_vs_ys(new TH2D("", "", 100, -10., +10., 100, -10, +10.)),
-          h_de_x(new TH1D("", "", 100, -0., +0.)),
-          h_de_y(new TH1D("", "", 100, -0., +0.)) {}
+        : h2_xr_vs_xs(new TH2D("", ";x_simu   (mm);x_reco   (mm)", 100, -10., +10., 100, -10, +10.)),
+          h2_yr_vs_ys(new TH2D("", "y_simu   (mm);y_reco   (mm)", 100, -10., +10., 100, -10, +10.)),
+          h_de_x(new TH1D("", ";x   (mm)", 200, -100E-3, +100E-3)),
+          h_de_y(new TH1D("", ";y   (mm)", 200, -100E-3, +100E-3)) {}
 
     void fill(double simu_x, double simu_y, double reco_x, double reco_y) {
       h2_xr_vs_xs->Fill(simu_x, reco_x);
@@ -89,11 +89,11 @@ void CTPPSDirectProtonSimulationValidator::analyze(const edm::Event& iEvent, con
 
   // process tracks
   for (const auto& simuTrack : *simuTracks) {
-    const CTPPSDetId rpId(simuTrack.getRPId());
+    const CTPPSDetId rpId(simuTrack.rpId());
     for (const auto& recoTrack : *recoTracks) {
-      if (simuTrack.getRPId() == recoTrack.getRPId()) {
+      if (simuTrack.rpId() == recoTrack.rpId()) {
         unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
-        rpPlots_[rpDecId].fill(simuTrack.getX(), simuTrack.getY(), recoTrack.getX(), recoTrack.getY());
+        rpPlots_[rpDecId].fill(simuTrack.x(), simuTrack.y(), recoTrack.x(), recoTrack.y());
       }
     }
   }

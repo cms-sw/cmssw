@@ -23,16 +23,15 @@ MuonTrajectoryBuilder::TrajectoryContainer ExhaustiveMuonTrajectoryBuilder::traj
   //   float p_err = sqr(sptmean/(ptmean*ptmean));
   //  mat[0][0]= p_err;
   float sigmapt = sqrt(err00) * pt * pt;
-  TrajectorySeed::range range = seed.recHits();
   TrajectoryContainer result;
   // Make a new seed based on each segment, using the original pt and sigmapt
-  for (TrajectorySeed::const_iterator recHitItr = range.first; recHitItr != range.second; ++recHitItr) {
-    const GeomDet* geomDet = theService->trackingGeometry()->idToDet((*recHitItr).geographicalId());
-    MuonTransientTrackingRecHit::MuonRecHitPointer muonRecHit =
-        MuonTransientTrackingRecHit::specificBuild(geomDet, &*recHitItr);
+  for (auto const& recHit : seed.recHits()) {
+    const GeomDet* geomDet = theService->trackingGeometry()->idToDet(recHit.geographicalId());
+    auto muonRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet, &recHit);
     TrajectorySeed tmpSeed(theSeeder.createSeed(pt, sigmapt, muonRecHit));
     TrajectoryContainer trajectories(theTrajBuilder.trajectories(tmpSeed));
-    result.insert(result.end(), trajectories.begin(), trajectories.end());
+    result.insert(
+        result.end(), std::make_move_iterator(trajectories.begin()), std::make_move_iterator(trajectories.end()));
   }
   return result;
 }
@@ -45,6 +44,9 @@ void ExhaustiveMuonTrajectoryBuilder::setEvent(const edm::Event& event) { theTra
 
 void ExhaustiveMuonTrajectoryBuilder::clean(TrajectoryContainer& trajectories) const {
   // choose the one with the most hits, and the smallest chi-squared
+  if (trajectories.empty()) {
+    return;
+  }
   int best_nhits = 0;
   unsigned best = 0;
   unsigned ntraj = trajectories.size();
@@ -58,12 +60,7 @@ void ExhaustiveMuonTrajectoryBuilder::clean(TrajectoryContainer& trajectories) c
     }
   }
   TrajectoryContainer result;
-  for (unsigned i = 0; i < ntraj; ++i) {
-    if (i == best) {
-      result.push_back(trajectories[best]);
-    } else {
-      delete trajectories[i];
-    }
-  }
+  result.reserve(1);
+  result.emplace_back(std::move(trajectories[best]));
   trajectories.swap(result);
 }

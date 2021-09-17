@@ -37,6 +37,7 @@ namespace edm {
   class LuminosityBlockRange;
   class EventRange;
   class InputTag;
+  class ESInputTag;
   class FileInPath;
   class DocFormatHelper;
 
@@ -73,6 +74,8 @@ namespace edm {
     void writeValue(std::ostream& os, int indentation, std::vector<EventRange> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, InputTag const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<InputTag> const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, ESInputTag const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, std::vector<ESInputTag> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, FileInPath const& value_, ValueFormat format);
 
     bool hasNestedContent(int const& value);
@@ -98,6 +101,8 @@ namespace edm {
     bool hasNestedContent(std::vector<EventRange> const& value);
     bool hasNestedContent(InputTag const& value);
     bool hasNestedContent(std::vector<InputTag> const& value);
+    bool hasNestedContent(ESInputTag const& value);
+    bool hasNestedContent(std::vector<ESInputTag> const& value);
     bool hasNestedContent(FileInPath const& value);
   }  // namespace writeParameterValue
 

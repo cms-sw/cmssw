@@ -661,7 +661,7 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
         bCHAMB_PAYLOAD[currentChamber] |= (buf0[0] & 0x007f) << 7;           /// CFEBs DAV
         bCHAMB_PAYLOAD[currentChamber] |= (buf_1[2] & 0x001f);               /// CFEBs Active 5
         bCHAMB_PAYLOAD[currentChamber] |= ((buf_1[2] >> 5) & 0x0003) << 14;  /// CFEBs Active 6,7
-        bCHAMB_STATUS[currentChamber] |= (buf0[0] & 0x0080) << 15;           /// CLCT-DAV-Mismatch
+        bCHAMB_STATUS[currentChamber] |= (buf0[0] & 0x0080) << 14;           /// CLCT-DAV-Mismatch
 
       } else  /// Pre-2013 DMB Format
       {

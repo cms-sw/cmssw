@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 namespace reco {
@@ -82,6 +83,7 @@ namespace pat {
       edm::Handle<reco::VertexCollection> vertexHandle_;
       /// use tracks inside candidates
       bool useTracks_;
+      edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttToken_;
       edm::ESHandle<TransientTrackBuilder> ttBuilder_;
 
       //--------- Tools for reading vertex associations (playback mode) -----

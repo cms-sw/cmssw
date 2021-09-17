@@ -19,18 +19,9 @@ process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModul
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('FwkJob'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
+    categories = cms.untracked.vstring(),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
-    ),
-    FrameworkJobReport = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
     )
 )
 

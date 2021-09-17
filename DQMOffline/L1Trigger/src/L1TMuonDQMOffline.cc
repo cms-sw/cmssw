@@ -157,7 +157,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet& ps)
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
 
-  for (const auto cutsPSet : m_cutsVPSet) {
+  for (const auto& cutsPSet : m_cutsVPSet) {
     const auto qCut = cutsPSet.getUntrackedParameter<int>("qualCut");
     QualLevel qLevel = kQualAll;
     if (qCut > 11) {
@@ -269,7 +269,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
     // Fill the efficiency numerator and denominator histograms
     if (muonGmtPairsIt->etaRegion() != kEtaRegionOut) {
       unsigned int cutsCounter = 0;
-      for (const auto cut : m_cuts) {
+      for (const auto& cut : m_cuts) {
         const auto gmtPtCut = cut.first;
         const auto qualLevel = cut.second;
         const bool gmtAboveCut = (muonGmtPairsIt->gmtPt() > gmtPtCut);
@@ -367,7 +367,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker) {
     auto histBins = getHistBinsEff(var);
     // histograms for eta variable get a special treatment
     if (var == kEffEta) {
-      for (const auto cut : m_cuts) {
+      for (const auto& cut : m_cuts) {
         const auto gmtPtCut = cut.first;
         const auto qualLevel = cut.second;
         std::string name = "effDen_" + m_effStrings[var] + "_" + std::to_string(gmtPtCut);
@@ -386,7 +386,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker) {
           m_EfficiencyDenPtHistos[etaReg] =
               ibooker.book1D(name, name + ";" + m_effLabelStrings[var], histBins.size() - 1, &histBins[0]);
         } else {
-          for (const auto cut : m_cuts) {
+          for (const auto& cut : m_cuts) {
             const int gmtPtCut = cut.first;
             std::string name =
                 "effDen_" + m_effStrings[var] + "_" + std::to_string(gmtPtCut) + "_" + m_etaStrings[etaReg];
@@ -395,7 +395,7 @@ void L1TMuonDQMOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker) {
                 ibooker.book1D(name, name + ";" + m_effLabelStrings[var], histBins.size() - 1, &histBins[0]);
           }
         }
-        for (const auto cut : m_cuts) {
+        for (const auto& cut : m_cuts) {
           const auto gmtPtCut = cut.first;
           const auto qualLevel = cut.second;
           std::string name = "effNum_" + m_effStrings[var] + "_" + std::to_string(gmtPtCut) + "_" +
@@ -434,7 +434,7 @@ const unsigned int L1TMuonDQMOffline::getNVertices(Handle<VertexCollection>& ver
   unsigned int nVtx = 0;
 
   if (vertex.isValid()) {
-    for (const auto vertexIt : *vertex) {
+    for (const auto& vertexIt : *vertex) {
       if (vertexIt.isValid() && !vertexIt.isFake()) {
         ++nVtx;
       }

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TESTFIT")
 
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.cosmicMuonTrajectories_cff")
 #process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectoriesP5_cff")

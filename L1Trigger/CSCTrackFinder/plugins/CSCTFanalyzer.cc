@@ -2,7 +2,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
@@ -12,6 +11,7 @@ CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset) : edm::EDAnalyzer() 
   emulTrackProducer = pset.getUntrackedParameter<edm::InputTag>("emulTrackProducer", edm::InputTag("csctfTrackDigis"));
   lctProducer = pset.getUntrackedParameter<edm::InputTag>("lctProducer", edm::InputTag("csctfDigis"));
   mbProducer = pset.getUntrackedParameter<edm::InputTag>("mbProducer", edm::InputTag("csctfDigis"));
+  scalesToken = esConsumes<L1MuTriggerScales, L1MuTriggerScalesRcd>();
   file = new TFile("qwe.root", "RECREATE");
   tree = new TTree("dy", "QWE");
   tree->Branch("nDataMuons", &nDataMuons, "nDataMuons/I");
@@ -74,8 +74,7 @@ void CSCTFanalyzer::endJob(void) {
 
 void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
   if (!ts) {
-    edm::ESHandle<L1MuTriggerScales> scales;
-    es.get<L1MuTriggerScalesRcd>().get(scales);
+    edm::ESHandle<L1MuTriggerScales> scales = es.getHandle(scalesToken);
     ts = scales.product();
   }
 

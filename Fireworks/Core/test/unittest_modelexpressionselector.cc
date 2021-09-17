@@ -11,14 +11,14 @@
 //
 
 // system include files
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
 
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"

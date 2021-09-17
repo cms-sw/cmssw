@@ -23,8 +23,8 @@ namespace cond {
                           std::string& objectType,
                           cond::SynchronizationType& synchronizationType,
                           cond::Time_t& endOfValidity,
-                          std::string& description,
-                          cond::Time_t& lastValidatedTime) = 0;
+                          cond::Time_t& lastValidatedTime,
+                          int& protectionCode) = 0;
       virtual bool getMetadata(const std::string& name,
                                std::string& description,
                                boost::posix_time::ptime& insertionTime,
@@ -40,13 +40,16 @@ namespace cond {
       virtual void update(const std::string& name,
                           cond::SynchronizationType synchronizationType,
                           cond::Time_t& endOfValidity,
-                          const std::string& description,
                           cond::Time_t lastValidatedTime,
                           const boost::posix_time::ptime& updateTime) = 0;
+      virtual void updateMetadata(const std::string& name,
+                                  const std::string& description,
+                                  const boost::posix_time::ptime& updateTime) = 0;
       virtual void updateValidity(const std::string& name,
                                   cond::Time_t lastValidatedTime,
                                   const boost::posix_time::ptime& updateTime) = 0;
-      virtual void setValidationMode() = 0;
+      virtual void setProtectionCode(const std::string& name, int code) = 0;
+      virtual void unsetProtectionCode(const std::string& name, int code) = 0;
     };
 
     class IPayloadTable {
@@ -96,42 +99,29 @@ namespace cond {
       virtual void insertMany(
           const std::string& tag,
           const std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> >& iovs) = 0;
+      virtual void eraseOne(const std::string& tag, cond::Time_t since, cond::Hash payloadId) = 0;
+      virtual void eraseMany(const std::string& tag,
+                             const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) = 0;
       virtual void erase(const std::string& tag) = 0;
     };
 
-    class ITagMigrationTable {
+    class ITagAccessPermissionTable {
     public:
-      virtual ~ITagMigrationTable() {}
+      virtual ~ITagAccessPermissionTable() {}
       virtual bool exists() = 0;
       virtual void create() = 0;
-      virtual bool select(const std::string& sourceAccount,
-                          const std::string& sourceTag,
-                          std::string& tagName,
-                          int& statusCode) = 0;
-      virtual void insert(const std::string& sourceAccount,
-                          const std::string& sourceTag,
-                          const std::string& tagName,
-                          int statusCode,
-                          const boost::posix_time::ptime& insertionTime) = 0;
-      virtual void updateValidationCode(const std::string& sourceAccount,
-                                        const std::string& sourceTag,
-                                        int statusCode) = 0;
-    };
-
-    class IPayloadMigrationTable {
-    public:
-      virtual ~IPayloadMigrationTable() {}
-      virtual bool exists() = 0;
-      virtual void create() = 0;
-      virtual bool select(const std::string& sourceAccount, const std::string& sourceToken, std::string& payloadId) = 0;
-      virtual void insert(const std::string& sourceAccount,
-                          const std::string& sourceToken,
-                          const std::string& payloadId,
-                          const boost::posix_time::ptime& insertionTime) = 0;
-      virtual void update(const std::string& sourceAccount,
-                          const std::string& sourceToken,
-                          const std::string& payloadId,
-                          const boost::posix_time::ptime& insertionTime) = 0;
+      virtual bool getAccessPermission(const std::string& tagName,
+                                       const std::string& credential,
+                                       int credentialType,
+                                       int accessType) = 0;
+      virtual void setAccessPermission(const std::string& tagName,
+                                       const std::string& credential,
+                                       int credentialType,
+                                       int accessType) = 0;
+      virtual void removeAccessPermission(const std::string& tagName,
+                                          const std::string& credential,
+                                          int credentialType) = 0;
+      virtual void removeEntriesForCredential(const std::string& credential, int credentialType) = 0;
     };
 
     class ITagLogTable {
@@ -157,6 +147,7 @@ namespace cond {
       virtual IIOVTable& iovTable() = 0;
       virtual IPayloadTable& payloadTable() = 0;
       virtual ITagLogTable& tagLogTable() = 0;
+      virtual ITagAccessPermissionTable& tagAccessPermissionTable() = 0;
     };
 
     class IGTTable {
@@ -215,7 +206,7 @@ namespace cond {
       virtual bool exists() = 0;
       virtual void create() = 0;
       virtual bool select(cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end) = 0;
-      virtual cond::Time_t getLastInserted() = 0;
+      virtual cond::Time_t getLastInserted(boost::posix_time::ptime& start, boost::posix_time::ptime& end) = 0;
       virtual bool getInclusiveRunRange(
           cond::Time_t lower,
           cond::Time_t upper,

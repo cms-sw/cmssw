@@ -33,8 +33,8 @@ public:
    * The error variable is 0 in case of success.
    */
   const AlgebraicSymMatrix55 &weightMatrix(int &error) const {
-    if
-      UNLIKELY(!weightIsAvailable) calculateWeightMatrix();
+    if UNLIKELY (!weightIsAvailable)
+      calculateWeightMatrix();
     error = inverseError;
     return thePerigeeWeight;
   }

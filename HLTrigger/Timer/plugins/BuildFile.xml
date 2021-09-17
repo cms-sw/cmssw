@@ -1,15 +1,14 @@
 <library file="*.cc" name="HLTriggerTimerPlugins">
-  <use   name="boost_regex"/>
-  <use   name="HLTrigger/Timer"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="DataFormats/Luminosity"/>
-  <use   name="DataFormats/Provenance"/>
-  <use   name="DataFormats/Scalers"/>
-  <use   name="DataFormats/VertexReco"/>
-  <use   name="SimDataFormats/PileupSummaryInfo"/>
-  <use   name="DQMServices/Core"/>
-  <use   name="RecoLuminosity/LumiProducer"/>
+  <use name="fmt"/>
+  <use name="json"/>
+  <use name="DQMServices/Core"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Scalers"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HLTrigger/Timer"/>
+  <use name="boost_regex"/>
   <flags EDM_PLUGIN="1"/>
 </library>

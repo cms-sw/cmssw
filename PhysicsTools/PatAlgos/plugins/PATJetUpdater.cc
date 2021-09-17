@@ -1,24 +1,74 @@
-//
+/**
+  \class    pat::PATJetUpdater PATJetUpdater.h "PhysicsTools/PatAlgos/interface/PATJetUpdater.h"
+  \brief    Produces pat::Jet's
 
-#include "PhysicsTools/PatAlgos/plugins/PATJetUpdater.h"
+   The PATJetUpdater produces analysis-level pat::Jet's starting from
+   a collection of pat::Jet's and updates information.
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+  \author   Andreas Hinzmann
+  \version  $Id: PATJetUpdater.h,v 1.00 2014/03/11 18:13:54 srappocc Exp $
+*/
 
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Common/interface/Association.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
-
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
-#include <vector>
-#include <memory>
 #include <algorithm>
+#include <memory>
+#include <vector>
+
+namespace pat {
+
+  class PATJetUpdater : public edm::stream::EDProducer<> {
+  public:
+    explicit PATJetUpdater(const edm::ParameterSet& iConfig);
+    ~PATJetUpdater() override;
+
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    // configurables
+    edm::EDGetTokenT<edm::View<reco::Jet>> jetsToken_;
+    bool sort_;
+    bool addJetCorrFactors_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors>>> jetCorrFactorsTokens_;
+
+    bool addBTagInfo_;
+    bool addDiscriminators_;
+    std::vector<edm::InputTag> discriminatorTags_;
+    std::vector<edm::EDGetTokenT<reco::JetFloatAssociation::Container>> discriminatorTokens_;
+    std::vector<std::string> discriminatorLabels_;
+    bool addTagInfos_;
+    std::vector<edm::InputTag> tagInfoTags_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo>>> tagInfoTokens_;
+    std::vector<std::string> tagInfoLabels_;
+
+    GreaterByPt<Jet> pTComparator_;
+
+    bool useUserData_;
+    pat::PATUserDataHelper<pat::Jet> userDataHelper_;
+    //
+    bool printWarning_;  // this is introduced to issue warnings only once per job
+  };
+
+}  // namespace pat
 
 using namespace pat;
 
@@ -26,6 +76,7 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
     : useUserData_(iConfig.exists("userData")), printWarning_(iConfig.getParameter<bool>("printWarning")) {
   // initialize configurables
   jetsToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jetSource"));
+  sort_ = iConfig.getParameter<bool>("sort");
   addJetCorrFactors_ = iConfig.getParameter<bool>("addJetCorrFactors");
   if (addJetCorrFactors_) {
     jetCorrFactorsTokens_ = edm::vector_transform(
@@ -216,7 +267,9 @@ void PATJetUpdater::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // sort jets in pt
-  std::sort(patJets->begin(), patJets->end(), pTComparator_);
+  if (sort_) {
+    std::sort(patJets->begin(), patJets->end(), pTComparator_);
+  }
 
   // put genEvt  in Event
   iEvent.put(std::move(patJets));
@@ -231,6 +284,9 @@ void PATJetUpdater::fillDescriptions(edm::ConfigurationDescriptions& description
 
   // input source
   iDesc.add<edm::InputTag>("jetSource", edm::InputTag("no default"))->setComment("input collection");
+
+  // sort inputs (by pt)
+  iDesc.add<bool>("sort", true);
 
   // tag info
   iDesc.add<bool>("addTagInfos", true);

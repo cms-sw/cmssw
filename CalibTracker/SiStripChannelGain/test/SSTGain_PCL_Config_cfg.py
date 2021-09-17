@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("APVGAIN")
 
 process.load('Configuration.StandardSequences.Geometry_cff')
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -14,8 +14,6 @@ process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cfi")
 process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
 
-
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #process.MessageLogger = cms.Service("MessageLogger",
 #    cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')  ),

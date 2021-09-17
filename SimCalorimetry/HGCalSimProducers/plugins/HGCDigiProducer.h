@@ -3,7 +3,7 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <vector>
 
@@ -22,19 +22,18 @@ namespace CLHEP {
 
 class HGCDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducesCollector, edm::ConsumesCollector& iC);
   HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
   void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
   void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
   void accumulate(edm::Event const&, edm::EventSetup const&) override;
   void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~HGCDigiProducer() override = default;
 
 private:
   //the digitizer
+  bool premixStage1_, premixStage2_;
   HGCDigitizer theDigitizer_;
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };

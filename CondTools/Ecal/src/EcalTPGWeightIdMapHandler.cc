@@ -58,7 +58,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
     }
 
     unsigned int max_since = 0;
-    max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+    max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
     edm::LogInfo("EcalTPGWeightIdMapHandler") << "max_since : " << max_since;
     Ref weightIdMap_db = lastPayload();
 
@@ -281,7 +281,7 @@ void popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   unsigned int wloc[5];
   EcalTPGWeights w;
   EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
-  int ngroups, igroups;
+  int ngroups, igroups = 0;
   edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
   for (int i = 0; i < 5; i++)
     std::getline(fxml, dummyLine);  // skip first lines

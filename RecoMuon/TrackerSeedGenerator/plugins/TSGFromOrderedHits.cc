@@ -1,5 +1,7 @@
 #include "TSGFromOrderedHits.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -17,10 +19,9 @@ TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset, edm::Consu
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
   theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
-      std::unique_ptr<OrderedHitsGenerator>{
-          OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)},
+      OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC),
       nullptr,
-      std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)});
+      SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet, edm::ConsumesCollector(iC)));
 }
 
 TSGFromOrderedHits::~TSGFromOrderedHits() = default;

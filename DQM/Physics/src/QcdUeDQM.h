@@ -29,14 +29,13 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TMath.h>
 #include <vector>
 
 #define PI 3.141592654
 
-class DQMStore;
-class MonitorElement;
 class TrackerGeometry;
 class TH1F;
 class TH2F;

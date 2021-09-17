@@ -3,13 +3,14 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlot.h"
-#include "DQMServices/ClientConfig/interface/DQMParserBase.h"
-#include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
+#include <cassert>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 class SummaryPlotXmlParser;
 
@@ -22,7 +23,7 @@ std::ostream& operator<<(std::ostream&, const SummaryPlotXmlParser&);
     
     @brief Parses the "summary plot" xml configuration file
 */
-class SummaryPlotXmlParser : public DQMParserBase {
+class SummaryPlotXmlParser {
 public:
   // ---------- Co(de)nstructors and consts ----------
 
@@ -30,7 +31,7 @@ public:
   SummaryPlotXmlParser();
 
   /** Default destructor. */
-  ~SummaryPlotXmlParser() override { ; }
+  ~SummaryPlotXmlParser() { ; }
 
   // ---------- Public interface ----------
 

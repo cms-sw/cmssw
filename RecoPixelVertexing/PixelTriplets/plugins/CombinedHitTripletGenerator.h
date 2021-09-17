@@ -4,7 +4,7 @@
 /** A HitTripletGenerator consisting of a set of 
  *  triplet generators of type HitTripletGeneratorFromPairAndLayers
  *  initialised from provided layers in the form of PixelLayerTriplets  
- */ 
+ */
 
 #include <vector>
 #include <memory>
@@ -20,27 +20,32 @@ class TrackingRegion;
 class HitTripletGeneratorFromPairAndLayers;
 class SeedingLayerSetsHits;
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class CombinedHitTripletGenerator : public HitTripletGenerator {
 public:
-  typedef LayerHitMapCache  LayerCacheType;
+  typedef LayerHitMapCache LayerCacheType;
 
 public:
-
-  CombinedHitTripletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+  CombinedHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   ~CombinedHitTripletGenerator() override;
 
   /// from base class
-  void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & triplets,
-      const edm::Event & ev,  const edm::EventSetup& es) override;
+  void hitTriplets(const TrackingRegion& reg,
+                   OrderedHitTriplets& triplets,
+                   const edm::Event& ev,
+                   const edm::EventSetup& es) override;
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
-  LayerCacheType            theLayerCache;
+  LayerCacheType theLayerCache;
 
   std::unique_ptr<HitTripletGeneratorFromPairAndLayers> theGenerator;
 };

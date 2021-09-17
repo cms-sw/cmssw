@@ -13,7 +13,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) {
+CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) : CSCAlgo(consumesCollector()) {
   //Digi Level
   IT_L1MuGMTReadout = iConfig.getParameter<edm::InputTag>("L1MuGMTReadoutLabel");
 
@@ -66,6 +66,7 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) {
   CSCAlgo.SetMatchingDEtaThreshold((float)iConfig.getParameter<double>("MatchingDEtaThreshold"));
   CSCAlgo.SetMatchingDWireThreshold(iConfig.getParameter<int>("MatchingDWireThreshold"));
 
+  cscGeometry_token = esConsumes<CSCGeometry, MuonGeometryRecord>();
   cosmicmuon_token_ = consumes<reco::MuonCollection>(IT_CosmicMuon);
   csctimemap_token_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(IT_CosmicMuon.label(), "csc"));
   muon_token_ = consumes<reco::MuonCollection>(IT_Muon);
@@ -83,8 +84,7 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) {
 
 void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //Get CSC Geometry
-  edm::ESHandle<CSCGeometry> TheCSCGeometry;
-  iSetup.get<MuonGeometryRecord>().get(TheCSCGeometry);
+  edm::ESHandle<CSCGeometry> TheCSCGeometry = iSetup.getHandle(cscGeometry_token);
 
   //Get Muons Collection from Cosmic Reconstruction
   edm::Handle<reco::MuonCollection> TheCosmics;

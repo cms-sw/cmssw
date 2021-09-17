@@ -25,7 +25,7 @@ ElectronSeed::ElectronSeed(const TrajectorySeed& seed)
       isEcalDriven_(false),
       isTrackerDriven_(false) {}
 
-ElectronSeed::ElectronSeed(PTrajectoryStateOnDet& pts, recHitContainer& rh, PropagationDirection& dir)
+ElectronSeed::ElectronSeed(PTrajectoryStateOnDet& pts, RecHitContainer& rh, PropagationDirection& dir)
     : TrajectorySeed(pts, rh, dir),
       ctfTrack_(),
       caloCluster_(),
@@ -48,7 +48,7 @@ unsigned int ElectronSeed::hitsMask() const {
   int mask = 0;
   for (size_t hitNr = 0; hitNr < nHits(); hitNr++) {
     int bitNr = 0x1 << hitNr;
-    int hitDetId = (recHits().first + hitNr)->geographicalId().rawId();
+    int hitDetId = (recHits().begin() + hitNr)->geographicalId().rawId();
     auto detIdMatcher = [hitDetId](const ElectronSeed::PMVars& var) { return hitDetId == var.detId; };
     if (std::find_if(hitInfo_.begin(), hitInfo_.end(), detIdMatcher) != hitInfo_.end()) {
       mask |= bitNr;
@@ -79,7 +79,7 @@ void ElectronSeed::initTwoHitSeed(const unsigned char hitMask) {
     auto& info = hitInfo_[hitNr];
     info.setDPhi(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
     info.setDRZ(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
-    info.setDet((recHits().first + hitNrs[hitNr])->geographicalId(), -1);
+    info.setDet((recHits().begin() + hitNrs[hitNr])->geographicalId(), -1);
   }
 }
 
@@ -128,11 +128,11 @@ std::vector<ElectronSeed::PMVars> ElectronSeed::createHitInfo(const float dPhi1P
                                                               const float dRZ2Pos,
                                                               const float dRZ2Neg,
                                                               const char hitMask,
-                                                              const TrajectorySeed::range recHits) {
+                                                              TrajectorySeed::RecHitRange const& recHits) {
   if (hitMask == 0)
     return std::vector<ElectronSeed::PMVars>();  //was trackerDriven so no matched hits
 
-  size_t nrRecHits = std::distance(recHits.first, recHits.second);
+  size_t nrRecHits = std::distance(recHits.begin(), recHits.end());
   std::vector<unsigned int> hitNrs = hitNrsFromMask(hitMask);
 
   if (hitNrs.size() != 2) {
@@ -153,12 +153,12 @@ std::vector<ElectronSeed::PMVars> ElectronSeed::createHitInfo(const float dPhi1P
   hitInfo[0].setDPhi(dPhi1Pos, dPhi1Neg);
   hitInfo[0].setDRZ(dRZ1Pos, dRZ1Neg);
   hitInfo[0].setDet(
-      (recHits.first + hitNrs[0])->geographicalId(),
+      (recHits.begin() + hitNrs[0])->geographicalId(),
       -1);  //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   hitInfo[1].setDPhi(dPhi2Pos, dPhi2Neg);
   hitInfo[1].setDRZ(dRZ2Pos, dRZ2Neg);
   hitInfo[1].setDet(
-      (recHits.first + hitNrs[1])->geographicalId(),
+      (recHits.begin() + hitNrs[1])->geographicalId(),
       -1);  //getting the layer information needs tracker topo, hence why its stored in the first as its a pain to access
   return hitInfo;
 }

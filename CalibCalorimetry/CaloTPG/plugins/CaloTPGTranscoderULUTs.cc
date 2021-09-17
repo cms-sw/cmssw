@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -106,7 +106,10 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
       lsbQIE11(iConfig.getParameter<edm::ParameterSet>("tpScales")
                    .getParameter<edm::ParameterSet>("HBHE")
                    .getParameter<double>("LSBQIE11")) {
-  setWhatProduced(this).setConsumes(lutMetadataToken).setConsumes(theTrigTowerGeometryToken).setConsumes(topoToken);
+  auto cc = setWhatProduced(this);
+  lutMetadataToken = cc.consumes();
+  theTrigTowerGeometryToken = cc.consumes();
+  topoToken = cc.consumes();
 }
 
 CaloTPGTranscoderULUTs::~CaloTPGTranscoderULUTs() {

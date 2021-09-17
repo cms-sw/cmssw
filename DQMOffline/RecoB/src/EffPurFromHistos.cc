@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 using namespace std;
@@ -68,33 +67,35 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
       endOutput(endO) {
   histoExtension = "_" + dDiscriminatorFC.baseNameTitle();
 
-  discrNoCutEffic.reset(new FlavourHistograms<double>("totalEntries" + histoExtension,
-                                                      "Total Entries: " + dDiscriminatorFC.baseNameDescription(),
-                                                      dDiscriminatorFC.nBins(),
-                                                      dDiscriminatorFC.lowerBound(),
-                                                      dDiscriminatorFC.upperBound(),
-                                                      false,
-                                                      true,
-                                                      false,
-                                                      "b",
-                                                      label,
-                                                      mcPlots_,
-                                                      ibook));
+  discrNoCutEffic =
+      std::make_unique<FlavourHistograms<double>>("totalEntries" + histoExtension,
+                                                  "Total Entries: " + dDiscriminatorFC.baseNameDescription(),
+                                                  dDiscriminatorFC.nBins(),
+                                                  dDiscriminatorFC.lowerBound(),
+                                                  dDiscriminatorFC.upperBound(),
+                                                  false,
+                                                  true,
+                                                  false,
+                                                  "b",
+                                                  label,
+                                                  mcPlots_,
+                                                  ibook);
 
   // conditional discriminator cut for efficiency histos
 
-  discrCutEfficScan.reset(new FlavourHistograms<double>("effVsDiscrCut" + histoExtension,
-                                                        "Eff. vs Disc. Cut: " + dDiscriminatorFC.baseNameDescription(),
-                                                        dDiscriminatorFC.nBins(),
-                                                        dDiscriminatorFC.lowerBound(),
-                                                        dDiscriminatorFC.upperBound(),
-                                                        false,
-                                                        true,
-                                                        false,
-                                                        "b",
-                                                        label,
-                                                        mcPlots_,
-                                                        ibook));
+  discrCutEfficScan =
+      std::make_unique<FlavourHistograms<double>>("effVsDiscrCut" + histoExtension,
+                                                  "Eff. vs Disc. Cut: " + dDiscriminatorFC.baseNameDescription(),
+                                                  dDiscriminatorFC.nBins(),
+                                                  dDiscriminatorFC.lowerBound(),
+                                                  dDiscriminatorFC.upperBound(),
+                                                  false,
+                                                  true,
+                                                  false,
+                                                  "b",
+                                                  label,
+                                                  mcPlots_,
+                                                  ibook);
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_) {
     if (mcPlots_ > 2) {
@@ -602,5 +603,7 @@ void EffPurFromHistos::compute(DQMStore::IBooker& ibook) {
     }
   }
 }
+
+#include <memory>
 
 #include <typeinfo>

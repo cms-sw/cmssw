@@ -1,4 +1,5 @@
 #include "CondCore/CondDB/interface/IOVEditor.h"
+#include "CondCore/CondDB/interface/Auth.h"
 #include "CondCore/CondDB/interface/Utils.h"
 #include "SessionImpl.h"
 //
@@ -17,6 +18,7 @@ namespace cond {
             synchronizationType(cond::SYNCH_ANY),
             description(""),
             iovBuffer(),
+            deleteBuffer(),
             changes() {}
       std::string tag;
       cond::TimeType timeType;
@@ -27,11 +29,13 @@ namespace cond {
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL;
       boost::posix_time::ptime creationTime;
       bool change = false;
+      bool metadataChange = false;
       bool exists = false;
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> > iovBuffer;
-      bool validationMode = false;
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > deleteBuffer;
       std::set<std::string> changes;
+      int protectionCode = 0;
     };
 
     IOVEditor::IOVEditor() : m_data(), m_session() {}
@@ -51,9 +55,12 @@ namespace cond {
       m_data->synchronizationType = synchronizationType;
       m_data->creationTime = creationTime;
       m_data->change = true;
+      m_data->metadataChange = true;
     }
 
     IOVEditor::IOVEditor(const IOVEditor& rhs) : m_data(rhs.m_data), m_session(rhs.m_session) {}
+
+    IOVEditor::~IOVEditor() {}
 
     IOVEditor& IOVEditor::operator=(const IOVEditor& rhs) {
       m_data = rhs.m_data;
@@ -69,9 +76,30 @@ namespace cond {
                                                     m_data->payloadType,
                                                     m_data->synchronizationType,
                                                     m_data->endOfValidity,
-                                                    m_data->description,
-                                                    m_data->lastValidatedTime)) {
+                                                    m_data->lastValidatedTime,
+                                                    m_data->protectionCode)) {
         cond::throwException("Tag \"" + tag + "\" has not been found in the database.", "IOVEditor::load");
+      }
+      if (m_data->protectionCode) {
+        if (m_data->protectionCode & cond::auth::COND_DBTAG_WRITE_ACCESS_CODE) {
+          bool writeAllowed = m_session->iovSchema().tagAccessPermissionTable().getAccessPermission(
+              tag,
+              m_session->principalName,
+              cond::auth::COND_DBKEY_CREDENTIAL_CODE,
+              cond::auth::COND_DBTAG_WRITE_ACCESS_CODE);
+          if (!writeAllowed)
+            cond::throwException(
+                "Tag \"" + tag + "\" can't be accessed for update by db-user \"" + m_session->principalName + "\".",
+                "IOVEditor::load");
+        }
+        if (m_data->protectionCode & cond::auth::COND_DBTAG_LOCK_ACCESS_CODE) {
+          bool mylock = m_session->iovSchema().tagAccessPermissionTable().getAccessPermission(
+              tag, m_session->sessionHash, cond::auth::COND_SESSION_HASH_CODE, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+          if (!mylock)
+            cond::throwException(
+                "Tag \"" + tag + "\" can't be accessed for update, because it has been locked by an other session.",
+                "IOVEditor::load");
+        }
       }
       m_data->tag = tag;
       m_data->exists = true;
@@ -111,7 +139,7 @@ namespace cond {
     void IOVEditor::setDescription(const std::string& description) {
       if (m_data.get()) {
         m_data->description = description;
-        m_data->change = true;
+        m_data->metadataChange = true;
         m_data->changes.insert("Description");
       }
     }
@@ -126,11 +154,6 @@ namespace cond {
         m_data->change = true;
         m_data->changes.insert("LastValidatedTime");
       }
-    }
-
-    void IOVEditor::setValidationMode() {
-      if (m_data.get())
-        m_data->validationMode = true;
     }
 
     void IOVEditor::insert(cond::Time_t since, const cond::Hash& payloadHash, bool checkType) {
@@ -148,6 +171,12 @@ namespace cond {
       }
     }
 
+    void IOVEditor::erase(cond::Time_t since, const cond::Hash& payloadHash) {
+      if (m_data.get()) {
+        m_data->deleteBuffer.push_back(std::tie(since, payloadHash));
+      }
+    }
+
     bool iovSorter(const std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime>& f,
                    const std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime>& s) {
       return std::get<0>(f) < std::get<0>(s);
@@ -161,11 +190,11 @@ namespace cond {
       std::string lt = logText;
       if (lt.empty())
         lt = "-";
-      if (m_data->change) {
-        if (m_data->description.empty())
+      if (m_data->change || m_data->metadataChange) {
+        if (m_data->metadataChange && m_data->description.empty())
           throwException("A non-empty description string is mandatory.", "IOVEditor::flush");
-        if (m_data->validationMode)
-          m_session->iovSchema().tagTable().setValidationMode();
+        //if (m_data->validationMode)
+        //  m_session->iovSchema().tagTable().setValidationMode();
         if (!m_data->exists) {
           // set the creation time ( only available in the migration from v1...)
           if (m_data->creationTime.is_not_a_date_time())
@@ -189,16 +218,20 @@ namespace cond {
           m_data->exists = true;
           ret = true;
         } else {
-          m_session->iovSchema().tagTable().update(m_data->tag,
-                                                   m_data->synchronizationType,
-                                                   m_data->endOfValidity,
-                                                   m_data->description,
-                                                   m_data->lastValidatedTime,
-                                                   operationTime);
+          if (m_data->change) {
+            m_session->iovSchema().tagTable().update(m_data->tag,
+                                                     m_data->synchronizationType,
+                                                     m_data->endOfValidity,
+                                                     m_data->lastValidatedTime,
+                                                     operationTime);
+          }
+          if (m_data->metadataChange) {
+            m_session->iovSchema().tagTable().updateMetadata(m_data->tag, m_data->description, operationTime);
+          }
           if (m_session->iovSchema().tagLogTable().exists()) {
             std::string action("Tag header updated. Changes involve: ");
             size_t i = 0;
-            for (auto c : m_data->changes) {
+            for (const auto& c : m_data->changes) {
               action += c;
               if (i == (m_data->changes.size() - 1))
                 action += ".";
@@ -219,7 +252,7 @@ namespace cond {
         //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
         //This policy is stricter than the one deployed in the Condition Upload service,
         //which allows insertions in the past or overriding for IOVs larger than the first condition safe run for HLT ("HLT"/"EXPRESS" synchronizations) and Tier0 ("PROMPT"/"PCL").
-        //This is intended: in the C++ API we have not got a way to determine the first condition safe runs.
+        //This is intended: in the C++ API we have no way to determine the first condition safe runs.
         if (!forceInsertion && m_data->synchronizationType != cond::SYNCH_ANY &&
             m_data->synchronizationType != cond::SYNCH_VALIDATION) {
           // retrieve the last since
@@ -243,16 +276,31 @@ namespace cond {
         }
         // insert the new iovs
         m_session->iovSchema().iovTable().insertMany(m_data->tag, m_data->iovBuffer);
+        ret = true;
+      }
+      if (!m_data->deleteBuffer.empty()) {
+        // delete the specified iovs
+        m_session->iovSchema().iovTable().eraseMany(m_data->tag, m_data->deleteBuffer);
+        ret = true;
+      }
+      if (m_session->iovSchema().tagLogTable().exists()) {
         std::stringstream msg;
-        msg << m_data->iovBuffer.size() << " iov(s) inserted.";
-        if (m_session->iovSchema().tagLogTable().exists()) {
+        if (!m_data->iovBuffer.empty())
+          msg << m_data->iovBuffer.size() << " iov(s) inserted";
+        if (!msg.str().empty())
+          msg << "; ";
+        else
+          msg << ".";
+        if (!m_data->deleteBuffer.empty())
+          msg << m_data->deleteBuffer.size() << " iov(s) deleted.";
+        if (ret) {
           m_session->iovSchema().tagLogTable().insert(
               m_data->tag, operationTime, cond::getUserName(), cond::getHostName(), cond::getCommand(), msg.str(), lt);
         }
-        m_data->iovBuffer.clear();
-        m_data->changes.clear();
-        ret = true;
       }
+      m_data->iovBuffer.clear();
+      m_data->deleteBuffer.clear();
+      m_data->changes.clear();
       return ret;
     }
 
@@ -270,6 +318,52 @@ namespace cond {
 
     bool IOVEditor::flush(const std::string& logText, bool forceInsertion) {
       return flush(logText, boost::posix_time::microsec_clock::universal_time(), forceInsertion);
+    }
+
+    bool IOVEditor::isLocked() const { return m_data->protectionCode & cond::auth::COND_DBTAG_LOCK_ACCESS_CODE; }
+
+    void IOVEditor::lock() {
+      if (isLocked())
+        return;
+      checkTransaction("IOVEditor::lock");
+      m_session->iovSchema().tagAccessPermissionTable().setAccessPermission(m_data->tag,
+                                                                            m_session->sessionHash,
+                                                                            cond::auth::COND_SESSION_HASH_CODE,
+                                                                            cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_data->protectionCode |= cond::auth::COND_DBTAG_LOCK_ACCESS_CODE;
+      m_session->iovSchema().tagTable().setProtectionCode(m_data->tag, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_session->lockedTags.insert(m_data->tag);
+      std::string lt("-");
+      std::string action("Lock set by session ");
+      action += m_session->sessionHash;
+      m_session->iovSchema().tagLogTable().insert(m_data->tag,
+                                                  boost::posix_time::microsec_clock::universal_time(),
+                                                  cond::getUserName(),
+                                                  cond::getHostName(),
+                                                  cond::getCommand(),
+                                                  action,
+                                                  lt);
+    }
+
+    void IOVEditor::unlock() {
+      if (!isLocked())
+        return;
+      checkTransaction("IOVEditor::unlock");
+      m_session->iovSchema().tagAccessPermissionTable().removeAccessPermission(
+          m_data->tag, m_session->sessionHash, cond::auth::COND_SESSION_HASH_CODE);
+      m_data->protectionCode &= cond::auth::COND_DBTAG_WRITE_ACCESS_CODE;
+      m_session->iovSchema().tagTable().unsetProtectionCode(m_data->tag, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_session->lockedTags.erase(m_data->tag);
+      std::string lt("-");
+      std::string action("Lock released by session ");
+      action += m_session->sessionHash;
+      m_session->iovSchema().tagLogTable().insert(m_data->tag,
+                                                  boost::posix_time::microsec_clock::universal_time(),
+                                                  cond::getUserName(),
+                                                  cond::getHostName(),
+                                                  cond::getCommand(),
+                                                  action,
+                                                  lt);
     }
 
     void IOVEditor::checkTransaction(const std::string& ctx) {

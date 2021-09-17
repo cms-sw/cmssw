@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Utilities/interface/StdPairHasher.h"
 #include "tbb/concurrent_unordered_map.h"
 
 #include <atomic>
@@ -197,6 +197,7 @@ namespace edm {
 
     private:
       void preModuleConstruction(edm::ModuleDescription const&);
+      void preModuleDestruction(edm::ModuleDescription const&);
       void postBeginJob();
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
@@ -226,7 +227,9 @@ namespace edm {
       // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
-      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>, std::pair<decltype(beginTime_), bool>>
+      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
+                                    std::pair<decltype(beginTime_), bool>,
+                                    edm::StdPairHasher>
           stallStart_{};
 
       std::vector<std::string> moduleLabels_{};
@@ -253,6 +256,7 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
       stallThreshold_{
           std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold")))} {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
+  iRegistry.watchPreModuleDestruction(this, &StallMonitor::preModuleDestruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
   iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
   iRegistry.watchPreModuleEventAcquire(this, &StallMonitor::preModuleEventAcquire);
@@ -371,6 +375,12 @@ void StallMonitor::preModuleConstruction(ModuleDescription const& md) {
     moduleLabels_.resize(mid + 1);
     moduleLabels_.back() = md.moduleLabel();
   }
+}
+
+void StallMonitor::preModuleDestruction(ModuleDescription const& md) {
+  // Reset the module label back if the module is deleted before
+  // beginJob() so that the entry is ignored in the summary printouts.
+  moduleLabels_[md.id()] = "";
 }
 
 void StallMonitor::postBeginJob() {

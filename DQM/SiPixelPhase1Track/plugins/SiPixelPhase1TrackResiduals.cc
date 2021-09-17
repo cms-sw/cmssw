@@ -10,20 +10,29 @@
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 namespace {
 
   class SiPixelPhase1TrackResiduals final : public SiPixelPhase1Base {
-    enum { RESIDUAL_X, RESIDUAL_Y, RESONEDGE_X, RESONEDGE_Y, RESOTHERBAD_X, RESOTHERBAD_Y };
+    enum {
+      RESIDUAL_X,
+      RESIDUAL_Y,
+      RESONEDGE_X,
+      RESONEDGE_Y,
+      RESOTHERBAD_X,
+      RESOTHERBAD_Y,
+      NormRes_X,
+      NormRes_Y,
+      DRNR_X,
+      DRNR_Y
+    };
 
   public:
     explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
@@ -33,6 +42,8 @@ namespace {
     TrackerValidationVariables validator;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+
     bool applyVertexCut_;
   };
 
@@ -41,14 +52,15 @@ namespace {
     applyVertexCut_ = iConfig.getUntrackedParameter<bool>("VertexCut", true);
 
     offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
+
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   }
 
   void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (!checktrigger(iEvent, iSetup, DCS))
       return;
 
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
 
     edm::Handle<reco::VertexCollection> vertices;
@@ -79,6 +91,13 @@ namespace {
 
         histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
         histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
+
+        if (it.resXprimeErr != 0 && it.resYprimeErr != 0) {
+          histo[NormRes_X].fill(it.resXprime / it.resXprimeErr, id, &iEvent);
+          histo[NormRes_Y].fill(it.resYprime / it.resYprimeErr, id, &iEvent);
+          histo[DRNR_X].fill(it.resXprime / it.resXprimeErr, id, &iEvent);
+          histo[DRNR_Y].fill(it.resYprime / it.resYprimeErr, id, &iEvent);
+        }
 
         if (it.isOnEdgePixel) {
           histo[RESONEDGE_X].fill(it.resXprime, id, &iEvent);

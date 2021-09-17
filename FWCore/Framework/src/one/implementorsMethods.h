@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/one/implementors.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations
@@ -62,6 +62,26 @@ namespace edm {
       template <typename T>
       void LuminosityBlockWatcher<T>::doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) {
         this->endLuminosityBlock(rp, c);
+      }
+
+      template <typename T>
+      void WatchProcessBlock<T>::doBeginProcessBlock_(ProcessBlock const& pb) {
+        this->beginProcessBlock(pb);
+      }
+
+      template <typename T>
+      void WatchProcessBlock<T>::doEndProcessBlock_(ProcessBlock const& pb) {
+        this->endProcessBlock(pb);
+      }
+
+      template <typename T>
+      void BeginProcessBlockProducer<T>::doBeginProcessBlockProduce_(ProcessBlock& pb) {
+        this->beginProcessBlockProduce(pb);
+      }
+
+      template <typename T>
+      void EndProcessBlockProducer<T>::doEndProcessBlockProduce_(ProcessBlock& pb) {
+        this->endProcessBlockProduce(pb);
       }
 
       template <typename T>

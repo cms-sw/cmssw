@@ -8,6 +8,9 @@
 
 class EcalMEFormatter : public DQMEDHarvester, public ecaldqm::DQWorker {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   EcalMEFormatter(edm::ParameterSet const &);
   ~EcalMEFormatter() override{};
 

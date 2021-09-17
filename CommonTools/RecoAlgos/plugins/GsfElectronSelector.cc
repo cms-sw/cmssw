@@ -26,9 +26,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
- typedef SingleObjectSelector<
-           reco::GsfElectronCollection, 
-           StringCutObjectSelector<reco::GsfElectron> 
-         > GsfElectronSelector;
+typedef SingleObjectSelector<reco::GsfElectronCollection, StringCutObjectSelector<reco::GsfElectron> >
+    GsfElectronSelector;
 
-DEFINE_FWK_MODULE( GsfElectronSelector );
+DEFINE_FWK_MODULE(GsfElectronSelector);

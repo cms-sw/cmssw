@@ -1,9 +1,11 @@
 #ifndef RECOEGAMMA_EGAMMAISOLATIONALGOS_ELETKISOLFROMCANDS_H
 #define RECOEGAMMA_EGAMMAISOLATIONALGOS_ELETKISOLFROMCANDS_H
 
+#include "CommonTools/Utils/interface/KinematicColumns.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "FWCore/SOA/interface/Table.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -43,13 +45,6 @@
 
 class EleTkIsolFromCands {
 public:
-  enum class PIDVeto {
-    NONE = 0,
-    ELES,
-    NONELES,
-  };
-
-private:
   struct TrkCuts {
     float minPt;
     float minDR2;
@@ -65,50 +60,76 @@ private:
     static edm::ParameterSetDescription pSetDescript();
   };
 
-  TrkCuts barrelCuts_, endcapCuts_;
+  struct Configuration {
+    explicit Configuration(const edm::ParameterSet& para)
+        : barrelCuts(para.getParameter<edm::ParameterSet>("barrelCuts")),
+          endcapCuts(para.getParameter<edm::ParameterSet>("endcapCuts")) {}
+    const TrkCuts barrelCuts;
+    const TrkCuts endcapCuts;
+  };
 
-public:
-  explicit EleTkIsolFromCands(const edm::ParameterSet& para);
-  EleTkIsolFromCands(const EleTkIsolFromCands&) = default;
-  ~EleTkIsolFromCands() = default;
-  EleTkIsolFromCands& operator=(const EleTkIsolFromCands&) = default;
+  enum class PIDVeto {
+    NONE = 0,
+    ELES,
+    NONELES,
+  };
+
+  explicit EleTkIsolFromCands(Configuration const& cfg, reco::TrackCollection const& tracks)
+      : cfg_{cfg}, tracks_{&tracks} {}
+  explicit EleTkIsolFromCands(Configuration const& cfg,
+                              pat::PackedCandidateCollection const& cands,
+                              PIDVeto pidVeto = PIDVeto::NONE)
+      : cfg_{cfg}, cands_{&cands}, pidVeto_{pidVeto} {}
 
   static edm::ParameterSetDescription pSetDescript();
 
-  std::pair<int, double> calIsol(const reco::TrackBase& trk,
-                                 const pat::PackedCandidateCollection& cands,
-                                 const PIDVeto = PIDVeto::NONE) const;
-  std::pair<int, double> calIsol(const double eleEta,
-                                 const double elePhi,
-                                 const double eleVZ,
-                                 const pat::PackedCandidateCollection& cands,
-                                 const PIDVeto = PIDVeto::NONE) const;
-
-  std::pair<int, double> calIsol(const reco::TrackBase& trk, const reco::TrackCollection& tracks) const;
-  std::pair<int, double> calIsol(const double eleEta,
-                                 const double elePhi,
-                                 const double eleVZ,
-                                 const reco::TrackCollection& tracks) const;
-
-  //little helper function for the four calIsol functions for it to directly return the pt
-  template <typename... Args>
-  double calIsolPt(Args&&... args) const {
-    return calIsol(std::forward<Args>(args)...).second;
-  }
-
   static PIDVeto pidVetoFromStr(const std::string& vetoStr);
-  static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
+
+  struct Output {
+    const int nTracks;
+    const float ptSum;
+  };
+
+  Output operator()(const reco::TrackBase& electronTrack);
 
 private:
-  static bool passTrkSel(const reco::TrackBase& trk,
-                         const double trkPt,
-                         const TrkCuts& cuts,
-                         const double eleEta,
-                         const double elePhi,
-                         const double eleVZ);
+  // For each electron, we want to try out which tracks are in a cone around
+  // it. However, this will get expensive if there are many electrons and
+  // tracks (Phase II conditions). In particular, calling
+  // reco::TrackBase::eta() many times is costy because eta is not precomputed.
+  // To solve this, we first cache the tracks in a simpler data structure in
+  // which eta is already computed (TrackTable). Furthermore, the tracks are
+  // preselected by the cuts that can already be applied without considering
+  // the electron. Note that this has to be done twice, because the required
+  // preselection is different for barrel and endcap electrons.
+
+  using TrackTable = edm::soa::Table<edm::soa::col::Pt, edm::soa::col::Eta, edm::soa::col::Phi, edm::soa::col::Vz>;
+
+  static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
+
+  static TrackTable preselectTracks(reco::TrackCollection const& tracks, TrkCuts const& cuts);
+  static TrackTable preselectTracksFromCands(pat::PackedCandidateCollection const& cands,
+                                             TrkCuts const& cuts,
+                                             PIDVeto = PIDVeto::NONE);
+
+  static bool passTrackPreselection(const reco::TrackBase& trk, float trkPt, const TrkCuts& cuts);
+
   //no qualities specified, accept all, ORed
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);
+
+  TrackTable const& getPreselectedTracks(bool isBarrel);
+
+  Configuration const& cfg_;
+
+  // All of these member variables are related to the caching of preselected tracks
+  reco::TrackCollection const* tracks_ = nullptr;
+  pat::PackedCandidateCollection const* cands_ = nullptr;
+  const PIDVeto pidVeto_ = PIDVeto::NONE;
+  TrackTable preselectedTracksWithBarrelCuts_;
+  TrackTable preselectedTracksWithEndcapCuts_;
+  bool tracksCachedForBarrelCuts_ = false;
+  bool tracksCachedForEndcapCuts_ = false;
 };
 
 #endif

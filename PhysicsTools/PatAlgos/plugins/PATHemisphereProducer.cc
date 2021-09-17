@@ -1,10 +1,9 @@
-
 // -*- C++ -*-
 //
-// Package:    PatShapeAna
-// Class:      PatShapeAna
+// Package:    PhysicsTools/PatAlgos
+// Class:      PATHemisphereProducer
 //
-/**\class PatShapeAna PatShapeAna.cc PhysicsTools/PatShapeAna/src/PatShapeAna.cc
+/**\class PATHemisphereProducer PATHemisphereProducer.cc "PhysicsTools/PatAlgos/plugins/PATHemisphereProducer.cc"
 
  Description: <one line class summary>
 
@@ -12,15 +11,11 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Tanja Rommerskirchen
-//         Created:  Sat Mar 22 12:58:04 CET 2008
+// Original Authors:  Christian Autermann, Tanja Rommerskirchen
+//          Created:  Sat Mar 22 12:58:04 CET 2008
 //
 //
 
-//system
-#include <vector>
-#include <memory>
-//PAT
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -28,13 +23,56 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
-//DataFormats
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Particle.h"
-//User
-#include "PhysicsTools/PatAlgos/plugins/PATHemisphereProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "PhysicsTools/PatAlgos/interface/HemisphereAlgo.h"
+
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
+class PATHemisphereProducer : public edm::global::EDProducer<> {
+public:
+  explicit PATHemisphereProducer(const edm::ParameterSet&);
+  ~PATHemisphereProducer() override;
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // ----------member data ---------------------------
+  /// Input: All PAT objects that are to cross-clean  or needed for that
+  const edm::EDGetTokenT<reco::CandidateView> _patJetsToken;
+  //       edm::EDGetTokenT<reco::CandidateView> _patMetsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patMuonsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patElectronsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patPhotonsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patTausToken;
+
+  const float _minJetEt;
+  const float _minMuonEt;
+  const float _minElectronEt;
+  const float _minTauEt;
+  const float _minPhotonEt;
+
+  const float _maxJetEta;
+  const float _maxMuonEta;
+  const float _maxElectronEta;
+  const float _maxTauEta;
+  const float _maxPhotonEta;
+
+  const int _seedMethod;
+  const int _combinationMethod;
+
+  typedef std::vector<float> HemiAxis;
+};
 
 using namespace pat;
 
@@ -183,4 +221,5 @@ void PATHemisphereProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
 }
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATHemisphereProducer);

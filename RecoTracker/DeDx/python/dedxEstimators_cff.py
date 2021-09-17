@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
-    tracks                     = cms.InputTag("generalTracks"),
+    tracks             = cms.InputTag("generalTracks"),
 
     minTrackHits       = cms.uint32(0),
     minTrackPt         = cms.double(10),
@@ -26,24 +26,29 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     lowPtTracksDeDxThreshold = cms.double(3.5), # threshold on tracks
 )
 
-dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("generalTracks"),
- 
-    estimator      = cms.string('generic'),
-    fraction       = cms.double(0.4),        #Used only if estimator='truncated'
-    exponent       = cms.double(-2.0),       #Used only if estimator='generic'
- 
-    UseStrip       = cms.bool(True),
-    UsePixel       = cms.bool(False),
-    ShapeTest      = cms.bool(True),
-    MeVperADCStrip = cms.double(3.61e-06*265),
-    MeVperADCPixel = cms.double(3.61e-06),
+import RecoTracker.DeDx.DeDxEstimatorProducer_cfi as _mod
 
-    Reccord            = cms.string("SiStripDeDxMip_3D_Rcd"), #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
-    ProbabilityMode    = cms.string("Accumulation"),          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+dedxHarmonic2 = _mod.DeDxEstimatorProducer.clone(
+    estimator      = 'generic',
+    fraction       = 0.4,        #Used only if estimator='truncated'
+    exponent       = -2.0,       #Used only if estimator='generic'
 
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string(""),
+    Reccord            = "SiStripDeDxMip_3D_Rcd", #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+    ProbabilityMode    = "Accumulation",          #used only for discriminators : estimators='productDiscrim' or 'btagDiscrim' or 'smirnovDiscrim' or 'asmirnovDiscrim'
+)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+# explicit python dependency
+import FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi
+
+# do this before defining dedxPixelHarmonic2 so it automatically comes out right
+fastSim.toReplaceWith(dedxHarmonic2,
+    FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi.FastTrackDeDxProducer.clone(
+        ShapeTest = False,
+        simHit2RecHitMap = "fastMatchedTrackerRecHits:simHit2RecHitMap",
+        simHits = "fastSimProducer:TrackerHits",
+    )
 )
 
 dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
@@ -55,26 +60,21 @@ dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
         exponent  = -2.0, # Harmonic02
 )
 
-dedxTruncated40 = dedxHarmonic2.clone()
-dedxTruncated40.estimator =  cms.string('truncated')
+dedxTruncated40 = dedxHarmonic2.clone(estimator = 'truncated')
 
-dedxMedian  = dedxHarmonic2.clone()
-dedxMedian.estimator =  cms.string('median')
+dedxMedian = dedxHarmonic2.clone(estimator = 'median')
 
-dedxUnbinned = dedxHarmonic2.clone()
-dedxUnbinned.estimator =  cms.string('unbinnedFit')
+dedxUnbinned = dedxHarmonic2.clone(estimator = 'unbinnedFit')
 
-dedxDiscrimProd =  dedxHarmonic2.clone()
-dedxDiscrimProd.estimator = cms.string('productDiscrim')
+dedxDiscrimProd =  dedxHarmonic2.clone(estimator = 'productDiscrim')
 
-dedxDiscrimBTag         = dedxHarmonic2.clone()
-dedxDiscrimBTag.estimator = cms.string('btagDiscrim')
+dedxDiscrimBTag = dedxHarmonic2.clone(estimator = 'btagDiscrim')
 
-dedxDiscrimSmi         = dedxHarmonic2.clone()
-dedxDiscrimSmi.estimator = cms.string('smirnovDiscrim')
+dedxDiscrimSmi  = dedxHarmonic2.clone(estimator = 'smirnovDiscrim')
 
-dedxDiscrimASmi         = dedxHarmonic2.clone()
-dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
+dedxDiscrimASmi = dedxHarmonic2.clone(estimator = 'asmirnovDiscrim')
 
 doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
+
+fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))

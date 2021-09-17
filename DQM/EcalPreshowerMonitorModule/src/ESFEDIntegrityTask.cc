@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESFEDIntegrityTask.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -51,8 +51,6 @@ void ESFEDIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, 
   sprintf(histo, "FEDNonFatal");
   meESFedsNonFatal_ = iBooker.book1D(histo, histo, 56, 520, 576);
 }
-
-void ESFEDIntegrityTask::endJob(void) { LogInfo("ESFEDIntegrityTask") << "analyzed " << ievt_ << " events"; }
 
 void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;

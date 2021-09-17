@@ -16,6 +16,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
-  typedef ObjectSelectorStreamProducer<RecoTrackRefSelector,reco::TrackRefVector> RecoTrackRefSelector;
+  typedef ObjectSelectorStreamProducer<RecoTrackRefSelector, reco::TrackRefVector> RecoTrackRefSelector;
   DEFINE_FWK_MODULE(RecoTrackRefSelector);
-}
+}  // namespace reco

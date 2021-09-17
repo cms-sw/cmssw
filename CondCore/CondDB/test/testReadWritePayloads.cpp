@@ -41,6 +41,12 @@ int doWrite(const std::string& connectionString) {
     std::string d(sVal);
     cond::Hash p3 = session.storePayload(d, boost::posix_time::microsec_clock::universal_time());
 
+    // ArrayPayload arrayPl( );
+    // cond::Hash ap0 = session.storePayload( arrayPl, boost::posix_time::microsec_clock::universal_time() );
+
+    // SimplePayload simplePl( 43 );
+    // cond::Hash sp0 = session.storePayload( simplePl, boost::posix_time::microsec_clock::universal_time() );
+
     IOVEditor editor;
     if (!session.existsIov("MyNewIOV")) {
       editor = session.createIov<MyTestData>("MyNewIOV", cond::runnumber);
@@ -90,8 +96,9 @@ int doRead(const std::string& connectionString) {
     IOVProxy proxy = session.readIov("MyNewIOV");
     std::cout << "> iov loaded size=" << proxy.loadedSize() << std::endl;
     std::cout << "> iov sequence size=" << proxy.sequenceSize() << std::endl;
-    IOVProxy::Iterator iovIt = proxy.find(57);
-    if (iovIt == proxy.end()) {
+    IOVArray iovs = proxy.selectAll();
+    IOVArray::Iterator iovIt = iovs.find(57);
+    if (iovIt == iovs.end()) {
       std::cout << ">[0] not found!" << std::endl;
     } else {
       cond::Iov_t val = *iovIt;
@@ -104,7 +111,7 @@ int doRead(const std::string& connectionString) {
       }
       iovIt++;
     }
-    if (iovIt == proxy.end()) {
+    if (iovIt == iovs.end()) {
       std::cout << "#[1] not found!" << std::endl;
     } else {
       cond::Iov_t val = *iovIt;
@@ -116,8 +123,8 @@ int doRead(const std::string& connectionString) {
         std::cout << "ERROR, pay1 found to be wrong, expected : " << iVal1 << " IOV: " << val.since << std::endl;
       }
     }
-    iovIt = proxy.find(176);
-    if (iovIt == proxy.end()) {
+    iovIt = iovs.find(176);
+    if (iovIt == iovs.end()) {
       std::cout << "#[2] not found!" << std::endl;
     } else {
       cond::Iov_t val = *iovIt;
@@ -130,7 +137,7 @@ int doRead(const std::string& connectionString) {
       }
       iovIt++;
     }
-    if (iovIt == proxy.end()) {
+    if (iovIt == iovs.end()) {
       std::cout << "#[3] not found!" << std::endl;
     } else {
       cond::Iov_t val = *iovIt;
@@ -144,8 +151,9 @@ int doRead(const std::string& connectionString) {
     }
 
     proxy = session.readIov("StringData");
-    auto iov2It = proxy.find(1000022);
-    if (iov2It == proxy.end()) {
+    iovs = proxy.selectAll();
+    auto iov2It = iovs.find(1000022);
+    if (iov2It == iovs.end()) {
       std::cout << "#[4] not found!" << std::endl;
     } else {
       cond::Iov_t val = *iov2It;
@@ -201,7 +209,7 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  std::string connectionString0("sqlite_file:ReadWritePayloads.db");
+  std::string connectionString0("sqlite_file:cms_conditions_v2.db");
   if (std::string(argv[2]).size() > 3) {
     connectionString0 = std::string(argv[2]);
   }

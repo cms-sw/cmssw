@@ -22,4 +22,3 @@
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 
 #include "DataFormats/PatCandidates/interface/HcalDepthEnergyFractions.h"
-

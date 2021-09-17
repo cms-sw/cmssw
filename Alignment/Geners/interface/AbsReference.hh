@@ -1,12 +1,12 @@
 #ifndef GENERS_ABSREFERENCE_HH_
 #define GENERS_ABSREFERENCE_HH_
 
-#include <iostream>
-#include <vector>
-
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/SearchSpecifier.hh"
+
+#include <iostream>
+#include <memory>
+#include <vector>
 
 namespace gs {
   class AbsArchive;
@@ -14,6 +14,7 @@ namespace gs {
 
   class AbsReference {
   public:
+    AbsReference() = delete;
     inline virtual ~AbsReference() {}
 
     inline AbsArchive &archive() const { return archive_; }
@@ -44,7 +45,7 @@ namespace gs {
 
     // Catalog entry retrieval by index in the list of referenced items.
     // Throws gs::IOOutOfRange exception if the index is out of range.
-    CPP11_shared_ptr<const CatalogEntry> indexedCatalogEntry(unsigned long index) const;
+    std::shared_ptr<const CatalogEntry> indexedCatalogEntry(unsigned long index) const;
 
   protected:
     // Use the following constructor to retrieve an item with
@@ -63,8 +64,6 @@ namespace gs {
 
   private:
     friend class AbsArchive;
-
-    AbsReference() = delete;
 
     void initialize() const;
     void addItemId(unsigned long long id);

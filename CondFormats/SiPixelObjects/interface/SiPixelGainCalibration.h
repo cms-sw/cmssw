@@ -24,14 +24,13 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelGainCalibration {
 public:
   struct DecodingStructure {
     unsigned int gain : 8;
     unsigned int ped : 8;
-    //    unsigned int ped :10;
   };
 
   struct DetRegistry {
@@ -92,8 +91,9 @@ private:
   std::vector<DetRegistry> indexes;
   float minPed_, maxPed_, minGain_, maxGain_;
 
-  unsigned int
-      numberOfRowsToAverageOver_;  //THIS WILL BE HARDCODED TO 1 (no averaging) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
+  //THIS WILL BE HARDCODED TO 1 (no averaging) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
+  unsigned int numberOfRowsToAverageOver_;
+
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
   unsigned int noisyFlag_;

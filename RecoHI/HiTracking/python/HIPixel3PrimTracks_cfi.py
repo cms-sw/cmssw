@@ -15,10 +15,10 @@ hiPixelLayerQuadruplets = _PixelLayerQuadruplets.clone()
 
 # Hit ntuplets
 hiPixel3PrimTracksHitDoublets = _hitPairEDProducer.clone(
-    clusterCheck = "",
-    seedingLayers = "PixelLayerTriplets",
+    clusterCheck    = "",
+    seedingLayers   = "PixelLayerTriplets",
     trackingRegions = "hiTrackingRegionWithVertex",
-    maxElement = 50000000,
+    maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
@@ -28,63 +28,60 @@ trackingPhase1.toModify(hiPixel3PrimTracksHitDoublets,
 
 
 hiPixel3PrimTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "hiPixel3PrimTracksHitDoublets",
+    doublets   = "hiPixel3PrimTracksHitDoublets",
     maxElement = 1000000, # increase threshold for triplets in generation step (default: 100000)
     produceSeedingHitSets = True,
     produceIntermediateHitTriplets = True,
 )
 
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-hiPixel3PrimTracksHitDoubletsCA = hiPixel3PrimTracksHitDoublets.clone()
-hiPixel3PrimTracksHitDoubletsCA.layerPairs = [0,1,2]
-
+hiPixel3PrimTracksHitDoubletsCA = hiPixel3PrimTracksHitDoublets.clone(
+    layerPairs = [0,1,2]
+)
 hiPixel3PrimTracksHitQuadrupletsCA = _caHitQuadrupletEDProducer.clone(
     doublets = "hiPixel3PrimTracksHitDoubletsCA",
     extraHitRPhitolerance = hiPixel3PrimTracksHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = hiPixel3PrimTracksHitTriplets.SeedComparitorPSet,
+    SeedComparitorPSet    = hiPixel3PrimTracksHitTriplets.SeedComparitorPSet,
     maxChi2 = dict(
         pt1    = 0.7, pt2    = 2,
         value1 = 200, value2 = 50,
     ),
     useBendingCorrection = True,
-    fitFastCircle = True,
+    fitFastCircle        = True,
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0012,
-    CAPhiCut = 0.2,
+    CAPhiCut   = 0.2,
 ) 
 
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod 
+
 # Pixel tracks
-hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
-
-    passLabel  = cms.string('Pixel triplet primary tracks with vertex constraint'),
-
+hiPixel3PrimTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel triplet primary tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitTriplets"),
-	
+    SeedingHitSets = "hiPixel3PrimTracksHitTriplets",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiFilter"),
-	
+    Filter = "hiFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 trackingPhase1.toModify(hiPixel3PrimTracks,
-    SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitQuadrupletsCA"),
+    SeedingHitSets = "hiPixel3PrimTracksHitQuadrupletsCA",
 )
 
-hiPixel3PrimTracksSequence = cms.Sequence(
-    hiTrackingRegionWithVertex +
-    hiPixel3PrimTracksHitDoublets +
-    hiPixel3PrimTracksHitTriplets +
-    pixelFitterByHelixProjections +
-    hiFilter +
+hiPixel3PrimTracksTask = cms.Task(
+    hiTrackingRegionWithVertex ,
+    hiPixel3PrimTracksHitDoublets ,
+    hiPixel3PrimTracksHitTriplets ,
+    pixelFitterByHelixProjections ,
+    hiFilter ,
     hiPixel3PrimTracks
 )
-
+hiPixel3PrimTracksSequence = cms.Sequence(hiPixel3PrimTracksTask)
 #phase 1 changes
-hiPixel3PrimTracksSequence_Phase1 = hiPixel3PrimTracksSequence.copy()
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets+hiPixel3PrimTracksHitDoubletsCA)
-hiPixel3PrimTracksSequence_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
-trackingPhase1.toReplaceWith(hiPixel3PrimTracksSequence,hiPixel3PrimTracksSequence_Phase1)
+hiPixel3PrimTracksTask_Phase1 = hiPixel3PrimTracksTask.copy()
+hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitDoublets, cms.Task(hiPixelLayerQuadruplets,hiPixel3PrimTracksHitDoubletsCA) )
+hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
+trackingPhase1.toReplaceWith(hiPixel3PrimTracksTask,hiPixel3PrimTracksTask_Phase1)

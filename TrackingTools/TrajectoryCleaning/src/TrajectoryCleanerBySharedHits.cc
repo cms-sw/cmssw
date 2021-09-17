@@ -19,7 +19,7 @@ namespace {
   // Define a hash, i.e. a number that must be equal if hits are equal, and should be different if they're not
   struct HashByDetId {
     std::size_t operator()(const TransientTrackingRecHit *hit) const {
-      boost::hash<uint32_t> hasher;
+      std::hash<uint32_t> hasher;
       return hasher(hit->geographicalId().rawId());
     }
   };

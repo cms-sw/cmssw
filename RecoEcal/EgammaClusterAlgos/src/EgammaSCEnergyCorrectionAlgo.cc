@@ -1,20 +1,16 @@
 //
 // Author: David Evans, Bristol
 //
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+
 #include <string>
 #include <vector>
 
-EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise,
-                                                           reco::CaloCluster::AlgoId theAlgo,
-                                                           const edm::ParameterSet& pset)
-
-{
-  sigmaElectronicNoise_ = noise;
-}
+EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise) : sigmaElectronicNoise_{noise} {}
 
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster& cl,
                                                                  const EcalRecHitCollection& rhc,
@@ -235,12 +231,12 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCrackCorrection(
 // Assume that the correction function provides correction for the seed Basic Cluster
 
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyLocalContCorrection(
-    const reco::SuperCluster& cl, EcalClusterFunctionBaseClass* localContCorrectionFunction) {
+    reco::SuperCluster const& cl, BasicClusterFunction localContCorrectionFunction) {
   const EcalRecHitCollection dummy;
 
   const reco::CaloClusterPtr& seedBC = cl.seed();
   float seedBCene = seedBC->energy();
-  float correctedSeedBCene = localContCorrectionFunction->getValue(*seedBC, dummy) * seedBCene;
+  float correctedSeedBCene = localContCorrectionFunction(*seedBC, dummy) * seedBCene;
 
   reco::SuperCluster correctedSC = cl;
   correctedSC.setEnergy(cl.energy() - seedBCene + correctedSeedBCene);

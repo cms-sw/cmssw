@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     HcalDetIdAssociatorMaker
-// 
+//
 /**\class HcalDetIdAssociatorMaker HcalDetIdAssociatorMaker.h "HcalDetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -26,20 +26,16 @@
 #include "CaloDetIdAssociatorMaker.h"
 #include "HcalDetIdAssociator.h"
 
-class HcalDetIdAssociatorMaker : public CaloDetIdAssociatorMaker
-{
+class HcalDetIdAssociatorMaker : public CaloDetIdAssociatorMaker {
+public:
+  HcalDetIdAssociatorMaker(edm::ParameterSet const&, edm::ESConsumesCollectorT<DetIdAssociatorRecord>&&);
 
- public:
-  HcalDetIdAssociatorMaker(edm::ParameterSet const&,
-                           edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& );
-  
- private:
-  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize ) const final {
-    return std::unique_ptr<DetIdAssociator>( new HcalDetIdAssociator(hcalReg_, nPhi,nEta, etaBinSize, &geom) );
+private:
+  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize) const final {
+    return std::unique_ptr<DetIdAssociator>(new HcalDetIdAssociator(hcalReg_, nPhi, nEta, etaBinSize, &geom));
   }
 
   const int hcalReg_;
 };
-
 
 #endif

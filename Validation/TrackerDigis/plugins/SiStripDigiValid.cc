@@ -1,5 +1,4 @@
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -19,10 +18,11 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Validation/TrackerDigis/interface/SiStripDigiValid.h"
+#include "SiStripDigiValid.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet &ps)
-    : dbe_(nullptr),
+    : m_topoToken(esConsumes()),
+      dbe_(nullptr),
       runStandalone(ps.getParameter<bool>("runStandalone")),
       outputFile_(ps.getUntrackedParameter<std::string>("outputFile", "stripdigihisto.root")),
       edmDetSetVector_SiStripDigi_Token_(
@@ -324,17 +324,9 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
   }
 }
 
-void SiStripDigiValid::endJob() {
-  if (runStandalone && !outputFile_.empty() && dbe_) {
-    dbe_->save(outputFile_);
-  }
-}
-
 void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &c.getData(m_topoToken);
 
   int ndigilayertibzp[4];
   int ndigilayertibzm[4];
@@ -370,8 +362,6 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
 
   // LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " <<
   // e.id().event();
-  edm::ESHandle<TrackerGeometry> tracker;
-  c.get<TrackerDigiGeometryRecord>().get(tracker);
 
   std::string digiProducer = "siStripDigis";
   edm::Handle<edm::DetSetVector<SiStripDigi>> stripDigis;

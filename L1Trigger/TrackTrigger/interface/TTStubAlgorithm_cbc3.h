@@ -12,7 +12,6 @@
 #define L1_TRACK_TRIGGER_STUB_ALGO_CBC3_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -50,7 +49,6 @@ public:
   void PatternHitCorrelation(bool &aConfirmation,
                              int &aDisplacement,
                              int &anOffset,
-                             float &anROffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
 
@@ -69,7 +67,6 @@ void TTStubAlgorithm_cbc3<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     bool &aConfirmation,
     int &aDisplacement,
     int &anOffset,
-    float &anROffset,
     float &anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
 
@@ -85,6 +82,8 @@ template <typename T>
 class ES_TTStubAlgorithm_cbc3 : public edm::ESProducer {
 private:
   /// Data members
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> mGeomToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> mTopoToken;
 
   /// Z-matching
   bool mPerformZMatching2S;
@@ -93,7 +92,9 @@ public:
   /// Constructor
   ES_TTStubAlgorithm_cbc3(const edm::ParameterSet &p) {
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
-    setWhatProduced(this);
+    auto cc = setWhatProduced(this);
+    mGeomToken = cc.consumes();
+    mTopoToken = cc.consumes();
   }
 
   /// Destructor
@@ -101,15 +102,8 @@ public:
 
   /// Implement the producer
   std::unique_ptr<TTStubAlgorithm<T> > produce(const TTStubAlgorithmRecord &record) {
-    edm::ESHandle<TrackerGeometry> tGeomHandle;
-    record.getRecord<TrackerDigiGeometryRecord>().get(tGeomHandle);
-    const TrackerGeometry *const theTrackerGeom = tGeomHandle.product();
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    record.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology *const theTrackerTopo = tTopoHandle.product();
-
-    TTStubAlgorithm<T> *TTStubAlgo = new TTStubAlgorithm_cbc3<T>(theTrackerGeom, theTrackerTopo, mPerformZMatching2S);
-    return std::unique_ptr<TTStubAlgorithm<T> >(TTStubAlgo);
+    return std::make_unique<TTStubAlgorithm_cbc3<T> >(
+        &record.get(mGeomToken), &record.get(mTopoToken), mPerformZMatching2S);
   }
 };
 

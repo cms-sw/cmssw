@@ -2,7 +2,7 @@
 //
 // Package:     CondLiteIO
 // Class  :     IntProductRecord
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -17,4 +17,3 @@
 EVENTSETUP_RECORD_REG(IntProductRecord);
 
 TYPELOOKUP_DATA_REG(edmtest::IntProduct);
-

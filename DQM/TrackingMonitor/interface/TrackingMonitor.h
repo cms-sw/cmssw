@@ -14,19 +14,18 @@ Monitoring source for general quantities related to tracks.
 #include <memory>
 #include <fstream>
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -41,6 +40,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -48,16 +48,19 @@ Monitoring source for general quantities related to tracks.
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-namespace dqm {
-  class TrackAnalyzer;
-}
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+class TrackAnalyzer;
 class TrackBuildingAnalyzer;
 class VertexMonitor;
 class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class TrackingMonitor : public DQMEDAnalyzer {
 public:
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
@@ -69,11 +72,8 @@ public:
       std::vector<double>&, std::vector<double>&, std::vector<int>&, double, double, int, double, double, int);
   virtual void setNclus(const edm::Event&, std::vector<int>&);
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  //        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   void doProfileX(TH2* th2, MonitorElement* me);
@@ -104,6 +104,7 @@ private:
   edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
 
   edm::InputTag stripClusterInputTag_;
   edm::InputTag pixelClusterInputTag_;
@@ -113,16 +114,22 @@ private:
   std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderToken_;
+
   std::string Quality_;
   std::string AlgoName_;
 
-  dqm::TrackAnalyzer* theTrackAnalyzer;
+  tadqm::TrackAnalyzer* theTrackAnalyzer;
   TrackBuildingAnalyzer* theTrackBuildingAnalyzer;
   std::vector<VertexMonitor*> theVertexMonitor;
   GetLumi* theLumiDetails_;
 
   // Tracks
   MonitorElement* NumberOfTracks;
+  MonitorElement* NumberOfTracks_PUvtx;
+  MonitorElement* NumberofTracks_Hardvtx;
+  MonitorElement* NumberofTracks_Hardvtx_PUvtx;
   MonitorElement* NumberOfMeanRecHitsPerTrack;
   MonitorElement* NumberOfMeanLayersPerTrack;
 
@@ -190,7 +197,6 @@ private:
   MonitorElement* NumberOfTracks_lumiFlag;
 
   std::string builderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 
   bool doTrackerSpecific_;
   bool doLumiAnalysis;
@@ -221,6 +227,7 @@ private:
   StringCutObjectSelector<reco::Track, true> numSelection_;
   StringCutObjectSelector<reco::Track, true> denSelection_;
   int pvNDOF_;
+  const bool forceSCAL_;
 };
 
 #endif  //define TrackingMonitor_H

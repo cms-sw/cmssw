@@ -316,7 +316,7 @@ std::pair<float, float> Phase1PixelBlade::computeRadiusRanges(const std::vector<
 
   for (auto it : current_dets) {
     vector<GlobalPoint> corners = BoundingBox().corners(it->specificSurface());
-    for (auto i : corners) {
+    for (const auto& i : corners) {
       float r = plane.toLocal(i).perp();
       rmin = min(rmin, r);
       rmax = max(rmax, r);

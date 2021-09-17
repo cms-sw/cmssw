@@ -11,8 +11,8 @@ process = cms.Process("Lumi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.categories.append('HLTrigReport')
-process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.HLTrigReport=dict()
+process.MessageLogger.L1GtTrigReport=dict()
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # -- Database configuration
@@ -24,8 +24,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff") # works for MC & data
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2023_realistic_v1', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_GRun', '')

@@ -10,7 +10,6 @@ void HMesonGammaDQM::initialise(const edm::ParameterSet& iConfig) {
       iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("gammaptBinning");
   mesonpt_variable_binning_ =
       iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mesonptBinning");
-
   eta_binning_ =
       getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("hmgetaPSet"));
   ls_binning_ =
@@ -55,8 +54,8 @@ void HMesonGammaDQM::bookHistograms(DQMStore::IBooker& ibooker) {
 }
 
 void HMesonGammaDQM::fillHistograms(const reco::PhotonCollection& photons,
-                                    std::vector<TLorentzVector> mesons,
-                                    const int& ls,
+                                    const std::vector<TLorentzVector>& mesons,
+                                    const int ls,
                                     const bool passCond) {
   // filling histograms (denominator)
   if (!photons.empty()) {

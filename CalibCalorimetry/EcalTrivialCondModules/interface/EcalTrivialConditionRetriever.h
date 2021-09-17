@@ -113,6 +113,7 @@
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 // forward declarations
 
 namespace edm {
@@ -122,6 +123,8 @@ namespace edm {
 class EcalTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   EcalTrivialConditionRetriever(const edm::ParameterSet& pset);
+  EcalTrivialConditionRetriever(const EcalTrivialConditionRetriever&) = delete;                   // stop default
+  const EcalTrivialConditionRetriever& operator=(const EcalTrivialConditionRetriever&) = delete;  // stop default
   ~EcalTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
@@ -201,9 +204,6 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  EcalTrivialConditionRetriever(const EcalTrivialConditionRetriever&) = delete;                   // stop default
-  const EcalTrivialConditionRetriever& operator=(const EcalTrivialConditionRetriever&) = delete;  // stop default
-
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 
   // data members

@@ -16,7 +16,7 @@
 #include <set>
 #include <cassert>
 #include <sigc++/sigc++.h>
-#include <boost/bind.hpp>
+#include <functional>
 #include "TClass.h"
 #include "TGFrame.h"
 #include "TGButton.h"
@@ -32,7 +32,7 @@
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -61,7 +61,8 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager *iManager,
       m_detailViewManager(iManager),
       m_colorManager(iColorMgr),
       m_dialogBuilder(nullptr) {
-  m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
+  m_changes =
+      iSelMgr->selectionChanged_.connect(std::bind(&CmsShowModelPopup::fillModelPopup, this, std::placeholders::_1));
 
   SetCleanup(kDeepCleanup);
 
@@ -223,8 +224,8 @@ void CmsShowModelPopup::fillModelPopup(const FWSelectionManager &iSelMgr) {
   m_colorSelectWidget->SetEnabled(kTRUE);
   m_isVisibleButton->SetEnabled(kTRUE);
 
-  m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
-  m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
+  m_modelChangedConn = item->changed_.connect(std::bind(&CmsShowModelPopup::updateDisplay, this));
+  m_destroyedConn = item->goingToBeDestroyed_.connect(std::bind(&CmsShowModelPopup::disconnectAll, this));
 
   Resize(GetDefaultSize());
   Layout();

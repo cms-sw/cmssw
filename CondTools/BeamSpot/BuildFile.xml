@@ -1,0 +1,6 @@
+<use name="CondCore/PopCon"/>
+<use name="CondFormats/Common"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<export>
+  <lib name="1"/>
+</export>

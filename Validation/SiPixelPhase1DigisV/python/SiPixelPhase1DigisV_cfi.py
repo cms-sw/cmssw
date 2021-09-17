@@ -7,8 +7,8 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   title = "Digi ADC values",
   xlabel = "ADC counts",
   range_min = 0,
-  range_max = 300,
-  range_nbins = 300,
+  range_max = 256,
+  range_nbins = 256,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
@@ -43,8 +43,8 @@ SiPixelPhase1DigisRows = DefaultHisto.clone(
   title = "Digi Rows",
   xlabel = "Row",
   range_min = 0,
-  range_max = 200,
-  range_nbins = 200,
+  range_max = 180,
+  range_nbins = 180,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
@@ -58,8 +58,8 @@ SiPixelPhase1DigisColumns = DefaultHisto.clone(
   title = "Digi Columns",
   xlabel = "Column",
   range_min = 0,
-  range_max = 300,
-  range_nbins = 300,
+  range_max = 420,
+  range_nbins = 420,
   topFolderName = "PixelPhase1V/Digis",
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),

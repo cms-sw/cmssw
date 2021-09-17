@@ -1,23 +1,22 @@
 #include "L1Trigger/L1TMuonOverlap/interface/AngleConverter.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
 #include <cmath>
+#include <array>
 
 namespace {
   template <typename T>
@@ -25,7 +24,7 @@ namespace {
     return (T(0) < val) - (val < T(0));
   }
 
-  std::vector<float> bounds = {1.24, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8};
+  constexpr std::array<float, 8> bounds = {{1.24, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8}};
   //   0.8       -> 73
   //   0.85      -> 78
   //   0.9265    -> 85
@@ -149,7 +148,17 @@ namespace {
 
 }  // namespace
 
-AngleConverter::AngleConverter() : _geom_cache_id(0ULL) {}
+AngleConverter::AngleConverter(edm::ConsumesCollector &iC, bool getDuringEvent) : _geom_cache_id(0ULL) {
+  if (getDuringEvent) {
+    rpcGeometryToken_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
+    cscGeometryToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
+    dtGeometryToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
+  } else {
+    rpcGeometryToken_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+    cscGeometryToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+    dtGeometryToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  }
+}
 ///////////////////////////////////////
 ///////////////////////////////////////
 AngleConverter::~AngleConverter() {}
@@ -159,9 +168,9 @@ void AngleConverter::checkAndUpdateGeometry(const edm::EventSetup &es, unsigned 
   const MuonGeometryRecord &geom = es.get<MuonGeometryRecord>();
   unsigned long long geomid = geom.cacheIdentifier();
   if (_geom_cache_id != geomid) {
-    geom.get(_georpc);
-    geom.get(_geocsc);
-    geom.get(_geodt);
+    _georpc = &geom.get(rpcGeometryToken_);
+    _geocsc = &geom.get(cscGeometryToken_);
+    _geodt = &geom.get(dtGeometryToken_);
     _geom_cache_id = geomid;
   }
 
@@ -444,7 +453,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
   double offset = 0.0;
   switch (1) {
     case 1:
-      offset = CSCPatternLUT::get2007Position(pattern);
+      offset = CSCPatternBank::getLegacyPosition(pattern);
   }
   const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1

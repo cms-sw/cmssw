@@ -3,10 +3,14 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include <memory>
 #include <vector>
@@ -81,7 +85,7 @@ private:
   void printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
 
 private:
-  std::unique_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
+  EcalSelectiveReadoutSuppressor suppressor_;
   std::string digiProducer_;         // name of module/plugin/producer making digis
   std::string ebdigiCollection_;     // secondary name given to collection of input digis
   std::string eedigiCollection_;     // secondary name given to collection of input digis
@@ -96,7 +100,8 @@ private:
   const CaloGeometry* theGeometry;
   const EcalTrigTowerConstituentsMap* theTriggerTowerMap;
   const EcalElectronicsMapping* theElecMap;
-  edm::ParameterSet params_;
+
+  bool suppressorSettingsSet_ = false;
 
   bool trigPrimBypass_;
 
@@ -145,6 +150,10 @@ private:
   edm::EDGetTokenT<EBDigiCollection> EB_token;
   edm::EDGetTokenT<EEDigiCollection> EE_token;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcTP_token;
+  edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSr_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmap_token_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> eElecmap_token_;
 };
 
 #endif

@@ -1227,7 +1227,7 @@ namespace root {
   }
 
   template <typename Tag, typename F>
-  TF1 tf1_t(const char* name, F& f, double min, double max, const std::vector<boost::shared_ptr<double> >& p) {
+  TF1 tf1_t(const char* name, F& f, double min, double max, const std::vector<std::shared_ptr<double> >& p) {
     TF1 fun(name, root::function_t<1, Tag>(f, p), min, max, p.size());
     for (size_t i = 0; i < p.size(); ++i)
       fun.SetParameter(i, *p[i]);
@@ -1235,7 +1235,7 @@ namespace root {
   }
 
   template <typename F>
-  TF1 tf1(const char* name, F& f, double min, double max, const std::vector<boost::shared_ptr<double> >& p) {
+  TF1 tf1(const char* name, F& f, double min, double max, const std::vector<std::shared_ptr<double> >& p) {
     return tf1_t<helper::null_t>(name, f, min, max, p);
   }
 

@@ -435,15 +435,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
   if (m_verbose)
     std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo;" << std::endl;
 
-  // remove m_meReportSummary if it exists
-  if ((m_meReportSummary = igetter.get(dirEventInfo + "/reportSummary"))) {
-    if (m_verbose)
-      std::cout << "Removing m_meReportSummary" << std::endl;
-    igetter.removeElement(m_meReportSummary->getName());
-    if (m_verbose)
-      std::cout << "Ran igetter.removeElement(m_meReportSummary->getName());" << std::endl;
-  }
-
   // ...and book it again
   m_meReportSummary = ibooker.bookFloat("reportSummary");
   if (m_verbose)
@@ -592,11 +583,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
   ibooker.setCurrentFolder(dirEventInfo);
   if (m_verbose)
     std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo);" << std::endl;
-
-  // Should this be a "==" ?  - AWB 03.12.16
-  if ((m_meReportSummaryMap = igetter.get(dirEventInfo + "/reportSummaryMap"))) {
-    igetter.removeElement(m_meReportSummaryMap->getName());
-  }
 
   // define a histogram with two bins on X and maximum of m_nrTrackObjects, m_nrHitObjects on Y
   int nBinsY = std::max(m_nrTrackObjects, m_nrHitObjects);

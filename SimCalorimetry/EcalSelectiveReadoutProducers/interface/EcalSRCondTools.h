@@ -7,8 +7,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
+#include <string>
 /**
  */
 class EcalSRCondTools : public edm::one::EDAnalyzer<> {
@@ -66,9 +71,14 @@ private:
 
   //fields
 private:
-  edm::ParameterSet ps_;
+  const edm::ParameterSet ps_;
 
+  const std::string mode_;
+  bool iomode_write_;
   bool done_;
+
+  edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSrToken_;
+  edm::ESGetToken<EcalTPGPhysicsConst, EcalTPGPhysicsConstRcd> tpgPhysicsConstToken_;
 };
 
 #endif  //SRCONDACCESS_H not defined

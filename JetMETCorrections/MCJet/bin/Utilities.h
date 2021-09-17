@@ -103,7 +103,7 @@ T CommandLine::getValue(const std::string& name, T default_value) {
 
 //______________________________________________________________________________
 template <>
-bool CommandLine::getValue<bool>(const std::string& name) {
+inline bool CommandLine::getValue<bool>(const std::string& name) {
   OptionMap_t::iterator it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
@@ -125,7 +125,7 @@ bool CommandLine::getValue<bool>(const std::string& name) {
 
 //______________________________________________________________________________
 template <>
-bool CommandLine::getValue(const std::string& name, bool default_value) {
+inline bool CommandLine::getValue(const std::string& name, bool default_value) {
   OptionMap_t::const_iterator it = _options.find(name);
   if (it != _options.end())
     return getValue<bool>(name);
@@ -146,7 +146,7 @@ std::vector<T> CommandLine::getVector(const std::string& name) {
     std::string::size_type pos;
     if (!tmp.empty()) {
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         std::stringstream ss;
         ss << tmp.substr(0, pos);
         tmp.erase(0, pos + 1);
@@ -174,14 +174,14 @@ std::vector<T> CommandLine::getVector(const std::string& name, const std::string
 // construction / destruction
 ////////////////////////////////////////////////////////////////////////////////
 //______________________________________________________________________________
-CommandLine::CommandLine() {}
+inline CommandLine::CommandLine() {}
 //______________________________________________________________________________
-CommandLine::~CommandLine() {}
+inline CommandLine::~CommandLine() {}
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 //______________________________________________________________________________
-bool CommandLine::parse(int argc, char** argv) {
+inline bool CommandLine::parse(int argc, char** argv) {
   _exe = argv[0];
   _options.clear();
   _ordered_options.clear();
@@ -189,7 +189,7 @@ bool CommandLine::parse(int argc, char** argv) {
 
   for (int i = 1; i < argc; i++) {
     std::string opt = argv[i];
-    if (0 != opt.find("-")) {
+    if (0 != opt.find('-')) {
       if (i == 1) {
         bool success = parse_file(opt);
         if (!success)
@@ -210,7 +210,7 @@ bool CommandLine::parse(int argc, char** argv) {
     i++;
     if (i < argc - 1) {
       next = argv[i + 1];
-      while (next.find("-") != 0) {
+      while (next.find('-') != 0) {
         _options[opt].first += "," + next;
         i++;
         next = (i < argc - 1) ? argv[i + 1] : "-";
@@ -221,7 +221,7 @@ bool CommandLine::parse(int argc, char** argv) {
   return true;
 }
 //______________________________________________________________________________
-bool CommandLine::check() {
+inline bool CommandLine::check() {
   bool result = true;
   OptionMap_t::const_iterator it;
   for (it = _options.begin(); it != _options.end(); ++it) {
@@ -242,7 +242,7 @@ bool CommandLine::check() {
   return result;
 }
 //______________________________________________________________________________
-void CommandLine::print() {
+inline void CommandLine::print() {
   std::cout << "------------------------------------------------------------" << std::endl;
   std::cout << _exe << " options:" << std::endl;
   std::cout << "------------------------------------------------------------" << std::endl;
@@ -254,7 +254,7 @@ void CommandLine::print() {
       std::string::size_type length = tmp.length();
       std::string::size_type pos;
       do {
-        pos = tmp.find(",");
+        pos = tmp.find(',');
         if (tmp.length() == length) {
           std::cout << std::setiosflags(std::ios::left) << std::setw(22) << it->first
                     << std::resetiosflags(std::ios::left) << std::setw(3) << "=" << std::setiosflags(std::ios::right)
@@ -274,7 +274,7 @@ void CommandLine::print() {
   std::cout << "------------------------------------------------------------" << std::endl;
 }
 //______________________________________________________________________________
-bool CommandLine::parse_file(const std::string& file_name) {
+inline bool CommandLine::parse_file(const std::string& file_name) {
   std::ifstream fin(file_name.c_str());
   if (!fin.is_open()) {
     std::cout << "Can't open configuration file " << file_name << std::endl;
@@ -308,8 +308,8 @@ bool CommandLine::parse_file(const std::string& file_name) {
       last_token = "";
       value = "";
     } else if (!last_token.empty()) {
-      if (last_token.find("\"") == 0) {
-        if (last_token.rfind("\"") == last_token.length() - 1) {
+      if (last_token.find('\"') == 0) {
+        if (last_token.rfind('\"') == last_token.length() - 1) {
           last_token = last_token.substr(1, last_token.length() - 2);
           value += (!value.empty()) ? "," + last_token : last_token;
           last_token = token;
@@ -324,7 +324,7 @@ bool CommandLine::parse_file(const std::string& file_name) {
     ss >> token;
   }
   if (!last_token.empty()) {
-    if (last_token.find("\"") == 0 && last_token.rfind("\"") == last_token.length() - 1)
+    if (last_token.find('\"') == 0 && last_token.rfind('\"') == last_token.length() - 1)
       last_token = last_token.substr(1, last_token.length() - 2);
     value += (!value.empty()) ? "," + last_token : last_token;
   }
@@ -334,7 +334,7 @@ bool CommandLine::parse_file(const std::string& file_name) {
   return true;
 }
 //////////////////////////////////////////////////////////////////////
-void GetMPV(
+inline void GetMPV(
     char name[100], TH1F* histo, TDirectory* Dir, double& peak, double& error, double& sigma, double& err_sigma) {
   double norm, mean, rms, integral, lowlimit, highlimit, LowResponse, HighResponse, a;
   int k;
@@ -394,7 +394,7 @@ void GetMPV(
   histo->Write();
 }
 //////////////////////////////////////////////////////////////////////
-void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma) {
+inline void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma) {
   double N = histo->Integral();
   if (N > 2) {
     peak = histo->GetMean();
@@ -407,7 +407,7 @@ void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma) {
   }
 }
 ///////////////////////////////////////////////////////////////////////
-void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, double ey, double& r, double& e) {
+inline void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, double ey, double& r, double& e) {
   if (x > 0 && fabs(y) > 0) {
     if (UseRatioForResponse) {
       r = y;
@@ -422,7 +422,8 @@ void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, 
   }
 }
 ///////////////////////////////////////////////////////////////////////
-void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e) {
+inline void CalculateCorrection(
+    bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e) {
   if (x > 0 && fabs(y) > 0) {
     if (UseRatioForResponse) {
       c = 1. / y;
@@ -437,7 +438,7 @@ void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y
   }
 }
 ///////////////////////////////////////////////////////////////////////
-bool HistoExists(std::vector<std::string> LIST, std::string hname) {
+inline bool HistoExists(std::vector<std::string> LIST, std::string hname) {
   unsigned int i, N;
   bool found(false);
   N = LIST.size();
@@ -452,7 +453,7 @@ bool HistoExists(std::vector<std::string> LIST, std::string hname) {
   return found;
 }
 ///////////////////////////////////////////////////////////////////////
-int getBin(double x, std::vector<double> boundaries) {
+inline int getBin(double x, std::vector<double> boundaries) {
   int i;
   int n = boundaries.size() - 1;
   if (n <= 0)

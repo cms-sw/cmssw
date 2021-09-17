@@ -46,8 +46,11 @@ private:
   std::multimap<float, int> secondDistDiffScore(const std::vector<std::vector<float>>& distanceMap);
   std::multimap<float, int> secondDistScore(const std::vector<std::vector<float>>& distanceMap);
   std::multimap<float, int> distScore(const std::vector<std::vector<float>>& distanceMap);
+
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> const tTrackingGeom_;
+  edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const tCPE_;
+
   bool verbose;
-  std::string pixelCPE_;
   double ptMin_;
   double deltaR_;
   double chargeFracMin_;
@@ -62,8 +65,9 @@ private:
 };
 
 JetCoreClusterSplitter::JetCoreClusterSplitter(const edm::ParameterSet& iConfig)
-    : verbose(iConfig.getParameter<bool>("verbose")),
-      pixelCPE_(iConfig.getParameter<std::string>("pixelCPE")),
+    : tTrackingGeom_(esConsumes()),
+      tCPE_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))),
+      verbose(iConfig.getParameter<bool>("verbose")),
       ptMin_(iConfig.getParameter<double>("ptMin")),
       deltaR_(iConfig.getParameter<double>("deltaRmax")),
       chargeFracMin_(iConfig.getParameter<double>("chargeFractionMin")),
@@ -87,8 +91,7 @@ bool SortPixels(const SiPixelCluster::Pixel& i, const SiPixelCluster::Pixel& j) 
 
 void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  edm::ESHandle<GlobalTrackingGeometry> geometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
+  const auto& geometry = &iSetup.getData(tTrackingGeom_);
 
   Handle<edmNew::DetSetVector<SiPixelCluster>> inputPixelClusters;
   iEvent.getByToken(pixelClusters_, inputPixelClusters);
@@ -100,11 +103,7 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
   Handle<edm::View<reco::Candidate>> cores;
   iEvent.getByToken(cores_, cores);
 
-  edm::ESHandle<PixelClusterParameterEstimator> pe;
-  const PixelClusterParameterEstimator* pp;
-  iSetup.get<TkPixelCPERecord>().get(pixelCPE_, pe);
-  pp = pe.product();
-
+  const PixelClusterParameterEstimator* pp = &iSetup.getData(tCPE_);
   auto output = std::make_unique<edmNew::DetSetVector<SiPixelCluster>>();
 
   edmNew::DetSetVector<SiPixelCluster>::const_iterator detIt = inputPixelClusters->begin();

@@ -5,61 +5,79 @@
 using namespace edm;
 using namespace reco;
 
-// find the index of the object key of an association vector closest to a given
-// jet, within a given distance
-template <typename T, typename V>
-int closestJet(const RefToBase<reco::Jet> jet, const edm::AssociationVector<T, V> &association, double distance) {
-  int closest = -1;
-  for (unsigned int i = 0; i < association.size(); ++i) {
-    double d = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), association[i].first->momentum());
-    if (d < distance) {
-      distance = d;
-      closest = i;
+namespace {
+  // find the index of the object key of an association vector closest to a given
+  // jet, within a given distance
+  template <typename T, typename V>
+  int closestJet(const RefToBase<reco::Jet> jet, const edm::AssociationVector<T, V> &association, double distance) {
+    int closest = -1;
+    for (unsigned int i = 0; i < association.size(); ++i) {
+      double d = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), association[i].first->momentum());
+      if (d < distance) {
+        distance = d;
+        closest = i;
+      }
     }
+    return closest;
   }
-  return closest;
-}
 
-std::set<std::string> keepSetJet{"jetNSecondaryVertices",
-                                 "jetNSelectedTracks",
-                                 "jetNTracks",
-                                 "Jet_JP",
-                                 "chargedHadronEnergyFraction",
-                                 "neutralHadronEnergyFraction",
-                                 "photonEnergyFraction",
-                                 "electronEnergyFraction",
-                                 "muonEnergyFraction",
-                                 "chargedHadronMultiplicity",
-                                 "neutralHadronMultiplicity",
-                                 "photonMultiplicity",
-                                 "electronMultiplicity",
-                                 "muonMultiplicity",
-                                 "hadronMultiplicity",
-                                 "hadronPhotonMultiplicity",
-                                 "totalMultiplicity"};
+  std::set<std::string> const keepSetJet{"jetNSecondaryVertices",
+                                         "jetNSelectedTracks",
+                                         "jetNTracks",
+                                         "Jet_JP",
+                                         "chargedHadronEnergyFraction",
+                                         "neutralHadronEnergyFraction",
+                                         "photonEnergyFraction",
+                                         "electronEnergyFraction",
+                                         "muonEnergyFraction",
+                                         "chargedHadronMultiplicity",
+                                         "neutralHadronMultiplicity",
+                                         "photonMultiplicity",
+                                         "electronMultiplicity",
+                                         "muonMultiplicity",
+                                         "hadronMultiplicity",
+                                         "hadronPhotonMultiplicity",
+                                         "totalMultiplicity"};
 
-std::set<std::string> keepSetTrack{
-    "trackChi2",       "trackNTotalHits",    "trackNPixelHits",   "trackSip3dVal",    "trackSip3dSig",
-    "trackSip2dVal",   "trackSip2dSig",      "trackPtRel",        "trackDeltaR",      "trackPtRatio",
-    "trackSip3dSig_0", "trackSip3dSig_1",    "trackSip3dSig_2",   "trackSip3dSig_3",  "trackMomentum",
-    "trackEta",        "trackPhi",           "trackDecayLenVal",  "trackDecayLenSig", "trackJetDistVal",
-    "trackJetDistSig", "trackSumJetEtRatio", "trackSumJetDeltaR", "trackEtaRel"
+  std::set<std::string> const keepSetTrack{
+      "trackChi2",       "trackNTotalHits",    "trackNPixelHits",   "trackSip3dVal",    "trackSip3dSig",
+      "trackSip2dVal",   "trackSip2dSig",      "trackPtRel",        "trackDeltaR",      "trackPtRatio",
+      "trackSip3dSig_0", "trackSip3dSig_1",    "trackSip3dSig_2",   "trackSip3dSig_3",  "trackMomentum",
+      "trackEta",        "trackPhi",           "trackDecayLenVal",  "trackDecayLenSig", "trackJetDistVal",
+      "trackJetDistSig", "trackSumJetEtRatio", "trackSumJetDeltaR", "trackEtaRel"
 
-};
-std::set<std::string> keepSetVtx{"vertexMass",
-                                 "vertexNTracks"
-                                 "vertexFitProb",
-                                 "vertexCategory",
-                                 "vertexEnergyRatio",
-                                 "vertexJetDeltaR",
-                                 "vertexBoostOverSqrtJetPt",
-                                 "flightDistance1dVal",
-                                 "flightDistance1dSig",
-                                 "flightDistance2dVal",
-                                 "flightDistance2dSig",
-                                 "flightDistance3dVal",
-                                 "flightDistance3dSig"};
-std::set<std::string> keepSet;
+  };
+  std::set<std::string> const keepSetVtx{"vertexMass",
+                                         "vertexNTracks"
+                                         "vertexFitProb",
+                                         "vertexCategory",
+                                         "vertexEnergyRatio",
+                                         "vertexJetDeltaR",
+                                         "vertexBoostOverSqrtJetPt",
+                                         "flightDistance1dVal",
+                                         "flightDistance1dSig",
+                                         "flightDistance2dVal",
+                                         "flightDistance2dSig",
+                                         "flightDistance3dVal",
+                                         "flightDistance3dSig"};
+
+  auto initializeKeepSet() {
+    std::set<std::string> ret;
+    // Make a combined set of inputs avaiable
+    std::set_union(std::begin(keepSetJet),
+                   std::end(keepSetJet),
+                   std::begin(keepSetTrack),
+                   std::end(keepSetTrack),
+                   std::inserter(ret, std::begin(ret)));
+    std::set_union(std::begin(ret),
+                   std::end(ret),
+                   std::begin(keepSetVtx),
+                   std::end(keepSetVtx),
+                   std::inserter(ret, std::begin(ret)));
+    return ret;
+  }
+  std::set<std::string> const keepSet = initializeKeepSet();
+}  // namespace
 
 // constructors and destructor
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &iConfig) {
@@ -106,17 +124,6 @@ HLTBTagPerformanceAnalyzer::~HLTBTagPerformanceAnalyzer() {
 }
 
 void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  // Make a combined set of inputs avaiable
-  std::set_union(std::begin(keepSetJet),
-                 std::end(keepSetJet),
-                 std::begin(keepSetTrack),
-                 std::end(keepSetTrack),
-                 std::inserter(keepSet, std::begin(keepSet)));
-  std::set_union(std::begin(keepSet),
-                 std::end(keepSet),
-                 std::begin(keepSetVtx),
-                 std::end(keepSetVtx),
-                 std::inserter(keepSet, std::begin(keepSet)));
   triggerConfChanged_ = true;
   EDConsumerBase::labelsForToken(hlTriggerResults_, label);
 
@@ -231,7 +238,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
 
       // fill 1D btag plot for 'all'
       H1_.at(ind)[JetTagCollection_Label[ind]]->Fill(std::fmax(0.0, BtagJT.second));
-      for (auto i : HCALSpecialsNames) {
+      for (const auto &i : HCALSpecialsNames) {
         if (inmodule[i.first])
           H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first]->Fill(std::fmax(0.0, BtagJT.second));
       }
@@ -247,7 +254,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
           std::string label = JetTagCollection_Label[ind] + "__";
           label += flavour_str;
           H1_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds'
-          for (auto j : HCALSpecialsNames) {
+          for (const auto &j : HCALSpecialsNames) {
             if (inmodule[j.first])
               H1mod_.at(ind)[label][j.first]->Fill(
                   std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds' in
@@ -262,7 +269,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
           label += "_disc_pT";
           H2_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second),
                                    BtagJT.first->pt());  // fill 2D btag, jetPt plot for 'b,c,uds'
-          for (auto j : HCALSpecialsNames) {
+          for (const auto &j : HCALSpecialsNames) {
             if (inmodule[j.first])
               H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0, BtagJT.second), BtagJT.first->pt());
           }
@@ -346,7 +353,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
           continue;
       }
 
-      for (auto i : HCALSpecialsNames) {
+      for (const auto &i : HCALSpecialsNames) {
         ibooker.setCurrentFolder(dqmFolder + "/" + i.second);
         H1mod_.back()[JetTagCollection_Label[ind]][i.first] = ibooker.book1D(
             JetTagCollection_Label[ind] + "_all", JetTagCollection_Label[ind] + "_all", btagBins, btagL, btagU);
@@ -380,7 +387,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H1_.back()[label] = ibooker.book1D(
             label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
         H1_.back()[label]->setAxisTitle("disc", 1);
-        for (auto j : HCALSpecialsNames) {
+        for (const auto &j : HCALSpecialsNames) {
           ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
           H1mod_.back()[label][j.first] = ibooker.book1D(
               label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
@@ -402,7 +409,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H2_.back()[label] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
         H2_.back()[label]->setAxisTitle("pT", 2);
         H2_.back()[label]->setAxisTitle("disc", 1);
-        for (auto j : HCALSpecialsNames) {
+        for (const auto &j : HCALSpecialsNames) {
           ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
           H2mod_.back()[label][j.first] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
           H2mod_.back()[label][j.first]->setAxisTitle("pT", 2);

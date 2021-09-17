@@ -20,6 +20,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
@@ -27,6 +28,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <memory>
 
 class G4Step;
@@ -44,7 +46,6 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const EndOfEvent*> {
 public:
   CaloSD(const std::string& aSDname,
-         const DDCompactView& cpv,
          const SensitiveDetectorCatalog& clg,
          edm::ParameterSet const& p,
          const SimTrackManager*,
@@ -67,8 +68,11 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
   void reset() override;
 
+  bool isItFineCalo(const G4VTouchable* touch);
+
 protected:
   virtual double getEnergyDeposit(const G4Step* step);
+  virtual double EnergyCorrected(const G4Step& step, const G4Track*);
   virtual bool getFromLibrary(const G4Step* step);
 
   G4ThreeVector setToLocal(const G4ThreeVector&, const G4VTouchable*) const;
@@ -76,10 +80,15 @@ protected:
 
   bool hitExists(const G4Step*);
   bool checkHit();
-  CaloG4Hit* createNewHit(const G4Step*);
+  CaloG4Hit* createNewHit(const G4Step*, const G4Track*);
   void updateHit(CaloG4Hit*);
   void resetForNewPrimary(const G4Step*);
   double getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const;
+
+  static std::string printableDecayChain(const std::vector<unsigned int>& decayChain);
+  std::string shortreprID(const CaloHitID& ID);
+  std::string shortreprID(const CaloG4Hit* hit);
+  unsigned int findBoundaryCrossingParent(const G4Track* track, bool markParentAsSaveable = true);
 
   void update(const BeginOfRun*) override;
   void update(const BeginOfEvent*) override;
@@ -96,6 +105,7 @@ protected:
   virtual uint16_t getDepth(const G4Step*);
   double getResponseWt(const G4Track*);
   int getNumberOfHits();
+  void ignoreRejection() { ignoreReject = true; }
 
   inline void setParameterized(bool val) { isParameterized = val; }
   inline void setUseMap(bool val) { useMap = val; }
@@ -105,11 +115,12 @@ protected:
     if (currentID == previousID) {
       updateHit(currentHit);
     } else if (!checkHit()) {
-      currentHit = createNewHit(step);
+      currentHit = createNewHit(step, step->GetTrack());
     }
   }
 
   inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
+  void printDetectorLevels(const G4VTouchable*) const;
 
 private:
   void storeHit(CaloG4Hit*);
@@ -140,6 +151,13 @@ protected:
   bool forceSave;
 
 private:
+  struct Detector {
+    Detector() {}
+    std::string name;
+    G4LogicalVolume* lv;
+    int level;
+  };
+
   const SimTrackManager* m_trackManager;
 
   std::unique_ptr<CaloSlaveSD> slave;
@@ -149,6 +167,7 @@ private:
 
   bool ignoreTrackID;
   bool isParameterized;
+  bool ignoreReject;
   bool useMap;  // use map for comparison of ID
   bool corrTOFBeam;
 
@@ -162,10 +181,15 @@ private:
   float timeSlice;
   double eminHitD;
   double correctT;
+  bool doFineCalo_;
+  double eMinFine_;
 
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
+  std::unordered_map<unsigned int, unsigned int> boundaryCrossingParentMap_;
   std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
+  std::vector<Detector> fineDetectors_;
+  bool doFineCaloThisStep_;
 };
 
 #endif  // SimG4CMS_CaloSD_h

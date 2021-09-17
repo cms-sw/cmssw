@@ -1,5 +1,6 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Decayer.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 
@@ -33,6 +34,13 @@ void fastsim::Decayer::decay(const Particle& particle,
 
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
   int pid = particle.pdgId();
+  // snip decay products of exotic particles or their children. These decay products are preserved from the event record.
+  // limitation: if exotic incurs heavy energy loss during propagation, the saved decay products could be too hard.
+
+  if (isExotic(pid) || isExotic(particle.getMotherPdgId())) {
+    return;
+  }
+
   pythia_->event.reset();
 
   // create a pythia particle which has the same properties as the FastSim particle

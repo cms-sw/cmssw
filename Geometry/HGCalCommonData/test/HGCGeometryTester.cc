@@ -35,12 +35,14 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCGeometryTester(const edm::ParameterSet&);
   ~HGCGeometryTester() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -53,10 +55,16 @@ private:
 
 HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC)
     : ddToken_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})} {
-  square = iC.getUntrackedParameter<bool>("SquareType", true);
+  square = iC.getUntrackedParameter<bool>("SquareType", false);
 }
 
 HGCGeometryTester::~HGCGeometryTester() {}
+
+void HGCGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("SquareType", false);
+  descriptions.add("hgcGeometryTester", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void HGCGeometryTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

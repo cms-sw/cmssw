@@ -51,7 +51,7 @@ hltSUSYmonitoring.histoPSet.DRPSet = cms.PSet(
 )
 
 #Suvankar
-hltSUSYmonitoring.applyleptonPVcuts = cms.bool(False)
+hltSUSYmonitoring.applyLeptonPVcuts = False
 hltSUSYmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   9999.   ),
   dz  = cms.double(   9999.   ),
@@ -101,8 +101,8 @@ hltSUSYmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI ar
 hltSUSYmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
 # Marina
-hltSUSYmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-hltSUSYmonitoring.workingpoint     = cms.double(0.8484) # Medium
+hltSUSYmonitoring.btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"]
+hltSUSYmonitoring.workingpoint = cms.double(0.8484) # Medium
 
 hltSUSYmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltSUSYmonitoring.leptJetDeltaRmin = cms.double(0.4)

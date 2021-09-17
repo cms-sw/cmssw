@@ -1,7 +1,5 @@
-
 #include "HFValueStruct.h"
-#include <cstdio>
-#include <cstdlib>
+
 //version -1 will take information from DB (NOT DONE YET)
 //version 0 has energy corrections on, everything else off
 //version 1 has energy correction, and pile up slope and interceept on
@@ -26,7 +24,7 @@ reco::HFValueStruct::HFValueStruct(const int& version, const std::vector<double>
     doPU_ = false;
 }
 
-int reco::HFValueStruct::indexByIeta(int& ieta) const { return (ieta > 0) ? (abs(ieta) - 29 + 13) : (41 - abs(ieta)); }
+int reco::HFValueStruct::indexByIeta(int& ieta) const { return (ieta > 0) ? (ieta - 29 + 13) : (41 + ieta); }
 int reco::HFValueStruct::ietaByIndex(int& indx) const { return (indx > 13) ? (indx + 29 - 13) : (indx - 41); }
 //version 0
 // EnCor=energy corrections,default 1.0, 26 slots

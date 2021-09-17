@@ -1,0 +1,5 @@
+  <use name="CondFormats/PPSObjects"/>
+  <use name="clhep"/>
+<export>
+  <lib name="1"/>
+</export>

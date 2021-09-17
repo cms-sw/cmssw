@@ -8,7 +8,7 @@
 //         Created:  Wed Mar 22 12:24:33 CET 2006
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetInfo.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/typelookup.h"
@@ -16,11 +16,12 @@
 
 void SiStripGain::multiply(const SiStripApvGain &apvgain,
                            const double &factor,
-                           const std::pair<std::string, std::string> &recordLabelPair) {
+                           const std::pair<std::string, std::string> &recordLabelPair,
+                           const SiStripDetInfo &detInfo) {
   // When inserting the first ApvGain
   if (apvgain_ == nullptr) {
     if ((factor != 1) && (factor != 0)) {
-      fillNewGain(&apvgain, factor);
+      fillNewGain(&apvgain, factor, detInfo);
     } else {
       // If the normalization factor is one, no need to create a new
       // SiStripApvGain
@@ -29,7 +30,7 @@ void SiStripGain::multiply(const SiStripApvGain &apvgain,
   } else {
     // There is already an ApvGain inside the SiStripGain. Multiply it by the
     // new one and save the new pointer.
-    fillNewGain(apvgain_, 1., &apvgain, factor);
+    fillNewGain(apvgain_, 1., detInfo, &apvgain, factor);
   }
   recordLabelPair_.push_back(recordLabelPair);
   apvgainVector_.push_back(&apvgain);
@@ -38,12 +39,11 @@ void SiStripGain::multiply(const SiStripApvGain &apvgain,
 
 void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
                               const double &factor,
+                              const SiStripDetInfo &detInfo,
                               const SiStripApvGain *apvgain2,
                               const double &factor2) {
   SiStripApvGain *newApvGain = new SiStripApvGain;
-  edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-  SiStripDetInfoFileReader reader(fp.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> &DetInfos = reader.getAllData();
+  const auto &DetInfos = detInfo.getAllData();
 
   // Loop on the apvgain in input and fill the newApvGain with the
   // values/factor.
@@ -51,7 +51,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
   apvgain->getDetIds(detIds);
   std::vector<uint32_t>::const_iterator it = detIds.begin();
   for (; it != detIds.end(); ++it) {
-    std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator detInfoIt = DetInfos.find(*it);
+    auto detInfoIt = DetInfos.find(*it);
     if (detInfoIt != DetInfos.end()) {
       std::vector<float> theSiStripVector;
 

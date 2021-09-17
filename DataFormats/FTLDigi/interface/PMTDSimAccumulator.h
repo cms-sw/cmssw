@@ -29,23 +29,21 @@ public:
   };
   class Data {
   public:
-    constexpr static unsigned energyOffset = 15;
-    constexpr static unsigned energyMask = 0x1;
-    constexpr static unsigned sampleOffset = 11;
+    constexpr static unsigned energyOffset = 4;
+    constexpr static unsigned energyMask = 0x3;
     constexpr static unsigned sampleMask = 0xf;
-    constexpr static unsigned dataOffset = 0;
-    constexpr static unsigned dataMask = 0x7ff;
+    constexpr static unsigned dataMask = 0xffff;
 
-    Data() : data_(0) {}
-    Data(unsigned short ei, unsigned short si, unsigned short d)
-        : data_((ei << energyOffset) | (si << sampleOffset) | d) {}
+    Data() : data_(0), indices_(0) {}
+    Data(unsigned short ei, unsigned short si, unsigned short d) : data_(d), indices_((ei << energyOffset) | si) {}
 
-    unsigned int energyIndex() const { return data_ >> energyOffset; }
-    unsigned int sampleIndex() const { return (data_ >> sampleOffset) & sampleMask; }
+    unsigned int energyIndex() const { return indices_ >> energyOffset; }
+    unsigned int sampleIndex() const { return indices_ & sampleMask; }
     unsigned int data() const { return data_ & dataMask; }
 
   private:
     unsigned short data_;
+    unsigned char indices_;
   };
 
   PMTDSimAccumulator() = default;

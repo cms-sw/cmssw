@@ -26,12 +26,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <vector>
 #include <string>
-
-class DQMStore;
-class MonitorElement;
 
 class EgHLTOfflineClient : public DQMEDHarvester {
 private:
@@ -68,10 +66,6 @@ private:
   bool filterInactiveTriggers_;
   bool isSetup_;
   std::string hltTag_;
-
-  //disabling copying/assignment (in theory this is copyable but lets not just in case)
-  EgHLTOfflineClient(const EgHLTOfflineClient& rhs) {}
-  EgHLTOfflineClient& operator=(const EgHLTOfflineClient& rhs) { return *this; }
 
 public:
   explicit EgHLTOfflineClient(const edm::ParameterSet&);

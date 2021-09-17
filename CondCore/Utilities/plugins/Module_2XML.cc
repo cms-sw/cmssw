@@ -9,6 +9,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(AlignmentSurfaceDeformations);
   PAYLOAD_2XML_CLASS(Alignments);
   PAYLOAD_2XML_CLASS(BeamSpotObjects);
+  PAYLOAD_2XML_CLASS(BeamSpotOnlineObjects);
   PAYLOAD_2XML_CLASS(CSCBadChambers);
   PAYLOAD_2XML_CLASS(CSCBadStrips);
   PAYLOAD_2XML_CLASS(CSCBadWires);
@@ -29,6 +30,8 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(CTPPSPixelAnalysisMask);
   PAYLOAD_2XML_CLASS(CTPPSPixelDAQMapping);
   PAYLOAD_2XML_CLASS(CTPPSPixelGainCalibrations);
+  PAYLOAD_2XML_CLASS(PPSAlignmentConfig)
+  PAYLOAD_2XML_CLASS(PPSAlignmentConfiguration)
   PAYLOAD_2XML_CLASS(CastorChannelQuality);
   PAYLOAD_2XML_CLASS(CastorElectronicsMap);
   PAYLOAD_2XML_CLASS(CastorGainWidths);
@@ -84,6 +87,8 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalCondTowerObjectContainer<EcalDQMStatusCode>);
   PAYLOAD_2XML_CLASS(EcalFunParams);
   PAYLOAD_2XML_CLASS(EcalLaserAPDPNRatios);
+  PAYLOAD_2XML_CLASS(EcalMustacheSCParameters);
+  PAYLOAD_2XML_CLASS(EcalSCDynamicDPhiParameters);
   PAYLOAD_2XML_CLASS(EcalSRSettings);
   PAYLOAD_2XML_CLASS(EcalSampleMask);
   PAYLOAD_2XML_CLASS(EcalSamplesCorrelation);
@@ -102,6 +107,9 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalTPGTowerStatus);
   PAYLOAD_2XML_CLASS(EcalTPGWeightGroup);
   PAYLOAD_2XML_CLASS(EcalTPGWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalTPGOddWeightGroup);
+  PAYLOAD_2XML_CLASS(EcalTPGOddWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalTPGTPMode);
   PAYLOAD_2XML_CLASS(EcalTimeBiasCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeDependentCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeOffsetConstant);
@@ -179,6 +187,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(L1RPCHwConfig);
   PAYLOAD_2XML_CLASS(L1TGlobalParameters);
   PAYLOAD_2XML_CLASS(L1TGlobalPrescalesVetos);
+  PAYLOAD_2XML_CLASS(L1TGlobalPrescalesVetosFract);
   PAYLOAD_2XML_CLASS(L1TMuonBarrelParams);
   PAYLOAD_2XML_CLASS(L1TMuonEndCapForest);
   PAYLOAD_2XML_CLASS(L1TMuonEndCapParams);
@@ -203,9 +212,9 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(OOTPileupCorrectionBuffer);
   PAYLOAD_2XML_CLASS(PCaloGeometry);
   PAYLOAD_2XML_CLASS(PGeometricDet);
-  PAYLOAD_2XML_CLASS(PGeometricDetExtra);
   PAYLOAD_2XML_CLASS(PHGCalParameters);
   PAYLOAD_2XML_CLASS(PTrackerParameters);
+  PAYLOAD_2XML_CLASS(PTrackerAdditionalParametersPerDet);
   PAYLOAD_2XML_CLASS(PerformancePayloadFromBinnedTFormula);
   PAYLOAD_2XML_CLASS(PerformancePayloadFromTFormula);
   PAYLOAD_2XML_CLASS(PerformancePayloadFromTable);
@@ -236,6 +245,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(RPFlatParams);
   PAYLOAD_2XML_CLASS(RecoIdealGeometry);
   PAYLOAD_2XML_CLASS(RunInfo);
+  PAYLOAD_2XML_CLASS(SiPhase2OuterTrackerLorentzAngle);
   PAYLOAD_2XML_CLASS(SiPixel2DTemplateDBObject);
   PAYLOAD_2XML_CLASS(SiPixelCPEGenericErrorParm);
   PAYLOAD_2XML_CLASS(SiPixelCalibConfiguration);
@@ -248,8 +258,10 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(SiPixelQuality);
   PAYLOAD_2XML_CLASS(SiPixelFEDChannelContainer);
   PAYLOAD_2XML_CLASS(SiPixelQualityProbabilities);
+  PAYLOAD_2XML_CLASS(SiPixelVCal);
   PAYLOAD_2XML_CLASS(SiPixelTemplateDBObject);
   PAYLOAD_2XML_CLASS(SiStripApvGain);
+  PAYLOAD_2XML_CLASS(SiStripApvSimulationParameters);
   PAYLOAD_2XML_CLASS(SiStripBackPlaneCorrection);
   PAYLOAD_2XML_CLASS(SiStripBadStrip);
   PAYLOAD_2XML_CLASS(SiStripConfObject);

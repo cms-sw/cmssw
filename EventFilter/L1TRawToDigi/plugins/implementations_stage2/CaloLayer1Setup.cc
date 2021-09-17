@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
@@ -52,10 +51,13 @@ namespace l1t {
       return res;
     }
 
-    void CaloLayer1Setup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void CaloLayer1Setup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<EcalTrigPrimDigiCollection>();
       prod.produces<HcalTrigPrimDigiCollection>();
       prod.produces<L1CaloRegionCollection>();
+      for (int i = 0; i < 5; ++i) {
+        prod.produces<EcalTrigPrimDigiCollection>("EcalDigisBx" + std::to_string(i + 1));
+      }
     }
 
     std::unique_ptr<UnpackerCollections> CaloLayer1Setup::getCollections(edm::Event& e) {

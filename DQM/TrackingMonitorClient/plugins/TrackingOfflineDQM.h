@@ -38,6 +38,8 @@
 
 class TrackingActionExecutor;
 class SiStripDetCabling;
+class RunInfo;
+class RunInfoRcd;
 
 class TrackingOfflineDQM : public DQMEDHarvester {
 public:
@@ -67,7 +69,6 @@ private:
   bool openInputFile();
 
   TrackingActionExecutor* actionExecutor_;
-
   std::string inputFileName_;
   std::string outputFileName_;
   int globalStatusFilling_;
@@ -76,5 +77,7 @@ private:
   bool allpixelFEDsFound_;
 
   edm::ParameterSet configPar_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const RunInfo* sumFED_ = nullptr;
 };
 #endif

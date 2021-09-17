@@ -24,13 +24,14 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 #include <map>
@@ -56,7 +57,7 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-class PhotonValidator : public DQMEDAnalyzer {
+class PhotonValidator : public DQMOneEDAnalyzer<> {
 public:
   //
   explicit PhotonValidator(const edm::ParameterSet&);
@@ -65,7 +66,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob();
   void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
-  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void dqmEndRun(edm::Run const& r, edm::EventSetup const& es) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -120,6 +121,10 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> famos_simVtx_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 
   std::unique_ptr<PhotonMCTruthFinder> thePhotonMCTruthFinder_;
 

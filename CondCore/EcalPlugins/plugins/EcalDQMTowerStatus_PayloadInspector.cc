@@ -126,28 +126,44 @@ namespace {
     }  // fill method
   };
 
-  /***********************************************
+  /***************************************************
     2d plot of EcalDQMTowerStatus Diff between 2 IOV
-************************************************/
-  class EcalDQMTowerStatusDiffPlot : public cond::payloadInspector::PlotImage<EcalDQMTowerStatus> {
+   ****************************************************/
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalDQMTowerStatusDiffBase : public cond::payloadInspector::PlotImage<EcalDQMTowerStatus, nIOVs, ntags> {
   public:
-    EcalDQMTowerStatusDiffPlot()
-        : cond::payloadInspector::PlotImage<EcalDQMTowerStatus>("EcalDQMTowerStatusDiff - map ") {
-      setSingleIov(false);
-    }
-
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    EcalDQMTowerStatusDiffBase()
+        : cond::payloadInspector::PlotImage<EcalDQMTowerStatus, nIOVs, ntags>("EcalDQMTowerStatusDiff - map ") {}
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "EB DQM Tower Status", 72, 0, 72, 34, -17, 17);
       TH2F* endc_p = new TH2F("EE+", "EE+ DQM Tower Status", 22, 0, 22, 22, 0, 22);
       TH2F* endc_m = new TH2F("EE-", "EE- DQM Tower Status", 22, 0, 22, 22, 0, 22);
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float pEB[kEBTotalTowers], pEE[kEETotalTowers];
+      std::string l_tagname[2];
 
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalDQMTowerStatus> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalDQMTowerStatus> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           for (uint cellid = 0; cellid < EcalTrigTowerDetId::kEBTotalTowers; ++cellid) {
             if (payload->barrelItems().empty())
@@ -215,18 +231,22 @@ namespace {
               }
             }
           }
-
         }  // payload
-        irun++;
       }
 
       TCanvas canvas("CC map", "CC map", 800, 800);
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.04);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal DQM Tower Status (Diff), IOV %i vs %i", run[0], run[1]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2 && len < 58) {
+        t1.SetTextSize(0.025);
+        t1.DrawLatex(
+            0.5, 0.96, Form("%s IOV %i - %s  IOV %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+      } else {
+        t1.SetTextSize(0.04);
+        t1.DrawLatex(0.5, 0.96, Form("Ecal DQM Tower Status (Diff), IOV %i vs %i", run[0], run[1]));
+      }
       TPad* padb = new TPad("padb", "padb", 0., 0.45, 1., 0.9);
       padb->Draw();
       TPad* padem = new TPad("padem", "padem", 0., 0., 0.45, 0.45);
@@ -257,16 +277,19 @@ namespace {
       padep->cd();
       DrawEE_Tower(endc_p, l, 0, 1.15);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalDQMTowerStatusDiffBase
+  using EcalDQMTowerStatusDiffOneTag = EcalDQMTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalDQMTowerStatusDiffTwoTags = EcalDQMTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalDQMTowerStatus) {
   PAYLOAD_INSPECTOR_CLASS(EcalDQMTowerStatusPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalDQMTowerStatusDiffPlot);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMTowerStatusDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalDQMTowerStatusDiffTwoTags);
 }

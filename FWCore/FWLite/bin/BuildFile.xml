@@ -1,13 +1,13 @@
-<bin   name="edmClassStorageSize" file="storageSize.cc">
-  <use   name="rootcore"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="FWCore/FWLite"/>
+<bin name="edmClassStorageSize" file="storageSize.cc">
+  <use name="rootcore"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/FWLite"/>
 </bin>
 
-<bin   name="edmBranchStorageSize" file="storageSizeForBranch.cc">
-  <use   name="rootcore"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="FWCore/FWLite"/>
+<bin name="edmBranchStorageSize" file="storageSizeForBranch.cc">
+  <use name="rootcore"/>
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="FWCore/FWLite"/>
 </bin>

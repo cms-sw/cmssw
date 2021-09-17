@@ -1,4 +1,3 @@
-
 #include "DQMOffline/Trigger/interface/EgHLTOfflineSource.h"
 #include "DQMOffline/Trigger/interface/EgHLTOfflineClient.h"
 #include "DQMOffline/Trigger/interface/EgHLTOfflineSummaryClient.h"
@@ -11,8 +10,6 @@
 #include "DQMOffline/Trigger/interface/HLTTauCertifier.h"
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFSource.h"
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFClient.h"
-#include "DQMOffline/Trigger/interface/TopDiLeptonHLTOfflineDQM.h"
-#include "DQMOffline/Trigger/interface/TopSingleLeptonHLTOfflineDQM.h"
 #include "DQMOffline/Trigger/interface/FSQDiJetAve.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,6 +25,4 @@ DEFINE_FWK_MODULE(DQMOfflineHLTEventInfoClient);
 DEFINE_FWK_MODULE(HLTTauCertifier);
 DEFINE_FWK_MODULE(HLTInclusiveVBFSource);
 DEFINE_FWK_MODULE(HLTInclusiveVBFClient);
-DEFINE_FWK_MODULE(TopDiLeptonHLTOfflineDQM);
-DEFINE_FWK_MODULE(TopSingleLeptonHLTOfflineDQM);
 DEFINE_FWK_MODULE(FSQDiJetAve);

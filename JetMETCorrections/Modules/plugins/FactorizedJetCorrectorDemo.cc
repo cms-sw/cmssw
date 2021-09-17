@@ -90,7 +90,7 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
     params.push_back(ip);
   }
 
-  boost::shared_ptr<FactorizedJetCorrector> corrector(new FactorizedJetCorrector(params));
+  std::shared_ptr<FactorizedJetCorrector> corrector(new FactorizedJetCorrector(params));
 
   double jec, rawPt, corPt, eta;
   TLorentzVector P4;

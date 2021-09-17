@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''Script that runs SiStrip DCS O2O.
 @author: Huilin Qu
 '''

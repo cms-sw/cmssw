@@ -4,6 +4,7 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "ConversionRegion.h"
 
@@ -40,9 +41,12 @@ public:
                    float& Phimax,
                    const DetLayer& layer,
                    const ConversionRegion& convRegion,
-                   const edm::EventSetup& es);
-  bool getPhiRange(
-      float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const edm::EventSetup& es);
+                   const MagneticField& field);
+  bool getPhiRange(float& Phimin,
+                   float& Phimax,
+                   const float& layerR,
+                   const ConversionRegion& convRegion,
+                   const MagneticField& field);
   bool checkRZCompatibilityWithSeedTrack(const RecHitsSortedInPhi::Hit& hit,
                                          const DetLayer& layer,
                                          const ConversionRegion& convRegion);

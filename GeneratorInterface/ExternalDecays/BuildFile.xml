@@ -1,17 +1,15 @@
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="heppdt"/>
-<use name="SimGeneral/HepPDTRecord"/>
 <use name="clhep"/>
 <use name="hepmc"/>
 <use name="GeneratorInterface/Core"/>
-<use   name="GeneratorInterface/LHEInterface"/>
+<use name="GeneratorInterface/LHEInterface"/>
 <use name="GeneratorInterface/EvtGenInterface"/>
 <use name="GeneratorInterface/PhotosInterface"/>
 <use name="GeneratorInterface/TauolaInterface"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <export>
   <lib name="1"/>
 </export>

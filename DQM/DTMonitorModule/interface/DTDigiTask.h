@@ -9,26 +9,32 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+//Records
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
@@ -45,10 +51,7 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-class DQMStore;
-class MonitorElement;
-
-class DTDigiTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTDigiTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);
@@ -103,11 +106,19 @@ private:
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
-  edm::ESHandle<DTGeometry> muonGeom;
-  edm::ESHandle<DTReadOutMapping> mapping;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> readOutMapToken_;
+  const DTReadOutMapping* mapping;
 
-  edm::ESHandle<DTTtrig> tTrigMap;
-  edm::ESHandle<DTT0> t0Map;
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> TtrigToken_;
+  const DTTtrig* tTrigMap;
+  edm::ESGetToken<DTT0, DTT0Rcd> T0Token_;
+  const DTT0* t0Map;
+
+  // Status map (for noisy channels)
+  edm::ESGetToken<DTStatusFlag, DTStatusFlagRcd> statusMapToken_;
+  const DTStatusFlag* statusMap;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
   std::map<std::string, std::map<int, MonitorElement*> > wheelHistos;

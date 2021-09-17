@@ -100,6 +100,7 @@ namespace edm {
     bool mixProdStep1_;
     CrossingFramePlaybackInfoNew* playbackInfo_;
 
+    edm::ESGetToken<MixingModuleConfig, MixingRcd> configToken_;
     std::vector<AdjusterBase*> adjusters_;
     std::vector<AdjusterBase*> adjustersObjects_;
     std::vector<MixingWorkerBase*> workers_;
@@ -107,6 +108,7 @@ namespace edm {
     std::vector<std::string> wantedBranches_;
     bool useCurrentProcessOnly_;
     bool wrapLongTimes_;
+    bool skipSignal_;
 
     // Digi-producing algorithms
     Accumulators digiAccumulators_;

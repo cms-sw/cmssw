@@ -14,35 +14,24 @@
 // Class Header
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-// Service Records
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 // Framework Headers
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
-// C++ Headers
-#include <map>
-
-using namespace std;
-using namespace edm;
+#include <vector>
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par)
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par,
+                                   edm::ConsumesCollector&& iC,
+                                   UseEventSetupIn useEventSetupIn)
     : theTrackingGeometry(nullptr),
       theMGField(nullptr),
       theDetLayerGeometry(nullptr),
       theEventSetup(nullptr),
       theSchool(nullptr) {
-  // load the propagators map
-  vector<string> noPropagators;
-  vector<string> propagatorNames;
-
   theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation", true);
 
   if (theMuonNavigationFlag) {
@@ -70,31 +59,48 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par)
     theME0Layer = true;
   }
 
-  propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
+  // load the propagators map
+  std::vector<std::string> noPropagators;
+  std::vector<std::string> propagatorNames =
+      par.getUntrackedParameter<std::vector<std::string>>("Propagators", noPropagators);
 
   if (propagatorNames.empty())
     LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
 
-  for (vector<string>::iterator propagatorName = propagatorNames.begin(); propagatorName != propagatorNames.end();
-       ++propagatorName)
-    thePropagators[*propagatorName] = ESHandle<Propagator>(nullptr);
-
+  for (auto const& propagatorName : propagatorNames) {
+    thePropagators[propagatorName] = PropagatorInfo();
+  }
   theCacheId_GTG = 0;
   theCacheId_MG = 0;
   theCacheId_DG = 0;
   theCacheId_P = 0;
   theChangeInTrackingComponentsRecord = false;
+
+  // Declare the products we get from the EventSetup and initialize the tokens used to get them
+  if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    globalTrackingGeometryEventToken_ = iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
+    magneticFieldEventToken_ = iC.esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    muonDetLayerGeometryEventToken_ = iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord>();
+    for (auto& element : thePropagators) {
+      element.second.eventToken_ =
+          iC.esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", element.first));
+    }
+  }
+  if (useEventSetupIn == UseEventSetupIn::Run || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
+    globalTrackingGeometryRunToken_ =
+        iC.esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord, edm::Transition::BeginRun>();
+    magneticFieldRunToken_ = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
+    muonDetLayerGeometryRunToken_ =
+        iC.esConsumes<MuonDetLayerGeometry, MuonRecoGeometryRecord, edm::Transition::BeginRun>();
+    for (auto& element : thePropagators) {
+      element.second.runToken_ = iC.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", element.first));
+    }
+  }
 }
 
 // Destructor
 MuonServiceProxy::~MuonServiceProxy() {
-  // FIXME: how do that?
-  // delete theTrackingGeometry;
-  // delete theMGField;
-  // delete theDetLayerGeometry;
-
-  // FIXME: is it enough?
-  thePropagators.clear();
   if (theSchool)
     delete theSchool;
 }
@@ -102,7 +108,7 @@ MuonServiceProxy::~MuonServiceProxy() {
 // Operations
 
 // update the services each event
-void MuonServiceProxy::update(const edm::EventSetup& setup) {
+void MuonServiceProxy::update(const edm::EventSetup& setup, bool duringEvent) {
   const std::string metname = "Muon|RecoMuon|MuonServiceProxy";
 
   theEventSetup = &setup;
@@ -112,7 +118,11 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_GTG != theCacheId_GTG) {
     LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
-    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+    if (duringEvent) {
+      theTrackingGeometry = setup.getHandle(globalTrackingGeometryEventToken_);
+    } else {
+      theTrackingGeometry = setup.getHandle(globalTrackingGeometryRunToken_);
+    }
   }
 
   // Magfield Field
@@ -120,7 +130,11 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_MG != theCacheId_MG) {
     LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
-    setup.get<IdealMagneticFieldRecord>().get(theMGField);
+    if (duringEvent) {
+      theMGField = setup.getHandle(magneticFieldEventToken_);
+    } else {
+      theMGField = setup.getHandle(magneticFieldRunToken_);
+    }
   }
 
   // DetLayer Geometry
@@ -128,7 +142,11 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
   if (newCacheId_DG != theCacheId_DG) {
     LogTrace(metname) << "Muon Reco Geometry changed!";
     theCacheId_DG = newCacheId_DG;
-    setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
+    if (duringEvent) {
+      theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryEventToken_);
+    } else {
+      theDetLayerGeometry = setup.getHandle(muonDetLayerGeometryRunToken_);
+    }
     // MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
     if (theMuonNavigationFlag) {
@@ -144,21 +162,25 @@ void MuonServiceProxy::update(const edm::EventSetup& setup) {
     LogTrace(metname) << "Tracking Component changed!";
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
-    for (propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end(); ++prop)
-      setup.get<TrackingComponentsRecord>().get(prop->first, prop->second);
+    for (auto& element : thePropagators) {
+      if (duringEvent) {
+        element.second.esHandle_ = setup.getHandle(element.second.eventToken_);
+      } else {
+        element.second.esHandle_ = setup.getHandle(element.second.runToken_);
+      }
+    }
   } else
     theChangeInTrackingComponentsRecord = false;
 }
 
 // get the propagator
-ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const {
-  propagators::const_iterator prop = thePropagators.find(propagatorName);
+edm::ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const {
+  PropagatorMap::const_iterator prop = thePropagators.find(propagatorName);
 
   if (prop == thePropagators.end()) {
-    LogError("Muon|RecoMuon|MuonServiceProxy") << "MuonServiceProxy: propagator with name: " << propagatorName
-                                               << " not found! Please load it in the MuonServiceProxy.cff";
-    return ESHandle<Propagator>(nullptr);
+    edm::LogError("Muon|RecoMuon|MuonServiceProxy") << "MuonServiceProxy: propagator with name: " << propagatorName
+                                                    << " not found! Please load it in the MuonServiceProxy.cff";
+    return edm::ESHandle<Propagator>(nullptr);
   }
-
-  return prop->second;
+  return prop->second.esHandle_;
 }

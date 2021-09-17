@@ -17,8 +17,6 @@
 #include <TMath.h>
 #include <iostream>
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
@@ -80,7 +78,7 @@ public:
   /// Find the ProtoJets from the collection of input Candidates.
   void run(const std::vector<fastjet::PseudoJet>& cell_particles,
            std::vector<fastjet::PseudoJet>& hardjetsOutput,
-           boost::shared_ptr<fastjet::ClusterSequence>& fjClusterSeq);
+           std::shared_ptr<fastjet::ClusterSequence>& fjClusterSeq);
 
 private:
   edm::InputTag mSrc_;    //<! calo tower input source

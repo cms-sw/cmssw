@@ -1,6 +1,5 @@
 #include "PFCandWithSuperClusterExtractor.h"
 
-#include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

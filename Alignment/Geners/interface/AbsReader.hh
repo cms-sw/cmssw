@@ -42,9 +42,9 @@ namespace gs {
 
   template <class Base, class Derived>
   struct ConcreteReader : public AbsReader<Base> {
-    virtual ~ConcreteReader() {}
+    ~ConcreteReader() override {}
 
-    inline Derived *read(const ClassId &id, std::istream &in) const {
+    inline Derived *read(const ClassId &id, std::istream &in) const override {
       // Assume that Derived::read(id, in) returns a new object
       // of type "Derived" allocated on the heap
       return Derived::read(id, in);
@@ -73,9 +73,8 @@ namespace gs {
       return it->second->read(id, in);
     }
 
-  private:
-    DefaultReader(const DefaultReader &);
-    DefaultReader &operator=(const DefaultReader &);
+    DefaultReader(const DefaultReader &) = delete;
+    DefaultReader &operator=(const DefaultReader &) = delete;
   };
 
   // A trivial implementation of the Meyers singleton for use with reader
@@ -94,7 +93,7 @@ namespace gs {
     typedef typename Reader::Base::value_type InheritanceBase;
 
     static const Reader &instance() {
-      static Reader obj;
+      static const Reader obj;
       return obj;
     }
 
@@ -106,9 +105,8 @@ namespace gs {
       rd[id.name()] = new ConcreteReader<InheritanceBase, Derived>();
     }
 
-  private:
     // Disable the constructor
-    StaticReader();
+    StaticReader() = delete;
   };
 }  // namespace gs
 

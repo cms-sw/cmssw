@@ -57,12 +57,14 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
       // Here is the reconstructed product of interest.
       TauProducerInputTag_(iConfig.getParameter<InputTag>("TauProducer")),
       // Get the discriminators and their cuts
-      discriminators_(iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators")) {
+      discriminators_(iConfig.getParameter<std::vector<edm::ParameterSet>>("discriminators")) {
   turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
   genericTriggerEventFlag_ =
       (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_)
-          ? new GenericTriggerEventFlag(
-                iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"), consumesCollector(), *this)
+          ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection"),
+                                        consumesCollector(),
+                                        *this,
+                                        l1t::UseEventSetupIn::Run)
           : nullptr;
   if (genericTriggerEventFlag_ != nullptr)
     LogDebug(moduleLabel_) << "--> GenericTriggerSelection parameters found in " << moduleLabel_ << "."
@@ -81,13 +83,34 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
                                                ? iConfig.getParameter<InputTag>("PrimaryVertexCollection")
                                                : edm::InputTag("offlinePrimaryVertices");  //TO-DO
 
-  refCollectionInputTagToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<InputTag>("RefCollection"));
+  refCollectionInputTagToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<InputTag>("RefCollection"));
   primaryVertexCollectionToken_ = consumes<VertexCollection>(PrimaryVertexCollection_);  //TO-DO
   tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
-  for (const auto& it : discriminators_) {
-    currentDiscriminatorToken_.push_back(
-        consumes<reco::PFTauDiscriminator>(edm::InputTag(it.getParameter<string>("discriminator"))));
+  std::vector<edm::ParameterSet> temp_plainDiscriminators;
+  std::vector<edm::ParameterSet> temp_discriminatorContainers;
+  for (std::vector<edm::ParameterSet>::iterator it = discriminators_.begin(); it != discriminators_.end(); ++it) {
+    if (it->getParameter<string>("container").empty()) {
+      temp_plainDiscriminators.push_back(*it);
+      currentDiscriminatorToken_.push_back(
+          consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))));
+    } else {
+      temp_discriminatorContainers.push_back(*it);
+      currentDiscriminatorContainerToken_.push_back(std::pair<edm::EDGetTokenT<reco::TauDiscriminatorContainer>, int>(
+          consumes<reco::TauDiscriminatorContainer>(edm::InputTag(it->getParameter<string>("container"))), -99));
+      auto const prov_cfg_label = it->getParameter<std::string>("provenanceConfigLabel");
+      if (prov_cfg_label != "rawValues" && prov_cfg_label != "workingPoints" && prov_cfg_label != "IDdefinitions" &&
+          prov_cfg_label != "IDWPdefinitions" && prov_cfg_label != "direct_rawValues" &&
+          prov_cfg_label != "direct_workingPoints")
+        throw cms::Exception("Configuration")
+            << "TauTagValidation: Parameter 'provenanceConfigLabel' does only accept 'rawValues', 'workingPoints', "
+               "'IDdefinitions', 'IDWPdefinitions', 'direct_rawValues', 'direct_workingPoints'\n";
+      currentDiscriminatorContainerIdName_.push_back({prov_cfg_label, it->getParameter<std::string>("idLabel")});
+    }
   }
+  //sort discriminators_: first of type PFTauDiscriminator then TauDiscriminatorContainer
+  discriminators_ = temp_plainDiscriminators;
+  discriminators_.insert(
+      discriminators_.end(), temp_discriminatorContainers.begin(), temp_discriminatorContainers.end());
 
   tversion = edm::getReleaseVersion();
 
@@ -529,6 +552,64 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // ------------------------------ PFTauCollection Matched and other discriminators ---------------------------------------------------------
 
   if (TauProducer_.find("PFTau") != string::npos || TauProducer_.find("hpsTancTaus") != string::npos) {
+    // Retrieve ID container indices if config history changes, in particular for the first event.
+    if (phID_ != iEvent.processHistoryID()) {
+      phID_ = iEvent.processHistoryID();
+      for (size_t idx = 0; idx < currentDiscriminatorContainerToken_.size(); ++idx) {
+        const edm::Provenance* prov = iEvent.getHandle(currentDiscriminatorContainerToken_[idx].first).provenance();
+        string prov_cfg_label = currentDiscriminatorContainerIdName_[idx].first;
+        string prov_ID_label = currentDiscriminatorContainerIdName_[idx].second;
+        bool found = false;
+        if (prov_cfg_label == "rawValues" || prov_cfg_label == "workingPoints") {
+          const std::vector<string> psetsFromProvenance = edm::parameterSet(prov->stable(), iEvent.processHistory())
+                                                              .getParameter<std::vector<string>>(prov_cfg_label);
+          for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
+            if (psetsFromProvenance[i] == prov_ID_label) {
+              // using negative indices for raw values
+              if (prov_cfg_label == "rawValues")
+                currentDiscriminatorContainerToken_[idx].second = -1 - i;
+              else
+                currentDiscriminatorContainerToken_[idx].second = i;
+              found = true;
+            }
+          }
+        } else if (prov_cfg_label == "IDdefinitions" || prov_cfg_label == "IDWPdefinitions") {
+          const std::vector<edm::ParameterSet> psetsFromProvenance =
+              edm::parameterSet(prov->stable(), iEvent.processHistory())
+                  .getParameter<std::vector<edm::ParameterSet>>(prov_cfg_label);
+          for (size_t i = 0; i < psetsFromProvenance.size(); ++i) {
+            if (psetsFromProvenance[i].getParameter<string>("IDname") == prov_ID_label) {
+              // using negative indices for raw values
+              if (prov_cfg_label == "IDdefinitions")
+                currentDiscriminatorContainerToken_[idx].second = -1 - i;
+              else
+                currentDiscriminatorContainerToken_[idx].second = i;
+              found = true;
+            }
+          }
+        } else {
+          // checked prov_cfg_label before, so it must be a direct access via indices
+          try {
+            int i = std::stoi(prov_ID_label);
+            if (prov_cfg_label == "direct_rawValues")
+              currentDiscriminatorContainerToken_[idx].second = -1 - i;
+            else
+              currentDiscriminatorContainerToken_[idx].second = i;
+            found = true;
+          } catch (std::invalid_argument const& e) {
+            throw cms::Exception("Configuration") << "TauTagValidation: Direct access to ID container requested, so "
+                                                     "argument of 'idLabel' must be convertable to int!\n";
+          }
+        }
+        if (!found) {
+          throw cms::Exception("Configuration")
+              << "TauTagValidation: Requested working point '" << prov_ID_label << "' for ID '"
+              << discriminators_.at(idx - currentDiscriminatorToken_.size()).getParameter<string>("discriminator")
+              << "' not found!\n";
+        }
+      }
+    }
+
     Handle<PFTauCollection> thePFTauHandle;
     iEvent.getByToken(tauProducerInputTagToken_, thePFTauHandle);
 
@@ -579,6 +660,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 
       Handle<PFTauDiscriminator> currentDiscriminator;
+      Handle<TauDiscriminatorContainer> currentDiscriminatorContainer;
 
       //filter the candidates
       if (thePFTau->pt() < TauPtCut_)
@@ -594,13 +676,33 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (!pass)
         continue;
 
-      int j = 0;
-      for (const auto& it : discriminators_) {
-        string currentDiscriminatorLabel = it.getParameter<string>("discriminator");
-        iEvent.getByToken(currentDiscriminatorToken_[j], currentDiscriminator);
+      for (unsigned j = 0; j < discriminators_.size(); j++) {
+        string currentDiscriminatorLabel = discriminators_.at(j).getParameter<string>("discriminator");
         summaryMap.find(refCollection_ + "Den")->second->Fill(j);
 
-        if ((*currentDiscriminator)[thePFTau] >= it.getParameter<double>("selectionCut")) {
+        bool passesID;
+        if (j < currentDiscriminatorToken_.size()) {
+          iEvent.getByToken(currentDiscriminatorToken_[j], currentDiscriminator);
+          passesID = ((*currentDiscriminator)[thePFTau] >= discriminators_.at(j).getParameter<double>("selectionCut"));
+        } else {
+          iEvent.getByToken(currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].first,
+                            currentDiscriminatorContainer);
+          if (currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].second < 0) {
+            if ((*currentDiscriminatorContainer)[thePFTau].rawValues.size() == 1)
+              passesID = false;  //in case of prediscriminant fail at reco level
+            else
+              passesID = ((*currentDiscriminatorContainer)[thePFTau].rawValues.at(
+                              -1 - currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].second) >=
+                          discriminators_.at(j).getParameter<double>("selectionCut"));
+          } else {
+            if ((*currentDiscriminatorContainer)[thePFTau].workingPoints.empty())
+              passesID = false;  //in case of prediscriminant fail at reco level
+            else
+              passesID = (*currentDiscriminatorContainer)[thePFTau].workingPoints.at(
+                  currentDiscriminatorContainerToken_[j - currentDiscriminatorToken_.size()].second);
+          }
+        }
+        if (passesID) {
           ptTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->pt());
           etaTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->eta());
           phiTauVisibleMap.find(currentDiscriminatorLabel)->second->Fill(RefJet->phi() * 180.0 / TMath::Pi());
@@ -727,7 +829,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           if (chainCuts_)
             break;
         }
-        j++;
       }
     }  //End of Reference Collection Loop
 
@@ -757,9 +858,9 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }  //End of PFTau Collection If Loop
 }
 
-double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate> >& candidates) {
+double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate>>& candidates) {
   double sumPt = 0.;
-  for (std::vector<edm::Ptr<reco::Candidate> >::const_iterator candidate = candidates.begin();
+  for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator candidate = candidates.begin();
        candidate != candidates.end();
        ++candidate) {
     sumPt += (*candidate)->pt();

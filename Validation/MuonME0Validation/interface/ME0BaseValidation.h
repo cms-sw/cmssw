@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
@@ -11,7 +10,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,6 +34,7 @@ protected:
   std::vector<double> RangeZR_;
   edm::EDGetToken InputTagToken_;
   int nBinXY_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> geomToken_;
 
 private:
 };

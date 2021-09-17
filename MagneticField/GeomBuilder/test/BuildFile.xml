@@ -1,10 +1,14 @@
-<library   file="stubs/*.cc" name="testMagneticFieldGeomBuilder">
-  <use   name="boost"/>
-  <use   name="clhep"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/>
-  <use   name="MagneticField/Interpolation"/>
-  <use   name="MagneticField/VolumeBasedEngine"/>
-  <use   name="CondFormats/MFObjects"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="stubs/*.cc" name="testMagneticFieldGeomBuilder">
+  <use name="boost"/>
+  <use name="clhep"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="MagneticField/Interpolation"/>
+  <use name="MagneticField/VolumeBasedEngine"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="dummyMain.cpp" name="MagneticFieldGeomBuilderTestDriver">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash MagneticField/GeomBuilder/test runTest.sh"/>
+</bin>

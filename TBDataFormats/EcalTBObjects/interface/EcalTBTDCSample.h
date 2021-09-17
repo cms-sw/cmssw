@@ -2,7 +2,7 @@
 #define DIGIECAL_ECALTBTDCSAMPLE_H 1
 
 #include <ostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /** \class EcalTBTDCSample
  *  Simple container packer/unpacker for a single sample from the TB TDC raw data

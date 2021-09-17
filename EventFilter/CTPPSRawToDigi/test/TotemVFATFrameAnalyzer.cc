@@ -23,8 +23,6 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------------------------------
-
 class TotemVFATFrameAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit TotemVFATFrameAnalyzer(const edm::ParameterSet &);
@@ -37,18 +35,14 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-  ctpps::RawDataUnpacker rawDataUnpacker;
+  pps::RawDataUnpacker rawDataUnpacker;
 
   template <typename DigiType>
   void run(edm::Event &, const edm::EventSetup &);
 };
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace edm;
 using namespace std;
-
-//----------------------------------------------------------------------------------------------------
 
 TotemVFATFrameAnalyzer::TotemVFATFrameAnalyzer(const edm::ParameterSet &conf)
     : fedIds(conf.getParameter<vector<unsigned int> >("fedIds")),
@@ -56,11 +50,7 @@ TotemVFATFrameAnalyzer::TotemVFATFrameAnalyzer(const edm::ParameterSet &conf)
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 }
 
-//----------------------------------------------------------------------------------------------------
-
 TotemVFATFrameAnalyzer::~TotemVFATFrameAnalyzer() {}
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemVFATFrameAnalyzer::analyze(edm::StreamID, const edm::Event &event, const edm::EventSetup &) const {
   // raw data handle
@@ -77,17 +67,14 @@ void TotemVFATFrameAnalyzer::analyze(edm::StreamID, const edm::Event &event, con
   }
 
   // print VFAT frames
-  cout << endl
-       << "----------------------------------------------------------------------------------------------------"
-       << endl;
-  cout << event.id() << endl;
+  edm::LogInfo("TotemVFATFrameAnalyzer")
+      << "\n----------------------------------------------------------------------------------------------------\n"
+      << event.id() << "\n";
 
   for (VFATFrameCollection::Iterator fr(&vfatCollection); !fr.IsEnd(); fr.Next()) {
-    cout << fr.Position() << " > ";
+    edm::LogInfo("TotemVFATFrameAnalyzer") << fr.Position() << " > ";
     fr.Data()->Print();
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemVFATFrameAnalyzer);

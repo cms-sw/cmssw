@@ -22,13 +22,14 @@
 #else
 
 #define CINT_GUARD(CODE)
-#include <boost/shared_ptr.hpp>
-#define SHARED_PTR(T) boost::shared_ptr<T>
+
+#define SHARED_PTR(T) std::shared_ptr<T>
 
 #endif
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/SelectorUtils/interface/CandidateCut.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"

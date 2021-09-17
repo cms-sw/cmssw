@@ -42,6 +42,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -52,6 +53,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 //
 // class declaration
@@ -65,6 +67,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> pixelQualityToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
   using ScalerMap = std::unordered_map<unsigned int, std::unordered_map<int, double> >;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -81,7 +90,14 @@ private:
 // constructors and destructor
 //
 MCMisalignmentScaler::MCMisalignmentScaler(const edm::ParameterSet& iConfig)
-    : scalers_{decodeSubDetectors(iConfig.getParameter<edm::VParameterSet>("scalers"))},
+    : pixelQualityToken_(esConsumes()),
+      stripQualityToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      scalers_{decodeSubDetectors(iConfig.getParameter<edm::VParameterSet>("scalers"))},
       pullBadModulesToIdeal_{iConfig.getUntrackedParameter<bool>("pullBadModulesToIdeal")},
       outlierPullToIdealCut_{iConfig.getUntrackedParameter<double>("outlierPullToIdealCut")} {}
 
@@ -96,21 +112,17 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
   firstEvent_ = false;
 
   // get handle on bad modules
-  edm::ESHandle<SiPixelQuality> pixelModules;
-  iSetup.get<SiPixelQualityRcd>().get(pixelModules);
-  edm::ESHandle<SiStripQuality> stripModules;
-  iSetup.get<SiStripQualityRcd>().get(stripModules);
+  const SiPixelQuality* pixelModules = &iSetup.getData(pixelQualityToken_);
+  const SiStripQuality* stripModules = &iSetup.getData(stripQualityToken_);
 
   // get the tracker geometry
-  edm::ESHandle<GeometricDet> geometricDet;
-  iSetup.get<IdealGeometryRecord>().get(geometricDet);
-  edm::ESHandle<PTrackerParameters> ptp;
-  iSetup.get<PTrackerParametersRcd>().get(ptp);
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const auto* const topology = tTopoHandle.product();
+  const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = iSetup.getData(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
+  const TrackerTopology* topology = &iSetup.getData(topoToken_);
+
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  auto tracker = std::unique_ptr<TrackerGeometry>{trackerBuilder.build(&(*geometricDet), *ptp, topology)};
+  auto tracker = std::unique_ptr<TrackerGeometry>{trackerBuilder.build(geometricDet, ptitp, ptp, topology)};
 
   auto dets = tracker->dets();
   std::sort(dets.begin(), dets.end(), [](const auto& a, const auto& b) {
@@ -118,8 +130,7 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
   });
 
   // get the input alignment
-  edm::ESHandle<Alignments> alignments;
-  iSetup.get<TrackerAlignmentRcd>().get(alignments);
+  const Alignments* alignments = &iSetup.getData(aliToken_);
 
   if (dets.size() != alignments->m_align.size()) {
     throw cms::Exception("GeometryMismatch") << "Size mismatch between alignments (size=" << alignments->m_align.size()
@@ -205,7 +216,7 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
                            (*ideal)->rotation().zz() + scaleFactor * zz_diff}};
 
       const AlignTransform rescaledTransform{rescaledTranslation, rescaledRotation, misaligned->rawId()};
-      rescaledAlignments.m_align.emplace_back(std::move(rescaledTransform));
+      rescaledAlignments.m_align.emplace_back(rescaledTransform);
     }
   }
 
@@ -232,9 +243,9 @@ MCMisalignmentScaler::ScalerMap MCMisalignmentScaler::decodeSubDetectors(const e
     const auto& factor = pset.getUntrackedParameter<double>("factor");
 
     std::vector<int> sides;
-    if (name.find("-") != std::string::npos)
+    if (name.find('-') != std::string::npos)
       sides.push_back(1);
-    if (name.find("+") != std::string::npos)
+    if (name.find('+') != std::string::npos)
       sides.push_back(2);
     if (sides.empty()) {  // -> use both sides
       sides.push_back(1);

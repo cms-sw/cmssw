@@ -20,6 +20,7 @@ int main() {
   using MyExpr = reco::MaskCollection<eetest::CandForTest>;
 
   std::vector<Cand> oriC;
+  oriC.reserve(10);  // pre-allocate so it doesn't reallocate
   MyExpr::Collection c;
   for (int i = 5; i < 15; ++i) {
     oriC.emplace_back(Cand(i, 1, 1));
@@ -61,7 +62,7 @@ int main() {
   }
 
   try {
-    std::string cut = "bool operator()(int i, int j) override { return i<10&& j<5; }";
+    std::string cut = "bool operator()(int i, int j) const override { return i<10&& j<5; }";
     auto const& mcut =
         *reco_expressionEvaluator("CommonTools/Utils", SINGLE_ARG(reco::genericExpression<bool, int, int>), cut);
     std::cout << mcut(2, 7) << ' ' << mcut(3, 4) << std::endl;
@@ -74,10 +75,10 @@ int main() {
 
   // stress test
   std::atomic<int> j(0);
-#pragma omp parallel num_threads(8)
+#pragma omp parallel num_threads(2)
   {
     reco::genericExpression<bool, int, int> const* acut = nullptr;
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 20; ++i) {
       acut = reco_expressionEvaluator("CommonTools/Utils", SINGLE_ARG(reco::genericExpression<bool, int, int>), cut);
       (*acut)(2, 7);
       std::cerr << j++ << ',';

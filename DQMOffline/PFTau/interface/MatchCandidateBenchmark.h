@@ -38,8 +38,19 @@ protected:
   std::vector<TH1F *> pTRes_;
   std::vector<TH1F *> BRpTRes_;
   std::vector<TH1F *> ERpTRes_;
+  std::vector<float> ptBins_;
 
   bool histogramBooked_;
+  double eta_min_barrel_;
+  double eta_max_barrel_;
+  double eta_min_endcap_;
+  double eta_max_endcap_;
+
+private:
+  void computePtBins(const edm::ParameterSet &, const edm::ParameterSet &);
+  bool inEtaRange(double, bool);
+  inline bool inBarrelRange(double value) { return inEtaRange(value, true); }
+  inline bool inEndcapRange(double value) { return inEtaRange(value, false); }
 };
 
 #endif

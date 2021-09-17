@@ -2,7 +2,7 @@
 #define DataFormats_SiStripDetId_SiStripDetId_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
+#include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
 #include <ostream>
 
 class SiStripDetId;
@@ -110,10 +110,12 @@ SiStripModuleGeometry SiStripDetId::moduleGeometry() const {
   auto geometry = SiStripModuleGeometry::UNKNOWNGEOMETRY;
   switch (subDetector()) {
     case TIB:
-      geometry = int((id_ >> layerStartBit_) & layerMask_) < 3 ? SiStripModuleGeometry::IB1 : SiStripModuleGeometry::IB2;
+      geometry =
+          int((id_ >> layerStartBit_) & layerMask_) < 3 ? SiStripModuleGeometry::IB1 : SiStripModuleGeometry::IB2;
       break;
     case TOB:
-      geometry = int((id_ >> layerStartBit_) & layerMask_) < 5 ? SiStripModuleGeometry::OB2 : SiStripModuleGeometry::OB1;
+      geometry =
+          int((id_ >> layerStartBit_) & layerMask_) < 5 ? SiStripModuleGeometry::OB2 : SiStripModuleGeometry::OB1;
       break;
     case TID:
       switch ((id_ >> ringStartBitTID_) & ringMaskTID_) {

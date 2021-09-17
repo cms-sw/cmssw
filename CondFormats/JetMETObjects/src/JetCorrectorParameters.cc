@@ -116,6 +116,8 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
   std::string line;
   std::string currentDefinitions = "";
   while (std::getline(input, line)) {
+    if (line.empty())
+      continue;
     std::string section = getSection(line);
     std::string tmp = getDefinitions(line);
     if (!section.empty() && tmp.empty()) {

@@ -56,6 +56,9 @@ public:
   //! The logical-part of the current node in the expanded-view
   const DDLogicalPart &logicalPart() const;
 
+  //! The name of the logical-part of the current node in the expanded-view
+  const std::string &name() const;
+
   //! The absolute translation of the current node
   const DDTranslation &translation() const;
 
@@ -82,6 +85,9 @@ public:
 
   DDsvalues_type mergedSpecifics() const;
   void mergedSpecificsV(DDsvalues_type &res) const;
+
+  //! The DDVector information
+  std::vector<double> const &vector(std::string_view iKey) const { return cpv_->vector(iKey); }
 
   //! Copy number associated with the current node
   int copyno() const;
@@ -137,6 +143,7 @@ protected:
   unsigned int depth_;         //!< depth of the scope, 0==unrestricted depth
   const DDPosData *worldpos_;  //!< ???
   std::vector<nav_type> nextBStack_;
+  const DDCompactView *cpv_;
 };
 
 std::string printNavType(int const *n, size_t sz);

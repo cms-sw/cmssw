@@ -9,9 +9,11 @@
 #include "RecoLocalTracker/SiStripClusterizer/test/StripByStripTestDriver.h"
 #include "RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTesterESProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/test/ClusterRefinerTagMCmerged.h"
+#include "RecoLocalTracker/SiStripClusterizer/test/SiStripApproximatedClustersDump.h"
 
 DEFINE_FWK_MODULE(CompareClusters);
 DEFINE_FWK_MODULE(ClusterizerUnitTester);
 DEFINE_FWK_MODULE(StripByStripTestDriver);
 DEFINE_FWK_EVENTSETUP_MODULE(ClusterizerUnitTesterESProducer);
 DEFINE_FWK_MODULE(ClusterRefinerTagMCmerged);
+DEFINE_FWK_MODULE(SiStripApproximatedClustersDump);

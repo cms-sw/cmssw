@@ -1,14 +1,35 @@
-#include "EventFilter/Phase2TrackerRawToDigi/plugins/Phase2TrackerCommissioningDigiProducer.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
-#include "DataFormats/Common/interface/DetSet.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/utils.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-#include <sstream>
-#include <iomanip>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+namespace Phase2Tracker {
+
+  class Phase2TrackerCommissioningDigiProducer : public edm::EDProducer {
+  public:
+    /// constructor
+    Phase2TrackerCommissioningDigiProducer(const edm::ParameterSet& pset);
+    /// default constructor
+    ~Phase2TrackerCommissioningDigiProducer() override;
+    void produce(edm::Event& event, const edm::EventSetup& es) override;
+
+  private:
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
+  };
+}  // namespace Phase2Tracker
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+typedef Phase2Tracker::Phase2TrackerCommissioningDigiProducer Phase2TrackerCommissioningDigiProducer;
+DEFINE_FWK_MODULE(Phase2TrackerCommissioningDigiProducer);
 
 using namespace std;
 

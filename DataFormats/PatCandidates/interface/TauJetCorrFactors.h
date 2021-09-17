@@ -29,19 +29,18 @@
 namespace pat {
 
   class TauJetCorrFactors {
-
   public:
-    // tau-jet energy correction factor. 
+    // tau-jet energy correction factor.
     // the std::string indicates the correction level according to jetMET definitions.
     typedef std::pair<std::string, float> CorrectionFactor;
 
   public:
     // default Constructor
-    TauJetCorrFactors() {};
+    TauJetCorrFactors(){};
     // constructor by value
     TauJetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
 
-    // instance label of the jet energy corrections set 
+    // instance label of the jet energy corrections set
     std::string jecSet() const { return label_; }
     // correction level from unsigned int
     std::string jecLevel(const unsigned int& level) const { return jec_.at(level).first; };
@@ -55,7 +54,9 @@ namespace pat {
     // a vector of the labels of all correction levels according to jetMET definitions
     std::vector<std::string> correctionLabels() const;
     // label of a specific correction factor according to jetMET definitions; for overflow a string ERROR is returned
-    std::string correctionLabel(unsigned int level) const { return (level<jec_.size() ? jec_.at(level).first : std::string("ERROR")); };
+    std::string correctionLabel(unsigned int level) const {
+      return (level < jec_.size() ? jec_.at(level).first : std::string("ERROR"));
+    };
     // number of available correction factors
     unsigned int numberOfCorrectionLevels() const { return jec_.size(); };
     // print function for debugging
@@ -64,11 +65,11 @@ namespace pat {
   private:
     // instance label of jet energy correction factors
     std::string label_;
-    // vector of CorrectionFactors. NOTE: the correction factors are expected to appear 
-    // nested; they may appear in arbitary number and order according to the configuration 
-    // of the jetCorrFactors module. 
+    // vector of CorrectionFactors. NOTE: the correction factors are expected to appear
+    // nested; they may appear in arbitary number and order according to the configuration
+    // of the jetCorrFactors module.
     std::vector<CorrectionFactor> jec_;
   };
-}
+}  // namespace pat
 
 #endif

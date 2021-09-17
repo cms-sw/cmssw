@@ -48,7 +48,7 @@ namespace edmtest {
     if (!edm::FreshErrorsExist(index)) {
       edm::LogInfo("NoFreshErrors") << "Not in this event, anyway";
     }
-    std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary(index);
+    auto es = edm::LoggedErrorsSummary(index);
     std::ostringstream os;
     for (unsigned int i = 0; i != es.size(); ++i) {
       os << es[i].category << "   " << es[i].module << "   " << es[i].count << "\n";

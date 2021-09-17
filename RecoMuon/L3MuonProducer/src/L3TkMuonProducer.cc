@@ -54,16 +54,13 @@ bool L3TkMuonProducer::sharedSeed(const L3MuonTrajectorySeed& s1, const L3MuonTr
   //quit right away if not the same number of hits
   if (s1.nHits() != s2.nHits())
     return false;
-  TrajectorySeed::range r1 = s1.recHits();
-  TrajectorySeed::range r2 = s2.recHits();
-  TrajectorySeed::const_iterator i1, i2;
-  TrajectorySeed::const_iterator &i1_e = r1.second, &i2_e = r2.second;
-  TrajectorySeed::const_iterator &i1_b = r1.first, &i2_b = r2.first;
+  auto const& r1 = s1.recHits();
+  auto const& r2 = s2.recHits();
   //quit right away if first detId does not match. front exist because of ==0 ->quit test
-  if (i1_b->geographicalId() != i2_b->geographicalId())
+  if (r1.begin()->geographicalId() != r2.begin()->geographicalId())
     return false;
   //then check hit by hit if they are the same
-  for (i1 = i1_b, i2 = i2_b; i1 != i1_e && i2 != i2_e; ++i1, ++i2) {
+  for (auto i1 = r1.begin(), i2 = r2.begin(); i1 != r1.end() && i2 != r2.end(); ++i1, ++i2) {
     if (!i1->sharesInput(&(*i2), TrackingRecHit::all))
       return false;
   }
@@ -100,11 +97,10 @@ string printvector(const vector<L3TkMuonProducer::SeedRef>& v) {
 string printseed(const L3TkMuonProducer::SeedRef& s) {
   std::stringstream ss;
   ss << " seed ref: " << s.id().id() << ":" << s.key() << " has " << s->nHits() << "rechits";
-  TrajectorySeed::range r = s->recHits();
-  TrajectorySeed::const_iterator it = r.first;
-  for (; it != r.second; ++it)
-    ss << "\n detId: " << std::hex << it->geographicalId().rawId() << std::dec << " position: " << it->localPosition()
-       << " and error: " << it->localPositionError();
+  for (auto const& hit : s->recHits()) {
+    ss << "\n detId: " << std::hex << hit.geographicalId().rawId() << std::dec << " position: " << hit.localPosition()
+       << " and error: " << hit.localPositionError();
+  }
   return ss.str();
 }
 
@@ -147,7 +143,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     //check whether there is a "shared" seed in addition
     if (!gotL3seeds) {
       //need to fetch the handle from the ref
-      const edm::Provenance& seedsProv = event.getProvenance(l3seedRef.id());
+      const edm::StableProvenance& seedsProv = event.getStableProvenance(l3seedRef.id());
       edm::InputTag l3seedsTag(seedsProv.moduleLabel(), seedsProv.productInstanceName(), seedsProv.processName());
       event.getByLabel(l3seedsTag, l3seeds);
       gotL3seeds = true;

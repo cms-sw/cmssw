@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -36,7 +37,19 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 // forward declarations
 class L1CaloGeometry;
 
@@ -79,6 +92,14 @@ private:
   // Set this to true when rerunning on RAW data where the GCT did not
   // produce a L1GctHtMiss record.
   bool ignoreHtMiss_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> muScalesToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> muPtScaleToken_;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken_;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> jetScaleToken_;
+  edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> jetFinderParamsToken_;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> htMissScaleToken_;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> hfRingEtScaleToken_;
 };
 
 #endif

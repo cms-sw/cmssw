@@ -103,12 +103,8 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
         // The seed
         const BasicTrajectorySeed* aSeed = &((*aSeedCollection)[seednr]);
 
-        // Find the first hit of the Seed
-        TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-        const FastTrackerRecHit* theFirstSeedingRecHit = (const FastTrackerRecHit*)(&(*(theSeedingRecHitRange.first)));
-
-        // The SimTrack id associated to that recHit
-        int simTrackId = theFirstSeedingRecHit->simTrackId(0);
+        // The SimTrack id associated to the first hit of the Seed
+        int simTrackId = static_cast<FastTrackerRecHit const&>(*aSeed->recHits().begin()).simTrackId(0);
 
         // Track already associated to a seed
         std::set<unsigned>::iterator tkId = tkIds.find(simTrackId);

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff import *
+from L1Trigger.L1TMuonEndCap.fakeEmtfParams_empty_cff import *
 
 L1TMuonEndCapForestOnlineProd = cms.ESProducer("L1TMuonEndCapForestOnlineProd",
     onlineAuthentication = cms.string('.'),

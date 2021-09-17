@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -38,8 +40,15 @@ namespace gen {
   bool Py8EGun::generatePartonsAndHadronize() {
     fMasterGen->event.reset();
 
+    int colorindex = 101;
+
     for (size_t i = 0; i < fPartIDs.size(); i++) {
       int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+      if ((std::abs(particleID) <= 6 || particleID == 21) && !(fAddAntiParticle)) {
+        throw cms::Exception("PythiaError") << "Attempting to generate quarks or gluons without setting "
+                                               "AddAntiParticle to true. This will not handle color properly."
+                                            << std::endl;
+      }
 
       double phi = (fMaxPhi - fMinPhi) * randomEngine().flat() + fMinPhi;
       double ee = (fMaxE - fMinE) * randomEngine().flat() + fMinE;
@@ -56,26 +65,47 @@ namespace gen {
       if (!((fMasterGen->particleData).isParticle(particleID))) {
         particleID = std::fabs(particleID);
       }
-      (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
-      int eventSize = (fMasterGen->event).size() - 1;
-      // -log(flat) = exponential distribution
-      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
-      (fMasterGen->event)[eventSize].tau(tauTmp);
+      if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
+        (fMasterGen->event).append(particleID, 23, colorindex, 0, px, py, pz, ee, mass);
+        if (!fAddAntiParticle)
+          colorindex += 1;
+      } else if (std::abs(particleID) == 21) {  // gluons
+        (fMasterGen->event).append(21, 23, colorindex, colorindex + 1, px, py, pz, ee, mass);
+        if (!fAddAntiParticle) {
+          colorindex += 2;
+        }
+      }
+      // other
+      else {
+        (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
+        int eventSize = (fMasterGen->event).size() - 1;
+        // -log(flat) = exponential distribution
+        double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+        (fMasterGen->event)[eventSize].tau(tauTmp);
+      }
 
       // Here also need to add anti-particle (if any)
       // otherwise just add a 2nd particle of the same type
       // (for example, gamma)
       //
       if (fAddAntiParticle) {
-        if ((fMasterGen->particleData).isParticle(-particleID)) {
-          (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+        if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
+          (fMasterGen->event).append(-particleID, 23, 0, colorindex, -px, -py, -pz, ee, mass);
+          colorindex += 1;
+        } else if (std::abs(particleID) == 21) {  // gluons
+          (fMasterGen->event).append(21, 23, colorindex + 1, colorindex, -px, -py, -pz, ee, mass);
+          colorindex += 2;
         } else {
-          (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          if ((fMasterGen->particleData).isParticle(-particleID)) {
+            (fMasterGen->event).append(-particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          } else {
+            (fMasterGen->event).append(particleID, 1, 0, 0, -px, -py, -pz, ee, mass);
+          }
+          int eventSize = (fMasterGen->event).size() - 1;
+          // -log(flat) = exponential distribution
+          double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+          (fMasterGen->event)[eventSize].tau(tauTmp);
         }
-        eventSize = (fMasterGen->event).size() - 1;
-        // -log(flat) = exponential distribution
-        tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
-        (fMasterGen->event)[eventSize].tau(tauTmp);
       }
     }
 
@@ -83,7 +113,7 @@ namespace gen {
       return false;
     evtGenDecay();
 
-    event().reset(new HepMC::GenEvent);
+    event() = std::make_unique<HepMC::GenEvent>();
     return toHepMC.fill_next_event(fMasterGen->event, event().get());
   }
 

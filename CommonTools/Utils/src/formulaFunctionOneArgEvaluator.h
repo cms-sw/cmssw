@@ -45,11 +45,11 @@ namespace reco {
         return ret;
       }
 
-    private:
       FunctionOneArgEvaluator(const FunctionOneArgEvaluator&) = delete;
 
       const FunctionOneArgEvaluator& operator=(const FunctionOneArgEvaluator&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       std::shared_ptr<EvaluatorBase> m_arg;
       std::function<double(double)> m_function;

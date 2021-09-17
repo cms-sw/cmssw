@@ -2,7 +2,6 @@
 #define DQMSERVICES_COMPONENTS_DQMFILESAVERBASE_H
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
@@ -23,6 +22,9 @@ namespace dqm {
 
   class DQMFileSaverBase : public edm::global::EDAnalyzer<edm::RunCache<NoCache>, edm::LuminosityBlockCache<NoCache> > {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     DQMFileSaverBase(const edm::ParameterSet &ps);
     ~DQMFileSaverBase() override;
 
@@ -36,10 +38,6 @@ namespace dqm {
       long run_;
       long lumi_;
       std::string child_;  // child of a fork
-
-      // other parameters
-      DQMStore::SaveReferenceTag saveReference_;
-      int saveReferenceQMin_;
     };
 
   protected:
@@ -71,6 +69,7 @@ namespace dqm {
     // members
     mutable std::mutex initial_fp_lock_;
     FileParameters initial_fp_;
+    int runNumber_;
 
   public:
     static void fillDescription(edm::ParameterSetDescription &d);

@@ -1,18 +1,12 @@
 #ifndef _SiPixelInformationExtractor_h_
 #define _SiPixelInformationExtractor_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -27,17 +21,20 @@
 #include "TH2F.h"
 #include "TPaveText.h"
 
-#include <boost/cstdint.hpp>
 #include <fstream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 class SiPixelEDAClient;
 class SiPixelWebInterface;
 class SiPixelInformationExtractor {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   SiPixelInformationExtractor(bool offlineXMLfile);
   ~SiPixelInformationExtractor();
 
@@ -62,7 +59,7 @@ public:
                        bool init,
                        float noiseRate,
                        int noiseRateDenominator,
-                       edm::ESHandle<SiPixelFedCablingMap> theCablingMap);
+                       const SiPixelFedCablingMap *theCablingMap);
 
 private:
   void getItemList(const std::multimap<std::string, std::string> &req_map,

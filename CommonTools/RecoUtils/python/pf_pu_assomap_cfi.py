@@ -138,6 +138,6 @@ Tracks2Vertex =	AssociationMaps.clone(
 	 
 	#Choose which map should be created
 	#"VertexToTracks", "TracksToVertex" or "Both"
-	AssociationType = cms.InputTag('TracksToVertex'),
+	AssociationType = 'TracksToVertex',
 	 	 
 )

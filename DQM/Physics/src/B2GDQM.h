@@ -29,7 +29,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // ParticleFlow
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -75,8 +75,6 @@
 #include <map>
 #include <cmath>
 
-class DQMStore;
-
 class B2GDQM : public DQMEDAnalyzer {
 public:
   B2GDQM(const edm::ParameterSet& ps);
@@ -109,8 +107,10 @@ private:
   edm::InputTag PFMETLabel_;
   edm::EDGetTokenT<std::vector<reco::PFMET> > PFMETToken_;
 
-  edm::InputTag cmsTagLabel_;
-  edm::EDGetTokenT<edm::View<reco::BasicJet> > cmsTagToken_;
+  // EDIT from 2019 (S. Rappoccio): Change CMS top tagger algorithm from ancient Run 1
+  // definition to modern soft-drop based tagger.
+  edm::InputTag sdjetLabel_;
+  edm::EDGetTokenT<edm::View<reco::BasicJet> > sdjetToken_;
 
   edm::InputTag muonLabel_;
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
@@ -162,7 +162,7 @@ private:
   std::vector<MonitorElement*> boostedJet_subjetM;
   std::vector<MonitorElement*> boostedJet_subjetN;
   std::vector<MonitorElement*> boostedJet_massDrop;
-  std::vector<MonitorElement*> boostedJet_minMass;
+  std::vector<MonitorElement*> boostedJet_wMass;
   MonitorElement* pfMet_pt;
   MonitorElement* pfMet_phi;
 
@@ -176,7 +176,7 @@ private:
   MonitorElement* semiMu_hadJetY;
   MonitorElement* semiMu_hadJetPhi;
   MonitorElement* semiMu_hadJetMass;
-  MonitorElement* semiMu_hadJetMinMass;
+  MonitorElement* semiMu_hadJetWMass;
   MonitorElement* semiMu_mttbar;
 
   MonitorElement* semiE_ePt;
@@ -189,19 +189,19 @@ private:
   MonitorElement* semiE_hadJetY;
   MonitorElement* semiE_hadJetPhi;
   MonitorElement* semiE_hadJetMass;
-  MonitorElement* semiE_hadJetMinMass;
+  MonitorElement* semiE_hadJetWMass;
   MonitorElement* semiE_mttbar;
 
   MonitorElement* allHad_pt0;
   MonitorElement* allHad_y0;
   MonitorElement* allHad_phi0;
   MonitorElement* allHad_mass0;
-  MonitorElement* allHad_minMass0;
+  MonitorElement* allHad_wMass0;
   MonitorElement* allHad_pt1;
   MonitorElement* allHad_y1;
   MonitorElement* allHad_phi1;
   MonitorElement* allHad_mass1;
-  MonitorElement* allHad_minMass1;
+  MonitorElement* allHad_wMass1;
   MonitorElement* allHad_mttbar;
 };
 

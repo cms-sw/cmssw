@@ -27,9 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 #------------------------------------------
 process.load("Configuration/StandardSequences/Geometry_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_38T_UpdatedMap_cff")
-# trick to make it work with newnew magfield (not in 229)
-process.VolumeBasedMagneticFieldESProducer.version='grid_1103l_090322_3_8t'
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'CRAFT_ALL_V9::All' 

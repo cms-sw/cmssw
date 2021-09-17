@@ -1,37 +1,96 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+/** \class TrackerSystematicMisalignments
+ *
+ *  Class to misaligned tracker from DB.
+ *
+ *  $Date: 2012/06/13 09:24:50 $
+ *  $Revision: 1.5 $
+ *  \author Chung Khim Lae
+ */
 
+// user include files
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CLHEP/Random/RandGauss.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
-#include "CLHEP/Random/RandGauss.h"
-
-#include "Alignment/TrackerAlignment/plugins/TrackerSystematicMisalignments.h"
-
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // Database
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+class AlignableSurface;
+class Alignments;
+
+namespace edm {
+  class ParameterSet;
+}
+
+class TrackerSystematicMisalignments : public edm::one::EDAnalyzer<> {
+public:
+  TrackerSystematicMisalignments(const edm::ParameterSet&);
+
+  /// Read ideal tracker geometry from DB
+  void beginJob() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  void applySystematicMisalignment(Alignable*);
+  //align::GlobalVector findSystematicMis( align::PositionType );
+  align::GlobalVector findSystematicMis(const align::PositionType&, const bool blindToZ, const bool blindToR);
+
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrorToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+  AlignableTracker* theAlignableTracker;
+
+  // configurables needed for the systematic misalignment
+  bool m_fromDBGeom;
+
+  double m_radialEpsilon;
+  double m_telescopeEpsilon;
+  double m_layerRotEpsilon;
+  double m_bowingEpsilon;
+  double m_zExpEpsilon;
+  double m_twistEpsilon;
+  double m_ellipticalEpsilon;
+  double m_skewEpsilon;
+  double m_sagittaEpsilon;
+
+  //misalignment phases
+  double m_ellipticalDelta;
+  double m_skewDelta;
+  double m_sagittaDelta;
+
+  // flag to steer suppression of blind movements
+  bool suppressBlindMvmts;
+
+  // flag for old z behaviour, version <= 1.5
+  bool oldMinusZconvention;
+};
 
 // -----------------------------------------------------------------
 // 2010-05-20 Frank Meier
@@ -39,7 +98,14 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-    : theAlignableTracker(nullptr) {
+    : geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrorToken_(esConsumes()),
+      gprToken_(esConsumes()),
+      theAlignableTracker(nullptr) {
   // use existing geometry
   m_fromDBGeom = cfg.getUntrackedParameter<bool>("fromDBGeom");
 
@@ -105,27 +171,19 @@ void TrackerSystematicMisalignments::beginJob() {}
 
 void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const GeometricDet* geom = &setup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = setup.getData(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
+  const TrackerTopology* tTopo = &setup.getData(topoToken_);
 
-  edm::ESHandle<GeometricDet> geom;
-  setup.get<IdealGeometryRecord>().get(geom);
-  edm::ESHandle<PTrackerParameters> ptp;
-  setup.get<PTrackerParametersRcd>().get(ptp);
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo);
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptitp, ptp, tTopo);
 
   //take geometry from DB or randomly generate geometry
   if (m_fromDBGeom) {
     //build the tracker
-    edm::ESHandle<Alignments> alignments;
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-
-    setup.get<TrackerAlignmentRcd>().get(alignments);
-    setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-
-    edm::ESHandle<Alignments> globalPositionRcd;
-    setup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+    const Alignments* alignments = &setup.getData(aliToken_);
+    const AlignmentErrorsExtended* alignmentErrors = &setup.getData(aliErrorToken_);
+    const Alignments* globalPositionRcd = &setup.getData(gprToken_);
 
     //apply the latest alignments
     GeometryAligner aligner;

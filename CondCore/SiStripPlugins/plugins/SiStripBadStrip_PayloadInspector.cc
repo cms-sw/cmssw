@@ -22,6 +22,7 @@
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DQM/TrackerRemapper/interface/SiStripTkMaps.h"
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
@@ -46,20 +47,20 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     test class
   *************************************************/
 
-  class SiStripBadStripTest : public cond::payloadInspector::Histogram1D<SiStripBadStrip> {
+  class SiStripBadStripTest : public Histogram1D<SiStripBadStrip, SINGLE_IOV> {
   public:
     SiStripBadStripTest()
-        : cond::payloadInspector::Histogram1D<SiStripBadStrip>(
-              "SiStrip Bad Strip test", "SiStrip Bad Strip test", 10, 0.0, 10.0) {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripBadStrip, SINGLE_IOV>("SiStrip Bad Strip test", "SiStrip Bad Strip test", 10, 0.0, 10.0) {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripBadStrip> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           fillWithValue(1.);
@@ -94,20 +95,21 @@ namespace {
   /************************************************
     TrackerMap of SiStripBadStrip (bad strip per detid)
   *************************************************/
-  class SiStripBadModuleTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadModuleTrackerMap : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
   public:
-    SiStripBadModuleTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip Bad Strips") {
-      setSingleIov(true);
-    }
+    SiStripBadModuleTrackerMap() : PlotImage<SiStripBadStrip, SINGLE_IOV>("Tracker Map of SiStrip Bad Strips") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      std::string titleMap = "Module with at least a bad Strip (payload : " + std::get<1>(iov) + ")";
+      auto theIOVsince = std::to_string(std::get<0>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::string titleMap = "Modules w/ at least 1 bad Strip, Run: " + theIOVsince + " (tag: " + tagname + ")";
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -130,23 +132,25 @@ namespace {
   /************************************************
     TrackerMap of SiStripBadStrip (bad strips fraction)
   *************************************************/
-  class SiStripBadStripFractionTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripFractionTrackerMap : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
   public:
     SiStripBadStripFractionTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip Bad Components fraction") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripBadStrip, SINGLE_IOV>("Tracker Map of SiStrip Bad Components fraction") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
-      std::string titleMap = "Fraction of bad Strips per module (payload : " + std::get<1>(iov) + ")";
+      auto theIOVsince = std::to_string(std::get<0>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::string titleMap = "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag: " + tagname + ")";
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -161,7 +165,7 @@ namespace {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
           //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
-        float fraction = badStripsPerDetId[d] / (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
         tmap->fill(d, fraction);
       }  // loop over detIds
 
@@ -178,7 +182,65 @@ namespace {
         tmap->save(true, extrema.first * 0.95, extrema.first * 1.05, fileName);
       }
 
-      delete reader;
+      return true;
+    }
+  };
+
+  /************************************************
+    TrackerMap of SiStripBadStrip (bad strips fraction)
+  *************************************************/
+  class SiStripBadStripFractionTkMap : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
+  public:
+    SiStripBadStripFractionTkMap()
+        : PlotImage<SiStripBadStrip, SINGLE_IOV>("Tracker Map of SiStrip Bad Components fraction") {}
+
+    bool fill() override {
+      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      gStyle->SetPalette(1);
+
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = PlotBase::getTag<0>().name;
+      std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
+
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+
+      std::string titleMap =
+          "Fraction of bad Strips per module, Run: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
+
+      SiStripTkMaps myMap("COLZA0 L");
+      myMap.bookMap(titleMap, "Fraction of bad Strips per module");
+
+      SiStripTkMaps ghost("AL");
+      ghost.bookMap(titleMap, "");
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      std::map<uint32_t, int> badStripsPerDetId;
+
+      for (const auto& d : detid) {
+        SiStripBadStrip::Range range = payload->getRange(d);
+        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+          badStripsPerDetId[d] += payload->decode(*badStrip).range;
+        }
+        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        if (fraction > 0.) {
+          myMap.fill(d, fraction);
+        }
+      }  // loop over detIds
+
+      //=========================
+
+      std::string fileName(m_imageFileName);
+      TCanvas canvas("Bad Components fraction", "bad components fraction");
+      myMap.drawMap(canvas, "");
+      ghost.drawMap(canvas, "same");
+      canvas.SaveAs(fileName.c_str());
+
       return true;
     }
   };
@@ -187,16 +249,15 @@ namespace {
     time history histogram of bad components fraction
   *************************************************/
 
-  class SiStripBadStripFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip, float> {
+  class SiStripBadStripFractionByRun : public HistoryPlot<SiStripBadStrip, float> {
   public:
     SiStripBadStripFractionByRun()
-        : cond::payloadInspector::HistoryPlot<SiStripBadStrip, float>("SiStrip Bad Strip fraction per run",
-                                                                      "Bad Strip fraction [%]") {}
+        : HistoryPlot<SiStripBadStrip, float>("SiStrip Bad Strip fraction per run", "Bad Strip fraction [%]") {}
     ~SiStripBadStripFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -213,14 +274,13 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -230,16 +290,16 @@ namespace {
     time history histogram of bad components fraction (TIB)
   *************************************************/
 
-  class SiStripBadStripTIBFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip, float> {
+  class SiStripBadStripTIBFractionByRun : public HistoryPlot<SiStripBadStrip, float> {
   public:
     SiStripBadStripTIBFractionByRun()
-        : cond::payloadInspector::HistoryPlot<SiStripBadStrip, float>("SiStrip Inner Barrel Bad Strip fraction per run",
-                                                                      "TIB Bad Strip fraction [%]") {}
+        : HistoryPlot<SiStripBadStrip, float>("SiStrip Inner Barrel Bad Strip fraction per run",
+                                              "TIB Bad Strip fraction [%]") {}
     ~SiStripBadStripTIBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -256,17 +316,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TIB)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -276,16 +335,16 @@ namespace {
     time history histogram of bad components fraction (TOB)
   *************************************************/
 
-  class SiStripBadStripTOBFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip, float> {
+  class SiStripBadStripTOBFractionByRun : public HistoryPlot<SiStripBadStrip, float> {
   public:
     SiStripBadStripTOBFractionByRun()
-        : cond::payloadInspector::HistoryPlot<SiStripBadStrip, float>("SiStrip Outer Barrel Bad Strip fraction per run",
-                                                                      "TOB Bad Strip fraction [%]") {}
+        : HistoryPlot<SiStripBadStrip, float>("SiStrip Outer Barrel Bad Strip fraction per run",
+                                              "TOB Bad Strip fraction [%]") {}
     ~SiStripBadStripTOBFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -302,17 +361,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TOB)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -322,16 +380,16 @@ namespace {
     time history histogram of bad components fraction (TID)
    *************************************************/
 
-  class SiStripBadStripTIDFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip, float> {
+  class SiStripBadStripTIDFractionByRun : public HistoryPlot<SiStripBadStrip, float> {
   public:
     SiStripBadStripTIDFractionByRun()
-        : cond::payloadInspector::HistoryPlot<SiStripBadStrip, float>("SiStrip Inner Disks Bad Strip fraction per run",
-                                                                      "TID Bad Strip fraction [%]") {}
+        : HistoryPlot<SiStripBadStrip, float>("SiStrip Inner Disks Bad Strip fraction per run",
+                                              "TID Bad Strip fraction [%]") {}
     ~SiStripBadStripTIDFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -348,17 +406,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TID)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -368,16 +425,16 @@ namespace {
     time history histogram of bad components fraction (TEC)
    *************************************************/
 
-  class SiStripBadStripTECFractionByRun : public cond::payloadInspector::HistoryPlot<SiStripBadStrip, float> {
+  class SiStripBadStripTECFractionByRun : public HistoryPlot<SiStripBadStrip, float> {
   public:
     SiStripBadStripTECFractionByRun()
-        : cond::payloadInspector::HistoryPlot<SiStripBadStrip, float>("SiStrip Endcaps Bad Strip fraction per run",
-                                                                      "TEC Bad Strip fraction [%]") {}
+        : HistoryPlot<SiStripBadStrip, float>("SiStrip Endcaps Bad Strip fraction per run",
+                                              "TEC Bad Strip fraction [%]") {}
     ~SiStripBadStripTECFractionByRun() override = default;
 
     float getFromPayload(SiStripBadStrip& payload) override {
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -394,17 +451,16 @@ namespace {
       }  // loop over detIds
 
       float numerator(0.), denominator(0.);
-      std::vector<uint32_t> all_detids = reader->getAllDetIds();
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TEC)
           continue;
-        denominator += 128. * reader->getNumberOfApvsAndStripLength(det).first;
+        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
 
-      delete reader;
       return (numerator / denominator) * 100.;
 
     }  // payload
@@ -414,17 +470,16 @@ namespace {
     Plot BadStrip by region 
   *************************************************/
 
-  class SiStripBadStripByRegion : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripByRegion : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
   public:
     SiStripBadStripByRegion()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip By Region"),
+        : PlotImage<SiStripBadStrip, SINGLE_IOV>("SiStrip BadStrip By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<uint32_t> detid;
@@ -448,11 +503,11 @@ namespace {
 
       TCanvas canvas("BadStrip Region summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
-      auto h_BadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion",
-                                                        "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                        mapBadStrips.size(),
-                                                        0.,
-                                                        mapBadStrips.size()));
+      auto h_BadStrips = std::make_unique<TH1F>("BadStripsbyRegion",
+                                                "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                mapBadStrips.size(),
+                                                0.,
+                                                mapBadStrips.size());
       h_BadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -548,28 +603,35 @@ namespace {
     Plot BadStrip by region comparison
   *************************************************/
 
-  class SiStripBadStripByRegionComparison : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripBadStripByRegionComparisonBase : public PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
-    SiStripBadStripByRegionComparison()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip By Region Comparison"),
+    SiStripBadStripByRegionComparisonBase()
+        : PlotImage<SiStripBadStrip, nIOVs, ntags>("SiStrip BadStrip By Region Comparison"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(false);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -616,18 +678,18 @@ namespace {
       TCanvas canvas("BadStrip Partion summary", "SiStripBadStrip region summary", 1200, 1000);
       canvas.cd();
 
-      auto h_LastBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion1",
-                                                            "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                            mapLastBadStrips.size(),
-                                                            0.,
-                                                            mapLastBadStrips.size()));
+      auto h_LastBadStrips = std::make_unique<TH1F>("BadStripsbyRegion1",
+                                                    "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                    mapLastBadStrips.size(),
+                                                    0.,
+                                                    mapLastBadStrips.size());
       h_LastBadStrips->SetStats(false);
 
-      auto h_FirstBadStrips = std::unique_ptr<TH1F>(new TH1F("BadStripsbyRegion2",
-                                                             "SiStrip Bad Strip summary by region;; n. bad strips",
-                                                             mapFirstBadStrips.size(),
-                                                             0.,
-                                                             mapFirstBadStrips.size()));
+      auto h_FirstBadStrips = std::make_unique<TH1F>("BadStripsbyRegion2",
+                                                     "SiStrip Bad Strip summary by region;; n. bad strips",
+                                                     mapFirstBadStrips.size(),
+                                                     0.,
+                                                     mapFirstBadStrips.size());
       h_FirstBadStrips->SetStats(false);
 
       canvas.SetBottomMargin(0.18);
@@ -748,7 +810,7 @@ namespace {
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
@@ -758,40 +820,51 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  using SiStripBadStripByRegionComparisonSingleTag = SiStripBadStripByRegionComparisonBase<1, MULTI_IOV>;
+  using SiStripBadStripByRegionComparisonTwoTags = SiStripBadStripByRegionComparisonBase<2, SINGLE_IOV>;
+
   /************************************************
     TrackerMap of SiStripBadStrip (bad strips fraction difference)
   *************************************************/
-  class SiStripBadStripFractionComparisonTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripBadStripFractionComparisonTrackerMapBase : public PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
-    SiStripBadStripFractionComparisonTrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("Tracker Map of SiStrip bad strip fraction difference") {
-      setSingleIov(false);
-    }
+    SiStripBadStripFractionComparisonTrackerMapBase()
+        : PlotImage<SiStripBadStrip, nIOVs, ntags>("Tracker Map of SiStrip bad strip fraction difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
 
       std::string titleMap =
           "#Delta fraction of bad Strips per module (IOV:" + lastIOVsince + " - IOV:" + firstIOVsince + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripBadStrips");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 
@@ -807,7 +880,7 @@ namespace {
           LastFractionPerDetId[d] += last_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        LastFractionPerDetId[d] /= (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        LastFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
       std::vector<uint32_t> detid2;
@@ -821,10 +894,10 @@ namespace {
           FirstFractionPerDetId[d] += first_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        FirstFractionPerDetId[d] /= (128. * reader->getNumberOfApvsAndStripLength(d).first);
+        FirstFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
-      std::vector<uint32_t> allDetIds = reader->getAllDetIds();
+      std::vector<uint32_t> allDetIds = detInfo.getAllDetIds();
 
       int countLastButNotFirst(0);
       int countFirstButNotLast(0);
@@ -849,40 +922,45 @@ namespace {
         }
       }
 
-      /*
-	std::cout<<"In 2 but not in 1:"<<  countLastButNotFirst << std::endl;
-	std::cout<<"In 1 but not in 2:"<<  countFirstButNotLast << std::endl;
-	std::cout<<"In both:"<<  countBoth << std::endl;
-      */
+#ifdef MMDEBUG
+      std::cout << "In 2 but not in 1:" << countLastButNotFirst << std::endl;
+      std::cout << "In 1 but not in 2:" << countFirstButNotLast << std::endl;
+      std::cout << "In both:" << countBoth << std::endl;
+#endif
 
       //=========================
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       tmap->save(true, 0, 0, fileName);
 
-      delete reader;
       return true;
     }
   };
+
+  using SiStripBadStripFractionComparisonTrackerMapSingleTag =
+      SiStripBadStripFractionComparisonTrackerMapBase<1, MULTI_IOV>;
+  using SiStripBadStripFractionComparisonTrackerMapTwoTags =
+      SiStripBadStripFractionComparisonTrackerMapBase<2, SINGLE_IOV>;
 
   /************************************************
     Plot BadStrip Quality analysis 
   *************************************************/
 
-  class SiStripBadStripQualityAnalysis : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  class SiStripBadStripQualityAnalysis : public PlotImage<SiStripBadStrip, SINGLE_IOV> {
   public:
     SiStripBadStripQualityAnalysis()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip Quality Analysis"),
+        : PlotImage<SiStripBadStrip, SINGLE_IOV>("SiStrip BadStrip Quality Analysis"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
-      SiStripQuality* siStripQuality_ = new SiStripQuality();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      SiStripQuality* siStripQuality_ = new SiStripQuality(detInfo);
       siStripQuality_->add(payload.get());
       siStripQuality_->cleanUp();
       siStripQuality_->fillBadComponents();
@@ -948,7 +1026,7 @@ namespace {
       edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
       //std::cout<<  ss.str() << std::endl;
 
-      auto masterTable = std::unique_ptr<TH2I>(new TH2I("table", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2I>("table", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {
@@ -1049,31 +1127,38 @@ namespace {
     Plot BadStrip Quality Comparison
   *************************************************/
 
-  class SiStripBadStripQualityComparison : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripBadStripQualityComparisonBase : public PlotImage<SiStripBadStrip, nIOVs, ntags> {
   public:
-    SiStripBadStripQualityComparison()
-        : cond::payloadInspector::PlotImage<SiStripBadStrip>("SiStrip BadStrip Quality Comparison Analysis"),
+    SiStripBadStripQualityComparisonBase()
+        : PlotImage<SiStripBadStrip, nIOVs, ntags>("SiStrip BadStrip Quality Comparison Analysis"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(false);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       //SiStripPI::setPaletteStyle(SiStripPI::BLUERED);
       gStyle->SetPalette(kTemperatureMap);
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
-      std::shared_ptr<SiStripBadStrip> last_payload = fetchPayload(std::get<1>(lastiov));
-      std::shared_ptr<SiStripBadStrip> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiStripBadStrip> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripBadStrip> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1096,7 +1181,9 @@ namespace {
       // for the total
       int totNComponents[4][19][4] = {{{0}}};
 
-      SiStripQuality* f_siStripQuality_ = new SiStripQuality();
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      SiStripQuality* f_siStripQuality_ = new SiStripQuality(detInfo);
       f_siStripQuality_->add(first_payload.get());
       f_siStripQuality_->cleanUp();
       f_siStripQuality_->fillBadComponents();
@@ -1104,7 +1191,7 @@ namespace {
       // call the filler
       SiStripPI::fillBCArrays(f_siStripQuality_, f_NTkBadComponent, f_NBadComponent, m_trackerTopo);
 
-      SiStripQuality* l_siStripQuality_ = new SiStripQuality();
+      SiStripQuality* l_siStripQuality_ = new SiStripQuality(detInfo);
       l_siStripQuality_->add(last_payload.get());
       l_siStripQuality_->cleanUp();
       l_siStripQuality_->fillBadComponents();
@@ -1122,8 +1209,8 @@ namespace {
       //SiStripPI::printBCDebug(tot_NTkComponents,totNComponents);
 
       // declare histograms
-      auto masterTable = std::unique_ptr<TH2F>(new TH2F("table", "", 4, 0., 4., 39, 0., 39.));
-      auto masterTableColor = std::unique_ptr<TH2F>(new TH2F("colortable", "", 4, 0., 4., 39, 0., 39.));
+      auto masterTable = std::make_unique<TH2F>("table", "", 4, 0., 4., 39, 0., 39.);
+      auto masterTableColor = std::make_unique<TH2F>("colortable", "", 4, 0., 4., 39, 0., 39.);
 
       std::string labelsX[4] = {"Bad Modules", "Bad Fibers", "Bad APVs", "Bad Strips"};
       std::string labelsY[40] = {
@@ -1247,7 +1334,7 @@ namespace {
           0.96,
           ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + " - " + std::to_string(std::get<0>(firstiov)))
               .c_str());
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canv.SaveAs(fileName.c_str());
 
       delete f_siStripQuality_;
@@ -1260,6 +1347,9 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  using SiStripBadStripQualityComparisonSingleTag = SiStripBadStripQualityComparisonBase<1, MULTI_IOV>;
+  using SiStripBadStripQualityComparisonTwoTags = SiStripBadStripQualityComparisonBase<2, SINGLE_IOV>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -1267,14 +1357,18 @@ PAYLOAD_INSPECTOR_MODULE(SiStripBadStrip) {
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadModuleTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIBFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTOBFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTIDFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripTECFractionByRun);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegionComparison);
-  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionComparisonTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegionComparisonSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripByRegionComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionComparisonTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripFractionComparisonTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityAnalysis);
-  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityComparison);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityComparisonSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripBadStripQualityComparisonTwoTags);
 }

@@ -32,7 +32,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
@@ -50,7 +49,11 @@ class L1TcsWord;
 class L1GtTriggerMenu;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
-
+class L1GtPrescaleFactorsTechTrigRcd;
+class L1GtPrescaleFactorsAlgoTrigRcd;
+class L1GtTriggerMenuRcd;
+class L1GtTriggerMaskTechTrigRcd;
+class L1GtTriggerMaskAlgoTrigRcd;
 // class declaration
 
 class L1GtHwValidation : public DQMEDAnalyzer {
@@ -106,7 +109,6 @@ private:
 
 protected:
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:
@@ -269,6 +271,11 @@ private:
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
   edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> l1gtPrescaleTechToken_;
+  edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> l1gtPrescaleAlgoToken_;
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigmenuToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> l1gtTrigmaskTechToken_;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> l1gtTrigmaskAlgoToken_;
 };
 
 #endif /*DQM_L1TMonitor_L1GtHwValidation_h*/

@@ -12,7 +12,7 @@ dtSegmentTestkHLT = DQMEDHarvester("DTSegmentAnalysisTest",
                                    chi2Threshold = cms.untracked.double(5.0),
                                    normalizeHistoPlots = cms.untracked.bool(False),
                                    # top folder for the histograms in DQMStore
-                                   topHistoFolder = cms.untracked.string("HLT/HLTMonMuon/DT-Segments"),
+                                   topHistoFolder = cms.untracked.string('HLT/HLTMonMuon/DT-Segments'),
                                    # hlt DQM mode
                                    hltDQMMode = cms.untracked.bool(True),
                                    nEventsCert = cms.untracked.int32(1000)

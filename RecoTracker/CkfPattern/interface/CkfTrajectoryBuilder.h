@@ -10,7 +10,6 @@ class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,7 +25,6 @@ class TrajectoryFilter;
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include <map>
-#include <boost/unordered_map.hpp>
 
 class TransientTrackingRecHitBuilder;
 class TrajectoryFilter;
@@ -36,8 +34,10 @@ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
 
-  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-  CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                       edm::ConsumesCollector iC,
+                       std::unique_ptr<TrajectoryFilter> filter);
 
   ~CkfTrajectoryBuilder() override {}
 
@@ -77,7 +77,7 @@ protected:
   unsigned int limitedCandidates(const TrajectorySeed& seed,
                                  TempTrajectory& startingTraj,
                                  TrajectoryContainer& result) const;
-  unsigned int limitedCandidates(const boost::shared_ptr<const TrajectorySeed>& sharedSeed,
+  unsigned int limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
                                  TempTrajectoryContainer& candidates,
                                  TrajectoryContainer& result) const;
 

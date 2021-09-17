@@ -5,6 +5,7 @@
 
 #include "TClass.h"
 #include "TGClient.h"
+#include "TVirtualX.h"
 
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
 #include "Fireworks/Core/interface/FWTableView.h"

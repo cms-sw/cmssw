@@ -13,14 +13,17 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+
+#include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class DTReadOutMapping;
+class RunInfo;
 
 class DTDAQInfo : public DQMEDHarvester {
 public:
@@ -48,7 +51,11 @@ private:
   MonitorElement *totalDAQFraction;
   MonitorElement *daqMap;
   std::map<int, MonitorElement *> daqFractions;
-  edm::ESHandle<DTReadOutMapping> mapping;
+  edm::ESGetToken<DTReadOutMapping, DTReadOutMappingRcd> mappingToken_;
+  const DTReadOutMapping *mapping;
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+  const RunInfo *sumFED;
 };
 
 #endif

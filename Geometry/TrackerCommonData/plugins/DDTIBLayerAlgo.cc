@@ -3,18 +3,114 @@
 // Description: Makes a TIB layer and position the strings with a tilt angle
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTIBLayerAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTIBLayerAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTIBLayerAlgo();
+  ~DDTIBLayerAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;   //Namespace of this and ALL parts
+  string genMat;        //General material name
+  double detectorTilt;  //Detector Tilt
+  double layerL;        //Length of the layer
+
+  double radiusLo;    //Radius for detector at lower level
+  double phioffLo;    //Phi offset             ......
+  int stringsLo;      //Number of strings      ......
+  string detectorLo;  //Detector string name   ......
+
+  double radiusUp;    //Radius for detector at upper level
+  double phioffUp;    //Phi offset             ......
+  int stringsUp;      //Number of strings      ......
+  string detectorUp;  //Detector string name   ......
+
+  double cylinderT;     //Cylinder thickness
+  double cylinderInR;   //Cylinder inner radius
+  string cylinderMat;   //Cylinder material
+  double MFRingInR;     //Inner Manifold Ring Inner Radius
+  double MFRingOutR;    //Outer Manifold Ring Outer Radius
+  double MFRingT;       //Manifold Ring Thickness
+  double MFRingDz;      //Manifold Ring Half Lenght
+  string MFIntRingMat;  //Manifold Ring Material
+  string MFExtRingMat;  //Manifold Ring Material
+
+  double supportT;  //Cylinder barrel CF skin thickness
+
+  string centMat;               //Central rings  material
+  vector<double> centRing1par;  //Central rings parameters
+  vector<double> centRing2par;  //Central rings parameters
+
+  string fillerMat;  //Filler material
+  double fillerDz;   //Filler Half Length
+
+  string ribMat;          //Rib material
+  vector<double> ribW;    //Rib width
+  vector<double> ribPhi;  //Rib Phi position
+
+  vector<double> dohmListFW;  //DOHM/AUX positions in #strings FW
+  vector<double> dohmListBW;  //DOHM/AUX positions in #strings BW
+
+  double dohmtoMF;           //DOHM Distance to MF
+  double dohmCarrierPhiOff;  //DOHM Carrier Phi offset wrt horizontal
+  string dohmPrimName;       //DOHM Primary Logical Volume name
+  string dohmAuxName;        //DOHM Auxiliary Logical Volume name
+
+  string dohmCarrierMaterial;  //DOHM Carrier Material
+  string dohmCableMaterial;    //DOHM Cable Material
+  double dohmPrimL;            //DOHM PRIMary Length
+  string dohmPrimMaterial;     //DOHM PRIMary Material
+  double dohmAuxL;             //DOHM AUXiliary Length
+  string dohmAuxMaterial;      //DOHM AUXiliary Material
+
+  string pillarMaterial;  //Pillar Material
+
+  double fwIntPillarDz;  //Internal pillar parameters
+  double fwIntPillarDPhi;
+  vector<double> fwIntPillarZ;
+  vector<double> fwIntPillarPhi;
+  double bwIntPillarDz;
+  double bwIntPillarDPhi;
+  vector<double> bwIntPillarZ;
+  vector<double> bwIntPillarPhi;
+
+  double fwExtPillarDz;  //External pillar parameters
+  double fwExtPillarDPhi;
+  vector<double> fwExtPillarZ;
+  vector<double> fwExtPillarPhi;
+  double bwExtPillarDz;
+  double bwExtPillarDPhi;
+  vector<double> bwExtPillarZ;
+  vector<double> bwExtPillarPhi;
+};
 
 DDTIBLayerAlgo::DDTIBLayerAlgo() : ribW(0), ribPhi(0) {
   LogDebug("TIBGeom") << "DDTIBLayerAlgo info: Creating an instance";
@@ -161,7 +257,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo...";
 
   DDName parentName = parent().name();
-  const std::string& idName = parentName.name();
+  const string& idName = parentName.name();
 
   double rmin = MFRingInR;
   double rmax = MFRingOutR;
@@ -180,7 +276,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   double rin = rmin + MFRingT;
   //  double rout = 0.5*(radiusLo+radiusUp-cylinderT);
   double rout = cylinderInR;
-  std::string name = idName + "Down";
+  string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5 * layerL, rin, rout, 0, CLHEP::twopi);
   LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << genMat
                       << " from 0 to " << CLHEP::twopi / CLHEP::deg << " with Rin " << rin << " Rout " << rout
@@ -201,7 +297,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta = 90 * CLHEP::deg;
       double phiy = phix + 90. * CLHEP::deg;
-      std::string rotstr = idName + std::to_string(phideg * 10.);
+      string rotstr = idName + to_string(phideg * 10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -240,7 +336,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta = 90 * CLHEP::deg;
       double phiy = phix + 90. * CLHEP::deg;
-      std::string rotstr = idName + std::to_string(phideg * 10.);
+      string rotstr = idName + to_string(phideg * 10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -311,7 +407,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (int i = 0; i < (int)(ribW.size()); i++) {
-    name = idName + "Rib" + std::to_string(i);
+    name = idName + "Rib" + to_string(i);
     double width = 2. * ribW[i] / (rin + rout);
     double dz = 0.5 * layerL - 2. * fillerDz;
     solid = DDSolidFactory::tubs(
@@ -326,7 +422,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta = 90 * CLHEP::deg;
       double phiy = phix + 90. * CLHEP::deg;
-      std::string rotstr = idName + std::to_string(phideg * 10.);
+      string rotstr = idName + to_string(phideg * 10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -446,9 +542,9 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   double dohmR = 0.5 * (dohmCarrierRin + dohmCarrierRout);
 
   for (int j = 0; j < 4; j++) {
-    std::vector<double> dohmList;
+    vector<double> dohmList;
     DDTranslation tran;
-    std::string rotstr;
+    string rotstr;
     DDRotation rotation;
     int dohmCarrierReplica = 0;
     int placeDohm = 0;
@@ -516,13 +612,13 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     int auxReplica = 0;
 
     for (int i = 0; i < placeDohm * ((int)(dohmList.size())); i++) {
-      double phi = (std::abs(dohmList[i]) + 0.5 - 1.) * dphi;
+      double phi = (abs(dohmList[i]) + 0.5 - 1.) * dphi;
       double phix = phi + 90 * CLHEP::deg;
       double phideg = phix / CLHEP::deg;
       if (phideg != 0) {
         double theta = 90 * CLHEP::deg;
         double phiy = phix + 90. * CLHEP::deg;
-        std::string rotstr = idName + std::to_string(std::abs(dohmList[i]) - 1.);
+        string rotstr = idName + to_string(abs(dohmList[i]) - 1.);
         dohmRotation = DDRotation(DDName(rotstr, idNameSpace));
         if (!dohmRotation) {
           LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -532,7 +628,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
         }
       }
 
-      std::string dohmName;
+      string dohmName;
       int dohmReplica = 0;
       double dohmZ = 0.;
 
@@ -568,8 +664,8 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   for (int j = 0; j < 4; j++) {
     matname = DDName(DDSplit(pillarMaterial).first, DDSplit(pillarMaterial).second);
     DDMaterial pillarMat(matname);
-    std::vector<double> pillarZ;
-    std::vector<double> pillarPhi;
+    vector<double> pillarZ;
+    vector<double> pillarPhi;
     double pillarDz = 0, pillarDPhi = 0, pillarRin = 0, pillarRout = 0;
 
     switch (j) {
@@ -626,7 +722,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     for (unsigned int i = 0; i < pillarZ.size(); i++) {
       if (pillarPhi[i] > 0.) {
         pillarTran = DDTranslation(0., 0., pillarZ[i]);
-        pillarRota = DDanonymousRot(std::unique_ptr<DDRotationMatrix>(DDcreateRotationMatrix(
+        pillarRota = DDanonymousRot(unique_ptr<DDRotationMatrix>(DDcreateRotationMatrix(
             90. * CLHEP::deg, pillarPhi[i], 90. * CLHEP::deg, 90. * CLHEP::deg + pillarPhi[i], 0., 0.)));
 
         cpv.position(Pillar, parent(), i, pillarTran, pillarRota);
@@ -638,3 +734,5 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTIBLayerAlgo, "track:DDTIBLayerAlgo");

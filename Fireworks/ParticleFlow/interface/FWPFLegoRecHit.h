@@ -57,10 +57,10 @@ public:
   bool isTallest() const { return m_isTallest; }
   void setIsTallest(bool b);
 
-private:
   FWPFLegoRecHit(const FWPFLegoRecHit &) = delete;                   // Disable default
   const FWPFLegoRecHit &operator=(const FWPFLegoRecHit &) = delete;  // Disable default
 
+private:
   // --------------------- Member Functions --------------------------
   void setupEveBox(std::vector<TEveVector> &corners, float scale);
   void buildTower(const std::vector<TEveVector> &corners, const FWViewContext *vc);

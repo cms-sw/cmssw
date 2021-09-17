@@ -34,7 +34,7 @@ public:
   explicit METCorrectionAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector&& iConsumesCollector);
   ~METCorrectionAlgorithm();
 
-  CorrMETData compMETCorrection(edm::Event&, const edm::EventSetup&);
+  CorrMETData compMETCorrection(edm::Event&);
 
 private:
   typedef std::vector<edm::InputTag> vInputTag;

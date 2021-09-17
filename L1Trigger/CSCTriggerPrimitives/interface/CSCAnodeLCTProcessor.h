@@ -36,8 +36,12 @@
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/PulseArray.h"
 
 #include <vector>
 
@@ -51,8 +55,8 @@ public:
                        unsigned chamber,
                        const edm::ParameterSet& conf);
 
-  /** Default constructor. Used for testing. */
-  CSCAnodeLCTProcessor();
+  /** Default destructor. */
+  ~CSCAnodeLCTProcessor() override = default;
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
@@ -68,19 +72,29 @@ public:
   // test, being passed the time array, or called by the run() function above.
   // It gets wire times from an input array and then loops over the keywires.
   // All found LCT candidates are sorted and the best two are retained.
-  void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs();
+  std::vector<CSCALCTDigi> readoutALCTs() const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs();
+  std::vector<CSCALCTDigi> getALCTs() const;
 
-  /** Pre-defined patterns. */
-  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
-  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
-  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  /** read out pre-ALCTs */
+  std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
 
+  /** Return best/second best ALCTs */
+  CSCALCTDigi getBestALCT(int bx) const;
+  CSCALCTDigi getSecondALCT(int bx) const;
+
+  /* get special bits for high multiplicity triggers */
+  unsigned getInTimeHMT() const { return inTimeHMT_; }
+  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
+
+protected:
   /** Best LCTs in this chamber, as found by the processor.
       In old ALCT algorithms, up to two best ALCT per Level-1 accept window
       had been reported.
@@ -91,7 +105,10 @@ public:
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
-protected:
+  PulseArray pulse_;
+
+  CSCShowerDigi shower_;
+
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
   void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);
@@ -99,13 +116,26 @@ protected:
   int numWireGroups;
   int MESelection;
 
-  int first_bx[CSCConstants::MAX_NUM_WIRES];
-  int first_bx_corrected[CSCConstants::MAX_NUM_WIRES];
-  int quality[CSCConstants::MAX_NUM_WIRES][3];
+  int first_bx[CSCConstants::MAX_NUM_WIREGROUPS];
+  int first_bx_corrected[CSCConstants::MAX_NUM_WIREGROUPS];
+
+  int quality[CSCConstants::MAX_NUM_WIREGROUPS][CSCConstants::NUM_ALCT_PATTERNS];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
   std::vector<CSCALCTDigi> lct_list;
+
+  std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
+
+  /* data members for high multiplicity triggers */
+  void encodeHighMultiplicityBits(
+      const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
+  unsigned inTimeHMT_;
+  unsigned outTimeHMT_;
+  std::vector<unsigned> thresholds_;
+  unsigned showerMinInTBin_;
+  unsigned showerMaxInTBin_;
+  unsigned showerMinOutTBin_;
+  unsigned showerMaxOutTBin_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
@@ -113,26 +143,26 @@ protected:
   unsigned int nplanes_hit_pattern, nplanes_hit_accel_pattern;
   unsigned int trig_mode, accel_mode, l1a_window_width;
 
-  /** SLHC: hit persistency length */
+  /** Phase2: hit persistency length */
   unsigned int hit_persist;
 
-  /** SLHC: separate handle for early time bins */
+  /** Phase2: separate handle for early time bins */
   int early_tbins;
 
-  /** SLHC: delta BX time depth for ghostCancellationLogic */
+  /** Phase2: delta BX time depth for ghostCancellationLogic */
   int ghost_cancellation_bx_depth;
 
-  /** SLHC: whether to consider ALCT candidates' qualities
+  /** Phase2: whether to consider ALCT candidates' qualities
       while doing ghostCancellationLogic on +-1 wire groups */
   bool ghost_cancellation_side_quality;
 
-  /** SLHC: deadtime clocks after pretrigger (extra in addition to drift_delay) */
+  /** Phase2: deadtime clocks after pretrigger (extra in addition to drift_delay) */
   unsigned int pretrig_extra_deadtime;
 
-  /** SLHC: whether to use corrected_bx instead of pretrigger BX */
+  /** Phase2: whether to use corrected_bx instead of pretrigger BX */
   bool use_corrected_bx;
 
-  /** SLHC: whether to use narrow pattern mask for the rings close to the beam */
+  /** Phase2: whether to use narrow pattern mask for the rings close to the beam */
   bool narrow_mask_r1;
 
   /** Default values of configuration parameters. */
@@ -144,8 +174,11 @@ protected:
   static const unsigned int def_trig_mode, def_accel_mode;
   static const unsigned int def_l1a_window_width;
 
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
+
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  CSCPatternBank::LCTPatterns alct_pattern_ = {};
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();
@@ -160,14 +193,14 @@ protected:
   void clear(const int wire, const int pattern);
 
   /* Gets wire times from the wire digis and fills wire[][] vector */
-  void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /* A pulse array will be used as a bit representation of hit times.
      For example: if a keywire has a bx_time of 3, then 1 shifted
      left 3 will be bit pattern 0000000000001000.  Bits are then added to
      signify the duration of a signal (hit_persist, formerly bx_width).  So
      for the pulse with a hit_persist of 6 will look like 0000000111111000. */
-  bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /* Check that there are nplanes_hit_pretrig or more layers hit in collision
      or accelerator patterns for a particular key_wire.  If so, return
@@ -177,16 +210,26 @@ protected:
   /* See if there is a pattern that satisfies nplanes_hit_pattern number of
      layers hit for either the accelerator or collision patterns.  Use
      the pattern with the best quality. */
-  bool patternDetection(const int key_wire);
+  bool patternDetection(const int key_wire,
+                        std::map<int, std::map<int, CSCALCTDigi::WireContainer> >& hits_in_patterns);
 
-  /* This function looks for LCTs on the previous and next wires.  If one
-     exists and it has a better quality and a bx_time up to 4 clocks earlier
-     than the present, then the present LCT is cancelled.  The present LCT
-     also gets cancelled if it has the same quality as the one on the
-     previous wire (this has not been done in 2003 test beam).  The
-     cancellation is done separately for collision and accelerator patterns. */
-  virtual void ghostCancellationLogic();
+  // remove the invalid wires from the container
+  void cleanWireContainer(CSCALCTDigi::WireContainer& wireHits) const;
 
+  //  set the wire hit container
+  void setWireContainer(CSCALCTDigi&, CSCALCTDigi::WireContainer& wireHits) const;
+
+  /* In older versions of the ALCT emulation, the ghost cancellation was performed after
+     the ALCTs were found. In December 2018 it became clear that during the study of data
+     and emulation comparison on 2018 data, a small disagreement between data and emulation
+     was found. The changes we implemented then allow re-triggering on one wiregroup after
+     some dead time once an earlier ALCT was constructed built on this wiregroup. Before this
+     commit the ALCT processor would prohibit the wiregroup from triggering in one event after
+     an ALCT was found on that wiregroup. In the firwmare, the wiregroup with ALCT is only dead
+     for a few BX before it can be triggered by next muon. The implementation of ghost cancellation
+     logic wqas changed to accommodate the re-triggering change while the idea of the ghost
+     cancellation logic is kept the same.
+  */
   virtual void ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared);
 
   virtual int getTempALCTQuality(int temp_quality) const;
@@ -214,7 +257,7 @@ protected:
   void dumpConfigParams() const;
 
   /** Dump digis on wire groups. */
-  void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
+  void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) const;
 
   void showPatterns(const int key_wire);
 };

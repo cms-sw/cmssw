@@ -28,10 +28,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 
-typedef SingleObjectSelector<
-       edm::View<reco::Muon>, 
-       StringCutObjectSelector<reco::Muon>,
-       edm::RefToBaseVector<reco::Muon>
-     > MuonViewRefSelector;
+typedef SingleObjectSelector<edm::View<reco::Muon>, StringCutObjectSelector<reco::Muon>, edm::RefToBaseVector<reco::Muon> >
+    MuonViewRefSelector;
 
-DEFINE_FWK_MODULE( MuonViewRefSelector );
+DEFINE_FWK_MODULE(MuonViewRefSelector);

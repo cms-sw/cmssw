@@ -28,7 +28,7 @@ Implementation:
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <memory>
@@ -116,9 +116,9 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
     std::cout << std::endl;
     std::vector<float> vLat = ClusterTools::lat(clus, ebRecHits, geometry);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = ClusterTools::covariances(clus, ebRecHits, topology, geometry);
+    const auto& vCov = ClusterTools::covariances(clus, ebRecHits, topology, geometry);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = ClusterTools::localCovariances(clus, ebRecHits, topology);
+    const auto& vLocCov = ClusterTools::localCovariances(clus, ebRecHits, topology);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << ClusterTools::zernike20(clus, ebRecHits, geometry) << std::endl;
     std::cout << "zernike42................ " << ClusterTools::zernike42(clus, ebRecHits, geometry) << std::endl;
@@ -150,9 +150,9 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
     std::cout << "e2nd..................... " << ClusterTools::e2nd(clus, eeRecHits) << std::endl;
     std::vector<float> vLat = ClusterTools::lat(clus, eeRecHits, geometry);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::vector<float> vCov = ClusterTools::covariances(clus, eeRecHits, topology, geometry);
+    const auto& vCov = ClusterTools::covariances(clus, eeRecHits, topology, geometry);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-    std::vector<float> vLocCov = ClusterTools::localCovariances(clus, eeRecHits, topology);
+    const auto& vLocCov = ClusterTools::localCovariances(clus, eeRecHits, topology);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
     std::cout << "zernike20................ " << ClusterTools::zernike20(clus, eeRecHits, geometry) << std::endl;
     std::cout << "zernike42................ " << ClusterTools::zernike42(clus, eeRecHits, geometry) << std::endl;

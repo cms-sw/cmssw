@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -219,6 +218,7 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFMET_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFType1MET_;
   edm::EDGetTokenT<edm::TriggerResults> tok_TrigRes_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   bool doPFJets_;   // use PFJets
   bool doGenJets_;  // use GenJets
   int workOnAOD_;

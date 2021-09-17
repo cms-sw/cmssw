@@ -2,7 +2,7 @@
 #define EPCOMBINATIONTOOL_H
 
 #include <string>
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 
 class GBRForest;

@@ -3,8 +3,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 class OptoScanAnalysis;
 class TProfile;

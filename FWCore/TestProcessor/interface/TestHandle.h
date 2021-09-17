@@ -34,7 +34,7 @@ namespace edm {
     public:
       explicit TestHandle(T const* product) : product_{product} {}
 
-      explicit TestHandle(std::shared_ptr<HandleExceptionFactory> iFailed)
+      explicit TestHandle(std::shared_ptr<HandleExceptionFactory const> iFailed)
           : product_{nullptr}, whyFailedFactory_{std::move(iFailed)} {}
 
       operator bool() { return product_ != nullptr; }
@@ -56,7 +56,7 @@ namespace edm {
       }
 
       T const* product_;
-      std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+      std::shared_ptr<HandleExceptionFactory const> whyFailedFactory_;
     };
 
   }  // namespace test

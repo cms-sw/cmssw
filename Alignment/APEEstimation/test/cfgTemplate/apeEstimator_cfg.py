@@ -20,7 +20,7 @@ options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, 
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
 options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
 options.register('conditions',"None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "File with conditions")
-
+options.register('cosmics', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Cosmic data set")
 # get and parse the command line arguments
 options.parseArguments()   
 
@@ -50,13 +50,13 @@ from CondCore.CondDB.CondDB_cfi import *
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.append('SectorBuilder')
-process.MessageLogger.categories.append('ResidualErrorBinning')
-process.MessageLogger.categories.append('HitSelector')
-process.MessageLogger.categories.append('CalculateAPE')
-process.MessageLogger.categories.append('ApeEstimator')
-process.MessageLogger.categories.append('TrackRefitter')
-process.MessageLogger.categories.append('AlignmentTrackSelector')
+process.MessageLogger.SectorBuilder=dict()
+process.MessageLogger.ResidualErrorBinning=dict()
+process.MessageLogger.HitSelector=dict()
+process.MessageLogger.CalculateAPE=dict()
+process.MessageLogger.ApeEstimator=dict()
+process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.AlignmentTrackSelector=dict()
 process.MessageLogger.cerr.threshold = 'WARNING'
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1
@@ -169,93 +169,16 @@ if options.conditions != "None":
 if options.alignRcd=='fromConditions':
     pass # Alignment is read from the conditions file in this case
 elif options.alignRcd=='design':
-    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-        CondDBAlignment,
-        timetype = cms.string("runnumber"),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('TrackerAlignmentRcd'),
-                tag = cms.string('TrackerAlignment_Upgrade2017_design_v3')
-                )
-            )
-        )
-    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-
-  
-elif options.alignRcd == 'misalTest':
-    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-        CondDBAlignment,
-        timetype = cms.string("runnumber"),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('TrackerAlignmentRcd'),
-                tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
-            )
-        )
-    )
-    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-  
-elif options.alignRcd == 'mp2705':
-    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2705/jobData/jobm/alignments_MP.db'))
-    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-        CondDBAlignment,
-        timetype = cms.string("runnumber"),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('TrackerAlignmentRcd'),
-                tag = cms.string('Alignments'),
-            )
-        )
-    )
-    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-
-elif options.alignRcd == 'mp2853':
-    CondDBAlignment = CondDB.clone()
-    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-        CondDBAlignment,
-        timetype = cms.string("runnumber"),
-        toGet = cms.VPSet(
-            cms.PSet(
-                connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2853/jobData/jobm3/alignments_MP.db'),
-                record = cms.string('TrackerAlignmentRcd'),
-                tag = cms.string('Alignments'),
-            ),
-            #~ cms.PSet(
-                #~ connect=cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                #~ record=cms.string('SiPixelTemplateDBObjectRcd'),
-                #~ tag=cms.string('SiPixelTemplateDBObject_38T_TempForAlignmentReReco2018_v3'),
-            #~ )
-        )
-    )
-    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-   
-elif options.alignRcd == 'hp1370':
-    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
-    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-        CondDBAlignment,
-        timetype = cms.string("runnumber"),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('TrackerAlignmentRcd'),
-                tag = cms.string('Alignments'),
-            )
-        )
-    )
-    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-  
-
-
+    pass
 elif options.alignRcd == 'globalTag':
-  pass
+    pass
 elif options.alignRcd == 'useStartGlobalTagForAllConditions':
-  pass
+    pass
 elif options.alignRcd == '':
-  pass
+    pass
 else:
-  print('ERROR --- incorrect alignment: ', options.alignRcd)
-  exit(8888)
+    print('ERROR --- incorrect alignment: ', options.alignRcd)
+    exit(8888)
 
 ## APE
 if options.iterNumber!=0:
@@ -271,7 +194,6 @@ if options.iterNumber!=0:
         )
     )
     process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-    
 
 
 ##
@@ -330,11 +252,18 @@ process.TFileService = cms.Service("TFileService",
 ##
 ## Path
 ##
-process.p = cms.Path(
-    #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
-    process.RefitterHighPuritySequence*
-    process.ApeEstimatorSequence
-)
+
+if not options.cosmics:
+    process.p = cms.Path(
+        #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
+        process.RefitterHighPuritySequence*
+        process.ApeEstimatorSequence
+    )
+else:
+    process.p = cms.Path(
+        process.RefitterNoPuritySequence* # this sequence doesn't include high purity track criteria
+        process.ApeEstimatorSequence
+    )
 
 
 

@@ -3,21 +3,136 @@
 // Description: Creation of a TEC Test
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-#include <cstdio>
-#include <string>
-#include <utility>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTECModuleAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <cstdio>
+#include <string>
+#include <utility>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTECModuleAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTECModuleAlgo();
+  ~DDTECModuleAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  //this positions  toPos in mother
+  void doPos(const DDLogicalPart& toPos,
+             const DDLogicalPart& mother,
+             int copyNr,
+             double x,
+             double y,
+             double z,
+             const string& rotName,
+             DDCompactView& cpv);
+  void doPos(DDLogicalPart toPos, double x, double y, double z, string rotName, DDCompactView& cpv);
+  //variables:
+  double noOverlapShift;
+  int ringNo;
+  bool isStereo;
+  bool isRing6;
+  double rPos;                       //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
+  double posCorrectionPhi;           // the Phi position of the stereo Modules has to be corrected
+  string standardRot;                //Rotation that aligns the mother(Tub ) coordinate System with the components
+  string idNameSpace;                //Namespace of this and ALL parts
+  string genMat;                     //General material name
+  double moduleThick;                //Module thickness
+  double detTilt;                    //Tilt of stereo detector
+  double fullHeight;                 //Height
+  double dlTop;                      //Width at top of wafer
+  double dlBottom;                   //Width at bottom of wafer
+  double dlHybrid;                   //Width at the hybrid end
+  double frameWidth;                 //Frame         width
+  double frameThick;                 //              thickness
+  double frameOver;                  //              overlap (on sides)
+  string topFrameMat;                //Top frame     material
+  double topFrameHeight;             //              height
+  double topFrameThick;              //              thickness
+  double topFrameTopWidth;           //             Width at the top
+  double topFrameBotWidth;           //             Width at the bottom
+  double topFrame2Width;             //  Stereo:2ndPart   Width
+  double topFrame2LHeight;           //             left  height
+  double topFrame2RHeight;           //             right height
+  double topFrameZ;                  //              z-positions
+  string sideFrameMat;               //Side frame    material
+  double sideFrameThick;             //              thickness
+  double sideFrameLWidth;            //    Left     Width (for stereo modules upper one)
+  double sideFrameLWidthLow;         //           Width (only for stereo modules: lower Width)
+  double sideFrameLHeight;           //             Height
+  double sideFrameLtheta;            //              angle of the trapezoid shift
+  double sideFrameRWidth;            //    Right    Width (for stereo modules upper one)
+  double sideFrameRWidthLow;         //           Width (only for stereo modules: lower Width)
+  double sideFrameRHeight;           //             Height
+  double sideFrameRtheta;            //              angle of the trapezoid shift
+  vector<double> siFrSuppBoxWidth;   //    Supp.Box Width
+  vector<double> siFrSuppBoxHeight;  //            Height
+  vector<double> siFrSuppBoxYPos;    //              y-position of the supplies box (with HV an thermal sensor...)
+  double sideFrameZ;                 //              z-positions
+  double siFrSuppBoxThick;           //             thickness
+  string siFrSuppBoxMat;             //              material
+  string waferMat;                   //Wafer         material
+  double waferPosition;              //              position of the wafer (was formaly done by adjusting topFrameHeigt)
+  double sideWidthTop;               //              widths on the side Top
+  double sideWidthBottom;            //                                 Bottom
+  string waferRot;                   //              rotation matrix
+  string activeMat;                  //Sensitive     material
+  double activeHeight;               //              height
+  double waferThick;                 //              wafer thickness (active = wafer - backplane)
+  string activeRot;                  //              Rotation matrix
+  double activeZ;                    //              z-positions
+  double backplaneThick;             //              thickness
+  double inactiveDy;                 //InactiveStrip  Hight of ( rings > 3)
+  double inactivePos;                //               y-Position
+  string inactiveMat;                //               material
+  string hybridMat;                  //Hybrid        material
+  double hybridHeight;               //              height
+  double hybridWidth;                //              width
+  double hybridThick;                //              thickness
+  double hybridZ;                    //              z-positions
+  string pitchMat;                   //Pitch adapter material
+  double pitchWidth;                 //              width
+  double pitchHeight;                //              height
+  double pitchThick;                 //              thickness
+  double pitchZ;                     //              z-positions
+  string pitchRot;                   //              rotation matrix
+  string bridgeMat;                  //Bridge        material
+  double bridgeWidth;                //              width
+  double bridgeThick;                //              thickness
+  double bridgeHeight;               //              height
+  double bridgeSep;                  //              separation
+  vector<double> siReenforceHeight;  // SiReenforcement Height
+  vector<double> siReenforceWidth;   //             Width
+  vector<double> siReenforceYPos;    //              Y - Position
+  //  double                   siReenforceZPos;//              Z - Position done by the side frames Z Position an t
+  double siReenforceThick;  //             Thick
+  string siReenforceMat;    //             Materieal
+  //double                   posCorrectionR;  //  Correct Positions of the Stereo Modules radial coordinate
+};
 
 DDTECModuleAlgo::DDTECModuleAlgo() { LogDebug("TECGeom") << "DDTECModuleAlgo info: Creating an instance"; }
 
@@ -193,12 +308,12 @@ void DDTECModuleAlgo::doPos(const DDLogicalPart& toPos,
                             double x,
                             double y,
                             double z,
-                            const std::string& rotName,
+                            const string& rotName,
                             DDCompactView& cpv) {
   DDTranslation tran(z, x, y);
   DDRotation rot;
-  std::string rotstr = DDSplit(rotName).first;
-  std::string rotns;
+  string rotstr = DDSplit(rotName).first;
+  string rotns;
   if (rotstr != "NULL") {
     rotns = DDSplit(rotName).second;
     rot = DDRotation(DDName(rotstr, rotns));
@@ -211,7 +326,7 @@ void DDTECModuleAlgo::doPos(const DDLogicalPart& toPos,
                       << tran << " with " << rot;
 }
 
-void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z, std::string rotName, DDCompactView& cpv) {
+void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z, string rotName, DDCompactView& cpv) {
   int copyNr = 1;
   if (isStereo)
     copyNr = 2;
@@ -228,7 +343,7 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z, s
   if (rotName == "NULL")
     rotName = standardRot;
 
-  doPos(std::move(toPos), parent(), copyNr, x, y, z, rotName, cpv);
+  doPos(toPos, parent(), copyNr, x, y, z, rotName, cpv);
 }
 
 void DDTECModuleAlgo::execute(DDCompactView& cpv) {
@@ -245,9 +360,9 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   double dx, dy, dz;
   double thet;
   //names
-  std::string idName;
-  std::string name;
-  std::string tag("Rphi");
+  string idName;
+  string name;
+  string tag("Rphi");
   if (isStereo)
     tag = "Stereo";
   //usefull constants
@@ -346,7 +461,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 
   //Supplies Box(es)
   for (int i = 0; i < (int)(siFrSuppBoxWidth.size()); i++) {
-    name = idName + "SuppliesBox" + std::to_string(i);
+    name = idName + "SuppliesBox" + to_string(i);
     matname = DDName(DDSplit(siFrSuppBoxMat).first, DDSplit(siFrSuppBoxMat).second);
     matter = DDMaterial(matname);
 
@@ -565,7 +680,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 
   //Si - Reencorcement
   for (int i = 0; i < (int)(siReenforceWidth.size()); i++) {
-    name = idName + "SiReenforce" + std::to_string(i);
+    name = idName + "SiReenforce" + to_string(i);
     matname = DDName(DDSplit(siReenforceMat).first, DDSplit(siReenforceMat).second);
     matter = DDMaterial(matname);
 
@@ -625,3 +740,5 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TECGeom") << "<<== End of DDTECModuleAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTECModuleAlgo, "track:DDTECModuleAlgo");

@@ -23,10 +23,12 @@ namespace fftjetcms {
   }
 
   double LookupTable2d::closest(const double x, const double y) const {
-    const unsigned ix =
-        x <= xmin_ ? 0U : x >= xmax_ - bwx_ / 2.0 ? nx_ - 1U : static_cast<unsigned>((x - xmin_) / bwx_);
-    const unsigned iy =
-        y <= ymin_ ? 0U : y >= ymax_ - bwy_ / 2.0 ? ny_ - 1U : static_cast<unsigned>((y - ymin_) / bwy_);
+    const unsigned ix = x <= xmin_                ? 0U
+                        : x >= xmax_ - bwx_ / 2.0 ? nx_ - 1U
+                                                  : static_cast<unsigned>((x - xmin_) / bwx_);
+    const unsigned iy = y <= ymin_                ? 0U
+                        : y >= ymax_ - bwy_ / 2.0 ? ny_ - 1U
+                                                  : static_cast<unsigned>((y - ymin_) / bwy_);
     return data_[ix * ny_ + iy];
   }
 }  // namespace fftjetcms

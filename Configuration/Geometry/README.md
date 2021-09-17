@@ -1,61 +1,131 @@
-The Phase2 geometries are automatically created using the script [generate2023Geometry.py](./scripts/generate2023Geometry.py).
+# To work on geometry package
+
+### To create or update geometries
+```
+git cms-addpkg Geometry/CMSCommonData
+git cms-addpkg Configuration/Geometry
+scram b -j 8
+cd Configuration/Geometry
+vi python/dict2021Geometry.py
+python3 ./scripts/generate2021Geometry.py -D 2021
+```
+Note:
+* For Phase-2, use [generate2026Geometry.py](./python/dict2026Geometry.py) and [generate2026Geometry.py](./scripts/generate2026Geometry.py) instead.
+* For the list of geometries, see below.
+
+# Run 3 Geometries
+
+The Run 3 geometry is automatically created using the script [generate2021Geometry.py](./scripts/generate2021Geometry.py).
 
 Different versions of various subdetectors can be combined. The available versions are:
 
 Tracker:
-* T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
-* T6: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.4) (TEDD slighly rotated + Inner Tracker barrel has lower radii than TDR T5 geometry)
-* T11: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.5) (same as T6 but 50x50 in all modules)
-* T14: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Based from T12. OT: reduced envelope. IT: new chip size, different radii, 2x2 modules everywhere in TEPX, new ring paradigm in TEPX)
-* T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
+* T3: 2021 baseline after separating tracker specific material
+* T4: as T3, but with zero material
+* T5: as T3, but with tracker material budget reduced by 5%
+* T6: as T3, but with tracker material budget reduced by 10%
+* T7: as T3, but with tracker material budget increased by 5%
+* T8: as T3, but with tracker material budget increased by 10%
 
 Calorimeters:
-* C3: HGCal (v8) + Phase2 HCAL and EB
-* C4: HGCal (v9) + Phase2 HCAL and EB
-* C5: HGCal (v9 without virtual wafers) + Phase2 HCAL and EB
-* C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
-* C7: HGCal (v9a with inner support structure) + Phase2 HCAL and EB
-* C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
+* C1: 2021 baseline
 
 Muon system:
-* M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
-* M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
+* M1: 2021 baseline
 
-Fast Timing system:
-* I1: No Fast Timing detector
-* I2: Fast Timing detector (LYSO barrel, silicon endcap), only sensitive layers
-* I3: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO tiles
-* I4: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars
-* I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
-* I6: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat no hole between modules
-* I7: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along phi flat
-* I8: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along phi flat, crystal thickness as I5
-* I9: Same as I7 but with ETL in the position defined in O3
+PPS:
+* P2: 2021 baseline (after using its own material files for pixel)
+* P3: 2021 baseline (same as P2 but removing common materials)
+* P4: 2021 baseline (same as P2 or P3 but using the same Vacuum)
+* P5: new Run3 detectors
+* P6: Same as P5 but with unique names for materials
 
 The script also handles the common and forward elements of the geometry:
-* O2: detailed cavern description
-* O3: O2 + changes due to modified CALO region due to changes in the Endcap part
-* F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
-* F3: same as F2 but changes due to HFNose
+* O3: 2021 baseline
+* O4: as O3, but with zero material
+* O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
+* O6: Replaces O3 as baseline to remove duplicate material definition
+* F1: 2021 baseline
 
 Several detector combinations have been generated:
-* D17 = T5+C3+M2+I1+O2+F2 
-* D19 = T5+C3+M2+I2+O2+F2 
-* D21 = T6+C3+M2+I1+O2+F2
-* D24 = T6+C3+M2+I3+O2+F2 
-* D25 = T6+C3+M2+I4+O2+F2 
-* D28 = T6+C4+M2+I1+O2+F2
-* D29 = T11+C3+M2+I1+O2+F2 
-* D30 = T6+C5+M2+I1+O2+F2
-* D31 = T6+C6+M2+I1+O2+F3
-* D32 = T6+C7+M2+I1+O2+F2
-* D33 = T6+C3+M2+I5+O2+F2 
-* D34 = T6+C3+M2+I6+O2+F2 
-* D35 = T6+C4+M2+I5+O2+F2 
-* D38 = T6+C4+M2+I7+O2+F2
-* D39 = T6+C4+M2+I8+O2+F2
-* D40 = T14+C3+M2+I1+O2+F2
-* D41 = T14+C8+M3+I9+O3+F2
-* D42 = T15+C3+M2+I1+O2+F2
+* 2021 = T3+C1+M1+P6+O6+F1
+* 2021ZeroMaterial = T4+C1+M1+P6+O4+F1
+* 2021FlatMinus05Percent = T5+C1+M1+P6+O5+F1
+* 2021FlatMinus10Percent = T6+C1+M1+P6+O5+F1
+* 2021FlatPlus05Percent = T7+C1+M1+P6+O5+F1
+* 2021FlatPlus10Percent = T8+C1+M1+P6+O5+F1
 
-Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
+# Phase 2 Geometries
+
+The Phase 2 geometries are automatically created using the script [generate2026Geometry.py](./scripts/generate2026Geometry.py).
+
+Different versions of various subdetectors can be combined. The available versions are:
+
+Tracker:
+* T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
+* T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from previous T17
+(TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + TBPX portcards between Disks 6 and 7.)
+* T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
+* T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
+* T24: Phase2 tilted tracker. Tracker detector description itself is identical to T21 (OT800 IT615). Change of paradigm, entire description reworked to be compatible with DD4hep library.
+* T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1. Compatible with DD4hep library.
+* T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX. Compatible with DD4hep library.
+* T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.0): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are bricked. Compatible with DD4hep library.
+
+Calorimeters:
+* C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables
+* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB
+* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers)
+* C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
+* C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
+* C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
+* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB
+* C16: HGCal (create HGCal geometry with real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB
+* C17: HGCal (create HGCal geometry with new longitudinal structure having 47 layers and new definition of partial wafers using the constants of the flat file) + Phase2 HCAL and EB
+
+Muon system:
+* M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
+* M6: same as M4 with right value for YE3 size, no "hidden" overlaps, iRPC updated, adjustment of ME0 in view of updated boundaries
+* M7: same as M6 with further ajustment of ME0 for boundaries
+* M8: same as M7 with changed number of strips for GE21
+* M9: same as M8 with GE0 replacing ME0
+* M10: same as M9 but with a realistic support structure for GE0
+
+Fast Timing system:
+* I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
+* I11: Same as I10, xml reorganized, comparison base for new ETL and DD4hep migration
+* I12: Starting from I11, new ETL layout from MTD TDR
+* I13: Starting from I11, new ETL layout from post MTD TDR (2 sectors per disc face)
+* I14: Same as I13, updated sensor structure, disc z location and passive materials
+
+The script also handles the common and forward elements of the geometry:
+* O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
+* O5: same as O4 but with changes needed for new support structure 
+* O6: same as O5 with changes needed for new defintion of boundaries
+* O7: same as O6 with changes needed for new defintion of calorimeter boundaries
+* O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
+
+* F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
+* F3: same as F2 but changes due to HFNose
+* F4: same as F2 but with modifications needed to forward shield
+* F5: same as F4 but changes due to HFNose
+* F6: same as F4 with modifications needed for BRM and forward shield
+* F7: same as F6 with modifications needed for HFNose
+
+Several detector combinations have been generated:
+* D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
+* D60 = T15+C10+M4+I10+O4+F3 (With HFNose)
+* D68 = T21+C11+M6+I11+O5+F4 (For HGCAL study on evolution of detector)
+* D70 = T21+C13+M7+I11+O6+F6 (For HGCAL study on evolution of detector)
+* D76 = T21+C14+M9+I13+O7+F6
+* D77 = T24+C14+M9+I13+O7+F6 (Current default scenario)
+* D78 = T22+C14+M9+I13+O7+F6
+* D79 = T23+C14+M9+I13+O7+F6
+* D80 = T25+C14+M9+I13+O7+F6
+* D81 = T26+C14+M9+I13+O7+F6
+* D82 = T21+C15+M9+I13+O7+F7
+* D83 = T24+C16+M9+I13+O7+F6
+* D84 = T24+C13+M7+I11+O6+F6 (For HGCAL study on evolution of HGCal replacing D70)
+* D85 = T24+C14+M9+I14+O7+F6
+* D86 = T24+C17+M10+I14+O8+F6
+* D87 = T27+C14+M9+I13+O7+F6

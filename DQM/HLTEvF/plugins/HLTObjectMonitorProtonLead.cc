@@ -49,7 +49,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "TMath.h"
@@ -94,7 +93,6 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   vector<hltPlot*> plotList;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -608,11 +606,6 @@ void HLTObjectMonitorProtonLead::dqmBeginRun(edm::Run const& iRun, edm::EventSet
 }
 
 // ------------ method called when ending the processing of a run  ------------
-
-void HLTObjectMonitorProtonLead::endRun(edm::Run const&, edm::EventSetup const&) {
-  if (debugPrint)
-    std::cout << "Calling endRun. " << std::endl;
-}
 
 void HLTObjectMonitorProtonLead::bookHistograms(DQMStore::IBooker& ibooker,
                                                 edm::Run const& iRun,

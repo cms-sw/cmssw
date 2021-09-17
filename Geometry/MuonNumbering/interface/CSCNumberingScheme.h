@@ -13,40 +13,28 @@
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
 class MuonBaseNumber;
-class DDCompactView;
-class MuonDDDConstants;
+class MuonGeometryConstants;
 
 class CSCNumberingScheme : public MuonNumberingScheme {
- public:
-
-  CSCNumberingScheme( const MuonDDDConstants& muonConstants );
-  CSCNumberingScheme( const DDCompactView& cpv );
+public:
+  CSCNumberingScheme(const MuonGeometryConstants& muonConstants);
   ~CSCNumberingScheme() override{};
-  
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
-  
- private:
 
-  void initMe( const MuonDDDConstants& muonConstants );
+  int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
+
+private:
+  void initMe(const MuonGeometryConstants& muonConstants);
   /**
    * Tim Cox - IMPORTANT - this is where we set CSC chamber labelling
    */
-  int chamberIndex( int, int, int, int ) const;
-  
+  int chamberIndex(int, int, int, int) const;
+
   int theRegionLevel;
   int theStationLevel;
   int theSubringLevel;
   int theSectorLevel;
   int theLayerLevel;
   int theRingLevel;
-
 };
 
 #endif
-
-
-
-
-
-
-

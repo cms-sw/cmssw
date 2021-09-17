@@ -1,22 +1,59 @@
-#include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
+/**\class PFDisplacedVertexCandidateProducer 
+\brief Producer for DisplacedVertices 
+
+This producer makes use of DisplacedVertexCandidateFinder. This Finder
+loop recursively over reco::Tracks to find those which are linked 
+together by the criterion which is by default the minimal approach distance. 
+
+\author Maxime Gouzevitch
+\date   November 2009
+*/
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
-#include <set>
+class PFDisplacedVertexCandidateProducer : public edm::stream::EDProducer<> {
+public:
+  explicit PFDisplacedVertexCandidateProducer(const edm::ParameterSet&);
+
+  ~PFDisplacedVertexCandidateProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  /// Reco Tracks used to spot the nuclear interactions
+  edm::EDGetTokenT<reco::TrackCollection> inputTagTracks_;
+
+  /// Input tag for main vertex to cut of dxy of secondary tracks
+  edm::EDGetTokenT<reco::VertexCollection> inputTagMainVertex_;
+  edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
+  /// verbose ?
+  bool verbose_;
+
+  /// Displaced Vertex Candidates finder
+  PFDisplacedVertexCandidateFinder pfDisplacedVertexCandidateFinder_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFDisplacedVertexCandidateProducer);
 
 using namespace std;
 using namespace edm;
 
-PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig) {
+PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig)
+    : magneticFieldToken_(esConsumes()) {
   // --- Setup input collection names --- //
   inputTagTracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trackCollection"));
 
@@ -58,9 +95,7 @@ void PFDisplacedVertexCandidateProducer::produce(Event& iEvent, const EventSetup
       << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 
   // Prepare and fill useful event information for the Finder
-  edm::ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
-  const MagneticField* theMagField = magField.product();
+  auto const& theMagField = &iSetup.getData(magneticFieldToken_);
 
   Handle<reco::TrackCollection> trackCollection;
   iEvent.getByToken(inputTagTracks_, trackCollection);

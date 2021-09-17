@@ -5,6 +5,4 @@
 <use name="boost"/>
 <use name="gsl"/>
 <use name="root"/>
-<use name="GeneratorInterface/Core"/>
-<use name="GeneratorInterface/Pythia6Interface"/>
-<flags   RIVET_PLUGIN="1"/>
+<flags RIVET_PLUGIN="1"/>

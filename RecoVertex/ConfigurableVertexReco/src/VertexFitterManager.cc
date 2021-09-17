@@ -10,13 +10,14 @@ void VertexFitterManager::registerFitter(const string& name, std::function<Abstr
   theDescription[name] = d;
 
   // every fitter registers as a reconstructor, also
-  VertexRecoManager::Instance().registerReconstructor(name,
-                                                      [o]() -> AbstractConfReconstructor* {
-                                                        //ReconstructorFromFitter clones the object passed
-                                                        std::unique_ptr<AbstractConfFitter> t{o()};
-                                                        return new ReconstructorFromFitter(std::move(t));
-                                                      },
-                                                      d);
+  VertexRecoManager::Instance().registerReconstructor(
+      name,
+      [o]() -> AbstractConfReconstructor* {
+        //ReconstructorFromFitter clones the object passed
+        std::unique_ptr<AbstractConfFitter> t{o()};
+        return new ReconstructorFromFitter(std::move(t));
+      },
+      d);
 }
 
 VertexFitterManager::~VertexFitterManager() {}

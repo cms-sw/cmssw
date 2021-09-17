@@ -16,7 +16,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/EcalSimData/data/ebsens.xml', 
         'Geometry/HcalTestBeamData/data/TBHcal06ProdCuts.xml', 
         'Geometry/EcalSimData/data/EBProdCuts.xml', 
-        'Geometry/HcalTestBeamData/data/TBHcal06Util.xml'),
+        'Geometry/HcalTestBeamData/data/TBHcal06Util.xml',
+        'Geometry/HcalCommonData/data/hcalRecNumbering.xml'),
     rootNodeName = cms.string('TBHcal:TBHCal')
 )
 

@@ -21,7 +21,6 @@
 #include <utility>
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "Alignment/Geners/interface/CompressedIO.hh"
 #include "Alignment/Geners/interface/StringArchive.hh"
@@ -40,7 +39,7 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableRcd.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequence.h"
 
-typedef boost::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
+typedef std::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
 
 static void insertLUTItem(FFTJetLookupTableSequence& seq,
                           StorableFunctorPtr fptr,
@@ -85,7 +84,7 @@ static void buildLookupTables(const FFTJetCorrectorParameters& tablePars,
       if (loadedSet.insert(id).second) {
         CPP11_auto_ptr<npstat::StorableMultivariateFunctor> p(ref.get(item));
         StorableFunctorPtr fptr(p.release());
-        CPP11_shared_ptr<const gs::CatalogEntry> e = ar->catalogEntry(id);
+        std::shared_ptr<const gs::CatalogEntry> e = ar->catalogEntry(id);
         insertLUTItem(*ptr, fptr, e->name(), e->category());
         if (verbose)
           std::cout << "In buildLookupTables: loaded table with name \"" << e->name() << "\" and category \""

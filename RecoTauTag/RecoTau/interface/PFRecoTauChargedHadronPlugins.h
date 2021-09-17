@@ -26,46 +26,45 @@
 
 namespace reco {
 
-// Forward declarations
-class Jet;
-class PFRecoTauChargedHadron;
+  // Forward declarations
+  class Jet;
+  class PFRecoTauChargedHadron;
 
-namespace tau {
+  namespace tau {
 
-class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin 
-{
- public:
-  // Return a vector of pointers
-  typedef boost::ptr_vector<PFRecoTauChargedHadron> ChargedHadronVector;
-  // Storing the result in an auto ptr on function return allows
-  // allows us to safely release the ptr_vector in the virtual function
-  typedef std::auto_ptr<ChargedHadronVector> return_type;
-  explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
-    : RecoTauEventHolderPlugin(pset) 
-  {}
-  ~PFRecoTauChargedHadronBuilderPlugin() override {}
-  /// Build a collection of chargedHadrons from objects in the input jet
-  virtual return_type operator()(const Jet&) const = 0;
-  /// Hook called at the beginning of the event.
-  void beginEvent() override {}
-};
+    class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin {
+    public:
+      // Return a vector of pointers
+      typedef boost::ptr_vector<PFRecoTauChargedHadron> ChargedHadronVector;
+      // Storing the result in an auto ptr on function return allows
+      // allows us to safely release the ptr_vector in the virtual function
+      typedef std::unique_ptr<ChargedHadronVector> return_type;
+      explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
+          : RecoTauEventHolderPlugin(pset) {}
+      ~PFRecoTauChargedHadronBuilderPlugin() override {}
+      /// Build a collection of chargedHadrons from objects in the input jet
+      virtual return_type operator()(const Jet&) const = 0;
+      /// Hook called at the beginning of the event.
+      void beginEvent() override {}
+    };
 
-class PFRecoTauChargedHadronQualityPlugin : public RecoTauNamedPlugin 
-{
- public:
-  explicit PFRecoTauChargedHadronQualityPlugin(const edm::ParameterSet& pset)
-    : RecoTauNamedPlugin(pset) 
-  {}
-  ~PFRecoTauChargedHadronQualityPlugin() override {}
-  /// Return a number indicating the quality of this chargedHadron
-  virtual double operator()(const PFRecoTauChargedHadron&) const = 0;
-};
+    class PFRecoTauChargedHadronQualityPlugin : public RecoTauNamedPlugin {
+    public:
+      explicit PFRecoTauChargedHadronQualityPlugin(const edm::ParameterSet& pset) : RecoTauNamedPlugin(pset) {}
+      ~PFRecoTauChargedHadronQualityPlugin() override {}
+      /// Return a number indicating the quality of this chargedHadron
+      virtual double operator()(const PFRecoTauChargedHadron&) const = 0;
+    };
 
-}} // end namespace reco::tau
+  }  // namespace tau
+}  // namespace reco
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronQualityPlugin*(const edm::ParameterSet&)> PFRecoTauChargedHadronQualityPluginFactory;
-typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronBuilderPlugin*(const edm::ParameterSet&, edm::ConsumesCollector &&iC)> PFRecoTauChargedHadronBuilderPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronQualityPlugin*(const edm::ParameterSet&)>
+    PFRecoTauChargedHadronQualityPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronBuilderPlugin*(const edm::ParameterSet&,
+                                                                                 edm::ConsumesCollector&& iC)>
+    PFRecoTauChargedHadronBuilderPluginFactory;
 
 #endif

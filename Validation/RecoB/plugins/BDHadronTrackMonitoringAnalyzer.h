@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -77,7 +77,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
   edm::EDGetTokenT<reco::VertexCollection> PrimaryVertexColl_;
   edm::EDGetTokenT<ClusterTPAssociation> clusterTPMapToken_;
-
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttrackToken_;
   // TrackClassifier
   TrackClassifier classifier_;
 

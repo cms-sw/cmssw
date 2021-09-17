@@ -21,7 +21,7 @@ struct T : public B {
   float v;
   bool operator==(T t) const { return v == t.v; }
 
-  virtual T *clone() const { return new T(*this); }
+  T *clone() const final { return new T(*this); }
 };
 
 bool operator==(T const &t, B const &b) {
@@ -384,10 +384,14 @@ namespace {
     void fill(TSFF &ff) override {
       aborted = false;
       try {
-        int n = ff.id() - 20;
+        const int n = ff.id() - 20;
         CPPUNIT_ASSERT(n > 0);
         ff.resize(n);
-        std::copy(test.sv.begin(), test.sv.begin() + n, ff.begin());
+        int nCopied = n;
+        if (static_cast<size_t>(n) > test.sv.size()) {
+          nCopied = test.sv.size();
+        }
+        std::copy(test.sv.begin(), test.sv.begin() + nCopied, ff.begin());
         if (ff.full()) {
           ff.abort();
           aborted = true;
@@ -481,13 +485,13 @@ namespace {
   struct VerifyAlgos {
     VerifyAlgos(std::vector<DSTV::data_type const *> &iv) : n(0), v(iv) {}
 
-    void operator()(DSTV::data_type const &d) const {
+    void operator()(DSTV::data_type const &d) {
       CPPUNIT_ASSERT(d == *v[n]);
       CPPUNIT_ASSERT(&d == v[n]);
       ++n;
     }
 
-    mutable int n;
+    int n;
     std::vector<DSTV::data_type const *> const &v;
   };
 
@@ -528,16 +532,11 @@ void TestDetSet::algorithm() {
   edmNew::foreachDetSetObject(detsets, acc(3), va);
 }
 
-#include <boost/assign/std/vector.hpp>
-// for operator =+
-using namespace boost::assign;
-
 void TestDetSet::onDemand() {
   auto pg = std::make_shared<Getter>(this);
   Getter &g = *pg;
   assert(!g.aborted);
-  std::vector<unsigned int> v;
-  v += 21, 23, 25, 27, 1020;
+  std::vector<unsigned int> v = {21, 23, 25, 27, 1020};
   DSTV detsets(pg, v, 2);
   CPPUNIT_ASSERT(g.ntot == 0);
   CPPUNIT_ASSERT(detsets.onDemand());

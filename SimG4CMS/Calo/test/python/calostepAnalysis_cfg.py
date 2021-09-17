@@ -12,14 +12,15 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc']
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HitStudy')
+    process.MessageLogger.HitStudy=dict()
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'file:simG4.root',
+                                'file:simevent_singleMuon_FTFP_BERT_EMM.root'
+#       'file:simG4.root',
 #       'file:simGV.root',
                             )
-)
+                        )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -35,7 +36,8 @@ process.TFileService = cms.Service("TFileService",
 process.analysis_step   = cms.Path(process.caloSimHitAnalysis)
 
 #process.caloSimHitAnalysis.moduleLabel = "geantv"
-#process.caloSimHitAnalysis.timeScale   = 0.0000000001
+#process.caloSimHitAnalysis.timeScale   = 1.0
+process.caloSimHitAnalysis.passiveHits = True
 
 # Schedule definition                                                          
 process.schedule = cms.Schedule(process.analysis_step)

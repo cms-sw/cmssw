@@ -23,7 +23,8 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand()
       m_smearedPt(0) {}
 
 SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand& mu)
-    : m_name(mu.m_name),
+    : L1MuGMTExtendedCand::L1MuGMTExtendedCand(mu),
+      m_name(mu.m_name),
       m_empty(mu.m_empty),
       m_phi(mu.m_phi),
       m_eta(mu.m_eta),

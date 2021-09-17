@@ -1,3 +1,4 @@
+from __future__ import print_function
 # In order to produce everything that you need in one go, use the command:
 #
 # for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
@@ -7,11 +8,14 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
 
-process = cms.Process("PROD")
+from FWCore.PythonFramework.CmsRun import CmsRun
+from Configuration.Eras.Era_Phase2_cff import Phase2
+
+process = cms.Process("PROD", Phase2)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2023D28. If a different geoemtry
+# The default geometry is Extended2026D77Reco. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
 # e.g.: cmsRun runP_HGCal_cfg.py geom="XYZ"
 
@@ -26,7 +30,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2023D28',      #default value
+                 'Extended2026D77',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -45,15 +49,15 @@ options.parseArguments()
 # Option validation
 
 if options.label not in _ALLOWED_LABELS:
-    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
-    print "Allowed components:", _ALLOWED_LABELS
-    print
+    print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
+    print("Allowed components:", _ALLOWED_LABELS)
+    print()
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
 
 # Load geometry either from the Database of from files
-process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+process.load("Configuration.Geometry.Geometry%sReco_cff" % options.geom)
 
 #
 #Magnetic Field
@@ -78,7 +82,17 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+'''
+process.Timing = cms.Service("Timing")
 
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+  ignoreTotal          = cms.untracked.int32(1),
+  oncePerEventMode     = cms.untracked.bool(True),
+  moduleMemorySummary  = cms.untracked.bool(True),
+  showMallocInfo       = cms.untracked.bool(True),
+  monitorPssAndPrivate = cms.untracked.bool(True),
+)
+'''
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.StackingAction.TrackNeutrino = cms.bool(True)
 process.g4SimHits.UseMagneticField = False
@@ -121,3 +135,9 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 
      )
 ))
+
+
+cmsRun = CmsRun(process)
+cmsRun.run()
+
+

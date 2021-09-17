@@ -29,11 +29,10 @@ void CaloCellGeometryTester::analyze(const edm::Event& /*iEvent*/, const edm::Ev
   const auto& pG = iSetup.getData(caloToken_);
   const CaloGeometry* geo = &pG;
 
-  const int ncalo=11;
-  int dets[ncalo] = {3, 3, 3, 4, 4, 4, 4, 8, 9,10, 6};
+  const int ncalo = 11;
+  int dets[ncalo] = {3, 3, 3, 4, 4, 4, 4, 8, 9, 10, 6};
   int subd[ncalo] = {1, 2, 3, 1, 2, 4, 3, 0, 0, 0, 6};
-  std::string name[ncalo] = {"EB", "EE", "ES", "HB", "HE", "HF", "HO", 
-			     "HGCEE", "HGCHESil", "HGCHESci", "HFNose"};
+  std::string name[ncalo] = {"EB", "EE", "ES", "HB", "HE", "HF", "HO", "HGCEE", "HGCHESil", "HGCHESci", "HFNose"};
   for (unsigned int k = 0; k < ncalo; ++k) {
     const CaloSubdetectorGeometry* geom = geo->getSubdetectorGeometry((DetId::Detector)(dets[k]), subd[k]);
     if (geom) {

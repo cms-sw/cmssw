@@ -11,7 +11,8 @@ CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg,
 }
 
 CombinedHitPairGenerator::CombinedHitPairGenerator(const CombinedHitPairGenerator& cb)
-    : theSeedingLayerToken(cb.theSeedingLayerToken),
+    : HitPairGenerator(cb),
+      theSeedingLayerToken(cb.theSeedingLayerToken),
       theGenerator(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache, cb.theMaxElement)) {
   theMaxElement = cb.theMaxElement;
 }

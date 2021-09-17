@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 '''
 Script fetches files matching specified RegExps from DQM GUI.
 

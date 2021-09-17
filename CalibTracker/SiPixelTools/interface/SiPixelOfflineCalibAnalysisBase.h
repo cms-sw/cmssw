@@ -26,12 +26,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -43,16 +37,16 @@
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
 #include "TF1.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <map>
@@ -65,6 +59,8 @@
 
 class SiPixelOfflineCalibAnalysisBase : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet&);
   ~SiPixelOfflineCalibAnalysisBase() override;
 
@@ -112,6 +108,11 @@ protected:
   edm::ESHandle<SiPixelCalibConfiguration> calib_;
   edm::ESHandle<TrackerGeometry> geom_;
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap_;
+
+  edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> calibTokenBeginRun_;
+  edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> calibToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
 
   std::string calibrationMode_;
   short nTriggers_;

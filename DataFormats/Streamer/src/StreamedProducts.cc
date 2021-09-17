@@ -25,6 +25,7 @@ namespace edm {
   void SendJobHeader::initializeTransients() {
     for (BranchDescription& desc : descs_) {
       desc.init();
+      desc.setIsProvenanceSetOnRead();
     }
   }
 }  // namespace edm

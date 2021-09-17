@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
@@ -34,6 +33,9 @@
 template <typename ObjType>
 class HLTDQMFilterEffHists {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit HLTDQMFilterEffHists(const edm::ParameterSet& config, std::string baseHistName, std::string hltProcess);
 
   static edm::ParameterSetDescription makePSetDescription();
@@ -121,6 +123,7 @@ template <typename ObjType>
 void HLTDQMFilterEffHists<ObjType>::book1D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig) {
   auto binLowEdgesDouble = histConfig.getParameter<std::vector<double> >("binLowEdges");
   std::vector<float> binLowEdges;
+  binLowEdges.reserve(binLowEdgesDouble.size());
   for (double lowEdge : binLowEdgesDouble)
     binLowEdges.push_back(lowEdge);
   auto nameSuffex = histConfig.getParameter<std::string>("nameSuffex");
@@ -152,8 +155,10 @@ void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm
   auto yBinLowEdgesDouble = histConfig.getParameter<std::vector<double> >("yBinLowEdges");
   std::vector<float> xBinLowEdges;
   std::vector<float> yBinLowEdges;
+  xBinLowEdges.reserve(xBinLowEdgesDouble.size());
   for (double lowEdge : xBinLowEdgesDouble)
     xBinLowEdges.push_back(lowEdge);
+  yBinLowEdges.reserve(yBinLowEdgesDouble.size());
   for (double lowEdge : yBinLowEdgesDouble)
     yBinLowEdges.push_back(lowEdge);
   auto nameSuffex = histConfig.getParameter<std::string>("nameSuffex");

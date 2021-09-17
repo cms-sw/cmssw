@@ -9,11 +9,9 @@
 
 namespace btagbtvdeep {
 
-  void doubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
-			    BoostedDoubleSVTagInfoFeatures & tag_info_features) ;
+  void doubleBTagToFeatures(const reco::TaggingVariableList& tag_info_vars,
+                            BoostedDoubleSVTagInfoFeatures& tag_info_features);
 
 }
 
-#endif //RecoBTag_FeatureTools_BoostedDoubleSVTagInfoConverter_h
-
-
+#endif  //RecoBTag_FeatureTools_BoostedDoubleSVTagInfoConverter_h

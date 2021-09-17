@@ -1,7 +1,7 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.GuiBrowsers.ConfigToolBase import *
+from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 #import PhysicsTools.PatAlgos.tools.helpers as configtools
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
@@ -64,11 +64,13 @@ def eGammaCorrection(process,
     corMETPhoton = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                                   srcOriginal = cms.InputTag(matchPhotonCollection,tag1),
                                   srcShifted = cms.InputTag(matchPhotonCollection,tag2),
+                                  srcWeights = cms.InputTag("")
                                   )
     correctionElectron="corMETElectron"+postfix
     corMETElectron=cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                                   srcOriginal=cms.InputTag(matchElectronCollection,tag1),
                                   srcShifted=cms.InputTag(matchElectronCollection,tag2),
+                                  srcWeights = cms.InputTag("")
                                   )
 
 

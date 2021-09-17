@@ -36,8 +36,9 @@ namespace {
     inline NotWritableRecord(const gs::ClassId &classId, const char *ioPrototype, const char *name, const char *category)
         : gs::AbsRecord(classId, ioPrototype, name, category) {}
 
-  private:
     NotWritableRecord() = delete;
+
+  private:
     inline bool writeData(std::ostream &) const override { return false; }
   };
 }  // namespace
@@ -65,7 +66,7 @@ namespace gs {
       throw gs::IOInvalidArgument(
           "In gs::AbsArchive::copyItem: "
           "destination archive is not writable");
-    CPP11_shared_ptr<const CatalogEntry> entry(catalogEntry(id));
+    std::shared_ptr<const CatalogEntry> entry(catalogEntry(id));
     if (!entry)
       throw gs::IOInvalidArgument(
           "In gs::AbsArchive::copyItem: no item "

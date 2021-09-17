@@ -11,7 +11,10 @@
 
 // The compiler knows our default-constructed objects' members
 // may not be initialized when we serialize them.
+
+#if !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 
 // The main test: constructs an object using the default constructor,
 // serializes it, deserializes it and finally checks whether they are equal.

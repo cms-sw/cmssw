@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,6 +21,9 @@
 
 class L1TOccupancyClientHistogramService {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   L1TOccupancyClientHistogramService();
   L1TOccupancyClientHistogramService(const edm::ParameterSet& iParameters, DQMStore::IBooker& ibooker, bool iVerbose);
 

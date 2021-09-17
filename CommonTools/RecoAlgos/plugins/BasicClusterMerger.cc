@@ -5,4 +5,4 @@
 
 typedef Merger<reco::BasicClusterCollection> BasicClusterMerger;
 
-DEFINE_FWK_MODULE( BasicClusterMerger );
+DEFINE_FWK_MODULE(BasicClusterMerger);

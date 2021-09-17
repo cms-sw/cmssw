@@ -13,12 +13,6 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
 
-#define BOOST_NO_INITIALIZER_LISTS
-// without this #define, genreflex chokes on std::initializer_list
-// at least when buildig from tarball in SLC5 with the default gcc4.1.2
-#include <boost/unordered_map.hpp>
-#undef BOOST_NO_INITIALIZER_LISTS
-
 // forward declarations
 class TGFrame;
 class TGCompositeFrame;
@@ -75,10 +69,11 @@ protected:
 
   virtual void fillTable(fwlite::Event* event) = 0;
 
-private:
+public:
   FWTriggerTableView(const FWTriggerTableView&) = delete;                   // stop default
   const FWTriggerTableView& operator=(const FWTriggerTableView&) = delete;  // stop default
 
+private:
   bool isProcessValid() const;
   void populateController(ViewerParameterGUI&) const override;
 

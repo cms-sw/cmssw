@@ -10,7 +10,7 @@ runboundary = .oO[runboundary]Oo.
 isMultipleRuns=False
 if(isinstance(runboundary, (list, tuple))):
      isMultipleRuns=True
-     print "Multiple Runs are selected"
+     print("Multiple Runs are selected")
        
 if(isMultipleRuns):
      process.source.firstRun = cms.untracked.uint32(int(runboundary[0]))
@@ -21,12 +21,12 @@ else:
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!")
      if ('.oO[lumilist]Oo.'):
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. "
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. ")
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='.oO[lumilist]Oo.').getVLuminosityBlockRange()
 
@@ -68,90 +68,66 @@ else:
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 ####################################################################
-# Deterministic annealing clustering
+# Imports of parameters
 ####################################################################
-if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
-                                           Debug = cms.bool(False),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           askFirstLayerHit = cms.bool(False),
-                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
-                                           probePt  = cms.untracked.double(.oO[ptCut]Oo.),
-                                           probeEta = cms.untracked.double(.oO[etaCut]Oo.),
-                                           doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
-                                           doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
-                                           numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
-                                           runControl = cms.untracked.bool(.oO[runControl]Oo.),
-                                           runControlNumber = cms.untracked.vuint32(runboundary),
-                                           
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
-                                                                         minPixelLayersWithHits = cms.int32(2),                      # PX hits > 2                       
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
-                                                                         minPt = cms.double(0.0),                                    # better for softish events                        
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices
+## modify the parameters which differ
+FilteringParams = offlinePrimaryVertices.TkFilterParameters.clone(
+     maxNormalizedChi2 = 5.0,  # chi2ndof < 5
+     maxD0Significance = 5.0,  # fake cut (requiring 1 PXB hit)
+     maxEta = 5.0,             # as per recommendation in PR #18330
+)
 
-                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
-                                                                                                   Tpurge = cms.double(2.0),         # cleaning
-                                                                                                   Tstop = cms.double(0.5),          # end of annealing
-                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
-                                                                                                   d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)
-                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
-                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
-                                                                                                   )
-                                                                     )
-                                           )
+## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
+DAClusterizationParams = DA_vectParameters.clone()
+
+GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
+                                   TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2))  # 0.2 cm max separation betw. clusters
+                                   )
 
 ####################################################################
-# GAP clustering
+# Deterministic annealing clustering or Gap clustering
 ####################################################################
-else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
-     process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                           TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
-                                           VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
-                                           Debug = cms.bool(False),
-                                           isLightNtuple = cms.bool(True),
-                                           storeNtuple = cms.bool(False),
-                                           useTracksFromRecoVtx = cms.bool(False),
-                                           askFirstLayerHit = cms.bool(False),
-                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
-                                           probePt = cms.untracked.double(.oO[ptCut]Oo.),
-                                           probeEta = cms.untracked.double(.oO[etaCut]Oo.),
-                                           doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
-                                           doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
-                                           numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
-                                           runControl = cms.untracked.bool(.oO[runControl]Oo.),
-                                           runControlNumber = cms.untracked.vuint32(int(.oO[runboundary]Oo.)),
+def switchClusterizerParameters(da):
+     if da:
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          return DAClusterizationParams
+     else:
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          return GapClusterizationParams
 
-                                           TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),
-                                                                         maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20
-                                                                         minPixelLayersWithHits=cms.int32(2),                        # PX hits > 2
-                                                                         minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5
-                                                                         maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
-                                                                         minPt = cms.double(0.0),                                    # better for softish events
-                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
-                                                                         trackQuality = cms.string("any")
-                                                                         ),
+# Use compressions settings of TFile
+# see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+# settings = 100 * algorithm + level
+# level is from 1 (small) to 9 (large compression)
+# algo: 1 (ZLIB), 2 (LMZA)
+# see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+compressionSettings = 207
 
-                                           TkClusParameters = cms.PSet(algorithm   = cms.string('gap'),
-                                                                       TkGapClusParameters = cms.PSet(zSeparation = cms.double(0.2)  # 0.2 cm max separation betw. clusters
-                                                                                                      )
-                                                                       )
-                                           )
-
+####################################################################
+# Configure the PVValidation Analyzer module
+####################################################################
+process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
+                                      compressionSettings = cms.untracked.int32(compressionSettings),
+                                      TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
+                                      VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
+                                      Debug = cms.bool(False),
+                                      storeNtuple = cms.bool(False),
+                                      useTracksFromRecoVtx = cms.bool(False),
+                                      isLightNtuple = cms.bool(True),
+                                      askFirstLayerHit = cms.bool(False),
+                                      forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
+                                      probePt  = cms.untracked.double(.oO[ptCut]Oo.),
+                                      probeEta = cms.untracked.double(.oO[etaCut]Oo.),
+                                      doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
+                                      doFPix   = cms.untracked.bool(.oO[doFPix]Oo.),
+                                      numberOfBins = cms.untracked.int32(.oO[numberOfBins]Oo.),
+                                      runControl = cms.untracked.bool(.oO[runControl]Oo.),
+                                      runControlNumber = cms.untracked.vuint32(runboundary),
+                                      TkFilterParameters = FilteringParams,
+                                      TkClusParameters = switchClusterizerParameters(isDA)
+                                      )
 """
 
 ####################################################################
@@ -164,8 +140,7 @@ process.p = cms.Path(process.goodvertexSkim*
 
 ####################################################################
 ####################################################################
-PVValidationScriptTemplate="""
-#!/bin/bash
+PVValidationScriptTemplate="""#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
 export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
@@ -182,15 +157,15 @@ export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 cd $cwd
 
-rfmkdir -p .oO[datadir]Oo.
-rfmkdir -p .oO[workingdir]Oo.
-rfmkdir -p .oO[logdir]Oo.
+mkdir -p .oO[datadir]Oo.
+mkdir -p .oO[workingdir]Oo.
+mkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
 if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
-    rfmkdir -p .oO[workdir]Oo.
+    mkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
     cd .oO[workdir]Oo.
 else
@@ -206,7 +181,7 @@ eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./p
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./${RootOutputFile}
-    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
+    cp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C .
@@ -215,17 +190,18 @@ cp .oO[Alignment/OfflineValidation]Oo./macros/CMS_lumi.h .
 
  if [[ .oO[pvvalidationreference]Oo. == *store* ]]; then xrdcp -f .oO[pvvalidationreference]Oo. PVValidation_reference.root; else ln -fs .oO[pvvalidationreference]Oo. ./PVValidation_reference.root; fi
 
-root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVValidation_reference.root=Design simulation\\",true,true,\\"$theDate\\")"
+echo "I am going to produce the comparison with IDEAL geometry of ${RootOutputFile}"
+root -b -q "FitPVResiduals.C++g(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVValidation_reference.root=Design simulation\\",true,true,\\"$theDate\\")"
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
+    cp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 for PdfOutputFile in $(ls *pdf ); do
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
+    cp ${PdfOutputFile}  .oO[plotsdir]Oo.
 done
 
 mkdir .oO[plotsdir]Oo./Biases/
@@ -288,17 +264,17 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-rfcp .oO[plottingscriptpath]Oo. .
+cp .oO[plottingscriptpath]Oo. .
 root -x -b -q .oO[plottingscriptname]Oo.++
 
 for PdfOutputFile in $(ls *pdf ); do
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    cp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    cp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """

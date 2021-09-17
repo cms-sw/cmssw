@@ -27,29 +27,28 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     TrackerMap of SiStrip FED Cabling
   *************************************************/
-  class SiStripFedCabling_TrackerMap : public cond::payloadInspector::PlotImage<SiStripFedCabling> {
+  class SiStripFedCabling_TrackerMap : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
   public:
-    SiStripFedCabling_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripFedCabling>("Tracker Map SiStrip Fed Cabling") {
-      setSingleIov(true);
-    }
+    SiStripFedCabling_TrackerMap() : PlotImage<SiStripFedCabling, SINGLE_IOV>("Tracker Map SiStrip Fed Cabling") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripFedCabling"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of SiStrip Fed Cabling per module, IOV : " + std::to_string(std::get<0>(iov));
       tmap->setTitle(titleMap);
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       std::vector<uint32_t> activeDetIds;
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
@@ -76,41 +75,36 @@ namespace {
   /************************************************
     Summary Plot of SiStrip FED Cabling
   *************************************************/
-  class SiStripFedCabling_Summary : public cond::payloadInspector::PlotImage<SiStripFedCabling> {
+  class SiStripFedCabling_Summary : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
   public:
-    SiStripFedCabling_Summary() : cond::payloadInspector::PlotImage<SiStripFedCabling>("SiStrip Fed Cabling Summary") {
-      setSingleIov(true);
-    }
+    SiStripFedCabling_Summary() : PlotImage<SiStripFedCabling, SINGLE_IOV>("SiStrip Fed Cabling Summary") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
       int IOV = std::get<0>(iov);
       std::vector<uint32_t> activeDetIds;
 
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
           edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
-      std::unique_ptr<SiStripDetCabling> detCabling_ =
-          std::unique_ptr<SiStripDetCabling>(new SiStripDetCabling(*(payload.get()), &tTopo));
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
 
       detCabling_->addActiveDetectorsRawIds(activeDetIds);
 
       containers myCont;
       containers allCounts;
 
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-      auto DetInfos = reader->getAllData();
-      for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-           it != DetInfos.end();
-           it++) {
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      for (const auto& it : detInfo.getAllData()) {
         // check if det id is correct and if it is actually cabled in the detector
-        if (it->first == 0 || it->first == 0xFFFFFFFF) {
+        if (it.first == 0 || it.first == 0xFFFFFFFF) {
           edm::LogError("DetIdNotGood") << "@SUB=analyze"
-                                        << "Wrong det id: " << it->first << "  ... neglecting!" << std::endl;
+                                        << "Wrong det id: " << it.first << "  ... neglecting!" << std::endl;
           continue;
         }
-        updateCounters(it->first, allCounts, tTopo);
+        updateCounters(it.first, allCounts, tTopo);
       }
 
       for (const auto& detId : activeDetIds) {

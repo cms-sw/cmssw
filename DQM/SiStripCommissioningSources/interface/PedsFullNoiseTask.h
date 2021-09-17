@@ -5,12 +5,12 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // Forward Declarations
 namespace edm {
   class ParameterSet;
 }
-class DQMStore;
 class FedChannelConnection;
 class SiStripEventSummary;
 class SiStripRawDigi;

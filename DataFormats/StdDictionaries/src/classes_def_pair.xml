@@ -68,4 +68,5 @@
  <class name="std::pair<unsigned short,float>"/>
  <class name="std::pair<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
+ <class name="std::pair <const std::string, unsigned long long>" />
 </lcgdict>

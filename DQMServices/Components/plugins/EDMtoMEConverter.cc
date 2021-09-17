@@ -13,6 +13,8 @@
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 using namespace lat;
+using dqm::legacy::DQMStore;
+using dqm::legacy::MonitorElement;
 
 template <typename T>
 void EDMtoMEConverter::Tokens<T>::set(const edm::InputTag &runInputTag,
@@ -64,7 +66,7 @@ namespace {
   struct HistoTraits<TH1F> {
     static TH1F *get(MonitorElement *me) { return me->getTH1F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1D(std::forward<Args>(args)...);
     }
   };
@@ -72,7 +74,7 @@ namespace {
   struct HistoTraits<TH1S> {
     static TH1S *get(MonitorElement *me) { return me->getTH1S(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1S(std::forward<Args>(args)...);
     }
   };
@@ -80,7 +82,7 @@ namespace {
   struct HistoTraits<TH1D> {
     static TH1D *get(MonitorElement *me) { return me->getTH1D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book1DD(std::forward<Args>(args)...);
     }
   };
@@ -88,7 +90,7 @@ namespace {
   struct HistoTraits<TH2F> {
     static TH2F *get(MonitorElement *me) { return me->getTH2F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2D(std::forward<Args>(args)...);
     }
   };
@@ -96,7 +98,7 @@ namespace {
   struct HistoTraits<TH2S> {
     static TH2S *get(MonitorElement *me) { return me->getTH2S(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2S(std::forward<Args>(args)...);
     }
   };
@@ -104,7 +106,7 @@ namespace {
   struct HistoTraits<TH2D> {
     static TH2D *get(MonitorElement *me) { return me->getTH2D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2DD(std::forward<Args>(args)...);
     }
   };
@@ -112,7 +114,7 @@ namespace {
   struct HistoTraits<TH3F> {
     static TH3F *get(MonitorElement *me) { return me->getTH3F(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book3D(std::forward<Args>(args)...);
     }
   };
@@ -120,7 +122,7 @@ namespace {
   struct HistoTraits<TProfile> {
     static TProfile *get(MonitorElement *me) { return me->getTProfile(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.bookProfile(std::forward<Args>(args)...);
     }
   };
@@ -128,7 +130,7 @@ namespace {
   struct HistoTraits<TProfile2D> {
     static TProfile2D *get(MonitorElement *me) { return me->getTProfile2D(); }
     template <typename... Args>
-    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&... args) {
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.bookProfile2D(std::forward<Args>(args)...);
     }
   };
@@ -147,18 +149,17 @@ namespace {
 
       if (me) {
         auto histo = HistoTraits<T>::get(me);
-        if (histo && me->getTH1()->CanExtendAllAxes()) {
-          TList list;
-          list.Add(metoedmobject);
-          if (histo->Merge(&list) == -1)
-            std::cout << "ERROR EDMtoMEConverter::getData(): merge failed for '" << metoedmobject->GetName() << "'"
-                      << std::endl;
-          return me;
-        }
+        assert(histo);
+        TList list;
+        list.Add(metoedmobject);
+        if (histo->Merge(&list) == -1)
+          edm::LogError("EDMtoMEConverter") << "ERROR EDMtoMEConverter::getData(): merge failed for '"
+                                            << metoedmobject->GetName() << "'" << std::endl;
+        return me;
+      } else {
+        iBooker.setCurrentFolder(dir);
+        return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
       }
-
-      iBooker.setCurrentFolder(dir);
-      return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
     }
   };
 
@@ -218,14 +219,14 @@ namespace {
   template <>
   struct AddMonitorElement<long long> {
     template <typename... Args>
-    static MonitorElement *call(Args &&... args) {
+    static MonitorElement *call(Args &&...args) {
       return AddMonitorElementForIntegers<long long>::call(std::forward<Args>(args)...);
     }
   };
   template <>
   struct AddMonitorElement<int> {
     template <typename... Args>
-    static MonitorElement *call(Args &&... args) {
+    static MonitorElement *call(Args &&...args) {
       return AddMonitorElementForIntegers<int>::call(std::forward<Args>(args)...);
     }
   };
@@ -245,8 +246,18 @@ namespace {
     }
   };
 
-  void maybeSetLumiFlag(MonitorElement *me, const edm::Run &) {}
-  void maybeSetLumiFlag(MonitorElement *me, const edm::LuminosityBlock &) { me->setLumiFlag(); }
+  // TODO: might need re-scoping to JOB here.
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::Run &, MonitorElementData::Scope reScope) {
+    if (reScope == MonitorElementData::Scope::JOB) {
+      ibooker.setScope(MonitorElementData::Scope::JOB);
+    } else {
+      ibooker.setScope(MonitorElementData::Scope::RUN);
+    }
+  }
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::LuminosityBlock &, MonitorElementData::Scope reScope) {
+    // will be LUMI for no reScoping, else the expected scope.
+    ibooker.setScope(reScope);
+  }
 
 }  // namespace
 
@@ -266,6 +277,12 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet &iPSet) : verbosity(0
 
   convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi", true);
   convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun", true);
+
+  auto scopeDecode = std::map<std::string, MonitorElementData::Scope>{{"", MonitorElementData::Scope::LUMI},
+                                                                      {"LUMI", MonitorElementData::Scope::LUMI},
+                                                                      {"RUN", MonitorElementData::Scope::RUN},
+                                                                      {"JOB", MonitorElementData::Scope::JOB}};
+  reScope = scopeDecode[iPSet.getUntrackedParameter<std::string>("reScope", "")];
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -348,14 +365,9 @@ void EDMtoMEConverter::getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iG
       }
 
       // define new monitor element
-      MonitorElement *me =
-          AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
-      maybeSetLumiFlag(me, iGetFrom);
+      adjustScope(iBooker, iGetFrom, reScope);
+      AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
 
-      // attach taglist
-      for (const auto &tag : metoedmobject[i].tags) {
-        iBooker.tag(me, tag);
-      }
     }  // end loop thorugh metoedmobject
   });
 }

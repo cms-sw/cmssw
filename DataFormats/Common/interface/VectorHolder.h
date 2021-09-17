@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   namespace reftobase {

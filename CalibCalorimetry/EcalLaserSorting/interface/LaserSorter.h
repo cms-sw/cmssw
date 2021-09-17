@@ -4,11 +4,15 @@
 #ifndef EVENT_SELECT_H
 #define EVENT_SELECT_H
 
-#include <vector>
-#include <iostream>
-#include <fstream>
 #include <cinttypes>
-#include "boost/ptr_container/ptr_list.hpp"
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <sys/time.h>
+#include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -17,10 +21,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-
-#include <sys/time.h>
-#include <ctime>
-#include <map>
 
 /**
  * This module is used to classify events of laser sequence acquired in 
@@ -111,7 +111,7 @@ private:
 
   //typedefs:
 private:
-  typedef boost::ptr_list<OutStreamRecord> OutStreamList;
+  typedef std::list<std::unique_ptr<OutStreamRecord>> OutStreamList;
 
   //ctors/dtors
 public:
@@ -161,7 +161,7 @@ private:
    * @param lumiBlock luminositu block of the event
    * @return pointer of the output stream record or null if not found.
    */
-  OutStreamRecord* getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
+  std::unique_ptr<OutStreamRecord>& getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
 
   /** Writes a monitoring events to an output stream.
    * @param out stream to write the event out

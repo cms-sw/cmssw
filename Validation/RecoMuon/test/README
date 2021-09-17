@@ -5,13 +5,13 @@ Muon Summary Validation script
 New Muon Validation: from CMSSW_10_1_0_pre1
 
 * set the input data in: new_userparams.py
-* then run: python new_muonReleaseSummary.py
+* then run: python3 new_muonReleaseSummary.py
 
 -------------------------------
 
 Old Muon Validation: up to CMSSW_10_1_0_pre1
 
 * set the input data in: userparams.py
-* then run: python muonReleaseSummary.py
+* then run: python3 muonReleaseSummary.py
 
 

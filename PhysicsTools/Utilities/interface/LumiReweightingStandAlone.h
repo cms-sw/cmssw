@@ -540,7 +540,7 @@ namespace reweight {
 
       //WeightOOTPU_ = {0};
 
-      const double* WeightPtr = 0;
+      const double* WeightPtr = nullptr;
 
       for (int iint = 0; iint < 25; ++iint) {
         if (iint == 0)

@@ -313,14 +313,14 @@ namespace clangcms {
     std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str() + ".";
     writeLog(tolog);
     BugType *BT = new BugType(Checker, "const_cast used in const function ", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, tolog, CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(tolog), CELoc);
     BR.emitReport(std::move(R));
     return;
   }
 
   void WalkAST::VisitDeclRefExpr(clang::DeclRefExpr *DRE) {
     if (clang::VarDecl *D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl())) {
-      clang::SourceLocation SL = DRE->getLocStart();
+      clang::SourceLocation SL = DRE->getBeginLoc();
       if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL))
         return;
       if (support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString()))
@@ -341,7 +341,7 @@ namespace clangcms {
           clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(), AC);
       if (support::isSafeClassName(t.getCanonicalType().getAsString()))
         return;
-      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
         return;
       if (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local &&
           !support::isConst(t)) {
@@ -359,7 +359,7 @@ namespace clangcms {
         writeLog(tolog);
         BugType *BT = new BugType(
             Checker, "ClassChecker : non-const static local variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -379,7 +379,7 @@ namespace clangcms {
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
         BugType *BT = new BugType(Checker, "Non-const static member variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -399,7 +399,7 @@ namespace clangcms {
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
         BugType *BT = new BugType(Checker, "Non-const global static variable accessed", "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
       }
@@ -411,7 +411,7 @@ namespace clangcms {
     if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL))
       return;
     const ValueDecl *D = ME->getMemberDecl();
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (!(ME->isImplicitAccess()))
       return;
@@ -479,7 +479,7 @@ namespace clangcms {
 
   void WalkAST::ReportMember(const clang::MemberExpr *ME) {
     const ValueDecl *D = ME->getMemberDecl();
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (visitingCallExpr) {
       clang::Expr *IOA = visitingCallExpr->getImplicitObjectArgument();
@@ -539,7 +539,7 @@ namespace clangcms {
     writeLog(tolog);
     BugType *BT = new BugType(
         Checker, "Non-const member function could modify member data object", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
   }
 
@@ -564,7 +564,7 @@ namespace clangcms {
     writeLog(tolog);
     BugType *BT =
         new BugType(Checker, "Const cast away from member data in const function", "Data Class Const Correctness");
-    std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+    std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
   }
 
@@ -632,7 +632,7 @@ namespace clangcms {
         BugType *BT = new BugType(Checker,
                                   "Const function returns pointer or reference to non-const member data object",
                                   "Data Class Const Correctness");
-        std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
       }
     }
@@ -644,7 +644,7 @@ namespace clangcms {
           new BugType(Checker,
                       "Const function returns member data object of type const std::vector<*> or const std::vector<*>&",
                       "Data Class Const Correctness");
-      std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       BR.emitReport(std::move(R));
     }
   }
@@ -663,7 +663,7 @@ namespace clangcms {
       return;
     for (auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
       const FieldDecl *D = (*I);
-      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+      if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
         return;
       if (D->isMutable()) {
         clang::QualType t = D->getType();
@@ -694,7 +694,7 @@ namespace clangcms {
       if (!(*I)->isConst())
         continue;
       clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
-      if (MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>())
+      if (MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>() || MD->hasAttr<CMSSaAllowAttr>())
         continue;
       if (MD->hasBody()) {
         clang::Stmt *Body = MD->getBody();

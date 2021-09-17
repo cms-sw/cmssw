@@ -24,19 +24,20 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/insertSelectedProcesses.h"
+#include "FWCore/Framework/src/insertSelectedProcesses.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
-#include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 
 namespace edm {
   namespace one {
@@ -83,7 +84,8 @@ namespace edm {
     }
 
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,
-                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
+                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper,
+                                          ProcessBlockHelperBase const& processBlockHelper) {
       if (productSelector_.initialized())
         return;
       productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
@@ -96,6 +98,7 @@ namespace edm {
       std::vector<BranchDescription const*> associationDescriptions;
       std::set<BranchID> keptProductsInEvent;
       std::set<std::string> processesWithSelectedMergeableRunProducts;
+      std::set<std::string> processesWithKeptProcessBlockProducts;
 
       for (auto const& it : preg.productList()) {
         BranchDescription const& desc = it.second;
@@ -108,7 +111,8 @@ namespace edm {
           associationDescriptions.push_back(&desc);
         } else if (selected(desc)) {
           keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
-          insertSelectedProcesses(desc, processesWithSelectedMergeableRunProducts);
+          insertSelectedProcesses(
+              desc, processesWithSelectedMergeableRunProducts, processesWithKeptProcessBlockProducts);
         } else {
           // otherwise, output nothing,
           // and mark the fact that there is a newly dropped branch of this type.
@@ -134,6 +138,7 @@ namespace edm {
 
       thinnedAssociationsHelper_->updateFromParentProcess(
           thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
+      outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
     }
 
     void OutputModuleBase::keepThisBranch(BranchDescription const& desc,
@@ -168,6 +173,11 @@ namespace edm {
         case InRun: {
           token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
                                   InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          break;
+        }
+        case InProcess: {
+          token = consumes<InProcess>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+                                      InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
         default:
@@ -235,12 +245,11 @@ namespace edm {
       return s.wantEvent(e);
     }
 
-    bool OutputModuleBase::doEvent(EventPrincipal const& ep,
-                                   EventSetupImpl const&,
+    bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc) {
       {
-        EventForOutput e(ep, moduleDescription_, mcc);
+        EventForOutput e(info, moduleDescription_, mcc);
         e.setConsumer(this);
         EventSignalsSentry sentry(act, mcc);
         write(e);
@@ -251,18 +260,24 @@ namespace edm {
       return true;
     }
 
-    bool OutputModuleBase::doBeginRun(RunPrincipal const& rp, EventSetupImpl const&, ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc, false);
+    bool OutputModuleBase::doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      RunForOutput r(info, moduleDescription_, mcc, false);
       r.setConsumer(this);
       doBeginRun_(r);
       return true;
     }
 
-    bool OutputModuleBase::doEndRun(RunPrincipal const& rp, EventSetupImpl const&, ModuleCallingContext const* mcc) {
-      RunForOutput r(rp, moduleDescription_, mcc, true);
+    bool OutputModuleBase::doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      RunForOutput r(info, moduleDescription_, mcc, true);
       r.setConsumer(this);
       doEndRun_(r);
       return true;
+    }
+
+    void OutputModuleBase::doWriteProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
+      ProcessBlockForOutput pb(pbp, moduleDescription_, mcc, true);
+      pb.setConsumer(this);
+      writeProcessBlock(pb);
     }
 
     void OutputModuleBase::doWriteRun(RunPrincipal const& rp,
@@ -273,19 +288,15 @@ namespace edm {
       writeRun(r);
     }
 
-    bool OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                                  EventSetupImpl const&,
-                                                  ModuleCallingContext const* mcc) {
-      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, false);
+    bool OutputModuleBase::doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlockForOutput lb(info, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       doBeginLuminosityBlock_(lb);
       return true;
     }
 
-    bool OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                                EventSetupImpl const&,
-                                                ModuleCallingContext const* mcc) {
-      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
+    bool OutputModuleBase::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+      LuminosityBlockForOutput lb(info, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       doEndLuminosityBlock_(lb);
 
@@ -347,8 +358,9 @@ namespace edm {
       descriptions.addDefault(desc);
     }
 
-    void OutputModuleBase::fillDescription(ParameterSetDescription& desc) {
-      ProductSelectorRules::fillDescription(desc, "outputCommands");
+    void OutputModuleBase::fillDescription(ParameterSetDescription& desc,
+                                           std::vector<std::string> const& defaultOutputCommands) {
+      ProductSelectorRules::fillDescription(desc, "outputCommands", defaultOutputCommands);
       EventSelector::fillDescription(desc);
     }
 

@@ -52,8 +52,9 @@ private:
   float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* dir;
 
-  //  typedef Surface::RotationType    RotationType;
-  //  typedef Surface::PositionType    PositionType;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 };
 
 //
@@ -96,8 +97,8 @@ void TestRotation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTGeometry   = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
-  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
+  theDTGeometry   = std::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
+  theCSCGeometry  = std::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
 
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
 */
@@ -105,12 +106,11 @@ void TestRotation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //
   // Retrieve ideal geometry from event setup
   //
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+  edm::ESHandle<DTGeometry> dtGeometry = iSetup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> cscGeometry = iSetup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> gemGeometry = iSetup.getHandle(esTokenGEM_);
 
-  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon* theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   // Apply alignment
 

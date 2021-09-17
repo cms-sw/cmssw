@@ -7,12 +7,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -23,11 +29,11 @@
 #include <TDirectory.h>
 
 class TrackerTopology;
-class MonitorElement;
-class DQMStore;
 
 class SiStripLAProfileBooker : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
 
   ~SiStripLAProfileBooker() override;
@@ -74,7 +80,11 @@ private:
   edm::ParameterSet conf_;
   std::string treename_;
 
-  const TrackerGeometry* tracker;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
 };
 
 #endif

@@ -15,7 +15,6 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,14 +23,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include <memory>
 #include <unistd.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-class MonitorElement;
 
 class HcalSimHitsClient : public DQMEDHarvester {
 private:
@@ -40,6 +38,7 @@ private:
 
   std::string dirName_;
   bool verbose_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   static const int nTime = 4;
   static const int nType1 = 4;
   const HcalDDDRecConstants *hcons;

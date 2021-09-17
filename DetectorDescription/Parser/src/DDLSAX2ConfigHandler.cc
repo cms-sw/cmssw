@@ -43,7 +43,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri,
     std::string fileName = toString(attrs.getValue(uStr("fileName").ptr()));
     std::string logicalPartName = toString(attrs.getValue(uStr("logicalPartName").ptr()));
 
-    fileName = fileName.substr(0, fileName.find("."));
+    fileName = fileName.substr(0, fileName.find('.'));
     DDLogicalPart root(DDName(logicalPartName, fileName));
     DDRootDef::instance().set(root);
     cpv_.setRoot(root);

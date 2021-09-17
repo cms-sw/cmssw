@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleCommon.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/FastMonitor.h"
@@ -93,6 +94,7 @@ namespace evf {
     edm::ParameterSet const& ps_;
     std::string streamLabel_;
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
+    edm::EDGetTokenT<edm::SendJobHeader::ParameterSetMap> psetToken_;
 
     evf::FastMonitoringService* fms_;
 

@@ -3,15 +3,43 @@
 // Description: Position n copies at given x-values, y-values and z-values
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTrackerXYZPosAlgo.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTrackerXYZPosAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTrackerXYZPosAlgo();
+  ~DDTrackerXYZPosAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  vector<double> xvec;    //X positions
+  vector<double> yvec;    //Y positions
+  vector<double> zvec;    //Z positions
+  vector<string> rotMat;  //Names of rotation matrices
+
+  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string childName;    //Child name
+  int startCopyNo;     //Start Copy number
+  int incrCopyNo;      //Increment in Copy number
+};
 
 DDTrackerXYZPosAlgo::DDTrackerXYZPosAlgo() {
   LogDebug("TrackerGeom") << "DDTrackerXYZPosAlgo info: Creating an instance";
@@ -50,10 +78,10 @@ void DDTrackerXYZPosAlgo::execute(DDCompactView& cpv) {
 
   for (int i = 0; i < (int)(zvec.size()); i++) {
     DDTranslation tran(xvec[i], yvec[i], zvec[i]);
-    std::string rotstr = DDSplit(rotMat[i]).first;
+    string rotstr = DDSplit(rotMat[i]).first;
     DDRotation rot;
     if (rotstr != "NULL") {
-      std::string rotns = DDSplit(rotMat[i]).second;
+      string rotns = DDSplit(rotMat[i]).second;
       rot = DDRotation(DDName(rotstr, rotns));
     }
     cpv.position(child, mother, copy, tran, rot);
@@ -62,3 +90,5 @@ void DDTrackerXYZPosAlgo::execute(DDCompactView& cpv) {
     copy += incrCopyNo;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTrackerXYZPosAlgo, "track:DDTrackerXYZPosAlgo");

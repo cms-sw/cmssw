@@ -10,17 +10,12 @@ ME0SimHitMatcher::ME0SimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesCol
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<ME0Geometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void ME0SimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(me0_geom_);
-  if (me0_geom_.isValid()) {
-    geometry_ = &*me0_geom_;
-  } else {
-    hasGeometry_ = false;
-    edm::LogWarning("ME0SimHitMatcher") << "+++ Info: ME0 geometry is unavailable. +++\n";
-  }
+  geometry_ = &iSetup.getData(geomToken_);
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
@@ -29,26 +24,23 @@ void ME0SimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
-  if (hasGeometry_) {
-    matchSimHitsToSimTrack();
+  matchSimHitsToSimTrack();
 
-    if (verbose_) {
-      edm::LogInfo("ME0SimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedME0SimHits " << hits_.size()
-                                       << endl;
-      edm::LogInfo("ME0SimHitMatcher") << "detids ME0 " << detIds().size() << endl;
+  if (verbose_) {
+    edm::LogInfo("ME0SimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedME0SimHits " << hits_.size();
+    edm::LogInfo("ME0SimHitMatcher") << "detids ME0 " << detIds().size();
 
-      const auto& me0_ch_ids = detIds();
-      for (const auto& id : me0_ch_ids) {
-        const auto& me0_simhits = MuonSimHitMatcher::hitsInChamber(id);
-        const auto& me0_simhits_gp = simHitsMeanPosition(me0_simhits);
-        edm::LogInfo("ME0SimHitMatcher") << "me0chid " << ME0DetId(id) << ": nHits " << me0_simhits.size() << " phi "
-                                         << me0_simhits_gp.phi() << " nCh " << chamber_to_hits_[id].size() << endl;
-        const auto& strips = hitStripsInDetId(id);
-        edm::LogInfo("ME0SimHitMatcher") << "nStrip " << strips.size() << endl;
-        edm::LogInfo("ME0SimHitMatcher") << "strips : ";
-        for (const auto& p : strips) {
-          edm::LogInfo("ME0SimHitMatcher") << p;
-        }
+    const auto& me0_ch_ids = detIds();
+    for (const auto& id : me0_ch_ids) {
+      const auto& me0_simhits = MuonSimHitMatcher::hitsInChamber(id);
+      const auto& me0_simhits_gp = simHitsMeanPosition(me0_simhits);
+      edm::LogInfo("ME0SimHitMatcher") << "me0chid " << ME0DetId(id) << ": nHits " << me0_simhits.size() << " phi "
+                                       << me0_simhits_gp.phi() << " nCh " << chamber_to_hits_[id].size();
+      const auto& strips = hitStripsInDetId(id);
+      edm::LogInfo("ME0SimHitMatcher") << "nStrip " << strips.size();
+      edm::LogInfo("ME0SimHitMatcher") << "strips : ";
+      for (const auto& p : strips) {
+        edm::LogInfo("ME0SimHitMatcher") << p;
       }
     }
   }

@@ -56,7 +56,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -260,7 +259,7 @@ void MuonMCClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   std::map<TrackingParticleRef, int> tpToSecondaries;             // map from tp to (index+1) in output collection
   std::vector<int> muToPrimary(nmu, -1), muToSecondary(nmu, -1);  // map from input into (index) in output, -1 for null
   if (linkToGenParticles_)
-    secondaries.reset(new reco::GenParticleCollection());
+    secondaries = std::make_unique<reco::GenParticleCollection>();
 
   // loop on reco muons
   for (size_t i = 0; i < nmu; ++i) {

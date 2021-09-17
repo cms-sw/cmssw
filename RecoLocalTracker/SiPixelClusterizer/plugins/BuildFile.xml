@@ -1,9 +1,15 @@
-<use   name="DataFormats/Common"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiPixelCluster"/>
-<use   name="boost_serialization"/>
-<use   name="CalibTracker/SiPixelESProducers"/>
-<library   file="*.cc" name="RecoLocalTrackerSiPixelClusterizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="boost_serialization"/>
+<use name="cuda"/>
+<use name="CUDADataFormats/SiPixelCluster"/>
+<use name="CUDADataFormats/SiPixelDigi"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="EventFilter/SiPixelRawToDigi"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="RecoTracker/Record"/>
+<library file="*.cc *.cu" name="RecoLocalTrackerSiPixelClusterizerPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

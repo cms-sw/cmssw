@@ -537,11 +537,11 @@ void XmlConfigParser::buildGlobalDoc(const std::string& key, const std::string& 
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
       std::string fileName = cms::xerces::toString(loadElement->getAttribute(kAttrModule));
-      if (fileName.find("/") != 0) {  // load element has a relative path
+      if (fileName.find('/') != 0) {  // load element has a relative path
         // build an absolute path with directory of top xml file
         size_t pos;
         std::string topDir = "";
-        pos = topPath.find_last_of("/");
+        pos = topPath.find_last_of('/');
         if (pos != std::string::npos) {
           topDir = topPath.substr(0, pos + 1);
         }

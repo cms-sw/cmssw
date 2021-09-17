@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,8 +57,9 @@ namespace edm {
         productRegistry_(desc.productRegistry_),
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
+        processBlockHelper_(desc.processBlockHelper_),
         thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
-        processGUID_(createGlobalIdentifier()),
+        processGUID_(createGlobalIdentifier(true)),
         time_(),
         newRun_(true),
         newLumi_(true),
@@ -217,10 +219,10 @@ namespace edm {
   void InputSource::registerProducts() {}
 
   // Return a dummy file block.
-  std::unique_ptr<FileBlock> InputSource::readFile() {
+  std::shared_ptr<FileBlock> InputSource::readFile() {
     assert(state_ == IsFile);
     assert(!limitReached());
-    return callWithTryCatchAndPrint<std::unique_ptr<FileBlock> >([this]() { return readFile_(); },
+    return callWithTryCatchAndPrint<std::shared_ptr<FileBlock> >([this]() { return readFile_(); },
                                                                  "Calling InputSource::readFile_");
   }
 
@@ -235,7 +237,7 @@ namespace edm {
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
   // containing Products.
-  std::unique_ptr<FileBlock> InputSource::readFile_() { return std::make_unique<FileBlock>(); }
+  std::shared_ptr<FileBlock> InputSource::readFile_() { return std::make_shared<FileBlock>(); }
 
   void InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender&) {
     RunSourceSentry sentry(*this, runPrincipal.index());
@@ -266,6 +268,24 @@ namespace edm {
     }
   }
 
+  void InputSource::fillProcessBlockHelper() { fillProcessBlockHelper_(); }
+
+  bool InputSource::nextProcessBlock(ProcessBlockPrincipal& processBlockPrincipal) {
+    return nextProcessBlock_(processBlockPrincipal);
+  }
+
+  void InputSource::readProcessBlock(ProcessBlockPrincipal& processBlockPrincipal) {
+    ProcessBlockSourceSentry sentry(*this, processBlockPrincipal.processName());
+    callWithTryCatchAndPrint<void>([this, &processBlockPrincipal]() { readProcessBlock_(processBlockPrincipal); },
+                                   "Calling InputSource::readProcessBlock_");
+  }
+
+  void InputSource::fillProcessBlockHelper_() {}
+
+  bool InputSource::nextProcessBlock_(ProcessBlockPrincipal&) { return false; }
+
+  void InputSource::readProcessBlock_(ProcessBlockPrincipal&) {}
+
   void InputSource::readRun_(RunPrincipal& runPrincipal) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
@@ -274,7 +294,8 @@ namespace edm {
   }
 
   void InputSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
-    lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistry());
+    auto history = processHistoryRegistry().getMapped(lumiPrincipal.aux().processHistoryID());
+    lumiPrincipal.fillLuminosityBlockPrincipal(history);
   }
 
   void InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
@@ -333,11 +354,11 @@ namespace edm {
   }
 
   void InputSource::issueReports(EventID const& eventID, StreamID streamID) {
-    if (isInfoEnabled()) {
-      LogVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
-                               << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
-                               << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
-                               << std::setprecision(3) << TimeOfDay();
+    if (isFwkInfoEnabled()) {
+      LogFwkVerbatim("FwkReport") << "Begin processing the " << readCount_ << suffix(readCount_) << " record. Run "
+                                  << eventID.run() << ", Event " << eventID.event() << ", LumiSection "
+                                  << eventID.luminosityBlock() << " on stream " << streamID.value() << " at "
+                                  << std::setprecision(3) << TimeOfDay();
     }
     if (!statusFileName_.empty()) {
       std::ofstream statusFile(statusFileName_.c_str());
@@ -463,6 +484,16 @@ namespace edm {
   }
 
   InputSource::RunSourceSentry::~RunSourceSentry() { source_.actReg()->postSourceRunSignal_(index_); }
+
+  InputSource::ProcessBlockSourceSentry::ProcessBlockSourceSentry(InputSource const& source,
+                                                                  std::string const& processName)
+      : source_(source), processName_(processName) {
+    source_.actReg()->preSourceProcessBlockSignal_();
+  }
+
+  InputSource::ProcessBlockSourceSentry::~ProcessBlockSourceSentry() {
+    source_.actReg()->postSourceProcessBlockSignal_(processName_);
+  }
 
   InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source, std::string const& lfn, bool usedFallback)
       : post_(source.actReg()->postOpenFileSignal_), lfn_(lfn), usedFallback_(usedFallback) {

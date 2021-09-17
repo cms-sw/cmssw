@@ -19,13 +19,15 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 #include <map>
@@ -47,7 +49,7 @@ class SimTrack;
  **
  ***/
 
-class TkConvValidator : public DQMEDAnalyzer {
+class TkConvValidator : public DQMOneEDAnalyzer<> {
 public:
   //
   explicit TkConvValidator(const edm::ParameterSet&);
@@ -56,7 +58,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
-  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void dqmEndRun(edm::Run const& r, edm::EventSetup const& es) override;
   void endJob() override;
 
 private:
@@ -107,6 +109,11 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 
   std::string dqmpath_;
 

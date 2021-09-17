@@ -1,19 +1,17 @@
 #include "HLTEcalPhiSymFilter.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 HLTEcalPhiSymFilter::HLTEcalPhiSymFilter(const edm::ParameterSet& config)
-    : barrelDigisToken_(consumes<EBDigiCollection>(config.getParameter<edm::InputTag>("barrelDigiCollection"))),
+    : ecalChannelStatusRcdToken_(esConsumes()),
+      caloGeometryRecordToken_(esConsumes()),
+      barrelDigisToken_(consumes<EBDigiCollection>(config.getParameter<edm::InputTag>("barrelDigiCollection"))),
       endcapDigisToken_(consumes<EEDigiCollection>(config.getParameter<edm::InputTag>("endcapDigiCollection"))),
       barrelUncalibHitsToken_(
           consumes<EcalUncalibratedRecHitCollection>(config.getParameter<edm::InputTag>("barrelUncalibHitCollection"))),
@@ -72,15 +70,14 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
   using namespace edm;
   using namespace std;
 
-  //Get ChannelStatus from DB
+  // Get ChannelStatus from DB
   edm::ESHandle<EcalChannelStatus> csHandle;
   if (!useRecoFlag_)
-    setup.get<EcalChannelStatusRcd>().get(csHandle);
+    csHandle = setup.getHandle(ecalChannelStatusRcdToken_);
   const EcalChannelStatus& channelStatus = *csHandle;
 
-  //Get iRing-geometry
-  edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<CaloGeometryRecord>().get(geoHandle);
+  // Get iRing-geometry
+  auto const& geoHandle = setup.getHandle(caloGeometryRecordToken_);
   EcalRingCalibrationTools::setCaloGeometry(geoHandle.product());
   EcalRingCalibrationTools CalibRing;
 

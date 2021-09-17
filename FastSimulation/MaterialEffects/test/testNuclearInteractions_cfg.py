@@ -136,7 +136,7 @@ process.testNU = cms.EDFilter(
         # Charged particles with pT < pTMin (GeV/c) are not simulated
         pTMin = cms.double(0.0),
         # Particles with energy smaller than EMin (GeV) are not simulated
-        EMin = cms.double(0.0)
+        EMin = cms.double(0.0),
         # Protons with energy in excess of this value (GeV) will kept no matter what
         EProton = cms.double(99999.0),
     )
@@ -168,6 +168,7 @@ process.p = cms.Path(
 
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['test.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.test = dict(extension = 'txt')
 
 

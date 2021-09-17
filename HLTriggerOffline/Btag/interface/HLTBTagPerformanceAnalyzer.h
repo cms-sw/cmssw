@@ -21,13 +21,13 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // DQM services
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 // for gen matching
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include <Math/GenVector/VectorUtil.h>
 
 #include "FWCore/Utilities/interface/transform.h"

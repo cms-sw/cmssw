@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 """
@@ -8,7 +8,7 @@ from __future__ import division, print_function
 
 from builtins import range
 import numpy
-from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import make_blobs
 from sklearn.metrics import roc_auc_score
 

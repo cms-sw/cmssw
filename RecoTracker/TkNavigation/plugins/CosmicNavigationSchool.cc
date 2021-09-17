@@ -3,6 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include <vector>
 
@@ -65,7 +66,7 @@ private:
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/src/DetLessZ.h"
+#include "TrackingTools/DetLayers/interface/DetLessZ.h"
 
 #include <functional>
 #include <algorithm>
@@ -340,42 +341,46 @@ SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(
 //
 class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public edm::ESProducer {
 public:
-  SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) {
-    theNavigationPSet = iConfig;
-    theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
+  SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) : config_(iConfig) {
     //the following line is needed to tell the framework what
     // data is being produced
-    setWhatProduced(this, theNavigationSchoolName);
+    auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"));
+    magFieldToken_ = cc.consumes();
+    geometricSearchTrackerToken_ = cc.consumes();
   }
-
-  ~SkippingLayerCosmicNavigationSchoolESProducer() override {}
 
   using ReturnType = std::unique_ptr<NavigationSchool>;
 
   ReturnType produce(const NavigationSchoolRecord&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   // ----------member data ---------------------------
-  edm::ParameterSet theNavigationPSet;
-  std::string theNavigationSchoolName;
+  CosmicNavigationSchool::CosmicNavigationSchoolConfiguration const config_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
 };
 
 SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(
     const NavigationSchoolRecord& iRecord) {
-  std::unique_ptr<NavigationSchool> theNavigationSchool;
+  return std::unique_ptr<NavigationSchool>(new SkippingLayerCosmicNavigationSchool(
+      &iRecord.get(geometricSearchTrackerToken_), &iRecord.get(magFieldToken_), config_));
+}
 
-  // get the field
-  edm::ESHandle<MagneticField> field;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+void SkippingLayerCosmicNavigationSchoolESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName");
+  desc.add<bool>("noPXB");
+  desc.add<bool>("noPXF");
+  desc.add<bool>("noTIB");
+  desc.add<bool>("noTID");
+  desc.add<bool>("noTOB");
+  desc.add<bool>("noTEC");
+  desc.add<bool>("selfSearch");
+  desc.add<bool>("allSelf");
 
-  //get the geometricsearch tracker geometry
-  edm::ESHandle<GeometricSearchTracker> geometricSearchTracker;
-  iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
-
-  CosmicNavigationSchool::CosmicNavigationSchoolConfiguration layerConfig(theNavigationPSet);
-  theNavigationSchool.reset(
-      new SkippingLayerCosmicNavigationSchool(geometricSearchTracker.product(), field.product(), layerConfig));
-
-  return theNavigationSchool;
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -52,10 +52,10 @@ public:
   bool isTallest() const { return m_isTallest; }
   void setIsTallest();
 
-private:
   FWBoxRecHit(const FWBoxRecHit &) = delete;                   // Disable default
   const FWBoxRecHit &operator=(const FWBoxRecHit &) = delete;  // Disable default
 
+private:
   // --------------------- Member Functions --------------------------
   void setupEveBox(std::vector<TEveVector> &corners, float scale);
   void buildTower(const std::vector<TEveVector> &corners);

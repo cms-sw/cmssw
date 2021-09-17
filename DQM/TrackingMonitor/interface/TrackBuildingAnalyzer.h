@@ -18,7 +18,6 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -36,6 +35,8 @@ Monitoring source for general quantities related to tracks.
 
 class TrackBuildingAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
 
@@ -47,14 +48,14 @@ public:
                const TrajectorySeed& seed,
                const SeedStopInfo& stopInfo,
                const reco::BeamSpot& bs,
-               const edm::ESHandle<MagneticField>& theMF,
-               const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder);
+               const MagneticField& theMF,
+               const TransientTrackingRecHitBuilder& theTTRHBuilder);
   void analyze(const edm::Event& iEvent,
                const edm::EventSetup& iSetup,
                const TrackCandidate& candidate,
                const reco::BeamSpot& bs,
-               const edm::ESHandle<MagneticField>& theMF,
-               const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder);
+               const MagneticField& theMF,
+               const TransientTrackingRecHitBuilder& theTTRHBuilder);
   void analyze(const edm::View<reco::Track>& trackCollection,
                const std::vector<const MVACollection*>& mvaCollections,
                const std::vector<const QualityMaskCollection*>& qualityMaskCollections);

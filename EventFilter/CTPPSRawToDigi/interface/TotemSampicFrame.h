@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 enum TotemSampicConstant {
   hwId_Position = 0,  // hwId_Size = 1,
@@ -53,10 +54,10 @@ enum TotemSampicConstant {
 
 template <typename T>
 T grayToBinary(const T& gcode_data) {
-  //b[0] = g[0]
+  // assign b[0] = g[0]
   T binary = gcode_data & (0x0001 << (8 * sizeof(T) - 1));  // MSB is the same
 
-  //b[i] = g[i] xor b[i-1]
+  // assign b[i] = g[i] xor b[i-1]
   for (unsigned short int i = 1; i < 8 * sizeof(T); ++i)
     binary |= (gcode_data ^ (binary >> 1)) & (0x0001 << (8 * sizeof(T) - i - 1));
 
@@ -82,33 +83,35 @@ public:
   /// Prints the frame.
   /// If binary is true, binary format is used.
   void printRaw(bool binary = false) const {
-    std::cout << "Event Info: " << std::endl;
+    edm::LogInfo("TotemSampicFrame") << "Event Info: \n";
     printRawBuffer((uint16_t*)totemSampicEventInfoPtr_);
 
-    std::cout << "Channel Info: " << std::endl;
+    edm::LogInfo("TotemSampicFrame") << "Channel Info: \n";
     printRawBuffer((uint16_t*)totemSampicInfoPtr_);
 
-    std::cout << "Channel Data: " << std::endl;
+    edm::LogInfo("TotemSampicFrame") << "Channel Data: \n";
     printRawBuffer((uint16_t*)totemSampicDataPtr_);
   }
 
   void print() const {
     std::bitset<16> bitsChannelMap(getChannelMap());
     std::bitset<16> bitsPLLInfo(getPLLInfo());
-    std::cout << "TotemSampicFrame:\nEvent:"
-              << "\nHardwareId (Event):\t" << std::hex << (unsigned int)getEventHardwareId() << "\nL1A Timestamp:\t"
-              << std::dec << getL1ATimestamp() << "\nL1A Latency:\t" << std::dec << getL1ALatency()
-              << "\nBunch Number:\t" << std::dec << getBunchNumber() << "\nOrbit Number:\t" << std::dec
-              << getOrbitNumber() << "\nEvent Number:\t" << std::dec << getEventNumber() << "\nChannels fired:\t"
-              << std::hex << bitsChannelMap.to_string() << "\nNumber of Samples:\t" << std::dec
-              << getNumberOfSentSamples() << "\nOffset of Samples:\t" << std::dec << (int)getOffsetOfSamples()
-              << "\nFW Version:\t" << std::hex << (int)getFWVersion() << "\nChannel:\nHardwareId:\t" << std::hex
-              << (unsigned int)getHardwareId() << "\nFPGATimestamp:\t" << std::dec << getFPGATimestamp()
-              << "\nTimestampA:\t" << std::dec << getTimestampA() << "\nTimestampB:\t" << std::dec << getTimestampB()
-              << "\nCellInfo:\t" << std::dec << getCellInfo() << "\nPlane:\t" << std::dec << getDetPlane()
-              << "\nChannel:\t" << std::dec << getDetChannel() << "\nPLL Info:\t" << bitsPLLInfo.to_string()
-              << std::endl
-              << std::endl;
+    edm::LogInfo("TotemSampicFrame") << "\nEvent:"
+                                     << "\nHardwareId (Event):\t" << std::hex << (unsigned int)getEventHardwareId()
+                                     << "\nL1A Timestamp:\t" << std::dec << getL1ATimestamp() << "\nL1A Latency:\t"
+                                     << std::dec << getL1ALatency() << "\nBunch Number:\t" << std::dec
+                                     << getBunchNumber() << "\nOrbit Number:\t" << std::dec << getOrbitNumber()
+                                     << "\nEvent Number:\t" << std::dec << getEventNumber() << "\nChannels fired:\t"
+                                     << std::hex << bitsChannelMap.to_string() << "\nNumber of Samples:\t" << std::dec
+                                     << getNumberOfSentSamples() << "\nOffset of Samples:\t" << std::dec
+                                     << (int)getOffsetOfSamples() << "\nFW Version:\t" << std::hex
+                                     << (int)getFWVersion() << "\nChannel:\nHardwareId:\t" << std::hex
+                                     << (unsigned int)getHardwareId() << "\nFPGATimestamp:\t" << std::dec
+                                     << getFPGATimestamp() << "\nTimestampA:\t" << std::dec << getTimestampA()
+                                     << "\nTimestampB:\t" << std::dec << getTimestampB() << "\nCellInfo:\t" << std::dec
+                                     << getCellInfo() << "\nPlane:\t" << std::dec << getDetPlane() << "\nChannel:\t"
+                                     << std::dec << getDetChannel() << "\nPLL Info:\t" << bitsPLLInfo.to_string()
+                                     << "\n\n";
   }
 
   // All getters
@@ -269,11 +272,10 @@ protected:
     for (unsigned int i = 0; i < size; i++) {
       if (binary) {
         std::bitset<16> bits(*(buffer++));
-        std::cout << bits.to_string() << std::endl;
+        edm::LogInfo("TotemSampicFrame") << bits.to_string() << "\n";
       } else
-        std::cout << std::setfill('0') << std::setw(4) << std::hex << *(buffer++) << std::endl;
+        edm::LogInfo("TotemSampicFrame") << std::setfill('0') << std::setw(4) << std::hex << *(buffer++) << "\n";
     }
-    std::cout << std::endl;
   }
 };
 

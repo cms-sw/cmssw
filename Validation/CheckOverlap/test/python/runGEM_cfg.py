@@ -7,27 +7,29 @@ process.load("Geometry.MuonCommonData.testMFXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr','MuonGeom'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MuonGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+        G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
+        MuonGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
     )
 )
 

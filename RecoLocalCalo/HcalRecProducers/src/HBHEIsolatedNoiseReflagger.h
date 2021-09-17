@@ -12,8 +12,21 @@ Original Author: John Paul Chou (Brown University)
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
+
+class EcalChannelStatusRcd;
+class HcalChannelQuality;
+class HcalChannelQualityRcd;
+class HcalSeverityLevelComputer;
+class HcalSeverityLevelComputerRcd;
+class EcalSeverityLevelAlgo;
+class EcalSeverityLevelAlgoRcd;
+class CaloTowerConstituentsMap;
+class CaloGeometryRecord;
+class HcalFrontEndMap;
+class HcalFrontEndMapRcd;
 
 class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
 public:
@@ -58,6 +71,15 @@ private:
 
   // object validator
   ObjectValidator objvalidator_;
+
+  // ES tokens
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalChStatusToken_;
+  edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChStatusToken_;
+  edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSevToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSevToken_;
+  edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> ctcmToken_;
+  edm::ESGetToken<HcalFrontEndMap, HcalFrontEndMapRcd> hfemapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
 };
 
 #endif

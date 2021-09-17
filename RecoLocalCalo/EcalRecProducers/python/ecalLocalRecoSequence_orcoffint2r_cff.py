@@ -7,4 +7,5 @@ from RecoLocalCalo.EcalRecProducers.getEcalConditions_orcoffint2r_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
-ecalLocalRecoSequence = cms.Sequence(ecalUncalibRecHit*ecalRecHit*ecalPreshowerRecHit)
+ecalLocalRecoTask = cms.Task(ecalUncalibRecHitTask, ecalRecHitTask, ecalPreshowerRecHit)
+ecalLocalRecoSequence = cms.Sequence(ecalLocalRecoTask)

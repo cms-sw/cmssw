@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # Common functions and classes for ID definition are imported here:
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
     import ( EleHLTSelection_V1,
-             IsolationCutInputs_V2,
              configureVIDCutBasedEleHLTPreselection_V1 )             
 
 #
@@ -71,14 +70,8 @@ WP_HLTSafe_EE = EleHLTSelection_V1(
 
 
 # Second, define what effective areas to use for pile-up correction
-isoInputsEcal = IsolationCutInputs_V2(
-    # isoEffAreas
-    "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_HLT_ecalPFClusterIso.txt"
-)
-isoInputsHcal = IsolationCutInputs_V2(
-    # isoEffAreas
-    "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_HLT_hcalPFClusterIso.txt"
-)
+isoInputsEcal = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_HLT_ecalPFClusterIso.txt"
+isoInputsHcal = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_HLT_hcalPFClusterIso.txt"
 
 
 #

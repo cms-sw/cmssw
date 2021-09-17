@@ -29,7 +29,7 @@
 #include <iomanip>
 #include <string>
 #include <cstdlib>
-#include <cstdlib> /* getenv */
+#include <cstdlib> /* std::getenv */
 
 //-------------------------------
 // Collaborating Class Headers --

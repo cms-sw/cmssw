@@ -10,7 +10,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -185,11 +184,4 @@ void TrackingTruthValid::analyze(const edm::Event &event, const edm::EventSetup 
     }
   }  // End loop over TrackingVertex
   */
-}
-
-void TrackingTruthValid::endJob() {
-  // Only in standalone mode save local root file
-  if (runStandalone && !outputFile.empty() && dbe_) {
-    dbe_->save(outputFile);
-  }
 }

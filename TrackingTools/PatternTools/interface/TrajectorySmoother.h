@@ -2,7 +2,6 @@
 #define _Tracker_TrajectorySmoother_H_
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class TkCloner;
 
@@ -19,7 +18,7 @@ public:
   virtual TrajectoryContainer trajectories(const Trajectory& traj) const {
     Trajectory&& nt = trajectory(traj);
     if (nt.isValid())
-      return TrajectoryContainer(1, std::move(nt));
+      return TrajectoryContainer(1, nt);
     return TrajectoryContainer();
   }
   virtual Trajectory trajectory(const Trajectory&) const = 0;

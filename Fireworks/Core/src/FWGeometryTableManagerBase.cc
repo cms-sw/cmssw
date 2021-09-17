@@ -14,7 +14,7 @@
 
 // user include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <stack>
 #ifdef PERFTOOL_GEO_TABLE
 #include <google/profiler.h>
@@ -22,7 +22,7 @@
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "TMath.h"
@@ -31,10 +31,9 @@
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TGeoMatrix.h"
-
+#include "TVirtualX.h"
 #include "TGFrame.h"
 #include "TEveUtil.h"
-#include "boost/lexical_cast.hpp"
 
 const char* FWGeometryTableManagerBase::NodeInfo::name() const { return m_node->GetName(); }
 
@@ -224,10 +223,8 @@ void FWGeometryTableManagerBase::showEditor(int row) {
 void FWGeometryTableManagerBase::applyTransparencyFromEditor() {
   printf("transparency idx %d opaci %s \n", m_editTransparencyIdx, m_editor->GetText());
   if (m_editTransparencyIdx >= 0) {
-    using boost::bad_lexical_cast;
-    using boost::lexical_cast;
     try {
-      int t = lexical_cast<int>(m_editor->GetText());
+      int t = std::stoi(m_editor->GetText());
       if (t > 100 || t < 0) {
         fwLog(fwlog::kError) << "Transparency must be set in procentage [0-100].";
         return;
@@ -235,7 +232,7 @@ void FWGeometryTableManagerBase::applyTransparencyFromEditor() {
       m_entries[m_editTransparencyIdx].m_transparency = 100 - t;
       printf("SET !! \n");
       cancelEditor(true);
-    } catch (bad_lexical_cast&) {
+    } catch (const std::exception&) {
       fwLog(fwlog::kError) << "Bad Lexical cast. Transparency must be set in procentage [0-100].";
     }
   }

@@ -19,13 +19,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 /* C++ Headers */
 using namespace std;
@@ -38,24 +33,18 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset)
     : theSTAMuonToken(
           consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("SALabel"))),  // token to read the muons
       thePropagatorName(pset.getParameter<std::string>("PropagatorName")),
+      thePropagatorToken(esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", thePropagatorName))),
+      theMGFieldToken(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      theTrackingGeometryToken(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
       theRadius(pset.getParameter<double>("radius")),            // cyl's radius (cm)
       theMaxZ(pset.getParameter<double>("maxZ")),                // cyl's half lenght (cm)
       thePixHits(pset.getParameter<unsigned int>("PixHits")),    // pixel hits
       theTkLayers(pset.getParameter<unsigned int>("TkLayers")),  // tracker layers with measurements
       theMuonHits(pset.getParameter<unsigned int>("MuonHits")),  // muon hits
-      thePropagator(nullptr),
-      m_cacheRecordId(0) {
-  // Get a surface (here a cylinder of radius 1290mm) ECAL
-  Cylinder::PositionType pos0;
-  Cylinder::RotationType rot0;
-  theCyl = Cylinder::build(theRadius, pos0, rot0);
-
-  Plane::PositionType posPos(0, 0, theMaxZ);
-  Plane::PositionType posNeg(0, 0, -theMaxZ);
-
-  thePosPlane = Plane::build(posPos, rot0);
-  theNegPlane = Plane::build(posNeg, rot0);
-
+      // Get a surface (here a cylinder of radius 1290mm) ECAL
+      theCyl(Cylinder::build(theRadius, Cylinder::PositionType{}, Cylinder::RotationType{})),
+      thePosPlane(Plane::build(Plane::PositionType{0, 0, static_cast<float>(theMaxZ)}, Plane::RotationType{})),
+      theNegPlane(Plane::build(Plane::PositionType{0, 0, static_cast<float>(-theMaxZ)}, Plane::RotationType{})) {
   LogDebug("HLTMuonPointing") << " SALabel : " << pset.getParameter<edm::InputTag>("SALabel")
                               << " Radius : " << theRadius << " Half lenght : " << theMaxZ
                               << " Min pixel hits : " << thePixHits << " Min tk layers measurements : " << theTkLayers
@@ -66,30 +55,20 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset)
 HLTMuonPointingFilter::~HLTMuonPointingFilter() = default;
 
 /* Operations */
-bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
+bool HLTMuonPointingFilter::filter(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const {
   bool accept = false;
 
-  const TrackingComponentsRecord& tkRec = eventSetup.get<TrackingComponentsRecord>();
-  if (not thePropagator or tkRec.cacheIdentifier() != m_cacheRecordId) {
-    // delete the old propagator
-    delete thePropagator;
+  auto const& propagator = eventSetup.getData(thePropagatorToken);
 
-    // get the new propagator from the EventSetup and clone it (for thread safety)
-    ESHandle<Propagator> propagatorHandle;
-    tkRec.get(thePropagatorName, propagatorHandle);
-    thePropagator = propagatorHandle.product()->clone();
-    if (thePropagator->propagationDirection() != anyDirection)
-      throw cms::Exception("Configuration")
-          << "the propagator " << thePropagatorName
-          << " should be configured with PropagationDirection = \"anyDirection\"" << std::endl;
-    m_cacheRecordId = tkRec.cacheIdentifier();
+  if (propagator.propagationDirection() != anyDirection) {
+    throw cms::Exception("Configuration")
+        << "the propagator " << thePropagatorName
+        << " should be configured with PropagationDirection = \"anyDirection\"" << std::endl;
   }
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  ESHandle<MagneticField> theMGField = eventSetup.getHandle(theMGFieldToken);
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(theTrackingGeometryToken);
 
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
@@ -110,7 +89,7 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
     LogDebug("HLTMuonPointing") << " InnerTSOS " << innerTSOS;
 
-    TrajectoryStateOnSurface tsosAtCyl = thePropagator->propagate(*innerTSOS.freeState(), *theCyl);
+    TrajectoryStateOnSurface tsosAtCyl = propagator.propagate(*innerTSOS.freeState(), *theCyl);
 
     if (tsosAtCyl.isValid()) {
       LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl << " number of pixel hits " << pixelHits
@@ -132,9 +111,9 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
                                     << " number of muon hits " << nMuonHits;
         TrajectoryStateOnSurface tsosAtPlane;
         if (tsosAtCyl.globalPosition().z() > 0)
-          tsosAtPlane = thePropagator->propagate(*innerTSOS.freeState(), *thePosPlane);
+          tsosAtPlane = propagator.propagate(*innerTSOS.freeState(), *thePosPlane);
         else
-          tsosAtPlane = thePropagator->propagate(*innerTSOS.freeState(), *theNegPlane);
+          tsosAtPlane = propagator.propagate(*innerTSOS.freeState(), *theNegPlane);
 
         if (tsosAtPlane.isValid()) {
           if (tsosAtPlane.globalPosition().perp() < theRadius) {

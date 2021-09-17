@@ -111,23 +111,20 @@ bool DTSegmentCand::good() const {
 }
 
 bool DTSegmentCand::hitsShareLayer() const {
-  int layerN[20];
-  int i = 0;
-
+  const unsigned int hitsSize = theHits.size();
   // we don't expect so many 1D hits, if such a segment arrives just drop it
-  if (theHits.size() > 20)
+  if (hitsSize > 20)
     return false;
 
+  int layerN[hitsSize];
+  unsigned int i = 0;
   for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
     layerN[i] = (*assHit).first->id().layerId().layer() + 10 * (*assHit).first->id().superlayerId().superlayer();
-    i++;
-  }
-
-  for (int i = 0; i < (int)theHits.size(); i++) {
-    for (int j = 0; j < i; j++) {
+    for (unsigned int j = 0; j < i; j++) {
       if (layerN[i] == layerN[j])
         return true;
     }
+    i++;
   }
 
   return false;

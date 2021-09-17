@@ -55,6 +55,10 @@ public:
    */
   BPHRecoBuilder(const edm::EventSetup& es);
 
+  // deleted copy constructor and assignment operator
+  BPHRecoBuilder(const BPHRecoBuilder& x) = delete;
+  BPHRecoBuilder& operator=(const BPHRecoBuilder& x) = delete;
+
   /** Destructor
    */
   virtual ~BPHRecoBuilder();
@@ -137,21 +141,23 @@ public:
   static bool sameTrack(const reco::Candidate* lCand, const reco::Candidate* rCand, double minPDifference);
 
 private:
-  // private copy and assigment constructors
-  BPHRecoBuilder(const BPHRecoBuilder& x) = delete;
-  BPHRecoBuilder& operator=(const BPHRecoBuilder& x) = delete;
-
   // object to interface with a specific edm collection
+  typedef std::vector<const reco::Candidate*> rcpV;
   template <class T>
-  class BPHSpecificCollection : public BPHGenericCollection {
+  class BPHInterfaceCollection : public BPHGenericCollection {
   public:
-    BPHSpecificCollection(const T& c, const std::string& list) : BPHGenericCollection(list), cPtr(&c) {}
-    ~BPHSpecificCollection() override {}
-    const reco::Candidate& get(int i) const override { return (*cPtr)[i]; }
+    BPHInterfaceCollection(const T& c, const std::string& list) : BPHGenericCollection(list), cPtr(&c) {}
+    ~BPHInterfaceCollection() override {}
     int size() const override { return cPtr->size(); }
 
-  private:
+  protected:
     const T* cPtr;
+  };
+  template <class T>
+  class BPHSpecificCollection : public BPHInterfaceCollection<T> {
+  public:
+    BPHSpecificCollection(const T& c, const std::string& list) : BPHInterfaceCollection<T>(c, list) {}
+    const reco::Candidate& get(int i) const override { return (*this->cPtr)[i]; }
   };
 
   // object to contain a list of simple particles
@@ -245,5 +251,14 @@ void BPHRecoBuilder::add(const std::string& name, const std::vector<T>& collecti
   add(name, *compCandList);
   return;
 }
+
+template <>
+class BPHRecoBuilder::BPHSpecificCollection<BPHRecoBuilder::rcpV>
+    : public BPHRecoBuilder::BPHInterfaceCollection<BPHRecoBuilder::rcpV> {
+public:
+  BPHSpecificCollection(const BPHRecoBuilder::rcpV& c, const std::string& list)
+      : BPHInterfaceCollection<BPHRecoBuilder::rcpV>(c, list) {}
+  const reco::Candidate& get(int i) const override { return *(*this->cPtr)[i]; }
+};
 
 #endif

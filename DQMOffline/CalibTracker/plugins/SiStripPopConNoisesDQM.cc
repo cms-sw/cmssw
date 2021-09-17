@@ -8,7 +8,10 @@
 */
 class SiStripPopConNoisesHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripNoises> {
 public:
-  explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
+  explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig, edm::ConsumesCollector&&);
   ~SiStripPopConNoisesHandlerFromDQM() override;
   // interface methods: implemented in template
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
@@ -20,13 +23,14 @@ private:
   SiStripNoises m_obj;
 };
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig)
+SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig,
+                                                                     edm::ConsumesCollector&&)
     : SiStripDQMPopConSourceHandler<SiStripNoises>(iConfig),
-      fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))},
       MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")} {
   edm::LogInfo("SiStripNoisesDQMService") << "[SiStripNoisesDQMService::SiStripNoisesDQMService]";
 }
@@ -40,7 +44,7 @@ void SiStripPopConNoisesHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::
 
   m_obj = SiStripNoises();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+  const auto detInfo = SiStripDetInfoFileReader::read(fp_.fullPath());
 
   // getter.cd(iConfig_.getUntrackedParameter<std::string>("ME_DIR"));
   getter.cd();
@@ -61,7 +65,7 @@ void SiStripPopConNoisesHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::
             MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
-  for (const auto& detInfo : reader.getAllData()) {
+  for (const auto& detInfo : detInfo.getAllData()) {
     SiStripNoises::InputVector theSiStripVector;
 
     // Take the path for each DetId and build the complete path + histogram name

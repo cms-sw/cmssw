@@ -80,15 +80,29 @@ void SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
-      edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      if (printdebug_) {
+        edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      }
       std::istringstream iss(line);
-      std::string scenario = "";
-      float prob(0.);
-      iss >> scenario >> prob;
-      auto idAndProb = std::make_pair(scenario, prob);
-      myProbVector.push_back(idAndProb);
+      int pileupBinId, nEntries;
+      iss >> pileupBinId >> nEntries;
+      edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")
+          << "PILEUP BIN/ENTRIES:  " << pileupBinId << " " << nEntries << std::endl;
+      std::vector<std::string> ids(nEntries, "");
+      std::vector<float> probs(nEntries, 0.0);
+      for (int i = 0; i < nEntries; ++i) {
+        iss >> ids.at(i) >> probs.at(i);
+        if (printdebug_) {
+          edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << ids.at(i) << " " << probs.at(i) << std::endl;
+        }
+        auto idAndProb = std::make_pair(ids.at(i), probs.at(i));
+        myProbVector.push_back(idAndProb);
+      }
+      if (nEntries > 0) {
+        myProbabilities->setProbabilities(pileupBinId, myProbVector);
+      }
+      myProbVector.clear();
     }
-    myProbabilities->setProbabilities(0, myProbVector);
     myfile.close();
   }
 

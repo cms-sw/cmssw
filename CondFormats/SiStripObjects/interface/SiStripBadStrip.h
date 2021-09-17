@@ -6,8 +6,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
+#include <cstdint>
 
 class TrackerTopology;
 

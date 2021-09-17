@@ -7,7 +7,10 @@
 
 class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScanHistograms {
 public:
-  OptoScanHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  OptoScanHistosUsingDb(const edm::ParameterSet& pset,
+                        DQMStore*,
+                        SiStripConfigDb* const,
+                        edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~OptoScanHistosUsingDb() override;
 

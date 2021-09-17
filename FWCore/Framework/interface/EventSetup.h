@@ -5,7 +5,7 @@
 // Package:     Framework
 // Class:      EventSetup
 //
-/**\class EventSetup EventSetup.h FWCore/Framework/interface/EventSetup.h
+/**\class edm::EventSetup
 
  Description: Container for all Records dealing with non-RunState info
 
@@ -42,11 +42,12 @@
 // forward declarations
 
 namespace edm {
-  class ActivityRegistry;
+
   class ESInputTag;
   template <class T, class R>
   class ESGetToken;
   class PileUp;
+  class ESParentContext;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -59,12 +60,27 @@ namespace edm {
     friend class edm::PileUp;
 
   public:
-    explicit EventSetup(EventSetupImpl const& iSetup, unsigned int iTransitionID, ESProxyIndex const* iGetTokenIndices)
-        : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_id{iTransitionID} {}
+    template <typename T>
+    explicit EventSetup(T const& info,
+                        unsigned int iTransitionID,
+                        ESProxyIndex const* iGetTokenIndices,
+                        ESParentContext const& iContext,
+                        bool iRequireToken)
+        : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iContext, iRequireToken) {}
+
+    explicit EventSetup(EventSetupImpl const& iSetup,
+                        unsigned int iTransitionID,
+                        ESProxyIndex const* iGetTokenIndices,
+                        ESParentContext const& iContext,
+                        bool iRequireToken)
+        : m_setup{iSetup},
+          m_getTokenIndices{iGetTokenIndices},
+          m_context(&iContext),
+          m_id{iTransitionID},
+          m_requireToken(iRequireToken) {}
     EventSetup(EventSetup const&) = delete;
     EventSetup& operator=(EventSetup const&) = delete;
 
-    // ---------- const member functions ---------------------
     /** returns the Record of type T.  If no such record available
           a eventsetup::NoRecordException<T> is thrown */
     template <typename T>
@@ -82,12 +98,12 @@ namespace edm {
         throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
       }
       T returnValue;
-      returnValue.setImpl(temp, m_id, m_getTokenIndices);
+      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context, m_requireToken);
       return returnValue;
     }
 
     /** returns the Record of type T.  If no such record available
-       a null pointer is returned */
+       a null optional is returned */
     template <typename T>
     std::optional<T> tryToGet() const {
       using namespace eventsetup;
@@ -100,7 +116,7 @@ namespace edm {
                                                 eventsetup::EventSetupRecordKey>());
       if (temp != nullptr) {
         T rec;
-        rec.setImpl(temp, m_id, m_getTokenIndices);
+        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context, m_requireToken);
         return rec;
       }
       return std::nullopt;
@@ -158,7 +174,7 @@ namespace edm {
     }
 
     std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
-      return m_setup.find(iKey, m_id, m_getTokenIndices);
+      return m_setup.find(iKey, m_id, m_getTokenIndices, *m_context);
     }
 
     ///clears the oToFill vector and then fills it with the keys for all available records
@@ -178,7 +194,9 @@ namespace edm {
     // ---------- member data --------------------------------
     edm::EventSetupImpl const& m_setup;
     ESProxyIndex const* m_getTokenIndices;
+    ESParentContext const* m_context;
     unsigned int m_id;
+    bool m_requireToken;
   };
 
   // Free functions to retrieve an object from the EventSetup.

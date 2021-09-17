@@ -4,7 +4,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,10 +26,12 @@ static const float LedMonAdc2fc[128] = {
 
 class CastorLEDMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   CastorLEDMonitor(const edm::ParameterSet &ps);
   ~CastorLEDMonitor();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &);
   void processEvent(const CastorDigiCollection &cast, const CastorDbService &cond);
 
 private:

@@ -16,8 +16,6 @@ Implementation:
 #ifndef METAlgorithms_METSignificance_h
 #define METAlgorithms_METSignificance_h
 //____________________________________________________________________________||
-#include "CondFormats/JetMETObjects/interface/JetResolution.h"
-
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -44,7 +42,9 @@ namespace metsig {
                                      JME::JetResolution& resPtObj,
                                      JME::JetResolution& resPhiObj,
                                      JME::JetResolutionScaleFactor& resSFObj,
-                                     bool isRealData);
+                                     bool isRealData,
+                                     double& sumPtUnclustered,
+                                     edm::ValueMap<float> const* weights = nullptr);
 
     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met);
 

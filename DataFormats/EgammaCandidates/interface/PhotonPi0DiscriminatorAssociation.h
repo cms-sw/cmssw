@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float > > PhotonPi0DiscriminatorAssociationMap;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float> > PhotonPi0DiscriminatorAssociationMap;
 }
 
 #endif

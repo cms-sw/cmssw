@@ -1,11 +1,18 @@
-<library   file="*.cc" name="EventFilterUtilitiesTest">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="DataFormats/FEDRawData"/>
-  <use   name="DataFormats/TCDS"/>
-  <use   name="EventFilter/Utilities"/>
-  <use   name="boost"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<library file="*.cc" name="EventFilterUtilitiesTest">
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="DataFormats/TCDS"/>
+  <use name="EventFilter/Utilities"/>
+  <use name="boost"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<environment>
+  <bin file="RunBUFU_t.cpp" name="BUFU_TEST">
+    <flags TEST_RUNNER_ARGS="/bin/bash EventFilter/Utilities/test RunBUFU.sh"/>
+  </bin>
+
+</environment>

@@ -5,9 +5,9 @@
 // Hit class for QIE analysis
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <cmath>
+#include <cstdint>
 
 class CaloHit {
 public:

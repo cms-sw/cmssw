@@ -1,4 +1,4 @@
-<use   name="CalibCalorimetry/CaloTPG"/>
-<library   file="*.cc" name="CalibCalorimetryCaloTPGPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CalibCalorimetry/CaloTPG"/>
+<library file="*.cc" name="CalibCalorimetryCaloTPGPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

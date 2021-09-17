@@ -77,7 +77,7 @@ namespace ecaldqm {
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 
-    virtual void beginEvent(edm::Event const&, edm::EventSetup const&) {}
+    virtual void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) {}
     virtual void endEvent(edm::Event const&, edm::EventSetup const&) {}
 
     virtual bool filterRunType(short const*) { return true; };
@@ -91,13 +91,8 @@ namespace ecaldqm {
     // Returns true if the module runs on the collection
     virtual bool analyze(void const*, Collections) { return false; }
 
-    void softReset();
-    void recoverStats();
-
   protected:
     void setME(edm::ParameterSet const&) final;
-
-    std::set<std::string> resettable_;
   };
 }  // namespace ecaldqm
 #endif

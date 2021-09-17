@@ -12,14 +12,21 @@
 #include <fstream>
 
 EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
-    : channelStatus_(), towerStatus_(), firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")) {
-  std::ifstream inputFile(_ps.getUntrackedParameter<std::string>("inputFile"));
-  if (!inputFile.is_open())
+    : channelStatus_(),
+      towerStatus_(),
+      firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")),
+      inputFile_(_ps.getUntrackedParameter<std::string>("inputFile")),
+      elecMapHandle(esConsumes<edm::Transition::BeginRun>()) {
+  if (!inputFile_.is_open())
     throw cms::Exception("Invalid input for EcalDQMStatusWriter");
+}
+
+void EcalDQMStatusWriter::beginRun(edm::Run const &_run, edm::EventSetup const &_es) {
+  setElectronicsMap(_es);
 
   ecaldqm::StatusManager statusManager;
 
-  statusManager.readFromStream(inputFile);
+  statusManager.readFromStream(inputFile_, GetElectronicsMap());
   statusManager.writeToObj(channelStatus_, towerStatus_);
 }
 
@@ -32,6 +39,16 @@ void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es
   dbOutput.writeOne(&towerStatus_, firstRun_, "EcalDQMTowerStatusRcd");
 
   firstRun_ = dbOutput.endOfTime();  // avoid accidentally re-writing the conditions
+}
+
+void EcalDQMStatusWriter::setElectronicsMap(edm::EventSetup const &_es) {
+  electronicsMap = &_es.getData(elecMapHandle);
+}
+
+EcalElectronicsMapping const *EcalDQMStatusWriter::GetElectronicsMap() {
+  if (!electronicsMap)
+    throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+  return electronicsMap;
 }
 
 DEFINE_FWK_MODULE(EcalDQMStatusWriter);

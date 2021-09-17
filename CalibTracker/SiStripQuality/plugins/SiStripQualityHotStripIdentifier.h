@@ -2,16 +2,17 @@
 #define SiStripQualityHotStripIdentifier_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -44,19 +45,21 @@ private:
   void fillHisto(uint32_t detid, float value);
 
 private:
-  unsigned long long m_cacheID_;
   std::string dataLabel_;
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
+  const SiStripQuality *stripQuality_ = nullptr;
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
-  SiStripDetInfoFileReader *reader;
   edm::InputTag Cluster_src_;
   edm::InputTag Track_src_;
   bool tracksCollection_in_EventTree;
-  const TrackerTopology *tTopo;
+  const TrackerTopology *tTopo = nullptr;
 
   unsigned short MinClusterWidth_, MaxClusterWidth_;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
 };
 #endif

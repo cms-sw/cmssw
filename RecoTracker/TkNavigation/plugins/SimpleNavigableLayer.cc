@@ -6,6 +6,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <set>
 
@@ -24,12 +25,11 @@ TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajector
   FreeTrajectoryState const& dest = *propState.freeState();
   GlobalPoint middlePoint = dest.position();
   const float toCloseToEachOther2 = 1e-4 * 1e-4;
-  if
-    UNLIKELY((middlePoint - initialPoint).mag2() < toCloseToEachOther2) {
-      LogDebug("SimpleNavigableLayer")
-          << "initial state and PCA are identical. Things are bound to fail. Do not add the link.";
-      return TrajectoryStateOnSurface();
-    }
+  if UNLIKELY ((middlePoint - initialPoint).mag2() < toCloseToEachOther2) {
+    LogDebug("SimpleNavigableLayer")
+        << "initial state and PCA are identical. Things are bound to fail. Do not add the link.";
+    return TrajectoryStateOnSurface();
+  }
 
   /*
   std::string dirS;
@@ -53,11 +53,10 @@ TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajector
   GlobalPoint finalPoint = dest2.position();
   LogDebug("SimpleNavigableLayer") << "second propagation(" << dir << ") to: \n" << dest2;
   double finalDot = (middlePoint - initialPoint).basicVector().dot((finalPoint - middlePoint).basicVector());
-  if
-    UNLIKELY(finalDot < 0) {  // check that before and after are in different side.
-      LogDebug("SimpleNavigableLayer") << "switch side back: ABORT.";
-      return TrajectoryStateOnSurface();
-    }
+  if UNLIKELY (finalDot < 0) {  // check that before and after are in different side.
+    LogDebug("SimpleNavigableLayer") << "switch side back: ABORT.";
+    return TrajectoryStateOnSurface();
+  }
   return propState;
 }
 

@@ -20,7 +20,7 @@ public:
   typedef math::XYZVector XYZPoint;
 
   /// Empty constructor
-  CaloPoint() : XYZPoint() { ; };
+  CaloPoint() : XYZPoint(), side_{NONE} {}
   //  /// Constructor from DetId, side and position.
   //  CaloPoint(DetId cell, CaloDirection side, const XYZPoint& position);
   //

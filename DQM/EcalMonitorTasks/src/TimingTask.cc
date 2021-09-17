@@ -47,19 +47,15 @@ namespace ecaldqm {
     return false;
   }
 
-  void TimingTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Fill separate MEs with only 10 LSs worth of stats
-    // Used to correctly fill Presample Trend plots:
-    // 1 pt:10 LS in Trend plots
-    meTimeMapByLS = &MEs_.at("TimeMapByLS");
-    if (timestamp_.iLumi % 10 == 0)
-      meTimeMapByLS->reset();
-  }
-
-  void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+  void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const& ByLumiResetSwitch, bool&) {
     using namespace std;
     std::vector<int>::iterator pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
+    if (ByLumiResetSwitch) {
+      meTimeMapByLS = &MEs_.at("TimeMapByLS");
+      if (timestamp_.iLumi % 10 == 0)
+        meTimeMapByLS->reset(GetElectronicsMap());
+    }
   }
 
   void TimingTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {
@@ -104,7 +100,7 @@ namespace ecaldqm {
       }
 
       if (energy > energyThreshold)
-        meChi2.fill(signedSubdet, hit.chi2());
+        meChi2.fill(getEcalDQMSetupObjects(), signedSubdet, hit.chi2());
 
       // Apply cut on chi2 of pulse shape fit
       if (hit.chi2() > chi2Threshold)
@@ -114,18 +110,18 @@ namespace ecaldqm {
       if (hit.timeError() > timeErrorThreshold_)
         return;
 
-      meTimeAmp.fill(id, energy, time);
-      meTimeAmpAll.fill(id, energy, time);
+      meTimeAmp.fill(getEcalDQMSetupObjects(), id, energy, time);
+      meTimeAmpAll.fill(getEcalDQMSetupObjects(), id, energy, time);
 
       if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel)
-        meTimingVsBX.fill(bxBin_, time);
+        meTimingVsBX.fill(getEcalDQMSetupObjects(), bxBin_, time);
 
       if (energy > energyThreshold) {
-        meTimeAll.fill(id, time);
-        meTimeMap.fill(id, time);
-        meTimeMapByLS->fill(id, time);
-        meTime1D.fill(id, time);
-        meTimeAllMap.fill(id, time);
+        meTimeAll.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeMap.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeMapByLS->fill(getEcalDQMSetupObjects(), id, time);
+        meTime1D.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeAllMap.fill(getEcalDQMSetupObjects(), id, time);
       }
     });
   }
@@ -167,8 +163,8 @@ namespace ecaldqm {
         continue;
 
       // Fill MEs
-      meTimeAmpBXm.fill(id, amp, uhitItr->outOfTimeAmplitude(4));  // BX-1
-      meTimeAmpBXp.fill(id, amp, uhitItr->outOfTimeAmplitude(6));  // BX+1
+      meTimeAmpBXm.fill(getEcalDQMSetupObjects(), id, amp, uhitItr->outOfTimeAmplitude(4));  // BX-1
+      meTimeAmpBXp.fill(getEcalDQMSetupObjects(), id, amp, uhitItr->outOfTimeAmplitude(6));  // BX+1
     }
   }
 

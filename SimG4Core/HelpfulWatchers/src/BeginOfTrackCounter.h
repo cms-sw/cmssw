@@ -38,6 +38,8 @@ namespace simwatcher {
   class BeginOfTrackCounter : public SimProducer, public Observer<const BeginOfTrack *> {
   public:
     BeginOfTrackCounter(const edm::ParameterSet &);
+    BeginOfTrackCounter(const BeginOfTrackCounter &) = delete;                   // stop default
+    const BeginOfTrackCounter &operator=(const BeginOfTrackCounter &) = delete;  // stop default
 
     // ---------- const member functions ---------------------
 
@@ -47,10 +49,6 @@ namespace simwatcher {
     void produce(edm::Event &, const edm::EventSetup &) override;
 
   private:
-    BeginOfTrackCounter(const BeginOfTrackCounter &) = delete;  // stop default
-
-    const BeginOfTrackCounter &operator=(const BeginOfTrackCounter &) = delete;  // stop default
-
     void update(const BeginOfTrack *) override;
     // ---------- member data --------------------------------
     int m_count;

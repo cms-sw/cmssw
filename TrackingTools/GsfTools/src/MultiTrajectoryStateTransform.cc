@@ -34,7 +34,7 @@ bool MultiTrajectoryStateTransform::innerMomentumFromMode(const reco::GsfTrack& 
 
 TrajectoryStateOnSurface MultiTrajectoryStateTransform::outerStateOnSurface(const reco::GsfTrack& tk,
                                                                             const TrackingGeometry& geom,
-                                                                            const MagneticField* field) const {
+                                                                            const MagneticField* field) {
   const Surface& surface = geom.idToDet(DetId(tk.extra()->outerDetId()))->surface();
 
   const reco::GsfTrackExtraRef& extra(tk.gsfExtra());
@@ -48,7 +48,7 @@ TrajectoryStateOnSurface MultiTrajectoryStateTransform::outerStateOnSurface(cons
 
 TrajectoryStateOnSurface MultiTrajectoryStateTransform::innerStateOnSurface(const reco::GsfTrack& tk,
                                                                             const TrackingGeometry& geom,
-                                                                            const MagneticField* field) const {
+                                                                            const MagneticField* field) {
   const Surface& surface = geom.idToDet(DetId(tk.extra()->innerDetId()))->surface();
 
   const reco::GsfTrackExtraRef& extra(tk.gsfExtra());
@@ -65,7 +65,7 @@ TrajectoryStateOnSurface MultiTrajectoryStateTransform::stateOnSurface(const std
                                                                        const std::vector<CovarianceMatrix>& covariances,
                                                                        const double& pzSign,
                                                                        const Surface& surface,
-                                                                       const MagneticField* field) const {
+                                                                       const MagneticField* field) {
   if (weights.empty())
     return TrajectoryStateOnSurface();
 

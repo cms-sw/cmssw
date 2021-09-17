@@ -4,9 +4,9 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 // Standard includes.
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <utility>
+#include <cstdint>
 
 // Other classes
 class FEDRawDataCollection;

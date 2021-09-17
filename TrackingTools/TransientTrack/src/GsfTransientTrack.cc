@@ -175,10 +175,6 @@ GsfTransientTrack::GsfTransientTrack(const GsfTransientTrack& tt)
   }
 }
 
-void GsfTransientTrack::setES(const edm::EventSetup& setup) {
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-}
-
 void GsfTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
   theTrackingGeometry = tg;
 }
@@ -203,13 +199,11 @@ TrajectoryStateClosestToPoint GsfTransientTrack::impactPointTSCP() const {
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::outermostMeasurementState() const {
-  MultiTrajectoryStateTransform theMTransform;
-  return theMTransform.outerStateOnSurface((*this), *theTrackingGeometry, theField);
+  return MultiTrajectoryStateTransform::outerStateOnSurface(*this, *theTrackingGeometry, theField);
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::innermostMeasurementState() const {
-  MultiTrajectoryStateTransform theMTransform;
-  return theMTransform.innerStateOnSurface((*this), *theTrackingGeometry, theField);
+  return MultiTrajectoryStateTransform::innerStateOnSurface(*this, *theTrackingGeometry, theField);
 }
 
 void GsfTransientTrack::calculateTSOSAtVertex() const {

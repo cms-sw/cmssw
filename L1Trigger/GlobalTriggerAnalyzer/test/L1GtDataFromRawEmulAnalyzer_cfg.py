@@ -250,9 +250,10 @@ process.p = cms.Path(process.RawToDigi*process.l1GtEmulDigis*process.l1GtDataEmu
 
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
     INFO = cms.untracked.PSet(
         #limit = cms.untracked.int32(-1)

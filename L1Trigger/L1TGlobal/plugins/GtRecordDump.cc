@@ -22,6 +22,7 @@
 // system include files
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 // user include files
 //   base class
@@ -33,7 +34,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
@@ -114,7 +114,7 @@ namespace l1t {
     int m_minBxVectors;
     int m_maxBxVectors;
 
-    L1TGlobalUtil* m_gtUtil;
+    std::unique_ptr<L1TGlobalUtil> m_gtUtil;
 
   private:
     int m_tvVersion;
@@ -154,7 +154,8 @@ namespace l1t {
     std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
     unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
 
-    m_gtUtil = new L1TGlobalUtil(iConfig, consumesCollector(), *this, uGtAlgInputTag, uGtExtInputTag);
+    m_gtUtil = std::make_unique<L1TGlobalUtil>(
+        iConfig, consumesCollector(), *this, uGtAlgInputTag, uGtExtInputTag, l1t::UseEventSetupIn::Event);
     m_gtUtil->OverridePrescalesAndMasks(preScaleFileName, preScColumn);
   }
 
@@ -194,7 +195,7 @@ namespace l1t {
     const std::vector<std::pair<std::string, bool>> initialDecisions = m_gtUtil->decisionsInitial();
     const std::vector<std::pair<std::string, bool>> intermDecisions = m_gtUtil->decisionsInterm();
     const std::vector<std::pair<std::string, bool>> finalDecisions = m_gtUtil->decisionsFinal();
-    const std::vector<std::pair<std::string, int>> prescales = m_gtUtil->prescales();
+    const std::vector<std::pair<std::string, double>> prescales = m_gtUtil->prescales();
     const std::vector<std::pair<std::string, std::vector<int>>> masks = m_gtUtil->masks();
 
     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
@@ -231,7 +232,7 @@ namespace l1t {
         (m_algoSummary.find(name)->second).at(2) += 1;
 
       // get the prescale and mask (needs some error checking here)
-      int prescale = (prescales.at(i)).second;
+      double prescale = (prescales.at(i)).second;
       std::vector<int> mask = (masks.at(i)).second;
 
       if (m_dumpTriggerResults && name != "NULL")

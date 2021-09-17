@@ -258,7 +258,7 @@ def get_summary_section(directory,matrix_page=True):
   html= '<div class="span-6">'+\
         '<h3>Summary</h3>'
   html+=get_dir_stats(directory)
-  html+='<a href="%s/%s">To the DQM GUI...</a>' %(server,base_url)
+  html+='<a href="%s/%s/start?runnr=%s;dataset=/%s/%s/DQMIO;sampletype=offline_data;filter=all;referencepos=on-side;referenceshow=all;referencenorm=True;referenceobj1=other:%s:/%s/%s/DQMIO:;referenceobj2=none;referenceobj3=none;referenceobj4=none;search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;workspace=Everything;size=M;focus=;zoom=no;">To the DQM GUI...</a>' %(server,base_url,meta.run1,meta.sample1,meta.release1,meta.run2,meta.sample2,meta.release2)
   html+='</div>'
         
   html+='<div class="span-7 colborder">'+\

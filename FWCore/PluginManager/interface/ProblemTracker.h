@@ -17,20 +17,20 @@ namespace edm {
   class ProblemTracker {
   public:
     static ProblemTracker const* instance();
+    ProblemTracker(const ProblemTracker&) = delete;
 
   private:
     ProblemTracker();
     ~ProblemTracker();
-    ProblemTracker(const ProblemTracker&) = delete;
   };
 
   class AssertHandler {
   public:
     AssertHandler();
+    AssertHandler(const AssertHandler&) = delete;
     ~AssertHandler();
 
   private:
-    AssertHandler(const AssertHandler&) = delete;
     ProblemTracker const* pt_;
   };
 

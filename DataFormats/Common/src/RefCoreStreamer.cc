@@ -66,16 +66,16 @@ namespace edm {
   TClassStreamer* RefCoreWithIndexStreamer::Generate() const { return new RefCoreWithIndexStreamer(*this); }
 
   void setRefCoreStreamerInTClass() {
-    TClass* cl = TClass::GetClass("edm::RefCore");
-    TClassStreamer* st = cl->GetStreamer();
-    if (st == nullptr) {
-      cl->AdoptStreamer(new RefCoreStreamer());
+    {
+      TClass* tClass = TClass::GetClass("edm::RefCore");
+      if (tClass->GetStreamer() == nullptr) {
+        tClass->AdoptStreamer(new RefCoreStreamer());
+      }
     }
     {
-      TClass* cl = TClass::GetClass("edm::RefCoreWithIndex");
-      TClassStreamer* st = cl->GetStreamer();
-      if (st == nullptr) {
-        cl->AdoptStreamer(new RefCoreWithIndexStreamer());
+      TClass* tClass = TClass::GetClass("edm::RefCoreWithIndex");
+      if (tClass->GetStreamer() == nullptr) {
+        tClass->AdoptStreamer(new RefCoreWithIndexStreamer());
       }
     }
   }

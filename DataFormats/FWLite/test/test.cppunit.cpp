@@ -34,6 +34,7 @@ class testRefInROOT : public CppUnit::TestFixture {
 
   CPPUNIT_TEST(testOneGoodFile);
   CPPUNIT_TEST_EXCEPTION(failOneBadFile, std::exception);
+  CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile, std::exception);
   CPPUNIT_TEST(testRefFirst);
   CPPUNIT_TEST(testAllLabels);
   CPPUNIT_TEST(testGoodChain);
@@ -46,7 +47,6 @@ class testRefInROOT : public CppUnit::TestFixture {
   CPPUNIT_TEST(testTo);
   CPPUNIT_TEST(testThinning);
 
-  // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
   //CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
 
@@ -75,7 +75,7 @@ public:
   void testEventBase();
   void testSometimesMissingData();
   void testTo();
-  // void failChainWithMissingFile();
+  void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
   void testThinning();
 
@@ -339,55 +339,37 @@ void testRefInROOT::testTwoGoodFiles() {
 }
 
 void testRefInROOT::testGoodChain() {
-  /*
-  TChain eventChain(edm::poolNames::eventTreeName());
-  eventChain.Add((tmpdir + "goodDataFormatsFWLite.root").c_str());
-  eventChain.Add((tmpdir + "good2DataFormatsFWLite.root").c_str());
+  std::vector<std::string> files{tmpdir + "goodDataFormatsFWLite.root", tmpdir + "good2DataFormatsFWLite.root"};
+  fwlite::ChainEvent events(files);
 
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
-  eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
-  
-  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
-  eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
-  
-  int nev = eventChain.GetEntries();
-  for( int ev=0; ev<nev; ++ev) {
-    std::cout <<"event #" <<ev<<std::endl;
-    eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != nullptr);
-    CPPUNIT_ASSERT(pThings != nullptr);
-    checkMatch(pOthers->product(),pThings->product());
+  for (events.toBegin(); not events.atEnd(); ++events) {
+    fwlite::Handle<edmtest::ThingCollection> pThings;
+    pThings.getByLabel(events, "Thing");
+
+    fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+    pOthers.getByLabel(events, "OtherThing", "testUserTag");
+
+    checkMatch(pOthers.ptr(), pThings.ptr());
   }
-  */
 }
-/*
-void testRefInROOT::failChainWithMissingFile()
-{
-  TChain eventChain(edm::poolNames::eventTreeName());
-  eventChain.Add((tmpdir + "goodDataFormatsFWLite.root").c_str());
-  eventChain.Add("thisFileDoesNotExist.root");
-  
-  edm::Wrapper<edmtest::OtherThingCollection> *pOthers = nullptr;
-  eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
-  
-  edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
-  eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
-  
-  int nev = eventChain.GetEntries();
-  for( int ev=0; ev<nev; ++ev) {
-    std::cout <<"event #" <<ev<<std::endl;    
-    eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != nullptr);
-    CPPUNIT_ASSERT(pThings != nullptr);
-    checkMatch(pOthers->product(),pThings->product());
+
+void testRefInROOT::failChainWithMissingFile() {
+  std::vector<std::string> files{tmpdir + "goodDataFormatsFWLite.root", tmpdir + "2ndFileDoesNotExist.root"};
+  fwlite::ChainEvent events(files);
+
+  for (events.toBegin(); not events.atEnd(); ++events) {
+    fwlite::Handle<edmtest::ThingCollection> pThings;
+    pThings.getByLabel(events, "Thing");
+
+    fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+    pOthers.getByLabel(events, "OtherThing", "testUserTag");
+
+    checkMatch(pOthers.ptr(), pThings.ptr());
   }
-  
 }
-*/
 
 void testRefInROOT::testThinning() {
-  std::vector<std::string> files{(tmpdir + "goodDataFormatsFWLite.root").c_str(),
-                                 (tmpdir + "goodDataFormatsFWLite.root").c_str()};
+  std::vector<std::string> files{tmpdir + "goodDataFormatsFWLite.root", tmpdir + "goodDataFormatsFWLite.root"};
   fwlite::ChainEvent events(files);
 
   for (events.toBegin(); not events.atEnd(); ++events) {
@@ -524,8 +506,8 @@ void testRefInROOT::testThinning() {
     CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8].operator->(), cms::Exception);
   }
 
-  std::vector<std::string> files1{(tmpdir + "refTestCopyDropDataFormatsFWLite.root").c_str()};
-  std::vector<std::string> files2{(tmpdir + "goodDataFormatsFWLite.root").c_str()};
+  std::vector<std::string> files1{tmpdir + "refTestCopyDropDataFormatsFWLite.root"};
+  std::vector<std::string> files2{tmpdir + "goodDataFormatsFWLite.root"};
 
   fwlite::MultiChainEvent multiChainEvents(files1, files2);
   for (multiChainEvents.toBegin(); !multiChainEvents.atEnd(); ++multiChainEvents) {

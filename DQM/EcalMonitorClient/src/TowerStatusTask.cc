@@ -5,11 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
-
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -40,23 +35,28 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "Nothing to do in TowerStatusTask";
   }
 
+  void TowerStatusTask::setTokens(edm::ConsumesCollector& _collector) {
+    daqHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+    dcsHndlToken = _collector.esConsumes<edm::Transition::EndLuminosityBlock>();
+  }
+
   void TowerStatusTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es) {
     if (doDAQInfo_) {
       std::fill_n(daqStatus_, nDCC, 1.);
 
-      edm::ESHandle<EcalDAQTowerStatus> daqHndl;
-      _es.get<EcalDAQTowerStatusRcd>().get(daqHndl);
-      if (daqHndl.isValid()) {
+      const EcalDAQTowerStatus* daqHndl = &_es.getData(daqHndlToken);
+      auto daqhandle = _es.getHandle(daqHndlToken);
+      if (daqhandle.isValid()) {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (daqHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            daqStatus_[dccId(ttid) - 1] -= 25. / 1700.;
+            daqStatus_[dccId(ttid, GetElectronicsMap()) - 1] -= 25. / 1700.;
           }
         }
         for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
           if (daqHndl->endcap(id).getStatusCode() != 0) {
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
+            unsigned dccid(dccId(scid, GetElectronicsMap()));
             daqStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
@@ -67,19 +67,19 @@ namespace ecaldqm {
     if (doDCSInfo_) {
       std::fill_n(dcsStatus_, nDCC, 1.);
 
-      edm::ESHandle<EcalDCSTowerStatus> dcsHndl;
-      _es.get<EcalDCSTowerStatusRcd>().get(dcsHndl);
-      if (dcsHndl.isValid()) {
+      const EcalDCSTowerStatus* dcsHndl = &_es.getData(dcsHndlToken);
+      auto dcshandle = _es.getHandle(dcsHndlToken);
+      if (dcshandle.isValid()) {
         for (unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++) {
           if (dcsHndl->barrel(id).getStatusCode() != 0) {
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            dcsStatus_[dccId(ttid) - 1] -= 25. / 1700.;
+            dcsStatus_[dccId(ttid, GetElectronicsMap()) - 1] -= 25. / 1700.;
           }
         }
         for (unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++) {
           if (dcsHndl->endcap(id).getStatusCode() != 0) {
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
-            unsigned dccid(dccId(scid));
+            unsigned dccid(dccId(scid, GetElectronicsMap()));
             dcsStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
@@ -103,19 +103,19 @@ namespace ecaldqm {
     meSummaryMap = &MEs_.at(_type + "SummaryMap");
     meContents = &MEs_.at(_type + "Contents");
 
-    meSummary->reset(-1.);
+    meSummary->reset(GetElectronicsMap(), -1.);
     meSummaryMap->resetAll(-1.);
-    meSummaryMap->reset();
-    meContents->reset(-1.);
+    meSummaryMap->reset(GetElectronicsMap());
+    meContents->reset(GetElectronicsMap(), -1.);
 
     float totalFraction(0.);
     for (int iDCC(0); iDCC < nDCC; iDCC++) {
-      meSummaryMap->setBinContent(iDCC + 1, _status[iDCC]);
-      meContents->fill(iDCC + 1, _status[iDCC]);
+      meSummaryMap->setBinContent(getEcalDQMSetupObjects(), iDCC + 1, _status[iDCC]);
+      meContents->fill(getEcalDQMSetupObjects(), iDCC + 1, _status[iDCC]);
       totalFraction += _status[iDCC] / nCrystals(iDCC + 1);
     }
 
-    meSummary->fill(totalFraction);
+    meSummary->fill(getEcalDQMSetupObjects(), totalFraction);
   }
 
   DEFINE_ECALDQM_WORKER(TowerStatusTask);

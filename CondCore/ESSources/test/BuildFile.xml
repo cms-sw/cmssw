@@ -1,18 +1,33 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/Calibration"/>
-<use   name="FWCore/Framework"/>
-<use   name="CondFormats/DataRecord"/>
-<library   file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="stubs/PedestalsByLabelAnalyzer.cc" name="PedestalsByLabelAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="SiStripTest/noiseanalyzer.cc" name="NoisesAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="stubs/EfficiencyByLabelAnalyzer.cc" name="ExEfficiencyByLabelAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/Calibration"/>
+<use name="FWCore/Framework"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<library file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
+  <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="stubs/PedestalsByLabelAnalyzer.cc" name="PedestalsByLabelAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
 
+<library file="SiStripTest/noiseanalyzer.cc" name="NoisesAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="stubs/EfficiencyByLabelAnalyzer.cc" name="ExEfficiencyByLabelAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="stubs/TestConcurrentIOVsCondCore.cc" name="TestConcurrentIOVsCondCore">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="TestCondCoreESSources.cpp" name="UnitTestConcurrentIOVsCondCore">
+  <flags TEST_RUNNER_ARGS=" /bin/bash CondCore/ESSources/test TestConcurrentIOVsCondCore.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<library file="stubs/LumiTestReadAnalyzer.cc" name="LumiTestReadAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>

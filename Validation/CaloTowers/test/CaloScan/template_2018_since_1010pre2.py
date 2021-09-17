@@ -54,7 +54,7 @@ process.load("Validation.HcalRecHits.HcalRecHitParam_cfi")
 process.load("Validation.CaloTowers.CaloTowersParam_cfi")
 process.calotowersAnalyzer.outputFile = cms.untracked.string('CaloTowersValidationRelVal.root')
 
-
+process.load("Validation.RecoParticleFlow.pfClusterValidation_cfi")
 
 #------------- CUSTOMIZATION - replace hbhereco with hbheprereco
 delattr(process,"hbhereco")
@@ -72,30 +72,34 @@ process.g4SimHits.Generator.HepMCProductLabel = cms.InputTag('VtxSmeared')
 
 
 process.p = cms.Path(
- process.VtxSmeared *
- process.generatorSmeared *
- process.g4SimHits *
- process.mix *
- process.ecalDigiSequence * 
- process.hcalDigiSequence *
- process.addPileupInfo *
- process.bunchSpacingProducer *
- process.ecalPacker *
- process.esDigiToRaw *
- process.hcalRawData *
- process.rawDataCollector *
- process.ecalDigis *
- process.ecalPreshowerDigis *
- process.hcalDigis *
- process.castorDigis *
- process.calolocalreco *
- process.caloTowersRec *
- process.hcalnoise *
- process.HcalSimHitsAnalyser *
- process.hcaldigisAnalyzer *
- process.calotowersAnalyzer *
- process.hcalRecoAnalyzer *
- process.MEtoEDMConverter
+    process.VtxSmeared *
+    process.generatorSmeared *
+    process.g4SimHits *
+    process.mix *
+    process.ecalDigiSequence * 
+    process.hcalDigiSequence *
+    process.addPileupInfo *
+    process.bunchSpacingProducer *
+    process.ecalPacker *
+    process.esDigiToRaw *
+    process.hcalRawData *
+    process.rawDataCollector *
+    process.ecalDigis *
+    process.ecalPreshowerDigis *
+    process.hcalDigis *
+    process.castorDigis *
+    process.calolocalreco *
+    process.caloTowersRec *
+    process.hcalnoise *
+    process.particleFlowCluster *
+    #
+    process.HcalSimHitsAnalyser *
+    process.hcaldigisAnalyzer *
+    process.calotowersAnalyzer *
+    process.pfClusterValidation *
+    process.hcalRecoAnalyzer *
+    #
+    process.MEtoEDMConverter
 )
 
 process.outpath = cms.EndPath(process.FEVT)

@@ -29,7 +29,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -55,6 +54,7 @@ private:
   // fix for consumes
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollection_token_;
   edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_token_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> ecalPeds;
 
   MonitorElement *meEEUncalibRecHitsOccupancyPlus_;
   MonitorElement *meEEUncalibRecHitsOccupancyMinus_;

@@ -25,7 +25,8 @@ namespace edm {
 
     void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
-    void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const override;
+    void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override;
 
     void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override;
 

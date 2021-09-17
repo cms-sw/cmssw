@@ -158,7 +158,7 @@ void RPCCompDetId::initGas() {
     //Extract the sector
     {
       std::stringstream os;
-      os << buf.substr(buf.find("S") + 1, 2);
+      os << buf.substr(buf.find('S') + 1, 2);
       os >> sector;
     }
     //Extract subsector of sectors 4 and 10

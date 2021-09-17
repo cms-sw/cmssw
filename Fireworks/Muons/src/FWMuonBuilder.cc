@@ -8,6 +8,7 @@
 #include "TEveTrack.h"
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TGeoArb8.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"

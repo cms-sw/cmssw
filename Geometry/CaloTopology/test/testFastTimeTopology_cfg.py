@@ -9,18 +9,20 @@ process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.FastTimeTopology_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        HGCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        HGCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")

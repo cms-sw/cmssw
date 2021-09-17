@@ -38,4 +38,9 @@
  <class name="std::map<unsigned short,float>"/>
  <class name="std::map<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::map<unsigned short,unsigned short>"/>
+
+ <class name="std::map<unsigned long long,unsigned long long>"/>
+ <class name="std::map<unsigned long long,unsigned long long>::value_type" />
+ <class name="std::map <std::string, unsigned long long>" />
+
 </lcgdict>

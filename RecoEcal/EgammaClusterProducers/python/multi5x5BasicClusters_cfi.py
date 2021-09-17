@@ -37,5 +37,6 @@ multi5x5BasicClustersCleaned = cms.EDProducer("Multi5x5ClusterProducer",
 
 # with no cleaning
 
-multi5x5BasicClustersUncleaned = multi5x5BasicClustersCleaned.clone()
-multi5x5BasicClustersUncleaned.RecHitFlagToBeExcluded= cms.vstring()
+multi5x5BasicClustersUncleaned = multi5x5BasicClustersCleaned.clone(
+    RecHitFlagToBeExcluded = []
+)

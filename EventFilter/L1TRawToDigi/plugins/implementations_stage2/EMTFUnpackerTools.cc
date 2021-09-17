@@ -1,5 +1,5 @@
-
 #include "EMTFUnpackerTools.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 namespace l1t {
   namespace stage2 {
@@ -18,9 +18,7 @@ namespace l1t {
         _hit.set_sync_err(_ME.SE());
         _hit.set_bx(_ME.TBIN() - 3);
         _hit.set_bc0(_ME.BC0());
-        _hit.set_is_CSC(true);
-        _hit.set_is_RPC(false);
-        _hit.set_subsystem(1);
+        _hit.set_subsystem(l1tmu::kCSC);
         // _hit.set_layer();
 
         _hit.set_ring(L1TMuonEndCap::calc_ring(_hit.Station(), _hit.CSC_ID(), _hit.Strip()));
@@ -45,9 +43,7 @@ namespace l1t {
         _hit.set_bx(_RPC.TBIN() - 3);
         _hit.set_valid(_RPC.VP());
         _hit.set_bc0(_RPC.BC0());
-        _hit.set_is_CSC(false);
-        _hit.set_is_RPC(true);
-        _hit.set_subsystem(2);
+        _hit.set_subsystem(l1tmu::kRPC);
 
         _hit.SetRPCDetId(_hit.CreateRPCDetId());
         // // Not yet implemented - AWB 15.03.17
@@ -63,6 +59,36 @@ namespace l1t {
         // EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFBlockRPC.cc - AWB 02.05.17
 
       }  // End ImportRPC
+
+      void ImportGEM(EMTFHit& _hit, const l1t::emtf::GEM& _GEM, const int _endcap, const int _evt_sector) {
+        constexpr uint8_t GEM_MAX_CLUSTERS_PER_LAYER = 8;
+        _hit.set_endcap(_endcap == 1 ? 1 : -1);
+        _hit.set_sector_idx(_endcap == 1 ? _evt_sector - 1 : _evt_sector + 5);
+
+        _hit.set_pad(_GEM.Pad());
+        _hit.set_pad_hi(_GEM.Pad() + (_GEM.ClusterSize() - 1));
+        _hit.set_pad_low(_GEM.Pad());
+        _hit.set_partition(_GEM.Partition());
+        // TODO: verify layer naming is 0/1 and not 1/2
+        _hit.set_layer(_GEM.ClusterID() < GEM_MAX_CLUSTERS_PER_LAYER ? 0 : 1);
+        _hit.set_cluster_size(_GEM.ClusterSize());
+        _hit.set_cluster_id(_GEM.ClusterID());
+        // TODO: FIXME is this value known for GEM? - JS 13.07.20
+        _hit.set_bx(_GEM.TBIN() - 3);
+        _hit.set_valid(_GEM.VP());
+        _hit.set_bc0(_GEM.BC0());
+        _hit.set_subsystem(l1tmu::kGEM);
+
+        _hit.set_ring(1);  // GEM only on ring 1
+        // TODO: FIXME correct for GEM, should match CSC chamber, but GEM have 2 chambers (layers in a superchamber) per CSC chamber - JS 13.07.20
+        // _hit.set_chamber(L1TMuonEndCap::calc_chamber(_hit.Station(), _hit.Sector(), _hit.Subsector(), _hit.Ring(), _hit.GEM_ID()));
+        _hit.SetGEMDetId(_hit.CreateGEMDetId());
+        // _hit.SetGEMDigi(_hit.CreateGEMPadDigi());
+
+        // Station, Ring, Sector, Subsector, and Neighbor filled in
+        // EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFBlockGEM.cc - JS 13.07.20
+
+      }  // End ImportGEM
 
       void ImportSP(EMTFTrack& _track, const l1t::emtf::SP _SP, const int _endcap, const int _evt_sector) {
         _track.set_endcap((_endcap == 1) ? 1 : -1);

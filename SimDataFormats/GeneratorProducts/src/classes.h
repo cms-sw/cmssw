@@ -17,6 +17,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorLumiInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorEventInfo.h"
+
 #include <HepMC/GenRanges.h>
 
 //needed for backward compatibility between HepMC 2.06.xx and 2.05.yy
@@ -24,14 +27,13 @@ namespace hepmc_rootio {
   void add_to_particles_in(HepMC::GenVertex*, HepMC::GenParticle*);
   void clear_particles_in(HepMC::GenVertex*);
 
-  inline void weightcontainer_set_default_names(unsigned int n, std::map<std::string,HepMC::WeightContainer::size_type>& names) {
-      std::ostringstream name;
-      for ( HepMC::WeightContainer::size_type count = 0; count<n; ++count ) 
-      { 
+  inline void weightcontainer_set_default_names(unsigned int n,
+                                                std::map<std::string, HepMC::WeightContainer::size_type>& names) {
+    std::ostringstream name;
+    for (HepMC::WeightContainer::size_type count = 0; count < n; ++count) {
       name.str(std::string());
       name << count;
       names[name.str()] = count;
-      }
+    }
   }
-}
-
+}  // namespace hepmc_rootio

@@ -9,6 +9,7 @@
 
 #include <ostream>
 #include <vector>
+#include <array>
 
 #include "DataFormats/L1Trigger/interface/L1DataEmulDigi.h"
 
@@ -22,6 +23,12 @@ public:
                    bool sys_comp[DEnsys],
                    bool sys_match[DEnsys],
                    int nCand[DEnsys][2],
+                   const L1DEDigiCollection&,
+                   const GltDEDigi&);
+  L1DataEmulRecord(bool evt_match,
+                   std::array<bool, DEnsys> const& sys_comp,
+                   std::array<bool, DEnsys> const& sys_match,
+                   std::array<std::array<int, 2>, DEnsys> const& nCand,
                    const L1DEDigiCollection&,
                    const GltDEDigi&);
   ~L1DataEmulRecord();

@@ -245,7 +245,7 @@ namespace edm {
       std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
       if (!genEventInfo.get()) {
         // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
-        genEventInfo.reset(new GenEventInfoProduct(event.get()));
+        genEventInfo = std::make_unique<GenEventInfoProduct>(event.get());
       }
 
       //if HepMCFilter was specified, test event

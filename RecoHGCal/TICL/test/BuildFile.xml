@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/Math"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<flags EDM_PLUGIN="1"/>
+<library   file="*.cc" name="testRecoHGCalTICL"> </library>

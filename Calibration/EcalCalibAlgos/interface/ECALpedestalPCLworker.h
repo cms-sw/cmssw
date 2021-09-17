@@ -18,12 +18,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/TCDS/interface/BSTRecord.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
@@ -38,14 +39,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void beginJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
 
   edm::EDGetTokenT<EBDigiCollection> digiTokenEB_;
   edm::EDGetTokenT<EEDigiCollection> digiTokenEE_;
   edm::EDGetTokenT<TCDSRecord> tcdsToken_;
+  const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalToken_;
 
   std::vector<MonitorElement *> meEB_;
   std::vector<MonitorElement *> meEE_;

@@ -45,7 +45,7 @@ class IterationsPlotter:
         return out
     
     def makeHists(self, sectorRange, coordinate):
-        sectors = range(sectorRange[0],sectorRange[1]+1)
+        sectors = list(range(sectorRange[0],sectorRange[1]+1))
         numSectors = len(sectors)
         
         fi = ROOT.TFile(self.inFile, "READ")

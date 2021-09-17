@@ -130,13 +130,6 @@ if options.dataSource.find('recoFiles') != -1:
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
-   if options.dataSource.find('CaloTau') != -1:
-      process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-      process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-      process.load("Configuration.StandardSequences.MagneticField_cff")
-      process.load("RecoTauTag.Configuration.RecoTauTag_cff")
-      process.runCaloTau = cms.Path(process.tautagging)
-      process.schedule.append(process.runCaloTau)
 
 # Run on DIGI files and re-RECO
 elif options.dataSource == 'digiFiles':

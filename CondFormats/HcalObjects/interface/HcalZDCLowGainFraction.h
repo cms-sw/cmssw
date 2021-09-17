@@ -8,8 +8,7 @@ POOL object to store lowGainFrac values
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalZDCLowGainFraction {
 public:

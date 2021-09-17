@@ -46,11 +46,9 @@ namespace edm {
     }
   }
 
-  void AllowedLabelsDescriptionBase::writeCfi_(std::ostream& os,
-                                               bool& startWithComma,
-                                               int indentation,
-                                               bool& wroteSomething) const {
-    parameterHoldingLabels_.writeCfi(os, startWithComma, indentation, wroteSomething);
+  void AllowedLabelsDescriptionBase::writeCfi_(
+      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+    parameterHoldingLabels_.writeCfi(os, optional, startWithComma, indentation, wroteSomething);
   }
 
   void AllowedLabelsDescriptionBase::print_(std::ostream& os,

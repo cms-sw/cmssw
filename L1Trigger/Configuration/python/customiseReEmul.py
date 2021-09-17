@@ -3,6 +3,7 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def L1TCaloStage2ParamsForHW(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi")
@@ -60,7 +61,7 @@ def L1TReEmulFromRAW2015(process):
         cms.InputTag('hcalDigis')
     )
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
-    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'  
+    process.simDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
 
@@ -75,8 +76,12 @@ def L1TReEmulFromRAW2015(process):
         srcCSC = "csctfDigis"
     )
     stage2L1Trigger.toModify(process.simBmtfDigis,
-        DTDigi_Source         = "simTwinMuxDigis",
-        DTDigi_Theta_Source   = "dttfDigis"
+       DTDigi_Source         = "simTwinMuxDigis",
+       DTDigi_Theta_Source   = "dttfDigis"
+    )
+    stage2L1Trigger.toModify(process.simKBmtfStubs,
+        srcPhi     = "simTwinMuxDigis",
+        srcTheta   = "dttfDigis"
     )
     stage2L1Trigger.toModify(process.simEmtfDigis,
         CSCInput = "csctfDigis",
@@ -126,23 +131,30 @@ def L1TReEmulFromRAW2016(process):
                 cms.InputTag('hcalDigis'),
                 cms.InputTag('hcalDigis')
     )
+    process.simDtTriggerPrimitiveDigis.digiTag = cms.InputTag("muonDTDigis")
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
+
 
     #cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
     #for b in cutlist:
     #    process.SimL1Emulator.remove(getattr(process,b))
     # TwinMux
     stage2L1Trigger.toModify(process.simTwinMuxDigis,
-        RPC_Source         = 'RPCTwinMuxRawToDigi',
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
         DTDigi_Source      = 'twinMuxStage2Digis:PhIn',
         DTThetaDigi_Source = 'twinMuxStage2Digis:ThIn'
     )
     # BMTF
     stage2L1Trigger.toModify(process.simBmtfDigis,
-        DTDigi_Source       = 'simTwinMuxDigis',
-        DTDigi_Theta_Source = 'bmtfDigis'
+       DTDigi_Source         = "simTwinMuxDigis",
+       DTDigi_Theta_Source   = "bmtfDigis"
+    )
+    # KBMTF
+    stage2L1Trigger.toModify(process.simKBmtfStubs,
+       srcPhi       = 'simTwinMuxDigis',
+       srcTheta     = 'bmtfDigis'
     )
     # OMTF
     stage2L1Trigger.toModify(process.simOmtfDigis,
@@ -170,16 +182,46 @@ def L1TReEmulFromRAW2016(process):
 
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
-    return process
+    return process 
 
 def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
+    
 
     stage2L1Trigger_2017.toModify(process.simOmtfDigis,
         srcRPC   = 'omtfStage2Digis',
         srcCSC   = 'omtfStage2Digis',
         srcDTPh  = 'omtfStage2Digis',
         srcDTTh  = 'omtfStage2Digis'
+    )
+
+    stage2L1Trigger.toModify(process.simEmtfDigis,
+      CSCInput  = cms.InputTag('emtfStage2Digis'),
+      RPCInput  = cms.InputTag('muonRPCDigis'),
+      CPPFInput = cms.InputTag('emtfStage2Digis'),
+      GEMEnable = cms.bool(False),
+      GEMInput  = cms.InputTag('muonGEMPadDigis'),
+      CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
+    )
+
+    run3_GEM.toModify(process.simMuonGEMPadDigis,
+        InputCollection         = 'muonGEMDigis',
+    )
+
+    run3_GEM.toModify(process.simTwinMuxDigis,
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
+        DTDigi_Source      = 'simDtTriggerPrimitiveDigis',
+        DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
+    )
+
+    run3_GEM.toModify(process.simKBmtfStubs,
+        srcPhi   = 'bmtfDigis',
+        srcTheta = 'bmtfDigis'
+    )
+
+    run3_GEM.toModify(process.simBmtfDigis,
+        DTDigi_Source       = 'bmtfDigis',
+        DTDigi_Theta_Source = 'bmtfDigis'
     )
 
     print("# L1TReEmul sequence:  ")
@@ -226,10 +268,29 @@ def L1TReEmulFromRAWCalo(process):
     print ("# {0}".format(process.schedule))
     return process
 
+def L1TReEmulFromRAWCaloSimTP(process):
+    process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+    process.schedule.append(process.L1TReEmulPath)
+
+    print ("# L1TReEmul sequence:  ")
+    print ("# {0}".format(process.L1TReEmul))
+    print ("# {0}".format(process.schedule))
+    return process
+
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     stage2L1Trigger.toModify(process.simEmtfDigis, CSCInput = 'simCscTriggerPrimitiveDigis:MPCSORTED')
     stage2L1Trigger.toModify(process.simOmtfDigis, srcCSC   = 'simCscTriggerPrimitiveDigis:MPCSORTED')
+
+    # Temporary fix for OMTF inputs in MC re-emulation
+    run3_GEM.toModify(process.simOmtfDigis,
+        srcRPC   = 'muonRPCDigis',
+        srcDTPh  = 'simDtTriggerPrimitiveDigis',
+        srcDTTh  = 'simDtTriggerPrimitiveDigis'
+    )
+
     return process
 
 def L1TReEmulMCFromRAWSimEcalTP(process):
@@ -291,6 +352,11 @@ def L1TReEmulFromRAWsimTP(process):
         DTDigi_Source         = 'simTwinMuxDigis',
         DTDigi_Theta_Source   = 'simDtTriggerPrimitiveDigis'
     )
+    # KBMTF
+    stage2L1Trigger.toModify(process.simKBmtfStubs,
+        srcPhi     = "simTwinMuxDigis",
+        srcTheta   = "simDtTriggerPrimitiveDigis"
+    )
     # OMTF
     stage2L1Trigger.toModify(process.simOmtfDigis,
         srcRPC  = 'muonRPCDigis',
@@ -335,7 +401,9 @@ def L1TReEmulFromRAWLegacyMuon(process):
     process.simTwinMuxDigisForDttf.DTDigi_Source      = cms.InputTag('bmtfDigis')
     process.simTwinMuxDigisForDttf.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
 
-## - CSC TP emulator 
+    # Lookup tables for the CSC TP emulator
+    process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
+    ## - CSC TP emulator
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigis.clone()
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi' )

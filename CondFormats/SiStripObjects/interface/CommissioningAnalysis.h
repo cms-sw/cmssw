@@ -3,10 +3,10 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include <boost/cstdint.hpp>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 /**
    @class CommissioningAnalysis

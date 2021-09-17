@@ -26,6 +26,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include <string>
 #include <vector>
 #include <algorithm>

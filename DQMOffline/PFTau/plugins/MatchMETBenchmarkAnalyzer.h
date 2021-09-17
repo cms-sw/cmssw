@@ -10,6 +10,8 @@ class TH1F;
 
 class MatchMETBenchmarkAnalyzer : public BenchmarkAnalyzer, public MatchMETBenchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   MatchMETBenchmarkAnalyzer(const edm::ParameterSet &parameterSet);
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;

@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # by default: the quality tests run at the end of each lumisection
-DQMExample_qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+DQMExample_qTester = DQMQualityTester(
                        qtList = cms.untracked.FileInPath('DQMServices/Examples/test/DQMExample_QualityTest.xml'),
                        prescaleFactor = cms.untracked.int32(1),
                        #reportThreshold         = cms.untracked.string('black'),

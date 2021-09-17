@@ -16,7 +16,6 @@ $Revision: 1.1 $
 #include <set>
 #include <vector>
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
@@ -25,6 +24,7 @@ $Revision: 1.1 $
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include <cstdint>
 
 //forward declaration
 namespace HcalDcsMapAddons {

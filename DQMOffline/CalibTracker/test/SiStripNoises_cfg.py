@@ -7,10 +7,18 @@ process = cms.Process("PWRITE")
 ######################### 
 
 process.MessageLogger = cms.Service("MessageLogger",
-destinations = cms.untracked.vstring('cout', 'readFromFile_57620'),
-readFromFile_57620 = cms.untracked.PSet(
-    threshold = cms.untracked.string('DEBUG')),
-debugModules = cms.untracked.vstring('*')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        readFromFile_57620 = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 

@@ -31,15 +31,14 @@ process.hltfilter = hlt.hltHighLevel.clone(
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('dumper'),
-    destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('WARNING')
-    )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
+    ),
+    debugModules = cms.untracked.vstring('dumper')
 )
 #process.MessageLogger.cerr.FwkReport.reportEvery = 1
 #process.MessageLogger.cerr.threshold = 'Debug'
@@ -274,7 +273,6 @@ process.source = cms.Source("PoolSource",
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205718:49-205718:734')
 
 process.d = cms.EDAnalyzer("SiPixelRawDumper", 
-    Timing = cms.untracked.bool(False),
     IncludeErrors = cms.untracked.bool(True),
 #   In 2012, label = rawDataCollector, extension = _LHC                                
 #    InputLabel = cms.untracked.string('rawDataCollector'),
@@ -285,7 +283,6 @@ process.d = cms.EDAnalyzer("SiPixelRawDumper",
 # old
 #    InputLabel = cms.untracked.string('siPixelRawData'),
 #    InputLabel = cms.untracked.string('source'),
-    CheckPixelOrder = cms.untracked.bool(False),
 # 0 - nothing, 1 - error , 2- data, 3-headers, 4-hex
     Verbosity = cms.untracked.int32(1),
 # threshold, print fed/channel num of errors if tot_errors > events * PrintThreshold, default 0,001 

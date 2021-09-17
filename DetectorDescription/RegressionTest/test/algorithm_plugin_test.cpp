@@ -8,8 +8,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-int main(int, char **argv)
-{
+int main(int, char **argv) {
   DDCompactView cpv;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::string name("test:DDTestAlgorithm");
@@ -20,14 +19,12 @@ int main(int, char **argv)
     const DDMapArguments mArgs;
     const DDStringArguments sArgs;
     const DDStringVectorArguments vsArgs;
-    algo->initialize( nArgs, vArgs, mArgs, sArgs, vsArgs );
-    algo->execute( cpv );
+    algo->initialize(nArgs, vArgs, mArgs, sArgs, vsArgs);
+    algo->execute(cpv);
     std::cout << "OK\n";
-  }
-  else {
+  } else {
     std::cout << "SEVERE ERROR: algorithm not found in registered plugins!" << std::endl;
     std::cout << "              name=" << name << std::endl;
   }
   return 0;
 }
-

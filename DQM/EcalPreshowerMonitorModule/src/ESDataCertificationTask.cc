@@ -14,7 +14,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalPreshowerMonitorModule/interface/ESDataCertificationTask.h"
@@ -27,8 +26,6 @@ ESDataCertificationTask::ESDataCertificationTask(const ParameterSet& ps) {
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
@@ -55,10 +52,7 @@ void ESDataCertificationTask::beginJob(void) {
   }
 }
 
-void ESDataCertificationTask::endJob(void) {
-  if (enableCleanup_)
-    this->cleanup();
-}
+void ESDataCertificationTask::endJob(void) {}
 
 void ESDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                                                    const edm::EventSetup& iSetup) {
@@ -71,18 +65,6 @@ void ESDataCertificationTask::reset(void) {
 
   if (meESDataCertificationSummaryMap_)
     meESDataCertificationSummaryMap_->Reset();
-}
-
-void ESDataCertificationTask::cleanup(void) {
-  if (dqmStore_) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-    if (meESDataCertificationSummary_)
-      dqmStore_->removeElement(meESDataCertificationSummary_->getName());
-
-    if (meESDataCertificationSummaryMap_)
-      dqmStore_->removeElement(meESDataCertificationSummaryMap_->getName());
-  }
 }
 
 void ESDataCertificationTask::analyze(const Event& e, const EventSetup& c) {}

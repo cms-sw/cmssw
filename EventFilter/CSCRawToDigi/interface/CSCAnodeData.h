@@ -1,9 +1,8 @@
-#ifndef CSCAnodeData_h
-#define CSCAnodeData_h
-#include <vector>
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
+#ifndef EventFilter_CSCRawToDigi_CSCAnodeData_h
+#define EventFilter_CSCRawToDigi_CSCAnodeData_h
+
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeDataFormat.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class CSCALCTHeader;
 
@@ -27,7 +26,7 @@ public:
   static bool selfTest();
 
 private:
-  boost::shared_ptr<CSCAnodeDataFormat> theData;
+  std::shared_ptr<CSCAnodeDataFormat> theData;
   int firmwareVersion;
 };
 

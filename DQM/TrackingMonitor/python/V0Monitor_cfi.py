@@ -7,6 +7,8 @@ v0Monitor = DQMEDAnalyzer('V0Monitor',
    beamSpot      = cms.InputTag('offlineBeamSpot'),
    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
    lumiScalers   = cms.InputTag('scalersRawToDigi'),
+   forceSCAL     = cms.bool(True),
+   metadata      = cms.InputTag('onlineMetaDataDigis'),
    pvNDOF = cms.int32(4),   
    genericTriggerEventPSet = cms.PSet(),
    histoPSet = cms.PSet(
@@ -52,3 +54,7 @@ v0Monitor = DQMEDAnalyzer('V0Monitor',
       ),
    ),
 )
+
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(v0Monitor, forceSCAL = False)

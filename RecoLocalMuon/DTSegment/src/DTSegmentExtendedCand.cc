@@ -29,10 +29,10 @@ using namespace std;
 bool DTSegmentExtendedCand::isCompatible(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) {
   LocalPoint posAtSL = position() + direction() * (clus.pos.z() - position().z()) / cos(direction().theta());
   // cout << "pos :" << clus.pos << " posAtSL " << posAtSL << endl;
-  static float errScaleFact = 10.;
-  static float minError = 25.;  // (cm)
+  static constexpr float errScaleFact = 10.;
+  static constexpr float minError = 25.;  // (cm)
   // cout << "clus.err.xx() " << clus.err << endl;
-  return fabs((posAtSL - clus.pos).x()) < max(errScaleFact * sqrt(clus.err.xx()), minError);
+  return std::abs((posAtSL - clus.pos).x()) < max(errScaleFact * sqrt(clus.err.xx()), minError);
 }
 
 unsigned int DTSegmentExtendedCand::nHits() const { return DTSegmentCand::nHits() + theClus.size(); }

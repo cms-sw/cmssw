@@ -96,14 +96,19 @@ void LMFColor::getParameters(ResultSet *rset) {
   setString("lname", rset->getString(3));
 }
 
+template <typename T, typename U>
+inline T &unique_static_cast(U &i) {
+  return *(static_cast<T *>(i.get()));
+}
+
 bool LMFColor::isValid() {
-  boost::ptr_list<LMFUnique> listOfValidColors = fetchAll();
-  boost::ptr_list<LMFUnique>::const_iterator i = listOfValidColors.begin();
-  boost::ptr_list<LMFUnique>::const_iterator e = listOfValidColors.end();
+  auto listOfValidColors = fetchAll();
+  auto i = listOfValidColors.begin();
+  auto e = listOfValidColors.end();
   bool ret = false;
   while (i != e) {
-    const LMFColor *c = static_cast<const LMFColor *>(&(*i));
-    if (c->getShortName() == getShortName()) {
+    const LMFColor &c = unique_static_cast<const LMFColor>(*i);
+    if (c.getShortName() == getShortName()) {
       ret = true;
       i = e;
     }

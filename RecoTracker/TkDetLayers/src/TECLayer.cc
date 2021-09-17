@@ -144,7 +144,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool, double> frontPath = crossing.pathLength(*theFrontDisk);
   if (!frontPath.first)
-    SubLayerCrossings();
+    return SubLayerCrossings();
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
 
@@ -156,7 +156,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool, double> backPath = crossing.pathLength(*theBackDisk);
   if (!backPath.first)
-    SubLayerCrossings();
+    return SubLayerCrossings();
 
   GlobalPoint gBackPoint(crossing.position(backPath.second));
   LogDebug("TkDetLayers") << "in TECLayer,back crossing point: r,z,phi: (" << gBackPoint.perp() << ","

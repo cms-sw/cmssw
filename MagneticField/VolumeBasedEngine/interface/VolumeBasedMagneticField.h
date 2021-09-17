@@ -15,7 +15,7 @@
 class testMagneticField;
 class testMagGeometryAnalyzer;
 
-class VolumeBasedMagneticField : public MagneticField {
+class VolumeBasedMagneticField final : public MagneticField {
   // For tests
   friend class testMagneticField;
   friend class testMagGeometryAnalyzer;
@@ -47,11 +47,9 @@ public:
 
   bool isDefined(const GlobalPoint& gp) const override;
 
-  bool isZSymmetric() const;
-
 private:
   const MagGeometry* field;
-  float maxR;
+  float maxRsq;
   float maxZ;
   const MagneticField* paramField;
   bool magGeomOwned;

@@ -19,22 +19,17 @@ int main() {
   math::ErrorD<10>::type input;
   for (int k = 0; k < 10; k++) {
     for (int kk = k; kk < 10; kk++) {
-      input(k, kk) =
-          kk == k
-              ? 1
-              : kk == k + 1
-                    ? 0.67
-                    : kk == k + 2
-                          ? 0.53
-                          : kk == k + 3
-                                ? 0.44
-                                : kk == k + 4
-                                      ? 0.39
-                                      : kk == k + 5
-                                            ? 0.36
-                                            : kk == k + 6
-                                                  ? 0.38
-                                                  : kk == k + 7 ? 0.35 : kk == k + 8 ? 0.36 : kk == k + 9 ? 0.32 : 0.;
+      input(k, kk) = kk == k       ? 1
+                     : kk == k + 1 ? 0.67
+                     : kk == k + 2 ? 0.53
+                     : kk == k + 3 ? 0.44
+                     : kk == k + 4 ? 0.39
+                     : kk == k + 5 ? 0.36
+                     : kk == k + 6 ? 0.38
+                     : kk == k + 7 ? 0.35
+                     : kk == k + 8 ? 0.36
+                     : kk == k + 9 ? 0.32
+                                   : 0.;
     }
   }
   CLHEP::HepJamesRandom engine;

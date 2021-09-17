@@ -23,7 +23,6 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorHardware/interface/HistogramBase.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
@@ -60,7 +59,7 @@ public:
 
   bool feMajHistosEnabled();
 
-  void fillLumiHistograms(const FEDErrors::LumiErrors &aLumErr);
+  void fillLumiHistograms(const std::vector<unsigned int> &nTotal, const std::vector<unsigned int> &nErrors);
 
   bool cmHistosEnabled();
 
@@ -153,8 +152,6 @@ private:
 
   HistogramConfig tkMapConfig_;
   std::unique_ptr<TkHistoMap> tkmapFED_;
-
-  HistogramConfig lumiErrorFraction_;
 
 };  //class
 

@@ -5,14 +5,9 @@
 #include "PhysicsTools/Utilities/interface/ParametricTrait.h"
 #include "PhysicsTools/Utilities/interface/DecomposePower.h"
 #include "PhysicsTools/Utilities/interface/DecomposeProduct.h"
-#include <boost/type_traits.hpp>
-#include <boost/integer/common_factor.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/if.hpp>
-
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
+
+#include <type_traits>
 
 namespace funct {
   // find a common divider
@@ -50,7 +45,12 @@ namespace funct {
   TEMPL(N2T1) struct ParametricDivN<n, m, A, false> {
     static const bool value = true;
     typedef POWER(A, NUM(n)) arg;
-    static const int p = ::boost::mpl::if_c<(n < m), ::boost::mpl::int_<n>, ::boost::mpl::int_<m> >::type::value;
+    static const int p = []() {
+      if constexpr (n < m)
+        return n;
+      else
+        return m;
+    }();
     typedef POWER(A, NUM(p)) type;
     typedef DecomposePower<A, NUM(n)> Dec;
     GET(arg, pow(Dec::getBase(_), num<p>()));
@@ -77,7 +77,7 @@ namespace funct {
   }  // namespace tmpl
 
   TEMPL(N2) struct Divides<NUM(n), NUM(m)> {
-    enum { gcd = boost::integer::static_gcd<tmpl::abs<n>::value, tmpl::abs<m>::value>::value };
+    enum { gcd = std::gcd(tmpl::abs<n>::value, tmpl::abs<m>::value) };
     static const bool value = (gcd != 1);
     typedef NUM(n) arg;
     typedef NUM(gcd) type;
@@ -124,7 +124,7 @@ namespace funct {
     typedef Divides<arg, void> D0;
     typedef Divides<arg, B> D1;
     typedef Divides<arg, C> D2;
-    typedef typename ::boost::mpl::if_<D1, D1, typename ::boost::mpl::if_<D2, D2, D0>::type>::type Div;
+    typedef typename std::conditional<D1::value, D1, typename std::conditional<D2::value, D2, D0>::type>::type Div;
     static const bool value = Div::value;
     typedef typename Div::type type;
     GET(arg, Div::get(_));
@@ -135,7 +135,7 @@ namespace funct {
     typedef Divides<arg, void> D0;
     typedef Divides<A, C> D1;
     typedef Divides<B, C> D2;
-    typedef typename ::boost::mpl::if_<D1, D1, typename ::boost::mpl::if_<D2, D2, D0>::type>::type Div;
+    typedef typename std::conditional<D1::value, D1, typename std::conditional<D2::value, D2, D0>::type>::type Div;
     typedef typename Div::type type;
     static const bool value = Div::value;
     typedef DecomposeProduct<arg, typename Div::arg> D;
@@ -147,7 +147,7 @@ namespace funct {
     typedef Divides<arg, void> D0;
     typedef Divides<arg, C> D1;
     typedef Divides<arg, D> D2;
-    typedef typename ::boost::mpl::if_<D1, D1, typename ::boost::mpl::if_<D2, D2, D0>::type>::type Div;
+    typedef typename std::conditional<D1::value, D1, typename std::conditional<D2::value, D2, D0>::type>::type Div;
     static const bool value = Div::value;
     typedef typename Div::type type;
     GET(arg, Div::get(_));

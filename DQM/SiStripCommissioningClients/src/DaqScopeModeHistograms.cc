@@ -1,12 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAlgorithm.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -18,7 +20,7 @@ using namespace sistrip;
 DaqScopeModeHistograms::DaqScopeModeHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("DaqScopeModeParameters"), bei, sistrip::DAQ_SCOPE_MODE) {
-  factory_ = unique_ptr<DaqScopeModeSummaryFactory>(new DaqScopeModeSummaryFactory);
+  factory_ = std::make_unique<DaqScopeModeSummaryFactory>();
   LogTrace(mlDqmClient_) << "[DaqScopeModeHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

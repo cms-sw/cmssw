@@ -35,9 +35,17 @@
 
 // forward declarations
 class L1GtStableParameters;
+class L1GtStableParametersRcd;
 class L1GtPrescaleFactors;
+class L1GtPrescaleFactorsAlgoTrigRcd;
+class L1GtPrescaleFactorsTechTrigRcd;
 class L1GtTriggerMask;
+class L1GtTriggerMaskAlgoTrigRcd;
+class L1GtTriggerMaskTechTrigRcd;
+class L1GtTriggerMaskVetoAlgoTrigRcd;
+class L1GtTriggerMaskVetoTechTrigRcd;
 class L1GtTriggerMenu;
+class L1GtTriggerMenuRcd;
 
 // class declaration
 
@@ -117,6 +125,15 @@ private:
 
   const edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordInputToken1;
   const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtRecordInputToken2;
+
+  const edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_stableParToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_pfAlgoToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsTechTrigRcd> m_pfTechToken;
+  const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_tmAlgoToken;
+  const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_tmTechToken;
+  const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoAlgoTrigRcd> m_tmVetoAlgoToken;
+  const edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskVetoTechTrigRcd> m_tmVetoTechToken;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
 
   /// print verbosity
   const int m_printVerbosity;

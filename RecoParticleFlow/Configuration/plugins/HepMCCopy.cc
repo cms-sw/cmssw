@@ -1,11 +1,18 @@
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "RecoParticleFlow/Configuration/plugins/HepMCCopy.h"
 #include "HepMC/GenEvent.h"
+
+class HepMCCopy : public edm::EDProducer {
+public:
+  explicit HepMCCopy(edm::ParameterSet const& p);
+  ~HepMCCopy() override {}
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+};
 
 HepMCCopy::HepMCCopy(edm::ParameterSet const& p) {
   // This producer produces a HepMCProduct, a copy of the original one
@@ -24,4 +31,5 @@ void HepMCCopy::produce(edm::Event& iEvent, const edm::EventSetup& es) {
   }
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HepMCCopy);

@@ -26,7 +26,7 @@ public:
 void L1KeyListWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TriggerKeyListExt> handle1;
   evSetup.get<L1TriggerKeyListExtRcd>().get(handle1);
-  boost::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
+  std::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

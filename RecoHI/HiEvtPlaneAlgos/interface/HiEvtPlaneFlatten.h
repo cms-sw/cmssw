@@ -32,9 +32,20 @@ public:
     vorder_ = 2;  //sets default order of event plane
   }
 
-  void init(int order, int nbins, std::string tag, int vord) {
+  void init(int order,
+            int nbins,
+            int nvtxbins = 10,
+            double minvtx = -25,
+            double delvtx = 5,
+            std::string tag = "",
+            int vord = 2) {
     hOrder_ = order;  //order of flattening
     vorder_ = vord;   //1(v1), 2(v2), 3(v3), 4(v4)
+    nvtxbins_ = nvtxbins;
+    nbins_ = nbins;
+    minvtx_ = minvtx;
+    delvtx_ = delvtx;
+
     caloCentRefMinBin_ = -1;
     caloCentRefMaxBin_ = -1;
     hbins_ = nbins * nvtxbins_ * hOrder_;
@@ -65,7 +76,7 @@ public:
     }
   }
 
-  int getCutIndx(int centbin, double vtx, int iord) const {
+  int cutIndx(int centbin, double vtx, int iord) const {
     int cut;
     if (centbin < 0)
       return -1;
@@ -79,7 +90,7 @@ public:
     return cut;
   }
 
-  int getOffsetIndx(int centbin, double vtx) const {
+  int offsetIndx(int centbin, double vtx) const {
     int cut;
     if (centbin < 0)
       return -1;
@@ -99,7 +110,7 @@ public:
     for (int k = 0; k < hOrder_; k++) {
       double fsin = sin(vorder_ * (k + 1) * psi);
       double fcos = cos(vorder_ * (k + 1) * psi);
-      int indx = getCutIndx(centbin, vtx, k);
+      int indx = cutIndx(centbin, vtx, k);
       if (indx >= 0) {
         flatX_[indx] += fcos;
         flatY_[indx] += fsin;
@@ -108,7 +119,7 @@ public:
     }
   }
   void fillOffset(double s, double c, uint m, double vtx, int centbin) {
-    int indx = getOffsetIndx(centbin, vtx);
+    int indx = offsetIndx(centbin, vtx);
     if (indx >= 0) {
       xoff_[indx] += c;
       yoff_[indx] += s;
@@ -117,7 +128,7 @@ public:
     }
   }
   void fillPt(double ptval, double vtx, int centbin) {
-    int indx = getOffsetIndx(centbin, vtx);
+    int indx = offsetIndx(centbin, vtx);
     if (indx >= 0) {
       pt_[indx] += ptval;
       pt2_[indx] += ptval * ptval;
@@ -130,9 +141,9 @@ public:
     caloCentRefMaxBin_ = caloCentRefMaxBin;
   }
 
-  double getEtScale(double vtx, int centbin) const {
-    int refmin = getOffsetIndx(caloCentRefMinBin_, vtx);
-    int refmax = getOffsetIndx(caloCentRefMaxBin_, vtx);
+  double etScale(double vtx, int centbin) const {
+    int refmin = offsetIndx(caloCentRefMinBin_, vtx);
+    int refmax = offsetIndx(caloCentRefMaxBin_, vtx);
     double caloCentRefVal_ = 0;
     for (int i = refmin; i <= refmax; i++) {
       caloCentRefVal_ += getPtDB(i);
@@ -140,20 +151,21 @@ public:
     caloCentRefVal_ /= refmax - refmin + 1.;
     if (caloCentRefMinBin_ < 0)
       return 1.;
-    int indx = getOffsetIndx(centbin, vtx);
+    int indx = offsetIndx(centbin, vtx);
     if (indx < 0 || caloCentRefVal_ == 0 || getPtDB(indx) == 0)
       return 1.;
     return caloCentRefVal_ / getPtDB(indx);
   }
 
   double getW(double pt, double vtx, int centbin) const {
-    int indx = getOffsetIndx(centbin, vtx);
+    int indx = offsetIndx(centbin, vtx);
     if (indx >= 0) {
-      double scale = getEtScale(vtx, centbin);
+      double scale = etScale(vtx, centbin);
       double ptval = getPtDB(indx) * scale;
       double pt2val = getPt2DB(indx) * pow(scale, 2);
+      double rv = pt * scale - pt2val / ptval;
       if (ptval > 0)
-        return pt * scale - pt2val / ptval;
+        return rv;
     }
     return 0.;
   }
@@ -161,7 +173,7 @@ public:
   double getFlatPsi(double psi, double vtx, int centbin) const {
     double correction = 0;
     for (int k = 0; k < hOrder_; k++) {
-      int indx = getCutIndx(centbin, vtx, k);
+      int indx = cutIndx(centbin, vtx, k);
       if (indx >= 0)
         correction += (2. / (double)((k + 1) * vorder_)) *
                       (flatXDB_[indx] * sin(vorder_ * (k + 1) * psi) - flatYDB_[indx] * cos(vorder_ * (k + 1) * psi));
@@ -172,29 +184,56 @@ public:
     return psi;
   }
 
-  double getSoffset(double s, double vtx, int centbin) const {
-    int indx = getOffsetIndx(centbin, vtx);
-    if (indx >= 0)
+  double soffset(double s, double vtx, int centbin) const {
+    int indx = offsetIndx(centbin, vtx);
+    if (indx >= 0) {
       return s - yoffDB_[indx];
-    else
+    } else {
       return s;
+    }
   }
 
-  double getCoffset(double c, double vtx, int centbin) const {
-    int indx = getOffsetIndx(centbin, vtx);
+  double coffset(double c, double vtx, int centbin) const {
+    int indx = offsetIndx(centbin, vtx);
     if (indx >= 0)
       return c - xoffDB_[indx];
     else
       return c;
   }
 
-  double getOffsetPsi(double s, double c) const {
+  double offsetPsi(double s, double c) const {
     double psi = atan2(s, c) / vorder_;
     if ((fabs(s) < 1e-4) && (fabs(c) < 1e-4))
       psi = 0.;
     psi = bounds(psi);
     psi = bounds2(psi);
     return psi;
+  }
+
+  float minCent(int indx) const {
+    int ibin = indx / nvtxbins_;
+    return ibin * 100. / nbins_;
+  }
+
+  float maxCent(int indx) const {
+    int ibin = indx / nvtxbins_;
+    return (ibin + 1) * 100. / nbins_;
+  }
+
+  double minVtx(int indx) const {
+    int ivtx = indx - nvtxbins_ * (int)(indx / nvtxbins_);
+    return minvtx_ + ivtx * delvtx_;
+  }
+
+  double maxVtx(int indx) const {
+    int ivtx = indx - nvtxbins_ * (int)(indx / nvtxbins_);
+    return minvtx_ + (ivtx + 1) * delvtx_;
+  }
+
+  std::string rangeString(int indx) {
+    char buf[120];
+    sprintf(buf, "%5.1f < cent < %5.1f; %4.1f < vtx < %4.1f", minCent(indx), maxCent(indx), minVtx(indx), maxVtx(indx));
+    return std::string(buf);
   }
 
   ~HiEvtPlaneFlatten() {}
@@ -421,9 +460,6 @@ public:
   }
 
 private:
-  static constexpr int nvtxbins_ = 10;
-  static constexpr double minvtx_ = -25.;
-  static constexpr double delvtx_ = 5.;
   static const int MAXCUT = 10000;
   static const int MAXCUTOFF = 1000;
 
@@ -470,6 +506,10 @@ private:
   double centRes40_[2];
   double centResErr40_[2];
 
+  int nvtxbins_;
+  int nbins_;
+  double minvtx_;
+  double delvtx_;
   int hOrder_;             //flattening order
   int hbins_;              //number of bins needed for flattening
   int obins_;              //number of (x,y) offset bins

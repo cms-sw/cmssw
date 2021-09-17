@@ -3,7 +3,7 @@
 
 #include "TMath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
 class strip_info {
@@ -46,9 +46,9 @@ private:
 
   int verbosity_;
 
-  const LocalVector strip_readout_direction_;
-  const LocalVector strip_direction_;
-  const LocalVector normal_direction_;
+  const Vector strip_readout_direction_;
+  const Vector strip_direction_;
+  const Vector normal_direction_;
 
   inline double ActiveEdgeFactor(double x, double y) {
     return TMath::Erf(DistanceFromActiveEdge(x, y) / sqrt_2 / active_edge_sigma_) / 2 + 0.5;

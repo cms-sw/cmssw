@@ -14,13 +14,13 @@
 #include <cctype>
 #include <algorithm>
 
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
 #include <cstring>
 
 // user include files
 #include "Fireworks/Core/src/FWExpressionValidator.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 
 //
 // constants, enums and typedefs
@@ -85,7 +85,7 @@ namespace fireworks {
   namespace {
     std::string descriptionFromMember(const edm::FunctionWithDict& iMember) {
       std::string typeString = iMember.typeName();
-      std::string::size_type index = typeString.find_first_of("(");
+      std::string::size_type index = typeString.find_first_of('(');
       if (index == std::string::npos) {
         return iMember.name() + ":" + typeString;
       } else {

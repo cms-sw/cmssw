@@ -4,9 +4,15 @@ process = cms.Process("NonTkPointSkim")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger = cms.Service(
-	"MessageLogger",
-	destinations = cms.untracked.vstring('output.txt')
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        output = cms.untracked.PSet(
+            extension = cms.untracked.string('txt')
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

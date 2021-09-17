@@ -18,7 +18,7 @@ from os.path import exists,join
 
 import sys
 argv=sys.argv
-from ROOT import *
+import ROOT
 sys.argv=argv
 
 from .definitions import *
@@ -29,7 +29,7 @@ from .utils import setTDRStyle
 setTDRStyle()
 
 # Do not display the canvases
-gROOT.SetBatch(kTRUE)
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 
 #-------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ class Directory(Weighted):
     Weighted.__init__(self,name)
     self.draw_success=draw_success
     self.do_pngs=do_pngs
-    self.rank_histo=TH1I("rh%s"%name,"",50,-0.01,1.001)
+    self.rank_histo=ROOT.TH1I("rh%s"%name,"",50,-0.01,1.001)
     self.rank_histo.SetDirectory(0)
     self.different_histograms = {}
     self.different_histograms['file1']= {}
@@ -237,13 +237,13 @@ class Directory(Weighted):
     self.__create_on_disk()
     vals=[]
     colors=[]
-    for n,col in zip((self.n_fails,self.n_nulls,self.n_successes,self.n_skiped),(kRed,kYellow,kGreen,kBlue)):
+    for n,col in zip((self.n_fails,self.n_nulls,self.n_successes,self.n_skiped),(ROOT.kRed,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue)):
       if n!=0:
         vals.append(n)
         colors.append(col)
     valsa=array('f',vals)
     colorsa=array('i',colors)
-    can = TCanvas("cpie","TPie test",100,100);
+    can = ROOT.TCanvas("cpie","TPie test",100,100);
     try:
       pie = TPie("ThePie",self.name,len(vals),valsa,colorsa);
       label_n=0
@@ -400,7 +400,7 @@ class Comparison(Weighted):
     if self.rank==-1:
       return 0
    
-    canvas=TCanvas(self.name,self.name,Comparison.canvas_xsize,Comparison.canvas_ysize)
+    canvas=ROOT.TCanvas(self.name,self.name,Comparison.canvas_xsize,Comparison.canvas_ysize)
     objs=(obj1,obj2)
 
     # Add some specifics for the graphs
@@ -416,47 +416,47 @@ class Comparison(Weighted):
       obj2.SetMarkerStyle(8)
       obj2.SetMarkerSize(.8)
 
-      obj1.SetMarkerColor(kBlue)
-      obj1.SetLineColor(kBlue)
+      obj1.SetMarkerColor(ROOT.kBlue)
+      obj1.SetLineColor(ROOT.kBlue)
 
-      obj2.SetMarkerColor(kRed)
-      obj2.SetLineColor(kRed)
+      obj2.SetMarkerColor(ROOT.kRed)
+      obj2.SetLineColor(ROOT.kRed)
 
       obj1.Draw("EP")
       #Statsbox      
       obj2.Draw("HistSames")
-      #gPad.Update()
-      #if 'stats' in map(lambda o: o.GetName(),list(gPad.GetListOfPrimitives())):
+      #ROOT.gPad.Update()
+      #if 'stats' in map(lambda o: o.GetName(),list(ROOT.gPad.GetListOfPrimitives())):
         #st = gPad.GetPrimitive("stats")      
         #st.SetY1NDC(0.575)
         #st.SetY2NDC(0.735)
-        #st.SetLineColor(kRed)
-        #st.SetTextColor(kRed)
+        #st.SetLineColor(ROOT.kRed)
+        #st.SetTextColor(ROOT.kRed)
         #print st      
     else:
       obj1.Draw("Colz")
-      gPad.Update()
-      #if 'stats' in map(lambda o: o.GetName(),list(gPad.GetListOfPrimitives())):
-        #st = gPad.GetPrimitive("stats")      
+      ROOT.gPad.Update()
+      #if 'stats' in map(lambda o: o.GetName(),list(ROOT.gPad.GetListOfPrimitives())):
+        #st = ROOT.gPad.GetPrimitive("stats")      
         #st.SetY1NDC(0.575)
         #st.SetY2NDC(0.735)
-        #st.SetLineColor(kRed)
-        #st.SetTextColor(kRed)
+        #st.SetLineColor(ROOT.kRed)
+        #st.SetTextColor(ROOT.kRed)
         #print st
       obj2.Draw("ColSame")
 
     # Put together the TLatex for the stat test if possible    
-    color=kGreen+2 # which is green, as everybody knows
+    color=ROOT.kGreen+2 # which is green, as everybody knows
     if self.status==FAIL:
       print("This comparison failed %f" %self.rank)
-      color=kRed
+      color=ROOT.kRed
     elif self.status==NULL:
-      color=kYellow
+      color=ROOT.kYellow
     elif self.status==SKIPED:
-      color=kBlue #check if kBlue exists ;)
+      color=ROOT.kBlue #check if kBlue exists ;)
     
     lat_text="#scale[.7]{#color[%s]{%s: %2.2f}}" %(color,self.test_name,self.rank)
-    lat=TLatex(.1,.91,lat_text)
+    lat=ROOT.TLatex(.1,.91,lat_text)
     lat.SetNDC()
     lat.Draw()
   
@@ -473,13 +473,13 @@ class Comparison(Weighted):
       n2="%s"%n2
 
     lat_text1="#scale[.7]{#color[%s]{Entries: %s}}" %(obj1.GetLineColor(),n1)
-    lat1=TLatex(.3,.91,lat_text1)
+    lat1=ROOT.TLatex(.3,.91,lat_text1)
     lat1.SetNDC()
     lat1.Draw()
         
     
     lat_text2="#scale[.7]{#color[%s]{Entries: %s}}" %(obj2.GetLineColor(),n2)
-    lat2=TLatex(.6,.91,lat_text2)
+    lat2=ROOT.TLatex(.6,.91,lat_text2)
     lat2.SetNDC()
     lat2.Draw()
     

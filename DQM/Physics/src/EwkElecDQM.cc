@@ -8,7 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -235,7 +234,7 @@ void EwkElecDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
   jet_eta_after_ = ibooker.book1D("JETETA1_AFTERCUTS", chtitle, 20, -5, 5);
 }
 
-void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
+void EwkElecDQM::dqmEndRun(const Run& r, const EventSetup&) {
   // overall
   double all = nall;
   double esel = nsel / all;

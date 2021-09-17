@@ -12,6 +12,7 @@
 // system include files
 #include <iostream>
 #include <memory>
+#include <tuple>
 
 // user include files
 #include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
@@ -28,7 +29,6 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TPRegexp.h"
-#include "boost/tuple/tuple.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 //////// Define the interface ////////////////////////////////////////////////
@@ -42,7 +42,6 @@ private:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -56,9 +55,9 @@ private:
   // Member Variables
   std::vector<HLTMuonPlotter> analyzers_;
   HLTConfigProvider hltConfig_;
-  boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-               edm::EDGetTokenT<reco::GenParticleCollection>,
-               edm::EDGetTokenT<reco::MuonCollection>>
+  std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+             edm::EDGetTokenT<reco::GenParticleCollection>,
+             edm::EDGetTokenT<reco::MuonCollection>>
       myTokens_;
 };
 
@@ -179,13 +178,6 @@ void HLTMuonValidator::analyze(const Event &iEvent, const EventSetup &iSetup) {
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
     iter->analyze(iEvent, iSetup);
   }
-}
-
-void HLTMuonValidator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  // vector<HLTMuonPlotter>::iterator iter;
-  // for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
-  //   iter->endRun(iRun, iSetup);
-  // }
 }
 
 // define this as a plug-in

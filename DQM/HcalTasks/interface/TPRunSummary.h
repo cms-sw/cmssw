@@ -7,15 +7,15 @@
 namespace hcaldqm {
   class TPRunSummary : public DQClient {
   public:
-    TPRunSummary(std::string const&, std::string const&, edm::ParameterSet const&);
+    TPRunSummary(std::string const &, std::string const &, edm::ParameterSet const &, edm::ConsumesCollector &iC);
     ~TPRunSummary() override {}
 
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void endLuminosityBlock(DQMStore::IBooker&,
-                            DQMStore::IGetter&,
-                            edm::LuminosityBlock const&,
-                            edm::EventSetup const&) override;
-    std::vector<flag::Flag> endJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+    void beginRun(edm::Run const &, edm::EventSetup const &) override;
+    void endLuminosityBlock(DQMStore::IBooker &,
+                            DQMStore::IGetter &,
+                            edm::LuminosityBlock const &,
+                            edm::EventSetup const &) override;
+    std::vector<flag::Flag> endJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   protected:
     ContainerSingle2D _cEtMsmFraction_depthlike;

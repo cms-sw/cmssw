@@ -6,7 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 //from lwtnn
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -46,8 +46,8 @@ namespace {
       inputs["trk_dxy"] = trk.dxy(beamSpot.position());  // Training done without taking absolute value
       inputs["trk_dz"] = trk.dz(beamSpot.position());    // Training done without taking absolute value
       inputs["trk_dxyClosestPV"] = trk.dxy(bestVertex);  // Training done without taking absolute value
-      inputs["trk_dzClosestPVNorm"] =
-          std::max(-0.2, std::min(trk.dz(bestVertex), 0.2));  // Training done without taking absolute value
+      // Training done without taking absolute value
+      inputs["trk_dzClosestPVNorm"] = std::max(-0.2, std::min(trk.dz(bestVertex), 0.2));
       inputs["trk_ptErr"] = trk.ptError();
       inputs["trk_etaErr"] = trk.etaError();
       inputs["trk_lambdaErr"] = trk.lambdaError();

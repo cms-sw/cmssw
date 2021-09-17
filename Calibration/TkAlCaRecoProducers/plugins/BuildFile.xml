@@ -1,36 +1,60 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-
-<use   name="CondCore/Utilities"/> 
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="CondFormats/BeamSpotObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="RecoVertex/BeamSpotProducer"/>
-<use   name="Calibration/TkAlCaRecoProducers"/>
-
-
-<library   file="CalibrationTrackSelectorModule.cc">
-  <use   name="CommonTools/RecoAlgos"/>
-  <use   name="PhysicsTools/UtilAlgos"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CondFormats/BeamSpotObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="RecoVertex/BeamSpotProducer"/>
+<use name="Calibration/TkAlCaRecoProducers"/>
+<library file="CalibrationTrackSelectorModule.cc">
+  <use name="CommonTools/RecoAlgos"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="AlcaBeamSpotProducer.cc" name="AlcaBeamSpotProducer">
-  <flags   EDM_PLUGIN="1"/>
+<library file="AlcaBeamSpotProducer.cc" name="AlcaBeamSpotProducer">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="AlcaBeamSpotHarvester.cc" name="AlcaBeamSpotHarvester">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="AlcaBeamSpotHarvester.cc" name="AlcaBeamSpotHarvester">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="PCLMetadataWriter.cc" name="PCLMetadataWriter">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="PCLMetadataWriter.cc" name="PCLMetadataWriter">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="CalibrationTrackSelectorFromDetIdList.cc" name="CalibrationTrackSelectorFromDetIdList">
-  <flags   EDM_PLUGIN="1"/>
+
+<library file="CalibrationTrackSelectorFromDetIdList.cc" name="CalibrationTrackSelectorFromDetIdList">
+  <use name="MagneticField/Records"/>
+  <use name="TrackingTools/TrajectoryState"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="NearbyPixelClustersProducer.cc" name="NearbyPixelClustersProducer">
+  <use name="TrackingTools/PatternTools"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="TrackingTools/TrackFitters"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="NearbyPixelClustersAnalyzer.cc" name="NearbyPixelClustersAnalyzer">
+  <use name="TrackingTools/PatternTools"/>
+  <use name="RecoLocalTracker/ClusterParameterEstimator"/>
+  <use name="RecoLocalTracker/Records"/>
+  <use name="TrackingTools/TrackFitters"/>
+  <use name="CondFormats/SiPixelObjects"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TrackDistanceValueMapProducer.cc" name="TrackDistanceValueMapProducer">
+  <use name="DataFormats/TrackReco"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

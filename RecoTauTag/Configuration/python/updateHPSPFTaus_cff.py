@@ -10,31 +10,9 @@ authors: Evan Friis, Wisconsin
          Christian Veelken, LLR
 
 '''
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauChargedIsoPtSum 
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauNeutralIsoPtSum
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauPUcorrPtSum
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauNeutralIsoPtSumWeight
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauFootprintCorrection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauPhotonPtSumOutsideSignalCone
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauBasicDiscriminators
 
 updateHPSPFTausTask = cms.Task(
-    hpsPFTauChargedIsoPtSum,
-    hpsPFTauNeutralIsoPtSum,
-    hpsPFTauPUcorrPtSum,
-    hpsPFTauNeutralIsoPtSumWeight,
-    hpsPFTauFootprintCorrection,
-    hpsPFTauPhotonPtSumOutsideSignalCone,
-    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits,
-    hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits,
-    hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits,
-    hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits,
-    hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits,
-    hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone
+    hpsPFTauBasicDiscriminators
 )
 updateHPSPFTaus = cms.Sequence(updateHPSPFTausTask)

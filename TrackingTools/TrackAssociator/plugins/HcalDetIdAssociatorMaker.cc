@@ -2,7 +2,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     HcalDetIdAssociatorMaker
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -27,10 +27,5 @@
 // constructors and destructor
 //
 HcalDetIdAssociatorMaker::HcalDetIdAssociatorMaker(edm::ParameterSet const& pSet,
-                                                   edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& iCollector):
-  CaloDetIdAssociatorMaker(pSet,std::move(iCollector) ),
-  hcalReg_{pSet.getParameter<int> ("hcalRegion")}
-{
-}
-
-
+                                                   edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& iCollector)
+    : CaloDetIdAssociatorMaker(pSet, std::move(iCollector)), hcalReg_{pSet.getParameter<int>("hcalRegion")} {}

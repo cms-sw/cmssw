@@ -16,12 +16,14 @@ def pack(f,fout,station,code):
 
 def pack2(f,fout,station,code):
     fout.cd()        
-    newH=ROOT.TH1D("gain2_{code}_{station}".format(station=station,code=code),"h",4*512,0,4*512)
-    for N,i in enumerate([0,1,4,5]):
-        h=f.Get("G2_{code}_{station}_{i}".format(station=station,code=code,i=i))
-        for j in range(1,h.GetNbinsX()+1):
-            newH.SetBinContent(N*512+j,h.GetBinContent(j))
-    newH.Write()
+    for q1 in ['H', 'L']:
+        for q2 in ['H', 'L']:
+            newH=ROOT.TH1D("gain2_{code}_{station}_{q1}{q2}".format(station=station,code=code,q1=q1,q2=q2),"h",4*512,0,4*512)
+            for N,i in enumerate([0,1,4,5]):
+                h=f.Get("G2_{code}_{station}_{i}_{q1}{q2}".format(station=station,code=code,i=i,q1=q1,q2=q2))
+                for j in range(1,h.GetNbinsX()+1):
+                    newH.SetBinContent(N*512+j,h.GetBinContent(j))
+            newH.Write()
 
 
 def packV(f,fout,code):

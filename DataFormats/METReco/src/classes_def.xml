@@ -46,7 +46,8 @@
    <version ClassVersion="11" checksum="2260055190"/>
   </class>
 
-  <class name="reco::MET" ClassVersion="12">
+  <class name="reco::MET" ClassVersion="13">
+   <version ClassVersion="13" checksum="3178745935"/>
    <version ClassVersion="12" checksum="2052216433"/>
    <version ClassVersion="11" checksum="1997832393"/>
    <version ClassVersion="10" checksum="3898304931"/>
@@ -58,7 +59,8 @@
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
-  <class name="reco::CaloMET" ClassVersion="12">
+  <class name="reco::CaloMET" ClassVersion="13">
+   <version ClassVersion="13" checksum="2658524417"/>
    <version ClassVersion="12" checksum="3921700739"/>
    <version ClassVersion="11" checksum="159132251"/>
    <version ClassVersion="10" checksum="3207121440"/>
@@ -67,7 +69,8 @@
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
-  <class name="reco::PFMET" ClassVersion="12">
+  <class name="reco::PFMET" ClassVersion="13">
+   <version ClassVersion="13" checksum="1267179224"/>
    <version ClassVersion="12" checksum="3350721210"/>
    <version ClassVersion="11" checksum="3463342610"/>
    <version ClassVersion="10" checksum="3708270533"/>
@@ -77,7 +80,8 @@
   <class name="std::vector<reco::PFMET>"/>
   <class name="std::vector<edm::Ref<std::vector<reco::PFMET> > >"/>
 
-  <class name="reco::PFClusterMET" ClassVersion="12">
+  <class name="reco::PFClusterMET" ClassVersion="13">
+   <version ClassVersion="13" checksum="520383985"/>
    <version ClassVersion="12" checksum="3688821779"/>
    <version ClassVersion="11" checksum="3634437739"/>
    <version ClassVersion="10" checksum="3408846646"/>
@@ -87,7 +91,8 @@
   <class name="std::vector<reco::PFClusterMET>"/>
 
 
-  <class name="reco::GenMET" ClassVersion="12">
+  <class name="reco::GenMET" ClassVersion="13">
+   <version ClassVersion="13" checksum="2800901046"/>
    <version ClassVersion="12" checksum="77942440"/>
    <version ClassVersion="11" checksum="1091535040"/>
    <version ClassVersion="10" checksum="595237107"/>

@@ -8,6 +8,9 @@
 
 class TagInfoPlotterFactory {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   std::unique_ptr<BaseTagInfoPlotter> buildPlotter(const std::string& dataFormatType,
                                                    const std::string& tagName,
                                                    const EtaPtBin& etaPtBin,

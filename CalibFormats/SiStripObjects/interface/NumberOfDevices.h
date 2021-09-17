@@ -2,9 +2,9 @@
 #ifndef CalibFormats_SiStripObjects_NumberOfDevices_H
 #define CalibFormats_SiStripObjects_NumberOfDevices_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <sstream>
+#include <cstdint>
 
 /**
     @class NumberOfDevices

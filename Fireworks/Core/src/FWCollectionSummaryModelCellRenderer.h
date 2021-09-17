@@ -46,12 +46,12 @@ public:
 
   ClickHit clickHit(int iX, int iY) const;
 
-private:
   FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer&) = delete;  // stop default
 
   const FWCollectionSummaryModelCellRenderer& operator=(const FWCollectionSummaryModelCellRenderer&) =
       delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   FWColorBoxIcon* m_colorBox;
   FWCheckBoxIcon* m_checkBox;

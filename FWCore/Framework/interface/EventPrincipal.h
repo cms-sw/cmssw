@@ -14,9 +14,11 @@ is the DataBlock.
 
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -26,6 +28,7 @@ is the DataBlock.
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class BranchID;
@@ -40,7 +43,6 @@ namespace edm {
   class StreamContext;
   class ThinnedAssociation;
   class ThinnedAssociationsHelper;
-  class ProcessHistoryRegistry;
   class RunPrincipal;
 
   class EventPrincipal : public Principal {
@@ -57,21 +59,23 @@ namespace edm {
                    ProcessConfiguration const& pc,
                    HistoryAppender* historyAppender,
                    unsigned int streamIndex = 0,
-                   bool isForPrimaryProcess = true);
+                   bool isForPrimaryProcess = true,
+                   ProcessBlockHelperBase const* processBlockHelper = nullptr);
     ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             DelayedReader* reader = nullptr);
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes);
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes,
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes,
+                            EventToProcessBlockIndexes const&,
                             ProductProvenanceRetriever const& provRetriever,
                             DelayedReader* reader = nullptr,
                             bool deepCopyRetriever = true);
@@ -117,7 +121,10 @@ namespace edm {
 
     BranchListIndexes const& branchListIndexes() const;
 
-    Provenance getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
+    EventToProcessBlockIndexes const& eventToProcessBlockIndexes() const;
+
+    Provenance const& getProvenance(ProductID const& pid) const;
+    StableProvenance const& getStableProvenance(ProductID const& pid) const;
 
     BasicHandle getByProductID(ProductID const& oid) const;
 
@@ -129,13 +136,17 @@ namespace edm {
 
     void putOnRead(BranchDescription const& bd,
                    std::unique_ptr<WrapperBase> edp,
-                   ProductProvenance const* productProvenance) const;
+                   std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
-    WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const& pid,
+                                                                                  unsigned int key) const override;
     void getThinnedProducts(ProductID const& pid,
                             std::vector<WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys) const override;
+    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
+                                         unsigned int key,
+                                         ProductID const& thinned) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
@@ -144,6 +155,9 @@ namespace edm {
     }
 
     using Base::getProvenance;
+    using Base::getStableProvenance;
+
+    unsigned int processBlockIndex(std::string const& processName) const override;
 
   private:
     BranchID pidToBid(ProductID const& pid) const;
@@ -151,11 +165,18 @@ namespace edm {
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
+    void changedIndexes_() final;
 
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {
       return get_underlying_safe(provRetrieverPtr_);
     }
     std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() { return get_underlying_safe(provRetrieverPtr_); }
+
+    bool wasBranchListIndexesChangedFromInput(BranchListIndexes const&) const;
+    void updateBranchListIndexes(BranchListIndexes&&);
+    void commonFillEventPrincipal(EventAuxiliary const& aux,
+                                  ProcessHistory const* processHistory,
+                                  DelayedReader* reader);
 
   private:
     EventAuxiliary aux_;
@@ -168,11 +189,14 @@ namespace edm {
     EventSelectionIDVector eventSelectionIDs_;
 
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+    ProcessBlockHelperBase const* processBlockHelper_;
     std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper_;
 
     BranchListIndexes branchListIndexes_;
 
-    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
+    EventToProcessBlockIndexes eventToProcessBlockIndexes_;
+
+    std::vector<ProcessIndex> branchListIndexToProcessIndex_;
 
     StreamID streamID_;
   };

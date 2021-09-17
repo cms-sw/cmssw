@@ -6,14 +6,20 @@
 
 #include "CatchAll.h"
 #include "clang/Basic/SourceManager.h"
+#include <clang/AST/Attr.h>
 #include "CmsSupport.h"
 using namespace clangcms;
+using namespace clang;
+using namespace ento;
+using namespace llvm;
 
 void CatchAll::checkASTCodeBody(const clang::Decl* D,
                                 clang::ento::AnalysisManager& AM,
                                 clang::ento::BugReporter& BR) const {
   const char* sfile = BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
   if ((!sfile) || (!support::isCmsLocalFile(sfile)))
+    return;
+  if (D->hasAttr<CMSSaAllowAttr>())
     return;
   const clang::Stmt* s = D->getBody();
   if (!s)
@@ -34,6 +40,17 @@ void CatchAll::checkASTCodeBody(const clang::Decl* D,
 }
 
 const clang::Stmt* CatchAll::process(const clang::Stmt* S) const {
+  if (clang::AttributedStmt::classof(S)) {
+    const clang::Stmt* np = nullptr;
+    auto const* Node = static_cast<const clang::AttributedStmt*>(S);
+    auto* SS = Node->getSubStmt();
+    for (const auto* A : Node->getAttrs()) {
+      if (clang::CXXTryStmt::classof(SS) && clang::CMSSaAllowAttr::classof(A)) {
+        return np;
+      }
+    }
+  }
+
   if (clang::CXXCatchStmt::classof(S) && checkCatchAll(static_cast<const clang::CXXCatchStmt*>(S)))
     return S;
   clang::Stmt::const_child_iterator b = S->child_begin();

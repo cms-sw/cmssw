@@ -13,46 +13,48 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-class RecoTauChargeCleanerPlugin : public RecoTauCleanerPlugin
-{
-public:
-	explicit RecoTauChargeCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-	~RecoTauChargeCleanerPlugin() override {}
-	double operator()(const PFTauRef& tau) const override;
+    class RecoTauChargeCleanerPlugin : public RecoTauCleanerPlugin {
+    public:
+      explicit RecoTauChargeCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+      ~RecoTauChargeCleanerPlugin() override {}
+      double operator()(const PFTauRef& tau) const override;
 
-private:
-	std::vector<unsigned> nprongs_;
-	double failResult_;
-	int charge_;
-};
+    private:
+      std::vector<unsigned> nprongs_;
+      double failResult_;
+      int charge_;
+    };
 
-RecoTauChargeCleanerPlugin::RecoTauChargeCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
-	: RecoTauCleanerPlugin(pset,std::move(iC)),
-	  nprongs_(pset.getParameter<std::vector<unsigned> >("nprongs")),
-	  failResult_(pset.getParameter<double>("selectionFailValue")),
-	  charge_(pset.getParameter<int>("passForCharge"))
-{}
+    RecoTauChargeCleanerPlugin::RecoTauChargeCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
+        : RecoTauCleanerPlugin(pset, std::move(iC)),
+          nprongs_(pset.getParameter<std::vector<unsigned> >("nprongs")),
+          failResult_(pset.getParameter<double>("selectionFailValue")),
+          charge_(pset.getParameter<int>("passForCharge")) {}
 
-double RecoTauChargeCleanerPlugin::operator()(const PFTauRef& cand) const
-{
-	int charge = 0;
-	unsigned nChargedPFCandidate(0), nTrack(0);
-	for(auto const& tauCand : cand->signalTauChargedHadronCandidates()){
-		charge += tauCand.charge();
-		if(tauCand.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate)) nChargedPFCandidate++;
-		else if(tauCand.algoIs(reco::PFRecoTauChargedHadron::kTrack)) nTrack++;
-	}
+    double RecoTauChargeCleanerPlugin::operator()(const PFTauRef& cand) const {
+      int charge = 0;
+      unsigned nChargedPFCandidate(0), nTrack(0);
+      for (auto const& tauCand : cand->signalTauChargedHadronCandidates()) {
+        charge += tauCand.charge();
+        if (tauCand.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate))
+          nChargedPFCandidate++;
+        else if (tauCand.algoIs(reco::PFRecoTauChargedHadron::kTrack))
+          nTrack++;
+      }
 
-	for(auto nprong : nprongs_){
-		if(nChargedPFCandidate+nTrack == nprong) return abs(charge)-charge_;
-	}
+      for (auto nprong : nprongs_) {
+        if (nChargedPFCandidate + nTrack == nprong)
+          return abs(charge) - charge_;
+      }
 
-	return failResult_;
-}
+      return failResult_;
+    }
 
-}}
+  }  // namespace tau
+}  // namespace reco
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

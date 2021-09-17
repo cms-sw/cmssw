@@ -14,33 +14,90 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <map>
+#include <vector>
+#include <string>
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02Analysis.h"
-
 // to retreive hits
+#include "SimDataFormats/HcalTestBeam/interface/HcalTB02HistoClass.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB02Histo.h"
+
 #include "G4HCofThisEvent.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Randomize.hh"
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4ThreeVector.hh"
+#include "G4VProcess.hh"
+
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/Randomize.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+
+//#define EDM_ML_DEBUG
 
 namespace CLHEP {
   class HepRandomEngine;
 }
+
+class HcalTB02Analysis : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
+public:
+  HcalTB02Analysis(const edm::ParameterSet& p);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
+  ~HcalTB02Analysis() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // observer methods
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+
+  void fillEvent(HcalTB02HistoClass&);
+  void clear();
+  void finish();
+
+private:
+  // Private Tuples
+  std::unique_ptr<HcalTB02Histo> histo;
+
+  // to read from parameter set
+  bool hcalOnly;
+  std::string fileNameTuple;
+  std::vector<std::string> names;
+
+  //To be saved
+  std::map<int, float> energyInScints, energyInCrystals;
+  std::map<int, float> primaries;
+  int particleType;
+  double eta, phi, pInit, incidentEnergy;
+  float SEnergy, E7x7Matrix, E5x5Matrix;
+  float SEnergyN, E7x7MatrixN, E5x5MatrixN;
+  int maxTime;
+  double xIncidentEnergy;
+  float xSEnergy, xSEnergyN;
+  float xE3x3Matrix, xE5x5Matrix;
+  float xE3x3MatrixN, xE5x5MatrixN;
+};
 
 //
 // constructors and destructor
@@ -53,17 +110,14 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
 
   produces<HcalTB02HistoClass>();
 
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
-                            << "BeginOfJob/BeginOfEvent/EndOfEvent with "
-                            << "Parameter values:\n \thcalOnly = " << hcalOnly;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "
+                                << "BeginOfJob/BeginOfEvent/EndOfEvent with "
+                                << "Parameter values:\n \thcalOnly = " << hcalOnly;
 
-  histo = new HcalTB02Histo(m_Anal);
+  histo = std::make_unique<HcalTB02Histo>(m_Anal);
 }
 
-HcalTB02Analysis::~HcalTB02Analysis() {
-  finish();
-  delete histo;
-}
+HcalTB02Analysis::~HcalTB02Analysis() { finish(); }
 
 //
 // member functions
@@ -76,7 +130,9 @@ void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent* evt) {
-  edm::LogInfo("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis: =====> Begin of event = " << (*evt)()->GetEventID();
+#endif
   clear();
 }
 
@@ -126,7 +182,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   int scintID = 0, xtalID = 0;
 
   // HCAL
-  HcalTB02HcalNumberingScheme* org = new HcalTB02HcalNumberingScheme();
+  std::unique_ptr<HcalTB02HcalNumberingScheme> org(new HcalTB02HcalNumberingScheme());
 
   if (HCHCid >= 0 && theHCHC != nullptr) {
     for (ihit = 0; ihit < nentries; ihit++) {
@@ -329,15 +385,13 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10)
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 100) && (iEvt % 10 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 1000) && (iEvt % 100 == 0))
-    std::cout << " Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
   else if ((iEvt < 10000) && (iEvt % 1000 == 0))
-    std::cout << " Event " << iEvt << std::endl;
-
-  delete org;
+    edm::LogVerbatim("HcalTBSim") << " Event " << iEvt;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {
@@ -408,7 +462,7 @@ void HcalTB02Analysis::finish() {
   for (int ilayer = 0; ilayer<19; ilayer++) {
 
     // Histogram mean and sigma calculated from the ROOT histos
-    edm::LogInfo("HcalTBSim") << "Layer number: " << ilayer << " Mean = " 
+    edm::LogVerbatim("HcalTBSim") << "Layer number: " << ilayer << " Mean = " 
 			      << histo->getMean(ilayer) << " sigma = "   
 			      << histo->getRMS(ilayer) << " LThick= "   
 			      << w[ilayer] << " SThick= "   << st[ilayer];

@@ -1,9 +1,8 @@
+#include <cstdint>
 // Class for Block of Counters
 
 #ifndef __l1t_emtf_Counters_h__
 #define __l1t_emtf_Counters_h__
-
-#include <boost/cstdint.hpp>
 
 namespace l1t {
   namespace emtf {
@@ -11,7 +10,9 @@ namespace l1t {
     public:
       explicit Counters(uint64_t dataword);
 
-      // rpc_counter not yet implemented in FW - AWB 31.01.16
+      // TODO: rpc_counter not yet implemented in FW - AWB 31.01.16
+      // TODO: gem_counter not yet implemented in FW - JS 01.07.20
+      // Autogenerate this class?
       Counters()
           : me1a_1(-99),
             me1a_2(-99),

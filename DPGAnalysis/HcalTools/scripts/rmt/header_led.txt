@@ -1,0 +1,40 @@
+</html><html xmlns="">
+<head>
+<meta http-equiv="Content-Type" content="text/html"/>
+<title> Remote Monitoring Tool </title>
+<style type="text/css">
+ body,td{ background-color: #FFFFCC; font-family: arial, arial ce, helvetica; font-size: 12px; }
+   td.s0 { font-family: arial, arial ce, helvetica; }
+   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}
+   td.s2 { font-family: arial, arial ce, helvetica; background-color: #eeeeee; }
+   td.s3 { font-family: arial, arial ce, helvetica; background-color: #d0d0d0; }
+   td.s4 { font-family: arial, arial ce, helvetica; background-color: #FFC169; }
+</style>
+<body>
+<h1> Remote Monitoring Tool for Local Runs</h1>
+<td><a href="https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/RMT/HELP.html">RMT tool description</a></td>
+<br>
+<td><a href="http://cmshcalweb01.cern.ch/DetDiag/Local_HTML/runlist.html">DetDiag link</a></td>
+<br>
+<h2> Reference to other Monitoring Tools:</h2>
+<table width="600">
+<tr>
+<td><a href="https://cms-conddb-dev.cern.ch/eosweb/hcal/HcalRemoteMonitoring/CMT/index.html">CMT Tool for Global Runs</a></td>
+<td><a href="https://cms-conddb-dev.cern.ch/eosweb/hcal/HcalRemoteMonitoring/AMT/index.html">AMT Tool for Local Runs</a></td>
+<td><a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/HcalRemoteMonitoring">RMT Twiki</a></td>
+<td><a href="https://twiki.cern.ch/twiki/bin/viewauth/CMS/HcalRemoteCertificationMonitoring">CMT Twiki</a></td>
+</tr>
+<h2> Run List </h2>
+<table>
+<tr>
+<td class="s4" align="center">#</td>
+<td class="s1" align="center">Run Number</td>
+<td class="s1" align="center">Run Type</td>
+<td class="s1" align="center">Num. of events</td>
+<td class="s1" align="center">Run Date</td>
+<td class="s1" align="center">Run Time</td>
+<td class="s1" align="center">Reference Run</td>
+<td class="s1" align="center">Link to RDM tool</td>
+<td class="s1" align="center">Link to DQM data</td>
+<td class="s1" align="center">Comment</td>
+</tr>

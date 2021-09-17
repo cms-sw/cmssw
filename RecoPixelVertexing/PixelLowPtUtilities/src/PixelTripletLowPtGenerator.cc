@@ -6,13 +6,8 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
@@ -24,6 +19,8 @@ using namespace std;
 /*****************************************************************************/
 PixelTripletLowPtGenerator::PixelTripletLowPtGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : HitTripletGeneratorFromPairAndLayers(),  // no theMaxElement used in this class
+      m_geomToken(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      m_topoToken(iC.esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       theTracker(nullptr),
       theClusterShapeCacheToken(
           iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc"))) {
@@ -44,10 +41,7 @@ PixelTripletLowPtGenerator::~PixelTripletLowPtGenerator() {}
 void PixelTripletLowPtGenerator::getTracker(const edm::EventSetup& es) {
   if (theTracker == nullptr) {
     // Get tracker geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-    theTracker = tracker.product();
+    theTracker = &es.getData(m_geomToken);
   }
 
   if (!theFilter) {
@@ -70,9 +64,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
                                              const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                                              const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  const TrackerTopology* tTopo = &es.getData(m_topoToken);
 
   edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
   ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);

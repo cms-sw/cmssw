@@ -12,8 +12,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <climits>
-//
-#include <boost/regex.hpp>
+#include <regex>
 
 namespace cond {
 
@@ -34,7 +33,7 @@ namespace cond {
 
     inline std::string currentCMSSWVersion() {
       std::string version("");
-      const char* envVersion = ::getenv("CMSSW_VERSION");
+      const char* envVersion = std::getenv("CMSSW_VERSION");
       if (envVersion) {
         version += envVersion;
       }
@@ -43,7 +42,7 @@ namespace cond {
 
     inline std::string currentArchitecture() {
       std::string arch("");
-      const char* archEnv = ::getenv("SCRAM_ARCH");
+      const char* archEnv = std::getenv("SCRAM_ARCH");
       if (archEnv) {
         arch += archEnv;
       }
@@ -123,10 +122,10 @@ namespace cond {
       if (input.find("sqlite") == 0 || input.find("oracle") == 0)
         return input;
 
-      //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
-      static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
-      static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
-      static const boost::regex long_frontier_serverurl("\\(serverurl=[^\\)]+?/([[:alnum:]]+?)\\)");
+      //static const std::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
+      static const std::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
+      static const std::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
+      static const std::regex long_frontier_serverurl("\\(serverurl=[^\\)]+?/([[:alnum:]]+?)\\)");
 
       static const std::map<std::string, std::string> frontierMap = {
           {"PromptProd", "cms_orcon_adg"},
@@ -136,23 +135,21 @@ namespace cond {
           {"FrontierPrep", "cms_orcoff_prep"},
       };
 
-      boost::smatch matches;
+      std::smatch matches;
 
       static const std::string technology("oracle://");
       std::string service("");
       std::string account("");
 
       bool match = false;
-      if (boost::regex_match(input, matches, short_frontier)) {
+      if (std::regex_match(input, matches, short_frontier)) {
         service = matches[1];
         account = matches[2];
         match = true;
-      }
-
-      if (boost::regex_match(input, matches, long_frontier)) {
+      } else if (std::regex_match(input, matches, long_frontier)) {
         std::string frontier_config(matches[1]);
-        boost::smatch matches2;
-        if (not boost::regex_search(frontier_config, matches2, long_frontier_serverurl))
+        std::smatch matches2;
+        if (not std::regex_search(frontier_config, matches2, long_frontier_serverurl))
           throwException("No serverurl in matched long frontier", "convertoToOracleConnection");
         service = matches2[1];
         account = matches[3];

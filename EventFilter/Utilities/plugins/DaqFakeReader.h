@@ -7,6 +7,7 @@
  *  \author N. Amapane - CERN
  */
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,12 +34,14 @@ public:
 
   void produce(edm::Event&, edm::EventSetup const&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   //
   // private member functions
   //
   void fillFEDs(const int, const int, edm::EventID& eID, FEDRawDataCollection& data, float meansize, float width);
-  void fillGTPFED(edm::EventID& eID, FEDRawDataCollection& data, timeval* now);
+  void fillTCDSFED(edm::EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
 
 private:
@@ -48,9 +51,11 @@ private:
   edm::RunNumber_t runNum;
   edm::EventNumber_t eventNum;
   bool empty_events;
+  bool fillRandom_;
   unsigned int meansize;  // in bytes
   unsigned int width;
   unsigned int injected_errors_per_million_events;
+  unsigned int tcdsFEDID_;
   unsigned int modulo_error_events;
   unsigned int fakeLs_ = 0;
 };

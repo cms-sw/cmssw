@@ -34,11 +34,14 @@
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -57,6 +60,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const ecalChannelStatusRcdToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> const caloGeometryRecordToken_;
+
   const edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
   const edm::EDGetTokenT<EEDigiCollection> endcapDigisToken_;
   const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> barrelUncalibHitsToken_;

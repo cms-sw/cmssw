@@ -82,6 +82,8 @@ public:
 
   FWPSetTableManager();
   ~FWPSetTableManager() override;
+  FWPSetTableManager(const FWPSetTableManager &) = delete;                   // stop default
+  const FWPSetTableManager &operator=(const FWPSetTableManager &) = delete;  // stop default
 
   int unsortedRowNumber(int unsorted) const override;
   int numberOfRows() const override;
@@ -154,9 +156,6 @@ private:
     size_t moduleEnd;
     bool passed;
   };
-
-  FWPSetTableManager(const FWPSetTableManager &) = delete;                   // stop default
-  const FWPSetTableManager &operator=(const FWPSetTableManager &) = delete;  // stop default
 
   void recalculateVisibility();
 

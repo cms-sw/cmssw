@@ -11,27 +11,26 @@
 // Define typedefs for convenience
 namespace pat {
   class Conversion;
-  typedef std::vector<Conversion>              ConversionCollection;
-  typedef edm::Ref<ConversionCollection>       ConversionRef;
+  typedef std::vector<Conversion> ConversionCollection;
+  typedef edm::Ref<ConversionCollection> ConversionRef;
   typedef edm::RefVector<ConversionCollection> ConversionRefVector;
-}
-
+}  // namespace pat
 
 //we use index to match with electron. However, can we do this with gsfTrack instead of index?
 namespace pat {
   class Conversion {
   public:
-    Conversion () {}
-    Conversion ( int index );
+    Conversion() {}
+    Conversion(int index);
     virtual ~Conversion() {}
 
-    const double vtxProb() const {return vtxProb_;}
+    const double vtxProb() const { return vtxProb_; }
     void setVtxProb(double vtxProb);
-    const double lxy() const {return lxy_;}
-    void setLxy( double lxy );
-    const int nHitsMax() const {return nHitsMax_;}
-    void setNHitsMax( int nHitsMax );
-    const int index() const {return index_; }     
+    const double lxy() const { return lxy_; }
+    void setLxy(double lxy);
+    const int nHitsMax() const { return nHitsMax_; }
+    void setNHitsMax(int nHitsMax);
+    const int index() const { return index_; }
 
   private:
     double vtxProb_;
@@ -40,8 +39,7 @@ namespace pat {
 
     //electron index matched with conversion
     int index_;
-
   };
-}
+}  // namespace pat
 
 #endif

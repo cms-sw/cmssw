@@ -1,15 +1,36 @@
 /** \class TriggerSummaryAnalyzerRAW
  *
- * See header file for documentation
+ *  This class is an EDAnalyzer analyzing the HLT summary object for RAW
  *
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerRAW.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+//
+// class declaration
+//
+class TriggerSummaryAnalyzerRAW : public edm::global::EDAnalyzer<> {
+public:
+  explicit TriggerSummaryAnalyzerRAW(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  /// InputTag of TriggerEventWithRefs to analyze
+  const edm::InputTag inputTag_;
+  const edm::EDGetTokenT<trigger::TriggerEventWithRefs> inputToken_;
+};
 
 //
 // constructors and destructor
@@ -17,8 +38,6 @@
 TriggerSummaryAnalyzerRAW::TriggerSummaryAnalyzerRAW(const edm::ParameterSet& ps)
     : inputTag_(ps.getParameter<edm::InputTag>("inputTag")),
       inputToken_(consumes<trigger::TriggerEventWithRefs>(inputTag_)) {}
-
-TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW() = default;
 
 //
 // member functions
@@ -31,7 +50,7 @@ void TriggerSummaryAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 // ------------ method called to produce the data  ------------
-void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -138,6 +157,35 @@ void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::Eve
       if (nL1TEtSum > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEtSum: " << nL1TEtSum;
 
+      /* Phase-2 */
+      const unsigned int nL1TTkMuon(handle->l1ttkmuonSlice(iFO).second - handle->l1ttkmuonSlice(iFO).first);
+      if (nL1TTkMuon > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkMuon: " << nL1TTkMuon;
+
+      const unsigned int nL1TTkEle(handle->l1ttkeleSlice(iFO).second - handle->l1ttkeleSlice(iFO).first);
+      if (nL1TTkEle > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkEle: " << nL1TTkEle;
+
+      const unsigned int nL1TTkEm(handle->l1ttkemSlice(iFO).second - handle->l1ttkemSlice(iFO).first);
+      if (nL1TTkEm > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkEm: " << nL1TTkEm;
+
+      const unsigned int nL1TPFJet(handle->l1tpfjetSlice(iFO).second - handle->l1tpfjetSlice(iFO).first);
+      if (nL1TPFJet > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFJet: " << nL1TPFJet;
+
+      const unsigned int nL1TPFTau(handle->l1tpftauSlice(iFO).second - handle->l1tpftauSlice(iFO).first);
+      if (nL1TPFTau > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTau: " << nL1TPFTau;
+
+      const unsigned int nL1THPSPFTau(handle->l1thpspftauSlice(iFO).second - handle->l1thpspftauSlice(iFO).first);
+      if (nL1THPSPFTau > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1THPSPFTau: " << nL1THPSPFTau;
+
+      const unsigned int nL1TPFTrack(handle->l1tpftrackSlice(iFO).second - handle->l1tpftrackSlice(iFO).first);
+      if (nL1TPFTrack > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTrack: " << nL1TPFTrack;
+
       LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
     }
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Elements in linearised collections of Refs: " << endl;
@@ -162,6 +210,15 @@ void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::Eve
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TJet:     " << handle->l1tjetSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:     " << handle->l1ttauSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:   " << handle->l1tetsumSize() << endl;
+    /* Phase-2 */
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkMuon:    " << handle->l1ttkmuonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEle:     " << handle->l1ttkeleSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEm:      " << handle->l1ttkemSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFJet:     " << handle->l1tpfjetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFTau:     " << handle->l1tpftauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1THPSPFTau:  " << handle->l1thpspftauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFTrack:   " << handle->l1tpftrackSize() << endl;
+
   } else {
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Handle invalid! Check InputTag provided." << endl;
   }
@@ -169,3 +226,5 @@ void TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::Eve
 
   return;
 }
+
+DEFINE_FWK_MODULE(TriggerSummaryAnalyzerRAW);

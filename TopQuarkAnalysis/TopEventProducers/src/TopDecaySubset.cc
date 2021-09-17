@@ -245,8 +245,13 @@ TopDecaySubset::ShowerModel TopDecaySubset::checkShowerModel(edm::Event& event) 
 
   std::string moduleName = "";
   if (genEvtInfoProduct.isValid()) {
-    const edm::Provenance& prov = event.getProvenance(genEvtInfoProduct.id());
-    moduleName = edm::moduleName(prov);
+    const edm::StableProvenance& prov = event.getStableProvenance(genEvtInfoProduct.id());
+    moduleName = edm::moduleName(prov, event.processHistory());
+    if (moduleName == "ExternalGeneratorFilter") {
+      moduleName = edm::parameterSet(prov, event.processHistory()).getParameter<std::string>("@external_type");
+      edm::LogInfo("SpecialModule") << "GEN events are produced by ExternalGeneratorFilter, "
+                                    << "which is a wrapper of the original module: " << moduleName;
+    }
   }
 
   ShowerModel shower(kStart);

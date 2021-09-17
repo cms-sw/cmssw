@@ -5,5 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # Standard set:
 from RecoJets.Configuration.RecoJets_cff import *
 
-recoJetsGR = cms.Sequence(fixedGridRhoFastjetAllCalo+ak4CaloJets)
+recoJetsGRTask = cms.Task(fixedGridRhoFastjetAllCalo, ak4CaloJets)
+recoJetsGR = cms.Sequence(recoJetsGRTask)
 

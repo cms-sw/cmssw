@@ -57,6 +57,9 @@ void G4SimEvent::load(edm::SimTrackContainer& c) const {
     SimTrack t = SimTrack(ip, p, iv, ig, tkpos, tkmom);
     t.setTrackId(id);
     t.setEventId(EncodedEventId(0));
+    if (trk->crossedBoundary())
+      t.setCrossedBoundaryVars(
+          trk->crossedBoundary(), trk->getIDAtBoundary(), trk->getPositionAtBoundary(), trk->getMomentumAtBoundary());
     c.push_back(t);
   }
   std::stable_sort(c.begin(), c.end(), IdSort());

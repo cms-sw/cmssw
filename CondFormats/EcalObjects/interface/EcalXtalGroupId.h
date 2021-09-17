@@ -19,7 +19,7 @@ public:
   bool operator<(const EcalXtalGroupId& rhs) const { return (id_ < rhs.id()); }
   bool operator<=(const EcalXtalGroupId& rhs) const { return (id_ <= rhs.id()); }
 
-  const unsigned int id() const { return id_; }
+  unsigned int id() const { return id_; }
 
 private:
   unsigned int id_;

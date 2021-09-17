@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 _Merge_
 
@@ -51,8 +51,8 @@ def mergeProcess(*inputFiles, **options):
     # // input source
     #//
     if newDQMIO:
-        process.source = Source("DQMRootSource")
-        process.add_(Service("DQMStore", forceResetOnBeginLumi = CfgTypes.untracked.bool(True)))
+        process.source = Source("DQMRootSource", reScope = CfgTypes.untracked.string(""))
+        process.add_(Service("DQMStore"))
     else:
         process.source = Source("PoolSource")
         if bypassVersionCheck:

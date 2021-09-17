@@ -2,10 +2,10 @@
 #define EventFilter_SiStripRawToDigi_SiStripDetSetVectorFiller_H
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <cstdint>
 class SiStripRawDigi;
 class SiStripDigi;
 

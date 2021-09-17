@@ -3,14 +3,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <set>
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <vector>
 #include <TH1.h>
 #include <TEfficiency.h>
-
-class MonitorElement;
 
 class TrackingDQMClientHeavyIons : public DQMEDHarvester {
 public:

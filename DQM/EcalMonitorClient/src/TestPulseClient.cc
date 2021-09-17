@@ -141,13 +141,14 @@ namespace ecaldqm {
           break;
       }
 
-      MESet::iterator qEnd(meQuality.end());
-      MESet::iterator rItr(meAmplitudeRMS);
-      MESet::const_iterator aItr(sAmplitude);
-      for (MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+      MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
+      MESet::iterator rItr(GetElectronicsMap(), meAmplitudeRMS);
+      MESet::const_iterator aItr(GetElectronicsMap(), sAmplitude);
+      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+           qItr.toNextChannel(GetElectronicsMap())) {
         DetId id(qItr->getId());
 
-        bool doMask(meQuality.maskMatches(id, mask, statusManager_));
+        bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
         aItr = qItr;
         rItr = qItr;
@@ -205,21 +206,21 @@ namespace ecaldqm {
 
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_));
+          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
-          float amp(sPNAmplitude.getBinContent(id));
-          float entries(sPNAmplitude.getBinEntries(id));
-          float rms(sPNAmplitude.getBinError(id) * sqrt(entries));
+          float amp(sPNAmplitude.getBinContent(getEcalDQMSetupObjects(), id));
+          float entries(sPNAmplitude.getBinEntries(getEcalDQMSetupObjects(), id));
+          float rms(sPNAmplitude.getBinError(getEcalDQMSetupObjects(), id) * sqrt(entries));
 
           if (entries < minChannelEntries_) {
-            mePNQualitySummary.setBinContent(id, doMask ? kMUnknown : kUnknown);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMUnknown : kUnknown);
             continue;
           }
 
           if (amp < PNAmplitudeThreshold_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
-            mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
           else
-            mePNQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMGood : kGood);
         }
       }
     }

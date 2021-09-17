@@ -19,7 +19,7 @@
 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 // template object
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 

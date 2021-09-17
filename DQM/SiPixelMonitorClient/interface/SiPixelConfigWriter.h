@@ -8,7 +8,7 @@
  *
  *  \author Petra Merkel
  */
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 

@@ -31,7 +31,7 @@ namespace hcaldqm {
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   protected:
-    //	empa
+    //	emap
     HcalElectronicsMap const *_emap;
 
     //	some counters
@@ -49,6 +49,10 @@ namespace hcaldqm {
     //	vector of Electronics raw Ids of HCAL FEDs
     //	that were registered at cDAQ for the Run
     std::vector<uint32_t> _vcdaqEids;
+
+    edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+    edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+    edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
 
     virtual void _dqmEndLuminosityBlock(DQMStore::IBooker &,
                                         DQMStore::IGetter &,

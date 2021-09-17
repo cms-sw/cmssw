@@ -2,6 +2,7 @@
 #include "Calibration/EcalTBTools/interface/TB06TreeH2.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TClonesArray.h"
 
 #include <iostream>
 

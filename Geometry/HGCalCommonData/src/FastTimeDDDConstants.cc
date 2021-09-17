@@ -4,7 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 FastTimeDDDConstants::FastTimeDDDConstants(const FastTimeParameters* ft) : ftpar_(ft) {
@@ -100,9 +100,9 @@ std::vector<GlobalPoint> FastTimeDDDConstants::getCorners(int type, int izeta, i
     z = -z;
     dz = -dz;
   }
-  static const int signx[8] = {-1, -1, 1, 1, -1, -1, 1, 1};
-  static const int signy[8] = {-1, 1, 1, -1, -1, 1, 1, -1};
-  static const int signz[8] = {-1, -1, -1, -1, 1, 1, 1, 1};
+  static constexpr int signx[8] = {-1, -1, 1, 1, -1, -1, 1, 1};
+  static constexpr int signy[8] = {-1, 1, 1, -1, -1, 1, 1, -1};
+  static constexpr int signz[8] = {-1, -1, -1, -1, 1, 1, 1, 1};
   std::vector<GlobalPoint> pts;
   for (unsigned int i = 0; i != 8; ++i) {
     GlobalPoint p(x + signx[i] * dx, y + signy[i] * dx, z + signz[i] * dz);

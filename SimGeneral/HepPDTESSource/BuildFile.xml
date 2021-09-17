@@ -1,4 +1,3 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="tbb"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="heppdt"/>
+<flags EDM_PLUGIN="1"/>

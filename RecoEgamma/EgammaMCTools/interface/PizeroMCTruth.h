@@ -8,8 +8,6 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include <vector>
 
-
-
 /** \class PizeroMCTruth
  *       
  *  This class stores all the MC truth information needed about the
@@ -19,29 +17,20 @@
 */
 
 class PizeroMCTruth {
+public:
+  PizeroMCTruth();
+  PizeroMCTruth(const CLHEP::HepLorentzVector& pizMom,
+                std::vector<PhotonMCTruth>& photons,
+                const CLHEP::HepLorentzVector& pV);
 
-  public:
-    PizeroMCTruth();
-    PizeroMCTruth( const CLHEP::HepLorentzVector&  pizMom, 
-		   std::vector<PhotonMCTruth>& photons,
-		   const CLHEP::HepLorentzVector& pV);  
-		    
+  CLHEP::HepLorentzVector fourMomentum() const { return thePizero_; }
+  CLHEP::HepLorentzVector primaryVertex() const { return thePrimaryVertex_; }
+  std::vector<PhotonMCTruth> photons() const { return thePhotons_; }
 
-
-    CLHEP::HepLorentzVector fourMomentum() const {return thePizero_;} 
-    CLHEP::HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
-    std::vector<PhotonMCTruth> photons() const { return thePhotons_;}
- 
-
-
- private:
-    CLHEP::HepLorentzVector thePizero_;
-    std::vector<PhotonMCTruth> thePhotons_;
-    CLHEP::HepLorentzVector thePrimaryVertex_;
-    
-
-
-
+private:
+  CLHEP::HepLorentzVector thePizero_;
+  std::vector<PhotonMCTruth> thePhotons_;
+  CLHEP::HepLorentzVector thePrimaryVertex_;
 };
 
 #endif

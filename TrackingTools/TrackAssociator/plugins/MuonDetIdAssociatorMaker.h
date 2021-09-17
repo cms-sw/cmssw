@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     MuonDetIdAssociatorMaker
-// 
+//
 /**\class MuonDetIdAssociatorMaker MuonDetIdAssociatorMaker.h "MuonDetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -35,17 +35,14 @@ class GlobalTrackingGeometryRecord;
 class CSCBadChambers;
 class CSCBadChambersRcd;
 
-class MuonDetIdAssociatorMaker : public DetIdAssociatorMaker
-{
-  
- public:
-  MuonDetIdAssociatorMaker(edm::ParameterSet const&,
-                           edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& );
-  
+class MuonDetIdAssociatorMaker : public DetIdAssociatorMaker {
+public:
+  MuonDetIdAssociatorMaker(edm::ParameterSet const&, edm::ESConsumesCollectorT<DetIdAssociatorRecord>&&);
+
   // ---------- const member functions ---------------------
   std::unique_ptr<DetIdAssociator> make(const DetIdAssociatorRecord&) const final;
-  
- private:
+
+private:
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
   edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> badChambersToken_;
   const double etaBinSize;
@@ -55,6 +52,5 @@ class MuonDetIdAssociatorMaker : public DetIdAssociatorMaker
   const bool includeGEM_;
   const bool includeME0_;
 };
-
 
 #endif

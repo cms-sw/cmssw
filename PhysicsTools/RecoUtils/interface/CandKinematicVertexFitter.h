@@ -15,7 +15,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 class MagneticField;
 namespace reco {
@@ -58,7 +57,7 @@ private:
   /// covariance matrix (3x3)
   mutable CovarianceMatrix cov_;
   /// fitters used for recursive calls
-  boost::shared_ptr<std::vector<CandKinematicVertexFitter> > fitters_;
+  std::shared_ptr<std::vector<CandKinematicVertexFitter> > fitters_;
 };
 
 #endif

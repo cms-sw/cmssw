@@ -95,8 +95,6 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig, std::ostringstr
   getConfigForHistogram(medianAPV0_, "MedianAPV0", iConfig, pDebugStream);
   getConfigForHistogram(medianAPV1_, "MedianAPV1", iConfig, pDebugStream);
 
-  getConfigForHistogram(lumiErrorFraction_, "ErrorFractionByLumiBlock", iConfig, pDebugStream);
-
   getConfigForHistogram(fedIdVsApvId_, "FedIdVsApvId", iConfig, pDebugStream);
 
   getConfigForHistogram(fedErrorsVsId_, "FedErrorsVsId", iConfig, pDebugStream);
@@ -337,26 +335,16 @@ bool FEDHistograms::feMajHistosEnabled() {
           badMajorityInPartition_.enabled);
 }
 
-void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors& aLumErr) {
-  if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
-    lumiErrorFraction_.monitorEle->Reset();
-    for (unsigned int iD(0); iD < aLumErr.nTotal.size(); iD++) {
-      if (aLumErr.nTotal[iD] > 0)
-        fillHistogram(lumiErrorFraction_, iD + 1, static_cast<float>(aLumErr.nErrors[iD]) / aLumErr.nTotal[iD]);
-    }
-  }
-}
-
 bool FEDHistograms::cmHistosEnabled() { return (medianAPV0_.enabled || medianAPV1_.enabled); }
 
-MonitorElement* FEDHistograms::cmHistPointer(bool aApv1) {
+FEDHistograms::MonitorElement* FEDHistograms::cmHistPointer(bool aApv1) {
   if (!aApv1)
     return medianAPV0_.monitorEle;
   else
     return medianAPV1_.monitorEle;
 }
 
-MonitorElement* FEDHistograms::getFedvsAPVpointer() { return fedIdVsApvId_.monitorEle; }
+FEDHistograms::MonitorElement* FEDHistograms::getFedvsAPVpointer() { return fedIdVsApvId_.monitorEle; }
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
                                            const TkDetMap* tkDetMap,
@@ -892,28 +880,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
               42241,  //total number of channels
               "Time",
               "# APVs with APVAddressError");
-
-  ibooker.setCurrentFolder(lBaseDir + "/PerLumiSection");
-
-  bookHistogram(ibooker,
-                lumiErrorFraction_,
-                "lumiErrorFraction",
-                "Fraction of error per lumi section vs subdetector",
-                6,
-                0.5,
-                6.5,
-                "SubDetId");
-
-  //Set special property for lumi ME
-  if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
-    lumiErrorFraction_.monitorEle->setLumiFlag();
-    lumiErrorFraction_.monitorEle->setBinLabel(1, "TECB");
-    lumiErrorFraction_.monitorEle->setBinLabel(2, "TECF");
-    lumiErrorFraction_.monitorEle->setBinLabel(3, "TIB");
-    lumiErrorFraction_.monitorEle->setBinLabel(4, "TIDB");
-    lumiErrorFraction_.monitorEle->setBinLabel(5, "TIDF");
-    lumiErrorFraction_.monitorEle->setBinLabel(6, "TOB");
-  }
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled) {

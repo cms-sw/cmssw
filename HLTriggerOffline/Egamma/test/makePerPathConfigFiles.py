@@ -12,7 +12,6 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
 import sys, os
-import six
 
 # prefix for printouts
 # msgPrefix = "[" + os.path.basename(__file__) + "]"
@@ -143,7 +142,7 @@ allPathsWritten = []
 
 
 
-for hltPathCategory, thisCategoryData in six.iteritems(configData):
+for hltPathCategory, thisCategoryData in configData.items():
 
     # get the HLT path objects for this category
     paths = pathsByCategory[hltPathCategory]

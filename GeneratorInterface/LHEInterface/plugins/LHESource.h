@@ -5,7 +5,6 @@
 
 #include <deque>
 
-#include <boost/shared_ptr.hpp>
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"

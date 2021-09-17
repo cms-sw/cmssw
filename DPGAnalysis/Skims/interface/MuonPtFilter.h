@@ -13,7 +13,7 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,24 +27,19 @@ class Propagator;
 
 /* Class MuonPtFilter Interface */
 
-class MuonPtFilter : public edm::EDFilter {
+class MuonPtFilter : public edm::stream::EDFilter<> {
+public:
+  /// Constructor
+  MuonPtFilter(const edm::ParameterSet &);
 
-  public:
+  /// Destructorquer
+  ~MuonPtFilter() override;
 
-/// Constructor
-    MuonPtFilter(const edm::ParameterSet&) ;
+  /* Operations */
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
-/// Destructorquer
-    ~MuonPtFilter() override ;
-
-/* Operations */ 
-    bool filter(edm::Event &, const edm::EventSetup&) override;
-
-  private:
-    std::string theSTAMuonLabel; // label of muons 
-    double theMinPt;    // minimum pt required 
-
-
+private:
+  std::string theSTAMuonLabel;  // label of muons
+  double theMinPt;              // minimum pt required
 };
-#endif // Muon_MuonPtFilter_h
-
+#endif  // Muon_MuonPtFilter_h

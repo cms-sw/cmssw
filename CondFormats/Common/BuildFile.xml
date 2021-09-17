@@ -1,12 +1,9 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="DataFormats/StdDictionaries"/>
-<use   name="boost"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="boost_serialization"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-
+<use name="CondFormats/Serialization"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="boost"/>
+<use name="boost_serialization"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

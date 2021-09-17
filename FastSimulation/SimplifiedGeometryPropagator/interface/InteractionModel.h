@@ -1,6 +1,8 @@
 #ifndef FASTSIM_INTERACTIONMODEL
 #define FASTSIM_INTERACTIONMODEL
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -12,7 +14,6 @@
 
 namespace edm {
   class Event;
-  class ProducerBase;
 }  // namespace edm
 
 class RandomEngineAndDistribution;
@@ -49,7 +50,7 @@ namespace fastsim {
                           const RandomEngineAndDistribution& random) = 0;
 
     //! In case interaction produces and stores content in the event (e.g. TrackerSimHits).
-    virtual void registerProducts(edm::ProducerBase& producer) const { ; }
+    virtual void registerProducts(edm::ProducesCollector) const {}
 
     //! In case interaction produces and stores content in the event (e.g. TrackerSimHits).
     virtual void storeProducts(edm::Event& iEvent) { ; }

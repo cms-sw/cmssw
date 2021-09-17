@@ -11,8 +11,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "TProfile.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESTrendTask : public DQMEDAnalyzer {
 public:
@@ -27,9 +26,6 @@ protected:
 
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-
-  // EndJob
-  void endJob(void) override;
 
   // BeginRun
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;

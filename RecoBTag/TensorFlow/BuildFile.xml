@@ -1,6 +1,0 @@
-<use name="FWCore/Utilities"/>
-<use name="RecoBTag/FeatureTools"/>
-<use name="PhysicsTools/TensorFlow"/>
-<export>
-  <lib name="1"/>
-</export>

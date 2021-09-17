@@ -39,8 +39,8 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterSource                            1        1
-    2 cat_B                -i UnitTestClient_G                      10*      10
+    1 cat_B                -i UnitTestClient_G                      10*      10
+    2 FwkReport            -f AfterSource                            1        1
     3 cat_A                -w UnitTestClient_G                       1        1
     4 cat_C                -w UnitTestClient_G                      15*      15
 
@@ -48,14 +48,15 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            AfterSource                       
-    2 cat_B                1/1              1/1              1/1
+    1 cat_B                1/1              1/1              1/1
+    2 FwkReport            AfterSource                       
     3 cat_A                1/1                               
     4 cat_C                1/1              1/1              1/1
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                   11                  11
+Info                   10                  10
+FwkInfo                 1                   1
 Warning                16                  16
 
 dropped waiting message count 0

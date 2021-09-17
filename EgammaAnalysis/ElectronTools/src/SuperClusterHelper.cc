@@ -104,7 +104,7 @@ SuperClusterHelper::SuperClusterHelper(const pat::Electron* electron,
 
 void SuperClusterHelper::computeLocalCovariances() {
   if (!covComputed_) {
-    vCov_ = EcalClusterTools::localCovariances(*seedCluster_, rechits_, topology_, 4.7);
+    const auto& vCov_ = EcalClusterTools::localCovariances(*seedCluster_, rechits_, topology_, 4.7);
     covComputed_ = true;
 
     spp_ = 0;

@@ -28,6 +28,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    uint32_t ZS_threshold,
                                                    int numberOfSamples,
                                                    int numberOfPresamples,
+                                                   int numberOfFilterPresamplesHBQIE11,
+                                                   int numberOfFilterPresamplesHEQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
                                                    bool useTDCInMinBiasBits,
@@ -44,6 +46,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       ZS_threshold_(ZS_threshold),
       numberOfSamples_(numberOfSamples),
       numberOfPresamples_(numberOfPresamples),
+      numberOfFilterPresamplesHBQIE11_(numberOfFilterPresamplesHBQIE11),
+      numberOfFilterPresamplesHEQIE11_(numberOfFilterPresamplesHEQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
@@ -71,6 +75,8 @@ void HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf) {
   upgrade_he_ = he;
   upgrade_hf_ = hf;
 }
+
+void HcalTriggerPrimitiveAlgo::setFixSaturationFlag(bool fix_saturation) { fix_saturation_ = fix_saturation; }
 
 void HcalTriggerPrimitiveAlgo::overrideParameters(const edm::ParameterSet& ps) {
   override_parameters_ = ps;
@@ -266,20 +272,46 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame) {
     samples2.setPresamples(frame.presamples());
     addSignal(samples2);
     addUpgradeFG(ids[1], detId.depth(), msb);
+    addUpgradeTDCFG(ids[1], frame);
   }
   addSignal(samples1);
   addUpgradeFG(ids[0], detId.depth(), msb);
+  addUpgradeTDCFG(ids[0], frame);
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
+
   if (itr == theSumMap.end()) {
     theSumMap.insert(std::make_pair(id, samples));
   } else {
     // wish CaloSamples had a +=
     for (int i = 0; i < samples.size(); ++i) {
       (itr->second)[i] += samples[i];
+    }
+  }
+
+  // if fix_saturation == true, keep track of tower with saturated input LUT
+  if (fix_saturation_) {
+    SatMap::iterator itr_sat = theSatMap.find(id);
+
+    assert((itr == theSumMap.end()) == (itr_sat == theSatMap.end()));
+
+    if (itr_sat == theSatMap.end()) {
+      vector<bool> check_sat;
+      for (int i = 0; i < samples.size(); ++i) {
+        if (!(samples[i] < QIE11_LINEARIZATION_ET)) {
+          check_sat.push_back(true);
+        } else
+          check_sat.push_back(false);
+      }
+      theSatMap.insert(std::make_pair(id, check_sat));
+    } else {
+      for (int i = 0; i < samples.size(); ++i) {
+        if (!(samples[i] < QIE11_LINEARIZATION_ET))
+          (itr_sat->second)[i] = true;
+      }
     }
   }
 }
@@ -367,28 +399,67 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples& samples, HcalTriggerP
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
+                                            vector<bool> sample_saturation,
                                             HcalTriggerPrimitiveDigi& result,
                                             const HcalFinegrainBit& fg_algo) {
-  int shrink = weights_.size() - 1;
+  HcalDetId detId(samples.id());
+
+  // Get the |ieta| for current sample
+  int theIeta = detId.ietaAbs();
+
+  unsigned int dgSamples = samples.size();
+  unsigned int dgPresamples = samples.presamples();
+
+  unsigned int tpSamples = numberOfSamples_;
+  unsigned int tpPresamples = numberOfPresamples_;
+
+  unsigned int filterSamples = weightsQIE11_[theIeta].size();
+  unsigned int filterPresamples = theIeta > theTrigTowerGeometry->topology().lastHBRing()
+                                      ? numberOfFilterPresamplesHEQIE11_
+                                      : numberOfFilterPresamplesHBQIE11_;
+
+  unsigned int shift = dgPresamples - tpPresamples;
+
+  // shrink keeps the FIR filter from going off the end of the 8TS vector
+  unsigned int shrink = filterSamples - 1;
+
   auto& msb = fgUpgradeMap_[samples.id()];
+  auto& timingTDC = fgUpgradeTDCMap_[samples.id()];
   IntegerCaloSamples sum(samples.id(), samples.size());
 
-  HcalDetId detId(samples.id());
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
+
+  // keep track of tower with saturated energy and force the total TP saturated
+  bool force_saturation[samples.size()];
+  for (int i = 0; i < samples.size(); i++) {
+    force_saturation[i] = false;
+  }
+
   //slide algo window
-  for (int ibin = 0; ibin < int(samples.size()) - shrink; ++ibin) {
+  for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
-    for (unsigned int i = 0; i < weights_.size(); i++) {
+    bool check_sat = false;
+    for (unsigned int i = 0; i < filterSamples; i++) {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
       // to mimic 5 degree segmentation for the trigger
       unsigned int sample = samples[ibin + i];
-      if (sample > QIE11_MAX_LINEARIZATION_ET)
+
+      if (fix_saturation_ && (sample_saturation.size() > ibin + i))
+        check_sat = (sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
+      else if (sample > QIE11_MAX_LINEARIZATION_ET)
         sample = QIE11_MAX_LINEARIZATION_ET;
-      if (ids.size() == 2)
-        algosumvalue += int(sample * 0.5 * weights_[i]);
-      else
-        algosumvalue += int(sample * weights_[i]);
+
+      // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+      double segmentationFactor = 1.0;
+      if (ids.size() == 2) {
+        segmentationFactor = 0.5;
+      }
+
+      // Based on the |ieta| of the sample, retrieve the correct region weight
+      double theWeight = weightsQIE11_[theIeta][i];
+
+      algosumvalue += int(sample * segmentationFactor * theWeight);
     }
     if (algosumvalue < 0)
       sum[ibin] = 0;  // low-side
@@ -396,21 +467,9 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
     else
       sum[ibin] = algosumvalue;  //assign value to sum[]
-  }
 
-  // Align digis and TP
-  int dgPresamples = samples.presamples();
-  int tpPresamples = numberOfPresamples_;
-  int shift = dgPresamples - tpPresamples;
-  int dgSamples = samples.size();
-  int tpSamples = numberOfSamples_;
-
-  if ((shift < shrink) || (shift + tpSamples + shrink > dgSamples - (peak_finder_algorithm_ - 1))) {
-    edm::LogInfo("HcalTriggerPrimitiveAlgo::analyze") << "TP presample or size from the configuration file is out of "
-                                                         "the accessible range. Using digi values from data instead...";
-    shift = shrink;
-    tpPresamples = dgPresamples - shrink;
-    tpSamples = dgSamples - (peak_finder_algorithm_ - 1) - shrink - shift;
+    if (check_sat)
+      force_saturation[ibin] = true;
   }
 
   std::vector<int> finegrain(tpSamples, false);
@@ -418,20 +477,30 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   IntegerCaloSamples output(samples.id(), tpSamples);
   output.setPresamples(tpPresamples);
 
-  for (int ibin = 0; ibin < tpSamples; ++ibin) {
+  for (unsigned int ibin = 0; ibin < tpSamples; ++ibin) {
     // ibin - index for output TP
-    // idx - index for samples + shift
-    int idx = ibin + shift;
+    // idx - index for samples + shift - filterPresamples
+    int idx = ibin + shift - filterPresamples;
+
+    // When idx is <= 0 peakfind would compare out-of-bounds of the vector. Avoid this ambiguity
+    if (idx <= 0) {
+      output[ibin] = 0;
+      continue;
+    }
+
     bool isPeak = (sum[idx] > sum[idx - 1] && sum[idx] >= sum[idx + 1] && sum[idx] > theThreshold);
 
     if (isPeak) {
       output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
+      if (fix_saturation_ && force_saturation[idx])
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
     } else {
       // Not a peak
       output[ibin] = 0;
     }
     // peak-finding is not applied for FG bits
-    finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
+    // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 2 reserved, 1 prompt, 1 delayed 01, 1 delayed 10)
+    finegrain[ibin] = fg_algo.compute(timingTDC[idx], ids[0]).to_ulong() | fg_algo.compute(msb[idx]).to_ulong() << 1;
   }
   outcoder_->compress(output, finegrain, result);
 }
@@ -545,6 +614,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(const IntegerCaloSamples& samples,
   }
 
   std::vector<int> finegrain_converted;
+  finegrain_converted.reserve(finegrain.size());
   for (const auto& fg : finegrain)
     finegrain_converted.push_back(fg.to_ulong());
   outcoder_->compress(output, finegrain_converted, result);
@@ -682,6 +752,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(const IntegerCaloSamples& samples,
     output[bin] = min({(unsigned int)QIE10_MAX_LINEARIZATION_ET, output[bin] >> (hf_lumi_shift - 2)});
   }
   std::vector<int> finegrain_converted;
+  finegrain_converted.reserve(finegrain.size());
   for (const auto& fg : finegrain)
     finegrain_converted.push_back(fg.to_ulong());
   outcoder_->compress(output, finegrain_converted, result);
@@ -788,6 +859,16 @@ bool HcalTriggerPrimitiveAlgo::needLegacyFG(const HcalTrigTowerDetId& id) const 
   return false;
 }
 
+bool HcalTriggerPrimitiveAlgo::needUpgradeID(const HcalTrigTowerDetId& id, int depth) const {
+  // Depth 7 for TT 26, 27, and 28 is not considered a fine grain depth.
+  // However, the trigger tower for these ieta should still be added to the fgUpgradeMap_
+  // Otherwise, depth 7-only signal will not be analyzed.
+  unsigned int aieta = id.ietaAbs();
+  if (aieta >= FIRST_DEPTH7_TOWER and aieta <= LAST_FINEGRAIN_TOWER and depth > LAST_FINEGRAIN_DEPTH)
+    return true;
+  return false;
+}
+
 void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
                                             int depth,
                                             const std::vector<std::bitset<2>>& bits) {
@@ -795,7 +876,18 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
     if (needLegacyFG(id)) {
       std::vector<bool> pseudo(bits.size(), false);
       addFG(id, pseudo);
+    } else if (needUpgradeID(id, depth)) {
+      // If the tower id is not in the map yet
+      // then for safety's sake add it, otherwise, no need
+      // Likewise, we're here with non-fg depth 7 so the bits are not to be added
+      auto it = fgUpgradeMap_.find(id);
+      if (it == fgUpgradeMap_.end()) {
+        FGUpgradeContainer element;
+        element.resize(bits.size());
+        fgUpgradeMap_.insert(std::make_pair(id, element));
+      }
     }
+
     return;
   }
 
@@ -811,8 +903,46 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
   }
 }
 
+void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, const QIE11DataFrame& frame) {
+  HcalDetId detId(frame.id());
+  if (detId.subdet() != HcalEndcap && detId.subdet() != HcalBarrel)
+    return;
+
+  std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
+  assert(ids.size() == 1 || ids.size() == 2);
+  IntegerCaloSamples samples1(ids[0], int(frame.samples()));
+  samples1.setPresamples(frame.presamples());
+  incoder_->adc2Linear(frame, samples1);  // use linearization LUT
+
+  auto it = fgUpgradeTDCMap_.find(id);
+  if (it == fgUpgradeTDCMap_.end()) {
+    FGUpgradeTDCContainer element;
+    element.resize(frame.samples());
+    it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
+  }
+  for (int i = 0; i < frame.samples(); i++) {
+    it->second[i][detId.depth() - 1] = std::make_pair(samples1[i], frame[i].tdc());
+  }
+}
+
+void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQIE11) {
+  // Names are just abs(ieta) for HBHE
+  std::vector<std::string> ietaStrs = weightsQIE11.getParameterNames();
+  for (auto& ietaStr : ietaStrs) {
+    // Strip off "ieta" part of key and just use integer value in map
+    auto const& v = weightsQIE11.getParameter<std::vector<double>>(ietaStr);
+    weightsQIE11_[std::stoi(ietaStr.substr(4))] = {{v[0], v[1]}};
+  }
+}
+
+void HcalTriggerPrimitiveAlgo::setWeightQIE11(int aieta, double weight) {
+  // Simple map of |ieta| in HBHE to weight
+  // Only one weight for SOI-1 TS
+  weightsQIE11_[aieta] = {{weight, 1.0}};
+}
+
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {
-  if (algo <= 0 && algo > 2)
+  if (algo <= 0 || algo > 2)
     throw cms::Exception("ERROR: Only algo 1 & 2 are supported.") << std::endl;
   peak_finder_algorithm_ = algo;
 }

@@ -26,9 +26,13 @@
 #include <vector>
 
 class TransientInitialStateEstimator;
+class TrackerGeometry;
+
 class ConversionTrackFinder {
 public:
-  ConversionTrackFinder(const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder* trajectoryBuilder);
+  ConversionTrackFinder(const edm::ParameterSet& config,
+                        const BaseCkfTrajectoryBuilder* trajectoryBuilder,
+                        edm::ConsumesCollector iC);
 
   virtual ~ConversionTrackFinder();
 

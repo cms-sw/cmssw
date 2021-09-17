@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Sim")
 process.load("SimG4CMS.Calo.PythiaMinBias_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
@@ -21,18 +22,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HitStudy'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HitStudy = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-    )
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HitStudy=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -40,11 +31,9 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
-process.analyze = cms.EDAnalyzer("HcalSimHitDump",
-                                 ModuleLabel  = cms.untracked.string('g4SimHits'),
-                                 HCCollection = cms.untracked.string('HcalHits'),
-                                 MaxEvent     = cms.untracked.int32(20)
-                                 )
+process.load("SimG4CMS.Calo.hcalSimHitDump_cfi")
+
+process.hcalSimHitDump.MaxEvent = 20
  
-process.schedule = cms.Path(process.analyze)
+process.schedule = cms.Path(process.hcalSimHitDump)
 

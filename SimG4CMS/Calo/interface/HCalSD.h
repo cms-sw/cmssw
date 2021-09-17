@@ -17,16 +17,17 @@
 #include "SimG4CMS/Calo/interface/HcalTestNS.h"
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
 
 #include "G4String.hh"
 #include <map>
 #include <string>
 
-class DDCompactView;
 class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
@@ -37,7 +38,11 @@ class TH1F;
 class HCalSD : public CaloSD, public Observer<const BeginOfJob*> {
 public:
   HCalSD(const std::string&,
-         const DDCompactView&,
+         const HcalDDDSimConstants*,
+         const HcalDDDRecConstants*,
+         const HcalSimulationConstants*,
+         const HBHEDarkening*,
+         const HBHEDarkening*,
          const SensitiveDetectorCatalog&,
          edm::ParameterSet const&,
          const SimTrackManager*);
@@ -54,16 +59,9 @@ protected:
   bool filterHit(CaloG4Hit*, double) override;
 
 private:
-  void fillLogVolumeVector(const std::string&,
-                           const std::string&,
-                           const DDCompactView&,
-                           std::vector<const G4LogicalVolume*>&,
-                           std::vector<G4String>&);
-
+  void fillLogVolumeVector(const std::string&, const std::vector<std::string>&, std::vector<const G4LogicalVolume*>&);
   uint32_t setDetUnitId(int, const G4ThreeVector&, int, int);
   uint32_t setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&);
-  std::vector<G4String> getNames(DDFilteredView&);
   bool isItHF(const G4Step*);
   bool isItHF(const G4String&);
   bool isItFibre(const G4LogicalVolume*);
@@ -92,7 +90,8 @@ private:
   std::unique_ptr<HFShowerPMT> showerPMT;
   std::unique_ptr<HFShowerFibreBundle> showerBundle;
 
-  const HcalDDDSimConstants* hcalConstants;
+  const HcalDDDSimConstants* hcalConstants_;
+  const HcalSimulationConstants* hcalSimConstants_;
   const HBHEDarkening* m_HBDarkening;
   const HBHEDarkening* m_HEDarkening;
   std::unique_ptr<HFDarkening> m_HFDarkening;
@@ -110,7 +109,9 @@ private:
   int depth_;
   std::vector<double> gpar;
   std::vector<int> hfLevels;
-  std::vector<G4String> hfNames, fibreNames, matNames;
+  std::vector<std::string> hfNames;
+  std::vector<std::string> fibreNames;
+  std::vector<std::string> matNames;
   std::vector<const G4Material*> materials;
   std::vector<const G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t, double> layerWeights;

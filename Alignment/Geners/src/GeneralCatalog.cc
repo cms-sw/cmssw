@@ -1,11 +1,11 @@
-#include <algorithm>
-#include <cassert>
-#include <utility>
-
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/GeneralCatalog.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
+
+#include <algorithm>
+#include <cassert>
+#include <memory>
+#include <utility>
 
 namespace gs {
   GeneralCatalog::GeneralCatalog() : smallestId_(1ULL), largestId_(0) {}
@@ -223,7 +223,7 @@ namespace gs {
     for (long long recnum = 0; ok && recnum < nRecords; ++recnum) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);
       if (rec) {
-        if (!catalog->addEntry(CPP11_shared_ptr<const CatalogEntry>(rec)))
+        if (!catalog->addEntry(std::shared_ptr<const CatalogEntry>(rec)))
           ok = false;
       } else
         ok = false;
@@ -248,7 +248,7 @@ namespace gs {
     for (in.peek(); ok && !in.eof(); in.peek()) {
       CatalogEntry *rec = CatalogEntry::read(rId, locId, in);
       if (rec) {
-        if (!catalog->addEntry(CPP11_shared_ptr<const CatalogEntry>(rec)))
+        if (!catalog->addEntry(std::shared_ptr<const CatalogEntry>(rec)))
           ok = false;
       } else
         ok = false;
@@ -264,11 +264,11 @@ namespace gs {
     return catalog;
   }
 
-  CPP11_shared_ptr<const CatalogEntry> GeneralCatalog::retrieveEntry(const unsigned long long id) const {
+  std::shared_ptr<const CatalogEntry> GeneralCatalog::retrieveEntry(const unsigned long long id) const {
     IdMap::const_iterator it = records_.find(id);
     if (it == records_.end()) {
       CatalogEntry *ptr = nullptr;
-      return CPP11_shared_ptr<const CatalogEntry>(ptr);
+      return std::shared_ptr<const CatalogEntry>(ptr);
     } else
       return it->second;
   }

@@ -15,17 +15,18 @@
 #define L1_TRACK_TRIGGER_CLUSTER_BUILDER_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmRecord.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -38,7 +39,7 @@
 #include <vector>
 
 template <typename T>
-class TTClusterBuilder : public edm::EDProducer {
+class TTClusterBuilder : public edm::stream::EDProducer<> {
   /// NOTE since pattern hit correlation must be performed within a stacked module, one must store
   /// Clusters in a proper way, providing easy access to them in a detector/member-wise way
 public:
@@ -50,6 +51,8 @@ public:
 private:
   /// Data members
   edm::ESHandle<TTClusterAlgorithm<T> > theClusterFindingAlgoHandle;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > > rawHitTokens;
   unsigned int ADCThreshold;
   bool storeLocalCoord;
@@ -76,6 +79,8 @@ template <typename T>
 TTClusterBuilder<T>::TTClusterBuilder(const edm::ParameterSet& iConfig) {
   ADCThreshold = iConfig.getParameter<unsigned int>("ADCThreshold");
   storeLocalCoord = iConfig.getParameter<bool>("storeLocalCoord");
+  tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   std::vector<edm::InputTag> rawHitInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("rawHits");
   for (auto it = rawHitInputTags.begin(); it != rawHitInputTags.end(); ++it) {

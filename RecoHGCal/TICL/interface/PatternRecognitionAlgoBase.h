@@ -7,31 +7,55 @@
 #include <memory>
 #include <vector>
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoHGCal/TICL/interface/Common.h"
-#include "RecoHGCal/TICL/interface/Trackster.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoHGCal/TICL/interface/GlobalCache.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
-class Event;
-class EventSetup;
+  class Event;
+  class EventSetup;
 }  // namespace edm
 
 namespace ticl {
-  class PatternRecognitionAlgoBase {
-    public:
-      PatternRecognitionAlgoBase(const edm::ParameterSet& conf)
+  template <typename TILES>
+  class PatternRecognitionAlgoBaseT {
+  public:
+    PatternRecognitionAlgoBaseT(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector)
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
-      virtual ~PatternRecognitionAlgoBase(){};
+    virtual ~PatternRecognitionAlgoBaseT(){};
 
-      virtual void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
-          const std::vector<reco::CaloCluster>& layerClusters,
-          const HgcalClusterFilterMask& mask,
-          std::vector<Trackster>& result) = 0;
-      enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+    struct Inputs {
+      const edm::Event& ev;
+      const edm::EventSetup& es;
+      const std::vector<reco::CaloCluster>& layerClusters;
+      const std::vector<float>& mask;
+      const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
+      const TILES& tiles;
+      const std::vector<TICLSeedingRegion>& regions;
 
-    protected:
-      int algo_verbosity_;
+      Inputs(const edm::Event& eV,
+             const edm::EventSetup& eS,
+             const std::vector<reco::CaloCluster>& lC,
+             const std::vector<float>& mS,
+             const edm::ValueMap<std::pair<float, float>>& lT,
+             const TILES& tL,
+             const std::vector<TICLSeedingRegion>& rG)
+          : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG) {}
+    };
+
+    virtual void makeTracksters(const Inputs& input,
+                                std::vector<Trackster>& result,
+                                std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) = 0;
+
+    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+
+  protected:
+    int algo_verbosity_;
   };
-}
+}  // namespace ticl
 
 #endif

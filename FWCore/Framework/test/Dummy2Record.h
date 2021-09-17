@@ -10,6 +10,9 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class Dummy2Record : public edm::eventsetup::EventSetupRecordImplementation<Dummy2Record> {};
+class Dummy2Record : public edm::eventsetup::EventSetupRecordImplementation<Dummy2Record> {
+public:
+  static constexpr bool allowConcurrentIOVs_ = false;
+};
 
 #endif

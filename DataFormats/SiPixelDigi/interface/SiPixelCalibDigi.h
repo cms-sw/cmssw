@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
-#include "boost/cstdint.hpp"
+#include <cstdint>
 
 class SiPixelCalibDigi {
 public:

@@ -86,34 +86,6 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b) {
 
     delta_phi_VS_et_ =
         book2D(b, "delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi", size, ptBins, dphiPS.n, dphiPS.m, dphiPS.M);
-    /*
-    // TProfile
-    profile_delta_et_Over_et_VS_et_ =
-    bookProfile("profile_delta_et_Over_et_VS_et_", ";E_{T, true}
-    (GeV);#DeltaE_{T}/E_{T}", size, ptBins, dptOvptPS.m, dptOvptPS.M, "" );
-
-    profile_delta_et_VS_et_ = bookProfile("profile_delta_et_VS_et_", ";E_{T,
-    true} (GeV);#DeltaE_{T}", size, ptBins, dptPS.m, dptPS.M, "" );
-
-    profile_delta_eta_VS_et_ = bookProfile("profile_delta_eta_VS_et_", ";#E_{T,
-    true} (GeV);#Delta#eta", size, ptBins, detaPS.m, detaPS.M, "" );
-
-    profile_delta_phi_VS_et_ = bookProfile("profile_delta_phi_VS_et_", ";E_{T,
-    true} (GeV);#Delta#phi", size, ptBins, dphiPS.m, dphiPS.M, "" );
-    // TProfile RMS
-    profileRMS_delta_et_Over_et_VS_et_ =
-    bookProfile("profileRMS_delta_et_Over_et_VS_et_", ";E_{T, true}
-    (GeV);#DeltaE_{T}/E_{T}", size, ptBins, dptOvptPS.m, dptOvptPS.M, "s" );
-
-    profileRMS_delta_et_VS_et_ = bookProfile("profileRMS_delta_et_VS_et_",
-    ";E_{T, true} (GeV);#DeltaE_{T}", size, ptBins, dptPS.m, dptPS.M, "s" );
-
-    profileRMS_delta_eta_VS_et_ = bookProfile("profileRMS_delta_eta_VS_et_",
-    ";#E_{T, true} (GeV);#Delta#eta", size, ptBins, detaPS.m, detaPS.M, "s" );
-
-    profileRMS_delta_phi_VS_et_ = bookProfile("profileRMS_delta_phi_VS_et_",
-    ";E_{T, true} (GeV);#Delta#phi", size, ptBins, dphiPS.m, dphiPS.M, "s" );
-    */
     pTRes_.resize(size);
     BRpTRes_.resize(size);
     ERpTRes_.resize(size);
@@ -127,45 +99,45 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b) {
   }
 }
 
+void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet &ps, const edm::ParameterSet &ptPS) {
+  const std::vector<double> &ptBinsPS = ps.getParameter<std::vector<double> >("VariablePtBins");
+  if (ptBinsPS.size() > 1) {
+    ptBins_.reserve(ptBinsPS.size());
+    for (size_t i = 0; i < ptBinsPS.size(); i++)
+      ptBins_.push_back(ptBinsPS[i]);
+  } else {
+    Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
+    ptBins_.reserve(nFixedBins + 1);
+    for (Int_t i = 0; i <= nFixedBins; i++)
+      ptBins_.push_back(ptPS.getParameter<double>("xMin") +
+                        i * ((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
+  }
+}
 void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet) {
-  std::vector<double> ptBinsPS = parameterSet.getParameter<std::vector<double>>("VariablePtBins");
-  pTRes_.resize(ptBinsPS.size() - 1);
-  BRpTRes_.resize(ptBinsPS.size() - 1);
-  ERpTRes_.resize(ptBinsPS.size() - 1);
-  if (!pTRes_.empty())
-    for (size_t i = 0; i < pTRes_.size(); i++) {
-      pTRes_[i] = nullptr;
-      BRpTRes_[i] = nullptr;
-      ERpTRes_[i] = nullptr;
-    }
-
   if (!histogramBooked_) {
     edm::ParameterSet ptPS = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
     edm::ParameterSet dptPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPtHistoParameter");
     edm::ParameterSet dptOvptPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPtOvPtHistoParameter");
     edm::ParameterSet detaPS = parameterSet.getParameter<edm::ParameterSet>("DeltaEtaHistoParameter");
     edm::ParameterSet dphiPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPhiHistoParameter");
-
-    std::vector<float> ptBins;
-    if (ptBinsPS.size() > 1) {
-      ptBins.reserve(ptBinsPS.size());
-      for (size_t i = 0; i < ptBinsPS.size(); i++)
-        ptBins.push_back(ptBinsPS[i]);
-    } else {
-      Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
-      ptBins.reserve(nFixedBins + 1);
-      for (Int_t i = 0; i <= nFixedBins; i++)
-        ptBins.push_back(ptPS.getParameter<double>("xMin") +
-                         i * ((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
-      ptBinsPS.resize(nFixedBins);
+    computePtBins(parameterSet, ptPS);
+    pTRes_.resize(ptBins_.size() - 1);
+    BRpTRes_.resize(ptBins_.size() - 1);
+    ERpTRes_.resize(ptBins_.size() - 1);
+    if (!pTRes_.empty()) {
+      for (size_t i = 0; i < pTRes_.size(); i++) {
+        pTRes_[i] = nullptr;
+        BRpTRes_[i] = nullptr;
+        ERpTRes_[i] = nullptr;
+      }
     }
 
     if (dptOvptPS.getParameter<bool>("switchOn")) {
       delta_et_Over_et_VS_et_ = book2D(b,
                                        "delta_et_Over_et_VS_et_",
                                        ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
-                                       ptBinsPS.size() - 1,
-                                       &(ptBins.front()),
+                                       ptBins_.size() - 1,
+                                       &(ptBins_.front()),
                                        dptOvptPS.getParameter<int32_t>("nBin"),
                                        dptOvptPS.getParameter<double>("xMin"),
                                        dptOvptPS.getParameter<double>("xMax"));
@@ -173,19 +145,19 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
     if (dptOvptPS.getParameter<bool>("slicingOn")) {
       for (size_t i = 0; i < pTRes_.size(); i++) {
         pTRes_[i] = book1D(b,
-                           TString::Format("Pt%d_%d", (int)ptBins[i], (int)ptBins[i + 1]),
+                           TString::Format("Pt%d_%d", (int)ptBins_[i], (int)ptBins_[i + 1]),
                            ";#Deltap_{T}/p_{T};Entries",
                            dptOvptPS.getParameter<int32_t>("nBin"),
                            dptOvptPS.getParameter<double>("xMin"),
                            dptOvptPS.getParameter<double>("xMax"));
         BRpTRes_[i] = book1D(b,
-                             TString::Format("BRPt%d_%d", (int)ptBins[i], (int)ptBins[i + 1]),
+                             TString::Format("BRPt%d_%d", (int)ptBins_[i], (int)ptBins_[i + 1]),
                              ";#Deltap_{T}/p_{T};Entries",
                              dptOvptPS.getParameter<int32_t>("nBin"),
                              dptOvptPS.getParameter<double>("xMin"),
                              dptOvptPS.getParameter<double>("xMax"));
         ERpTRes_[i] = book1D(b,
-                             TString::Format("ERPt%d_%d", (int)ptBins[i], (int)ptBins[i + 1]),
+                             TString::Format("ERPt%d_%d", (int)ptBins_[i], (int)ptBins_[i + 1]),
                              ";#Deltap_{T}/p_{T};Entries",
                              dptOvptPS.getParameter<int32_t>("nBin"),
                              dptOvptPS.getParameter<double>("xMin"),
@@ -196,8 +168,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
       BRdelta_et_Over_et_VS_et_ = book2D(b,
                                          "BRdelta_et_Over_et_VS_et_",
                                          ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
-                                         ptBinsPS.size() - 1,
-                                         &(ptBins.front()),
+                                         ptBins_.size() - 1,
+                                         &(ptBins_.front()),
                                          dptOvptPS.getParameter<int32_t>("nBin"),
                                          dptOvptPS.getParameter<double>("xMin"),
                                          dptOvptPS.getParameter<double>("xMax"));
@@ -206,8 +178,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
       ERdelta_et_Over_et_VS_et_ = book2D(b,
                                          "ERdelta_et_Over_et_VS_et_",
                                          ";E_{T, true} (GeV);#DeltaE_{T}/E_{T}",
-                                         ptBinsPS.size() - 1,
-                                         &(ptBins.front()),
+                                         ptBins_.size() - 1,
+                                         &(ptBins_.front()),
                                          dptOvptPS.getParameter<int32_t>("nBin"),
                                          dptOvptPS.getParameter<double>("xMin"),
                                          dptOvptPS.getParameter<double>("xMax"));
@@ -217,8 +189,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
       delta_et_VS_et_ = book2D(b,
                                "delta_et_VS_et_",
                                ";E_{T, true} (GeV);#DeltaE_{T}",
-                               ptBinsPS.size() - 1,
-                               &(ptBins.front()),
+                               ptBins_.size() - 1,
+                               &(ptBins_.front()),
                                dptPS.getParameter<int32_t>("nBin"),
                                dptPS.getParameter<double>("xMin"),
                                dptPS.getParameter<double>("xMax"));
@@ -228,8 +200,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
       delta_eta_VS_et_ = book2D(b,
                                 "delta_eta_VS_et_",
                                 ";E_{T, true} (GeV);#Delta#eta",
-                                ptBinsPS.size() - 1,
-                                &(ptBins.front()),
+                                ptBins_.size() - 1,
+                                &(ptBins_.front()),
                                 detaPS.getParameter<int32_t>("nBin"),
                                 detaPS.getParameter<double>("xMin"),
                                 detaPS.getParameter<double>("xMax"));
@@ -239,67 +211,16 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSe
       delta_phi_VS_et_ = book2D(b,
                                 "delta_phi_VS_et_",
                                 ";E_{T, true} (GeV);#Delta#phi",
-                                ptBinsPS.size() - 1,
-                                &(ptBins.front()),
+                                ptBins_.size() - 1,
+                                &(ptBins_.front()),
                                 dphiPS.getParameter<int32_t>("nBin"),
                                 dphiPS.getParameter<double>("xMin"),
                                 dphiPS.getParameter<double>("xMax"));
     }
-    /*
-    // TProfile
-    if (dptOvptPS.getParameter<bool>("switchOn")) {
-      profile_delta_et_Over_et_VS_et_ =
-    bookProfile("profile_delta_et_Over_et_VS_et_", ";E_{T, true}
-    (GeV);#DeltaE_{T}/E_{T}", ptBinsPS.size()-1, &(ptBins.front()),
-                                                    dptOvptPS.getParameter<double>("xMin"),
-                                                    dptOvptPS.getParameter<double>("xMax"),
-    "" ); profileRMS_delta_et_Over_et_VS_et_ =
-    bookProfile("profileRMS_delta_et_Over_et_VS_et_", ";E_{T, true}
-    (GeV);#DeltaE_{T}/E_{T}", ptBinsPS.size()-1, &(ptBins.front()),
-                                                    dptOvptPS.getParameter<double>("xMin"),
-                                                    dptOvptPS.getParameter<double>("xMax"),
-    "s" );
-    }
-
-    if (dptPS.getParameter<bool>("switchOn")) {
-      profile_delta_et_VS_et_ = bookProfile("profile_delta_et_VS_et_", ";E_{T,
-    true} (GeV);#DeltaE_{T}", ptBinsPS.size()-1, &(ptBins.front()),
-                                            dptPS.getParameter<double>("xMin"),
-                                            dptPS.getParameter<double>("xMax"),
-    "" ); profileRMS_delta_et_VS_et_ = bookProfile("profileRMS_delta_et_VS_et_",
-    ";E_{T, true} (GeV);#DeltaE_{T}", ptBinsPS.size()-1, &(ptBins.front()),
-                                            dptPS.getParameter<double>("xMin"),
-                                            dptPS.getParameter<double>("xMax"),
-    "s" );
-    }
-
-    if (detaPS.getParameter<bool>("switchOn")) {
-      profile_delta_eta_VS_et_ = bookProfile("profile_delta_eta_VS_et_", ";E_{T,
-    true} (GeV);#Delta#eta", ptBinsPS.size()-1, &(ptBins.front()),
-                                             detaPS.getParameter<double>("xMin"),
-                                             detaPS.getParameter<double>("xMax"),
-    "" ); profileRMS_delta_eta_VS_et_ =
-    bookProfile("profileRMS_delta_eta_VS_et_", ";E_{T, true} (GeV);#Delta#eta",
-                                             ptBinsPS.size()-1,
-    &(ptBins.front()), detaPS.getParameter<double>("xMin"),
-                                             detaPS.getParameter<double>("xMax"),
-    "s" );
-    }
-
-    if (dphiPS.getParameter<bool>("switchOn")) {
-      profile_delta_phi_VS_et_ = bookProfile("profile_delta_phi_VS_et_", ";E_{T,
-    true} (GeV);#Delta#phi", ptBinsPS.size()-1, &(ptBins.front()),
-                                             dphiPS.getParameter<double>("xMin"),
-                                             dphiPS.getParameter<double>("xMax"),
-    "" ); profileRMS_delta_phi_VS_et_ =
-    bookProfile("profileRMS_delta_phi_VS_et_", ";E_{T, true} (GeV);#Delta#phi",
-                                             ptBinsPS.size()-1,
-    &(ptBins.front()), dphiPS.getParameter<double>("xMin"),
-                                             dphiPS.getParameter<double>("xMax"),
-    "s" );
-                                             }
-    */
-
+    eta_min_barrel_ = dptOvptPS.getParameter<double>("BREtaMin");
+    eta_max_barrel_ = dptOvptPS.getParameter<double>("BREtaMax");
+    eta_min_endcap_ = dptOvptPS.getParameter<double>("EREtaMin");
+    eta_max_endcap_ = dptOvptPS.getParameter<double>("EREtaMax");
     histogramBooked_ = true;
   }
 }
@@ -323,24 +244,14 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand, const reco::C
       delta_eta_VS_et_->Fill(matchedCand.pt(), cand.eta() - matchedCand.eta());
     if (delta_phi_VS_et_)
       delta_phi_VS_et_->Fill(matchedCand.pt(), cand.phi() - matchedCand.phi());
-    /*
-    // TProfile
-    if (profile_delta_et_Over_et_VS_et_) {
-      profile_delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() -
-    matchedCand.pt())/matchedCand.pt() );
-      profileRMS_delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() -
-    matchedCand.pt())/matchedCand.pt() ); } if (profile_delta_et_VS_et_) {
-      profile_delta_et_VS_et_->Fill( matchedCand.pt(), cand.pt() -
-    matchedCand.pt() ); profileRMS_delta_et_VS_et_->Fill( matchedCand.pt(),
-    cand.pt() - matchedCand.pt() ); } if (profile_delta_eta_VS_et_) {
-      profile_delta_eta_VS_et_->Fill( matchedCand.pt(), cand.eta() -
-    matchedCand.eta() ); profileRMS_delta_eta_VS_et_->Fill( matchedCand.pt(),
-    cand.eta() - matchedCand.eta() ); } if (profile_delta_phi_VS_et_) {
-      profile_delta_phi_VS_et_->Fill( matchedCand.pt(), cand.phi() -
-    matchedCand.phi() ); profileRMS_delta_phi_VS_et_->Fill( matchedCand.pt(),
-    cand.phi() - matchedCand.phi() ); }
-    */
   }
+}
+
+bool MatchCandidateBenchmark::inEtaRange(double value, bool inBarrel) {
+  if (inBarrel) {
+    return std::abs(value) >= eta_min_barrel_ && std::abs(value) <= eta_max_barrel_;
+  }
+  return std::abs(value) >= eta_min_endcap_ && std::abs(value) <= eta_max_endcap_;
 }
 
 void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand,
@@ -350,36 +261,15 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand,
     return;
 
   if (histogramBooked_) {
-    std::vector<double> ptBinsPS = parameterSet.getParameter<std::vector<double>>("VariablePtBins");
-    edm::ParameterSet ptPS = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
-    std::vector<float> ptBins;
-    if (ptBinsPS.size() > 1) {
-      ptBins.reserve(ptBinsPS.size());
-      for (size_t i = 0; i < ptBinsPS.size(); i++) {
-        ptBins.push_back(ptBinsPS[i]);
-      }
-    } else {
-      Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
-      ptBins.reserve(nFixedBins + 1);
-      for (Int_t i = 0; i <= nFixedBins; i++) {
-        ptBins.push_back(ptPS.getParameter<double>("xMin") +
-                         i * ((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
-      }
-      ptBinsPS.resize(nFixedBins);
-    }
-
     edm::ParameterSet dptOvptPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPtOvPtHistoParameter");
-    if (matchedCand.pt() > ptBins.at(0)) {  // underflow problem
+
+    if (matchedCand.pt() > ptBins_.at(0)) {  // underflow problem
       if (delta_et_Over_et_VS_et_)
         delta_et_Over_et_VS_et_->Fill(matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt());
-      if (fabs(cand.eta()) >= dptOvptPS.getParameter<double>("BREtaMin") &&
-          fabs(cand.eta()) <= dptOvptPS.getParameter<double>("BREtaMax"))
-        if (BRdelta_et_Over_et_VS_et_)
-          BRdelta_et_Over_et_VS_et_->Fill(matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt());
-      if (fabs(cand.eta()) >= dptOvptPS.getParameter<double>("EREtaMin") &&
-          fabs(cand.eta()) <= dptOvptPS.getParameter<double>("EREtaMax"))
-        if (ERdelta_et_Over_et_VS_et_)
-          ERdelta_et_Over_et_VS_et_->Fill(matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt());
+      if (BRdelta_et_Over_et_VS_et_ and inBarrelRange(matchedCand.eta()))
+        BRdelta_et_Over_et_VS_et_->Fill(matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt());
+      if (ERdelta_et_Over_et_VS_et_ and inEndcapRange(matchedCand.eta()))
+        ERdelta_et_Over_et_VS_et_->Fill(matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt());
       if (delta_et_VS_et_)
         delta_et_VS_et_->Fill(matchedCand.pt(), cand.pt() - matchedCand.pt());
       if (delta_eta_VS_et_)
@@ -387,36 +277,15 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand,
       if (delta_phi_VS_et_)
         delta_phi_VS_et_->Fill(matchedCand.pt(), cand.phi() - matchedCand.phi());
     }
-    /*
-    // TProfile
-    if (profile_delta_et_Over_et_VS_et_) {
-      profile_delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() -
-    matchedCand.pt())/matchedCand.pt() );
-      profileRMS_delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() -
-    matchedCand.pt())/matchedCand.pt() ); } if (profile_delta_et_VS_et_) {
-      profile_delta_et_VS_et_->Fill( matchedCand.pt(), cand.pt() -
-    matchedCand.pt() ); profileRMS_delta_et_VS_et_->Fill( matchedCand.pt(),
-    cand.pt() - matchedCand.pt() ); } if (profile_delta_eta_VS_et_) {
-      profile_delta_eta_VS_et_->Fill( matchedCand.pt(), cand.eta() -
-    matchedCand.eta() ); profileRMS_delta_eta_VS_et_->Fill( matchedCand.pt(),
-    cand.eta() - matchedCand.eta() ); } if (profile_delta_phi_VS_et_) {
-      profile_delta_phi_VS_et_->Fill( matchedCand.pt(), cand.phi() -
-    matchedCand.phi() ); profileRMS_delta_phi_VS_et_->Fill( matchedCand.pt(),
-    cand.phi() - matchedCand.phi() ); }
-    */
 
     for (size_t i = 0; i < pTRes_.size(); i++) {
-      if (matchedCand.pt() >= ptBins.at(i) && matchedCand.pt() < ptBins.at(i + 1)) {
+      if (matchedCand.pt() >= ptBins_.at(i) && matchedCand.pt() < ptBins_.at(i + 1)) {
         if (pTRes_[i])
           pTRes_[i]->Fill((cand.pt() - matchedCand.pt()) / matchedCand.pt());
-        if (fabs(cand.eta()) >= dptOvptPS.getParameter<double>("BREtaMin") &&
-            fabs(cand.eta()) <= dptOvptPS.getParameter<double>("BREtaMax"))
-          if (BRpTRes_[i])
-            BRpTRes_[i]->Fill((cand.pt() - matchedCand.pt()) / matchedCand.pt());  // Fill Barrel
-        if (fabs(cand.eta()) >= dptOvptPS.getParameter<double>("EREtaMin") &&
-            fabs(cand.eta()) <= dptOvptPS.getParameter<double>("EREtaMax"))
-          if (ERpTRes_[i])
-            ERpTRes_[i]->Fill((cand.pt() - matchedCand.pt()) / matchedCand.pt());  // Fill Endcap
+        if (BRpTRes_[i])
+          BRpTRes_[i]->Fill((cand.pt() - matchedCand.pt()) / matchedCand.pt());  // Fill Barrel
+        if (ERpTRes_[i])
+          ERpTRes_[i]->Fill((cand.pt() - matchedCand.pt()) / matchedCand.pt());  // Fill Endcap
       }
     }
   }

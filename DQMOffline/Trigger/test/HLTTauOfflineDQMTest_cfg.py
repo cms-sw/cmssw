@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.categories.append("HLTTauDQMOffline")
+process.MessageLogger.HLTTauDQMOffline=dict()
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #Script to
 #1-check for cmsScimarkLaunch (infinite loop) scripts
 #2-kill them

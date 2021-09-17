@@ -1,5 +1,6 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,61 +40,70 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet)
       theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder")),
       theMTDRecHitBuilderName(parameterSet.getParameter<string>("MTDRecHitBuilder")) {}
 
+TrackTransformer::TrackTransformer(const ParameterSet& parameterSet, edm::ConsumesCollector& iC)
+    : TrackTransformer(parameterSet) {
+  theTrackingGeometryToken = iC.esConsumes();
+  theMGFieldToken = iC.esConsumes();
+  theFitterToken = iC.esConsumes(edm::ESInputTag("", theFitterName));
+  theSmootherToken = iC.esConsumes(edm::ESInputTag("", theSmootherName));
+  thePropagatorToken = iC.esConsumes(edm::ESInputTag("", thePropagatorName));
+  theTrackerRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", theTrackerRecHitBuilderName));
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", theMuonRecHitBuilderName));
+  theMTDRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", theMTDRecHitBuilderName));
+}
+
 /// Destructor
 TrackTransformer::~TrackTransformer() {}
 
 void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
-                                           bool DoPredictionsOnly,
-                                           const std::string& Fitter,
-                                           const std::string& Smoother,
-                                           const std::string& Propagator,
-                                           const std::string& RefitDirection,
-                                           bool RefitRPCHits,
-                                           const std::string& TrackerRecHitBuilder,
-                                           const std::string& MuonRecHitBuilder,
-                                           const std::string& MTDRecHitBuilder) {
-  desc.add<bool>("DoPredictionsOnly", DoPredictionsOnly);
-  desc.add<std::string>("Fitter", Fitter);
-  desc.add<std::string>("Smoother", Smoother);
-  desc.add<std::string>("Propagator", Propagator);
-  desc.add<std::string>("RefitDirection", RefitDirection);
-  desc.add<bool>("RefitRPCHits", RefitRPCHits);
-  desc.add<std::string>("TrackerRecHitBuilder", TrackerRecHitBuilder);
-  desc.add<std::string>("MuonRecHitBuilder", MuonRecHitBuilder);
-  desc.add<std::string>("MTDRecHitBuilder", MTDRecHitBuilder);
+                                           bool doPredictionsOnly,
+                                           const std::string& fitter,
+                                           const std::string& smoother,
+                                           const std::string& propagator,
+                                           const std::string& refitDirection,
+                                           bool refitRPCHits,
+                                           const std::string& trackerRecHitBuilder,
+                                           const std::string& muonRecHitBuilder,
+                                           const std::string& mtdRecHitBuilder) {
+  desc.add<bool>("DoPredictionsOnly", doPredictionsOnly);
+  desc.add<std::string>("Fitter", fitter);
+  desc.add<std::string>("Smoother", smoother);
+  desc.add<std::string>("Propagator", propagator);
+  desc.add<std::string>("RefitDirection", refitDirection);
+  desc.add<bool>("RefitRPCHits", refitRPCHits);
+  desc.add<std::string>("TrackerRecHitBuilder", trackerRecHitBuilder);
+  desc.add<std::string>("MuonRecHitBuilder", muonRecHitBuilder);
+  desc.add<std::string>("MTDRecHitBuilder", mtdRecHitBuilder);
 }
 
 void TrackTransformer::setServices(const EventSetup& setup) {
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
-  edm::ESHandle<TrajectoryFitter> aFitter;
-  edm::ESHandle<TrajectorySmoother> aSmoother;
-  setup.get<TrajectoryFitter::Record>().get(theFitterName, aFitter);
-  setup.get<TrajectoryFitter::Record>().get(theSmootherName, aSmoother);
-  theFitter = aFitter->clone();
-  theSmoother.reset(aSmoother->clone());
+  if (theFitterToken.isInitialized()) {
+    theFitter = setup.getData(theFitterToken).clone();
+    theSmoother.reset(setup.getData(theSmootherToken).clone());
 
-  unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
+    thePropagator = setup.getHandle(thePropagatorToken);
 
-  if (newCacheId_TC != theCacheId_TC) {
-    LogTrace(metname) << "Tracking Component changed!";
-    theCacheId_TC = newCacheId_TC;
+    // Global Tracking Geometry
+    theTrackingGeometry = setup.getHandle(theTrackingGeometryToken);
+
+    // Magfield Field
+    theMGField = setup.getHandle(theMGFieldToken);
+  } else {
+    edm::ESHandle<TrajectoryFitter> aFitter;
+    edm::ESHandle<TrajectorySmoother> aSmoother;
+    setup.get<TrajectoryFitter::Record>().get(theFitterName, aFitter);
+    setup.get<TrajectoryFitter::Record>().get(theSmootherName, aSmoother);
+    theFitter = aFitter->clone();
+    theSmoother.reset(aSmoother->clone());
+
     setup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
-  }
 
-  // Global Tracking Geometry
-  unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
-  if (newCacheId_GTG != theCacheId_GTG) {
-    LogTrace(metname) << "GlobalTrackingGeometry changed!";
-    theCacheId_GTG = newCacheId_GTG;
+    // Global Tracking Geometry
     setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  }
 
-  // Magfield Field
-  unsigned long long newCacheId_MG = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
-  if (newCacheId_MG != theCacheId_MG) {
-    LogTrace(metname) << "Magnetic Field changed!";
-    theCacheId_MG = newCacheId_MG;
+    // Magfield Field
     setup.get<IdealMagneticFieldRecord>().get(theMGField);
   }
 
@@ -102,11 +112,19 @@ void TrackTransformer::setServices(const EventSetup& setup) {
   if (newCacheId_TRH != theCacheId_TRH) {
     theCacheId_TRH = newCacheId_TRH;
     LogTrace(metname) << "TransientRecHitRecord changed!";
-    setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName, theMTDRecHitBuilder);
+    if (theTrackerRecHitBuilderToken.isInitialized()) {
+      theTrackerRecHitBuilder = &setup.getData(theTrackerRecHitBuilderToken);
+      theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuilderToken);
+      theMTDRecHitBuilder = setup.getHandle(theMTDRecHitBuilderToken);
+    } else {
+      edm::ESHandle<TransientTrackingRecHitBuilder> aTrackerRecHitBuilder;
+      setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, aTrackerRecHitBuilder);
+      theTrackerRecHitBuilder = aTrackerRecHitBuilder.product();
+      setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+      setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName, theMTDRecHitBuilder);
+    }
     theMtdAvailable = theMTDRecHitBuilder.isValid();
-    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder)->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
   theSmoother->setHitCloner(&hitCloner);
@@ -117,7 +135,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::TrackRef& track) cons
 TransientTrackingRecHit::ConstRecHitContainer TrackTransformer::getTransientRecHits(
     const reco::TransientTrack& track) const {
   TransientTrackingRecHit::ConstRecHitContainer result;
-  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder);
 
   for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
@@ -267,7 +285,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack& track
     return vector<Trajectory>();
   }
 
-  TrajectorySeed seed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), propagationDirection);
+  TrajectorySeed seed({}, {}, propagationDirection);
 
   if (recHitsForReFit.front()->geographicalId() != DetId(innerId)) {
     LogTrace(metname) << "Propagation occured" << endl;

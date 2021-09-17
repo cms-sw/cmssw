@@ -17,11 +17,12 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 #include "HistSpec.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
-
-class MonitorElement;
 
 class EgammaSuperClusters : public DQMEDAnalyzer {
 public:
@@ -47,6 +48,8 @@ private:
   // collections of hits
   edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollectionToken_;
+
+  EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   HistSpec hsSize_;
   HistSpec hsNumBC_;

@@ -1,4 +1,3 @@
 <use name="DataFormats/TrajectoryState"/>
-<bin   file="PTraj_t.cpp">
+<bin file="PTraj_t.cpp">
 </bin>
-

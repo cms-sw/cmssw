@@ -16,16 +16,19 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
 
 HcalTB02XtalNumberingScheme::HcalTB02XtalNumberingScheme() : HcalTB02NumberingScheme() {
-  edm::LogInfo("HcalTBSim") << "Creating HcalTB02XtalNumberingScheme";
+  edm::LogVerbatim("HcalTBSim") << "Creating HcalTB02XtalNumberingScheme";
 }
 
 HcalTB02XtalNumberingScheme::~HcalTB02XtalNumberingScheme() {
-  edm::LogInfo("HcalTBSim") << "Deleting HcalTB02XtalNumberingScheme";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "Deleting HcalTB02XtalNumberingScheme";
+#endif
 }
 
 //
@@ -39,6 +42,9 @@ int HcalTB02XtalNumberingScheme::getUnitID(const G4Step* aStep) const {
   if (touch->GetHistoryDepth() > 0)
     idl = touch->GetReplicaNumber(1);
   int idunit = idl * 100 + idx;
-  LogDebug("HcalTBSim") << "HcalTB02XtalNumberingScheme:: Row " << idl << " Column " << idl << " idunit = " << idunit;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02XtalNumberingScheme:: Row " << idl << " Column " << idl
+                                << " idunit = " << idunit;
+#endif
   return idunit;
 }

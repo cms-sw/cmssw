@@ -69,7 +69,7 @@ void popcon::EcalTPGSpikeThresholdHandler::getNewObjects() {
   }
 
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   edm::LogInfo("EcalTPGSpikeThresholdHandler") << "max_since : " << max_since;
   edm::LogInfo("EcalTPGSpikeThresholdHandler") << "retrieved last payload ";
 

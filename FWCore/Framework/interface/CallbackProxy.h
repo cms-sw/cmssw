@@ -26,6 +26,8 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -34,11 +36,11 @@
 namespace edm::eventsetup {
 
   template <class CallbackT, class RecordT, class DataT>
-  class CallbackProxy : public DataProxy {
+  class CallbackProxy final : public DataProxy {
   public:
     using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
-    using value_type = typename smart_pointer_traits::type;
-    using record_type = RecordT;
+    using ValueType = typename smart_pointer_traits::type;
+    using RecordType = RecordT;
 
     CallbackProxy(std::shared_ptr<CallbackT>& iCallback) : callback_{iCallback} {
       //The callback fills the data directly.  This is done so that the callback does not have to
@@ -47,18 +49,22 @@ namespace edm::eventsetup {
       iCallback->holdOntoPointer(&data_);
     }
 
-    ~CallbackProxy() override {
+    ~CallbackProxy() final {
       DataT* dummy(nullptr);
       callback_->holdOntoPointer(dummy);
     }
 
-    const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
+    void prefetchAsyncImpl(WaitingTaskHolder iWaitTask,
+                           const EventSetupRecordImpl& iRecord,
+                           const DataKey&,
+                           EventSetupImpl const* iEventSetupImpl,
+                           ServiceToken const& iToken,
+                           edm::ESParentContext const& iParent) final {
       assert(iRecord.key() == RecordT::keyForClass());
-      record_type rec;
-      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices());
-      (*callback_)(rec);
-      return smart_pointer_traits::getPointer(data_);
+      callback_->prefetchAsync(iWaitTask, &iRecord, iEventSetupImpl, iToken, iParent);
     }
+
+    void const* getAfterPrefetchImpl() const final { return smart_pointer_traits::getPointer(data_); }
 
     void invalidateCache() override {
       data_ = DataT{};

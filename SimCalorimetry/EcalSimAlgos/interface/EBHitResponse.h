@@ -4,6 +4,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 class APDSimParameters;
 
@@ -11,21 +12,24 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class EBHitResponse : public EcalHitResponse {
+template <class constset>
+class EBHitResponseImpl : public EcalHitResponse {
 public:
-  typedef CaloTSamples<float, 10> EBSamples;
+  typedef CaloTSamples<float, constset::sampleSize> EBSamples;
 
   typedef std::vector<double> VecD;
 
-  enum { kNOffsets = 2000 };
+  static constexpr size_t kNOffsets = constset::kNOffsets;
 
-  EBHitResponse(const CaloVSimParameterMap* parameterMap,
-                const CaloVShape* shape,
-                bool apdOnly,
-                const APDSimParameters* apdPars,
-                const CaloVShape* apdShape);
+  static constexpr double kSamplePeriod = constset::Samp_Period;
 
-  ~EBHitResponse() override;
+  EBHitResponseImpl(const CaloVSimParameterMap* parameterMap,
+                    const CaloVShape* shape,
+                    bool apdOnly,
+                    const APDSimParameters* apdPars = nullptr,
+                    const CaloVShape* apdShape = nullptr);
+
+  ~EBHitResponseImpl() override;
 
   void initialize(CLHEP::HepRandomEngine*);
 
@@ -57,6 +61,8 @@ protected:
   EcalSamples* vSam(unsigned int i) override;
 
   void putAPDSignal(const DetId& detId, double npe, double time);
+
+  void putAnalogSignal(const PCaloHit& inputHit, CLHEP::HepRandomEngine*) override;
 
 private:
   const VecD& offsets() const { return m_timeOffVec; }
@@ -95,4 +101,8 @@ private:
 
   bool m_isInitialized;
 };
+
+typedef EBHitResponseImpl<ecalPh1> EBHitResponse;
+typedef EBHitResponseImpl<ecalPh2> EBHitResponse_Ph2;
+#include "EBHitResponse.icc"
 #endif

@@ -34,10 +34,9 @@ struct NumericSafeLessByEt {
   typedef T first_argument_type;
   typedef T second_argument_type;
   bool operator()(const T& a1, const T& a2) {
-    return fabs(a1.et() - a2.et()) > std::numeric_limits<double>::epsilon()
-               ? a1.et() < a2.et()
-               : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() < a2.px()
-                                                                                  : a1.pz() < a2.pz();
+    return fabs(a1.et() - a2.et()) > std::numeric_limits<double>::epsilon()   ? a1.et() < a2.et()
+           : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() < a2.px()
+                                                                              : a1.pz() < a2.pz();
   }
 };
 
@@ -46,10 +45,9 @@ struct NumericSafeGreaterByEt {
   typedef T first_argument_type;
   typedef T second_argument_type;
   bool operator()(const T& a1, const T& a2) {
-    return fabs(a1.et() - a2.et()) > std::numeric_limits<double>::epsilon()
-               ? a1.et() > a2.et()
-               : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px()
-                                                                                  : a1.pz() > a2.pz();
+    return fabs(a1.et() - a2.et()) > std::numeric_limits<double>::epsilon()   ? a1.et() > a2.et()
+           : fabs(a1.px() - a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px()
+                                                                              : a1.pz() > a2.pz();
   }
 };
 

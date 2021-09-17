@@ -32,8 +32,6 @@ L1TPUM::L1TPUM(const edm::ParameterSet& ps)
 
 L1TPUM::~L1TPUM() {}
 
-void L1TPUM::dqmBeginRun(const edm::Run&, const edm::EventSetup&) {}
-
 void L1TPUM::analyze(const edm::Event& event, const edm::EventSetup& es) {
   edm::Handle<L1CaloRegionCollection> regionCollection;
   event.getByToken(regionSource_, regionCollection);

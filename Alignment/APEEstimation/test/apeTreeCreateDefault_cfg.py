@@ -54,8 +54,8 @@ process = cms.Process("ApeTreeCreateDefault")
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.append('DefaultAPETree')
-process.MessageLogger.categories.append('SectorBuilder')
+process.MessageLogger.DefaultAPETree=dict()
+process.MessageLogger.SectorBuilder=dict()
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.DefaultAPETree = cms.untracked.PSet(limit = cms.untracked.int32(-1))

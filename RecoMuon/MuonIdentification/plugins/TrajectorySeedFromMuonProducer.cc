@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 // related to reco::Track
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -54,6 +55,8 @@ private:
   edm::InputTag trackCollectionTag_;
   edm::EDGetTokenT<edm::View<reco::Muon> > muonCollectionToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   bool skipMatchedMuons_;
 };
 
@@ -64,6 +67,8 @@ TrajectorySeedFromMuonProducer::TrajectorySeedFromMuonProducer(const edm::Parame
 
   muonCollectionToken_ = consumes<edm::View<reco::Muon> >(muonCollectionTag_);
   trackCollectionToken_ = consumes<reco::TrackCollection>(trackCollectionTag_);
+  magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  trackerGeometryToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   produces<TrajectorySeedCollection>();
 }
@@ -76,11 +81,9 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
   // Product
   auto result = std::make_unique<TrajectorySeedCollection>();
 
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  edm::ESHandle<MagneticField> magneticField = iSetup.getHandle(magneticFieldToken_);
 
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+  edm::ESHandle<TrackerGeometry> trackerGeometry = iSetup.getHandle(trackerGeometryToken_);
 
   edm::Handle<edm::View<Muon> > muonCollectionHandle;
   iEvent.getByToken(muonCollectionToken_, muonCollectionHandle);

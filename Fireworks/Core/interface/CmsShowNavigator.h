@@ -111,6 +111,8 @@ public:
 
   const char* frameTitle();
   const char* filterStatusMessage();
+  std::string getCurrentGlobalTag();
+
   int getNSelectedEvents() override;
   int getNTotalEvents() override;
   bool canEditFiltersExternally();

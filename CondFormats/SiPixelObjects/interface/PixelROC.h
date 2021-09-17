@@ -6,8 +6,8 @@
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 /** \class PixelROC
  * Represents ReadOut Chip of DetUnit. 

@@ -51,10 +51,10 @@ namespace cms {
     void append(std::string const& s);
     void append(const char* data, size_t size);
 
-    MD5Result digest() const;
+    MD5Result digest();
 
   private:
-    mutable md5_state_t state_;
+    md5_state_t state_;
   };
 }  // namespace cms
 

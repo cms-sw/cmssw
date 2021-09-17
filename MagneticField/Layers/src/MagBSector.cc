@@ -9,7 +9,7 @@
 #include "MagneticField/Layers/interface/MagBSector.h"
 #include "MagneticField/Layers/interface/MagBRod.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -29,9 +29,7 @@ const MagVolume* MagBSector::findVolume(const GlobalPoint& gp, double tolerance)
 
   // FIXME : use a binfinder
   for (vector<MagBRod*>::const_iterator irod = theRods.begin(); irod != theRods.end(); ++irod) {
-    // TOFIX
-    if (verbose::debugOut)
-      cout << "     Trying rod at phi " << (*irod)->minPhi() << " " << phi << endl;
+    LogTrace("MagGeometry") << "     Trying rod at phi " << (*irod)->minPhi() << " " << phi << endl;
     result = (*irod)->findVolume(gp, tolerance);
     if (result != nullptr)
       return result;

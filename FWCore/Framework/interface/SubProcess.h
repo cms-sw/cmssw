@@ -2,11 +2,11 @@
 #define FWCore_Framework_SubProcess_h
 
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/interface/ScheduleItems.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
@@ -17,23 +17,31 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include <map>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace edm {
   class ActivityRegistry;
   class BranchDescription;
   class BranchIDListHelper;
+  class EventPrincipal;
+  class EventSetupImpl;
   class HistoryAppender;
-  class IOVSyncValue;
+  class LuminosityBlockPrincipal;
+  class LumiTransitionInfo;
   class MergeableRunProductMetadata;
   class ParameterSet;
+  class Principal;
+  class ProcessBlockTransitionInfo;
   class ProductRegistry;
   class PreallocationConfiguration;
+  class RunTransitionInfo;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class WaitingTaskHolder;
@@ -47,6 +55,7 @@ namespace edm {
                ParameterSet const& topLevelParameterSet,
                std::shared_ptr<ProductRegistry const> parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               ProcessBlockHelperBase const& parentProcessBlockHelper,
                ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                SubProcessParentageHelper const& parentSubProcessParentageHelper,
                eventsetup::EventSetupsController& esController,
@@ -61,7 +70,7 @@ namespace edm {
     SubProcess(SubProcess const&) = delete;             // Disallow copying
     SubProcess& operator=(SubProcess const&) = delete;  // Disallow copying
     SubProcess(SubProcess&&) = default;                 // Allow Moving
-    SubProcess& operator=(SubProcess&&) = default;      // Allow moving
+    SubProcess& operator=(SubProcess&&) = delete;       // Move not supported by PrincipalCache
 
     //From OutputModule
     void selectProducts(ProductRegistry const& preg,
@@ -70,63 +79,69 @@ namespace edm {
 
     SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
 
+    // Returns the set of modules whose products may be consumed by
+    // modules in this SubProcess or its child SubProcesses
+    std::vector<ModuleProcessName> keepOnlyConsumedUnscheduledModules(bool deleteModules);
+
     void doBeginJob();
     void doEndJob();
 
-    void doEventAsync(WaitingTaskHolder iHolder, EventPrincipal const& principal);
+    void doEventAsync(WaitingTaskHolder iHolder,
+                      EventPrincipal const& principal,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
+    template <typename Traits>
+    void doBeginProcessBlockAsync(WaitingTaskHolder iHolder,
+                                  ProcessBlockTransitionInfo const& iTransitionInfo,
+                                  bool cleaningUpAfterException);
+
+    void doEndProcessBlockAsync(WaitingTaskHolder iHolder,
+                                ProcessBlockTransitionInfo const& iTransitionInfo,
+                                bool cleaningUpAfterException);
+
+    void doBeginRunAsync(WaitingTaskHolder iHolder, RunTransitionInfo const& iTransitionInfo);
 
     void doEndRunAsync(WaitingTaskHolder iHolder,
-                       RunPrincipal const& principal,
-                       IOVSyncValue const& ts,
+                       RunTransitionInfo const& iTransitionInfo,
                        bool cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                     LuminosityBlockPrincipal const& principal,
-                                     IOVSyncValue const& ts);
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LumiTransitionInfo const& iTransitionInfo);
 
     void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                   LuminosityBlockPrincipal const& principal,
-                                   IOVSyncValue const& ts,
+                                   LumiTransitionInfo const& iTransitionInfo,
                                    bool cleaningUpAfterException);
 
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
-    void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
-                               unsigned int iID,
-                               RunPrincipal const& principal,
-                               IOVSyncValue const& ts);
+    void doStreamBeginRunAsync(WaitingTaskHolder iHolder, unsigned int iID, RunTransitionInfo const&);
 
     void doStreamEndRunAsync(WaitingTaskHolder iHolder,
                              unsigned int iID,
-                             RunPrincipal const& principal,
-                             IOVSyncValue const& ts,
+                             RunTransitionInfo const&,
                              bool cleaningUpAfterException);
 
-    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
-                                           unsigned int iID,
-                                           LuminosityBlockPrincipal const& principal,
-                                           IOVSyncValue const& ts);
+    void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, unsigned int iID, LumiTransitionInfo const&);
 
     void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                          unsigned int iID,
-                                         LuminosityBlockPrincipal const& principal,
-                                         IOVSyncValue const& ts,
+                                         LumiTransitionInfo const&,
                                          bool cleaningUpAfterException);
 
-    // Write the luminosity block
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
     void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
-    // Write the run
+    using ProcessBlockType = PrincipalCache::ProcessBlockType;
+    void writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType);
+
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& parentPhID,
                        int runNumber,
                        MergeableRunProductMetadata const*);
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
+
+    void clearProcessBlockPrincipal(ProcessBlockType);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles() {
@@ -239,13 +254,12 @@ namespace edm {
   private:
     void beginJob();
     void endJob();
-    void processAsync(WaitingTaskHolder iHolder, EventPrincipal const& e);
-    void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
-    void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
-    void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
-    void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void processAsync(WaitingTaskHolder iHolder,
+                      EventPrincipal const& e,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
+    bool parentProducedProductIsKept(Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(
         std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
     void keepThisBranch(BranchDescription const& desc,
@@ -272,6 +286,7 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> parentPreg_;
     std::shared_ptr<ProductRegistry const> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<SubProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;

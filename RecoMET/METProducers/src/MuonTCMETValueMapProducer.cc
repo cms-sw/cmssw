@@ -26,9 +26,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
@@ -108,6 +105,7 @@ namespace cms {
     muonToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
     beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
     vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
+    magFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   }
 
   //____________________________________________________________________________||
@@ -128,8 +126,7 @@ namespace cms {
       }
     }
 
-    edm::ESHandle<MagneticField> theMagField;
-    iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+    edm::ESHandle<MagneticField> theMagField = iSetup.getHandle(magFieldToken_);
     bField = theMagField.product();
 
     auto vm_muCorrData = std::make_unique<edm::ValueMap<reco::MuonMETCorrectionData>>();

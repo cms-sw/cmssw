@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -10,7 +12,7 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 
-#include "PhysicsTools/RecoAlgos/plugins/KalmanVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -58,7 +60,7 @@ void PFDisplacedVertexFinder::findDisplacedVertices() {
   if (displacedVertices_.get())
     displacedVertices_->clear();
   else
-    displacedVertices_.reset(new PFDisplacedVertexCollection);
+    displacedVertices_ = std::make_unique<PFDisplacedVertexCollection>();
 
   if (displacedVertexCandidates_ == nullptr) {
     edm::LogInfo("EmptyVertexInput")

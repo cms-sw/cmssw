@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/getFixedSizeArray.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -15,7 +14,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "FWCore/ParameterSet/interface/ValidatedPluginFactoryMacros.h"
@@ -80,10 +79,10 @@ namespace edmtest {
     vint = ps.getParameter<std::vector<int>>("vint3");
     assert(vint[0] == 2147483647);
     assert(vint[1] == -2147483647);
-    std::array<int, 2> testArray = edm::getFixedSizeArray<int, 2>(ps, std::string("vint3"));
+    std::array<int, 2> testArray = ps.getParameter<std::array<int, 2>>(std::string("vint3"));
     assert(testArray[0] == 2147483647);
     assert(testArray[1] == -2147483647);
-    std::array<int, 2> testArray1 = edm::getFixedSizeArray<int, 2>(ps, "vint3");
+    std::array<int, 2> testArray1 = ps.getParameter<std::array<int, 2>>("vint3");
     assert(testArray1[0] == 2147483647);
     assert(testArray1[1] == -2147483647);
     vint = ps.getParameter<std::vector<int>>("vint4");
@@ -283,6 +282,26 @@ namespace edmtest {
     assert(vInputTag[1] == inputTag2);
     assert(vInputTag[2] == inputTag3);
     assert(vInputTag[3] == inputTag4);
+
+    edm::ESInputTag esinputTag1("One", "Two");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv1") == esinputTag1);
+    edm::ESInputTag esinputTag2("One", "");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv2") == esinputTag2);
+    edm::ESInputTag esinputTag3("", "Two");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv3") == esinputTag3);
+
+    std::vector<edm::ESInputTag> vESInputTag;
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv1");
+    assert(vESInputTag.empty());
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv2");
+    assert(vESInputTag[0] == esinputTag1);
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv3");
+    assert(vESInputTag[0] == esinputTag1);
+    assert(vESInputTag[1] == esinputTag2);
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv4");
+    assert(vESInputTag[0] == esinputTag1);
+    assert(vESInputTag[1] == esinputTag2);
+    assert(vESInputTag[2] == esinputTag3);
 
     // For purposes of the test, this just needs to point to any file
     // that exists.  I guess pointing to itself cannot ever fail ...
@@ -653,6 +672,22 @@ namespace edmtest {
     iDesc.add<std::vector<edm::InputTag>>("vInputTagv4", vInputTag);
     vInputTag.push_back(inputTag4);
     iDesc.add<std::vector<edm::InputTag>>("vInputTagv5", vInputTag);
+
+    edm::ESInputTag esinputTag("One", "Two");
+    iDesc.add<edm::ESInputTag>("esinputTagv1", esinputTag);
+    edm::ESInputTag esinputTag2("One", "");
+    iDesc.add<edm::ESInputTag>("esinputTagv2", esinputTag2);
+    edm::ESInputTag esinputTag3("", "Two");
+    iDesc.add<edm::ESInputTag>("esinputTagv3", esinputTag3);
+
+    std::vector<edm::ESInputTag> vESInputTag;
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv1", vESInputTag);
+    vESInputTag.push_back(esinputTag);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv2", vESInputTag);
+    vESInputTag.push_back(esinputTag2);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv3", vESInputTag);
+    vESInputTag.push_back(esinputTag3);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv4", vESInputTag);
 
     // For purposes of the test, this just needs to point to any file
     // that exists.  I guess pointing to itself cannot ever fail ...

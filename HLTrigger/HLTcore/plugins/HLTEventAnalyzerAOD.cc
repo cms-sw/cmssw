@@ -48,7 +48,8 @@ void HLTEventAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::string>("triggerName", "@");
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("triggerEvent", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
-  descriptions.add("hltEventAnalyzerAOD", desc);
+  desc.add<unsigned int>("stageL1Trigger", 1);
+  descriptions.add("hltEventAnalyzerAODDefault", desc);
 }
 
 void HLTEventAnalyzerAOD::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}

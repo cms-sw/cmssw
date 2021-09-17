@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <map>
+#include "Rtypes.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "Calibration/HcalCalibAlgos/src/TCell.h"
+#include "Calibration/HcalCalibAlgos/interface/TCell.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"

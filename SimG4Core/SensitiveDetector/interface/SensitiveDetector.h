@@ -1,8 +1,6 @@
 #ifndef SimG4Core_SensitiveDetector_H
 #define SimG4Core_SensitiveDetector_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -17,15 +15,10 @@ class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
 class G4VPhysicalVolume;
-class DDCompactView;
 
 class SensitiveDetector : public G4VSensitiveDetector {
 public:
-  explicit SensitiveDetector(const std::string& iname,
-                             const DDCompactView& cpv,
-                             const SensitiveDetectorCatalog&,
-                             edm::ParameterSet const& p,
-                             bool calo);
+  explicit SensitiveDetector(const std::string& iname, const SensitiveDetectorCatalog&, bool calo);
 
   ~SensitiveDetector() override;
 

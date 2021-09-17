@@ -1,7 +1,6 @@
 ZMuMuValidationTemplate="""
-
+compressionSettings = 207
 ###### MuSclFit SETTINGS  ##############################################
-
 
 ### MuScleFit specific configuration
 
@@ -69,7 +68,15 @@ process.looper = cms.Looper(
 
     # Output settings
     # ---------------
+    # Use compressions settings of TFile
+    # see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+    # settings = 100 * algorithm + level
+    # level is from 1 (small) to 9 (large compression)
+    # algo: 1 (ZLIB), 2 (LMZA)
+    # see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+
     OutputFileName = cms.untracked.string("zmumuHisto.root"),
+    compressionSettings = cms.untracked.int32(compressionSettings), 
 
     # BiasType=0 means no bias to muon momenta
     # ----------------------------------------
@@ -197,8 +204,7 @@ process.p = cms.Path(
 
 ####################################################################
 ####################################################################
-zMuMuScriptTemplate="""
-#!/bin/bash
+zMuMuScriptTemplate="""#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
 export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
@@ -212,15 +218,15 @@ export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 cd $cwd
 
-rfmkdir -p .oO[datadir]Oo.
-rfmkdir -p .oO[workingdir]Oo.
-rfmkdir -p .oO[logdir]Oo.
+mkdir -p .oO[datadir]Oo.
+mkdir -p .oO[workingdir]Oo.
+mkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
 if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
-    rfmkdir -p .oO[workdir]Oo.
+    mkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
     cd .oO[workdir]Oo.
 else
@@ -253,13 +259,13 @@ eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./p
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./
-    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
+    cp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
+    cp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 
@@ -275,7 +281,7 @@ echo  -----------------------
 mergeZmumuPlotsExecution="""
 #merge Z->mumu histograms
 
-rfcp .oO[mergeZmumuPlotsScriptPath]Oo. .
+cp .oO[mergeZmumuPlotsScriptPath]Oo. .
 root -l -x -b -q TkAlMergeZmumuPlots.C++
 
 """

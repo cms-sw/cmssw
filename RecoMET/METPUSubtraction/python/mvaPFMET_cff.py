@@ -48,12 +48,12 @@ puJetIdForPFMVAMEt = _pileupJetIdEvaluator.clone(
         label = cms.string("full")
         )
         ),
-    produceJetIds = cms.bool(True),
-    runMvas = cms.bool(True),
-    jets = cms.InputTag("calibratedAK4PFJetsForPFMVAMEt"),#calibratedAK4PFJetsForPFMVAMEt
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(True),
-    jec     = cms.string("AK4PF"),
+    produceJetIds    = True,
+    runMvas          = True,
+    jets             = "calibratedAK4PFJetsForPFMVAMEt",#calibratedAK4PFJetsForPFMVAMEt
+    applyJec         = True,
+    inputIsCorrected = True,
+    jec              = "AK4PF",
 )
 
 
@@ -91,7 +91,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
 )
 
 pfMVAMEtTask  = cms.Task(
-    #(isomuonseq+isotauseq+isoelectronseq)*
+    #isomuonTask,isotauTask,isoelectronTask,
     jetCorrectorsTask,
     calibratedAK4PFJetsForPFMVAMEt,
     puJetIdForPFMVAMEt,

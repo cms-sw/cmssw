@@ -5,6 +5,7 @@
    <PartSelector path="//Tracker"/>
    <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="10*cm"/>
+<Parameter name="ProdCutsForProtons" value="10*cm"/>
    <Parameter name="ProdCutsForPositrons" value="10*cm"/>
    <Parameter name="ProdCutsForGamma" value="10*cm"/>
   </SpecPar>
@@ -15,6 +16,7 @@
    <PartSelector path="//TOBActiveRphi4"/>
    <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.1*mm"/>
    <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
    <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
   </SpecPar>

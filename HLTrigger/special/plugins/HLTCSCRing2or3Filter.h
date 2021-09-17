@@ -5,9 +5,10 @@
 #include <map>
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "TH1F.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -23,6 +24,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> const muonGeometryRecordToken_;
   edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
   edm::InputTag m_input;
   unsigned int m_minHits;

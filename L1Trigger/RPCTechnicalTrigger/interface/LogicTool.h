@@ -7,6 +7,7 @@
 
 #include <ostream>
 #include <vector>
+#include <cassert>
 
 /** @class LogicTool LogicTool.h
  *  

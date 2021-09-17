@@ -13,7 +13,7 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py >& ${test}.log 2>&1 || die "cmsRun ${test}_cfg.py" $?
   grep Doodad ${test}.log > testSubProcess.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep.txt testSubProcess.grep.txt || die "comparing testSubProcess.grep.txt" $?
-  grep "++" ${test}.log > testSubProcess.grep2.txt
+  grep "++" ${test}.log | grep -v "Disabling gnu" > testSubProcess.grep2.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep2.txt testSubProcess.grep2.txt || die "comparing testSubProcess.grep2.txt" $?
 
   echo cmsRun readSubProcessOutput_cfg.py
@@ -22,9 +22,7 @@ pushd ${LOCAL_TMP_DIR}
 
   echo cmsRun testSubProcessEventSetup_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessEventSetup_cfg.py > testSubProcessEventSetup.log 2>&1 || die "cmsRun testSubProcessEventSetup_cfg.py" $?
-  grep "ESTestAnalyzerA: p" testSubProcessEventSetup.log > testSubProcessEventSetup.grep.txt
-  grep "ESTestAnalyzerAZ: p" testSubProcessEventSetup.log >> testSubProcessEventSetup.grep.txt
-  grep "Sharing" testSubProcessEventSetup.log >> testSubProcessEventSetup.grep.txt
+  grep "Sharing" testSubProcessEventSetup.log > testSubProcessEventSetup.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcessEventSetup.grep.txt  testSubProcessEventSetup.grep.txt || die "comparing testSubProcessEventSetup.grep.txt" $?
 
   echo cmsRun testSubProcessEventSetup1_cfg.py

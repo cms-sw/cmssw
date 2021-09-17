@@ -21,8 +21,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -44,6 +45,7 @@ private:
                             const reco::RecoChargedCandidateRef&,
                             const reco::BeamSpot&,
                             const edm::ESHandle<MagneticField>&) const;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
   const edm::InputTag beamspotTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   const edm::InputTag candTag_;  // input tag identifying product contains muons

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
-import six
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -14,7 +13,7 @@ import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackMon_ckf 					   = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
 TrackMon_ckf.TKTrackCollection                     = 'generalTracks'#ctfWithMaterialTracksBeamHaloMuon'#rsWithMaterialTracksP5'#muons'#globalCosmicMuons'#ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName                              = 'CKFTk'
-TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
+TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Clone for RS Tracks
 #import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
@@ -260,13 +259,16 @@ from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 def _copyIfExists(mod, pset, name):
     if hasattr(pset, name):
         setattr(mod, name, getattr(pset, name))
-for _step, _pset in six.iteritems(seedMonitoring):
+for _step, _pset in seedMonitoring.items():
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )
     locals()['TrackSeedMon'+str(_step)] = _mod
     _mod.TrackProducer = cms.InputTag("generalTracks")
-    _mod.FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
+    _mod.FolderName = cms.string("Tracking/TrackParameters/generalTracks/SeedMon/"+str(_step))
+    _mod.doPUmonitoring = cms.bool(False)
+    _mod.doLumiAnalysis = cms.bool(False)
+    _mod.doPlotsVsGoodPVtx = cms.bool(False)
     _mod.SeedProducer  = _pset.seedInputTag
     _mod.TCProducer    = _pset.trackCandInputTag
     _mod.AlgoName      = cms.string( str(_step) )
@@ -345,6 +347,8 @@ trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
 
 # import PV resolution
 from DQM.TrackingMonitor.primaryVertexResolution_cfi import *
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(primaryVertexResolution, forceSCAL = False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
@@ -373,7 +377,16 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["TrackSeedMonSequence"] = _seq
     else:
         _era.toReplaceWith(TrackSeedMonSequence, _seq)
+
+_seedingDeepCore_TrackSeedMonSequence = TrackSeedMonSequence.copy()
+_seedingDeepCore_TrackSeedMonSequence.remove(locals()["TrackSeedMonjetCoreRegionalStep"])
+#_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepBarrel"])
+_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepEndcap"])
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMonSequence)
+
 TrackingDQMSourceTier0 += TrackSeedMonSequence
+
 # MessageLog
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'

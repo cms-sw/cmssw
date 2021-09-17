@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -19,7 +19,7 @@
 
 class PreMixingEcalWorker : public PreMixingWorker {
 public:
-  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
+  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingEcalWorker() override = default;
 
   PreMixingEcalWorker(const PreMixingEcalWorker &) = delete;
@@ -41,14 +41,11 @@ private:
   std::string EEDigiCollectionDM_;  // secondary name to be given to collection of digis
   std::string ESDigiCollectionDM_;  // secondary name to be given to collection of digis
 
-  edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
-  edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
-  edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
-
   const double m_EBs25notCont;
   const double m_EEs25notCont;
   const double m_peToABarrel;
   const double m_peToAEndcap;
+  const bool m_timeDependent;
 
   EBSignalGenerator theEBSignalGenerator;
   EESignalGenerator theEESignalGenerator;
@@ -58,29 +55,29 @@ private:
 
 // Constructor
 PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
-                                         edm::ProducerBase &producer,
+                                         edm::ProducesCollector producesCollector,
                                          edm::ConsumesCollector &&iC)
     : EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
       EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
       ESPileInputTag_(ps.getParameter<edm::InputTag>("ESPileInputTag")),
-      tok_eb_(iC.consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_)),
-      tok_ee_(iC.consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_)),
-      tok_es_(iC.consumes<ESDigitizerTraits::DigiCollection>(ESPileInputTag_)),
       m_EBs25notCont(ps.getParameter<double>("EBs25notContainment")),
       m_EEs25notCont(ps.getParameter<double>("EEs25notContainment")),
       m_peToABarrel(ps.getParameter<double>("photoelectronsToAnalogBarrel")),
       m_peToAEndcap(ps.getParameter<double>("photoelectronsToAnalogEndcap")),
-      theEBSignalGenerator(EBPileInputTag_, tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
-      theEESignalGenerator(EEPileInputTag_, tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
-      theESSignalGenerator(ESPileInputTag_, tok_es_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+      m_timeDependent(ps.getParameter<bool>("timeDependent")),
+      theEBSignalGenerator(
+          iC, EBPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
+      theEESignalGenerator(
+          iC, EEPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap, m_timeDependent),
+      theESSignalGenerator(iC, ESPileInputTag_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
       myEcalDigitizer_(ps, iC) {
   EBDigiCollectionDM_ = ps.getParameter<std::string>("EBDigiCollectionDM");
   EEDigiCollectionDM_ = ps.getParameter<std::string>("EEDigiCollectionDM");
   ESDigiCollectionDM_ = ps.getParameter<std::string>("ESDigiCollectionDM");
 
-  producer.produces<EBDigiCollection>(EBDigiCollectionDM_);
-  producer.produces<EEDigiCollection>(EEDigiCollectionDM_);
-  producer.produces<ESDigiCollection>(ESDigiCollectionDM_);
+  producesCollector.produces<EBDigiCollection>(EBDigiCollectionDM_);
+  producesCollector.produces<EEDigiCollection>(EEDigiCollectionDM_);
+  producesCollector.produces<ESDigiCollection>(ESDigiCollectionDM_);
 
   myEcalDigitizer_.setEBNoiseSignalGenerator(&theEBSignalGenerator);
   myEcalDigitizer_.setEENoiseSignalGenerator(&theEESignalGenerator);

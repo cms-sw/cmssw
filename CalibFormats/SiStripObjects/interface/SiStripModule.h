@@ -4,11 +4,11 @@
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include <boost/cstdint.hpp>
 #include <map>
 #include <ostream>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 class SiStripModule;
 

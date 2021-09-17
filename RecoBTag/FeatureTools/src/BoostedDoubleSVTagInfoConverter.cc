@@ -7,9 +7,8 @@
 
 namespace btagbtvdeep {
 
-  void doubleBTagToFeatures(const reco::TaggingVariableList & tag_info_vars,
-			    BoostedDoubleSVTagInfoFeatures & tag_info_features) {
-
+  void doubleBTagToFeatures(const reco::TaggingVariableList& tag_info_vars,
+                            BoostedDoubleSVTagInfoFeatures& tag_info_features) {
     tag_info_features.jetNTracks = tag_info_vars.get(reco::btau::jetNTracks, -999);
     tag_info_features.jetNSecondaryVertices = tag_info_vars.get(reco::btau::jetNSecondaryVertices, -999);
     tag_info_features.trackSip3dSig_0 = tag_info_vars.get(reco::btau::trackSip3dSig_0, -999);
@@ -36,12 +35,8 @@ namespace btagbtvdeep {
     tag_info_features.tau2_vertexMass = tag_info_vars.get(reco::btau::tau2_vertexMass, -999);
     tag_info_features.tau2_vertexEnergyRatio = tag_info_vars.get(reco::btau::tau2_vertexEnergyRatio, -999);
     tag_info_features.tau2_flightDistance2dSig = tag_info_vars.get(reco::btau::tau2_flightDistance2dSig, -999);
-    tag_info_features.tau2_vertexDeltaR = tag_info_vars.get(reco::btau::tau2_vertexDeltaR, -999); // not used
+    tag_info_features.tau2_vertexDeltaR = tag_info_vars.get(reco::btau::tau2_vertexDeltaR, -999);  // not used
     tag_info_features.z_ratio = tag_info_vars.get(reco::btau::z_ratio, -999);
-
   }
 
-}
-
-
-
+}  // namespace btagbtvdeep

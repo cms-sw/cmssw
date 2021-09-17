@@ -67,6 +67,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  edm::ESGetToken<L1GtParameters, L1GtParametersRcd> const l1GtParamsToken_;
+
   edm::InputTag EBdigiCollection_;
   edm::EDGetTokenT<EBDigiCollection> EBdigiToken_;
   edm::InputTag EEdigiCollection_;

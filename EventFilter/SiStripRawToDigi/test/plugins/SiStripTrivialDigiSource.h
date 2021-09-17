@@ -3,7 +3,6 @@
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "boost/cstdint.hpp"
 
 /**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h

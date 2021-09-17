@@ -4,30 +4,28 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "TH2F.h"
 
 #include "TH1F.h"
 #include "TFile.h"
 
+#include <filesystem>
 #include <fstream>
-#include "boost/filesystem/operations.hpp"
 
 using namespace std;
 
 PhiSymmetryCalibration_step2_SM::~PhiSymmetryCalibration_step2_SM() {}
 
-PhiSymmetryCalibration_step2_SM::PhiSymmetryCalibration_step2_SM(const edm::ParameterSet& iConfig) {
-  statusThreshold_ = iConfig.getUntrackedParameter<int>("statusThreshold", 0);
-  have_initial_miscalib_ = iConfig.getUntrackedParameter<bool>("haveInitialMiscalib", false);
-  initialmiscalibfile_ = iConfig.getUntrackedParameter<std::string>("initialmiscalibfile", "InitialMiscalib.xml");
-  oldcalibfile_ = iConfig.getUntrackedParameter<std::string>("oldcalibfile", "EcalIntercalibConstants.xml");
-  reiteration_ = iConfig.getUntrackedParameter<bool>("reiteration", false);
-  firstpass_ = true;
-}
+PhiSymmetryCalibration_step2_SM::PhiSymmetryCalibration_step2_SM(const edm::ParameterSet& iConfig)
+    : channelStatusToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      firstpass_(true),
+      statusThreshold_(iConfig.getUntrackedParameter<int>("statusThreshold", 0)),
+      reiteration_(iConfig.getUntrackedParameter<bool>("reiteration", false)),
+      oldcalibfile_(iConfig.getUntrackedParameter<std::string>("oldcalibfile", "EcalIntercalibConstants.xml")),
+      have_initial_miscalib_(iConfig.getUntrackedParameter<bool>("haveInitialMiscalib", false)),
+      initialmiscalibfile_(iConfig.getUntrackedParameter<std::string>("initialmiscalibfile", "InitialMiscalib.xml")) {}
 
 void PhiSymmetryCalibration_step2_SM::analyze(const edm::Event& ev, const edm::EventSetup& se) {
   if (firstpass_) {
@@ -37,16 +35,14 @@ void PhiSymmetryCalibration_step2_SM::analyze(const edm::Event& ev, const edm::E
 }
 
 void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  se.get<EcalChannelStatusRcd>().get(chStatus);
+  const auto& chStatus = se.getData(channelStatusToken_);
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  se.get<CaloGeometryRecord>().get(geoHandle);
+  const auto& geometry = se.getData(geometryToken_);
 
-  barrelCells = geoHandle->getValidDetIds(DetId::Ecal, EcalBarrel);
-  endcapCells = geoHandle->getValidDetIds(DetId::Ecal, EcalEndcap);
+  barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
+  endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
 
-  e_.setup(&(*geoHandle), &(*chStatus), statusThreshold_);
+  e_.setup(&geometry, &chStatus, statusThreshold_);
 
   for (int sign = 0; sign < kSides; sign++) {
     for (int ieta = 0; ieta < kBarlRings; ieta++) {
@@ -63,7 +59,7 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
   /// if a miscalibration was applied, load it, if not put it to 1
   if (have_initial_miscalib_) {
     EcalCondHeader h;
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     fs::path p(initialmiscalibfile_.c_str());
     if (!fs::exists(p))
       edm::LogError("PhiSym") << "File not found: " << initialmiscalibfile_ << endl;
@@ -85,7 +81,7 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se) {
   // if not put them to one
   if (reiteration_) {
     EcalCondHeader h;
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     fs::path p(oldcalibfile_.c_str());
     if (!fs::exists(p))
       edm::LogError("PhiSym") << "File not found: " << oldcalibfile_ << endl;

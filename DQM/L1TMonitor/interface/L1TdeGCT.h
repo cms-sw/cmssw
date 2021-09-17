@@ -20,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm includes
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -31,7 +30,6 @@ public:
   ~L1TdeGCT() override;
 
 protected:
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;

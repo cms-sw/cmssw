@@ -23,7 +23,7 @@
 #include <xercesc/dom/DOMLSOutput.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
 
 #include "CondTools/Hcal/interface/HcalDbXml.h"

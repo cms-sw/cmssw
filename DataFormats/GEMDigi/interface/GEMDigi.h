@@ -4,7 +4,7 @@
 /** \class GEMDigi
  *
  * Digi for GEM
- *  
+ *
  * \author Vadim Khotilovich
  *
  */
@@ -14,16 +14,17 @@
 
 class GEMDigi {
 public:
-  explicit GEMDigi(int strip, int bx);
+  explicit GEMDigi(uint16_t strip, int16_t bx);
   GEMDigi();
 
   bool operator==(const GEMDigi& digi) const;
   bool operator!=(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
+  bool isValid() const;
 
   // return the strip number. counts from 0.
-  int strip() const { return strip_; }
-  int bx() const { return bx_; }
+  uint16_t strip() const { return strip_; }
+  int16_t bx() const { return bx_; }
 
   void print() const;
 

@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -20,13 +19,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
@@ -35,6 +36,8 @@
 
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
+
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 struct MTDHit {
   float energy;
@@ -59,17 +62,22 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-
   const float hitMinEnergy_;
 
-  edm::EDGetTokenT<edm::PSimHitContainer> btlSimHitsToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 
   // --- histograms declaration
+
+  MonitorElement* meNevents_;
 
   MonitorElement* meNhits_;
   MonitorElement* meNtrkPerCell_;
 
   MonitorElement* meHitEnergy_;
+  MonitorElement* meHitLogEnergy_;
   MonitorElement* meHitTime_;
 
   MonitorElement* meHitXlocal_;
@@ -97,7 +105,9 @@ private:
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
-  btlSimHitsToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlSimHitsValidation::~BtlSimHitsValidation() {}
@@ -107,21 +117,20 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   using namespace edm;
   using namespace geant_units::operators;
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
+  MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
 
   // --- Loop over the BLT SIM hits
-  for (auto const& simHit : *btlSimHitsHandle) {
+  for (auto const& simHit : btlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
@@ -151,18 +160,21 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  meNhits_->Fill(m_btlHits.size());
+  if (!m_btlHits.empty())
+    meNhits_->Fill(log10(m_btlHits.size()));
 
   for (auto const& hit : m_btlTrkPerCell)
     meNtrkPerCell_->Fill((hit.second).size());
 
   for (auto const& hit : m_btlHits) {
+    meHitLogEnergy_->Fill(log10((hit.second).energy));
+
     if ((hit.second).energy < hitMinEnergy_)
       continue;
 
     // --- Get the SIM hit global position
     BTLDetId detId(hit.first);
-    DetId geoId = detId.geographicalId(static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()));
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
       throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
@@ -201,6 +213,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meHitTvsZ_->Fill(global_point.z(), (hit.second).time);
 
   }  // hit loop
+
+  // --- This is to count the number of processed events, needed in the harvesting step
+  meNevents_->Fill(0.5);
 }
 
 // ------------ method for histogram booking ------------
@@ -211,10 +226,13 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;N_{BTL cells}", 100, 0., 5000.);
+  meNevents_ = ibook.book1D("BtlNevents", "Number of events", 1, 0., 1.);
+
+  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;log_{10}(N_{BTL cells})", 100, 0., 5.25);
   meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
+  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 200, -6., 3.);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
@@ -251,7 +269,7 @@ void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/SimHits");
-  desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "FastTimerHitsBarrel"));
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
   descriptions.add("btlSimHits", desc);

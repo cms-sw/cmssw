@@ -1,7 +1,7 @@
 #ifndef L1MuDTQualPatternLutRCD_H
 #define L1MuDTQualPatternLutRCD_H
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -11,7 +11,6 @@
 //class L1MuDTQualPatternLutRcd : public edm::eventsetup::EventSetupRecordImplementation<L1MuDTQualPatternLutRcd> {};
 class L1MuDTQualPatternLutRcd
     : public edm::eventsetup::DependentRecordImplementation<L1MuDTQualPatternLutRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
-};
+                                                            edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {};
 
 #endif

@@ -1,22 +1,61 @@
-#include <vector>
-#include "RecoEcal/EgammaClusterProducers/interface/EcalDigiSelector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
 #include <TMath.h>
+
 #include <iostream>
+#include <map>
+#include <memory>
 #include <set>
+#include <string>
+#include <vector>
+
+class EcalDigiSelector : public edm::stream::EDProducer<> {
+public:
+  EcalDigiSelector(const edm::ParameterSet& ps);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  std::string selectedEcalEBDigiCollection_;
+  std::string selectedEcalEEDigiCollection_;
+
+  edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusterProducer_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusterProducer_;
+
+  // input configuration
+  edm::EDGetTokenT<EcalRecHitCollection> EcalEBRecHitToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> EcalEERecHitToken_;
+  edm::EDGetTokenT<EBDigiCollection> EcalEBDigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> EcalEEDigiToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+
+  double cluster_pt_thresh_;
+  double single_cluster_thresh_;
+  int nclus_sel_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EcalDigiSelector);
 
 using namespace reco;
 EcalDigiSelector::EcalDigiSelector(const edm::ParameterSet& ps) {
@@ -33,6 +72,8 @@ EcalDigiSelector::EcalDigiSelector(const edm::ParameterSet& ps) {
 
   EcalEBDigiToken_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EcalEBDigiTag"));
   EcalEEDigiToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EcalEEDigiTag"));
+
+  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord>();
 
   cluster_pt_thresh_ = ps.getParameter<double>("cluster_pt_thresh");
   single_cluster_thresh_ = ps.getParameter<double>("single_cluster_thresh");
@@ -96,8 +137,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (TotClus >= nclus_sel_ || meet_single_thresh) {
     if (!saveBarrelSuperClusters.empty()) {
-      edm::ESHandle<CaloTopology> pTopology;
-      es.get<CaloTopologyRecord>().get(pTopology);
+      edm::ESHandle<CaloTopology> pTopology = es.getHandle(caloTopologyToken_);
       const CaloTopology* topology = pTopology.product();
 
       //get barrel digi collection
@@ -146,8 +186,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
     }  //If barrel superclusters need saving.
 
     if (!saveEndcapSuperClusters.empty()) {
-      edm::ESHandle<CaloTopology> pTopology;
-      es.get<CaloTopologyRecord>().get(pTopology);
+      edm::ESHandle<CaloTopology> pTopology = es.getHandle(caloTopologyToken_);
       const CaloTopology* topology = pTopology.product();
 
       //Get endcap rec hit collection

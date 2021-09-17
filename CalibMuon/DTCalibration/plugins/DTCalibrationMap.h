@@ -26,12 +26,9 @@
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-
 #include <string>
 #include <map>
 #include <vector>
-
-
 
 namespace edm {
   class ParameterSet;
@@ -46,7 +43,7 @@ public:
   virtual ~DTCalibrationMap();
 
   // Operations
-  
+
   /// Return the t_trig (ns) for a particular wire
   float tTrig(DTWireId wireId) const;
 
@@ -67,9 +64,7 @@ public:
   typedef std::map<Key, CalibConsts>::const_iterator const_iterator;
 
   // Clean the map
-  void cleanTheConsts() {
-    theMap.clear();
-  }
+  void cleanTheConsts() { theMap.clear(); }
 
   // Get a particular number (field) between all the calibration
   // constants available for a particluar wire
@@ -78,42 +73,31 @@ public:
   // Get from the map the calibration constants for a particular wire
   const CalibConsts* getConsts(DTWireId wireId) const;
 
-
-  // Add to the map the calibration consts for a given key 
+  // Add to the map the calibration consts for a given key
   void addCell(Key wireId, const CalibConsts& calibConst);
-  
-  // Write the calibration consts to a file 
+
+  // Write the calibration consts to a file
   void writeConsts(const std::string& outputFileName) const;
 
   // Get a key to read calibration constants for a particular wire
   // with the given granularity
   Key getKey(DTWireId wireId) const;
 
-  const_iterator keyAndConsts_begin() const {
-    return theMap.begin();
-  }
+  const_iterator keyAndConsts_begin() const { return theMap.begin(); }
 
-  const_iterator keyAndConsts_end() const {
-    return theMap.end();
-  }
-
+  const_iterator keyAndConsts_end() const { return theMap.end(); }
 
 protected:
-
 private:
-
   // Specify the granularity for the calibration constants
-  enum CalibGranularity {byChamber,bySL,byLayer,byWire};
+  enum CalibGranularity { byChamber, bySL, byLayer, byWire };
   CalibGranularity theGranularity;
 
-
-  // Read the calibration consts from a file 
+  // Read the calibration consts from a file
   void readConsts(const std::string& inputFileName);
-
 
   // Check the consistency of a given key with the selected granularity
   bool checkGranularity(Key aKey) const;
-
 
   // The number of fields (calibration numbers) to be read from file
   unsigned int nFields;
@@ -126,8 +110,6 @@ private:
 
   // The map between the Key and the calibration constants
   std::map<Key, CalibConsts> theMap;
-  
 };
 
 #endif
-

@@ -1,15 +1,7 @@
 /* 
-== CMS Forward Pixels Geometry ==
-
- @version 3.02.01 May 30, 2006
- @created Dmitry Onoprienko
-
-  Algorithm for placing one-per-blade components.
-  See header file (DDPixFwdBlades.h) for a detailed description.
+   == CMS Forward Pixels Geometry ==
+   Algorithm for placing one-per-blade components.
 */
-
-#include <cmath>
-#include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -19,17 +11,128 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "Geometry/TrackerCommonData/plugins/DDPixFwdBlades.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-// -- Constructors & Destructor :  -------------------------------------------------------
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+/* 
+
+== CMS Forward Pixels Geometry ==
+
+ @version 3.02.01 May 30, 2006
+ @created Dmitry Onoprienko
+
+== ALGORITHM DESCRIPTION: ==
+
+  Algorithm for placing one-per-blade components
+  Also computes parameters necessary for defining the "nipple" geometry.
+
+== Parameters : ==
+
+  "Endcap" - +1 if placing the child volume into +Z disk, -1 if placing into -Z disk.
+  "Child" - name of a child volume being places (should be in the form "file:volume")
+            In no child name is given, the algorithm simply calculates Nipple parameters.
+  "ChildRotation" - rotation of the child volume with respect to the "blade frame". [OPTIONAL]
+  "ChildTranslation" - vector defining translation of the child volume with respect to the 
+                       "blade frame". [OPTIONAL]
+  "FlagString" - string of 24 characters, used to indicate blades into which the child volume 
+                 should be placed. [OPTIONAL]
+  "FlagSelector" - 1 character string, key to interpreting "FlagString".
+                   Positions in "BladeFlag" that have this character will get the child volume.
+                   
+  If "Child" parameter is omitted, the algorithm computes rotation needed for describing 
+  coolant "nipples" but does not do any placements.
+  
+  If "Child" is "PixelForwardNippleZPlus" or "PixelForwardNippleZMinus" and no rotation or translation
+  is supplied, correct rotations and translations are automatically computed.
+  
+  Blade frame: origin on the axis of the blade at a distance "ancorRadius" from the beam line
+  (it therefore coincides with the ancor point of a blade). 
+  Y along blade axis pointing away from beam line, Z perpendicular to blade plane and pointing away from IP.
+  (That assumes the axes of ZPlus disk are aligned with CMS global reference frame, and ZMinus disk
+  is rotated around Y by 180 degrees.)
+
+== Example of use : ==
+
+<Algorithm name="track:DDPixFwdBlades">
+  <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
+  <Numeric name="Endcap"        value="-1." />
+  <String  name="Child"         value="pixfwdPanel:PixelForwardPanel4Left"/>
+  <Vector  name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AncorY], [zPanel] </Vector>
+  <String  name="ChildRotation" value="pixfwdCommon:Y180"/>
+  <String  name="FlagString"    value="LRRRRLRRRRRRLRRRRLRRRRRR" />  <!-- Panel Layout ZMinus 4  -->
+  <String  name="FlagSelector"  value="L" />
+</Algorithm>
+
+*/
+
+using namespace std;
+
+class DDPixFwdBlades : public DDAlgorithm {
+public:
+  DDPixFwdBlades();
+  ~DDPixFwdBlades() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  int nBlades;         // Number of blades
+  double bladeAngle;   // Angle of blade rotation around axis perpendicular to beam
+  double zPlane;       // Common shift in Z for all blades (with respect to disk center plane)
+  double bladeZShift;  // Shift in Z between the axes of two adjacent blades
+
+  double ancorRadius;  // Distance from beam line to ancor point defining center of "blade frame"
+
+  // Coordinates of Nipple ancor points J and K in "blade frame" :
+
+  double jX;
+  double jY;
+  double jZ;
+  double kX;
+  double kY;
+  double kZ;
+
+  double endcap;  // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
+
+  string flagString;    // String of flags
+  string flagSelector;  // Character that means "yes" in flagString
+
+  string childName;  // Child volume name
+
+  vector<double> childTranslationVector;  // Child translation with respect to "blade frame"
+  string childRotationName;               // Child rotation with respect to "blade frame"
+  string idNameSpace;                     //Namespace of this and ALL sub-parts
+
+  map<string, int> copyNumbers;
+
+  CLHEP::HepRotation* nippleRotationZPlus;
+  CLHEP::HepRotation* nippleRotationZMinus;
+  double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
+
+  int issueCopyNumber();
+  void computeNippleParameters(double endcap);
+};
 
 DDPixFwdBlades::DDPixFwdBlades() {}
 DDPixFwdBlades::~DDPixFwdBlades() {}
-
-// Initialization :  ---------------------------------------------------------------------
 
 void DDPixFwdBlades::initialize(const DDNumericArguments& nArgs,
                                 const DDVectorArguments& vArgs,
@@ -59,7 +162,7 @@ void DDPixFwdBlades::initialize(const DDNumericArguments& nArgs,
   if (vArgs.find("ChildTranslation") != vArgs.end()) {
     childTranslationVector = vArgs["ChildTranslation"];
   } else {
-    childTranslationVector = std::vector<double>(3, 0.);
+    childTranslationVector = vector<double>(3, 0.);
   }
 
   if (sArgs.find("ChildRotation") != sArgs.end()) {
@@ -98,8 +201,6 @@ void DDPixFwdBlades::initialize(const DDNumericArguments& nArgs,
 
   copyNumbers.clear();
 }
-
-// Execution :  --------------------------------------------------------------------------
 
 void DDPixFwdBlades::execute(DDCompactView& cpv) {
   // -- Compute Nipple parameters if not already computed :
@@ -183,21 +284,21 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     // create DDRotation for placing the child if not already existent :
 
     DDRotation rotation;
-    std::string rotstr = mother.name() + DDSplit(childName).first + std::to_string(copy);
+    string rotstr = mother.name() + DDSplit(childName).first + to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
 
     if (!rotation) {
       rotMatrix *= childRotMatrix;
       rotation = DDrot(DDName(rotstr, idNameSpace),
-                       std::make_unique<DDRotationMatrix>(rotMatrix.xx(),
-                                                          rotMatrix.xy(),
-                                                          rotMatrix.xz(),
-                                                          rotMatrix.yx(),
-                                                          rotMatrix.yy(),
-                                                          rotMatrix.yz(),
-                                                          rotMatrix.zx(),
-                                                          rotMatrix.zy(),
-                                                          rotMatrix.zz()));
+                       make_unique<DDRotationMatrix>(rotMatrix.xx(),
+                                                     rotMatrix.xy(),
+                                                     rotMatrix.xz(),
+                                                     rotMatrix.yx(),
+                                                     rotMatrix.yy(),
+                                                     rotMatrix.yz(),
+                                                     rotMatrix.zx(),
+                                                     rotMatrix.zy(),
+                                                     rotMatrix.zz()));
     }
     // position the child :
 
@@ -207,8 +308,6 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
 
   // End of cycle over Phi positions
 }
-
-// -- Helpers :  -------------------------------------------------------------------------
 
 int DDPixFwdBlades::issueCopyNumber() {
   if (copyNumbers.count(childName) == 0)
@@ -223,9 +322,9 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 
   CLHEP::Hep3Vector jC;  // Point J in the "cover" blade frame
   CLHEP::Hep3Vector kB;  // Point K in the "body" blade frame
-  std::string rotNameNippleToCover;
-  std::string rotNameCoverToNipple;
-  std::string rotNameNippleToBody;
+  string rotNameNippleToCover;
+  string rotNameCoverToNipple;
+  string rotNameNippleToBody;
 
   if (endcap > 0.) {
     jC = CLHEP::Hep3Vector(jX, jY + ancorRadius, jZ);
@@ -258,7 +357,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 
   CLHEP::Hep3Vector jkC = kC - jC;
   double jkLength = jkC.mag();
-  DDConstant JK(DDName("JK", "pixfwdNipple"), std::make_unique<double>(jkLength));
+  DDConstant JK(DDName("JK", "pixfwdNipple"), make_unique<double>(jkLength));
   LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: "
                         << "JK Length " << jkLength * CLHEP::mm;
 
@@ -288,12 +387,12 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
 
   DDrot(
       DDName(rotNameCoverToNipple, "pixfwdNipple"),
-      std::make_unique<DDRotationMatrix>(
+      make_unique<DDRotationMatrix>(
           rpCN->xx(), rpCN->xy(), rpCN->xz(), rpCN->yx(), rpCN->yy(), rpCN->yz(), rpCN->zx(), rpCN->zy(), rpCN->zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
 
   DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"),
-        std::make_unique<DDRotationMatrix>(
+        make_unique<DDRotationMatrix>(
             rpNC.xx(), rpNC.xy(), rpNC.xz(), rpNC.yx(), rpNC.yy(), rpNC.yz(), rpNC.zx(), rpNC.zy(), rpNC.zz()));
 
   // Rotation from nipple frame to "body" blade frame :
@@ -301,10 +400,10 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   CLHEP::HepRotation rpNB(rpNC * rCB);
 
   DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"),
-        std::make_unique<DDRotationMatrix>(
+        make_unique<DDRotationMatrix>(
             rpNB.xx(), rpNB.xy(), rpNB.xz(), rpNB.yx(), rpNB.yy(), rpNB.yz(), rpNB.zx(), rpNB.zy(), rpNB.zz()));
   double angleBody = vZ.angle(rpNB * vZ);
   LogDebug("PixelGeom") << " Angle to body : " << angleBody;
 }
 
-// ---------------------------------------------------------------------------------------
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDPixFwdBlades, "track:DDPixFwdBlades");

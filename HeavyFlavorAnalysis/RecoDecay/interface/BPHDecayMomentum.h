@@ -39,6 +39,9 @@ public:
   /** Constructors are protected
    *  this object can exist only as part of a derived class
    */
+  // deleted copy constructor and assignment operator
+  BPHDecayMomentum(const BPHDecayMomentum& x) = delete;
+  BPHDecayMomentum& operator=(const BPHDecayMomentum& x) = delete;
 
   /** Destructor
    */
@@ -120,6 +123,10 @@ protected:
 
   // utility function used to cash reconstruction results
   virtual void setNotUpdated() const;
+
+  // function doing the job to clone reconstructed decays:
+  // copy stable particles and clone cascade decays up to chosen level
+  virtual void fill(BPHRecoCandidate* ptr, int level) const = 0;
 
 private:
   // object filled in the constructor

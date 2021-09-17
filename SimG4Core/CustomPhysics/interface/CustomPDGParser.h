@@ -5,7 +5,7 @@
 
 class CustomPDGParser {
 public:
-  static bool s_isRHadron(int pdg);
+  static bool s_isgluinoHadron(int pdg);
   static bool s_isstopHadron(int pdg);
   static bool s_issbottomHadron(int pdg);
   static bool s_isSLepton(int pdg);
@@ -16,6 +16,7 @@ public:
   static bool s_isRGlueball(int pdg);
   static bool s_isDphoton(int pdg);
   static bool s_isChargino(int pdg);
+  static bool s_isSIMP(int pdg);
   static double s_charge(int pdg);
   static double s_spin(int pdg);
   static std::vector<int> s_containedQuarks(int pdg);

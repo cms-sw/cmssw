@@ -6,7 +6,7 @@
 /** \class HPTDCErrorFlags
  *
  * HPTDC error flags container
- *  
+ *
  * \author Seyed Mohsen Etesami
  * \author Laurent Forthomme
  * July 2016
@@ -16,62 +16,62 @@ class HPTDCErrorFlags {
 public:
   HPTDCErrorFlags(unsigned short flags = 0) : error_flags(flags) {}
 
-  bool getErrorId(unsigned short id) const {
+  bool errorId(unsigned short id) const {
     switch (id) {
       case 0:
-        return getInternalFatalChipError();
+        return internalFatalChipError();
       case 1:
-        return getEventLost();
+        return eventLost();
       case 2:
-        return getHitRejectedByEventSizeLimit();
+        return hitRejectedByEventSizeLimit();
       case 3:
-        return getHitErrorGroup3();
+        return hitErrorGroup3();
       case 4:
-        return getHitLostL1OverflowGroup3();
+        return hitLostL1OverflowGroup3();
       case 5:
-        return getHitLostROFifoOverflowGroup3();
+        return hitLostROFifoOverflowGroup3();
       case 6:
-        return getHitErrorGroup2();
+        return hitErrorGroup2();
       case 7:
-        return getHitLostL1OverflowGroup2();
+        return hitLostL1OverflowGroup2();
       case 8:
-        return getHitLostROFifoOverflowGroup2();
+        return hitLostROFifoOverflowGroup2();
       case 9:
-        return getHitErrorGroup1();
+        return hitErrorGroup1();
       case 10:
-        return getHitLostL1OverflowGroup1();
+        return hitLostL1OverflowGroup1();
       case 11:
-        return getHitLostROFifoOverflowGroup1();
+        return hitLostROFifoOverflowGroup1();
       case 12:
-        return getHitErrorGroup0();
+        return hitErrorGroup0();
       case 13:
-        return getHitLostL1OverflowGroup0();
+        return hitLostL1OverflowGroup0();
       case 14:
-        return getHitLostROFifoOverflowGroup0();
+        return hitLostROFifoOverflowGroup0();
       default:
         return true;
     }
   }
 
-  bool getInternalFatalChipError() const { return error_flags & 0x1; }
-  bool getEventLost() const { return (error_flags >> 1) & 0x1; }
-  bool getHitRejectedByEventSizeLimit() const { return (error_flags >> 2) & 0x1; }
-  bool getHitErrorGroup3() const { return (error_flags >> 3) & 0x1; }
-  bool getHitLostL1OverflowGroup3() const { return (error_flags >> 4) & 0x1; }
-  bool getHitLostROFifoOverflowGroup3() const { return (error_flags >> 5) & 0x1; }
-  bool getHitErrorGroup2() const { return (error_flags >> 6) & 0x1; }
-  bool getHitLostL1OverflowGroup2() const { return (error_flags >> 7) & 0x1; }
-  bool getHitLostROFifoOverflowGroup2() const { return (error_flags >> 8) & 0x1; }
-  bool getHitErrorGroup1() const { return (error_flags >> 9) & 0x1; }
-  bool getHitLostL1OverflowGroup1() const { return (error_flags >> 10) & 0x1; }
-  bool getHitLostROFifoOverflowGroup1() const { return (error_flags >> 11) & 0x1; }
-  bool getHitErrorGroup0() const { return (error_flags >> 12) & 0x1; }
-  bool getHitLostL1OverflowGroup0() const { return (error_flags >> 13) & 0x1; }
-  bool getHitLostROFifoOverflowGroup0() const { return (error_flags >> 14) & 0x1; }
+  bool internalFatalChipError() const { return error_flags & 0x1; }
+  bool eventLost() const { return (error_flags >> 1) & 0x1; }
+  bool hitRejectedByEventSizeLimit() const { return (error_flags >> 2) & 0x1; }
+  bool hitErrorGroup3() const { return (error_flags >> 3) & 0x1; }
+  bool hitLostL1OverflowGroup3() const { return (error_flags >> 4) & 0x1; }
+  bool hitLostROFifoOverflowGroup3() const { return (error_flags >> 5) & 0x1; }
+  bool hitErrorGroup2() const { return (error_flags >> 6) & 0x1; }
+  bool hitLostL1OverflowGroup2() const { return (error_flags >> 7) & 0x1; }
+  bool hitLostROFifoOverflowGroup2() const { return (error_flags >> 8) & 0x1; }
+  bool hitErrorGroup1() const { return (error_flags >> 9) & 0x1; }
+  bool hitLostL1OverflowGroup1() const { return (error_flags >> 10) & 0x1; }
+  bool hitLostROFifoOverflowGroup1() const { return (error_flags >> 11) & 0x1; }
+  bool hitErrorGroup0() const { return (error_flags >> 12) & 0x1; }
+  bool hitLostL1OverflowGroup0() const { return (error_flags >> 13) & 0x1; }
+  bool hitLostROFifoOverflowGroup0() const { return (error_flags >> 14) & 0x1; }
 
-  inline unsigned short getErrorFlag() const { return error_flags; }
+  inline unsigned short errorFlag() const { return error_flags; }
 
-  static std::string getHPTDCErrorName(const unsigned short id) {
+  static std::string hptdcErrorName(const unsigned short id) {
     switch (id) {
       case 0:
         return "InternalFatalChipError";

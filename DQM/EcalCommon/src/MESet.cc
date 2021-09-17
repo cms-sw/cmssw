@@ -16,7 +16,7 @@ namespace ecaldqm {
         path_(""),
         otype_(binning::nObjType),
         btype_(binning::nBinType),
-        kind_(MonitorElement::DQM_KIND_INVALID),
+        kind_(MonitorElement::Kind::INVALID),
         lumiFlag_(false),
         batchMode_(false),
         active_(false) {}
@@ -33,16 +33,16 @@ namespace ecaldqm {
         lumiFlag_(false),
         batchMode_(false),
         active_(false) {
-    if (path_.empty() || path_.find("/") == std::string::npos ||
-        (otype_ != binning::kChannel && path_.find("/") == path_.size() - 1))
+    if (path_.empty() || path_.find('/') == std::string::npos ||
+        (otype_ != binning::kChannel && path_.find('/') == path_.size() - 1))
       throw_(_path + " cannot be used for ME path name");
 
     switch (kind_) {
-      case MonitorElement::DQM_KIND_REAL:
-      case MonitorElement::DQM_KIND_TH1F:
-      case MonitorElement::DQM_KIND_TPROFILE:
-      case MonitorElement::DQM_KIND_TH2F:
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::REAL:
+      case MonitorElement::Kind::TH1F:
+      case MonitorElement::Kind::TPROFILE:
+      case MonitorElement::Kind::TH2F:
+      case MonitorElement::Kind::TPROFILE2D:
         break;
       default:
         throw_("Unsupported MonitorElement kind");
@@ -95,7 +95,10 @@ namespace ecaldqm {
       mes_[iME]->setAxisTitle(_title, _axis);
   }
 
-  void MESet::reset(double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
+  void MESet::reset(EcalElectronicsMapping const *electronicsMap,
+                    double _content /* = 0.*/,
+                    double _err /* = 0.*/,
+                    double _entries /* = 0.*/) {
     if (!active_)
       return;
 
@@ -108,7 +111,7 @@ namespace ecaldqm {
 
     unsigned nME(mes_.size());
 
-    if (kind_ == MonitorElement::DQM_KIND_REAL) {
+    if (kind_ == MonitorElement::Kind::REAL) {
       for (unsigned iME(0); iME < nME; iME++)
         mes_[iME]->Fill(_content);
       return;
@@ -132,10 +135,10 @@ namespace ecaldqm {
           int bin(h->GetBin(ix, iy));
           h->SetBinContent(bin, _content);
           h->SetBinError(bin, _err);
-          if (kind_ == MonitorElement::DQM_KIND_TPROFILE) {
+          if (kind_ == MonitorElement::Kind::TPROFILE) {
             static_cast<TProfile *>(h)->SetBinEntries(bin, _entries);
             entries += _entries;
-          } else if (kind_ == MonitorElement::DQM_KIND_TPROFILE2D) {
+          } else if (kind_ == MonitorElement::Kind::TPROFILE2D) {
             static_cast<TProfile2D *>(h)->SetBinEntries(bin, _entries);
             entries += _entries;
           }
@@ -164,7 +167,10 @@ namespace ecaldqm {
     return path.Data();
   }
 
-  bool MESet::maskMatches(DetId const &_id, uint32_t _mask, StatusManager const *_statusManager) const {
+  bool MESet::maskMatches(DetId const &_id,
+                          uint32_t _mask,
+                          StatusManager const *_statusManager,
+                          EcalTrigTowerConstituentsMap const *trigTowerMap) const {
     if (!_statusManager)
       return false;
 
@@ -187,7 +193,7 @@ namespace ecaldqm {
           return true;
 
         if (searchNeighborsInTower) {
-          std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
+          std::vector<DetId> ids(trigTowerMap->constituentsOf(ttId));
           for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
             if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
               return true;
@@ -230,7 +236,7 @@ namespace ecaldqm {
 
       case EcalTriggerTower: {
         EcalTrigTowerDetId ttId(_id);
-        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
+        std::vector<DetId> ids(trigTowerMap->constituentsOf(ttId));
         for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
           if ((_statusManager->getStatus(idItr->rawId()) & _mask) != 0)
             return true;
@@ -243,28 +249,8 @@ namespace ecaldqm {
     return false;
   }
 
-  void MESet::softReset() {
-    if (!active_)
-      return;
-
-    DQMStore &store(*edm::Service<DQMStore>());
-
-    for (unsigned iME(0); iME < mes_.size(); ++iME)
-      store.softReset(mes_[iME]);
-  }
-
-  void MESet::recoverStats() {
-    if (!active_)
-      return;
-
-    DQMStore &store(*edm::Service<DQMStore>());
-
-    for (unsigned iME(0); iME < mes_.size(); ++iME)
-      store.disableSoftReset(mes_[iME]);
-  }
-
   void MESet::fill_(unsigned _iME, int _bin, double _w) {
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return;
 
     MonitorElement *me(mes_[_iME]);
@@ -277,7 +263,7 @@ namespace ecaldqm {
 
     double x(h->GetXaxis()->GetBinCenter(_bin % (nbinsX + 2)));
 
-    if (kind_ == MonitorElement::DQM_KIND_TH1F || kind_ == MonitorElement::DQM_KIND_TPROFILE)
+    if (kind_ == MonitorElement::Kind::TH1F || kind_ == MonitorElement::Kind::TPROFILE)
       me->Fill(x, _w);
     else {
       double y(h->GetYaxis()->GetBinCenter(_bin / (nbinsX + 2)));
@@ -286,7 +272,7 @@ namespace ecaldqm {
   }
 
   void MESet::fill_(unsigned _iME, int _bin, double _y, double _w) {
-    if (kind_ != MonitorElement::DQM_KIND_TH2F && kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TH2F && kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
     MonitorElement *me(mes_[_iME]);
@@ -306,9 +292,9 @@ namespace ecaldqm {
     if (!me)
       return;
 
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       me->Fill(_x);
-    else if (kind_ == MonitorElement::DQM_KIND_TH1F || kind_ == MonitorElement::DQM_KIND_TPROFILE)
+    else if (kind_ == MonitorElement::Kind::TH1F || kind_ == MonitorElement::Kind::TPROFILE)
       me->Fill(_x, _wy);
     else
       me->Fill(_x, _wy, _w);
@@ -322,9 +308,9 @@ namespace ecaldqm {
     // current internal bin numbering scheme does not allow 1D histograms
     // (overflow & underflow in each y)
     MonitorElement::Kind kind(meSet_->getKind());
-    //    if(kind != MonitorElement::DQM_KIND_TH1F && kind !=
-    //    MonitorElement::DQM_KIND_TPROFILE &&
-    if (kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    //    if(kind != MonitorElement::Kind::TH1F && kind !=
+    //    MonitorElement::Kind::TPROFILE &&
+    if (kind != MonitorElement::Kind::TH2F && kind != MonitorElement::Kind::TPROFILE2D)
       throw cms::Exception("InvalidOperation") << "MESet::ConstBin::Ctor: const_iterator only available for MESet of "
                                                   "2D histograms";
 
@@ -334,7 +320,7 @@ namespace ecaldqm {
       throw cms::Exception("InvalidOperation")
           << "MESet::ConstBin::Ctor: ME " << iME << " does not exist for MESet " << meSet_->getPath();
 
-    if (iBin == 1 && (kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D))
+    if (iBin == 1 && (kind == MonitorElement::Kind::TH2F || kind == MonitorElement::Kind::TPROFILE2D))
       iBin = me->getNbinsX() + 3;
 
     otype = binning::getObject(meSet_->getObjType(), iME);
@@ -354,14 +340,17 @@ namespace ecaldqm {
     return *this;
   }
 
-  MESet::const_iterator::const_iterator(MESet const &_meSet, DetId const &_id) : bin_() {
+  MESet::const_iterator::const_iterator(EcalElectronicsMapping const *electronicsMap,
+                                        MESet const &_meSet,
+                                        DetId const &_id)
+      : bin_() {
     binning::ObjectType otype(_meSet.getObjType());
-    unsigned iME(binning::findPlotIndex(otype, _id));
+    unsigned iME(binning::findPlotIndex(electronicsMap, otype, _id));
     if (iME == unsigned(-1))
       return;
 
     binning::BinningType btype(_meSet.getBinType());
-    int bin(binning::findBin2D(otype, btype, _id));
+    int bin(binning::findBin2D(electronicsMap, otype, btype, _id));
     if (bin == 0)
       return;
 
@@ -391,13 +380,13 @@ namespace ecaldqm {
       iME = 0;
       me = meSet->getME(iME);
       nbinsX = me->getNbinsX();
-      if (kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+      if (kind == MonitorElement::Kind::TH2F || kind == MonitorElement::Kind::TPROFILE2D)
         bin = nbinsX + 3;
       otype = binning::getObject(meSet->getObjType(), iME);
     }
 
     if (bin % (nbinsX + 2) == nbinsX + 1) {
-      if (kind == MonitorElement::DQM_KIND_TH1F || kind == MonitorElement::DQM_KIND_TPROFILE ||
+      if (kind == MonitorElement::Kind::TH1F || kind == MonitorElement::Kind::TPROFILE ||
           bin / (nbinsX + 2) == me->getNbinsY()) {
         iME += 1;
         me = meSet->getME(iME);
@@ -407,7 +396,7 @@ namespace ecaldqm {
           otype = binning::nObjType;
         } else {
           nbinsX = me->getNbinsX();
-          if (kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+          if (kind == MonitorElement::Kind::TH2F || kind == MonitorElement::Kind::TPROFILE2D)
             bin = nbinsX + 3;
           else
             bin = 1;
@@ -421,12 +410,12 @@ namespace ecaldqm {
     return *this;
   }
 
-  MESet::const_iterator &MESet::const_iterator::toNextChannel() {
+  MESet::const_iterator &MESet::const_iterator::toNextChannel(const EcalElectronicsMapping *electronicsMap) {
     if (!bin_.getMESet())
       return *this;
     do
       operator++();
-    while (bin_.iME != unsigned(-1) && !bin_.isChannel());
+    while (bin_.iME != unsigned(-1) && !bin_.isChannel(electronicsMap));
 
     return *this;
   }
@@ -437,7 +426,7 @@ namespace ecaldqm {
       return false;
 
     MonitorElement::Kind kind(meSet->getKind());
-    if (kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind != MonitorElement::Kind::TH2F && kind != MonitorElement::Kind::TPROFILE2D)
       return false;
 
     MonitorElement const *me(meSet->getME(bin_.iME));
@@ -456,7 +445,7 @@ namespace ecaldqm {
       return false;
 
     MonitorElement::Kind kind(meSet->getKind());
-    if (kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind != MonitorElement::Kind::TH2F && kind != MonitorElement::Kind::TPROFILE2D)
       return false;
 
     MonitorElement const *me(meSet->getME(bin_.iME));
@@ -475,7 +464,7 @@ namespace ecaldqm {
       return false;
 
     MonitorElement::Kind kind(meSet->getKind());
-    if (kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind != MonitorElement::Kind::TH2F && kind != MonitorElement::Kind::TPROFILE2D)
       return false;
 
     MonitorElement const *me(meSet->getME(bin_.iME));
@@ -494,7 +483,7 @@ namespace ecaldqm {
       return false;
 
     MonitorElement::Kind kind(meSet->getKind());
-    if (kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind != MonitorElement::Kind::TH2F && kind != MonitorElement::Kind::TPROFILE2D)
       return false;
 
     MonitorElement const *me(meSet->getME(bin_.iME));
@@ -507,14 +496,3 @@ namespace ecaldqm {
     return true;
   }
 }  // namespace ecaldqm
-
-namespace boost {
-  template <>
-  inline ecaldqm::MESet *new_clone<ecaldqm::MESet>(ecaldqm::MESet const &_s) {
-    return _s.clone();
-  }
-  template <>
-  void delete_clone<ecaldqm::MESet>(ecaldqm::MESet const *_s) {
-    checked_delete(_s);
-  }
-}  // namespace boost

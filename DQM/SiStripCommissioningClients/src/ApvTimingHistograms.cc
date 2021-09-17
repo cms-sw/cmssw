@@ -1,12 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 ApvTimingHistograms::ApvTimingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("ApvTimingParameters"), bei, sistrip::APV_TIMING) {
-  factory_ = unique_ptr<ApvTimingSummaryFactory>(new ApvTimingSummaryFactory);
+  factory_ = std::make_unique<ApvTimingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[ApvTimingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

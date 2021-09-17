@@ -6,7 +6,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,20 +24,20 @@ private:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   std::string fileIn, fileOut;
   double scale;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 scaleGains::scaleGains(const edm::ParameterSet& iConfig) {
   fileIn = iConfig.getUntrackedParameter<std::string>("FileIn");
   fileOut = iConfig.getUntrackedParameter<std::string>("FileOut");
   scale = iConfig.getUntrackedParameter<double>("Scale");
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 }
 
 scaleGains::~scaleGains() {}
 
 void scaleGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  HcalTopology topo = (*htopo);
+  HcalTopology topo = iSetup.getData(tok_htopo_);
 
   HcalGains gainsIn(&topo);
   ;

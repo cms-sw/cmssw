@@ -24,7 +24,6 @@ namespace npstat {
     EquidistantInLinearSpace(double minScale, double maxScale, unsigned nScales);
     virtual ~EquidistantInLinearSpace() {}
 
-  private:
     EquidistantInLinearSpace() = delete;
   };
 
@@ -38,7 +37,6 @@ namespace npstat {
     EquidistantInLogSpace(double minScale, double maxScale, unsigned nScales);
     virtual ~EquidistantInLogSpace() {}
 
-  private:
     EquidistantInLogSpace() = delete;
   };
 }  // namespace npstat

@@ -1,7 +1,13 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="CondFormats/Alignment"/>
-<use   name="vdt_headers"/>
+<use name="FWCore/MessageLogger"/>
+<use name="CondFormats/Alignment"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/DetId"/>
+<use name="FWCore/Utilities"/>
+<use name="vdt_headers"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
-# <flags   CXXFLAGS="-O3 -ffast-math -funsafe-loop-optimizations"/>
+<!--
+<flags CXXFLAGS="-O3 -ffast-math -funsafe-loop-optimizations"/>
+-->

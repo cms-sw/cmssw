@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -77,8 +78,6 @@ private:
 
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
-  void createMaskedChamberCollection(edm::ESHandle<CSCGeometry> &);
-
   template <typename T, typename C = MuonDigiCollection<CSCDetId, T>>
   void ageDigis(edm::Event &event,
                 edm::EDGetTokenT<C> &digiToken,
@@ -94,6 +93,8 @@ private:
   edm::EDGetTokenT<CSCWireDigiCollection> m_wireDigiToken;
   edm::EDGetTokenT<CSCCLCTDigiCollection> m_clctDigiToken;
   edm::EDGetTokenT<CSCALCTDigiCollection> m_alctDigiToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeomToken;
+  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObjToken;
   std::map<CSCDetId, std::pair<unsigned int, float>> m_CSCEffs;
 };
 
@@ -112,7 +113,9 @@ CSCChamberMasker::CSCChamberMasker(const edm::ParameterSet &iConfig)
     : m_stripDigiToken(consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("stripDigiTag"))),
       m_wireDigiToken(consumes<CSCWireDigiCollection>(iConfig.getParameter<edm::InputTag>("wireDigiTag"))),
       m_clctDigiToken(consumes<CSCCLCTDigiCollection>(iConfig.getParameter<edm::InputTag>("clctDigiTag"))),
-      m_alctDigiToken(consumes<CSCALCTDigiCollection>(iConfig.getParameter<edm::InputTag>("alctDigiTag"))) {
+      m_alctDigiToken(consumes<CSCALCTDigiCollection>(iConfig.getParameter<edm::InputTag>("alctDigiTag"))),
+      m_cscGeomToken(esConsumes<CSCGeometry, MuonGeometryRecord>()),
+      m_agingObjToken(esConsumes<MuonSystemAging, MuonSystemAgingRcd>()) {
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
@@ -214,11 +217,9 @@ void CSCChamberMasker::ageDigis(edm::Event &event,
 void CSCChamberMasker::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
   m_CSCEffs.clear();
 
-  edm::ESHandle<CSCGeometry> cscGeom;
-  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = iSetup.getHandle(m_cscGeomToken);
 
-  edm::ESHandle<MuonSystemAging> agingObj;
-  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  edm::ESHandle<MuonSystemAging> agingObj = iSetup.getHandle(m_agingObjToken);
 
   const auto chambers = cscGeom->chambers();
 

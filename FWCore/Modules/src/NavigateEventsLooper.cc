@@ -29,6 +29,8 @@ namespace edm {
   class NavigateEventsLooper : public EDLooperBase {
   public:
     NavigateEventsLooper(ParameterSet const& pset);
+    NavigateEventsLooper(NavigateEventsLooper const&) = delete;                   // stop default
+    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete;  // stop default
     ~NavigateEventsLooper() override;
 
     void startingNewLoop(unsigned int iIteration) override;
@@ -36,9 +38,6 @@ namespace edm {
     Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
 
   private:
-    NavigateEventsLooper(NavigateEventsLooper const&) = delete;                   // stop default
-    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete;  // stop default
-
     int maxLoops_;
     int countLoops_;
     bool shouldStopLoop_;

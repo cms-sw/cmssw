@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
 #include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -27,6 +27,8 @@ private:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
+
+  std::string m_label;
 
   struct FileInfo {
     double m_xangle;
@@ -54,7 +56,7 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet &conf)
-    : m_currentEntryValid(false), m_currentEntry(0) {
+    : m_label(conf.getParameter<std::string>("label")), m_currentEntryValid(false), m_currentEntry(0) {
   for (const auto &entry_pset : conf.getParameter<std::vector<edm::ParameterSet>>("configuration")) {
     edm::EventRange validityRange = entry_pset.getParameter<edm::EventRange>("validityRange");
 
@@ -77,7 +79,7 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
     m_entries.push_back({validityRange, fileInfo, rpInfo});
   }
 
-  setWhatProduced(this);
+  setWhatProduced(this, m_label);
   findingRecord<CTPPSOpticsRcd>();
 }
 
@@ -141,6 +143,8 @@ std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSOpticalFunctionsESSource:
 
 void CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("label", "")->setComment("label of the optics record");
 
   edm::ParameterSetDescription config_desc;
 

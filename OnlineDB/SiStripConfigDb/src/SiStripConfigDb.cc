@@ -226,16 +226,17 @@ void SiStripConfigDb::usingDatabase() {
   // Retrieve connection params from CONFDB env. var. and override .cfg values
   std::string user = "";
   std::string passwd = "";
+  std::string pToPrint = "******";
   std::string path = "";
   DbAccess::getDbConfiguration(user, passwd, path);
   if (!user.empty() && !passwd.empty() && !path.empty()) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"user/passwd@path\" to \"" << user << "/" << passwd << "@" << path
+       << " Setting \"user/passwd@path\" to \"" << user << "/" << pToPrint << "@" << path
        << "\" using 'CONFDB' environmental variable";
     if (dbParams_.user() != null_ || dbParams_.passwd() != null_ || dbParams_.path() != null_) {
-      ss << " (Overwriting existing value of \"" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
-         << dbParams_.path() << "\" read from .cfg file)";
+      ss << " (Overwriting existing value of \"" << dbParams_.user() << "/" << pToPrint << "@" << dbParams_.path()
+         << "\" read from .cfg file)";
     }
     edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
     dbParams_.confdb(user, passwd, path);
@@ -243,15 +244,15 @@ void SiStripConfigDb::usingDatabase() {
   } else if (dbParams_.user() != null_ && dbParams_.passwd() != null_ && dbParams_.path() != null_) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"user/passwd@path\" to \"" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
-       << dbParams_.path() << "\" using 'ConfDb' configurable read from .cfg file";
+       << " Setting \"user/passwd@path\" to \"" << dbParams_.user() << "/" << pToPrint << "@" << dbParams_.path()
+       << "\" using 'ConfDb' configurable read from .cfg file";
     edm::LogVerbatim(mlConfigDb_) << ss.str();
 
   } else {
     edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                  << " Unable to retrieve 'user/passwd@path' parameters"
                                  << " from 'CONFDB' environmental variable or .cfg file"
-                                 << " (present value is \"" << user << "/" << passwd << "@" << path
+                                 << " (present value is \"" << user << "/" << pToPrint << "@" << path
                                  << "\"). Aborting connection to database...";
     return;
   }
@@ -259,8 +260,8 @@ void SiStripConfigDb::usingDatabase() {
   // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
-  if (getenv(pattern.c_str()) != nullptr) {
-    tns_admin = getenv(pattern.c_str());
+  if (std::getenv(pattern.c_str()) != nullptr) {
+    tns_admin = std::getenv(pattern.c_str());
     edm::LogVerbatim(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                   << " TNS_ADMIN is set to: \"" << tns_admin << "\"";
   } else {
@@ -327,7 +328,7 @@ void SiStripConfigDb::usingDatabase() {
                           << " Created DeviceFactory object!";
   } catch (...) {
     std::stringstream ss;
-    ss << "Failed to connect to database using parameters '" << dbParams_.user() << "/" << dbParams_.passwd() << "@"
+    ss << "Failed to connect to database using parameters '" << dbParams_.user() << "/" << pToPrint << "@"
        << dbParams_.path() << "' and partitions '" << dbParams_.partitionNames(dbParams_.partitionNames()) << "'";
     handleException(__func__, ss.str());
     return;
@@ -338,14 +339,14 @@ void SiStripConfigDb::usingDatabase() {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" << std::hex << std::setw(8) << std::setfill('0') << factory_
-       << std::dec << ", using database account with parameters '" << dbParams_.user() << "/" << dbParams_.passwd()
-       << "@" << dbParams_.path();
+       << std::dec << ", using database account with parameters '" << dbParams_.user() << "/" << pToPrint << "@"
+       << dbParams_.path();
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                << " NULL pointer to DeviceFactory!"
                                << " Unable to connect to database using connection parameters '" << dbParams_.user()
-                               << "/" << dbParams_.passwd() << "@" << dbParams_.path() << "' and partitions '"
+                               << "/" << pToPrint << "@" << dbParams_.path() << "' and partitions '"
                                << dbParams_.partitionNames(dbParams_.partitionNames()) << "'";
     return;
   }
@@ -358,10 +359,10 @@ void SiStripConfigDb::usingDatabase() {
 
   // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
   std::string partition = "ENV_CMS_TK_PARTITION";
-  if (getenv(partition.c_str()) != nullptr) {
+  if (std::getenv(partition.c_str()) != nullptr) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \"" << getenv(partition.c_str())
+       << " Setting \"partitions\" to \"" << std::getenv(partition.c_str())
        << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
     if (!dbParams_.partitionNames().empty()) {
       ss << " (Overwriting existing value of \"" << dbParams_.partitionNames(dbParams_.partitionNames())
@@ -370,7 +371,7 @@ void SiStripConfigDb::usingDatabase() {
     edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
 
     // Build partitions from env. var.
-    std::vector<std::string> partitions = dbParams_.partitionNames(getenv(partition.c_str()));
+    std::vector<std::string> partitions = dbParams_.partitionNames(std::getenv(partition.c_str()));
     if (!partitions.empty()) {
       dbParams_.clearPartitions();
       std::vector<std::string>::iterator ii = partitions.begin();
@@ -546,24 +547,22 @@ void SiStripConfigDb::usingXmlFiles() {
       edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                    << " NULL paths to input 'fec.xml' files!";
     } else {
-      std::vector<std::string>::iterator iter = ip->second.inputFecXml().begin();
-      for (; iter != ip->second.inputFecXml().end(); iter++) {
-        if ((*iter).empty()) {
+      for (const auto& iter : ip->second.inputFecXml()) {
+        if (iter.empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fec.xml' file!";
         } else {
-          if (checkFileExists(*iter)) {
+          if (checkFileExists(iter)) {
             try {
-              deviceFactory(__func__)->addFecFileName(*iter);
+              deviceFactory(__func__)->addFecFileName(iter);
             } catch (...) {
               handleException(__func__);
             }
             LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                  << " Added 'fec.xml' file: " << *iter;
+                                  << " Added 'fec.xml' file: " << iter;
           } else {
             edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                         << " No 'fec.xml' file found at " << *iter;
-            *iter = "";
+                                         << " No 'fec.xml' file found at " << iter;
           }
         }
       }
@@ -574,24 +573,22 @@ void SiStripConfigDb::usingXmlFiles() {
       edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                    << " NULL paths to input 'fed.xml' files!";
     } else {
-      std::vector<std::string>::iterator iter = ip->second.inputFedXml().begin();
-      for (; iter != ip->second.inputFedXml().end(); iter++) {
-        if ((*iter).empty()) {
+      for (const auto& iter : ip->second.inputFedXml()) {
+        if (iter.empty()) {
           edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                        << " NULL path to input 'fed.xml' file!";
         } else {
-          if (checkFileExists(*iter)) {
+          if (checkFileExists(iter)) {
             try {
-              deviceFactory(__func__)->addFedFileName(*iter);
+              deviceFactory(__func__)->addFedFileName(iter);
             } catch (...) {
               handleException(__func__);
             }
             LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                  << " Added 'fed.xml' file: " << *iter;
+                                  << " Added 'fed.xml' file: " << iter;
           } else {
             edm::LogWarning(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
-                                         << " No 'fed.xml' file found at " << *iter;
-            *iter = "";
+                                         << " No 'fed.xml' file found at " << iter;
           }
         }
       }

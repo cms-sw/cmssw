@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READ")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000000                            # do not clog output with IO
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000000) )       # large number of events is needed since we probe 5000LS for run (see below)

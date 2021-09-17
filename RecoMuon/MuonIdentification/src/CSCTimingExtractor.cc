@@ -17,6 +17,7 @@
 #include "RecoMuon/MuonIdentification/interface/CSCTimingExtractor.h"
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -64,7 +65,9 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher* segMatcher)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,
+                                       MuonSegmentMatcher* segMatcher,
+                                       edm::ConsumesCollector& iC)
     : thePruneCut_(iConfig.getParameter<double>("PruneCut")),
       theStripTimeOffset_(iConfig.getParameter<double>("CSCStripTimeOffset")),
       theWireTimeOffset_(iConfig.getParameter<double>("CSCWireTimeOffset")),
@@ -74,7 +77,7 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSeg
       UseStripTime(iConfig.getParameter<bool>("UseStripTime")),
       debug(iConfig.getParameter<bool>("debug")) {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
   theMatcher = segMatcher;
 }
 

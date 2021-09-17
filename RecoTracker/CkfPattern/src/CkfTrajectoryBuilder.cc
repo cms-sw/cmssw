@@ -26,13 +26,16 @@
 
 using namespace std;
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : CkfTrajectoryBuilder(conf,
+                           iC,
                            BaseCkfTrajectoryBuilder::createTrajectoryFilter(
                                conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC)) {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter)
-    : BaseCkfTrajectoryBuilder(conf, std::move(filter)) {
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                           edm::ConsumesCollector iC,
+                                           std::unique_ptr<TrajectoryFilter> filter)
+    : BaseCkfTrajectoryBuilder(conf, iC, std::move(filter)) {
   theMaxCand = conf.getParameter<int>("maxCand");
   theLostHitPenalty = conf.getParameter<double>("lostHitPenalty");
   theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
@@ -171,11 +174,11 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const TrajectorySeed& seed,
                                                      TrajectoryContainer& result) const {
   TempTrajectoryContainer candidates;
   candidates.push_back(startingTraj);
-  boost::shared_ptr<const TrajectorySeed> sharedSeed(new TrajectorySeed(seed));
+  std::shared_ptr<const TrajectorySeed> sharedSeed(new TrajectorySeed(seed));
   return limitedCandidates(sharedSeed, candidates, result);
 }
 
-unsigned int CkfTrajectoryBuilder::limitedCandidates(const boost::shared_ptr<const TrajectorySeed>& sharedSeed,
+unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
                                                      TempTrajectoryContainer& candidates,
                                                      TrajectoryContainer& result) const {
   unsigned int nIter = 1;
@@ -303,9 +306,9 @@ void CkfTrajectoryBuilder::updateTrajectory(TempTrajectory& traj, TM&& tm) const
   auto&& hit = tm.recHit();
   if (hit->isValid()) {
     auto&& upState = theUpdator->update(predictedState, *hit);
-    traj.emplace(std::move(predictedState), std::move(upState), std::move(hit), tm.estimate(), tm.layer());
+    traj.emplace(predictedState, std::move(upState), hit, tm.estimate(), tm.layer());
   } else {
-    traj.emplace(std::move(predictedState), std::move(hit), 0, tm.layer());
+    traj.emplace(predictedState, hit, 0, tm.layer());
   }
 }
 
@@ -328,19 +331,18 @@ void CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed
 
     TSOS stateToUse = stateAndLayers.first;
     //Added protection before asking for the lastLayer on the trajectory
-    if
-      UNLIKELY(!traj.empty() && (*il) == traj.lastLayer()) {
-        LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
-        //self navigation case
-        // go to a middle point first
-        TransverseImpactPointExtrapolator middle;
-        GlobalPoint center(0, 0, 0);
-        stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
+    if UNLIKELY (!traj.empty() && (*il) == traj.lastLayer()) {
+      LogDebug("CkfPattern") << " self propagating in findCompatibleMeasurements.\n from: \n" << stateToUse;
+      //self navigation case
+      // go to a middle point first
+      TransverseImpactPointExtrapolator middle;
+      GlobalPoint center(0, 0, 0);
+      stateToUse = middle.extrapolate(stateToUse, center, *fwdPropagator);
 
-        if (!stateToUse.isValid())
-          continue;
-        LogDebug("CkfPattern") << "to: " << stateToUse;
-      }
+      if (!stateToUse.isValid())
+        continue;
+      LogDebug("CkfPattern") << "to: " << stateToUse;
+    }
 
     LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
     std::vector<TrajectoryMeasurement>&& tmp =

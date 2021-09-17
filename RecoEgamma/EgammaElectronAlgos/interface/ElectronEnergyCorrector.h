@@ -7,30 +7,14 @@
 
 class EcalClusterFunctionBaseClass;
 
-class ElectronEnergyCorrector {
-public:
-  ElectronEnergyCorrector(EcalClusterFunctionBaseClass *crackCorrectionFunction)
-      : crackCorrectionFunction_(crackCorrectionFunction) {}
+namespace egamma {
 
-  void classBasedParameterizationEnergy(reco::GsfElectron &, const reco::BeamSpot &bs);
-  void classBasedParameterizationUncertainty(reco::GsfElectron &);
-  void simpleParameterizationUncertainty(reco::GsfElectron &);
+  float classBasedElectronEnergy(reco::GsfElectron const &,
+                                 reco::BeamSpot const &,
+                                 EcalClusterFunctionBaseClass const &crackCorrectionFunction);
+  double classBasedElectronEnergyUncertainty(reco::GsfElectron const &);
+  double simpleElectronEnergyUncertainty(reco::GsfElectron const &);
 
-private:
-  double fEtaBarrelBad(double scEta) const;
-  double fEtaBarrelGood(double scEta) const;
-  double fEtaEndcapBad(double scEta) const;
-  double fEtaEndcapGood(double scEta) const;
-
-  // new corrections (N. Chanon et al.)
-  float fEta(float energy, float eta, int algorithm) const;
-  //float fBrem (float e,  float eta, int algorithm) const ;
-  //float fEtEta(float et, float eta, int algorithm) const ;
-  float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl) const;
-  float fEt(float et, int algorithm, reco::GsfElectron::Classification cl) const;
-  float fEnergy(float e, int algorithm, reco::GsfElectron::Classification cl) const;
-
-  EcalClusterFunctionBaseClass *crackCorrectionFunction_;
-};
+}  // namespace egamma
 
 #endif

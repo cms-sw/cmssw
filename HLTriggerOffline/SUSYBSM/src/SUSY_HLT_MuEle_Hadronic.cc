@@ -274,10 +274,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
   }
 }
 
-void SUSY_HLT_MuEle_Hadronic::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::endRun" << std::endl;
-}
-
 void SUSY_HLT_MuEle_Hadronic::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.cd();
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);

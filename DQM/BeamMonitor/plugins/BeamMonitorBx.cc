@@ -197,10 +197,6 @@ void BeamMonitorBx::BookTables(int nBx, map<string, string>& vMap, string suffix
       tmpName += "_";
       tmpName += suffix_;
     }
-    if (dbe_->get(monitorName_ + "FitBx/" + tmpName)) {
-      edm::LogInfo("BX|BeamMonitorBx") << "Rebinning " << tmpName << endl;
-      dbe_->removeElement(tmpName);
-    }
 
     hs[tmpName] = dbe_->book2D(tmpName, varName->second, 3, 0, 3, nBx, 0, nBx);
     hs[tmpName]->setBinLabel(1, "bx", 1);

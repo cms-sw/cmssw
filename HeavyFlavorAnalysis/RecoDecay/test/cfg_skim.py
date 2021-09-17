@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 patAlgosToolsTask.add(process.MEtoEDMConverter)
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 process.CandidateSelectedTracks = cms.EDProducer( "ConcreteChargedCandidateProducer",
@@ -47,7 +47,7 @@ process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 #    'file:/...complete_file_path.../XXXX.root'
 ))
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.testBPHRecoDecay = cms.EDAnalyzer('TestBPHRecoDecay',

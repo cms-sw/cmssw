@@ -5,11 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/HFShower.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "G4NavigationHistory.hh"
 #include "G4Step.hh"
@@ -23,24 +18,29 @@
 
 #include <iostream>
 
-HFShower::HFShower(const std::string &name, const DDCompactView &cpv, edm::ParameterSet const &p, int chk)
-    : cherenkov(nullptr), fibre(nullptr), chkFibre(chk) {
+HFShower::HFShower(const std::string &name,
+                   const HcalDDDSimConstants *hcons,
+                   const HcalSimulationParameters *hps,
+                   edm::ParameterSet const &p,
+                   int chk)
+    : hcalConstant_(hcons), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
-  applyFidCut = m_HF.getParameter<bool>("ApplyFiducialCut");
-  probMax = m_HF.getParameter<double>("ProbMax");
+  applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
+  edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
+  equalizeTimeShift_ = m_HF2.getParameter<bool>("EqualizeTimeShift");
+  probMax_ = m_HF2.getParameter<double>("ProbMax");
 
-  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax << " Check flag " << chkFibre;
+  edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_
+                               << " EqualizeTimeShift " << equalizeTimeShift_;
 
-  cherenkov = new HFCherenkov(m_HF);
-  fibre = new HFFibre(name, cpv, p);
+  cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
+  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
+
+  //Special Geometry parameters
+  gpar_ = hcalConstant_->getGparHF();
 }
 
-HFShower::~HFShower() {
-  if (cherenkov)
-    delete cherenkov;
-  if (fibre)
-    delete fibre;
-}
+HFShower::~HFShower() {}
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight) {
   std::vector<HFShower::Hit> hits;
@@ -77,31 +77,31 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   const G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
   const G4ThreeVector &globalPos = preStepPoint->GetPosition();
   G4String name = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  //double        zv           = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
-  double zv = std::abs(globalPos.z()) - gpar[4];
+  //double zv = std::abs(globalPos.z()) - gpar_[4] - 0.5*gpar_[1];
+  double zv = std::abs(globalPos.z()) - gpar_[4];
   G4ThreeVector localPos = G4ThreeVector(globalPos.x(), globalPos.y(), zv);
   G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(momentumDir);
   // @@ Here the depth should be changed  (Fibers all long in Geometry!)
   int depth = 1;
   int npmt = 0;
   bool ok = true;
-  if (zv < 0. || zv > gpar[1]) {
+  if (zv < 0. || zv > gpar_[1]) {
     ok = false;  // beyond the fiber in Z
   }
-  if (ok && applyFidCut) {
+  if (ok && applyFidCut_) {
     npmt = HFFibreFiducial::PMTNumber(globalPos);
     if (npmt <= 0) {
       ok = false;
     } else if (npmt > 24) {  // a short fibre
-      if (zv > gpar[0]) {
+      if (zv > gpar_[0]) {
         depth = 2;
       } else {
         ok = false;
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFShower: npmt " << npmt << " zv " << std::abs(globalPos.z()) << ":" << gpar[4]
-                                 << ":" << zv << ":" << gpar[0] << " ok " << ok << " depth " << depth;
+    edm::LogVerbatim("HFShower") << "HFShower: npmt " << npmt << " zv " << std::abs(globalPos.z()) << ":" << gpar_[4]
+                                 << ":" << zv << ":" << gpar_[0] << " ok " << ok << " depth " << depth;
 #endif
   } else {
     depth = (preStepPoint->GetTouchable()->GetReplicaNumber(0)) % 10;  // All LONG!
@@ -112,9 +112,10 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   double v = localMom.y();
   double w = localMom.z();
   double zCoor = localPos.z();
-  double zFibre = (0.5 * gpar[1] - zCoor - translation.z());
+  double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre->tShift(localPos, depth, chkFibre);
+  double time =
+      (equalizeTimeShift_) ? (fibre_->tShift(localPos, depth, -1)) : (fibre_->tShift(localPos, depth, chkFibre_));
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -125,33 +126,34 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   int npe = 1;
   std::vector<double> wavelength;
   std::vector<double> momz;
-  if (!applyFidCut) {  // _____ Tmp close of the cherenkov function
+  if (!applyFidCut_) {  // _____ Tmp close of the cherenkov function
     if (ok)
-      npe = cherenkov->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-    wavelength = cherenkov->getWL();
-    momz = cherenkov->getMom();
+      npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+    wavelength = cherenkov_->getWL();
+    momz = cherenkov_->getMom();
   }  // ^^^^^ End of Tmp close of the cherenkov function
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       double p = 1.;
-      if (!applyFidCut)
-        p = fibre->attLength(wavelength[i]);
+      if (!applyFidCut_)
+        p = fibre_->attLength(wavelength[i]);
       double r1 = G4UniformRand();
       double r2 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1 << ":" << exp(-p * zFibre)
-                                   << " r2 " << r2 << ":" << probMax
-                                   << " Survive: " << (r1 <= exp(-p * zFibre) && r2 <= probMax);
+                                   << " r2 " << r2 << ":" << probMax_
+                                   << " Survive: " << (r1 <= exp(-p * zFibre) && r2 <= probMax_);
 #endif
-      if (applyFidCut || chkFibre < 0 || (r1 <= exp(-p * zFibre) && r2 <= probMax)) {
+      if (applyFidCut_ || chkFibre_ < 0 || (r1 <= exp(-p * zFibre) && r2 <= probMax_)) {
         hit.depth = depth;
         hit.time = tSlice + time;
-        if (!applyFidCut) {
-          hit.wavelength = wavelength[i];  // Tmp
-          hit.momentum = momz[i];          // Tmp
+        // Temporary fix
+        if (!applyFidCut_) {
+          hit.wavelength = wavelength[i];
+          hit.momentum = momz[i];
         } else {
-          hit.wavelength = 300.;  // Tmp
-          hit.momentum = 1.;      // Tmp
+          hit.wavelength = 300.;
+          hit.momentum = 1.;
         }
         hit.position = globalPos;
         hits.push_back(hit);
@@ -201,87 +203,48 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
   const G4ThreeVector &globalPos = preStepPoint->GetPosition();
   G4String name = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  //double        zv           = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
-  //double        zv           = std::abs(globalPos.z()) - gpar[4];
-  double zv = gpar[1] - (std::abs(globalPos.z()) - zoffset);
+  double zb = std::abs(globalPos.z() - zoffset);  // from beginning of HF
+  double zv = zb - .5 * gpar_[1];                 // from center of HF
   G4ThreeVector localPos = G4ThreeVector(globalPos.x(), globalPos.y(), zv);
   G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(momentumDir);
-  // @@ Here the depth should be changed  (Fibers all long in Geometry!)
-  int depth = 1;
-  int npmt = 0;
   bool ok = true;
-  if (zv < 0. || zv > gpar[1]) {
+  if (zb < 0. || zb > gpar_[1]) {
     ok = false;  // beyond the fiber in Z
   }
-  if (ok && applyFidCut) {
-    npmt = HFFibreFiducial::PMTNumber(globalPos);
-    if (npmt <= 0) {
-      ok = false;
-    } else if (npmt > 24) {  // a short fibre
-      if (zv > gpar[0]) {
-        depth = 2;
-      } else {
-        ok = false;
-      }
-    }
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFShower: npmt " << npmt << " zv " << std::abs(globalPos.z()) << ":" << gpar[4]
-                                 << ":" << zv << ":" << gpar[0] << " ok " << ok << " depth " << depth;
-#endif
-  } else {
-    depth = (preStepPoint->GetTouchable()->GetReplicaNumber(0)) % 10;  // All LONG!
-  }
+  int depth = (preStepPoint->GetTouchable()->GetReplicaNumber(0)) % 10;  // All LONG!
   G4ThreeVector translation = preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
 
   double u = localMom.x();
   double v = localMom.y();
   double w = localMom.z();
   double zCoor = localPos.z();
-  double zFibre = (0.5 * gpar[1] - zCoor - translation.z());
+  double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre->tShift(localPos, depth, chkFibre);
 
 #ifdef EDM_ML_DEBUG
+  double time = (equalizeTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
                                << zFibre << " Trans " << translation << " Time " << tSlice << " " << time
                                << "\n                  Direction " << momentumDir << " Local " << localMom;
 #endif
-  // Here npe should be 0 if there is no fiber (@@ M.K.)
-  int npe = 1;
+
+  int npe = 0;
   std::vector<double> wavelength;
   std::vector<double> momz;
-  if (!applyFidCut) {  // _____ Tmp close of the cherenkov function
-    if (ok)
-      npe = cherenkov->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-    wavelength = cherenkov->getWL();
-    momz = cherenkov->getMom();
-  }  // ^^^^^ End of Tmp close of the cherenkov function
+  if (ok)
+    npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+  wavelength = cherenkov_->getWL();
+  momz = cherenkov_->getMom();
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
-      double p = 1.;
-      if (!applyFidCut)
-        p = fibre->attLength(wavelength[i]);
-      double r1 = G4UniformRand();
-      double r2 = G4UniformRand();
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1 << ":" << exp(-p * zFibre)
-                                   << " r2 " << r2 << ":" << probMax
-                                   << " Survive: " << (r1 <= exp(-p * zFibre) && r2 <= probMax);
-#endif
-      if (applyFidCut || chkFibre < 0 || (r1 <= exp(-p * zFibre) && r2 <= probMax)) {
-        hit.depth = depth;
-        hit.time = tSlice + time;
-        if (!applyFidCut) {
-          hit.wavelength = wavelength[i];  // Tmp
-          hit.momentum = momz[i];          // Tmp
-        } else {
-          hit.wavelength = 300.;  // Tmp
-          hit.momentum = 1.;      // Tmp
-        }
-        hit.position = globalPos;
-        hits.push_back(hit);
-        nHit++;
-      }
+      hit.depth = depth;
+      //      hit.time = tSlice + time;
+      hit.time = tSlice;  // only shower time, fiber propagation time to be set on reading library
+      hit.wavelength = wavelength[i];
+      hit.momentum = momz[i];
+      hit.position = globalPos;
+      hits.push_back(hit);
+      nHit++;
     }
   }
 
@@ -327,22 +290,22 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   const G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
   const G4ThreeVector &globalPos = preStepPoint->GetPosition();
   G4String name = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  double zv = std::abs(globalPos.z()) - gpar[4] - 0.5 * gpar[1];
+  double zv = std::abs(globalPos.z()) - gpar_[4] - 0.5 * gpar_[1];
   G4ThreeVector localPos = G4ThreeVector(globalPos.x(), globalPos.y(), zv);
   G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(momentumDir);
   // @@ Here the depth should be changed (Fibers are all long in Geometry!)
   int depth = 1;
   int npmt = 0;
   bool ok = true;
-  if (zv < 0 || zv > gpar[1]) {
+  if (zv < 0 || zv > gpar_[1]) {
     ok = false;  // beyond the fiber in Z
   }
-  if (ok && applyFidCut) {
+  if (ok && applyFidCut_) {
     npmt = HFFibreFiducial::PMTNumber(globalPos);
     if (npmt <= 0) {
       ok = false;
     } else if (npmt > 24) {  // a short fibre
-      if (zv > gpar[0]) {
+      if (zv > gpar_[0]) {
         depth = 2;
       } else {
         ok = false;
@@ -350,7 +313,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShower:getHits(SL): npmt " << npmt << " zv " << std::abs(globalPos.z()) << ":"
-                                 << gpar[4] << ":" << zv << ":" << gpar[0] << " ok " << ok << " depth " << depth;
+                                 << gpar_[4] << ":" << zv << ":" << gpar_[0] << " ok " << ok << " depth " << depth;
 #endif
   } else {
     depth = (preStepPoint->GetTouchable()->GetReplicaNumber(0)) % 10;  // All LONG!
@@ -361,9 +324,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double v = localMom.y();
   double w = localMom.z();
   double zCoor = localPos.z();
-  double zFibre = (0.5 * gpar[1] - zCoor - translation.z());
+  double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre->tShift(localPos, depth, chkFibre);
+  double time = (equalizeTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits(SL): in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -373,9 +336,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   // npe should be 0
   int npe = 0;
   if (ok)
-    npe = cherenkov->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-  std::vector<double> wavelength = cherenkov->getWL();
-  std::vector<double> momz = cherenkov->getMom();
+    npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+  std::vector<double> wavelength = cherenkov_->getWL();
+  std::vector<double> momz = cherenkov_->getMom();
 
   for (int i = 0; i < npe; ++i) {
     hit.time = tSlice + time;
@@ -387,44 +350,4 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   }
 
   return hits;
-}
-
-std::vector<double> HFShower::getDDDArray(const std::string &str, const DDsvalues_type &sv, int &nmin) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShower:getDDDArray called for " << str << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << value;
-#endif
-    const std::vector<double> &fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
-        throw cms::Exception("Unknown", "HFShower") << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 2) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval << " < 2 ==> illegal"
-                                  << " (nmin=" << nmin << ")";
-        throw cms::Exception("Unknown", "HFShower") << "nval < 2 for array " << str;
-      }
-    }
-    nmin = nval;
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShower") << "cannot get array " << str << "\n";
-  }
-}
-
-void HFShower::initRun(const HcalDDDSimConstants *hcons) {
-  //Special Geometry parameters
-  gpar = hcons->getGparHF();
-  if (fibre) {
-    fibre->initRun(hcons);
-  }
 }

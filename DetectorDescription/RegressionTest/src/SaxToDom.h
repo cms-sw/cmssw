@@ -14,25 +14,22 @@
 #include "xercesc/sax2/DefaultHandler.hpp"
 #include "xercesc/util/XercesVersion.hpp"
 
-class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler
-{
+class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler {
 public:
   using Attributes = XERCES_CPP_NAMESPACE::Attributes;
   using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
   SaxToDom();
   ~SaxToDom() override;
   void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
-  void endElement(const XMLCh* uri, 
-		  const XMLCh* name, 
-		  const XMLCh* qname) override;
-  const TinyDom & dom() const;
+  void endElement(const XMLCh* uri, const XMLCh* name, const XMLCh* qname) override;
+  const TinyDom& dom() const;
 
   // errors
   void error(const SAXParseException& e) override;
-  
+
 private:
   std::vector<NodeName> parent_;
-  TinyDom dom_; 
+  TinyDom dom_;
 };
 
 #endif

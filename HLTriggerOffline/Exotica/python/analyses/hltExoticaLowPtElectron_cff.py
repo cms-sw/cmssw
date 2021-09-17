@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 LowPtElectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Ele27_WP85_Gsf_v" # Run2 proposal
+#        "HLT_Ele27_WP85_Gsf_v" # Run2 proposal
         #"HLT_Ele27_WP80_v"    # Run1 
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),

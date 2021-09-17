@@ -46,11 +46,11 @@ public:
 
   // ---------- member functions ---------------------------
 
-private:
   FWRepresentationCheckerBase(const FWRepresentationCheckerBase&) = delete;  // stop default
 
   const FWRepresentationCheckerBase& operator=(const FWRepresentationCheckerBase&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const std::string m_purpose;
   const unsigned int m_bitPackedViews;

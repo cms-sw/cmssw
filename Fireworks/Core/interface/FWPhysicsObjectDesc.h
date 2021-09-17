@@ -20,7 +20,7 @@
 
 // system include files
 #include <string>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"

@@ -9,6 +9,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,13 +52,13 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   ConsumesCollector iC = consumesCollector();
 
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters, iC, theService);
-  L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
-  theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
+  auto mtl = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
+  auto l3mtb = std::make_unique<L3MuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(l3mtb), std::move(mtl), iC);
 
   theL2SeededTkLabel =
       trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance", std::string());
@@ -80,13 +81,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 //
 // destructor
 //
-L3MuonProducer::~L3MuonProducer() {
-  LogTrace("L3MuonProducer") << "destructor called" << endl;
-  if (theService)
-    delete theService;
-  if (theTrackFinder)
-    delete theTrackFinder;
-}
+L3MuonProducer::~L3MuonProducer() { LogTrace("L3MuonProducer") << "destructor called" << endl; }
 
 //
 // reconstruct muons
@@ -270,7 +265,6 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       psd1.add<double>("EtaR_UpperLimit_Par1", 0.25);
       psd1.add<double>("EtaR_UpperLimit_Par2", 0.15);
       psd1.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
-      psd1.add<double>("EscapePt", 3.0);
       psd1.add<bool>("Pt_fixed", false);
       psd0.add<edm::ParameterSetDescription>("MuonTrackingRegionBuilder", psd1);
     }

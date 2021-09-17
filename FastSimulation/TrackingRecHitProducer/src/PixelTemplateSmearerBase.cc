@@ -20,7 +20,7 @@
 
 // Geometry
 /// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -125,11 +125,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
   //    event.  So nothing happens now.
 }
 
-PixelTemplateSmearerBase::~PixelTemplateSmearerBase() {
-  //--- Delete the templates. This is safe even if thePixelTemp_ vector is empty.
-  for (auto x : thePixelTemp_)
-    x.destroy();
-}
+PixelTemplateSmearerBase::~PixelTemplateSmearerBase() {}
 
 //-------------------------------------------------------------------------------
 //   beginRun(); the templates are loaded in TrackingRecHitProducer, and unpacked

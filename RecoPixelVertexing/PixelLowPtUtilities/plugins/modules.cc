@@ -35,11 +35,6 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
 DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, ClusterShapeTrajectoryFilter, "ClusterShapeTrajectoryFilter");
 
-// HitFilter
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilterESProducer.h"
-#include "FWCore/Utilities/interface/typelookup.h"
-DEFINE_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
-
 // the seed comparitor to remove seeds on incompatible angle/cluster compatibility
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"

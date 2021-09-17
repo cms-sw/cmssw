@@ -58,7 +58,7 @@ trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 # a helper function to repeatedly try failing copy commands
 untilSuccess () {
 # trying "${1} ${2} ${3} > /dev/null" until success, if ${4} is a
-# positive number run {1} with -f flag,
+# positive number run {1} with -f flag and using --cksum md5,
 # break after ${5} tries (with four arguments do up to 5 tries).
     if  [[ ${#} -lt 4 || ${#} -gt 5 ]]
     then
@@ -76,7 +76,7 @@ untilSuccess () {
 
     if [[ ${4} -gt 0 ]]
     then 
-        ${1} -f ${2} ${3} > /dev/null
+        ${1} -f --cksum md5 ${2} ${3} > /dev/null
     else 
         ${1} ${2} ${3} > /dev/null
     fi
@@ -86,7 +86,7 @@ untilSuccess () {
         then # ... but not until infinity!
             if [[ ${4} -gt 0 ]]
             then
-                echo ${0}: Give up doing \"${1} -f ${2} ${3} \> /dev/null\".
+                echo ${0}: Give up doing \"${1} -f --cksum md5 ${2} ${3} \> /dev/null\".
                 return 1
             else
                 echo ${0}: Give up doing \"${1} ${2} ${3} \> /dev/null\".
@@ -96,9 +96,9 @@ untilSuccess () {
         TRIES=$((${TRIES}+1))
         if [[ ${4} -gt 0 ]]
         then
-            echo ${0}: WARNING, problems with \"${1} -f ${2} ${3} \> /dev/null\", try again.
+            echo ${0}: WARNING, problems with \"${1} -f --cksum md5 ${2} ${3} \> /dev/null\", try again.
             sleep $((${TRIES}*5)) # for before each wait a litte longer...
-            ${1} -f ${2} ${3} > /dev/null
+            ${1} -f --cksum md5 ${2} ${3} > /dev/null
         else
             echo ${0}: WARNING, problems with \"${1} ${2} ${3} \> /dev/null\", try again.
             sleep $((${TRIES}*5)) # for before each wait a litte longer...
@@ -108,7 +108,7 @@ untilSuccess () {
 
     if [[ ${4} -gt 0 ]]
     then
-        echo successfully executed \"${1} -f ${2} ${3} \> /dev/null\"
+        echo successfully executed \"${1} -f --cksum md5 ${2} ${3} \> /dev/null\"
     else
         echo successfully executed \"${1} ${2} ${3} \> /dev/null\"
     fi

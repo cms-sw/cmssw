@@ -15,9 +15,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include <iostream>
 
-class ConstMagneticField : public MagneticField {
+class ConstMagneticField final : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  ConstMagneticField() { setNominalValue(); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
@@ -46,9 +47,9 @@ Matrix5 buildCovariance(float y) {
 
 // A fake Det class
 
-class MyDet : public GeomDet {
+class MyDet : public TrackerGeomDet {
 public:
-  MyDet(BoundPlane* bp, DetId id) : GeomDet(bp) { setDetId(id); }
+  MyDet(BoundPlane* bp, DetId id) : TrackerGeomDet(bp) { setDetId(id); }
 
   virtual std::vector<const GeomDet*> components() const { return std::vector<const GeomDet*>(); }
 

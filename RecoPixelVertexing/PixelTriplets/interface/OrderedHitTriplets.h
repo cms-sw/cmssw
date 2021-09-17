@@ -8,14 +8,12 @@
 
 class OrderedHitTriplets : public std::vector<OrderedHitTriplet>, public OrderedSeedingHits {
 public:
-
-  ~OrderedHitTriplets() override{}
+  ~OrderedHitTriplets() override {}
 
   unsigned int size() const override { return std::vector<OrderedHitTriplet>::size(); }
 
-  const OrderedHitTriplet & operator[](unsigned int i) const override {
+  const OrderedHitTriplet& operator[](unsigned int i) const override {
     return std::vector<OrderedHitTriplet>::operator[](i);
   }
-
 };
 #endif

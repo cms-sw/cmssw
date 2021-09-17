@@ -34,13 +34,8 @@ namespace edm {
     class EventSetupTestHelper : public eventsetup::DataProxyProvider, public EventSetupRecordIntervalFinder {
     public:
       EventSetupTestHelper(std::vector<ESProduceEntry>);
-
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      void newInterval(const eventsetup::EventSetupRecordKey& iRecordType, const ValidityInterval& iInterval) final;
+      EventSetupTestHelper(const EventSetupTestHelper&) = delete;
+      const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete;
 
       std::shared_ptr<eventsetup::DataProxy> getProxy(unsigned int index);
 
@@ -49,17 +44,12 @@ namespace edm {
     protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
 
-      void registerProxies(const eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) final;
+      KeyedProxiesVector registerProxies(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
 
     private:
-      EventSetupTestHelper(const EventSetupTestHelper&) = delete;  // stop default
-
-      const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete;  // stop default
-
       // ---------- member data --------------------------------
       std::vector<ESProduceEntry> proxies_;
     };
   }  // namespace test
 }  // namespace edm
-
 #endif

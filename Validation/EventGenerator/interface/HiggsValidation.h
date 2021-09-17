@@ -23,7 +23,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -124,7 +123,7 @@ private:
 
   private:
     void fill(std::string s) {
-      size_t pos = s.find("+");
+      size_t pos = s.find('+');
       std::string particle1 = s.substr(0, pos);
       std::string particle2 = s.substr(pos + 1, s.length() - pos);
       std::pair<int, int> decay;

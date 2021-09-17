@@ -11,7 +11,8 @@ else
 fi
 echo 'process.Timing =  cms.Service("Timing")'  >> IntegrationTestWithHLTWithTiming_cfg.py
 echo 'process.load("FWCore/MessageService/MessageLogger_cfi")' >> IntegrationTestWithHLTWithTiming_cfg.py
-echo 'process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")' >> IntegrationTestWithHLTWithTiming_cfg.py 
+echo 'process.MessageLogger.cerr.enable = False' >> IntegrationTestWithHLTWithTiming_cfg.py 
+echo 'process.MessageLogger.files.pyDetailedInfo = dict(extension = "txt")' >> IntegrationTestWithHLTWithTiming_cfg.py 
 
 # build the binary
 oval b

@@ -10,30 +10,28 @@
 namespace edm {
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class DTSuperLayerId;
 
 namespace dtCalibration {
 
-struct DTVDriftData {
-public:
-  DTVDriftData(double vdrift_mean, double vdrift_resolution):
-     vdrift(vdrift_mean),
-     resolution(vdrift_resolution) {}
+  struct DTVDriftData {
+  public:
+    DTVDriftData(double vdrift_mean, double vdrift_resolution) : vdrift(vdrift_mean), resolution(vdrift_resolution) {}
 
-  double vdrift;
-  double resolution;
-}; 
+    double vdrift;
+    double resolution;
+  };
 
-class DTVDriftBaseAlgo {
-public:
-   DTVDriftBaseAlgo();
-   virtual ~DTVDriftBaseAlgo();
-   
-   virtual void setES(const edm::EventSetup& setup) = 0;
-   virtual DTVDriftData compute(const DTSuperLayerId&) = 0;
-}; 
+  class DTVDriftBaseAlgo {
+  public:
+    DTVDriftBaseAlgo();
+    virtual ~DTVDriftBaseAlgo();
 
-} // namespace
+    virtual void setES(const edm::EventSetup& setup) = 0;
+    virtual DTVDriftData compute(const DTSuperLayerId&) = 0;
+  };
+
+}  // namespace dtCalibration
 #endif

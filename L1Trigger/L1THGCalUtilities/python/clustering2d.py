@@ -54,3 +54,10 @@ def create_dummy(process, inputs):
             )
     producer.ProcessorParameters.C2d_parameters = dummy_C2d_params.clone()
     return producer
+
+def create_truth_dummy(process, inputs):
+    producer = process.hgcalBackEndLayer1Producer.clone(
+            InputTriggerCells = cms.InputTag('{}'.format(inputs))
+            )
+    producer.ProcessorParameters.C2d_parameters = dummy_C2d_params.clone()
+    return producer

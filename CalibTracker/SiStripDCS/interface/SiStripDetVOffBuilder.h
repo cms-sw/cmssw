@@ -3,14 +3,12 @@
 #define USING_NEW_CORAL
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMap.h"

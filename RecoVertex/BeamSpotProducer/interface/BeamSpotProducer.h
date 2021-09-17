@@ -17,6 +17,10 @@ ________________________________________________________________**/
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 class BeamSpotProducer : public edm::stream::EDProducer<> {
 public:
@@ -31,6 +35,7 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> m_beamToken;
 };
 
 #endif

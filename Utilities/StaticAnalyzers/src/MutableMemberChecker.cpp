@@ -14,7 +14,7 @@ namespace clangcms {
   void MutableMemberChecker::checkASTDecl(const clang::FieldDecl *D,
                                           clang::ento::AnalysisManager &Mgr,
                                           clang::ento::BugReporter &BR) const {
-    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())
+    if (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>() || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (D->isMutable() && D->getDeclContext()->isRecord()) {
       clang::QualType t = D->getType();

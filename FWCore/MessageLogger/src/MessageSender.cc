@@ -28,6 +28,7 @@
 //
 
 using namespace edm;
+using namespace edm::messagelogger;
 
 namespace {
   //Helper class used as 'key' to the thread safe map storing the
@@ -82,7 +83,7 @@ CMS_THREAD_SAFE static std::vector<
     tbb::concurrent_unordered_map<ErrorSummaryMapKey, AtomicUnsignedInt, ErrorSummaryMapKey::key_hash>>
     errorSummaryMaps;
 
-MessageSender::MessageSender(ELseverityLevel const& sev, ELstring const& id, bool verbatim, bool suppressed)
+MessageSender::MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim, bool suppressed)
     : errorobj_p(suppressed ? nullptr : new ErrorObj(sev, id, verbatim), ErrorObjDeleter()) {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }
@@ -145,6 +146,7 @@ MessageSender::~MessageSender() {}
 // statics can be file scoped rather than class scoped and therefore
 // better encapsulated.
 namespace edm {
+  using namespace messagelogger;
 
   bool EnableLoggedErrorsSummary() {
     bool ret = errorSummaryIsBeingKept.exchange(true, std::memory_order_acq_rel);

@@ -33,11 +33,13 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/Scouting/interface/ScoutingPFJet.h"
-#include "DataFormats/Scouting/interface/ScoutingParticle.h"
-#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "DataFormats/Math/interface/libminifloat.h"
 
 class HLTScoutingPFProducer : public edm::global::EDProducer<> {
 public:
@@ -59,6 +61,8 @@ private:
   const double pfJetPtCut;
   const double pfJetEtaCut;
   const double pfCandidatePtCut;
+  const double pfCandidateEtaCut;
+  const int mantissaPrecision;
 
   const bool doJetTags;
   const bool doCandidates;
@@ -79,12 +83,14 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       pfJetPtCut(iConfig.getParameter<double>("pfJetPtCut")),
       pfJetEtaCut(iConfig.getParameter<double>("pfJetEtaCut")),
       pfCandidatePtCut(iConfig.getParameter<double>("pfCandidatePtCut")),
+      pfCandidateEtaCut(iConfig.getParameter<double>("pfCandidateEtaCut")),
+      mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       doJetTags(iConfig.getParameter<bool>("doJetTags")),
       doCandidates(iConfig.getParameter<bool>("doCandidates")),
       doMet(iConfig.getParameter<bool>("doMet")) {
   //register products
-  produces<ScoutingPFJetCollection>();
-  produces<ScoutingParticleCollection>();
+  produces<Run3ScoutingPFJetCollection>();
+  produces<Run3ScoutingParticleCollection>();
   produces<double>("rho");
   produces<double>("pfMetPt");
   produces<double>("pfMetPhi");
@@ -98,7 +104,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
 
   //get vertices
   Handle<reco::VertexCollection> vertexCollection;
-  std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+  std::unique_ptr<Run3ScoutingVertexCollection> outVertices(new Run3ScoutingVertexCollection());
   if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
     for (auto &vtx : *vertexCollection) {
       outVertices->emplace_back(vtx.x(),
@@ -118,7 +124,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
   Handle<double> rho;
   std::unique_ptr<double> outRho(new double(-999));
   if (iEvent.getByToken(rho_, rho)) {
-    outRho.reset(new double(*rho));
+    outRho = std::make_unique<double>(*rho);
   }
 
   //get MET
@@ -126,16 +132,16 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
   std::unique_ptr<double> outMetPt(new double(-999));
   std::unique_ptr<double> outMetPhi(new double(-999));
   if (doMet && iEvent.getByToken(metCollection_, metCollection)) {
-    outMetPt.reset(new double(metCollection->front().pt()));
-    outMetPhi.reset(new double(metCollection->front().phi()));
+    outMetPt = std::make_unique<double>(metCollection->front().pt());
+    outMetPhi = std::make_unique<double>(metCollection->front().phi());
   }
 
   //get PF candidates
   Handle<reco::PFCandidateCollection> pfCandidateCollection;
-  std::unique_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
+  std::unique_ptr<Run3ScoutingParticleCollection> outPFCandidates(new Run3ScoutingParticleCollection());
   if (doCandidates && iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)) {
     for (auto &cand : *pfCandidateCollection) {
-      if (cand.pt() > pfCandidatePtCut) {
+      if (cand.pt() > pfCandidatePtCut && std::abs(cand.eta()) < pfCandidateEtaCut) {
         int vertex_index = -1;
         int index_counter = 0;
         double dr2 = 0.0001;
@@ -149,14 +155,20 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             break;
           ++index_counter;
         }
-        outPFCandidates->emplace_back(cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index);
+
+        outPFCandidates->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.mass(), mantissaPrecision),
+                                      cand.pdgId(),
+                                      vertex_index);
       }
     }
   }
 
   //get PF jets
   Handle<reco::PFJetCollection> pfJetCollection;
-  std::unique_ptr<ScoutingPFJetCollection> outPFJets(new ScoutingPFJetCollection());
+  std::unique_ptr<Run3ScoutingPFJetCollection> outPFJets(new Run3ScoutingPFJetCollection());
   if (iEvent.getByToken(pfJetCollection_, pfJetCollection)) {
     //get PF jet tags
     Handle<reco::JetTagCollection> pfJetTagCollection;
@@ -166,7 +178,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
     }
 
     for (auto &jet : *pfJetCollection) {
-      if (jet.pt() < pfJetPtCut || fabs(jet.eta()) > pfJetEtaCut)
+      if (jet.pt() < pfJetPtCut || std::abs(jet.eta()) > pfJetEtaCut)
         continue;
       //find the jet tag corresponding to the jet
       float tagValue = -20;
@@ -184,7 +196,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
       std::vector<int> candIndices;
       if (doCandidates) {
         for (auto &cand : jet.getPFConstituents()) {
-          if (cand->pt() > pfCandidatePtCut) {
+          if (cand->pt() > pfCandidatePtCut && std::abs(cand->eta()) < pfCandidateEtaCut) {
             //search for the candidate in the collection
             float minDR2 = 0.0001;
             int matchIndex = -1;
@@ -242,7 +254,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
 void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pfJetCollection", edm::InputTag("hltAK4PFJets"));
-  desc.add<edm::InputTag>("pfJetTagCollection", edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
+  desc.add<edm::InputTag>("pfJetTagCollection", edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF"));
   desc.add<edm::InputTag>("pfCandidateCollection", edm::InputTag("hltParticleFlow"));
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
   desc.add<edm::InputTag>("metCollection", edm::InputTag("hltPFMETProducer"));
@@ -250,6 +262,8 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<double>("pfJetPtCut", 20.0);
   desc.add<double>("pfJetEtaCut", 3.0);
   desc.add<double>("pfCandidatePtCut", 0.6);
+  desc.add<double>("pfCandidateEtaCut", 5.0);
+  desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.add<bool>("doJetTags", true);
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);

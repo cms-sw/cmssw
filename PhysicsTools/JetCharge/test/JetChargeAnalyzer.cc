@@ -9,8 +9,8 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 //#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 

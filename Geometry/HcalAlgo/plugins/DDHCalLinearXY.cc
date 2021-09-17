@@ -5,13 +5,43 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalLinearXY.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 //#define EDM_ML_DEBUG
+
+class DDHCalLinearXY : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalLinearXY();
+  ~DDHCalLinearXY() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  std::string idNameSpace;             //Namespace of this and ALL sub-parts
+  std::vector<std::string> childName;  //Child name
+  int numberX;                         //Number of positioning along X-axis
+  double deltaX;                       //Increment               .........
+  int numberY;                         //Number of positioning along Y-axis
+  double deltaY;                       //Increment               .........
+  std::vector<double> centre;          //Centre
+};
 
 DDHCalLinearXY::DDHCalLinearXY() {
 #ifdef EDM_ML_DEBUG
@@ -80,3 +110,5 @@ void DDHCalLinearXY::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalLinearXY, "hcal:DDHCalLinearXY");

@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -21,8 +20,6 @@
 
 #include <string>
 #include <iostream>
-
-//----------------------------------------------------------------------------------------------------
 
 class TotemTriggerRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -40,12 +37,8 @@ private:
   int ProcessLoneGFrame(uint64_t *oBuf, unsigned long size, TotemTriggerCounters &data);
 };
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace edm;
 using namespace std;
-
-//----------------------------------------------------------------------------------------------------
 
 TotemTriggerRawToDigi::TotemTriggerRawToDigi(const edm::ParameterSet &conf)
     : fedId(conf.getParameter<unsigned int>("fedId")) {
@@ -57,11 +50,7 @@ TotemTriggerRawToDigi::TotemTriggerRawToDigi(const edm::ParameterSet &conf)
   produces<TotemTriggerCounters>();
 }
 
-//----------------------------------------------------------------------------------------------------
-
 TotemTriggerRawToDigi::~TotemTriggerRawToDigi() {}
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemTriggerRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
   // raw data handle
@@ -81,8 +70,6 @@ void TotemTriggerRawToDigi::produce(edm::Event &event, const edm::EventSetup &es
   // commit products to event
   event.put(make_unique<TotemTriggerCounters>(totemTriggerCounters));
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size, TotemTriggerCounters &td) {
   if (size != 20) {
@@ -127,7 +114,5 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemTriggerRawToDigi);

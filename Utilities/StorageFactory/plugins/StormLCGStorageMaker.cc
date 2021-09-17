@@ -14,7 +14,7 @@ class StormLcgGtStorageMaker : public StorageMaker {
   std::string getTURL(const std::string &surl) const {
     // PrepareToGet timeout
     std::string timeout("300");
-    if (char *p = getenv("CMS_STORM_LCG_GT_TIMEOUT"))
+    if (char *p = std::getenv("CMS_STORM_LCG_GT_TIMEOUT"))
       timeout = p;
 
     /* Build the command line:
@@ -43,7 +43,7 @@ class StormLcgGtStorageMaker : public StorageMaker {
       throw cms::Exception("StormLCGStorageMaker") << "no turl found in command '" << comm << "' output:\n" << output;
 
     start += 5;
-    std::string turl(output, start, output.find_first_of("\n", start) - start);
+    std::string turl(output, start, output.find_first_of('\n', start) - start);
     LogDebug("StormLCGStorageMaker") << "file to open: " << turl << std::endl;
     return turl;
   }

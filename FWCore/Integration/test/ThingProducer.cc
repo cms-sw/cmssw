@@ -6,9 +6,9 @@
 
 namespace edmtest {
   ThingProducer::ThingProducer(edm::ParameterSet const& iConfig)
-      : alg_(iConfig.getParameter<int>(
-                 "offsetDelta"),  //this really should be tracked, but I want backwards compatibility
-             iConfig.getParameter<int>("nThings")),
+      : alg_(iConfig.getParameter<int>("offsetDelta"),
+             iConfig.getParameter<int>("nThings"),
+             iConfig.getParameter<bool>("grow")),
         noPut_(iConfig.getUntrackedParameter<bool>("noPut"))  // used for testing with missing products
   {
     evToken_ = produces<ThingCollection>();
@@ -101,7 +101,9 @@ namespace edmtest {
             "How much extra to increment the value used when creating Things for a new container. E.g. the last value "
             "used to create Thing from the previous event is incremented by 'offsetDelta' to compute the value to use "
             "of the first Thing created in the next Event.");
-    desc.add<int>("nThings", 20)->setComment("How many Things to put in each collection");
+    desc.add<int>("nThings", 20)->setComment("How many Things to put in each collection.");
+    desc.add<bool>("grow", false)
+        ->setComment("If true, multiply 'nThings' by the value of offset for each run of the algorithm.");
     desc.addUntracked<bool>("noPut", false)
         ->setComment("If true, data is not put into the Principal. This is used to test missing products.");
     descriptions.add("thingProd", desc);

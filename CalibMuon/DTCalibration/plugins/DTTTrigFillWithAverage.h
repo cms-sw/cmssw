@@ -20,35 +20,35 @@ class DTGeometry;
 
 namespace dtCalibration {
 
-class DTTTrigFillWithAverage: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigFillWithAverage(const edm::ParameterSet&);
+  class DTTTrigFillWithAverage : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigFillWithAverage(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTTTrigFillWithAverage() override;
+    // Destructor
+    ~DTTTrigFillWithAverage() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  void getAverage();
+  private:
+    void getAverage();
 
-  const DTTtrig *tTrigMap_;
-  edm::ESHandle<DTGeometry> muonGeom_;
+    const DTTtrig* tTrigMap_;
+    edm::ESHandle<DTGeometry> muonGeom_;
 
-  std::string dbLabel;
+    std::string dbLabel;
 
-  struct {
-    float aveMean;
-    float rmsMean;
-    float aveSigma;
-    float rmsSigma;
-    float aveKFactor;
-  } initialTTrig_;
+    struct {
+      float aveMean;
+      float rmsMean;
+      float aveSigma;
+      float rmsSigma;
+      float aveKFactor;
+    } initialTTrig_;
 
-  bool foundAverage_; 
-};
+    bool foundAverage_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

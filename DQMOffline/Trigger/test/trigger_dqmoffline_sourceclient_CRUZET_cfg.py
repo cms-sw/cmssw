@@ -30,15 +30,8 @@ process.load("DQMOffline.Trigger.HLT_DQM_Offline_cff")
 #process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-#process.hltmonitor = cms.Sequence(hltResults)
-#hltResults.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
-#hltResults.triggerResultsLabel = cms.InputTag("TriggerResults","","HLT")
-#
 #from DQMOffline.Trigger.HLTEventInfoClient_cfi import *
 #process.hltEInfoclient = cms.Sequence(hltEventInfoClient)
-#
-
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -161,4 +154,3 @@ process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 
-process.DQMStore.referenceFileName = 'DQMOffline/Trigger/test/DQM_V0001_HLTOffline_R000000001_RelValZeeZmmMinBias.root'

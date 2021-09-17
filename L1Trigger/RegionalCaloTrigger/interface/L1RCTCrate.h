@@ -12,6 +12,8 @@ class L1RCTCrate {
 public:
   L1RCTCrate(int crtNo, const L1RCTLookupTables *rctLookupTables);
 
+  L1RCTCrate() = delete;
+
   ~L1RCTCrate();
 
   int crateNumber() { return crtNo; }
@@ -76,8 +78,6 @@ private:
 
   int crtNo;
   const L1RCTLookupTables *rctLookupTables_;
-
-  L1RCTCrate() = delete;
 
   // L1RCTJetCaptureCard jetCaptureCard;
 };

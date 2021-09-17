@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DBGeometryTest")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('CondCore.DBCommon.CondDBSetup_cfi')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                             tag = cms.string('XMLFILE_Geometry_TagXX_Extended2015_mc'),
-                                             connect = cms.untracked.string('sqlite_file:./myfile.db')
+                                             tag = cms.string('XMLFILE_Geometry_Extended_TagXX'),
+                                             connect = cms.string('sqlite_file:./myfile.db')
                                              )
                                     )
 
@@ -41,20 +41,28 @@ process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer",
                              )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    readDBerrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'),
-                                                                          extension = cms.untracked.string('.out')
-                                                                          ),
-                                    readDBdebug = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         extension = cms.untracked.string('.out'),
-                                                                         noLineBreaks = cms.untracked.bool(True),
-                                                                         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         threshold = cms.untracked.string('DEBUG'),
-                                                                         ),
-                                    # For LogDebug/LogTrace output...
-                                    debugModules = cms.untracked.vstring('*'),
-                                    categories = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('readDBerrors','readDBdebug')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        readDBdebug = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            extension = cms.untracked.string('.out'),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        readDBerrors = cms.untracked.PSet(
+            extension = cms.untracked.string('.out'),
+            threshold = cms.untracked.string('ERROR')
+        )
+    )
+)
 
 process.Timing = cms.Service("Timing")
 

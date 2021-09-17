@@ -27,7 +27,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -46,9 +45,7 @@ public:
   ~HcalNoiseRates() override;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   std::string outputFile_;

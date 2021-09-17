@@ -116,22 +116,22 @@ namespace edm {
 
     template <typename T, typename U>
     ParameterDescriptionBase* add(U const& iLabel) {
-      return add<T, U>(iLabel, true, false, false);
+      return add<T, U>(iLabel, true, false, true);
     }
 
     template <typename T, typename U>
     ParameterDescriptionBase* addUntracked(U const& iLabel) {
-      return add<T, U>(iLabel, false, false, false);
+      return add<T, U>(iLabel, false, false, true);
     }
 
     template <typename T, typename U>
     ParameterDescriptionBase* addOptional(U const& iLabel) {
-      return add<T, U>(iLabel, true, true, false);
+      return add<T, U>(iLabel, true, true, true);
     }
 
     template <typename T, typename U>
     ParameterDescriptionBase* addOptionalUntracked(U const& iLabel) {
-      return add<T, U>(iLabel, false, true, false);
+      return add<T, U>(iLabel, false, true, true);
     }
 
     // ***** Use these 8 functions for parameters of type vector<ParameterSet> *****
@@ -175,22 +175,22 @@ namespace edm {
 
     template <typename U>
     ParameterDescriptionBase* addVPSet(U const& iLabel, ParameterSetDescription const& validator) {
-      return addVPSet<U>(iLabel, validator, true, false, false);
+      return addVPSet<U>(iLabel, validator, true, false, true);
     }
 
     template <typename U>
     ParameterDescriptionBase* addVPSetUntracked(U const& iLabel, ParameterSetDescription const& validator) {
-      return addVPSet<U>(iLabel, validator, false, false, false);
+      return addVPSet<U>(iLabel, validator, false, false, true);
     }
 
     template <typename U>
     ParameterDescriptionBase* addVPSetOptional(U const& iLabel, ParameterSetDescription const& validator) {
-      return addVPSet<U>(iLabel, validator, true, true, false);
+      return addVPSet<U>(iLabel, validator, true, true, true);
     }
 
     template <typename U>
     ParameterDescriptionBase* addVPSetOptionalUntracked(U const& iLabel, ParameterSetDescription const& validator) {
-      return addVPSet<U>(iLabel, validator, false, true, false);
+      return addVPSet<U>(iLabel, validator, false, true, true);
     }
 
     // ********* Wildcards *********

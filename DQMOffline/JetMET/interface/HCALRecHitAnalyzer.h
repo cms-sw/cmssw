@@ -21,8 +21,8 @@
 
 #include <string>
 #include <map>
-#include "DQMServices/Core/interface/MonitorElement.h"
-
+class CaloGeometry;
+class CaloGeometryRecord;
 class HCALRecHitAnalyzer : public DQMEDAnalyzer {
 public:
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
@@ -38,6 +38,7 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> hBHERecHitsLabel_;
   edm::EDGetTokenT<HFRecHitCollection> hFRecHitsLabel_;
   edm::EDGetTokenT<HORecHitCollection> hORecHitsLabel_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   bool debug_;
   bool finebinning_;
   std::string FolderName_;

@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -34,10 +33,11 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
-
 class HLTInclusiveVBFClient : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
 private:
   DQMStore* dbe_;  //dbe seems to be the standard name for this, I dont know why. We of course dont own it
 
@@ -54,8 +54,6 @@ public:
   explicit HLTInclusiveVBFClient(const edm::ParameterSet&);
   ~HLTInclusiveVBFClient() override;
 
-  void beginJob() override;
-  void endJob() override;
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;

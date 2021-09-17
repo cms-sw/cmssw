@@ -89,7 +89,6 @@ private:
 
     //adjustable configuration
     bool doCollisions;
-    bool enlarge;
     float dRMax;
     float dPhiMax;
     float dRIntMax;
@@ -162,7 +161,6 @@ private:
   float wideSeg;
   int minLayersApart;
   bool debugInfo;
-  bool enlarge;
 };
 
 #endif

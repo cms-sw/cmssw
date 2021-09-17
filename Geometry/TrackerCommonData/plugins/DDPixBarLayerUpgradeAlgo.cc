@@ -3,18 +3,64 @@
 // Description: Make one layer of pixel barrel detector for Upgrading.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDPixBarLayerUpgradeAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDPixBarLayerUpgradeAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDPixBarLayerUpgradeAlgo();
+  ~DDPixBarLayerUpgradeAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;     //Namespace of this and ALL sub-parts
+  string genMat;          //Name of general material
+  int number;             //Number of ladders in phi
+  double layerDz;         //Length of the layer
+  double coolDz;          //Length of the cooling piece
+  double coolThick;       //Thickness of the shell
+  double coolRadius;      //Cool tube external radius
+  double coolDist;        //Radial distance between centres of 2
+  double cool1Offset;     //cooling pipe 1 offset for ladder at interface
+  double cool2Offset;     //cooling pipe 2 offset for ladder at interface
+  string coolMat;         //Cooling fluid material name
+  string tubeMat;         //Cooling piece material name
+  string coolMatHalf;     //Cooling fluid material name
+  string tubeMatHalf;     //Cooling piece material name
+  string ladder;          //Name  of ladder
+  double ladderWidth;     //Width of ladder
+  double ladderThick;     //Thicknes of ladder
+  double ladderOffset;    //ladder dispacement at interface
+  int outerFirst;         //Controller of the placement of ladder
+  double phiFineTune;     //Fine-tuning pitch of first ladder
+  double rOuterFineTune;  //Fine-tuning r offset for outer ladders
+  double rInnerFineTune;  //Fine-tuning r offset for inner ladders
+};
 
 DDPixBarLayerUpgradeAlgo::DDPixBarLayerUpgradeAlgo() {
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo info: Creating an instance";
@@ -66,7 +112,7 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments& nArgs,
 
 void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDName mother = parent().name();
-  const std::string& idName = mother.name();
+  const string& idName = mother.name();
 
   double dphi = CLHEP::twopi / number;
   double x2 = coolDist * sin(0.5 * dphi);
@@ -82,7 +128,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
   // Full Tubes
-  std::string name = idName + "CoolTube";
+  string name = idName + "CoolTube";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5 * coolDz, 0, coolRadius, 0, CLHEP::twopi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << solid.name() << " Tubs made of " << tubeMat
                         << " from 0 to " << CLHEP::twopi / CLHEP::deg << " with Rout " << coolRadius << " ZHalf "
@@ -129,7 +175,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   for (int i = 1; i < number + 1; i++) {
     double phi = i * dphi + 90 * CLHEP::deg - 0.5 * dphi + phiFineTune;  //to start with the interface ladder
     double phix, phiy, rrr, rrroffset;
-    std::string rots;
+    string rots;
     DDTranslation tran;
     DDRotation rot;
     iup = -iup;
@@ -145,7 +191,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
       rrr = coolDist * cos(0.5 * dphi) + iup * dr + rInnerFineTune;
     }
     tran = DDTranslation(rrr * cos(phi), rrr * sin(phi), 0);
-    rots = idName + std::to_string(copy);
+    rots = idName + to_string(copy);
     if (iup > 0)
       phix = phi - 90 * CLHEP::deg;
     else
@@ -160,7 +206,7 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
                           << layer.name() << " at " << tran << " with " << rot;
     copy++;
     rrr = coolDist * cos(0.5 * dphi) + coolRadius / 2.;
-    rots = idName + std::to_string(i + 100);
+    rots = idName + to_string(i + 100);
     phix = phi + 90. * CLHEP::deg;
     if (iup < 0)
       phix += dphi;
@@ -186,3 +232,5 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
                           << " positioned in " << layer.name() << " at " << tran << " with " << rot;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDPixBarLayerUpgradeAlgo, "track:DDPixBarLayerUpgradeAlgo");

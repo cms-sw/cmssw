@@ -19,7 +19,7 @@
 // $Id: L1RPCConfigRcd.h,v 1.1 2007/03/23 14:36:40 wsun Exp $
 //
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -29,7 +29,6 @@
 //class L1RPCConfigRcd : public edm::eventsetup::EventSetupRecordImplementation<L1RPCConfigRcd> {};
 class L1RPCConfigRcd
     : public edm::eventsetup::DependentRecordImplementation<L1RPCConfigRcd,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
-};
+                                                            edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {};
 
 #endif

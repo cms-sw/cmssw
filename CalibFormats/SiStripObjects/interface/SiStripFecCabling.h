@@ -6,10 +6,10 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 class SiStripFecCabling;
 

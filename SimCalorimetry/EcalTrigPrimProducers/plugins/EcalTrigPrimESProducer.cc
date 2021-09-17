@@ -318,7 +318,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
   std::string fString;
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/" + dbFilename_;
   std::string finalFileName;
-  size_t slash = dbFilename_.find("/");
+  size_t slash = dbFilename_.find('/');
   if (slash != 0) {
     edm::FileInPath fileInPath(filename);
     finalFileName = fileInPath.fullPath();

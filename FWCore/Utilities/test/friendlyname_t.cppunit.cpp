@@ -33,9 +33,59 @@ void testfriendlyName::test() {
   typedef std::pair<std::string, std::string> Values;
   std::map<std::string, std::string> classToFriendly;
   classToFriendly.insert(Values("Foo", "Foo"));
+  classToFriendly.insert(Values("const Foo", "constFoo"));
   classToFriendly.insert(Values("bar::Foo", "barFoo"));
   classToFriendly.insert(Values("std::vector<Foo>", "Foos"));
   classToFriendly.insert(Values("std::vector<bar::Foo>", "barFoos"));
+  classToFriendly.insert(Values("std::set<bar::Foo>", "barFoostdset"));
+  classToFriendly.insert(Values("std::map<Foo, bar::Bar>", "FoobarBarstdmap"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo>", "barFoostduset"));
+  classToFriendly.insert(Values("std::unordered_set<std::basic_string<char>>", "Stringstduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, std::hash<std::basic_string<char>>>", "Stringstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, std::hash<bar::Foo>, std::equal_to<bar::Foo>>", "barFoostduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, std::hash<std::basic_string<char>>, "
+             "std::equal_to<std::basic_string<char>>>",
+             "Stringstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<bar::Foo, CustomHash, std::equal_to<bar::Foo>>", "barFooCustomHashstduset"));
+  classToFriendly.insert(
+      Values("std::unordered_set<std::basic_string<char>, CustomHash, std::equal_to<std::basic_string<char>>>",
+             "StringCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_set<bar::Foo, CustomHash>", "barFooCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_set<std::basic_string<char>, CustomHash>", "StringCustomHashstduset"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar>", "FoobarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<std::basic_string<char>, bar::Bar>", "StringbarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>>", "FooStringstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char> , bar::Bar, std::hash<std::basic_string<char> > >",
+             "StringbarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, std::basic_string<char> , std::hash<Foo>>", "FooStringstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, std::hash<Foo>, std::equal_to<Foo>>", "FoobarBarstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char>, bar::Bar, std::hash<std::basic_string<char>>, "
+             "std::equal_to<std::basic_string<char>>>",
+             "StringbarBarstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>, std::hash<Foo>, std::equal_to<Foo>>",
+                                "FooStringstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, bar::Bar, CustomHash, std::equal_to<Foo>>", "FoobarBarCustomHashstdumap"));
+  classToFriendly.insert(Values(
+      "std::unordered_map<std::basic_string<char>, bar::Bar, CustomHash, std::equal_to<std::basic_string<char>>>",
+      "StringbarBarCustomHashstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, std::basic_string<char>, CustomHash, std::equal_to<Foo>>",
+                                "FooStringCustomHashstdumap"));
+  classToFriendly.insert(Values("std::unordered_map<Foo, bar::Bar, CustomHash>", "FoobarBarCustomHashstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<std::basic_string<char>, bar::Bar, CustomHash>", "StringbarBarCustomHashstdumap"));
+  classToFriendly.insert(
+      Values("std::unordered_map<Foo, std::basic_string<char>, CustomHash>", "FooStringCustomHashstdumap"));
   classToFriendly.insert(Values("std::shared_ptr<Foo>", "FooSharedPtr"));
   classToFriendly.insert(Values("std::shared_ptr<bar::Foo>", "barFooSharedPtr"));
   classToFriendly.insert(Values("std::basic_string<char>", "String"));
@@ -49,7 +99,31 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::__cxx11::vector<std::__cxx11::basic_string<char>>", "Strings"));
   classToFriendly.insert(Values("std::unique_ptr<Foo>", "FooUniquePtr"));
   classToFriendly.insert(Values("std::unique_ptr<bar::Foo>", "barFooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo>", "constFooUniquePtr"));
+  classToFriendly.insert(Values("const std::unique_ptr<Foo>", "FooconstUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<Foo,std::default_delete<Foo>>", "FooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo, std::default_delete<const Foo>>", "constFooUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::unique_ptr<Bar,std::default_delete<Bar>>,std::default_delete<std::unique_ptr<Bar,"
+             "std::default_delete<Bar>>>>",
+             "BarUniquePtrUniquePtr"));
   classToFriendly.insert(Values("std::vector<std::unique_ptr<bar::Foo>>", "barFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>", "barFooUniquePtrs"));
+  classToFriendly.insert(Values("std::vector<std::unique_ptr<const Foo>>", "constFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>>", "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>>",
+             "barFooUniquePtrsUniquePtr"));
   classToFriendly.insert(Values("V<A,B>", "ABV"));
   classToFriendly.insert(Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>",
                                 "recoSuperClustersrecoSuperClusterRefProdsedmExtCollection"));
@@ -138,6 +212,11 @@ void testfriendlyName::test() {
              ">,edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,"
              "unsigned int> >::Find>",
              "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
+  classToFriendly.insert(
+      Values("edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<"
+             "SiPixelCluster>::FindForDetSetVector> >",
+             "SiPixelClusteredmNewDetSetVectorSiPixelClusterSiPixelClusteredmNewDetSetVectorFindForDetSetVectoredmRefed"
+             "mNewDetSetVector"));
   classToFriendly.insert(
       Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>", "constpatMuonptrTLorentzVectorstdpairs"));
   classToFriendly.insert(Values("int[]", "intAs"));

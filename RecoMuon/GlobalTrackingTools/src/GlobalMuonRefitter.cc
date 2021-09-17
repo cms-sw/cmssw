@@ -105,15 +105,15 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
         << "\n"
         << "RefitDirection = insideOut or RefitDirection = outsideIn";
 
-  theFitterName = par.getParameter<string>("Fitter");
+  theFitterToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<string>("Fitter")));
   thePropagatorName = par.getParameter<string>("Propagator");
 
   theSkipStation = par.getParameter<int>("SkipStation");
   theTrackerSkipSystem = par.getParameter<int>("TrackerSkipSystem");
   theTrackerSkipSection = par.getParameter<int>("TrackerSkipSection");  //layer, wheel, or disk depending on the system
 
-  theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
+  theTrackerRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<string>("TrackerRecHitBuilder")));
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<string>("MuonRecHitBuilder")));
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
@@ -161,17 +161,15 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 }
 
 void GlobalMuonRefitter::setServices(const EventSetup& setup) {
-  edm::ESHandle<TrajectoryFitter> aFitter;
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName, aFitter);
-  theFitter = aFitter->clone();
+  theFitter = setup.getData(theFitterToken).clone();
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
   if (newCacheId_TRH != theCacheId_TRH) {
     LogDebug(theCategory) << "TransientRecHitRecord changed!";
-    setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
+    theTrackerRecHitBuilder = &setup.getData(theTrackerRecHitBuilderToken);
+    theMuonRecHitBuilder = &setup.getData(theMuonRecHitBuilderToken);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder)->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
 }
@@ -188,7 +186,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 
   reco::TransientTrack track(globalTrack, &*(theService->magneticField()), theService->trackingGeometry());
 
-  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder);
 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if ((*hit)->isValid()) {

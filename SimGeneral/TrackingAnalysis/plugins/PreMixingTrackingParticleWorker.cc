@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -14,9 +14,7 @@
 
 class PreMixingTrackingParticleWorker : public PreMixingWorker {
 public:
-  PreMixingTrackingParticleWorker(const edm::ParameterSet &ps,
-                                  edm::ProducerBase &producer,
-                                  edm::ConsumesCollector &&iC);
+  PreMixingTrackingParticleWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingTrackingParticleWorker() override = default;
 
   void initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
@@ -45,14 +43,14 @@ private:
 };
 
 PreMixingTrackingParticleWorker::PreMixingTrackingParticleWorker(const edm::ParameterSet &ps,
-                                                                 edm::ProducerBase &producer,
+                                                                 edm::ProducesCollector producesCollector,
                                                                  edm::ConsumesCollector &&iC)
     : TrackSigToken_(iC.consumes<std::vector<TrackingParticle>>(ps.getParameter<edm::InputTag>("labelSig"))),
       VtxSigToken_(iC.consumes<std::vector<TrackingVertex>>(ps.getParameter<edm::InputTag>("labelSig"))),
       TrackingParticlePileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
       TrackingParticleCollectionDM_(ps.getParameter<std::string>("collectionDM")) {
-  producer.produces<std::vector<TrackingParticle>>(TrackingParticleCollectionDM_);
-  producer.produces<std::vector<TrackingVertex>>(TrackingParticleCollectionDM_);
+  producesCollector.produces<std::vector<TrackingParticle>>(TrackingParticleCollectionDM_);
+  producesCollector.produces<std::vector<TrackingVertex>>(TrackingParticleCollectionDM_);
 }
 
 void PreMixingTrackingParticleWorker::initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) {

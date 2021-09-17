@@ -23,6 +23,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace trigger {
   class TriggerEvent;
@@ -32,8 +33,6 @@ namespace reco {
   class MET;
 }  // namespace reco
 
-class DQMStore;
-class MonitorElement;
 class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
 public:
   EwkMuLumiMonitorDQM(const edm::ParameterSet&);
@@ -41,7 +40,6 @@ public:
   //Book histograms
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
   double muIso(const reco::Muon&);

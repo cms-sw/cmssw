@@ -25,8 +25,6 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <boost/spirit/include/classic_core.hpp>
-#include <boost/spirit/include/classic_push_back_actor.hpp>
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations

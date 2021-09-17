@@ -1,5 +1,5 @@
-#ifndef CSCCFEBData_h
-#define CSCCFEBData_h
+#ifndef EventFilter_CSCRawToDigi_CSCCFEBData_h
+#define EventFilter_CSCRawToDigi_CSCCFEBData_h
 
 class CSCCFEBTimeSlice;
 class CSCStripDigi;

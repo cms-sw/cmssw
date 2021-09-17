@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
@@ -46,8 +46,12 @@ namespace edm {
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
         processParameterSet_() {
     // Add the products to the product registry
-    productRegistry.copyProduct(eventProductBranchDescription_);
-    productRegistry.copyProduct(runProductBranchDescription_);
+    auto ep = eventProductBranchDescription_;
+    ep.setIsProvenanceSetOnRead();
+    productRegistry.copyProduct(ep);
+    auto rp = runProductBranchDescription_;
+    rp.setIsProvenanceSetOnRead();
+    productRegistry.copyProduct(rp);
   }
 
   ParameterSet LHEProvenanceHelper::fillCommonProcessParameterSet() {

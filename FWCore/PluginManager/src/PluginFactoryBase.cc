@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <cassert>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
@@ -57,7 +58,7 @@ namespace edmplugin {
 
   void PluginFactoryBase::newPlugin(const std::string& iName) {
     PluginInfo info;
-    info.loadable_ = boost::filesystem::path(PluginManager::loadingFile());
+    info.loadable_ = std::filesystem::path(PluginManager::loadingFile());
     info.name_ = iName;
     newPluginAdded_(category(), info);
   }
@@ -73,6 +74,10 @@ namespace edmplugin {
             << "The plugin '" << iName << "' should have been in loadable\n '" << lib
             << "'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh " << lib
             << "'";
+      }
+      //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+      auto const& value = itFound->second.front();
+      while (value.m_ptr.load(std::memory_order_acquire) == nullptr) {
       }
     } else {
       //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last

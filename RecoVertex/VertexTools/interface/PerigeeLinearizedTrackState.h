@@ -7,8 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "Math/SMatrix.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /** Calculates and stores the ImpactPointMeasurement of the
  *  impact point (point of closest approach in 3D) to the
@@ -175,8 +174,8 @@ private:
  *  of the measurement equation
  */
 inline const AlgebraicVector5& PerigeeLinearizedTrackState::constantTerm() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return theConstantTerm;
 }
 
@@ -184,8 +183,8 @@ inline const AlgebraicVector5& PerigeeLinearizedTrackState::constantTerm() const
  * Method returning the Position Jacobian (Matrix A)
  */
 inline const AlgebraicMatrix53& PerigeeLinearizedTrackState::positionJacobian() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return thePositionJacobian;
 }
 
@@ -193,16 +192,16 @@ inline const AlgebraicMatrix53& PerigeeLinearizedTrackState::positionJacobian() 
  * Method returning the Momentum Jacobian (Matrix B)
  */
 inline const AlgebraicMatrix53& PerigeeLinearizedTrackState::momentumJacobian() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return theMomentumJacobian;
 }
 
 /** Method returning the parameters of the Taylor expansion
  */
 inline const AlgebraicVector5& PerigeeLinearizedTrackState::parametersFromExpansion() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return theExpandedParams;
 }
 
@@ -211,14 +210,14 @@ inline const AlgebraicVector5& PerigeeLinearizedTrackState::parametersFromExpans
  * of closest approch to the z-axis (a.k.a. transverse impact point)
  */
 inline const TrajectoryStateClosestToPoint& PerigeeLinearizedTrackState::predictedState() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return thePredState;
 }
 
 inline bool PerigeeLinearizedTrackState::hasError() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return thePredState.hasError();
 }
 
@@ -229,15 +228,15 @@ inline AlgebraicVector5 PerigeeLinearizedTrackState::predictedStateParameters() 
 }
 
 inline AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   auto v = thePredState.perigeeParameters().vector();
   return AlgebraicVector3(v[0], v[1], v[2]);
 }
 
 inline AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int& error) const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   if (!thePredState.isValid()) {
     error = 1;
     return AlgebraicSymMatrix55();
@@ -246,22 +245,22 @@ inline AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(in
 }
 
 inline AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return thePredState.perigeeError().covarianceMatrix();
 }
 
 inline AlgebraicSymMatrix33 PerigeeLinearizedTrackState::predictedStateMomentumError() const {
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return thePredState.perigeeError().covarianceMatrix().Sub<AlgebraicSymMatrix33>(0, 2);
 }
 
 inline bool PerigeeLinearizedTrackState::isValid() const {
-  if
-    UNLIKELY(!theTSOS.isValid()) return false;
-  if
-    UNLIKELY(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY (!theTSOS.isValid())
+    return false;
+  if UNLIKELY (!jacobiansAvailable)
+    computeJacobians();
   return jacobiansAvailable;
 }
 

@@ -7,8 +7,9 @@ from past.builtins import long
 import codecs
 import copy
 import math
-import six
-from six.moves import builtins
+import builtins
+
+_builtin_bool = bool
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -33,6 +34,170 @@ class _Untracked(object):
 untracked = _Untracked()
 
 
+class _ProxyParameter(_ParameterTypeBase):
+    """Base class for Parameters which are proxies for other Parameter types"""
+    def __init__(self,type):
+        super(_ProxyParameter,self).__init__()
+        self.__dict__["_ProxyParameter__type"] = type
+        self.__dict__["_ProxyParameter__value"] = None
+    def setValue(self, value):
+        v = self.__type(value)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        self.__dict__["_ProxyParameter__value"] = v
+    def __getattr__(self, name):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if name == '_ProxyParameter__value':
+            return v
+        if (not name.startswith('_')) and v is not None:
+            return getattr(v, name)
+        else:
+            return object.__getattribute__ (self, name)
+    def __setattr__(self,name, value):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return setattr(v,name,value)
+        else:
+            if not name.startswith('_'):
+                 raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, name))
+            return object.__setattr__(self, name, value)
+    def __bool__(self):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        return _builtin_bool(v)
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        specialImportRegistry.registerUse(self)
+        v = "cms."+self._dumpPythonName()
+        if not _ParameterTypeBase.isTracked(self):
+            v+=".untracked"
+        if hasattr(self.__type, "__name__"):
+            return v+'.'+self.__type.__name__
+        return v+'.'+self.__type.dumpPython(options)
+    def validate_(self,value):
+        return isinstance(value,self.__type)
+    def convert_(self,value):
+        v = self.__type(value)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        return v
+    def isCompatibleCMSType(self,aType):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.isCompatibleCMSType(aType)
+        return self.__type == aType
+
+class _RequiredParameter(_ProxyParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'required'
+    def insertInto(self, parameterSet, myname):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is None:
+            raise RuntimeError("Required parameter "+myname+" was not set")
+        v.insertInto(parameterSet,myname)
+
+class _OptionalParameter(_ProxyParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'optional'
+    def insertInto(self, parameterSet, myname):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            v.insertInto(parameterSet,myname)
+    def value(self):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.value()
+        return None
+
+class _ObsoleteParameter(_OptionalParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'obsolete'
+
+class _AllowedParameterTypes(object):
+    def __init__(self, *args):
+        self.__dict__['_AllowedParameterTypes__types'] = args
+        self.__dict__['_AllowedParameterTypes__value'] = None
+        self.__dict__['__name__'] = self.dumpPython()
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        specialImportRegistry.registerUse(self)
+        return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
+    def __call__(self,value):
+        chosenType = None
+        for t in self.__types:
+            if isinstance(value, t):
+                return value
+            if (not issubclass(t,PSet)) and t._isValid(value):
+                if chosenType is not None:
+                    raise RuntimeError("Ambiguous type conversion for 'allowed' parameter")
+                chosenType = t
+        if chosenType is None:
+            raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
+        return chosenType(value)
+
+class _PSetTemplate(object):
+    def __init__(self, *args, **kargs):
+        self._pset = PSet(*args,**kargs)
+        self.__dict__['_PSetTemplate__value'] = None
+    def __call__(self, value):
+        self.__dict__
+        return self._pset.clone(**value)
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        return "PSetTemplate(\n"+_Parameterizable.dumpPython(self._pset, options)+options.indentation()+")"
+
+
+class _ProxyParameterFactory(object):
+    """Class type for ProxyParameter types to allow nice syntax"""
+    def __init__(self, type, isUntracked = False):
+        self.__isUntracked = isUntracked
+        self.__type = type
+    def __getattr__(self,name):
+        if name[0] == '_':
+            return object.__getattribute__(self,name)
+        if name == 'untracked':
+            return _ProxyParameterFactory(self.__type,isUntracked=True)
+        if name == 'allowed':
+            class _AllowedWrapper(object):
+                def __init__(self, untracked, type):
+                    self.untracked = untracked
+                    self.type = type
+                def __call__(self, *args):
+                    if self.untracked:
+                        return untracked(self.type(_AllowedParameterTypes(*args)))
+                    return self.type(_AllowedParameterTypes(*args))
+            
+            return _AllowedWrapper(self.__isUntracked, self.__type)
+        if name == 'PSetTemplate':
+            class _PSetTemplateWrapper(object):
+                def __init__(self, untracked, type):
+                    self.untracked = untracked
+                    self.type = type
+                def __call__(self,*args,**kargs):
+                    if self.untracked:
+                        return untracked(self.type(_PSetTemplate(*args,**kargs)))
+                    return self.type(_PSetTemplate(*args,**kargs))
+            return _PSetTemplateWrapper(self.__isUntracked, self.__type)
+
+        type = globals()[name]
+        if not issubclass(type, _ParameterTypeBase):
+            raise AttributeError
+        if self.__isUntracked:
+                return untracked(self.__type(type))
+        return self.__type(type)
+
+required = _ProxyParameterFactory(_RequiredParameter)
+optional = _ProxyParameterFactory(_OptionalParameter)
+obsolete = _ProxyParameterFactory(_ObsoleteParameter)
+
 class int32(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
@@ -47,6 +212,8 @@ class int32(_SimpleParameterTypeBase):
         parameterSet.addInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class uint32(_SimpleParameterTypeBase):
@@ -64,6 +231,8 @@ class uint32(_SimpleParameterTypeBase):
         parameterSet.addUInt32(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()!=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 
@@ -194,6 +363,8 @@ class string(_SimpleParameterTypeBase):
         parameterSet.addString(self.isTracked(), myname, value)
     def __nonzero__(self):
         return len(self.value()) !=0
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class EventID(_ParameterTypeBase):
@@ -490,22 +661,22 @@ class InputTag(_ParameterTypeBase):
         return True
     def __eq__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) ==
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __ne__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) !=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __lt__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) <
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __gt__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) >
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __le__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) <=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
     def __ge__(self,other):
         return ((self.__moduleLabel,self.__productInstance,self.__processName) >=
-                (other.__moduleLabel,other.__productInstance,other.__processName))
+                (other.moduleLabel,other.productInstanceLabel,other.processName))
 
 
     def value(self):
@@ -518,15 +689,29 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    @staticmethod
+    def _stringFromArgument(arg):
+        if isinstance(arg, InputTag):
+            return arg
+        elif isinstance(arg, str):
+            if arg.count(":") > 2:
+                raise RuntimeError("InputTag may have at most 3 elements")
+            return arg
+        else:
+            if len(arg) > 3:
+                raise RuntimeError("InputTag may have at most 3 elements")
+            return ":".join(arg)
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
     def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
-        self.__moduleLabel = moduleLabel
+        self.__moduleLabel = InputTag._stringFromArgument(moduleLabel)
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-        if -1 != moduleLabel.find(":"):
-            toks = moduleLabel.split(":")
+        if -1 != self.__moduleLabel.find(":"):
+            toks = self.__moduleLabel.split(":")
+            if len(toks) > 3:
+                raise RuntimeError("InputTag may have at most 3 elements")
             self.__moduleLabel = toks[0]
             if len(toks) > 1:
                 self.__productInstance = toks[1]
@@ -596,22 +781,36 @@ class ESInputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return ESInputTag(*parts)
+    @staticmethod
+    def _stringFromArgument(arg, dataLabel=None):
+        if isinstance(arg, ESInputTag):
+            return arg
+        elif isinstance(arg, str):
+            if arg:
+                cnt = arg.count(":")
+                if dataLabel is None and cnt == 0:
+                    raise RuntimeError("ESInputTag passed one string '"+str(arg)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
+                elif arg.count(":") >= 2:
+                    raise RuntimeError("an ESInputTag was passed the value'"+arg+"' which contains more than one ':'")
+            return arg
+        else:
+            if len(arg) > 2 or len(arg) == 1:
+                raise RuntimeError("ESInputTag must have either 2 or 0 elements")
+            if len(arg) == 2:
+                return ":".join(arg)
+            return ":"
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
     def _setValues(self,moduleLabel='',dataLabel=None):
-        self.__moduleLabel = moduleLabel
+        self.__moduleLabel = ESInputTag._stringFromArgument(moduleLabel, dataLabel)
         self.__data = dataLabel
         if dataLabel is None:
-            if moduleLabel:
-                if  -1 == moduleLabel.find(":"):
-                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
-                toks = moduleLabel.split(":")
+            if self.__moduleLabel:
+                toks = self.__moduleLabel.split(":")
                 self.__moduleLabel = toks[0]
                 if len(toks) > 1:
                     self.__data = toks[1]
-                if len(toks) > 2:
-                    raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
             else:
                 self.__data = ''
             
@@ -677,6 +876,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     @staticmethod
     def _isValid(value):
         return True
+    def setValue(self,value):
+        if isinstance(value,dict):
+            for k,v in value.items():
+                setattr(self,k,v)
 
     def configValue(self, options=PrintOptions()):
         config = '{ \n'
@@ -689,9 +892,16 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def clone(self, **params):
         myparams = self.parameters_()
+        if "allowAnyLabel_" in params:
+            raise AttributeError("Not allowed to change `allowAnyLabel_` value in call to clone")
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
         returnValue = PSet(**myparams)
         returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
@@ -843,7 +1053,12 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
 
 class VInputTag(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        super(VInputTag,self).__init__(*arg,**args)
+        if len(arg) == 1 and not isinstance(arg[0], str):
+            try:
+                arg = iter(arg[0])
+            except TypeError:
+                pass
+        super(VInputTag,self).__init__((InputTag._stringFromArgument(x) for x in arg),**args)
     @staticmethod
     def _itemIsValid(item):
         return InputTag._isValid(item)
@@ -862,6 +1077,8 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
+    def _itemFromArgument(self, x):
+        return InputTag._stringFromArgument(x)
     def insertInto(self, parameterSet, myname):
         cppTags = list()
         for i in self:
@@ -873,7 +1090,12 @@ class VInputTag(_ValidatingParameterListBase):
 
 class VESInputTag(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        super(VESInputTag,self).__init__(*arg,**args)
+        if len(arg) == 1 and not isinstance(arg[0], str):
+            try:
+                arg = iter(arg[0])
+            except TypeError:
+                pass
+        super(VESInputTag,self).__init__((ESInputTag._stringFromArgument(x) for x in arg),**args)
     @staticmethod
     def _itemIsValid(item):
         return ESInputTag._isValid(item)
@@ -892,6 +1114,8 @@ class VESInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VESInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,ESInputTag._valueFromString))
+    def _itemFromArgument(self, x):
+        return ESInputTag._stringFromArgument(x)
     def insertInto(self, parameterSet, myname):
         cppTags = list()
         for i in self:
@@ -1003,6 +1227,9 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
             pset.insertContentsInto(newparameterset)
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def __repr__(self):
         return self.dumpPython()
 
@@ -1013,7 +1240,7 @@ def makeCppPSet(module,cppPSetMaker):
     if not isinstance(module,dict):
         module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
 
-    for x,p in six.iteritems(module):
+    for x,p in module.items():
         if isinstance(p,PSet):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
@@ -1162,7 +1389,7 @@ def convertToPSet(name,module):
 
 def convertToVPSet( **kw ):
     returnValue = VPSet()
-    for name,module in six.iteritems(kw):
+    for name,module in kw.items():
         returnValue.append(convertToPSet(name,module))
     return returnValue
 
@@ -1170,6 +1397,15 @@ def convertToVPSet( **kw ):
 class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
     def __init__(self,*arg,**kargs):
         super(EDAlias,self).__init__(**kargs)
+
+    @staticmethod
+    def allProducts():
+        """A helper to specify that all products of a module are to be aliased for. Example usage:
+        process.someAlias = cms.EDAlias(
+            aliasForModuleLabel = cms.EDAlias.allProducts()
+        )
+        """
+        return VPSet(PSet(type = string('*')))
 
     def clone(self, *args, **params):
         returnValue = EDAlias.__new__(type(self))
@@ -1213,7 +1449,11 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
             options.indent()
             resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
             options.unindent()
-        return '\n'.join(resultList)+'\n)'
+        return '\n'.join(resultList) + '\n' + options.indentation() + ')'
+
+    # an EDAlias only references other modules by label, so it does not need their definition
+    def directDependencies(self):
+        return []
 
 if __name__ == "__main__":
 
@@ -1251,19 +1491,19 @@ if __name__ == "__main__":
         def testint32(self):
             i = int32(1)
             self.assertEqual(i.value(),1)
-            self.assert_(i)
+            self.assertTrue(i)
             self.assertRaises(ValueError,int32,"i")
             i = int32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
-            self.assert_(not int32(0))
+            self.assertTrue(not int32(0))
 
         def testuint32(self):
             i = uint32(1)
             self.assertEqual(i.value(),1)
-            self.assert_(i)
+            self.assertTrue(i)
             i = uint32(0)
             self.assertEqual(i.value(),0)
-            self.assert_(not i)
+            self.assertTrue(not i)
             self.assertRaises(ValueError,uint32,"i")
             self.assertRaises(ValueError,uint32,-1)
             i = uint32._valueFromString("0xA")
@@ -1280,7 +1520,7 @@ if __name__ == "__main__":
             self.assertEqual(d,-float('Inf'))
             self.assertEqual(d.pythonValue(),"-float('inf')")
             d = double(float('Nan'))
-            self.assert_(math.isnan(d.value()))
+            self.assertTrue(math.isnan(d.value()))
             self.assertEqual(d.pythonValue(),"float('nan')")
         def testvdouble(self):
             d = vdouble(1)
@@ -1293,16 +1533,16 @@ if __name__ == "__main__":
             self.assertEqual(d,[-float('inf')])
             self.assertEqual(d.dumpPython(),"cms.vdouble(-float('inf'))")
             d = vdouble(float('nan'))
-            self.assert_(math.isnan(d[0]))
+            self.assertTrue(math.isnan(d[0]))
             self.assertEqual(d.dumpPython(),"cms.vdouble(float('nan'))")
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
-            self.assert_(not v)
+            self.assertTrue(not v)
             v.append(1)
             self.assertEqual(len(v),1)
             self.assertEqual(v[0],1)
-            self.assert_(v)
+            self.assertTrue(v)
             v.append(2)
             v.insert(1,3)
             self.assertEqual(v[1],3)
@@ -1316,10 +1556,10 @@ if __name__ == "__main__":
         def testbool(self):
             b = bool(True)
             self.assertEqual(b.value(),True)
-            self.assert_(b)
+            self.assertTrue(b)
             b = bool(False)
             self.assertEqual(b.value(),False)
-            self.assert_(not b)
+            self.assertTrue(not b)
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
@@ -1328,13 +1568,13 @@ if __name__ == "__main__":
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
             self.assertEqual(repr(s), "cms.string(\'this is a test\')")
-            self.assert_(s)
+            self.assertTrue(s)
             s=string('\0')
             self.assertEqual(s.value(),'\0')
             self.assertEqual(s.configValue(),"'\\0'")
             s2=string('')
             self.assertEqual(s2.value(),'')
-            self.assert_(not s2)
+            self.assertTrue(not s2)
         def testvstring(self):
             a = vstring("", "Barack", "John", "Sarah", "Joe")
             self.assertEqual(len(a), 5)
@@ -1345,16 +1585,16 @@ if __name__ == "__main__":
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p=untracked.int32(1)
             self.assertEqual(repr(p), "cms.untracked.int32(1)")
             self.assertRaises(TypeError,untracked,(1),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p=untracked.vint32(1,5,3)
             self.assertRaises(TypeError,untracked,(1,5,3),{})
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             p = untracked.PSet(b=int32(1))
-            self.failIf(p.isTracked())
+            self.assertFalse(p.isTracked())
             self.assertEqual(p.b.value(),1)
         def testInputTag(self):
             it = InputTag._valueFromString("label::proc")
@@ -1372,6 +1612,10 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
             vit = VInputTag("label1", "label2:label3")
             self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+            vit = VInputTag("label1", "label2", "label3")
+            self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2\", \"label3\")")
+            vit = VInputTag(["label1", "label2", "label3"])
+            self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2\", \"label3\")")
             it=InputTag('label',processName=InputTag.skipCurrentProcess())
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
@@ -1384,6 +1628,90 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "in")
             self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
+            with self.assertRaises(RuntimeError):
+                it = InputTag("label:too:many:elements")
+            with self.assertRaises(RuntimeError):
+                vit = VInputTag("label:too:many:elements")
+
+            pset = PSet(it = InputTag("something"))
+            # "assignment" from string
+            pset.it = "label"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = "label:in"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = "label:in:proc"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = "label::proc"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = "label:too:many:elements"
+            # "assignment" from tuple of strings
+            pset.it = ()
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label",)
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label", "in")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ("label", "in", "proc")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = ("label", "", "proc")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = ("label", "too", "many", "elements")
+            # "assignment" from list of strings
+            pset.it = []
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label", "in"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "")
+            pset.it = ["label", "in", "proc"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "in")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            pset.it = ["label", "", "proc"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getProductInstanceLabel(), "")
+            self.assertEqual(pset.it.getProcessName(), "proc")
+            with self.assertRaises(RuntimeError):
+                pset.it = ["label", "too", "many", "elements"]
+
+            vit = VInputTag(("a2",), ("b2", "i"), ("c2", "i", "p"))
+            self.assertEqual(repr(vit), "cms.VInputTag(\"a2\", \"b2:i\", \"c2:i:p\")")
+
+            pset = PSet(vit = VInputTag())
+            pset.vit = ["a", "b:i", "c:i:p"]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a\", \"b:i\", \"c:i:p\")")
+            pset.vit = [("a2",), ("b2", "i"), ("c2", "i", "p")]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a2\", \"b2:i\", \"c2:i:p\")")
+            pset.vit = [["a3"], ["b3", "i"], ["c3", "i", "p"]]
+            self.assertEqual(repr(pset.vit), "cms.VInputTag(\"a3\", \"b3:i\", \"c3:i:p\")")
+            with self.assertRaises(RuntimeError):
+                pset.vit = [("label", "too", "many", "elements")]
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)
@@ -1414,6 +1742,83 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), 'cms.VESInputTag(cms.ESInputTag("label1",""), cms.ESInputTag("label2",""))')
             vit = VESInputTag("label1:", "label2:label3")
             self.assertEqual(repr(vit), "cms.VESInputTag(\"label1:\", \"label2:label3\")")
+            vit = VESInputTag(["label1:", "label2:label3"])
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1:\", \"label2:label3\")")
+
+            with self.assertRaises(RuntimeError):
+                it = ESInputTag("label:too:many:elements")
+            with self.assertRaises(RuntimeError):
+                vit = VESInputTag("label:too:many:elements")
+
+            pset = PSet(it = ESInputTag("something:"))
+            # "assignment" from string
+            pset.it = ""
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = "label:"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = "label:data"
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            pset.it = ":data"
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            with self.assertRaises(RuntimeError):
+                pset.it = "too:many:elements"
+            with self.assertRaises(RuntimeError):
+                pset.it = "too_few_elements"
+            # "assignment" from tuple of strings
+            pset.it = ()
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = ("label", "")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = ("label", "data")
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            pset.it = ("", "data")
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            with self.assertRaises(RuntimeError):
+                pset.it = ("too", "many", "elements")
+            with self.assertRaises(RuntimeError):
+                pset.it = ("too_few_elements",)
+            # "assignment" from list of strings
+            pset.it = []
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = ["label", ""]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "")
+            pset.it = ["label", "data"]
+            self.assertEqual(pset.it.getModuleLabel(), "label")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            pset.it = ["", "data"]
+            self.assertEqual(pset.it.getModuleLabel(), "")
+            self.assertEqual(pset.it.getDataLabel(), "data")
+            with self.assertRaises(RuntimeError):
+                pset.it = ["too", "many", "elements"]
+            with self.assertRaises(RuntimeError):
+                pset.it = ["too_few_elements"]
+
+            vit = VESInputTag(("a2", ""), ("b2", "d"), ("", "c"))
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"a2:\", \"b2:d\", \":c\")")
+
+            pset = PSet(vit = VESInputTag())
+            pset.vit = ["a:", "b:d", ":c"]
+            self.assertEqual(repr(pset.vit), "cms.VESInputTag(\"a:\", \"b:d\", \":c\")")
+            pset.vit = [("a2", ""), ("b2", "d2"), ("", "c2")]
+            self.assertEqual(repr(pset.vit), "cms.VESInputTag(\"a2:\", \"b2:d2\", \":c2\")")
+            pset.vit = [["a3", ""], ["b3", "d3"], ["", "c3"]]
+            self.assertEqual(repr(pset.vit), "cms.VESInputTag(\"a3:\", \"b3:d3\", \":c3\")")
+            with self.assertRaises(RuntimeError):
+                pset.vit = [("too", "many", "elements")]
+            with self.assertRaises(RuntimeError):
+                pset.vit = ["too_few_elements"]
+            with self.assertRaises(RuntimeError):
+                pset.vit = [("too_few_elements")]
 
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
@@ -1423,19 +1828,19 @@ if __name__ == "__main__":
             vp1 = VPSet(PSet(i = int32(2)))
             #self.assertEqual(vp1.configValue(), "
             self.assertEqual(repr(vp1), "cms.VPSet(cms.PSet(\n    i = cms.int32(2)\n))")
-            self.assert_(p1.hasParameter(['a', 'b']))
-            self.failIf(p1.hasParameter(['a', 'c']))
+            self.assertTrue(p1.hasParameter(['a', 'b']))
+            self.assertFalse(p1.hasParameter(['a', 'c']))
             self.assertEqual(p1.getParameter(['a', 'b']).value(), 1)
             # test clones and trackedness
             p3 = untracked.PSet(i = int32(1), ui=untracked.int32(2), a = PSet(b = untracked.int32(1)), b = untracked.PSet(b = int32(1)))
             p4 = p3.clone()
             self.assertFalse(p4.isTracked())
-            self.assert_(p4.i.isTracked())
+            self.assertTrue(p4.i.isTracked())
             self.assertFalse(p4.ui.isTracked())
-            self.assert_(p4.a.isTracked())
+            self.assertTrue(p4.a.isTracked())
             self.assertFalse(p4.b.isTracked())
             self.assertFalse(p4.a.b.isTracked())
-            self.assert_(p4.b.b.isTracked())
+            self.assertTrue(p4.b.b.isTracked())
             p4 = p3.clone( i = None, b = dict(b = 5))
             self.assertEqual(p3.i.value(), 1)
             self.assertEqual(hasattr(p4,"i"), False)
@@ -1447,6 +1852,191 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, p4.clone, dict(b = None))
             self.assertRaises(TypeError, p4.clone, [])
             self.assertRaises(TypeError, p4.clone, 42)
+            p5 = PSet(p = PSet(anInt = int32(1), aString=string("foo") ) )
+            p5.p=dict(aString = "bar")
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            p5.p = dict(aDouble = double(3.14))
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            self.assertEqual(p5.p.aDouble, 3.14)
+            self.assertRaises(TypeError, p5.p , dict(bar = 3) )
+        def testRequired(self):
+            p1 = PSet(anInt = required.int32)
+            self.assertTrue(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.required.int32\n)')
+            p1.anInt = 3
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
+            self.assertEqual(p1.anInt.value(), 3)
+            p1 = PSet(anInt = required.int32)
+            p1.anInt.setValue(3)
+            self.assertEqual(p1.anInt.value(), 3)
+            p1.anInt = 4
+            self.assertEqual(p1.anInt.value(), 4)
+            p1 = PSet(anInt = required.untracked.int32)
+            p1.anInt = 5
+            self.assertEqual(p1.anInt.value(), 5)
+            self.assertFalse(p1.anInt.isTracked())
+            p1 = PSet(anInt = required.untracked.int32)
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.required.untracked.int32\n)')
+            p1.anInt = 6
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            self.assertTrue(p1.anInt.isCompatibleCMSType(int32))
+            self.assertFalse(p1.anInt.isCompatibleCMSType(uint32))
+            p1 = PSet(allowAnyLabel_ = required.int32)
+            self.assertFalse(p1.hasParameter(['allowAnyLabel_']))
+            p1.foo = 3
+            self.assertEqual(p1.foo.value(),3)
+            self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+            self.assertTrue(p1.foo.isTracked())
+            p1 = PSet(allowAnyLabel_ = required.untracked.int32)
+            self.assertFalse(p1.hasParameter(['allowAnyLabel_']))
+            p1.foo = 3
+            self.assertEqual(p1.foo.value(),3)
+            self.assertFalse(p1.foo.isTracked())
+            self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+            #PSetTemplate use
+            p1 = PSet(aPSet = required.PSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.PSetTemplate(\n\n    )\n)')
+            p1.aPSet = dict()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n\n    )\n)')
+            p1 = PSet(aPSet=required.PSetTemplate(a=required.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(aPSet=required.untracked.PSetTemplate(a=required.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.untracked.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(allowAnyLabel_=required.PSetTemplate(a=required.int32))
+            p1Clone = p1.clone()
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            with self.assertRaises(AttributeError):
+                p1.clone(allowAnyLabel_=optional.double)
+            p1.foo = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            self.assertEqual(p1.foo.a.value(), 5)
+
+        def testOptional(self):
+            p1 = PSet(anInt = optional.int32)
+            self.assertTrue(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.optional.int32\n)')
+            p1.anInt = 3
+            self.assertEqual(p1.anInt.value(), 3)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
+            p1 = PSet(anInt = optional.int32)
+            p1.anInt.setValue(3)
+            self.assertEqual(p1.anInt.value(), 3)
+            p1.anInt = 4
+            self.assertEqual(p1.anInt.value(), 4)
+            p1 = PSet(anInt = optional.untracked.int32)
+            p1.anInt = 5
+            self.assertEqual(p1.anInt.value(), 5)
+            self.assertFalse(p1.anInt.isTracked())
+            p1 = PSet(anInt = optional.untracked.int32)
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.optional.untracked.int32\n)')
+            p1.anInt = 6
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            self.assertTrue(p1.anInt.isCompatibleCMSType(int32))
+            self.assertFalse(p1.anInt.isCompatibleCMSType(uint32))
+            p1 = PSet(f = required.vint32)
+            self.assertFalse(p1.f)
+            p1.f = []
+            self.assertFalse(p1.f)
+            p1.f.append(3)
+            self.assertTrue(p1.f)
+            #PSetTemplate use
+            p1 = PSet(aPSet = optional.PSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.PSetTemplate(\n\n    )\n)')
+            p1.aPSet = dict()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n\n    )\n)')
+            p1 = PSet(aPSet=optional.PSetTemplate(a=optional.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(aPSet=optional.untracked.PSetTemplate(a=optional.int32))
+            p1Clone = p1.clone()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(allowAnyLabel_=optional.PSetTemplate(a=optional.int32))
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.foo = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            self.assertEqual(p1.foo.a.value(), 5)
+
+
+        def testAllowed(self):
+            p1 = PSet(aValue = required.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = 1
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
+            self.assertTrue(p1.aValue.isCompatibleCMSType(int32))
+            self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p1,'aValue',1.3))
+            p1 = PSet(aValue = required.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = "foo"
+            self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
+            self.assertTrue(p1.aValue.isCompatibleCMSType(string))
+            self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
+
+            p1 = PSet(aValue = required.untracked.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = 1
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(1)\n)')
+            self.assertRaises(RuntimeError, lambda: setattr(p1,'aValue',1.3))
+            p1 = PSet(aValue = required.untracked.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = "foo"
+            self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.untracked.string('foo')\n)")
+
+            p2 = PSet(aValue=optional.allowed(int32,PSet))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
+            p2.aValue = 2
+            self.assertEquals(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.allowed(int32,PSet))
+            p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
+            p2.aValue = 2
+            self.assertEquals(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+
+            p3 = PSet(aValue=required.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=required.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=required.untracked.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=required.untracked.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=optional.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=optional.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=optional.untracked.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=optional.untracked.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)
@@ -1457,10 +2047,10 @@ if __name__ == "__main__":
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
         def testEDAlias(self):
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
-            self.assert_(hasattr(aliasfoo2,"foo2"))
+            self.assertTrue(hasattr(aliasfoo2,"foo2"))
             del aliasfoo2.foo2
-            self.assert_(not hasattr(aliasfoo2,"foo2"))
-            self.assert_("foo2" not in aliasfoo2.parameterNames_())
+            self.assertTrue(not hasattr(aliasfoo2,"foo2"))
+            self.assertTrue("foo2" not in aliasfoo2.parameterNames_())
 
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
             aliasfoo3 = aliasfoo2.clone(
@@ -1476,6 +2066,22 @@ if __name__ == "__main__":
             self.assertFalse(hasattr(aliasfoo4, "foo2"))
             self.assertTrue(hasattr(aliasfoo4, "foo3"))
             self.assertEqual(aliasfoo4.foo3[0].type, "Foo3")
+
+            aliasfoo5 = EDAlias(foo5 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo5.foo5), 1)
+            self.assertEqual(aliasfoo5.foo5[0].type.value(), "*")
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "fromProductInstance"))
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "toProductInstance"))
+
+            aliasfoo6 = aliasfoo5.clone(foo5 = None, foo6 = EDAlias.allProducts())
+            self.assertFalse(hasattr(aliasfoo6, "foo5"))
+            self.assertTrue(hasattr(aliasfoo6, "foo6"))
+            self.assertEqual(len(aliasfoo6.foo6), 1)
+            self.assertEqual(aliasfoo6.foo6[0].type.value(), "*")
+
+            aliasfoo7 = EDAlias(foo5 = EDAlias.allProducts(), foo6 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo7.foo5), 1)
+            self.assertEqual(len(aliasfoo7.foo6), 1)
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
@@ -1588,18 +2194,18 @@ if __name__ == "__main__":
             )
             convert = _ConvertToPSet()
             p.insertInto(convert,"p")
-            self.assert_(hasattr(convert.pset,'p'))
-            self.assert_(hasattr(convert.pset.p,'a'))
+            self.assertTrue(hasattr(convert.pset,'p'))
+            self.assertTrue(hasattr(convert.pset.p,'a'))
             self.assertEqual(p.a,convert.pset.p.a)
             self.assertEqual(p.a.isTracked(),convert.pset.p.a.isTracked())
 
             q = PSet(b = int32(1), p = p)
             q.insertInto(convert,"q")
-            self.assert_(hasattr(convert.pset,'q'))
-            self.assert_(hasattr(convert.pset.q,'b'))
+            self.assertTrue(hasattr(convert.pset,'q'))
+            self.assertTrue(hasattr(convert.pset.q,'b'))
             self.assertEqual(q.b,convert.pset.q.b)
-            self.assert_(hasattr(convert.pset.q,'p'))
-            self.assert_(hasattr(convert.pset.q.p,'a'))
+            self.assertTrue(hasattr(convert.pset.q,'p'))
+            self.assertTrue(hasattr(convert.pset.q.p,'a'))
             self.assertEqual(p.a,convert.pset.q.p.a)
             for i in p.parameterNames_():
                 self.assertEqual(str(getattr(p,i)),str(getattr(convert.pset.p,i)))
@@ -1609,8 +2215,8 @@ if __name__ == "__main__":
             v = VPSet(p,q)
             convert = _ConvertToPSet()
             v.insertInto(convert,'v')
-            self.assert_(hasattr(convert.pset,'v'))
-            self.assert_(len(convert.pset.v)==2)
+            self.assertTrue(hasattr(convert.pset,'v'))
+            self.assertTrue(len(convert.pset.v)==2)
             self.assertEqual(v[0].a,convert.pset.v[0].a)
             self.assertEqual(v[1].b,convert.pset.v[1].b)
             self.assertEqual(v[1].p.a, convert.pset.v[1].p.a)
@@ -1632,7 +2238,6 @@ if __name__ == "__main__":
         def teststring(self):
             self.assertGreater(string("I am a string"), "I am a strinf")
             self.assertGreaterEqual("I am a string", string("I am a string"))
-            self.assertLess(5, string("I am a string"))
         def testincompatibletypes(self):
             import sys
             if sys.version_info < (3, 0): #python 2, comparing incompatible types compares the class name

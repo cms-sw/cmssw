@@ -76,8 +76,7 @@ private:
                          const Surface* surface)
       : charge_(charge), mom_(mom), err_(err), surface_(surface) {}
 
-  TRecHit1DMomConstraint(const TRecHit1DMomConstraint& other)
-      : charge_(other.charge()), mom_(other.mom()), err_(other.err()), surface_((other.surface())) {}
+  TRecHit1DMomConstraint(const TRecHit1DMomConstraint& other) = default;
 
   TRecHit1DMomConstraint* clone() const override { return new TRecHit1DMomConstraint(*this); }
 };

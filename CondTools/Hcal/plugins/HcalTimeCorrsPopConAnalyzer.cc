@@ -11,7 +11,8 @@ public:
   HcalTimeCorrsPopConAnalyzer(const edm::ParameterSet& pset)
       : popcon::PopConAnalyzer<HcalTimeCorrsHandler>(pset),
         m_populator(pset),
-        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+        m_source(pset.getParameter<edm::ParameterSet>("Source")),
+        m_tok(esConsumes<HcalTimeCorrs, HcalTimeCorrsRcd>()) {}
 
 private:
   void endJob() override {
@@ -22,9 +23,7 @@ private:
   void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
-    edm::ESHandle<HcalTimeCorrs> objecthandle;
-    esetup.get<HcalTimeCorrsRcd>().get(objecthandle);
-    myDBObject = new HcalTimeCorrs(*objecthandle.product());
+    myDBObject = new HcalTimeCorrs(esetup.getData(m_tok));
   }
 
   void write() { m_populator.write(m_source); }
@@ -32,6 +31,7 @@ private:
 private:
   popcon::PopCon m_populator;
   SourceHandler m_source;
+  edm::ESGetToken<HcalTimeCorrs, HcalTimeCorrsRcd> m_tok;
 
   HcalTimeCorrs* myDBObject;
 };

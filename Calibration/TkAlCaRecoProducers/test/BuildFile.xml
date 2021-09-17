@@ -1,6 +1,13 @@
-<use   name="DQMServices/Core"/>
-<use   name="FWCore/Framework"/>
-<use   name="boost"/>
-<library   file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
-  <flags   EDM_PLUGIN="1"/>
+<environment>
+  <bin file="testCalibrationTkAlCaRecoProducers.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Calibration/TkAlCaRecoProducers/test testAlCaHarvesting.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+</environment>
+
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="boost"/>
+<library file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
+  <flags EDM_PLUGIN="1"/>
 </library>

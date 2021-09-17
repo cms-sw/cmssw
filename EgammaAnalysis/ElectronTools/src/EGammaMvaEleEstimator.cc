@@ -954,7 +954,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(Double_t Pt,
 Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
                                          const reco::Vertex& vertex,
                                          const TransientTrackBuilder& transientTrackBuilder,
-                                         EcalClusterLazyTools myEcalCluster,
+                                         EcalClusterLazyTools const& myEcalCluster,
                                          bool printDebug) {
   if (!fisInitialized) {
     std::cout << "Error: EGammaMvaEleEstimator not properly initialized.\n";
@@ -986,7 +986,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else
@@ -1066,7 +1066,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
                                          const reco::Vertex& vertex,
                                          double rho,
                                          //const TransientTrackBuilder& transientTrackBuilder,
-                                         EcalClusterLazyTools myEcalCluster,
+                                         EcalClusterLazyTools const& myEcalCluster,
                                          bool printDebug) {
   if (!fisInitialized) {
     std::cout << "Error: EGammaMvaEleEstimator not properly initialized.\n";
@@ -1096,7 +1096,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else
@@ -1619,7 +1619,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
 Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& ele,
                                                       const reco::Vertex& vertex,
                                                       const TransientTrackBuilder& transientTrackBuilder,
-                                                      EcalClusterLazyTools myEcalCluster,
+                                                      EcalClusterLazyTools const& myEcalCluster,
                                                       const reco::PFCandidateCollection& PFCandidates,
                                                       double Rho,
                                                       ElectronEffectiveArea::ElectronEffectiveAreaTarget EATarget,
@@ -1654,7 +1654,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else

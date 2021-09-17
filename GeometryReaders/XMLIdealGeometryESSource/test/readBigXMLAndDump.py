@@ -32,33 +32,30 @@ process.pABF = cms.EDAnalyzer("PerfectGeometryAnalyzer",
                               )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    errors = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        extension = cms.untracked.string('.out')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    # No constraint on log content...equivalent to threshold INFO
-    # 0 means none, -1 means all (?)
-    log = cms.untracked.PSet(
-        extension = cms.untracked.string('.out')
-    ),
-    debug = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        extension = cms.untracked.string('.out'),
-
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-    ),
-    # For LogDebug/LogTrace output...
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('log', 
-        'errors', 
-        'debug')
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            extension = cms.untracked.string('.out'),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        errors = cms.untracked.PSet(
+            extension = cms.untracked.string('.out'),
+            threshold = cms.untracked.string('ERROR')
+        ),
+        log = cms.untracked.PSet(
+            extension = cms.untracked.string('.out')
+        )
+    )
 )
 
 process.Timing = cms.Service("Timing")

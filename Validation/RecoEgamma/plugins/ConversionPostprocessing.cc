@@ -20,7 +20,6 @@ using namespace std;
 ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset) {
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
   parameters_ = pset;
 
   standAlone_ = pset.getParameter<bool>("standAlone");

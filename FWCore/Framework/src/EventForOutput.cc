@@ -1,15 +1,20 @@
 #include "FWCore/Framework/interface/EventForOutput.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
+
+  EventForOutput::EventForOutput(EventTransitionInfo const& info,
+                                 ModuleDescription const& md,
+                                 ModuleCallingContext const* mcc)
+      : EventForOutput(info.principal(), md, mcc) {}
 
   EventForOutput::EventForOutput(EventPrincipal const& ep,
                                  ModuleDescription const& md,
@@ -39,5 +44,9 @@ namespace edm {
   }
 
   BranchListIndexes const& EventForOutput::branchListIndexes() const { return eventPrincipal().branchListIndexes(); }
+
+  EventToProcessBlockIndexes const& EventForOutput::eventToProcessBlockIndexes() const {
+    return eventPrincipal().eventToProcessBlockIndexes();
+  }
 
 }  // namespace edm

@@ -6,7 +6,7 @@ process = cms.Process("EnergyOverMomentumTree")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'ERROR'
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
-process.MessageLogger.categories.append('TrackRefitter')
+process.MessageLogger.TrackRefitter=dict()
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
@@ -55,7 +55,7 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 #from TrackingTools.TrackAssociator.default_cfi import *
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi")
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")

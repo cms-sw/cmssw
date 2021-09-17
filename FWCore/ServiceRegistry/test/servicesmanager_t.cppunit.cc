@@ -147,16 +147,17 @@ void testServicesManager::legacyTest() {
 
   edm::AssertHandler ah;
 
-  std::vector<edm::ParameterSet> pss;
-
-  edm::ParameterSet ps;
   std::string typeName("DummyService");
-  ps.addParameter("@service_type", typeName);
-  int value = 1;
-  ps.addParameter("value", value);
-  pss.push_back(ps);
 
-  auto legacy = std::make_shared<ServicesManager>(pss);
+  std::vector<edm::ParameterSet> pssLegacy;
+  {
+    edm::ParameterSet ps;
+    ps.addParameter("@service_type", typeName);
+    int value = 1;
+    ps.addParameter("value", value);
+    pssLegacy.push_back(ps);
+  }
+  auto legacy = std::make_shared<ServicesManager>(pssLegacy);
   CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
 
   edm::ServiceToken legacyToken(legacy);
@@ -164,7 +165,6 @@ void testServicesManager::legacyTest() {
     std::vector<edm::ParameterSet> pss;
 
     edm::ParameterSet ps;
-    std::string typeName("DummyService");
     ps.addParameter("@service_type", typeName);
     int value = 2;
     ps.addParameter("value", value);
@@ -183,7 +183,6 @@ void testServicesManager::legacyTest() {
     std::vector<edm::ParameterSet> pss;
 
     edm::ParameterSet ps;
-    std::string typeName("DummyService");
     ps.addParameter("@service_type", typeName);
     int value = 2;
     ps.addParameter("value", value);
@@ -197,7 +196,6 @@ void testServicesManager::legacyTest() {
     std::vector<edm::ParameterSet> pss;
 
     edm::ParameterSet ps;
-    std::string typeName("DummyService");
     ps.addParameter("@service_type", typeName);
     int value = 2;
     ps.addParameter("value", value);

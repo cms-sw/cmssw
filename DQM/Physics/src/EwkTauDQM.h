@@ -15,7 +15,7 @@
  *          Christian Veelken
  */
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
@@ -24,14 +24,14 @@
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
-class EwkTauDQM : public DQMEDAnalyzer {
+class EwkTauDQM : public DQMOneEDAnalyzer<> {
 public:
   EwkTauDQM(const edm::ParameterSet&);
   ~EwkTauDQM() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   std::string dqmDirectory_;
@@ -60,14 +60,16 @@ private:
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <string>
 
 class EwkElecTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkElecTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);
@@ -210,12 +212,13 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <string>
 
 class EwkMuTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkMuTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);

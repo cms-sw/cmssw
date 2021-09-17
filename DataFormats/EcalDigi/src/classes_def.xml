@@ -48,7 +48,8 @@
    <class name="EcalPnDiodeDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3691846555"/>
    </class>
-   <class name="EcalMatacqDigi" ClassVersion="11">
+   <class name="EcalMatacqDigi" ClassVersion="12">
+    <version ClassVersion="12" checksum="1211538371"/>
     <version ClassVersion="11" checksum="515819338"/>
     <version ClassVersion="10" checksum="804498184"/>
    </class>
@@ -72,6 +73,13 @@
    <class name="std::vector<EcalMatacqDigi>"/>
    <class name="std::vector<EcalTimeDigi>"/>
 
+   <class name="EcalDigiCollectionPh2" ClassVersion="3">
+     <version ClassVersion="3" checksum="1399579625"/>
+   </class>
+   <class name="EBDigiCollectionPh2" ClassVersion="3">
+     <version ClassVersion="3" checksum="2118114201"/>
+   </class>
+
    <class name="EcalDigiCollection" ClassVersion="11">
     <version ClassVersion="11" checksum="3935588643"/>
     <version ClassVersion="10" checksum="1942146754"/>
@@ -91,6 +99,8 @@
    <class name="EcalTrigPrimCompactColl" ClassVersion="10">
     <version ClassVersion="10" checksum="4163430797"/>
    </class>
+   <class name="edm::Wrapper<EcalDigiCollectionPh2>" splitLevel="0"/>
+   <class name="edm::Wrapper<EBDigiCollectionPh2>" />
    <class name="edm::Wrapper<EcalDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<EBDigiCollection>" />
    <class name="edm::Wrapper<EEDigiCollection>" />

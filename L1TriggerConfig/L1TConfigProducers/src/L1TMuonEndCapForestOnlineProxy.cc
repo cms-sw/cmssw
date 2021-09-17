@@ -9,6 +9,9 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestO2ORcd.h"
 
 class L1TMuonEndCapForestOnlineProxy : public edm::ESProducer {
+private:
+  const edm::ESGetToken<L1TMuonEndCapForest, L1TMuonEndCapForestRcd> baseSettings_token;
+
 public:
   std::unique_ptr<L1TMuonEndCapForest> produce(const L1TMuonEndCapForestO2ORcd& record);
 
@@ -16,16 +19,14 @@ public:
   ~L1TMuonEndCapForestOnlineProxy(void) override {}
 };
 
-L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
-  setWhatProduced(this);
-}
+L1TMuonEndCapForestOnlineProxy::L1TMuonEndCapForestOnlineProxy(const edm::ParameterSet& iConfig)
+    : baseSettings_token(setWhatProduced(this).consumes()) {}
 
 std::unique_ptr<L1TMuonEndCapForest> L1TMuonEndCapForestOnlineProxy::produce(const L1TMuonEndCapForestO2ORcd& record) {
   const L1TMuonEndCapForestRcd& baseRcd = record.template getRecord<L1TMuonEndCapForestRcd>();
-  edm::ESHandle<L1TMuonEndCapForest> baseSettings;
-  baseRcd.get(baseSettings);
+  auto const& baseSettings = baseRcd.get(baseSettings_token);
 
-  return std::make_unique<L1TMuonEndCapForest>(*(baseSettings.product()));
+  return std::make_unique<L1TMuonEndCapForest>(baseSettings);
 }
 
 //define this as a plug-in

@@ -33,7 +33,7 @@ SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::~SiStripBadAPVandHotStrip
 }
 
 void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStrips(
-    SiStripQuality* siStripQuality, HistoMap& DM, edm::ESHandle<SiStripQuality>& inSiStripQuality) {
+    SiStripQuality* siStripQuality, HistoMap& DM, const SiStripQuality* inSiStripQuality) {
   LogTrace("SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy")
       << "[SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVs] " << std::endl;
 
@@ -471,12 +471,11 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(
   }
 }
 
-void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
-    SiStripQuality* quality,
-    std::vector<Apv>& medianValues,
-    std::pair<double, double>* MeanAndRms,
-    std::vector<unsigned int>& BadStripList,
-    edm::ESHandle<SiStripQuality>& InSiStripQuality) {
+void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality,
+                                                                             std::vector<Apv>& medianValues,
+                                                                             std::pair<double, double>* MeanAndRms,
+                                                                             std::vector<unsigned int>& BadStripList,
+                                                                             const SiStripQuality* InSiStripQuality) {
   int Moduleposition;
   uint32_t Detid;
 

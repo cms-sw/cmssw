@@ -7,6 +7,7 @@
 #ifndef HLTTauRefProducer_h
 #define HLTTauRefProducer_h
 
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -15,12 +16,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 #include "TLorentzVector.h"
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -44,14 +47,22 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
-#include <vector>
-#include <string>
+#include <memory>
 
-class HLTTauRefProducer : public edm::global::EDProducer<> {
+#include <string>
+#include <vector>
+
+typedef std::pair<edm::ProcessHistoryID, std::vector<int>> TauIDConfigCache;
+
+class HLTTauRefProducer : public edm::global::EDProducer<edm::StreamCache<TauIDConfigCache>> {
 public:
   explicit HLTTauRefProducer(const edm::ParameterSet&);
 
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+  std::unique_ptr<TauIDConfigCache> beginStream(edm::StreamID) const override {
+    return std::make_unique<TauIDConfigCache>();
+  }
 
 private:
   using LorentzVector = math::XYZTLorentzVectorD;
@@ -59,6 +70,9 @@ private:
 
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
+  std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer>> PFTauDisCont_;
+  std::vector<std::string> PFTauDisContWPs_;
+  edm::ProcessHistoryID phID_;
   bool doPFTaus_;
   double ptMinPFTau_, etaMinPFTau_, etaMaxPFTau_, phiMinPFTau_, phiMaxPFTau_;
 
@@ -103,7 +117,7 @@ private:
 
   double etaMin_, etaMax_, phiMin_, phiMax_;
 
-  void doPFTaus(edm::Event&) const;
+  void doPFTaus(edm::StreamID, edm::Event&) const;
   void doMuons(edm::Event&) const;
   void doElectrons(edm::Event&) const;
   void doJets(edm::Event&) const;

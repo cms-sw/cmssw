@@ -9,8 +9,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripFedCablingESProducer::SiStripFedCablingESProducer( const edm::ParameterSet& pset ) {
-  setWhatProduced( this, &SiStripFedCablingESProducer::produce );
+SiStripFedCablingESProducer::SiStripFedCablingESProducer(const edm::ParameterSet& pset) {
+  setWhatProduced(this, &SiStripFedCablingESProducer::produce);
 }
 
 // -----------------------------------------------------------------------------
@@ -19,17 +19,14 @@ SiStripFedCablingESProducer::~SiStripFedCablingESProducer() {}
 
 // -----------------------------------------------------------------------------
 //
-std::unique_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiStripFedCablingRcd& rcd ) { 
-  
-  SiStripFedCabling* temp = make( rcd );
-  
-  if ( !temp ) {
-    edm::LogWarning(mlCabling_)
-      << "[SiStripFedCablingESProducer::" << __func__ << "]"
-      << " Null pointer to SiStripFedCabling object!";
-  }
-  
-  std::unique_ptr<SiStripFedCabling> ptr( temp );
-  return ptr;
+std::unique_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce(const SiStripFedCablingRcd& rcd) {
+  SiStripFedCabling* temp = make(rcd);
 
+  if (!temp) {
+    edm::LogWarning(mlCabling_) << "[SiStripFedCablingESProducer::" << __func__ << "]"
+                                << " Null pointer to SiStripFedCabling object!";
+  }
+
+  std::unique_ptr<SiStripFedCabling> ptr(temp);
+  return ptr;
 }

@@ -1,9 +1,9 @@
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/EcalMapping"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="boost"/>
-<use   name="boost_serialization"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/EcalMapping"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="boost"/>
+<use name="boost_serialization"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

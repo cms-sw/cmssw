@@ -35,11 +35,11 @@ void IOVPayloadAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
 
   std::cout << "currentTime " << mydbservice->currentTime() << std::endl;
   //if(mydbservice->currentTime()%5==0){
-  mydbservice->writeOne(myped, mydbservice->currentTime(), m_record, false);
+  mydbservice->writeOne(myped, mydbservice->currentTime(), m_record);
   //cond::TagInfo tinfo;
   //mydbservice->tagInfo( m_record, tinfo );
   //std::cout <<" tinfo name="<<tinfo.name<<" token="<<tinfo.lastPayloadToken<<std::endl;
   //}
 }
-void IOVPayloadAnalyzer::endJob() {}
+void IOVPayloadAnalyzer::endJob() { std::cout << "End of job..." << std::endl; }
 DEFINE_FWK_MODULE(IOVPayloadAnalyzer);

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Geometry.GeometryRecoDB_cff import *
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.StandardSequences.MagneticField_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 
@@ -23,13 +23,20 @@ import Alignment.APEEstimation.AlignmentTrackSelector_cff
 HighPuritySelector = Alignment.APEEstimation.AlignmentTrackSelector_cff.HighPuritySelector
 HighPuritySelector.src = 'MuSkim'
 
-
+NoPuritySelector = Alignment.APEEstimation.AlignmentTrackSelector_cff.NoPuritySelector
+NoPuritySelector.src = 'MuSkim'
 
 ## SEQUENCE
 
 RefitterHighPuritySequence = cms.Sequence(
     offlineBeamSpot*
     HighPuritySelector*
+    TrackRefitterForApeEstimator
+)
+
+RefitterNoPuritySequence = cms.Sequence(
+    offlineBeamSpot*
+    NoPuritySelector*
     TrackRefitterForApeEstimator
 )
 

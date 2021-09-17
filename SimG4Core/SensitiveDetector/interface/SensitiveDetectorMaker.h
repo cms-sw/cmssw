@@ -16,37 +16,36 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
-class DDCompactView;
 class SimTrackManager;
 class SimActivityRegistry;
 class SensitiveDetectorCatalog;
 
 namespace edm {
+  class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 template <class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase {
 public:
-  explicit SensitiveDetectorMaker(){};
-
-  // ---------- const member functions ---------------------
-  SensitiveDetector* make(const std::string& iname,
-                          const DDCompactView& cpv,
-                          const SensitiveDetectorCatalog& clg,
-                          const edm::ParameterSet& p,
-                          const SimTrackManager* man,
-                          SimActivityRegistry& reg) const override {
-    T* sd = new T(iname, cpv, clg, p, man);
-    SimActivityRegistryEnroller::enroll(reg, sd);
-    return static_cast<SensitiveDetector*>(sd);
-  };
-
-private:
+  explicit SensitiveDetectorMaker(edm::ParameterSet const&, edm::ConsumesCollector){};
   SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
   const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
+
+  // ---------- const member functions ---------------------
+  std::unique_ptr<SensitiveDetector> make(const std::string& iname,
+                                          const edm::EventSetup& es,
+                                          const SensitiveDetectorCatalog& clg,
+                                          const edm::ParameterSet& p,
+                                          const SimTrackManager* man,
+                                          SimActivityRegistry& reg) const override {
+    auto sd = std::make_unique<T>(iname, es, clg, p, man);
+    SimActivityRegistryEnroller::enroll(reg, sd.get());
+    return sd;
+  };
 };
 
 #endif

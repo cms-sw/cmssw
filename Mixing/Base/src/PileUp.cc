@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
@@ -64,7 +64,10 @@ static Double_t GetRandom(TH1* th1, CLHEP::HepRandomEngine* rng) {
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config)
+  PileUp::PileUp(ParameterSet const& pset,
+                 const std::shared_ptr<PileUpConfig>& config,
+                 edm::ConsumesCollector iC,
+                 const bool mixingConfigFromDB)
       : type_(pset.getParameter<std::string>("type")),
         Source_type_(config->sourcename_),
         averageNumber_(config->averageNumber_),
@@ -92,23 +95,27 @@ namespace edm {
         randomEngine_(),
         playback_(config->playback_),
         sequential_(pset.getUntrackedParameter<bool>("sequential", false)) {
+    if (mixingConfigFromDB) {
+      configToken_ = iC.esConsumes<edm::Transition::BeginLuminosityBlock>();
+    }
+
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processContext_->setProcessConfiguration(processConfiguration_.get());
 
     if (pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
-      provider_.reset(new SecondaryEventProvider(producers, *productRegistry_, processConfiguration_));
+      provider_ = std::make_unique<SecondaryEventProvider>(producers, *productRegistry_, processConfiguration_);
     }
 
     productRegistry_->setFrozen();
 
     // A modified HistoryAppender must be used for unscheduled processing.
-    eventPrincipal_.reset(new EventPrincipal(input_->productRegistry(),
-                                             std::make_shared<BranchIDListHelper>(),
-                                             std::make_shared<ThinnedAssociationsHelper>(),
-                                             *processConfiguration_,
-                                             nullptr));
+    eventPrincipal_ = std::make_unique<EventPrincipal>(input_->productRegistry(),
+                                                       std::make_shared<BranchIDListHelper>(),
+                                                       std::make_shared<ThinnedAssociationsHelper>(),
+                                                       *processConfiguration_,
+                                                       nullptr);
 
     bool DB = type_ == "readDB";
 
@@ -234,10 +241,7 @@ namespace edm {
 
   void PileUp::reload(const edm::EventSetup& setup) {
     //get the required parameters from DB.
-    edm::ESHandle<MixingModuleConfig> configM;
-    setup.get<MixingRcd>().get(configM);
-
-    const MixingInputConfig& config = configM->config(inputType_);
+    const MixingInputConfig& config = setup.getData(configToken_).config(inputType_);
 
     //get the type
     type_ = config.type();
@@ -256,7 +260,7 @@ namespace edm {
     } else if (poisson_) {
       averageNumber_ = config.averageNumber();
       if (PoissonDistribution_) {
-        PoissonDistribution_.reset(new CLHEP::RandPoissonQ(PoissonDistribution_->engine(), averageNumber_));
+        PoissonDistribution_ = std::make_unique<CLHEP::RandPoissonQ>(PoissonDistribution_->engine(), averageNumber_);
       }
     } else if (probFunctionDistribution_) {
       //need to reload the histogram from DB
@@ -328,7 +332,7 @@ namespace edm {
   std::unique_ptr<CLHEP::RandPoissonQ> const& PileUp::poissonDistribution(StreamID const& streamID) {
     if (!PoissonDistribution_) {
       CLHEP::HepRandomEngine& engine = *randomEngine(streamID);
-      PoissonDistribution_.reset(new CLHEP::RandPoissonQ(engine, averageNumber_));
+      PoissonDistribution_ = std::make_unique<CLHEP::RandPoissonQ>(engine, averageNumber_);
     }
     return PoissonDistribution_;
   }
@@ -336,7 +340,7 @@ namespace edm {
   std::unique_ptr<CLHEP::RandPoisson> const& PileUp::poissonDistr_OOT(StreamID const& streamID) {
     if (!PoissonDistr_OOT_) {
       CLHEP::HepRandomEngine& engine = *randomEngine(streamID);
-      PoissonDistr_OOT_.reset(new CLHEP::RandPoisson(engine));
+      PoissonDistr_OOT_ = std::make_unique<CLHEP::RandPoisson>(engine);
     }
     return PoissonDistr_OOT_;
   }

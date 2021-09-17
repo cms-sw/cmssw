@@ -385,8 +385,8 @@ void metsig::SignAlgoResolutions::initializeJetResolutions(const edm::ParameterS
     string resolutionsAlgo = iConfig.getParameter<std::string>("resolutionsAlgo");
     string resolutionsEra = iConfig.getParameter<std::string>("resolutionsEra");
 
-    string cmssw_base(getenv("CMSSW_BASE"));
-    string cmssw_release_base(getenv("CMSSW_RELEASE_BASE"));
+    string cmssw_base(std::getenv("CMSSW_BASE"));
+    string cmssw_release_base(std::getenv("CMSSW_RELEASE_BASE"));
     string path = cmssw_base + "/src/CondFormats/JetMETObjects/data";
     struct stat st;
     if (stat(path.c_str(), &st) != 0) {

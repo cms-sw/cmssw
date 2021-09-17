@@ -45,13 +45,12 @@
 class FFTJetCorrectorDBReader : public edm::EDAnalyzer {
 public:
   explicit FFTJetCorrectorDBReader(const edm::ParameterSet&);
-  ~FFTJetCorrectorDBReader() override {}
-
-private:
   FFTJetCorrectorDBReader() = delete;
   FFTJetCorrectorDBReader(const FFTJetCorrectorDBReader&) = delete;
   FFTJetCorrectorDBReader& operator=(const FFTJetCorrectorDBReader&) = delete;
+  ~FFTJetCorrectorDBReader() override {}
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string record;
@@ -97,7 +96,7 @@ void FFTJetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::Event
       unsigned long long count = 0;
       for (unsigned long long id = idSmall; id <= idLarge; ++id)
         if (par->itemExists(id)) {
-          CPP11_shared_ptr<const gs::CatalogEntry> e = par->catalogEntry(id);
+          std::shared_ptr<const gs::CatalogEntry> e = par->catalogEntry(id);
           std::cout << '\n';
           e->humanReadable(std::cout);
           ++count;

@@ -37,7 +37,7 @@ from builtins import range
 import sys,os
 import commands, re, time
 import datetime
-import ConfigParser
+import configparser as ConfigParser
 import xmlrpclib
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV

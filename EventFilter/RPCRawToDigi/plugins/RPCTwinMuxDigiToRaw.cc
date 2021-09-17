@@ -14,12 +14,7 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "CondFormats/DataRecord/interface/RPCInverseLBLinkMapRcd.h"
-#include "CondFormats/DataRecord/interface/RPCInverseTwinMuxLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
-#include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
-#include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
-#include "CondFormats/RPCObjects/interface/RPCInverseLBLinkMap.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -29,7 +24,10 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCTwinMuxRecord.h"
 
 RPCTwinMuxDigiToRaw::RPCTwinMuxDigiToRaw(edm::ParameterSet const& config)
-    : bx_min_(config.getParameter<int>("bxMin")),
+    : es_tm_link_map_br_token_(esConsumes<RPCAMCLinkMap, RPCTwinMuxLinkMapRcd, edm::Transition::BeginRun>()),
+      es_tm_link_map_token_(esConsumes<RPCInverseAMCLinkMap, RPCInverseTwinMuxLinkMapRcd>()),
+      es_lb_link_map_token_(esConsumes<RPCInverseLBLinkMap, RPCInverseLBLinkMapRcd>()),
+      bx_min_(config.getParameter<int>("bxMin")),
       bx_max_(config.getParameter<int>("bxMax")),
       ignore_eod_(config.getParameter<bool>("ignoreEOD")),
       event_type_(config.getParameter<int>("eventType")),
@@ -53,8 +51,7 @@ void RPCTwinMuxDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descs
 
 void RPCTwinMuxDigiToRaw::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
   if (es_tm_link_map_watcher_.check(setup)) {
-    edm::ESHandle<RPCAMCLinkMap> es_tm_link_map;
-    setup.get<RPCTwinMuxLinkMapRcd>().get(es_tm_link_map);
+    edm::ESHandle<RPCAMCLinkMap> es_tm_link_map = setup.getHandle(es_tm_link_map_br_token_);
     fed_amcs_.clear();
     for (auto const& tm_link : es_tm_link_map->getMap()) {
       RPCAMCLink amc(tm_link.first);
@@ -70,11 +67,8 @@ void RPCTwinMuxDigiToRaw::beginRun(edm::Run const& run, edm::EventSetup const& s
 
 void RPCTwinMuxDigiToRaw::produce(edm::Event& event, edm::EventSetup const& setup) {
   // Get EventSetup Electronics Maps
-  edm::ESHandle<RPCInverseAMCLinkMap> es_tm_link_map_;
-  edm::ESHandle<RPCInverseLBLinkMap> es_lb_link_map;
-
-  setup.get<RPCInverseTwinMuxLinkMapRcd>().get(es_tm_link_map_);
-  setup.get<RPCInverseLBLinkMapRcd>().get(es_lb_link_map);
+  edm::ESHandle<RPCInverseAMCLinkMap> es_tm_link_map_ = setup.getHandle(es_tm_link_map_token_);
+  edm::ESHandle<RPCInverseLBLinkMap> es_lb_link_map = setup.getHandle(es_lb_link_map_token_);
 
   // Get Digi Collection
   edm::Handle<RPCDigiCollection> digi_collection;
@@ -95,7 +89,7 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event& event, edm::EventSetup const& setu
 
   std::map<int, FEDRawData> fed_data;
   // Loop over the FEDs
-  for (std::pair<int, std::vector<RPCAMCLink> > const& fed_amcs : fed_amcs_) {
+  for (std::pair<const int, std::vector<RPCAMCLink> > const& fed_amcs : fed_amcs_) {
     FEDRawData& data = data_collection->FEDData(fed_amcs.first);
     unsigned int size(0);
 

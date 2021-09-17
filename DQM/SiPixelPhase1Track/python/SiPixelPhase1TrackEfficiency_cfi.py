@@ -74,9 +74,8 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   xlabel = "#valid/(#valid+#missing)",
   dimensions = 1,
   specs = VPSet(
-    #2D profile maps per layer
     StandardSpecification2DProfile,
-
+    
     #profiles per layer and shell
     Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder")
                             .reduce("MEAN")
@@ -94,9 +93,20 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
     Specification().groupBy("PXForward/PXDisk")
                    .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
-                   .save()
+                   .save(),
 
-    #StandardSpecificationPixelmapProfile    
+    Specification(PerLayer2D)
+			.groupBy("PXBarrel/PXLayer/Lumisection")
+			.groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                        .groupBy("PXBarrel", "EXTEND_Y")
+                        .reduce("MEAN")
+                        .save(),
+    Specification(PerLayer2D)
+			.groupBy("PXForward/PXDisk/Lumisection")
+                        .groupBy("PXForward/PXDisk", "EXTEND_X")
+                        .groupBy("PXForward", "EXTEND_Y")
+                        .reduce("MEAN")
+                        .save(),
   )
 )
 
@@ -118,7 +128,8 @@ SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
    )
 )
 
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiPixelPhase1TrackEfficiencyVertices, range_max = 150.5, range_nbins=151)
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,

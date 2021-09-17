@@ -1,20 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process('CTPPSDQM', Run2_2018)
 
 test = False
+unitTest = False
+
+if 'unitTest=True' in sys.argv:
+  unitTest=True
 
 # event source
-if not test:
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
+elif not test:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 else:
   # for testing in lxplus
   process.load("DQM.Integration.config.fileinputsource_cfi")
+  from DQM.Integration.config.fileinputsource_cfi import options
   process.source.fileNames = cms.untracked.vstring(
-    #'root://eostotem.cern.ch//eos/totem/user/j/jkaspar/04C8034A-9626-E611-9B6E-02163E011F93.root'
-    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+    #"root://eoscms.cern.ch//eos/cms/store/group/phys_pps/sw_test_input/001D08EE-C4B1-E711-B92D-02163E013864.root"
+    #"/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root"
+    "/store/data/Run2017B/SingleMuon/RAW/v1/000/297/050/00000/30346DF0-0153-E711-BBC7-02163E01437C.root"
   )
   process.source.inputCommands = cms.untracked.vstring(
     'drop *',
@@ -25,9 +36,13 @@ else:
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'CTPPS'
 process.dqmSaver.tag = 'CTPPS'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'CTPPS'
+process.dqmSaverPB.runNumber = options.runNumber
 
 if test:
   process.dqmSaver.path = "."
+  process.dqmSaverPB.path = "./pb"
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -49,7 +64,7 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # DQM Modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
@@ -62,14 +77,25 @@ process.recoStep = cms.Sequence(
 )
 
 process.dqmModules = cms.Sequence(
-  process.ctppsDQM +
-  process.dqmEnv +
-  process.dqmSaver
+  process.ctppsDQMOnlineSource +
+  process.ctppsDQMOnlineHarvest
+)
+
+process.dqmModulesCalibration = cms.Sequence(
+  process.ctppsDQMCalibrationSource +
+  process.ctppsDQMCalibrationHarvest
 )
 
 process.path = cms.Path(
   process.recoStep *
-  process.dqmModules
+
+  # here: (un)comment to switch between normal and calibration mode
+  process.dqmModules *
+  #process.dqmModulesCalibration *
+
+  process.dqmEnv *
+  process.dqmSaver *
+  process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(process.path)

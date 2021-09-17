@@ -8,7 +8,6 @@
 /// \revised: V. Rekovic
 
 // system include files
-#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -21,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
@@ -58,9 +58,9 @@ private:
 
   // ----------member data ---------------------------
   //unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-  //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-  //boost::shared_ptr<const FirmwareVersion> m_fwv;
-  //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+  //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+  //std::shared_ptr<const FirmwareVersion> m_fwv;
+  //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
   // BX parameters
   int bxFirst_;
@@ -68,6 +68,9 @@ private:
 
   // Readout Record token
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtReadoutRecordToken;
+
+  // EventSetup Token for l1GtMenu
+  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1GtMenuToken;
 
   unsigned long long m_l1GtMenuCacheID;
   std::map<std::string, unsigned int> m_extBitMap;
@@ -80,7 +83,8 @@ L1TExtCondLegacyToStage2::L1TExtCondLegacyToStage2(const ParameterSet& iConfig)
     : bxFirst_(iConfig.getParameter<int>("bxFirst")),
       bxLast_(iConfig.getParameter<int>("bxLast")),
       gtReadoutRecordToken(
-          consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("LegacyGtReadoutRecord"))) {
+          consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("LegacyGtReadoutRecord"))),
+      l1GtMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()) {
   // register what you produce
   produces<GlobalExtBlkBxCollection>();
 
@@ -102,8 +106,7 @@ void L1TExtCondLegacyToStage2::produce(Event& iEvent, const EventSetup& iSetup) 
   unsigned long long l1GtMenuCacheID = iSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = iSetup.getHandle(l1GtMenuToken);
     const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
 
     // Instantiate Parser

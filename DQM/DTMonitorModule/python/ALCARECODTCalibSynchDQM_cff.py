@@ -4,12 +4,14 @@ from DQMOffline.CalibMuon.dtPreCalibrationTask_cfi import *
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 from DQM.DTMonitorModule.dtTriggerSynchTask_cfi import *
 
-dtPreCalibrationTaskAlca = dtPreCalibTask.clone()
-dtPreCalibrationTaskAlca.SaveFile = False
-dtPreCalibrationTaskAlca.folderName = 'AlCaReco/DtCalibSynch/01-Calibration'
+dtPreCalibrationTaskAlca = dtPreCalibTask.clone(
+  SaveFile = False,
+  folderName = 'AlCaReco/DtCalibSynch/01-Calibration'
+)
 
-dtAlcaResolutionMonitor = dtResolutionAnalysisMonitor.clone()
-dtAlcaResolutionMonitor.topHistoFolder = "AlCaReco/DtCalibSynch/01-Calibration"
+dtAlcaResolutionMonitor = dtResolutionAnalysisMonitor.clone(
+  topHistoFolder = 'AlCaReco/DtCalibSynch/01-Calibration'
+)
  
 dtTriggerSynchMonitor.baseDir = 'AlCaReco/DtCalibSynch/02-Synchronization'             
 dtTriggerSynchMonitor.SEGInputTag = 'dt4DSegmentsNoWire'             

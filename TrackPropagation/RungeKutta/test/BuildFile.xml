@@ -1,8 +1,9 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="TrackingTools/Records"/>
-<library   file="RKTest.cc" name="RKTest">
-  <use   name="TrackPropagation/RungeKutta"/>
-  <use   name="MagneticField/Engine"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/MessageLogger"/>
+<library file="RKTest.cc" name="RKTest">
+  <use name="TrackPropagation/RungeKutta"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<bin file="testFastPow.cpp" />
+
+<bin file="testFastPow.cpp"/>

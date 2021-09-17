@@ -23,8 +23,8 @@ process.PrescaleService = cms.Service('PrescaleService',
 )    
 
 # load conditions from the global tag
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # define an empty source, and ask for 100 events
@@ -44,8 +44,8 @@ process.success = cms.EDFilter('HLTBool', result = cms.bool(True))
 process.Path_1  = cms.Path(process.scale_1)
 process.Path_2  = cms.Path(process.scale_2)
 process.Path_3  = cms.Path(process.scale_3)
-process.True    = cms.Path(process.success)
-process.False   = cms.Path(process.fail)
+process.AlwaysTrue    = cms.Path(process.success)
+process.AlwaysFalse   = cms.Path(process.fail)
 process.L1_Path = cms.Path(process.success)
 
 # define and EndPath to analyze all other path results

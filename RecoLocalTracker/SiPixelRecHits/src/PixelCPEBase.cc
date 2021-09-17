@@ -5,9 +5,9 @@
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
@@ -85,7 +85,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 
   // Use LA-width from DB.
   // If both (this and from config) are false LA-width is calcuated from LA-offset
-  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB") ? conf.getParameter<bool>("useLAWidthFromDB") : false;
+  useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
 
   // Use Alignment LA-offset in generic
   // (Experimental; leave commented out)
@@ -93,15 +93,9 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
   //conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
   // Used only for testing
-  lAOffset_ = conf.existsAs<double>("lAOffset") ?  // fixed LA value
-                  conf.getParameter<double>("lAOffset")
-                                                : 0.0;
-  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix") ?  // fixed LA width
-                     conf.getParameter<double>("lAWidthBPix")
-                                                      : 0.0;
-  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix") ?  // fixed LA width
-                     conf.getParameter<double>("lAWidthFPix")
-                                                      : 0.0;
+  lAOffset_ = conf.getParameter<double>("lAOffset");
+  lAWidthBPix_ = conf.getParameter<double>("lAWidthBPix");
+  lAWidthFPix_ = conf.getParameter<double>("lAWidthFPix");
 
   // Use LA-offset from config, for testing only
   if (lAOffset_ > 0.0)
@@ -112,7 +106,8 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 
   // For Templates only
   // Compute the Lorentz shifts for this detector element for templates (from Alignment)
-  DoLorentz_ = conf.existsAs<bool>("DoLorentz") ? conf.getParameter<bool>("DoLorentz") : false;
+  doLorentzFromAlignment_ = conf.getParameter<bool>("doLorentzFromAlignment");
+  useLAFromDB_ = conf.getParameter<bool>("useLAFromDB");
 
   LogDebug("PixelCPEBase") << " LA constants - " << lAOffset_ << " " << lAWidthBPix_ << " " << lAWidthFPix_
                            << endl;  //dk
@@ -124,8 +119,9 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 //  Fill all variables which are constant for an event (geometry)
 //-----------------------------------------------------------------------------
 void PixelCPEBase::fillDetParams() {
-  // &&& PM: I have no idea what this code is doing, and what it is doing here!???
-  //
+  // MM: this code finds the last Pixel (Inner Tracker) DetUnit to loop upon when filling the det params, by looking the first detId which is from
+  // the Outer Tracker (Strips in case of the Phase-0/1 detector).
+
   auto const& dus = geom_.detUnits();
   unsigned m_detectors = dus.size();
   for (unsigned int i = 1; i < 7; ++i) {
@@ -133,12 +129,14 @@ void PixelCPEBase::fillDetParams() {
         << "Subdetector " << i << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] << " offset "
         << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) << " is it strip? "
         << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size()
-                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()
+                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()
                 : false);
+
     if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
-        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
-      if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors)
+        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()) {
+      if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) {
         m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+      }
     }
   }
   LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_detectors;
@@ -197,7 +195,8 @@ void PixelCPEBase::fillDetParams() {
     p.bx = Bfield.x();
 
     //---  Compute the Lorentz shifts for this detector element
-    if ((theFlag_ == 0) || DoLorentz_) {  // do always for generic and if(DOLorentz) for templates
+    if ((theFlag_ == 0) || useLAFromDB_ ||
+        doLorentzFromAlignment_) {  // do always for generic and if using LA from DB or alignment for templates
       p.driftDirection = driftDirection(p, Bfield);
       computeLorentzShifts(p);
     }
@@ -463,4 +462,16 @@ SiPixelRecHitQuality::QualWordType PixelCPEBase::rawQualityWord(ClusterParam& th
   SiPixelRecHitQuality::thePacking.setHasFilledProb(theClusterParam.hasFilledProb_, qualWord);
 
   return qualWord;
+}
+
+void PixelCPEBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("LoadTemplatesFromDB", true);
+  desc.add<bool>("Alpha2Order", true);
+  desc.add<int>("ClusterProbComputationFlag", 0);
+  desc.add<bool>("useLAWidthFromDB", true);
+  desc.add<double>("lAOffset", 0.0);
+  desc.add<double>("lAWidthBPix", 0.0);
+  desc.add<double>("lAWidthFPix", 0.0);
+  desc.add<bool>("doLorentzFromAlignment", false);
+  desc.add<bool>("useLAFromDB", true);
 }

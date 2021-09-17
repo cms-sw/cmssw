@@ -5,7 +5,6 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <utility>
 #include <vector>
 #include <iostream>

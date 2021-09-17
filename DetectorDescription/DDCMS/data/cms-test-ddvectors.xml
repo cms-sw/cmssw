@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+    <!--debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_visattr/>
+    <debug_specpars/-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <ConstantsSection label="" eval="true">
+    <Constant name="world_x" value="100*m"/>
+    <Constant name="world_y" value="100*m"/>
+    <Constant name="world_z" value="100*m"/>
+    <Constant name="fm"      value="1e-12*m"/>
+    <Constant name="mum"     value="1.e-3*mm"/>
+    <Constant name="Air"     value="materials:Air"     type="string"/>
+    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
+  </ConstantsSection>
+
+  <IncludeSection>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2026/v3/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsextent/2018/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/caloBase/2026/v2/caloBase.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v2/muonNumbering.xml'/>
+    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
+    <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v2/muonProdCuts.xml'/>
+    <Include ref='Geometry/MuonSimData/data/muonSens.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml'/>
+    <Include ref='DetectorDescription/DDCMS/data/testDDVectors.xml'/>
+  </IncludeSection>
+</DDDefinition>

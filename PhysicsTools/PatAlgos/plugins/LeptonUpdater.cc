@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include "DataFormats/Common/interface/View.h"
 
@@ -20,7 +21,9 @@ namespace pat {
     explicit LeptonUpdater(const edm::ParameterSet &iConfig)
         : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))),
           vertices_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
-          computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso")) {
+          beamLineToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
+          computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso")),
+          fixDxySign_(iConfig.getParameter<bool>("fixDxySign")) {
       //for mini-isolation calculation
       if (computeMiniIso_) {
         readMiniIsoParams(iConfig);
@@ -40,7 +43,9 @@ namespace pat {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("src")->setComment("Lepton collection");
       desc.add<edm::InputTag>("vertices")->setComment("Vertex collection");
+      desc.add<edm::InputTag>("beamspot", edm::InputTag("offlineBeamSpot"))->setComment("Beam spot");
       desc.add<bool>("computeMiniIso", false)->setComment("Recompute miniIsolation");
+      desc.add<bool>("fixDxySign", false)->setComment("Fix the IP sign");
       desc.addOptional<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))
           ->setComment("PackedCandidate collection used for miniIso");
       if (typeid(T) == typeid(pat::Muon)) {
@@ -73,7 +78,9 @@ namespace pat {
     // configurables
     edm::EDGetTokenT<std::vector<T>> src_;
     edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_;
+    edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
     bool computeMiniIso_;
+    bool fixDxySign_;
     bool recomputeMuonBasicSelectors_;
     std::vector<double> miniIsoParams_[2];
     edm::EDGetTokenT<pat::PackedCandidateCollection> pcToken_;
@@ -134,6 +141,17 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
   if (computeMiniIso_)
     iEvent.getByToken(pcToken_, pc);
 
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  iEvent.getByToken(beamLineToken_, beamSpotHandle);
+  reco::BeamSpot beamSpot;
+  bool beamSpotIsValid = false;
+  if (beamSpotHandle.isValid()) {
+    beamSpot = *beamSpotHandle;
+    beamSpotIsValid = true;
+  } else {
+    edm::LogError("DataNotAvailable") << "No beam spot available  \n";
+  }
+
   std::unique_ptr<std::vector<T>> out(new std::vector<T>(*src));
 
   const bool do_hip_mitigation_2016 =
@@ -145,7 +163,7 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
     if (computeMiniIso_) {
       const auto &params = miniIsoParams(lep);
       pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc.product(),
-                                                         lep.p4(),
+                                                         lep.polarP4(),
                                                          params[0],
                                                          params[1],
                                                          params[2],
@@ -159,6 +177,23 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
     }
     if (recomputeMuonBasicSelectors_)
       recomputeMuonBasicSelectors(lep, pv, do_hip_mitigation_2016);
+    //Fixing the sign of impact parameters
+    if (fixDxySign_) {
+      float signPV = 1.;
+      float signBS = 1.;
+      if (beamSpotIsValid) {
+        if constexpr (std::is_same_v<T, pat::Electron>)
+          signBS = copysign(1., lep.gsfTrack()->dxy(beamSpot));
+        else
+          signBS = copysign(1., lep.bestTrack()->dxy(beamSpot));
+      }
+      if constexpr (std::is_same_v<T, pat::Electron>)
+        signPV = copysign(1., lep.gsfTrack()->dxy(pv.position()));
+      else
+        signPV = copysign(1., lep.bestTrack()->dxy(pv.position()));
+      lep.setDB(abs(lep.dB(T::PV2D)) * signPV, lep.edB(T::PV2D), T::PV2D);
+      lep.setDB(abs(lep.dB(T::BS2D)) * signBS, lep.edB(T::BS2D), T::BS2D);
+    }
   }
 
   iEvent.put(std::move(out));

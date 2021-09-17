@@ -18,7 +18,7 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -35,7 +35,7 @@
 // class decleration
 //
 
-class Tracker_OldtoNewConverter : public edm::EDAnalyzer {
+class Tracker_OldtoNewConverter : public edm::one::EDAnalyzer<> {
 public:
   explicit Tracker_OldtoNewConverter(const edm::ParameterSet&);
   ~Tracker_OldtoNewConverter() override;

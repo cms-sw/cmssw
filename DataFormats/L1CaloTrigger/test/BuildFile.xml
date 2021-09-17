@@ -1,5 +1,6 @@
-<use   name="DataFormats/L1CaloTrigger"/>
-<bin   name="printRegionMap" file="printRegionMap.cpp">
+<use name="DataFormats/L1CaloTrigger"/>
+<bin name="printRegionMap" file="printRegionMap.cpp">
 </bin>
-<bin   name="testL1CaloRegionDetId" file="testL1CaloRegionDetId.cpp">
+
+<bin name="testL1CaloRegionDetId" file="testL1CaloRegionDetId.cpp">
 </bin>

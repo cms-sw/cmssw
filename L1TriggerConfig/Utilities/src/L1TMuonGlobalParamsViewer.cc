@@ -78,7 +78,7 @@ void L1TMuonGlobalParamsViewer::analyze(const edm::Event& iEvent, const edm::Eve
   // Pull the config from the ES
   edm::ESHandle<L1TMuonGlobalParams> handle1;
   evSetup.get<L1TMuonGlobalParamsRcd>().get(handle1);
-  boost::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product())));
 
   //    cout<<"Some fields in L1TMuonGlobalParams: "<<endl;
 

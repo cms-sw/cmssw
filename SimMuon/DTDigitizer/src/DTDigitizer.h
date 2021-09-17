@@ -15,6 +15,9 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 // SimHits
@@ -22,6 +25,9 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+// Magnetic Field
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <memory>
 #include <vector>
@@ -108,6 +114,7 @@ private:
   bool debug;
   bool interpolate;
   bool onlyMuHits;
+  int base;
 
   std::string syncName;
   std::unique_ptr<DTDigiSyncBase> theSync;
@@ -127,5 +134,7 @@ private:
   std::string collection_for_XF;
 
   edm::EDGetTokenT<CrossingFrame<PSimHit>> cf_token;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeom_token;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magnField_token;
 };
 #endif

@@ -1,6 +1,6 @@
-#include "CommonTools/Utils/src/ExpressionVarSetter.h"
+#include "CommonTools/Utils/interface/ExpressionVarSetter.h"
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/src/returnType.h"
+#include "CommonTools/Utils/interface/returnType.h"
 #include "CommonTools/Utils/interface/Exception.h"
 #include <string>
 using namespace reco::parser;
@@ -28,13 +28,13 @@ void ExpressionVarSetter::push(const char *begin, const char *end) const {
                            << methStack_.back().returnTypeName() << "\" which is not convertible to double.";
   }
 
-  exprStack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(methStack_, retType)));
+  exprStack_.push_back(std::shared_ptr<ExpressionBase>(new ExpressionVar(methStack_, retType)));
   methStack_.clear();
   typeStack_.resize(1);
 }
 
 void ExpressionVarSetter::lazyPush(const char *begin, const char *end) const {
-  exprStack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionLazyVar(lazyMethStack_)));
+  exprStack_.push_back(std::shared_ptr<ExpressionBase>(new ExpressionLazyVar(lazyMethStack_)));
   lazyMethStack_.clear();
   typeStack_.resize(1);
 }

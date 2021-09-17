@@ -2,16 +2,11 @@
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLworker.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include <iostream>
 #include <sstream>
 
 ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
-
-{
+    : pedestalToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::InputTag digiTagEB = iConfig.getParameter<edm::InputTag>("BarrelDigis");
   edm::InputTag digiTagEE = iConfig.getParameter<edm::InputTag>("EndcapDigis");
 
@@ -96,10 +91,6 @@ void ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSe
   }  // ee digis
 }
 
-void ECALpedestalPCLworker::beginJob() {}
-
-void ECALpedestalPCLworker::endJob() {}
-
 void ECALpedestalPCLworker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
@@ -110,8 +101,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
   ibooker.cd();
   ibooker.setCurrentFolder(dqmDir_);
 
-  edm::ESHandle<EcalPedestals> peds;
-  es.get<EcalPedestalsRcd>().get(peds);
+  const auto& peds = es.getData(pedestalToken_);
 
   for (uint32_t i = 0; i < EBDetId::kSizeForDenseIndexing; ++i) {
     ibooker.setCurrentFolder(dqmDir_ + "/EB/" + std::to_string(int(i / 100)));
@@ -121,7 +111,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
     int centralBin = fixedBookingCenterBin_;
 
     if (dynamicBooking_) {
-      centralBin = int((peds->find(id))->mean_x12);
+      centralBin = int((peds.find(id))->mean_x12);
     }
 
     int min = centralBin - nBins_ / 2;
@@ -139,7 +129,7 @@ void ECALpedestalPCLworker::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
     int centralBin = fixedBookingCenterBin_;
 
     if (dynamicBooking_) {
-      centralBin = int((peds->find(id))->mean_x12);
+      centralBin = int((peds.find(id))->mean_x12);
     }
 
     int min = centralBin - nBins_ / 2;

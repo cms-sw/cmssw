@@ -13,6 +13,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+
 // Constructor
 HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet& iConfig)
     : usePt_(iConfig.getParameter<bool>("usePt")),
@@ -22,7 +25,7 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet& iConfig)
       maxEtaJet_(iConfig.getParameter<double>("maxEtaJet")),
       jetsLabel_(iConfig.getParameter<edm::InputTag>("jetsLabel")),
       pfCandidatesLabel_(iConfig.getParameter<edm::InputTag>("pfCandidatesLabel")) {
-  m_theJetToken = consumes<edm::View<reco::Jet>>(jetsLabel_);
+  m_theJetToken = consumes<reco::CandidateView>(jetsLabel_);
   if (pfCandidatesLabel_.label().empty())
     excludePFMuons_ = false;
   if (excludePFMuons_)
@@ -54,7 +57,7 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Create a pointer to the products
   std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
-  edm::Handle<reco::JetView> jets;
+  edm::Handle<reco::CandidateView> jets;
   iEvent.getByToken(m_theJetToken, jets);
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
@@ -64,28 +67,26 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   int nj = 0;
   double sumet = 0., mhx = 0., mhy = 0.;
 
-  if (!jets->empty()) {
-    for (reco::JetView::const_iterator j = jets->begin(); j != jets->end(); ++j) {
-      double pt = usePt_ ? j->pt() : j->et();
-      double eta = j->eta();
-      double phi = j->phi();
-      double px = usePt_ ? j->px() : j->et() * cos(phi);
-      double py = usePt_ ? j->py() : j->et() * sin(phi);
+  for (auto const& aJet : *jets) {
+    double const pt = usePt_ ? aJet.pt() : aJet.et();
+    double const eta = aJet.eta();
+    double const phi = aJet.phi();
+    double const px = usePt_ ? aJet.px() : aJet.et() * cos(phi);
+    double const py = usePt_ ? aJet.py() : aJet.et() * sin(phi);
 
-      if (pt > minPtJet_ && std::abs(eta) < maxEtaJet_) {
-        mhx -= px;
-        mhy -= py;
-        sumet += pt;
-        ++nj;
-      }
+    if (pt > minPtJet_ && std::abs(eta) < maxEtaJet_) {
+      mhx -= px;
+      mhy -= py;
+      sumet += pt;
+      ++nj;
     }
   }
 
   if (excludePFMuons_) {
-    for (auto const& j : *pfCandidates) {
-      if (std::abs(j.pdgId()) == 13) {
-        mhx += j.px();
-        mhy += j.py();
+    for (auto const& aCand : *pfCandidates) {
+      if (std::abs(aCand.pdgId()) == 13) {
+        mhx += aCand.px();
+        mhy += aCand.py();
       }
     }
   }

@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <ThePEG/Interface/ClassDocumentation.h>
 #include <ThePEG/Interface/InterfacedBase.h>
 #include <ThePEG/Interface/Parameter.h>

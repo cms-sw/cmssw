@@ -20,6 +20,9 @@
 namespace hcaldqm {
   class Container {
   public:
+    typedef dqm::legacy::DQMStore DQMStore;
+    typedef dqm::legacy::MonitorElement MonitorElement;
+
     Container() : _folder("HcalInfo"), _qname("SomeQuantity") {}
     Container(std::string const &folder, std::string const &qname) : _folder(folder), _qname(qname) {}
     virtual ~Container() {}

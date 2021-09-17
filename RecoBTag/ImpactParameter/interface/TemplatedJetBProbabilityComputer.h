@@ -13,6 +13,8 @@
 template <class Container, class Base>
 class TemplatedJetBProbabilityComputer : public JetTagComputer {
 public:
+  using Tokens = void;
+
   typedef reco::IPTagInfo<Container, Base> TagInfo;
 
   TemplatedJetBProbabilityComputer(const edm::ParameterSet& parameters) {

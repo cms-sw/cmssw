@@ -1,6 +1,6 @@
-#include <time.h>
-#include <stdio.h>
 #include <cmath>
+#include <cstdio>
+#include <ctime>
 
 #include <iostream>
 #include <fstream>
@@ -311,7 +311,7 @@ public:
     //  Open the ROOT file
     TString rootfile(fname);
     TDirectory* f = TFile::Open(rootfile);
-    if (f == 0) {
+    if (f == nullptr) {
       cout << "ERROR -- file=" << rootfile << " not found! " << endl;
       //	abort();  // this must not happen
       return;
@@ -799,7 +799,7 @@ public:
   void insert(bool insert) { _insert = insert; }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
 
   //   uint64_t startmicros;
@@ -1026,7 +1026,7 @@ int main(int argc, char* argv[]) {
     vector<int> dtv;
 
     TObjArray* array_ = seqstr.Tokenize("-");
-    TObjString* token_(0);
+    TObjString* token_(nullptr);
     TString str_;
     int nTokens_ = array_->GetEntries();
     if (nTokens_ == 0)

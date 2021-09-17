@@ -26,13 +26,13 @@ CTPPSTimingLocalTrack::CTPPSTimingLocalTrack(const math::XYZPoint& pos0,
 //--- interface member functions
 
 bool CTPPSTimingLocalTrack::containsHit(const CTPPSTimingRecHit& recHit, float tolerance, CheckDimension check) const {
-  float xTolerance = pos0_sigma_.x() + (0.5 * recHit.getXWidth()) + tolerance;
-  float yTolerance = pos0_sigma_.y() + (0.5 * recHit.getYWidth()) + tolerance;
-  float zTolerance = pos0_sigma_.z() + (0.5 * recHit.getZWidth()) + tolerance;
+  float xTolerance = pos0_sigma_.x() + (0.5 * recHit.xWidth()) + tolerance;
+  float yTolerance = pos0_sigma_.y() + (0.5 * recHit.yWidth()) + tolerance;
+  float zTolerance = pos0_sigma_.z() + (0.5 * recHit.zWidth()) + tolerance;
 
-  float xDiff = std::abs(pos0_.x() - recHit.getX());
-  float yDiff = std::abs(pos0_.y() - recHit.getY());
-  float zDiff = std::abs(pos0_.z() - recHit.getZ());
+  float xDiff = std::abs(pos0_.x() - recHit.x());
+  float yDiff = std::abs(pos0_.y() - recHit.y());
+  float zDiff = std::abs(pos0_.z() - recHit.z());
 
   switch (check) {
     case CheckDimension::x:
@@ -51,20 +51,20 @@ bool CTPPSTimingLocalTrack::containsHit(const CTPPSTimingRecHit& recHit, float t
 
 bool operator<(const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs) {
   // start to sort by temporal coordinate
-  if (lhs.getT() < rhs.getT())
+  if (lhs.time() < rhs.time())
     return true;
-  if (lhs.getT() > rhs.getT())
+  if (lhs.time() > rhs.time())
     return false;
   // then sort by x-position
-  if (lhs.getX0() < rhs.getX0())
+  if (lhs.x0() < rhs.x0())
     return true;
-  if (lhs.getX0() > rhs.getX0())
+  if (lhs.x0() > rhs.x0())
     return false;
   // ...and y-position
-  if (lhs.getY0() < rhs.getY0())
+  if (lhs.y0() < rhs.y0())
     return true;
-  if (lhs.getY0() > rhs.getY0())
+  if (lhs.y0() > rhs.y0())
     return false;
   // ...and z-position
-  return (lhs.getZ0() < rhs.getZ0());
+  return (lhs.z0() < rhs.z0());
 }

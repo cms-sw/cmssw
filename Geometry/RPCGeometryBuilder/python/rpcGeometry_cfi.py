@@ -1,11 +1,6 @@
-import FWCore.ParameterSet.Config as cms
+from Geometry.RPCGeometryBuilder.RPCGeometryESModule_cfi import RPCGeometryESModule as _RPCGeometryESModuleDefault
+RPCGeometryESModule = _RPCGeometryESModuleDefault.clone()
 
-#
-# This cfi should be included to build the RPC geometry model.
-#
-RPCGeometryESModule = cms.ESProducer("RPCGeometryESModule",
-    compatibiltyWith11 = cms.untracked.bool(True),
-    useDDD = cms.untracked.bool(True)
-)
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-
+dd4hep.toModify(RPCGeometryESModule, fromDDD = False, fromDD4hep = True)

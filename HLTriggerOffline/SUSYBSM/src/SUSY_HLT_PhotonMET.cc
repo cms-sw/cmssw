@@ -21,10 +21,6 @@ SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET() {
   edm::LogInfo("SUSY_HLT_PhotonMET") << "Destructor SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET " << std::endl;
 }
 
-void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginRun" << std::endl;
-}
-
 void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
   edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::bookHistograms" << std::endl;
   // book at beginRun
@@ -101,10 +97,6 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const &e, edm::EventSetup const &eSe
         h_photonTurnOn_num->Fill(recoPhotonPt);
     }
   }
-}
-
-void SUSY_HLT_PhotonMET::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::endRun" << std::endl;
 }
 
 void SUSY_HLT_PhotonMET::bookHistos(DQMStore::IBooker &ibooker_) {

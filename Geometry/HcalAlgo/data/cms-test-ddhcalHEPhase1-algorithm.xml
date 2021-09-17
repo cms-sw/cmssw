@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/normal/cmsextent.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/cms.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/world.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/caloBase.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/muonBase.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcal/PhaseI/hcalalgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalcablealgo.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalendcap/PhaseI/hcalendcapalgo.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>
+
+

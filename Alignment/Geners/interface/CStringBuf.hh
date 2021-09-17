@@ -11,7 +11,6 @@ namespace gs {
     const char *getGetBuffer(unsigned long long *len) const;
     const char *getPutBuffer(unsigned long long *len) const;
 
-  private:
     CStringBuf(const CStringBuf &) = delete;
     CStringBuf &operator=(const CStringBuf &) = delete;
   };

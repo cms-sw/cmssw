@@ -25,7 +25,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -81,6 +80,7 @@ private:
   bool checkModulePositions(const float, const std::vector<double>&) const;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> alignmentErrorToken_;
   const std::string resultFile_;
   const std::string trackerTreeFile_;
   const std::vector<edm::ParameterSet> sectors_;
@@ -102,7 +102,8 @@ private:
 // constructors and destructor
 //
 ApeTreeCreateDefault::ApeTreeCreateDefault(const edm::ParameterSet& iConfig)
-    : resultFile_(iConfig.getParameter<std::string>("resultFile")),
+    : alignmentErrorToken_(esConsumes()),
+      resultFile_(iConfig.getParameter<std::string>("resultFile")),
       trackerTreeFile_(iConfig.getParameter<std::string>("trackerTreeFile")),
       sectors_(iConfig.getParameter<std::vector<edm::ParameterSet>>("sectors")) {}
 
@@ -399,8 +400,7 @@ void ApeTreeCreateDefault::analyze(const edm::Event& iEvent, const edm::EventSet
   // Same procedure as in ApeEstimatorSummary.cc minus reading of baseline tree
 
   // Load APEs from the GT and write them to root files similar to the ones from calculateAPE()
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(alignmentErrorToken_);
 
   // Set up root file for default APE values
   const std::string defaultFileName(resultFile_);

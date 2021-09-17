@@ -591,22 +591,22 @@ namespace gs {
 
   // Skip shared pointers in class ids
   template <class T>
-  struct ClassIdSpecialization<CPP11_shared_ptr<T>> {
+  struct ClassIdSpecialization<std::shared_ptr<T>> {
     inline static ClassId classId(const bool /* isPtr */ = false) { return ClassIdSpecialization<T>::classId(true); }
   };
 
   template <class T>
-  struct ClassIdSpecialization<const CPP11_shared_ptr<T>> {
+  struct ClassIdSpecialization<const std::shared_ptr<T>> {
     inline static ClassId classId(const bool /* isPtr */ = false) { return ClassIdSpecialization<T>::classId(true); }
   };
 
   template <class T>
-  struct ClassIdSpecialization<volatile CPP11_shared_ptr<T>> {
+  struct ClassIdSpecialization<volatile std::shared_ptr<T>> {
     inline static ClassId classId(const bool /* isPtr */ = false) { return ClassIdSpecialization<T>::classId(true); }
   };
 
   template <class T>
-  struct ClassIdSpecialization<const volatile CPP11_shared_ptr<T>> {
+  struct ClassIdSpecialization<const volatile std::shared_ptr<T>> {
     inline static ClassId classId(const bool /* isPtr */ = false) { return ClassIdSpecialization<T>::classId(true); }
   };
 

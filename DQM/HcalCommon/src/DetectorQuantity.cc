@@ -26,7 +26,9 @@ namespace hcaldqm {
 
     uint32_t getBin_ieta(HcalDetId const &did) { return (uint32_t)(getValue_ieta(did) + 1); }
 
-    uint32_t getBin_depth(HcalDetId const &did) { return (uint32_t)(did.depth()); }
+    uint32_t getBin_depth(HcalDetId const &did) {  //return (uint32_t)(did.depth());}
+      return (uint32_t)(did.subdet() == HcalOuter ? 7 : did.depth());
+    }
 
     uint32_t getBin_Subdet(HcalDetId const &did) { return (uint32_t)(did.subdet()); }
 
@@ -60,6 +62,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_Subdet() {
       std::vector<std::string> labels;
+      labels.reserve(4);
       for (int i = 0; i < 4; i++)
         labels.push_back(constants::SUBDET_NAME[i]);
       return labels;
@@ -67,6 +70,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_SubdetPM() {
       std::vector<std::string> labels;
+      labels.reserve(8);
       for (int i = 0; i < 8; i++)
         labels.push_back(constants::SUBDETPM_NAME[i]);
       return labels;

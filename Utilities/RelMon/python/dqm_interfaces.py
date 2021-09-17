@@ -19,15 +19,17 @@ from re import compile as recompile
 from sys import exit,stderr,version_info
 from threading import Thread,activeCount
 from time import sleep
-from urllib2  import Request,build_opener,urlopen
+if version_info[0]==2:
+  from urllib2  import Request,build_opener,urlopen
+else:
+  from urllib.request  import Request,build_opener,urlopen
 
 import sys
 argv=sys.argv
-from ROOT import *
 import ROOT
 sys.argv=argv
 
-gROOT.SetBatch(True)
+ROOT.gROOT.SetBatch(True)
 
 from .authentication import X509CertOpen
 from .dirstructure import Comparison,Directory,tcanvas_print_processes
@@ -478,7 +480,7 @@ class DQMRootFile(object):
     """
     def __init__(self,rootfilename):
         dqmdatadir="DQMData"
-        self.rootfile=TFile(rootfilename)  
+        self.rootfile=ROOT.TFile(rootfilename)
         self.rootfilepwd=self.rootfile.GetDirectory(dqmdatadir)
         self.rootfileprevpwd=self.rootfile.GetDirectory(dqmdatadir)
         if self.rootfilepwd == None:
@@ -712,7 +714,7 @@ class DirWalkerFile(object):
             #print  self.ls().keys()
             first_run_dir = ""
             try:
-                first_run_dir = filter(lambda k: "Run " in k, self.ls().keys())[0]
+                first_run_dir = list(filter(lambda k: "Run " in k, self.ls().keys()))[0]
             except:
                 print("\nRundir not there: Is this a generic rootfile?\n")
             rundir=first_run_dir

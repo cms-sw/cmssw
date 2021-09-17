@@ -73,7 +73,7 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterSource                            2        2
+    1 FwkReport            -f AfterSource                            2        2
     2 cat_P                -w UnitTestClient_K                      20*      20
     3 cat_S                -s UnitTestClient_K                      20       20
 
@@ -87,7 +87,7 @@ MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                    2                   2
+FwkInfo                 2                   2
 Warning                20                  20
 System                 20                  20
 

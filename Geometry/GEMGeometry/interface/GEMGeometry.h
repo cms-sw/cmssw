@@ -109,6 +109,10 @@ public:
   /// Add a GEMEtaPartition  to the Geometry
   void add(const GEMEtaPartition* etaPartition);
 
+  bool hasME0() const;
+  bool hasGE11() const;
+  bool hasGE21() const;
+
 private:
   DetContainer theEtaPartitions;
   DetContainer theDets;

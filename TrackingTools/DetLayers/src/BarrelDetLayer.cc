@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 using namespace std;
 
@@ -57,14 +58,13 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
 pair<bool, TrajectoryStateOnSurface> BarrelDetLayer::compatible(const TrajectoryStateOnSurface& ts,
                                                                 const Propagator& prop,
                                                                 const MeasurementEstimator&) const {
-  if
-    UNLIKELY(theCylinder == nullptr)
-  edm::LogError("DetLayers") << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized";
+  if UNLIKELY (theCylinder == nullptr)
+    edm::LogError("DetLayers") << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized";
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate(ts, specificSurface());
-  if
-    UNLIKELY(!myState.isValid()) return make_pair(false, myState);
+  if UNLIKELY (!myState.isValid())
+    return make_pair(false, myState);
 
   // check z assuming symmetric bounds around position().z()
   auto z0 = std::abs(myState.globalPosition().z() - specificSurface().position().z());

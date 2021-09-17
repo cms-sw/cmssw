@@ -12,8 +12,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 /** \class CaloSubdetectorGeometry
       
 Base class for a geometry container for a specific calorimetry subdetector.

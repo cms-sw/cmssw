@@ -20,9 +20,12 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include <FWCore/Utilities/interface/ESGetToken.h>
 
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 class CSCRecHitDBuilder;
 class CSCRecoConditions;
@@ -49,6 +52,7 @@ private:
 
   edm::EDGetTokenT<CSCStripDigiCollection> s_token;
   edm::EDGetTokenT<CSCWireDigiCollection> w_token;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeom_token;
 };
 
 #endif

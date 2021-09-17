@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryAndMFTest")
 process.load('Configuration.Geometry.GeometryIdeal2015_cff')
-process.load('MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi')
+process.load('MagneticField.Engine.volumeBasedMagneticField_160812_cfi')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)

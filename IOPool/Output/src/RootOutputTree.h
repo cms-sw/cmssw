@@ -9,7 +9,7 @@ RootOutputTree.h // used by ROOT output modules
 
 #include <string>
 #include <vector>
-
+#include <set>
 #include <memory>
 
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -23,7 +23,11 @@ class TBranch;
 namespace edm {
   class RootOutputTree {
   public:
-    RootOutputTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType, int splitLevel, int treeMaxVirtualSize);
+    RootOutputTree(std::shared_ptr<TFile> filePtr,
+                   BranchType const& branchType,
+                   int splitLevel,
+                   int treeMaxVirtualSize,
+                   std::string const& processName = std::string());
 
     ~RootOutputTree() {}
 

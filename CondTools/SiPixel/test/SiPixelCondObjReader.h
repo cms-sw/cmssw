@@ -22,11 +22,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 
 #include "TROOT.h"
@@ -47,7 +47,7 @@ namespace cms {
 
   private:
     edm::ParameterSet conf_;
-    edm::ESHandle<TrackerGeometry> tkgeom;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
     //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
     SiPixelGainCalibrationService SiPixelGainCalibrationService_;
 

@@ -7,8 +7,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <vector>
 #include <string>
 
@@ -127,12 +125,12 @@ namespace dqmservices {
       int trigBit_;
     };
 
-    boost::shared_ptr<TreeElement> masterElement_;
+    std::shared_ptr<TreeElement> masterElement_;
 
     // keep a copy of initialization string
     std::string expression_;
 
-    boost::shared_ptr<edm::EventSelector> eventSelector_;
+    std::shared_ptr<edm::EventSelector> eventSelector_;
     bool useOld_;
 
     static const bool debug_ = false;

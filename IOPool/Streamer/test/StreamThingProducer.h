@@ -19,9 +19,9 @@ namespace edmtest_thing {
   public:
     explicit StreamThingProducer(edm::ParameterSet const& ps);
 
-    virtual ~StreamThingProducer();
+    ~StreamThingProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;

@@ -9,9 +9,10 @@ inputfile = '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/468/F2CDA89C-B57D-DE11-
 process   = cms.Process("RPCTechnicalTrigger")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
     	threshold = cms.untracked.string('DEBUG'),
 	INFO = cms.untracked.PSet(
         limit = cms.untracked.int32(-1) ) )

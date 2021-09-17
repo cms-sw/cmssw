@@ -1,8 +1,8 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 
 using namespace GeomDetEnumerators;
+using namespace angle_units::operators;
 
 GEMEtaPartitionSpecs::GEMEtaPartitionSpecs(SubDetector rss, const std::string& name, const GEMSpecs& pars)
     : GeomDetType(name, rss), _p(pars), _n(name) {
@@ -13,14 +13,17 @@ GEMEtaPartitionSpecs::GEMEtaPartitionSpecs(SubDetector rss, const std::string& n
     float r0 = h * (B + b) / (B - b);
     float striplength = h * 2;
     float strips = _p[3];
-    float pitch = (b + B) / strips;
+    float dphi = _p[5];
+    float phiPitch = dphi / strips;
+
     int nstrip = static_cast<int>(strips);
-    _top = new TrapezoidalStripTopology(nstrip, pitch, striplength, r0);
+    _top = new GEMStripTopology(nstrip, phiPitch, striplength, r0);
 
     float pads = _p[4];
-    float pad_pitch = (b + B) / pads;
+    float padPhiPitch = dphi / pads;
+
     int npad = static_cast<int>(pads);
-    _top_pad = new TrapezoidalStripTopology(npad, pad_pitch, striplength, r0);
+    _top_pad = new GEMStripTopology(npad, padPhiPitch, striplength, r0);
   } else {
     _top = nullptr;
     _top_pad = nullptr;

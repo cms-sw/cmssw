@@ -10,4 +10,3 @@
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
 
 #endif
-

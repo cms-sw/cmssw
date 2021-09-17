@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #https://github.com/pydata/numexpr/wiki/Numexpr-Users-Guide
 from __future__ import print_function

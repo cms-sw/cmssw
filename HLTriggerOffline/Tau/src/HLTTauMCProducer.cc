@@ -4,19 +4,18 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet &mc) {
+HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet &mc)
+    : MC_{consumes<GenParticleCollection>(mc.getUntrackedParameter<edm::InputTag>("GenParticles"))},
+      MCMET_{consumes<GenMETCollection>(mc.getUntrackedParameter<edm::InputTag>("GenMET"))},
+      ptMinMCTau_{mc.getUntrackedParameter<double>("ptMinTau", 5.)},
+      ptMinMCElectron_{mc.getUntrackedParameter<double>("ptMinElectron", 5.)},
+      ptMinMCMuon_{mc.getUntrackedParameter<double>("ptMinMuon", 2.)},
+      m_PDG_{mc.getUntrackedParameter<std::vector<int>>("BosonID")},
+      etaMin_{mc.getUntrackedParameter<double>("EtaMin", -2.5)},
+      etaMax_{mc.getUntrackedParameter<double>("EtaMax", 2.5)},
+      phiMin_{mc.getUntrackedParameter<double>("PhiMin", -3.15)},
+      phiMax_{mc.getUntrackedParameter<double>("PhiMax", 3.15)} {
   // One Parameter Set per Collection
-
-  MC_ = consumes<GenParticleCollection>(mc.getUntrackedParameter<edm::InputTag>("GenParticles"));
-  MCMET_ = consumes<GenMETCollection>(mc.getUntrackedParameter<edm::InputTag>("GenMET"));
-  ptMinMCTau_ = mc.getUntrackedParameter<double>("ptMinTau", 5.);
-  ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon", 2.);
-  ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron", 5.);
-  m_PDG_ = mc.getUntrackedParameter<std::vector<int>>("BosonID");
-  etaMin = mc.getUntrackedParameter<double>("EtaMin", -2.5);
-  etaMax = mc.getUntrackedParameter<double>("EtaMax", 2.5);
-  phiMin = mc.getUntrackedParameter<double>("PhiMin", -3.15);
-  phiMax = mc.getUntrackedParameter<double>("PhiMax", 3.15);
 
   produces<LorentzVectorCollection>("LeptonicTauLeptons");
   produces<LorentzVectorCollection>("LeptonicTauElectrons");
@@ -30,9 +29,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet &mc) {
   produces<std::vector<int>>("Mothers");
 }
 
-HLTTauMCProducer::~HLTTauMCProducer() {}
-
-void HLTTauMCProducer::produce(edm::Event &iEvent, const edm::EventSetup &iES) {
+void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iES) const {
   // All the code from HLTTauMCInfo is here :-)
 
   unique_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
@@ -209,38 +206,38 @@ void HLTTauMCProducer::produce(edm::Event &iEvent, const edm::EventSetup &iES) {
 
       //		  cout<< "So we have a: " << tauDecayMode <<endl;
       if (tauDecayMode == kElectron) {
-        if ((Visible_Taus.eta() > etaMin && Visible_Taus.eta() < etaMax && Visible_Taus.phi() > phiMin &&
-             Visible_Taus.phi() < phiMax) &&
+        if ((Visible_Taus.eta() > etaMin_ && Visible_Taus.eta() < etaMax_ && Visible_Taus.phi() > phiMin_ &&
+             Visible_Taus.phi() < phiMax_) &&
             (Visible_Taus.pt() > ptMinMCElectron_)) {
           product_Electrons->push_back(Visible_Taus);
           product_Leptons->push_back(Visible_Taus);
         }
       } else if (tauDecayMode == kMuon) {
-        if ((Visible_Taus.eta() > etaMin && Visible_Taus.eta() < etaMax && Visible_Taus.phi() > phiMin &&
-             Visible_Taus.phi() < phiMax) &&
+        if ((Visible_Taus.eta() > etaMin_ && Visible_Taus.eta() < etaMax_ && Visible_Taus.phi() > phiMin_ &&
+             Visible_Taus.phi() < phiMax_) &&
             (Visible_Taus.pt() > ptMinMCMuon_)) {
           product_Muons->push_back(Visible_Taus);
           product_Leptons->push_back(Visible_Taus);
         }
       } else if (tauDecayMode == kOneProng0pi0 || tauDecayMode == kOneProng1pi0 || tauDecayMode == kOneProng2pi0) {
-        if ((Visible_Taus.eta() > etaMin && Visible_Taus.eta() < etaMax && Visible_Taus.phi() > phiMin &&
-             Visible_Taus.phi() < phiMax) &&
+        if ((Visible_Taus.eta() > etaMin_ && Visible_Taus.eta() < etaMax_ && Visible_Taus.phi() > phiMin_ &&
+             Visible_Taus.phi() < phiMax_) &&
             (Visible_Taus.pt() > ptMinMCTau_)) {
           product_OneProng->push_back(Visible_Taus);
           product_OneAndThreeProng->push_back(Visible_Taus);
           product_Neutrina->push_back(Neutrino);
         }
       } else if (tauDecayMode == kThreeProng0pi0 || tauDecayMode == kThreeProng1pi0) {
-        if ((Visible_Taus.eta() > etaMin && Visible_Taus.eta() < etaMax && Visible_Taus.phi() > phiMin &&
-             Visible_Taus.phi() < phiMax) &&
+        if ((Visible_Taus.eta() > etaMin_ && Visible_Taus.eta() < etaMax_ && Visible_Taus.phi() > phiMin_ &&
+             Visible_Taus.phi() < phiMax_) &&
             (Visible_Taus.pt() > ptMinMCTau_)) {
           product_ThreeProng->push_back(Visible_Taus);
           product_OneAndThreeProng->push_back(Visible_Taus);
           product_Neutrina->push_back(Neutrino);
         }
       } else if (tauDecayMode == kOther) {
-        if ((Visible_Taus.eta() > etaMin && Visible_Taus.eta() < etaMax && Visible_Taus.phi() > phiMin &&
-             Visible_Taus.phi() < phiMax) &&
+        if ((Visible_Taus.eta() > etaMin_ && Visible_Taus.eta() < etaMax_ && Visible_Taus.phi() > phiMin_ &&
+             Visible_Taus.phi() < phiMax_) &&
             (Visible_Taus.pt() > ptMinMCTau_)) {
           product_Other->push_back(Visible_Taus);
         }
@@ -265,7 +262,7 @@ void HLTTauMCProducer::produce(edm::Event &iEvent, const edm::EventSetup &iES) {
 void HLTTauMCProducer::getGenDecayProducts(const GenParticleRef &mother,
                                            GenParticleRefVector &products,
                                            int status,
-                                           int pdgId) {
+                                           int pdgId) const {
   const GenParticleRefVector &daughterRefs = mother->daughterRefVector();
 
   for (GenParticleRefVector::const_iterator d = daughterRefs.begin(); d != daughterRefs.end(); ++d) {

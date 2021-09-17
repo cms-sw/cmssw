@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripMonitorHardware_SiStripSpyDigiConverter_H
 #define DQM_SiStripMonitorHardware_SiStripSpyDigiConverter_H
 
-#include "boost/cstdint.hpp"
 #include <memory>
 #include <vector>
 
@@ -9,6 +8,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
+#include <cstdint>
 
 // Forward define other classes
 class SiStripFedCabling;

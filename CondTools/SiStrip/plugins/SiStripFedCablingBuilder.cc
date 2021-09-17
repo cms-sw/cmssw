@@ -3,10 +3,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,9 +15,12 @@
 SiStripFedCablingBuilder::SiStripFedCablingBuilder(const edm::ParameterSet& pset)
     : printFecCabling_(pset.getUntrackedParameter<bool>("PrintFecCabling", false)),
       printDetCabling_(pset.getUntrackedParameter<bool>("PrintDetCabling", false)),
-      printRegionCabling_(pset.getUntrackedParameter<bool>("PrintRegionCabling", false)) {
-  ;
-}
+      printRegionCabling_(pset.getUntrackedParameter<bool>("PrintRegionCabling", false)),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      fecCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      regionCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
 // -----------------------------------------------------------------------------
 //
@@ -31,36 +30,31 @@ void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSet
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Retrieving FED cabling...";
-  edm::ESHandle<SiStripFedCabling> fed;
-  setup.get<SiStripFedCablingRcd>().get(fed);
+  auto fed = setup.getHandle(fedCablingToken_);
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Retrieving FEC cabling...";
-  edm::ESHandle<SiStripFecCabling> fec;
-  setup.get<SiStripFecCablingRcd>().get(fec);
+  auto fec = setup.getHandle(fecCablingToken_);
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Retrieving DET cabling...";
-  edm::ESHandle<SiStripDetCabling> det;
-  setup.get<SiStripDetCablingRcd>().get(det);
+  auto det = setup.getHandle(detCablingToken_);
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Retrieving REGION cabling...";
-  edm::ESHandle<SiStripRegionCabling> region;
-  setup.get<SiStripRegionCablingRcd>().get(region);
+  auto region = setup.getHandle(regionCablingToken_);
 
   if (!fed.isValid()) {
     edm::LogError("SiStripFedCablingBuilder") << " Invalid handle to FED cabling object: ";
     return;
   }
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  setup.get<TrackerTopologyRcd>().get(tTopo);
+  const auto tTopo = &setup.getData(tTopoToken_);
   {
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
-    fed->print(ss, tTopo.product());
+    fed->print(ss, tTopo);
     ss << std::endl;
     if (printFecCabling_ && fec.isValid()) {
       fec->print(ss);
@@ -90,7 +84,7 @@ void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSet
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
-    fed->summary(ss, tTopo.product());
+    fed->summary(ss, tTopo);
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }

@@ -4,7 +4,6 @@ TrackerOfflineValidationSummary = cms.EDAnalyzer("TrackerOfflineValidationSummar
    moduleDirectoryInOutput   = cms.string("Alignment/Tracker"),  # has to be the same as in TrackerOfflineValidation_Dqm_cff
    useFit                    = cms.bool(False),
    stripYDmrs                = cms.bool(False),  # should be the same as for stripYResiduals in TrackerOfflineValidation_Dqm_cff
-   removeModuleLevelHists    = cms.bool(False),  # Remove module level hists after extracting the necessary information
    minEntriesPerModuleForDmr = cms.uint32(100),
    
    # DMR (distribution of median of residuals per module) of X coordinate (Strip)

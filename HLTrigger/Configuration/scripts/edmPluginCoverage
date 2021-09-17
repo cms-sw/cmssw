@@ -3,6 +3,7 @@
 
 # Author: Andrea 'fwyzard' Bocci <andrea.bocci@cern.ch>, Università di Pisa
 
+from __future__ import print_function
 import os, sys
 import re
 
@@ -210,7 +211,7 @@ index.sort()
 
 for lib in index:
   if lib in packagemap:
-    print "%-80s\t%s" % (libs[lib], packagemap[lib][0])
+    print("%-80s\t%s" % (libs[lib], packagemap[lib][0]))
   else:
-    print "%-80s\t*** not found ***" % libs[lib]
+    print("%-80s\t*** not found ***" % libs[lib])
 

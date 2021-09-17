@@ -20,11 +20,11 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 
     ExternalDecays = cms.PSet(
         EvtGen1 = cms.untracked.PSet(
-            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
-            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
-            convertPythiaCodes = cms.untracked.bool(False), # this is needed for evt_2014.pdl
+            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
+            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
+            convertPythiaCodes = cms.untracked.bool(False), # this is needed since 1.6
             list_forced_decays = cms.vstring(),
-            operates_on_particles = cms.vint32(0) #will decay all particles coded in interface
+            operates_on_particles = cms.vint32(0) #will decay all particles coded in interface, it test the whole system
         ),
         parameterSets = cms.vstring('EvtGen1')
     ),
@@ -43,12 +43,15 @@ process.generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(100)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",

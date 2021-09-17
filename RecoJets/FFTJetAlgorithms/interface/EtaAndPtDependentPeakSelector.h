@@ -17,16 +17,15 @@ namespace fftjetcms {
   class EtaAndPtDependentPeakSelector : public fftjet::Functor1<bool, fftjet::Peak> {
   public:
     explicit EtaAndPtDependentPeakSelector(std::istream& in);
+    EtaAndPtDependentPeakSelector() = delete;
+    EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
+    EtaAndPtDependentPeakSelector& operator=(const EtaAndPtDependentPeakSelector&) = delete;
     ~EtaAndPtDependentPeakSelector() override;
 
     bool operator()(const fftjet::Peak& peak) const override;
     inline bool isValid() const { return ip_; }
 
   private:
-    EtaAndPtDependentPeakSelector() = delete;
-    EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
-    EtaAndPtDependentPeakSelector& operator=(const EtaAndPtDependentPeakSelector&) = delete;
-
     fftjet::LinearInterpolator2d* ip_;
   };
 

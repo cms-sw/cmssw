@@ -13,7 +13,6 @@
 // Base Class Headers
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -27,6 +26,8 @@ namespace edm {
 class TFile;
 class TH1F;
 class TH2F;
+class MagneticField;
+class IdealMagneticFieldRecord;
 
 class PhysicsObjectsMonitor : public DQMEDAnalyzer {
 public:
@@ -66,5 +67,6 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFiledToken_;
 };
 #endif

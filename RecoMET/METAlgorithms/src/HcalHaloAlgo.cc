@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMET/METAlgorithms/interface/HcalHaloAlgo.h"
 #include <map>
 
@@ -20,7 +21,7 @@ bool CompareTowers(const CaloTower* x, const CaloTower* y) {
   return x->iphi() * 1000 + x->ieta() < y->iphi() * 1000 + y->ieta();
 }
 
-HcalHaloAlgo::HcalHaloAlgo() : geo_(nullptr), hgeo_(nullptr) {
+HcalHaloAlgo::HcalHaloAlgo(edm::ConsumesCollector iC) : geoToken_(iC.esConsumes()), geo_(nullptr), hgeo_(nullptr) {
   HBRecHitEnergyThreshold = 0.;
   HERecHitEnergyThreshold = 0.;
   SumEnergyThreshold = 0.;
@@ -223,9 +224,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
     prevHadEt = tower->hadEt();
   }
 
-  edm::ESHandle<CaloGeometry> pGeo;
-  TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_ = pGeo.product();
+  geo_ = &TheSetup.getData(geoToken_);
   hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //Halo cluster building:

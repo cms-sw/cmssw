@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -10,15 +11,13 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "boost/version.hpp"
-#include "boost/filesystem/convenience.hpp"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 int run_script(std::string const& shell, std::string const& script) {
   pid_t pid = 0;
@@ -55,7 +54,7 @@ int run_script(std::string const& shell, std::string const& script) {
 }
 
 int do_work(int argc, char* argv[], char** env) {
-  bf::path currentPath(bf::initial_path().string());
+  bf::path currentPath(bf::current_path().string());
 
   if (argc < 4) {
     std::cout << "Usage: " << argv[0] << " shell subdir script1 script2 ... scriptN\n\n"
@@ -86,9 +85,9 @@ int do_work(int argc, char* argv[], char** env) {
   std::cout << "Current directory is: " << currentPath.string() << '\n';
   // It is unclear about which of these environment variables should
   // be used.
-  char const* topdir = getenv("SCRAMRT_LOCALRT");
+  char const* topdir = std::getenv("SCRAMRT_LOCALRT");
   if (!topdir)
-    topdir = getenv("LOCALRT");
+    topdir = std::getenv("LOCALRT");
   try {
     if (!edm::untaintString(topdir, goodDirectory)) {
       std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;
@@ -100,21 +99,18 @@ int do_work(int argc, char* argv[], char** env) {
     return -1;
   }
 
-  char const* arch = getenv("SCRAM_ARCH");
+  char const* arch = std::getenv("SCRAM_ARCH");
 
   if (!arch) {
     // Try to synthesize SCRAM_ARCH value.
     bf::path exepath(argv[0]);
-#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
     std::string maybe_arch = exepath.parent_path().filename().string();
-#else
-    std::string maybe_arch = exepath.branch_path().leaf();
-#endif
+
     if (setenv("SCRAM_ARCH", maybe_arch.c_str(), 1) != 0) {
       std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
       return -1;
     }
-    arch = getenv("SCRAM_ARCH");
+    arch = std::getenv("SCRAM_ARCH");
   }
 
   int rc = 0;
@@ -182,9 +178,8 @@ int do_work(int argc, char* argv[], char** env) {
 
 int ptomaine(int argc, char* argv[], char** env) {
   int rc = 1;
-  try {
-    rc = do_work(argc, argv, env);
-  } catch (edm::Exception& x) {
+  // Standalone executable, prints exception message
+  CMS_SA_ALLOW try { rc = do_work(argc, argv, env); } catch (edm::Exception& x) {
     std::cerr << "Caught an edm::Exception in " << argv[0] << '\n' << x;
   } catch (cms::Exception& x) {
     std::cerr << "Caught a cms::Exception in " << argv[0] << '\n' << x;

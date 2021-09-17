@@ -4,20 +4,6 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// Need a safe assertion function
-#ifdef NDEBUG
-#define assert_no_abort(expr) ((void)0)
-#else
-#define assert_no_abort(expr) ((void)((expr) || (__assert_no_abort(#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__), 0)))
-template <typename T = void>
-void __assert_no_abort(const char* assertion, const char* file, unsigned int line, const char* function) {
-  //std::cout << file << ":" << line << ": " << function << ": Assertion `" << assertion << "' failed. (no abort)" << std::endl;
-  edm::LogWarning("L1T") << file << ":" << line << ": " << function << ": Assertion `" << assertion
-                         << "' failed. (no abort)";
-}
-#endif
 
 namespace {
 

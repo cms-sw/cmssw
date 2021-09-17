@@ -1,5 +1,5 @@
-#ifndef DetLayers_MTDRingForwardLayer_H
-#define DetLayers_MTDRingForwardLayer_H
+#ifndef RecoMTD_DetLayers_MTDRingForwardLayer_H
+#define RecoMTD_DetLayers_MTDRingForwardLayer_H
 
 /** \class MTDRingForwardLayer
  *  A plane composed of disks (MTDRingForwardDisk). Represents ETL.

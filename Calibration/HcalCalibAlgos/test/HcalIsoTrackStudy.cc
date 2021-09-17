@@ -64,7 +64,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -83,7 +83,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalIsoTrackStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -141,6 +141,7 @@ private:
                       int ieta,
                       int iphi);
   void TrackMap(unsigned int trkIndex, std::vector<spr::propagatedTrackDirection>& trkDirs, double dR);
+  double eThreshold(const DetId& id, double eta) const;
 
   l1t::L1TGlobalUtil* l1GtUtils_;
   edm::Service<TFileService> fs;
@@ -160,6 +161,7 @@ private:
   const bool unCorrect_, collapseDepth_;
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double hitEthrEE2_, hitEthrEE3_;
+  const double hitEthrEELo_, hitEthrEEHi_;
   const edm::InputTag triggerEvent_, theTriggerResultsLabel_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
   const std::string labelEE_, labelHBHE_, labelTower_, l1TrigName_;
@@ -183,6 +185,15 @@ private:
   edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
   edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
 
   TTree *tree, *tree2;
   unsigned int t_RunNo, t_EventNo;
@@ -242,6 +253,8 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
       hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
       hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
+      hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
+      hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
       triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
       labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
@@ -254,7 +267,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       matrixECAL_(iConfig.getUntrackedParameter<int>("matrixECAL", 5)),
       matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL", 3)),
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
-      get2Ddist_(iConfig.getUntrackedParameter<double>("get2Ddist", false)),
+      get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -348,6 +361,15 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
   }
 
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+
   for (int i = 0; i < 10; i++)
     phibins_.push_back(-M_PI + 0.1 * (2 * i + 1) * M_PI);
   for (int i = 0; i < 8; ++i)
@@ -378,35 +400,15 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
   //Get magnetic field and ECAL channel status
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* theEcalSevlv = sevlv.product();
+  const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo* theEcalSevlv = &iSetup.getData(tok_sevlv_);
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp.product());
-  respCorrs->setTopo(theHBHETopology);
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
 
   //=== genParticle information
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -799,9 +801,7 @@ void HcalIsoTrackStudy::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalIsoTrackStudy::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hdc_ = pHRNDC.product();
+  hdc_ = &iSetup.getData(tok_ddrec_);
 
   bool changed_(true);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
@@ -863,7 +863,7 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<int>("maxInMiss", 0);
   desc.add<int>("maxOutMiss", 0);
   // Minimum momentum of selected isolated track and signal zone
-  desc.add<double>("minimumTrackP", 20.0);
+  desc.add<double>("minimumTrackP", 10.0);
   desc.add<double>("coneRadius", 34.98);
   // signal zone in ECAL and MIP energy cutoff
   desc.add<double>("coneRadiusMIP", 14.0);
@@ -879,6 +879,8 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("EEHitEnergyThreshold1", 68.7950);
   desc.add<double>("EEHitEnergyThreshold2", -38.1483);
   desc.add<double>("EEHitEnergyThreshold3", 7.04303);
+  desc.add<double>("EEHitEnergyThresholdLow", 0.08);
+  desc.add<double>("EEHitEnergyThresholdHigh", 0.30);
   // prescale factors
   desc.add<double>("momentumLow", 40.0);
   desc.add<double>("momentumHigh", 60.0);
@@ -1009,10 +1011,7 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
       for (unsigned int k = 0; k < eIds.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds[k]);
         double eta = std::abs(pos.eta());
-        double eThr = (eIds[k].subdetId() == EcalBarrel)
-                          ? hitEthrEB_
-                          : (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-        if (eHit[k] > eThr)
+        if (eHit[k] > eThreshold(eIds[k], eta))
           eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1225,7 +1224,10 @@ double HcalIsoTrackStudy::trackP(const reco::Track* pTrack,
       if (dR < mindR) {
         mindR = dR;
         pmom = p.momentum().R();
-        //	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
+#endif
       }
     }
   }
@@ -1242,7 +1244,10 @@ double HcalIsoTrackStudy::trackE(const reco::Track* pTrack,
       if (dR < mindR) {
         mindR = dR;
         pE = p.energy();
-        //	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalIsoTrack") << "p.E() :" << p.energy() << "   p.p() :" << p.momentum().R()
+                                         << " p.M  :" << p.mass();
+#endif
       }
     }
   }
@@ -1370,7 +1375,9 @@ void HcalIsoTrackStudy::fillECALmatrix(const DetId& detId,
   int i = 0;
   for (auto const& id : vdets) {
     i++;
-    //    std::cout<<"counter inside vdet:"<<i<<std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "counter inside vdet:" << i;
+#endif
     hits.clear();
     if (id.subdetId() == EcalBarrel) {
       spr::findHit(hitsEB, id, hits, false);
@@ -1446,6 +1453,18 @@ void HcalIsoTrackStudy::TrackMap(unsigned int trkIndex,
       }
     }
   }
+}
+
+double HcalIsoTrackStudy::eThreshold(const DetId& id, double eta) const {
+  double eThr(hitEthrEB_);
+  if (id.subdetId() != EcalBarrel) {
+    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+    if (eThr < hitEthrEELo_)
+      eThr = hitEthrEELo_;
+    else if (eThr > hitEthrEEHi_)
+      eThr = hitEthrEEHi_;
+  }
+  return eThr;
 }
 
 //define this as a plug-in

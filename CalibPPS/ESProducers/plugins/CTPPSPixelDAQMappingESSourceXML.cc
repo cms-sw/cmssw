@@ -17,15 +17,15 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelFramePosition.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -173,7 +173,7 @@ CTPPSPixelDAQMappingESSourceXML::CTPPSPixelDAQMappingESSourceXML(const edm::Para
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
       currentBlock(0),
       currentBlockValid(false) {
-  for (const auto it : conf.getParameter<vector<ParameterSet>>("configuration")) {
+  for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
     ConfigBlock b;
     b.validityRange = it.getParameter<EventRange>("validityRange");
     b.mappingFileNames = it.getParameter<vector<string>>("mappingFileNames");

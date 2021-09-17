@@ -4,12 +4,12 @@
 #include <cmath>
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/cstdint.hpp"
 #include "boost/serialization/vector.hpp"
 #include "boost/serialization/version.hpp"
 
 #include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrDataFcn.h"
+#include <cstdint>
 
 class OOTPileupCorrData : public AbsOOTPileupCorrection {
 public:

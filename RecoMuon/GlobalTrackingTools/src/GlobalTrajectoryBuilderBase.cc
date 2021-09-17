@@ -90,7 +90,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTrackerPropagatorName = par.getParameter<std::string>("TrackerPropagator");
 
   edm::ParameterSet trackTransformerPSet = par.getParameter<edm::ParameterSet>("TrackTransformer");
-  theTrackTransformer = new TrackTransformer(trackTransformerPSet);
+  theTrackTransformer = new TrackTransformer(trackTransformerPSet, iC);
 
   edm::ParameterSet regionBuilderPSet = par.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
 
@@ -103,8 +103,10 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theMuonHitsOption = refitterParameters.getParameter<int>("MuonHitsOption");
   theRefitFlag = refitterParameters.getParameter<bool>("RefitFlag");
 
-  theTrackerRecHitBuilderName = par.getParameter<std::string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<std::string>("MuonRecHitBuilder");
+  theTrackerRecHitBuilderToken =
+      iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("TrackerRecHitBuilder")));
+  theMuonRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", par.getParameter<std::string>("MuonRecHitBuilder")));
+  theTopoToken = iC.esConsumes();
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
@@ -112,8 +114,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
   thePCut = par.getParameter<double>("PCut");
-
-  theCacheId_TRH = 0;
 }
 
 //--------------
@@ -142,18 +142,11 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   theGlbRefitter->setEvent(event);
   theGlbRefitter->setServices(theService->eventSetup());
 
-  unsigned long long newCacheId_TRH = theService->eventSetup().get<TransientRecHitRecord>().cacheIdentifier();
-  if (newCacheId_TRH != theCacheId_TRH) {
-    LogDebug(theCategory) << "TransientRecHitRecord changed!";
-    theCacheId_TRH = newCacheId_TRH;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-  }
+  theTrackerRecHitBuilder = &theService->eventSetup().getData(theTrackerRecHitBuilderToken);
+  theMuonRecHitBuilder = &theService->eventSetup().getData(theMuonRecHitBuilderToken);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  theService->eventSetup().get<TrackerTopologyRcd>().get(tTopoHand);
-  theTopo = tTopoHand.product();
+  theTopo = &theService->eventSetup().getData(theTopoToken);
 }
 
 //
@@ -221,18 +214,17 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
       innerTsos.rescaleError(100.);
 
       TC refitted0, refitted1;
-      MuonCandidate* finalTrajectory = nullptr;
-      Trajectory* tkTrajectory = nullptr;
+      std::unique_ptr<Trajectory> tkTrajectory;
 
       // tracker only track
       if (!(it->trackerTrajectory() && it->trackerTrajectory()->isValid())) {
         refitted0 = theTrackTransformer->transform(it->trackerTrack());
         if (!refitted0.empty())
-          tkTrajectory = new Trajectory(*(refitted0.begin()));
+          tkTrajectory = std::make_unique<Trajectory>(*(refitted0.begin()));
         else
           edm::LogWarning(theCategory) << "     Failed to load tracker track trajectory";
       } else
-        tkTrajectory = it->trackerTrajectory();
+        tkTrajectory = it->releaseTrackerTrajectory();
       if (tkTrajectory)
         tkTrajectory->setSeedRef(tmpSeed);
 
@@ -242,86 +234,63 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
       refitted1 = theGlbRefitter->refit(*it->trackerTrack(), tTT, allRecHits, theMuonHitsOption, theTopo);
       LogTrace(theCategory) << "     This track-sta refitted to " << refitted1.size() << " trajectories";
 
-      Trajectory* glbTrajectory1 = nullptr;
+      std::unique_ptr<Trajectory> glbTrajectory1;
       if (!refitted1.empty())
-        glbTrajectory1 = new Trajectory(*(refitted1.begin()));
+        glbTrajectory1 = std::make_unique<Trajectory>(*(refitted1.begin()));
       else
         LogDebug(theCategory) << "     Failed to load global track trajectory 1";
       if (glbTrajectory1)
         glbTrajectory1->setSeedRef(tmpSeed);
 
-      finalTrajectory = nullptr;
-      if (glbTrajectory1 && tkTrajectory)
-        finalTrajectory = new MuonCandidate(glbTrajectory1,
-                                            it->muonTrack(),
-                                            it->trackerTrack(),
-                                            tkTrajectory ? new Trajectory(*tkTrajectory) : nullptr);
-
-      if (finalTrajectory)
-        refittedResult.push_back(finalTrajectory);
-      if (tkTrajectory)
-        delete tkTrajectory;
+      if (glbTrajectory1 && tkTrajectory) {
+        refittedResult.emplace_back(std::make_unique<MuonCandidate>(
+            std::move(glbTrajectory1), it->muonTrack(), it->trackerTrack(), std::move(tkTrajectory)));
+      }
     } else {
-      MuonCandidate* finalTrajectory = nullptr;
       edm::RefToBase<TrajectorySeed> tmpSeed;
       if (it->trackerTrack()->seedRef().isAvailable())
         tmpSeed = it->trackerTrack()->seedRef();
 
       TC refitted0;
-      Trajectory* tkTrajectory = nullptr;
+      std::unique_ptr<Trajectory> tkTrajectory;
       if (!(it->trackerTrajectory() && it->trackerTrajectory()->isValid())) {
         refitted0 = theTrackTransformer->transform(it->trackerTrack());
         if (!refitted0.empty()) {
-          tkTrajectory = new Trajectory(*(refitted0.begin()));
+          tkTrajectory = std::make_unique<Trajectory>(*(refitted0.begin()));
         } else
           edm::LogWarning(theCategory) << "     Failed to load tracker track trajectory";
       } else
-        tkTrajectory = it->trackerTrajectory();
-      if (tkTrajectory)
+        tkTrajectory = it->releaseTrackerTrajectory();
+      std::unique_ptr<Trajectory> cpy;
+      if (tkTrajectory) {
         tkTrajectory->setSeedRef(tmpSeed);
+        cpy = std::make_unique<Trajectory>(*tkTrajectory);
+      }
       // Creating MuonCandidate using only the tracker trajectory:
-      finalTrajectory = new MuonCandidate(
-          new Trajectory(*tkTrajectory), it->muonTrack(), it->trackerTrack(), new Trajectory(*tkTrajectory));
-      if (finalTrajectory)
-        refittedResult.push_back(finalTrajectory);
-      if (tkTrajectory)
-        delete tkTrajectory;
+      refittedResult.emplace_back(std::make_unique<MuonCandidate>(
+          std::move(tkTrajectory), it->muonTrack(), it->trackerTrack(), std::move(cpy)));
     }
   }
 
   // choose the best global fit for this Standalone Muon based on the track probability
   CandidateContainer selectedResult;
-  MuonCandidate* tmpCand = nullptr;
-  if (!refittedResult.empty())
-    tmpCand = *(refittedResult.begin());
+  std::unique_ptr<MuonCandidate> tmpCand;
   double minProb = std::numeric_limits<double>::max();
 
-  for (auto&& iter : refittedResult) {
-    double prob = trackProbability(*iter->trajectory());
-    LogTrace(theCategory) << "   refitted-track-sta with pT " << iter->trackerTrack()->pt() << " has probability "
+  for (auto&& cand : refittedResult) {
+    double prob = trackProbability(*cand->trajectory());
+    LogTrace(theCategory) << "   refitted-track-sta with pT " << cand->trackerTrack()->pt() << " has probability "
                           << prob;
 
-    if (prob < minProb) {
+    if (prob < minProb or not tmpCand) {
       minProb = prob;
-      tmpCand = iter;
+      tmpCand = std::move(cand);
     }
   }
 
   if (tmpCand)
-    selectedResult.push_back(
-        new MuonCandidate(new Trajectory(*(tmpCand->trajectory())),
-                          tmpCand->muonTrack(),
-                          tmpCand->trackerTrack(),
-                          (tmpCand->trackerTrajectory()) ? new Trajectory(*(tmpCand->trackerTrajectory())) : nullptr));
+    selectedResult.push_back(std::move(tmpCand));
 
-  for (auto&& it : refittedResult) {
-    if (it->trajectory())
-      delete it->trajectory();
-    if (it->trackerTrajectory())
-      delete it->trackerTrajectory();
-    if (it)
-      delete it;
-  }
   refittedResult.clear();
 
   return selectedResult;
@@ -534,7 +503,7 @@ TransientTrackingRecHit::ConstRecHitContainer GlobalTrajectoryBuilderBase::getTr
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(
       track, *theService->trackingGeometry(), &*theService->magneticField());
 
-  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
+  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder);
   auto hitCloner = tkbuilder->cloner();
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {

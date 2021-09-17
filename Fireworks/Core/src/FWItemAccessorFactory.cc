@@ -14,14 +14,14 @@
 #include <iostream>
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 #include "Fireworks/Core/interface/FWItemAccessorRegistry.h"
 #include "Fireworks/Core/src/FWItemTVirtualCollectionProxyAccessor.h"
-#include "Fireworks/Core/src/FWItemSingleAccessor.h"
+#include "Fireworks/Core/interface/FWItemSingleAccessor.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 //

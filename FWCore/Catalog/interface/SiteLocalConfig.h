@@ -1,5 +1,10 @@
 #ifndef FWCore_Catalog_SiteLocalConfig_h
 #define FWCore_Catalog_SiteLocalConfig_h
+////////////////////////////////////////////////////////////
+//
+// Abstract class. dataCatalogs() returns multiple data catalogs from site-local-config.xml. It is overridden in derived classes.
+//
+////////////////////////////////////////////////////////////
 
 // INCLUDES
 #include <set>
@@ -25,8 +30,7 @@ namespace edm {
     SiteLocalConfig() {}
     virtual ~SiteLocalConfig() {}
 
-    virtual std::string const dataCatalog(void) const = 0;
-    virtual std::string const fallbackDataCatalog(void) const = 0;
+    virtual std::vector<std::string> const& dataCatalogs(void) const = 0;
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
     virtual std::string const rfioType(void) const = 0;
 
@@ -43,6 +47,9 @@ namespace edm {
     virtual struct addrinfo const* statisticsDestination() const = 0;
     virtual std::set<std::string> const* statisticsInfo() const = 0;
     virtual std::string const& siteName(void) const = 0;
+    virtual bool useLocalConnectString() const = 0;
+    virtual std::string const& localConnectPrefix() const = 0;
+    virtual std::string const& localConnectSuffix() const = 0;
 
     // implicit copy constructor
     // implicit assignment operator

@@ -14,7 +14,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 # process.load('Configuration.Geometry.GeometryExtended2023_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -46,13 +46,11 @@ process.load('RecoLocalMuon.GEMSegment.me0Segments_cfi')
 ### that can be activated independentl                         
 ###############################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append("ME0Segment")
-process.MessageLogger.categories.append("ME0SegmentBuilder")
-# process.MessageLogger.categories.append("ME0SegAlgoMM")   
-# process.MessageLogger.categories.append("ME0SegFit")      
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

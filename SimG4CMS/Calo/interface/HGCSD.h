@@ -11,13 +11,10 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include <string>
 #include <TTree.h>
 
-class DDCompactView;
-class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
 class G4Step;
@@ -25,7 +22,7 @@ class G4Step;
 class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HGCSD(const std::string &,
-        const DDCompactView &,
+        const HGCalDDDConstants *,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);
@@ -46,6 +43,7 @@ private:
   uint32_t setDetUnitId(ForwardSubdetector &, int, int, int, int, G4ThreeVector &);
   bool isItinFidVolume(const G4ThreeVector &) { return true; }
 
+  const HGCalDDDConstants *hgcons_;
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   std::unique_ptr<HGCNumberingScheme> numberingScheme_;

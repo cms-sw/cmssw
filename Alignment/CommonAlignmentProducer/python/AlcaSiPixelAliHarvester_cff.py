@@ -43,16 +43,17 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  5  0
 SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
     #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
      'entries 500',
-     'chisqcut  30.0  4.5', #,
-     'threads 1 1' #,
+     'chisqcut  30.0  4.5',
+     'threads 1 1',
+     'closeandreopen'
      #'outlierdownweighting 3','dwfractioncut 0.1'
      #'outlierdownweighting 5','dwfractioncut 0.2'
     )
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 10
 SiPixelAliPedeAlignmentProducer.saveToDB = True
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-dqmEnvSiPixelAli = DQMEDAnalyzer('DQMEventInfo',
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+dqmEnvSiPixelAli = DQMEDHarvester('DQMHarvestingMetadata',
                                   subSystemFolder = cms.untracked.string('AlCaReco'),  
                                   )
 

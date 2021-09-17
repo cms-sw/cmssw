@@ -30,7 +30,7 @@ TEcnaNArrayD::TEcnaNArrayD() {
   Init();
 }
 
-TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) {
+TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) : TObject::TObject(orig) {
   //copy constructor
 
   // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;

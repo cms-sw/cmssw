@@ -1,6 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import sys, imp, re
 import operator
 import FWCore.ParameterSet.Config as cms
@@ -21,7 +22,7 @@ except:
   config = sys.stdin
 else:
   config = open(configname)
-exec config in globals(), hlt.__dict__
+exec(config, globals(), hlt.__dict__)
 config.close()
 
 if 'process' in hlt.__dict__:
@@ -263,7 +264,7 @@ def getEndPath(output):
 
 def dumpHeader():
   if mode == 'csv':
-    print 'stream, dataset, path, %s, L1 trigger' % getPrescaleNames()
+    print('stream, dataset, path, %s, L1 trigger' % getPrescaleNames())
 
 
 def dumpStream(stream):
@@ -271,7 +272,7 @@ def dumpStream(stream):
   allpaths = set()
 
   if mode == 'text':
-    print 'stream', stream
+    print('stream', stream)
   out = 'hltOutput%s' % stream
   end = getEndPath(out)
   if end:
@@ -281,32 +282,32 @@ def dumpStream(stream):
   pds = sorted( process.streams.__dict__[stream] )
   for pd in pds:
     if mode == 'text':
-      print '    dataset', pd
+      print('    dataset', pd)
     if pd in process.datasets.__dict__:
       paths = sorted( path for path in process.datasets.__dict__[pd] )
       assigned.update( paths )
       for path in paths:
-        print dumpPath(stream, pd, path, out, end)
+        print(dumpPath(stream, pd, path, out, end))
     else:
       if mode == 'text':
-        print '        *** not found ***'
+        print('        *** not found ***')
 
   unassigned = allpaths - assigned
   if unassigned:
     if mode == 'text':
-      print '    *** unassigned paths ***'
+      print('    *** unassigned paths ***')
     for path in sorted(unassigned):
-      print dumpPath(stream, '(unassigned)', path, out, end)
+      print(dumpPath(stream, '(unassigned)', path, out, end))
 
   if not end:
-    print '    *** corresponding EndPath not found ***'
+    print('    *** corresponding EndPath not found ***')
   else:
     missing    = assigned - allpaths
     if missing:
       if mode == 'text':
-        print '    *** paths missing from the EndPath\'s output module ***'
+        print('    *** paths missing from the EndPath\'s output module ***')
       for path in sorted(missing):
-        print dumpPath(stream, '(missing)', path, out, end)
+        print(dumpPath(stream, '(missing)', path, out, end))
 
 
 # read the list of streams

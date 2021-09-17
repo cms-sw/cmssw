@@ -44,24 +44,29 @@ _positionCalcPCA_HGCal = cms.PSet(
         updateTiming = cms.bool(False)
 )
 
-_hgcalMultiClusterMapper_HGCal = cms.PSet(
-    algoName = cms.string("PFClusterFromHGCalMultiCluster"),
+_hgcalTracksterMapper_HGCal = cms.PSet(
+    algoName = cms.string("PFClusterFromHGCalTrackster"),
     thresholdsByDetector = cms.VPSet(
     ),
-    clusterSrc = cms.InputTag("hgcalMultiClusters")
+    tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
+    clusterSrc = cms.InputTag("hgcalLayerClusters"),
+    filterByTracksterPID = cms.bool(False),
+    pid_threshold = cms.double(0.8),
+    filter_on_categories = cms.vint32([0, 1]),
 )
 
 particleFlowClusterHGCal = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGC"),
     recHitCleaners = cms.VPSet(),
+    seedCleaners   = cms.VPSet(),
     seedFinder = _passThruSeeds_HGCal,
-    initialClusteringStep = _simClusterMapper_HGCal,
+    initialClusteringStep = _hgcalTracksterMapper_HGCal,
     pfClusterBuilder = cms.PSet(),
     positionReCalc = _positionCalcPCA_HGCal,
     energyCorrector = cms.PSet()
     )
 
-particleFlowClusterHGCalFromMultiCl = particleFlowClusterHGCal.clone(
-    initialClusteringStep = _hgcalMultiClusterMapper_HGCal
+particleFlowClusterHGCalFromSimCl = particleFlowClusterHGCal.clone(
+    initialClusteringStep = _simClusterMapper_HGCal
 )

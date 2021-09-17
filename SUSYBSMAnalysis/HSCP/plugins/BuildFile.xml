@@ -1,4 +1,0 @@
-<use   name="SUSYBSMAnalysis/HSCP"/>
-<library   file="*.cc" name="SUSYBSMAnalysisHSCPPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

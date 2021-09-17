@@ -57,7 +57,7 @@ static int testSmall() {  // Test with long double
 template <class valType>
 static int iterationTest(valType increm) {
   Phi<valType, ZeroTo2pi> ang1 = 0.;
-  const int iters = 123456789;
+  const int iters = 1000 * 1000;
   steady_clock::time_point startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {
     ang1 += increm;
@@ -88,7 +88,7 @@ static int iterationTest(valType increm) {
 template <class valType>
 static int iter3Test(valType increm) {
   // const int iters = 1234567899;
-  const int iters = 1234567980;
+  const int iters = 1000 * 1000;
   valType ang1 = 0.;
   steady_clock::time_point startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {

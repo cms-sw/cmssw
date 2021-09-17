@@ -16,7 +16,7 @@
 //
 //
 
-#include "RecoTracker/NuclearSeedGenerator/interface/NuclearTrackCorrector.h"
+#include "NuclearTrackCorrector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
@@ -334,3 +334,5 @@ void NuclearTrackCorrector::swap_map(const edm::Handle<TrajectoryCollection>& tr
     result[PrimaryTrackRef] = InTrajRef;
   }
 }
+
+DEFINE_FWK_MODULE(NuclearTrackCorrector);

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CondFormats_Serialization_Serializable_h
+#define CondFormats_Serialization_Serializable_h
 
 #if defined(__GCCXML__)
 
@@ -19,8 +20,8 @@
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/bitset.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
+#include <boost/serialization/utility.hpp>
 
 // We cannot include Equal.h here since it is C++11
 namespace cond {
@@ -62,3 +63,4 @@ private:                                                   \
 #define COND_TRANSIENT
 
 #endif /* !defined(__GCCXML__) */
+#endif

@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <sstream>
+#include <array>
 
 namespace {
   enum { kEBChannels = 61200, kEEChannels = 14648 };
@@ -35,11 +36,8 @@ namespace {
   };  // endcaps lower and upper bounds on x and y
 
   /*******************************************************
-   
      2d histogram of ECAL barrel Ecal Laser Alphas of 1 IOV 
-
   *******************************************************/
-
   // inherit from one of the predefined plot class: Histogram2D
   class EcalLaserAlphasEBMap : public cond::payloadInspector::Histogram2D<EcalLaserAlphas> {
   public:
@@ -57,8 +55,9 @@ namespace {
     }
 
     // Histogram2D::fill (virtual) needs be overridden - the implementation should use fillWithValue
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<EcalLaserAlphas> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
@@ -90,11 +89,8 @@ namespace {
   };
 
   /*******************************************************
-   
      2d histogram of ECAL EndCaps Laser Alphas of 1 IOV 
-
   *******************************************************/
-
   class EcalLaserAlphasEEMap : public cond::payloadInspector::Histogram2D<EcalLaserAlphas> {
   private:
     int EEhistSplit = 20;
@@ -113,8 +109,9 @@ namespace {
       Base::setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      for (auto const& iov : iovs) {
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
         std::shared_ptr<EcalLaserAlphas> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if (payload->endcapItems().empty())
@@ -147,9 +144,9 @@ namespace {
     }  // fill method
   };
 
-  /*************************************************
+  /******************************************
      2d plot of Ecal Laser Alphas of 1 IOV
-  *************************************************/
+  *******************************************/
   class EcalLaserAlphasPlot : public cond::payloadInspector::PlotImage<EcalLaserAlphas> {
   public:
     EcalLaserAlphasPlot() : cond::payloadInspector::PlotImage<EcalLaserAlphas>("Ecal Laser Alphas - map ") {
@@ -189,9 +186,9 @@ namespace {
 
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
       for (int obj = 0; obj < 3; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
       //      EcalDrawMaps ICMap;
@@ -214,13 +211,13 @@ namespace {
   /*****************************************************************
      2d plot of Ecal Laser Alphas difference between 2 IOVs
   *****************************************************************/
-  class EcalLaserAlphasDiff : public cond::payloadInspector::PlotImage<EcalLaserAlphas> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, int method>
+  class EcalLaserAlphasBase : public cond::payloadInspector::PlotImage<EcalLaserAlphas, nIOVs, ntags> {
   public:
-    EcalLaserAlphasDiff() : cond::payloadInspector::PlotImage<EcalLaserAlphas>("Ecal Laser Alphas difference ") {
-      setSingleIov(false);
-    }
+    EcalLaserAlphasBase()
+        : cond::payloadInspector::PlotImage<EcalLaserAlphas, nIOVs, ntags>("Ecal Laser Alphas difference ") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "Laser Alphas EB", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       TH2F* endc_p = new TH2F("EE+", "Laser Alphas EE+", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "Laser Alphas EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
@@ -230,27 +227,43 @@ namespace {
       pEBmax = -10.;
       pEEmax = -10.;
 
-      unsigned int run[2], irun = 0;
+      unsigned int run[2];
       float pEB[kEBChannels], pEE[kEEChannels];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalLaserAlphas> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
-
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalLaserAlphas> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           if (payload->barrelItems().empty())
             return false;
 
-          fillEBMap_DiffIOV<EcalLaserAlphas>(payload, barrel, irun, pEB, pEBmin, pEBmax);
+          fillEBMap_TwoIOVs<EcalLaserAlphas>(payload, barrel, irun, pEB, pEBmin, pEBmax, method);
 
           if (payload->endcapItems().empty())
             return false;
 
-          fillEEMap_DiffIOV<EcalLaserAlphas>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
+          fillEEMap_TwoIOVs<EcalLaserAlphas>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
 
         }  // payload
-        irun++;
-
-      }  // loop over IOVs
+      }    // loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -258,15 +271,33 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Laser Alphas Diff, IOV %i - %i", run[1], run[0]));
-
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      std::string dr[2] = {"-", "/"};
+      if (ntags == 2) {
+        if (len < 180) {
+          t1.SetTextSize(0.04);
+          t1.DrawLatex(0.5,
+                       0.96,
+                       Form("%s IOV %i %s %s  IOV %i",
+                            l_tagname[1].c_str(),
+                            run[1],
+                            dr[method].c_str(),
+                            l_tagname[0].c_str(),
+                            run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal Laser Alphas Diff, IOV %i %s %i", run[1], dr[method].c_str(), run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i %s %i", l_tagname[0].c_str(), run[1], dr[method].c_str(), run[0]));
+      }
       float xmi[3] = {0.0, 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 3> pad;
 
       for (int obj = 0; obj < 3; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
 
@@ -277,15 +308,19 @@ namespace {
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalLaserAlphasDiffBase
+  using EcalLaserAlphasDiffOneTag = EcalLaserAlphasBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalLaserAlphasDiffTwoTags = EcalLaserAlphasBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
+  using EcalLaserAlphasRatioOneTag = EcalLaserAlphasBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalLaserAlphasRatioTwoTags = EcalLaserAlphasBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   /*******************************************************
- 2d plot of Ecal Laser Alphas Summary of 1 IOV
- *******************************************************/
+      2d plot of Ecal Laser Alphas Summary of 1 IOV
+   *******************************************************/
   class EcalLaserAlphasSummaryPlot : public cond::payloadInspector::PlotImage<EcalLaserAlphas> {
   public:
     EcalLaserAlphasSummaryPlot()
@@ -329,9 +364,9 @@ namespace {
       t1.SetTextColor(2);
       t1.DrawLatex(0.5, 0.96, Form("Ecal Laser Alphas Summary, IOV %i", run));
 
-      TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
-      pad->Draw();
-      pad->cd();
+      TPad pad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+      pad.Draw();
+      pad.cd();
       align->Draw("TEXT");
 
       drawTable(NbRows, 4);
@@ -350,6 +385,9 @@ PAYLOAD_INSPECTOR_MODULE(EcalLaserAlphas) {
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasEBMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasEEMap);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasDiffTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasRatioOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasRatioTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalLaserAlphasSummaryPlot);
 }

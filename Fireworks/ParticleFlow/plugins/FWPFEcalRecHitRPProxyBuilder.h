@@ -49,10 +49,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFEcalRecHitRPProxyBuilder(const FWPFEcalRecHitRPProxyBuilder &) = delete;                   // Stop default
   const FWPFEcalRecHitRPProxyBuilder &operator=(const FWPFEcalRecHitRPProxyBuilder &) = delete;  // Stop default
 
+private:
   // --------------------- Member Functions --------------------------
   TEveVector calculateCentre(const float *corners);
 

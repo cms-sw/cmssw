@@ -1,7 +1,9 @@
-#ifndef CSCAnodeDataFormat_h
-#define CSCAnodeDataFormat_h
+#ifndef EventFilter_CSCRawToDigi_CSCAnodeDataFormat_h
+#define EventFilter_CSCRawToDigi_CSCAnodeDataFormat_h
+
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include <vector>
+
 class CSCAnodeDataFormat {
 public:
   virtual ~CSCAnodeDataFormat() {}

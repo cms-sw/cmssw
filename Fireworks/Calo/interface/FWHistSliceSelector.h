@@ -1,7 +1,7 @@
 #ifndef Fireworks_Calo_FWHistSliceSelector_h
 #define Fireworks_Calo_FWHistSliceSelector_h
 
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
+#include "Fireworks/Calo/interface/FWFromSliceSelector.h"
 class TH2F;
 
 class FWHistSliceSelector : public FWFromSliceSelector {

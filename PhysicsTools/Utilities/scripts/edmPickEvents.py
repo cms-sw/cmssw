@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Anzar Afaq         June 17, 2008
 # Oleksiy Atramentov June 21, 2008

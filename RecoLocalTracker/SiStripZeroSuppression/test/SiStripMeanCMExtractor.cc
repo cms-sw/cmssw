@@ -28,12 +28,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -60,8 +60,9 @@ private:
 
   void init(const edm::EventSetup&);
 
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
-  uint32_t pedestal_cache_id_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
+  const SiStripPedestals* pedestalHandle_;
+  edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
 
   void StoreMean(const edm::DetSetVector<SiStripProcessedRawDigi>&);
   void ConvertMeanMapToDetSetVector(std::vector<edm::DetSet<SiStripProcessedRawDigi>>&);
@@ -76,7 +77,8 @@ private:
 };
 
 SiStripMeanCMExtractor::SiStripMeanCMExtractor(const edm::ParameterSet& conf)
-    : _inputTag(conf.getParameter<edm::InputTag>("CMCollection")),
+    : pedestalsToken_(esConsumes()),
+      _inputTag(conf.getParameter<edm::InputTag>("CMCollection")),
       _Algorithm(conf.getParameter<std::string>("Algorithm")),
       _nEventsToUse(conf.getParameter<uint32_t>("NEvents")) {
   if (_nEventsToUse < 1)
@@ -95,11 +97,8 @@ void SiStripMeanCMExtractor::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void SiStripMeanCMExtractor::init(const edm::EventSetup& es) {
-  uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-
-  if (p_cache_id != pedestal_cache_id_) {
-    es.get<SiStripPedestalsRcd>().get(pedestalHandle_);
-    pedestal_cache_id_ = p_cache_id;
+  if (pedestalsWatcher_.check(es)) {
+    pedestalHandle_ = &es.getData(pedestalsToken_);
   }
 }
 

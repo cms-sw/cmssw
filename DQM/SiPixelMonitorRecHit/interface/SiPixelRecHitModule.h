@@ -25,15 +25,19 @@ detector segment (detID)
 //  for pixel offline DQM
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/cstdint.hpp>
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include <cstdint>
 
 class SiPixelRecHitModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   /// Default constructor
   SiPixelRecHitModule();
   /// Constructor with raw DetId
@@ -46,7 +50,7 @@ public:
   /// Book histograms
   void book(const edm::ParameterSet &iConfig,
             DQMStore::IBooker &iBooker,
-            const edm::EventSetup &iSetup,
+            const TrackerTopology *pTT,
             int type = 0,
             bool twoD = true,
             bool reducedSet = false,

@@ -19,8 +19,6 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 //---------------
 // C++ Headers --
@@ -43,11 +41,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMTFConfig::L1MuBMTFConfig(const edm::ParameterSet& ps) {
-  m_ps = &ps;
-  //m_es = &c;
-  setDefaults();
-}
+L1MuBMTFConfig::L1MuBMTFConfig(const edm::ParameterSet& ps) { setDefaults(ps); }
 
 //--------------
 // Destructor --
@@ -58,12 +52,12 @@ L1MuBMTFConfig::~L1MuBMTFConfig() {}
 // Operations --
 //--------------
 
-void L1MuBMTFConfig::setDefaults() {
-  m_BMDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source");
-  m_BMThetaDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Theta_Source");
+void L1MuBMTFConfig::setDefaults(const edm::ParameterSet& ps) {
+  m_BMDigiInputTag = ps.getParameter<edm::InputTag>("DTDigi_Source");
+  m_BMThetaDigiInputTag = ps.getParameter<edm::InputTag>("DTDigi_Theta_Source");
 
   m_debug = true;
-  m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug", 0);
+  m_dbgLevel = ps.getUntrackedParameter<int>("Debug", 0);
 
   if (Debug(1))
     cout << endl;
@@ -87,14 +81,10 @@ void L1MuBMTFConfig::setDefaults() {
     cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
 }
 
-void L1MuBMTFConfig::setDefaultsES(const edm::EventSetup& c) {
-  m_es = &c;
-
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = m_es->get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle);
+void L1MuBMTFConfig::setDefaultsES(const L1TMuonBarrelParams& bmParams) {
   // L1TMuonBarrelParams *bmtfParams = new L1TMuonBarrelParams();
   // bmtfParams = new L1TMuonBarrelParams(*bmtfParamsHandle.product());
-  L1TMuonBarrelParamsAllPublic* bmtfParams = new L1TMuonBarrelParamsAllPublic(*bmtfParamsHandle.product());
+  L1TMuonBarrelParamsAllPublic* bmtfParams = new L1TMuonBarrelParamsAllPublic(bmParams);
 
   // set min and max bunch crossing
   m_BxMin = bmtfParams->get_BX_min();

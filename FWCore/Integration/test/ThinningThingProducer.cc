@@ -30,29 +30,37 @@ namespace edmtest {
   public:
     ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc);
 
-    static void fillDescription(edm::ParameterSetDescription& desc);
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
     void preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es);
 
     bool choose(unsigned int iIndex, edmtest::Thing const& iItem);
 
+    void reset() { keysToSave_.clear(); }
+
   private:
     edm::EDGetTokenT<TrackOfThingsCollection> trackToken_;
     std::set<unsigned int> keysToSave_;
     unsigned int offsetToThinnedKey_;
+    unsigned int offsetToValue_;
     unsigned int expectedCollectionSize_;
+    int slimmedValueFactor_;
   };
 
   ThinningThingSelector::ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc) {
     trackToken_ = cc.consumes<TrackOfThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"));
     offsetToThinnedKey_ = pset.getParameter<unsigned int>("offsetToThinnedKey");
+    offsetToValue_ = pset.getParameter<unsigned int>("offsetToValue");
     expectedCollectionSize_ = pset.getParameter<unsigned int>("expectedCollectionSize");
+    slimmedValueFactor_ = pset.getParameter<int>("slimmedValueFactor");
   }
 
-  void ThinningThingSelector::fillDescription(edm::ParameterSetDescription& desc) {
+  void ThinningThingSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
     desc.add<edm::InputTag>("trackTag");
     desc.add<unsigned int>("offsetToThinnedKey");
+    desc.add<unsigned int>("offsetToValue", 0);
     desc.add<unsigned int>("expectedCollectionSize");
+    desc.add<int>("slimmedValueFactor", 1);
   }
 
   void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc,
@@ -80,9 +88,10 @@ namespace edmtest {
   bool ThinningThingSelector::choose(unsigned int iIndex, edmtest::Thing const& iItem) {
     // Just checking to see the element in the container got passed in OK. Not really using it.
     // Just using %10 because it coincidentally works with the arbitrary numbers I picked, no meaning really.
-    if (static_cast<unsigned>(iItem.a % 10) != iIndex % 10) {
-      throw cms::Exception("TestFailure")
-          << "ThinningThingSelector::choose, item content = " << iItem.a << " index = " << iIndex;
+    auto const expected = slimmedValueFactor_ * (iIndex + offsetToValue_);
+    if (static_cast<unsigned>(iItem.a % 10) != static_cast<unsigned>(expected % 10)) {
+      throw cms::Exception("TestFailure") << "ThinningThingSelector::choose, item content = " << iItem.a
+                                          << " index = " << iIndex << " expected " << expected;
     }
 
     // Save the Things referenced by the Tracks

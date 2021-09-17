@@ -77,7 +77,7 @@ PlottingDevice::PlottingDevice(const edm::ParameterSet& iConfig) {
   //configure the plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
   std::string plotterName = plotPset.getParameter<std::string>("ComponentName");
-  plotter_ = std::unique_ptr<Plotter>(PlotterFactory::get()->create(plotterName, plotPset));
+  plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
 }
 
 PlottingDevice::~PlottingDevice() {}

@@ -139,22 +139,22 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
 // mu SimHit in the RF of object Det (Concrete implementation of Det are MuBarSL
 // and MuBarChamber)
 pair<LocalVector, LocalPoint> DTHitQualityUtils::findMuSimSegmentDirAndPos(
-    const pair<const PSimHit *, const PSimHit *> &inAndOutSimHit, const DetId detId, const DTGeometry *muonGeom) {
+    const pair<const PSimHit *, const PSimHit *> &inAndOutSimHit, const DetId detId, const DTGeometry &muonGeom) {
   // FIXME: What should happen if outSimHit = inSimHit???? Now, this case is not
   // considered
   const PSimHit *innermostMuSimHit = inAndOutSimHit.first;
   const PSimHit *outermostMuSimHit = inAndOutSimHit.second;
 
   // Find simulated segment direction from SimHits position
-  const DTLayer *layerIn = muonGeom->layer((DTWireId(innermostMuSimHit->detUnitId())).layerId());
-  const DTLayer *layerOut = muonGeom->layer((DTWireId(outermostMuSimHit->detUnitId())).layerId());
+  const DTLayer *layerIn = muonGeom.layer((DTWireId(innermostMuSimHit->detUnitId())).layerId());
+  const DTLayer *layerOut = muonGeom.layer((DTWireId(outermostMuSimHit->detUnitId())).layerId());
   GlobalPoint inGlobalPos = layerIn->toGlobal(innermostMuSimHit->localPosition());
   GlobalPoint outGlobalPos = layerOut->toGlobal(outermostMuSimHit->localPosition());
-  LocalVector simHitDirection = (muonGeom->idToDet(detId))->toLocal(inGlobalPos - outGlobalPos);
+  LocalVector simHitDirection = (muonGeom.idToDet(detId))->toLocal(inGlobalPos - outGlobalPos);
   simHitDirection = -simHitDirection.unit();
 
   // SimHit position extrapolated at z=0 in the Det RF
-  LocalPoint outLocalPos = (muonGeom->idToDet(detId))->toLocal(outGlobalPos);
+  LocalPoint outLocalPos = (muonGeom.idToDet(detId))->toLocal(outGlobalPos);
   LocalPoint simSegLocalPosition =
       outLocalPos + simHitDirection * (-outLocalPos.z() / (simHitDirection.mag() * cos(simHitDirection.theta())));
 

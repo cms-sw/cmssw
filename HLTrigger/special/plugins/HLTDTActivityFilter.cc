@@ -28,10 +28,7 @@ Description: Filter to select events with activity in the muon barrel system
 // Fwk header files
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 // Typedefs
@@ -40,7 +37,8 @@ typedef std::map<uint32_t, std::bitset<4> > activityMap;  // bitset map accordin
 //
 // constructors and destructor
 //
-HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig), muonGeometryRecordToken_(esConsumes()) {
   using namespace std;
 
   inputTag_[DCC] = iConfig.getParameter<edm::InputTag>("inputDCC");
@@ -206,8 +204,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent,
   }
 
   if (process_[RPC]) {
-    edm::ESHandle<DTGeometry> dtGeom;
-    iSetup.get<MuonGeometryRecord>().get(dtGeom);
+    auto const& dtGeom = iSetup.getHandle(muonGeometryRecordToken_);
 
     edm::Handle<L1MuGMTReadoutCollection> gmtrc;
     iEvent.getByToken(inputRPCToken_, gmtrc);

@@ -32,11 +32,9 @@
 // DQM services for histogram
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class TFile;
-class MonitorElement;
 
 //
 // class declaration
@@ -45,7 +43,6 @@ class MonitorElement;
 class GlobalTest : public DQMEDAnalyzer {
 public:
   explicit GlobalTest(const edm::ParameterSet &);
-  ~GlobalTest() override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -63,9 +60,6 @@ private:
   MonitorElement *trackPartIdH_[nMaxH];
   MonitorElement *caloEnergyEBH_[nMaxH];
   MonitorElement *caloEnergyEEH_[nMaxH];
-
-  const static int nrHistos = 6;
-  char *labels[nrHistos];
 
   edm::EDGetTokenT<CrossingFrame<SimTrack>> cfTrackToken_;
   edm::EDGetTokenT<CrossingFrame<SimTrack>> cfVertexToken_;

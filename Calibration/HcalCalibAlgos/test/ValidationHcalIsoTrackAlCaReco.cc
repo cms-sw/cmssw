@@ -21,8 +21,6 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -49,7 +47,6 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
@@ -246,7 +243,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
 
   // Sergey +
 
-  std::cout << std::endl << "  End / Start " << std::endl;
+  edm::LogVerbatim("HcalIsoTrack") << "\n  End / Start ";
 
   edm::Handle<edm::SimTrackContainer> simTracks;
   iEvent.getByToken<edm::SimTrackContainer>(tok_simTrack_, simTracks);
@@ -254,8 +251,8 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll = recoIsoTracks->begin();
        bll != recoIsoTracks->end();
        bll++) {
-    std::cout << "ISO Pt " << bll->pt() << " P     " << bll->p() << " Eta " << bll->eta() << " Phi " << bll->phi()
-              << std::endl;
+    edm::LogVerbatim("HcalIsoTrack") << "ISO Pt " << bll->pt() << " P     " << bll->p() << " Eta " << bll->eta()
+                                     << " Phi " << bll->phi();
 
     double distanceMin = 1.;
     double SimPtMatched = 1.;
@@ -289,9 +286,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
                              tracksCI->momentum().pz() * tracksCI->momentum().pz());
         }
 
-        std::cout << "    Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta "
-                  << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex
-                  << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
+        edm::LogVerbatim("HcalIsoTrack") << "    Pt " << tracksCI->momentum().pt() << " Energy "
+                                         << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi "
+                                         << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha "
+                                         << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
       }
 
       if (tracksCI->momentum().eta() > (bll->eta() - 0.5) && tracksCI->momentum().eta() < (bll->eta() + 0.5) &&
@@ -302,9 +300,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
         double distance = getDist(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
         double distanceCM = getDistInCM(tracksCI->momentum().eta(), tracksCI->momentum().phi(), bll->eta(), bll->phi());
 
-        std::cout << "NEU Pt " << tracksCI->momentum().pt() << " Energy " << tracksCI->momentum().e() << " Eta "
-                  << tracksCI->momentum().eta() << " Phi " << tracksCI->momentum().phi() << " Ind " << partIndex
-                  << " Cha " << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM << std::endl;
+        edm::LogVerbatim("HcalIsoTrack") << "NEU Pt " << tracksCI->momentum().pt() << " Energy "
+                                         << tracksCI->momentum().e() << " Eta " << tracksCI->momentum().eta() << " Phi "
+                                         << tracksCI->momentum().phi() << " Ind " << partIndex << " Cha "
+                                         << tracksCI->charge() << " Dis " << distance << " DCM " << distanceCM;
 
         if (distanceCM < 40.) {
           neuen = neuen + tracksCI->momentum().e();
@@ -329,7 +328,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
       hSimP->Fill(SimPMatched, 1);
       hSimN->Fill(1, 1);
 
-      std::cout << "S    Pt " << SimPtMatched << std::endl;
+      edm::LogVerbatim("HcalIsoTrack") << "S    Pt " << SimPtMatched;
     }
 
     if (distanceMin > 0.1) {
@@ -387,13 +386,13 @@ void ValidationHcalIsoTrackAlCaReco::beginJob() {
       dbe_->book2D("hOccupancyFull", "number of tracks per tower, full energy range", 48, -25, 25, 73, 0, 73);
   hOccupancyFull->setAxisTitle("ieta", 1);
   hOccupancyFull->setAxisTitle("iphi", 2);
-  hOccupancyFull->getTH2F()->SetOption("colz");
+  hOccupancyFull->setOption("colz");
   hOccupancyFull->getTH2F()->SetStats(kFALSE);
   hOccupancyHighEn =
       dbe_->book2D("hOccupancyHighEn", "number of tracks per tower, high energy tracks", 48, -25, 25, 73, 0, 73);
   hOccupancyHighEn->setAxisTitle("ieta", 1);
   hOccupancyHighEn->setAxisTitle("iphi", 2);
-  hOccupancyHighEn->getTH2F()->SetOption("colz");
+  hOccupancyHighEn->setOption("colz");
   hOccupancyHighEn->getTH2F()->SetStats(kFALSE);
 
   hOffL3TrackMatch = dbe_->book1D("hOffL3TrackMatch", "Distance from L3 object to offline track", 200, 0, 0.5);

@@ -1,7 +1,7 @@
-<use   name="CLHEP"/>
-<use   name="Alignment/CocoaUtilities"/>
-<use   name="Alignment/CocoaModel"/>
-<use   name="Alignment/CocoaDDLObjects"/>
+<use name="CLHEP"/>
+<use name="Alignment/CocoaUtilities"/>
+<use name="Alignment/CocoaModel"/>
+<use name="Alignment/CocoaDDLObjects"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

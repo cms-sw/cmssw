@@ -44,7 +44,7 @@ public:
   // ---------- member functions ---------------------------
 
 protected:
-  std::map<DetId, const HGCRecHit*> hitmap;
+  std::unordered_map<DetId, const HGCRecHit*>* hitmap = new std::unordered_map<DetId, const HGCRecHit*>;
 
   static constexpr uint8_t gradient_steps = 9;
   static constexpr uint8_t gradient[3][gradient_steps] = {{static_cast<uint8_t>(0.2082 * 255),
@@ -90,45 +90,44 @@ protected:
       iItem->getConfig()->assertParam("Z-", true);
     }
   }
-  
-  void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) override
-  {
-      if (item()->getConfig()->template value<bool>("Heatmap"))
-      {
-         hitmap.clear();
 
-         edm::Handle<HGCRecHitCollection> recHitHandleEE;
-         edm::Handle<HGCRecHitCollection> recHitHandleFH;
-         edm::Handle<HGCRecHitCollection> recHitHandleBH;   
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) override {
+    if (item()->getConfig()->template value<bool>("Heatmap")) {
+      hitmap->clear();
 
-         const edm::EventBase *event = iItem->getEvent();
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCEERecHits" ), recHitHandleEE );
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEFRecHits" ), recHitHandleFH );
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEBRecHits" ), recHitHandleBH );
+      edm::Handle<HGCRecHitCollection> recHitHandleEE;
+      edm::Handle<HGCRecHitCollection> recHitHandleFH;
+      edm::Handle<HGCRecHitCollection> recHitHandleBH;
 
-         if(recHitHandleEE.isValid()){
-            const auto& rechitsEE = *recHitHandleEE;
+      const edm::EventBase* event = iItem->getEvent();
 
-            for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-               hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-            }
-         }
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCEERecHits"), recHitHandleEE);
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"), recHitHandleFH);
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"), recHitHandleBH);
 
-         if(recHitHandleFH.isValid()){
-            const auto& rechitsFH = *recHitHandleFH;
+      if (recHitHandleEE.isValid()) {
+        const auto& rechitsEE = *recHitHandleEE;
 
-            for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-               hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-            }
-         }
+        for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
+          (*hitmap)[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
+        }
+      }
 
-         if(recHitHandleBH.isValid()){
-            const auto& rechitsBH = *recHitHandleBH;
+      if (recHitHandleFH.isValid()) {
+        const auto& rechitsFH = *recHitHandleFH;
 
-            for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-               hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-            }
-         }
+        for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
+          (*hitmap)[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
+        }
+      }
+
+      if (recHitHandleBH.isValid()) {
+        const auto& rechitsBH = *recHitHandleBH;
+
+        for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
+          (*hitmap)[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
+        }
+      }
     }
 
     FWSimpleProxyBuilder::build(iItem, product, vc);
@@ -167,11 +166,11 @@ protected:
         "implemented by inherited class");
   };
 
-private:
+public:
   FWHeatmapProxyBuilderTemplate(const FWHeatmapProxyBuilderTemplate&) = delete;  // stop default
 
   const FWHeatmapProxyBuilderTemplate& operator=(const FWHeatmapProxyBuilderTemplate&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
 };
 

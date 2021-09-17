@@ -5,10 +5,12 @@ process = cms.Process("ProcessOne")
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiPixelQualityProbabilitiesWriteFromASCII")  
-process.MessageLogger.categories.append("SiPixelQualityProbabilities")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiPixelQualityProbabilitiesWriteFromASCII=dict()  
+process.MessageLogger.SiPixelQualityProbabilities=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -17,7 +19,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
     SiPixelQualityProbabilitiesWriteFromASCII = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelQualityProbabilities           = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.statistics.append('cout')  
 
 ##
 ## Empty source
@@ -39,21 +40,21 @@ process.load("CondCore.CondDB.CondDB_cfi")
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarioProbabilities_noPU.db'
+process.CondDB.connect = 'sqlite_file:SiPixelQualityProbabilities_UltraLegacy2018_v0_mc.db'
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                                                     tag = cms.string('SiPixelQualityProbabilities_noPU_v0_mc')
+                                                                     tag = cms.string('SiPixelQualityProbabilities_UltraLegacy2018_v0_mc')
                                                                      )
                                                             )
                                           )
 
 
 process.WriteInDB = cms.EDAnalyzer("SiPixelQualityProbabilitiesWriteFromASCII",
-                                   printDebug    = cms.untracked.bool(True),
+                                   printDebug    = cms.untracked.bool(False),
                                    record        = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                   probabilities = cms.string('prob_noPU_2018.txt'),
+                                   probabilities = cms.string('prob_2018_-1.txt'),
                                    )
 
 process.p = cms.Path(process.WriteInDB)

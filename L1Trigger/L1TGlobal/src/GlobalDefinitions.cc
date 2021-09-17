@@ -6,6 +6,7 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *          Vladimir Rekovic - extend for overlap removal
+ *          Elisa Fontanesi - extended for three-body correlation conditions
  *
  * $Date$
  * $Revision$
@@ -33,14 +34,16 @@ namespace {
 
   template <class T>
   constexpr T keyToValue(char const *label, entry<T> const *entries) {
-    return !entries->label ? entries->value
-                           : same(entries->label, label) ? entries->value : /*default*/ keyToValue(label, entries + 1);
+    return !entries->label               ? entries->value
+           : same(entries->label, label) ? entries->value
+                                         : /*default*/ keyToValue(label, entries + 1);
   }
 
   template <class T>
   constexpr char const *valueToKey(T value, entry<T> const *entries) {
-    return !entries->label ? entries->label
-                           : entries->value == value ? entries->label : /*default*/ valueToKey(value, entries + 1);
+    return !entries->label           ? entries->label
+           : entries->value == value ? entries->label
+                                     : /*default*/ valueToKey(value, entries + 1);
   }
   constexpr entry<l1t::L1GtBoardType> l1GtBoardTypeStringToEnumMap[] = {
       {"l1t::MP7", l1t::MP7}, {"l1t::BoardNull", l1t::BoardNull}, {nullptr, (l1t::L1GtBoardType)-1}};
@@ -87,9 +90,10 @@ namespace {
       {"l1t::CondCalo", l1t::CondCalo},
       {"l1t::CondEnergySum", l1t::CondEnergySum},
       {"l1t::CondCorrelation", l1t::CondCorrelation},
+      {"l1t::CondCorrelationThreeBody", l1t::CondCorrelationThreeBody},
+      {"l1t::CondCorrelationWithOverlapRemoval", l1t::CondCorrelationWithOverlapRemoval},
       {"l1t::CondExternal", l1t::CondExternal},
-      {nullptr, (l1t::GtConditionCategory)-1},
-      {"l1t::CondCorrelationWithOverlapRemoval", l1t::CondCorrelationWithOverlapRemoval}};
+      {nullptr, (l1t::GtConditionCategory)-1}};
 
 }  // namespace
 // l1t::L1GtBoardType

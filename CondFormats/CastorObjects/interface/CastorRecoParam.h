@@ -8,8 +8,7 @@ POOL object to store timeslice reco values
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class CastorRecoParam {
 public:

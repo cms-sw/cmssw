@@ -10,7 +10,7 @@
 
 class OOTPileupCorrectionColl {
 public:
-  inline void add(const std::string& name, const std::string& category, boost::shared_ptr<AbsOOTPileupCorrection> ptr) {
+  inline void add(const std::string& name, const std::string& category, std::shared_ptr<AbsOOTPileupCorrection> ptr) {
     data_[category][name] = ptr;
   }
 
@@ -18,7 +18,7 @@ public:
 
   inline bool empty() const { return data_.empty(); }
 
-  boost::shared_ptr<AbsOOTPileupCorrection> get(const std::string& name, const std::string& category) const;
+  std::shared_ptr<AbsOOTPileupCorrection> get(const std::string& name, const std::string& category) const;
 
   bool exists(const std::string& name, const std::string& category) const;
 
@@ -27,7 +27,7 @@ public:
   inline bool operator!=(const OOTPileupCorrectionColl& r) const { return !(*this == r); }
 
 private:
-  typedef std::map<std::string, boost::shared_ptr<AbsOOTPileupCorrection> > PtrMap;
+  typedef std::map<std::string, std::shared_ptr<AbsOOTPileupCorrection> > PtrMap;
   typedef std::map<std::string, PtrMap> DataMap;
   DataMap data_;
 

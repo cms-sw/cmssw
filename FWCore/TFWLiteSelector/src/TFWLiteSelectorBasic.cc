@@ -20,11 +20,12 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"  // kludge to allow compilation
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -43,8 +44,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -73,7 +74,7 @@ namespace edm {
 
     private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchID const& k) const;
-      std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
+      std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
       virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::unique_ptr<EventEntryDescription>();
       }
@@ -94,7 +95,7 @@ namespace edm {
       std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> bidToDesc_;
     };
 
-    std::unique_ptr<WrapperBase> FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
+    std::shared_ptr<WrapperBase> FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
       return getTheProduct(k);
     }
 
@@ -322,6 +323,7 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
     branchListIndexBranch->SetAddress(&pBranchListIndexes);
     branchListIndexBranch->GetEntry(iEntry);
     m_->branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
+    edm::EventToProcessBlockIndexes dummyEventToProcessBlockIndexes;
 
     try {
       m_->reader_->setEntry(iEntry);
@@ -329,10 +331,12 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg(), m_->pc_, nullptr, 0);
       auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
       lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
+      auto history = m_->phreg_->getMapped(eaux->processHistoryID());
       m_->ep_->fillEventPrincipal(*eaux,
-                                  *m_->phreg_,
+                                  history,
                                   std::move(eventSelectionIDs),
                                   std::move(branchListIndexes),
+                                  dummyEventToProcessBlockIndexes,
                                   *(m_->provRetriever_),
                                   m_->reader_.get());
       lbp->setRunPrincipal(rp);
@@ -476,6 +480,7 @@ void TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       if (m_->tree_->GetBranch(prod.branchName().c_str()) == nullptr) {
         prod.setDropped(true);
       }
+      prod.setOnDemand(true);
 
       //std::cout << "id " << it->first << " branch " << it->second << std::endl;
       //m_->pointerToBranchBuffer_.push_back(&(*itB));

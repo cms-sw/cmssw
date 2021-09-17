@@ -44,6 +44,11 @@ namespace edm {
     typedef T Type;
   };
 
+  template <typename... CacheTypes>
+  struct InputProcessBlockCache {
+    static constexpr module::Abilities kAbilities = module::Abilities::kInputProcessBlockCache;
+  };
+
   template <typename T>
   struct RunCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kRunCache;
@@ -66,6 +71,21 @@ namespace edm {
   struct LuminosityBlockSummaryCache {
     static constexpr module::Abilities kAbilities = module::Abilities::kLuminosityBlockSummaryCache;
     typedef T Type;
+  };
+
+  struct WatchProcessBlock {
+    static constexpr module::Abilities kAbilities = module::Abilities::kWatchProcessBlock;
+    typedef module::Empty Type;
+  };
+
+  struct BeginProcessBlockProducer {
+    static constexpr module::Abilities kAbilities = module::Abilities::kBeginProcessBlockProducer;
+    typedef module::Empty Type;
+  };
+
+  struct EndProcessBlockProducer {
+    static constexpr module::Abilities kAbilities = module::Abilities::kEndProcessBlockProducer;
+    typedef module::Empty Type;
   };
 
   struct BeginRunProducer {
@@ -110,16 +130,24 @@ namespace edm {
   template <module::Abilities ABILITY, typename T, typename... VArgs>
   struct CheckAbility<ABILITY, T, VArgs...> {
     static constexpr bool kHasIt = (T::kAbilities == ABILITY) | CheckAbility<ABILITY, VArgs...>::kHasIt;
-    typedef std::
-        conditional_t<(T::kAbilities == ABILITY), typename T::Type, typename CheckAbility<ABILITY, VArgs...>::Type>
-            Type;
   };
 
   //End of the recursion
   template <module::Abilities ABILITY>
   struct CheckAbility<ABILITY> {
     static constexpr bool kHasIt = false;
-    typedef edm::module::Empty Type;
+  };
+
+  template <typename... VArgs>
+  struct WantsProcessBlockTransitions {
+    static constexpr bool value = CheckAbility<module::Abilities::kWatchProcessBlock, VArgs...>::kHasIt or
+                                  CheckAbility<module::Abilities::kBeginProcessBlockProducer, VArgs...>::kHasIt or
+                                  CheckAbility<module::Abilities::kEndProcessBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct WantsInputProcessBlockTransitions {
+    static constexpr bool value = CheckAbility<module::Abilities::kInputProcessBlockCache, VArgs...>::kHasIt;
   };
 
   template <typename... VArgs>
@@ -151,16 +179,35 @@ namespace edm {
   };
 
   template <typename... VArgs>
-  struct HasAbilityToProduceInRuns {
-    static constexpr bool value = CheckAbility<module::Abilities::kBeginRunProducer, VArgs...>::kHasIt or
-                                  CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  struct HasAbilityToProduceInBeginProcessBlocks {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginProcessBlockProducer, VArgs...>::kHasIt;
   };
 
   template <typename... VArgs>
-  struct HasAbilityToProduceInLumis {
-    static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt or
-                                  CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  struct HasAbilityToProduceInEndProcessBlocks {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndProcessBlockProducer, VArgs...>::kHasIt;
   };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInBeginRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndRuns {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInBeginLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kBeginLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
+  template <typename... VArgs>
+  struct HasAbilityToProduceInEndLumis {
+    static constexpr bool value = CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
+
 }  // namespace edm
 
 #endif

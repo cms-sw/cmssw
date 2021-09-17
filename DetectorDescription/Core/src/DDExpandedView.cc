@@ -24,7 +24,8 @@ DDExpandedView::DDExpandedView(const DDCompactView& cpv)
       trans_(DDTranslation()),
       rot_(DDRotationMatrix()),
       depth_(0),
-      worldpos_(cpv.worldPosition()) {
+      worldpos_(cpv.worldPosition()),
+      cpv_(&cpv) {
   walker_ = &w2_;
 
   const DDPosData* pd((*walker_).current().second);
@@ -39,6 +40,8 @@ DDExpandedView::DDExpandedView(const DDCompactView& cpv)
 DDExpandedView::~DDExpandedView() {}
 
 const DDLogicalPart& DDExpandedView::logicalPart() const { return history_.back().logp_; }
+
+const std::string& DDExpandedView::name() const { return history_.back().logp_.ddname().name(); }
 
 const DDTranslation& DDExpandedView::translation() const { return history_.back().trans_; }
 

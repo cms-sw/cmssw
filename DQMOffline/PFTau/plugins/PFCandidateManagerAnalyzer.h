@@ -10,6 +10,8 @@ class TH1F;
 
 class PFCandidateManagerAnalyzer : public BenchmarkAnalyzer, public PFCandidateManager {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   PFCandidateManagerAnalyzer(const edm::ParameterSet &parameterSet);
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;

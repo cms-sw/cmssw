@@ -15,10 +15,12 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 using namespace std;
-CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf) {
+CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : magfieldToken_(iC.esConsumes()),
+      trackerToken_(iC.esConsumes()),
+      builderToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))) {
   //minimum number of hits per tracks
 
   theMinHits = conf.getParameter<int>("MinHits");
@@ -27,7 +29,6 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf) 
   edm::LogInfo("CosmicTrackFinder") << "Minimum number of hits " << theMinHits << " Cut on Chi2= " << chi2cut;
 
   geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
-  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 }
 
 CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {}
@@ -36,8 +37,8 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup &es, bool seedplus) {
   // FIXME: this is a memory leak generator
 
   //services
-  es.get<IdealMagneticFieldRecord>().get(magfield);
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  magfield = &es.getData(magfieldToken_);
+  tracker = &es.getData(trackerToken_);
 
   if (seedplus) {
     seed_plus = true;
@@ -52,10 +53,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup &es, bool seedplus) {
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(chi2cut);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  es.get<TransientRecHitRecord>().get(theBuilderName, theBuilder);
-
-  RHBuilder = theBuilder.product();
+  RHBuilder = &es.getData(builderToken_);
   hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(RHBuilder)->cloner();
 
   theFitter = new KFTrajectoryFitter(*thePropagator, *theUpdator, *theEstimator);
@@ -119,14 +117,14 @@ Trajectory CosmicTrajectoryBuilder::createStartingTrajectory(const TrajectorySee
 
 std::vector<TrajectoryMeasurement> CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed &seed) const {
   std::vector<TrajectoryMeasurement> result;
-  TrajectorySeed::range hitRange = seed.recHits();
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+  auto const &hitRange = seed.recHits();
+  for (auto ihit = hitRange.begin(); ihit != hitRange.end(); ihit++) {
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet *hitGeomDet = (&(*tracker))->idToDet(ihit->geographicalId());
     TSOS invalidState(new BasicSingleTrajectoryState(hitGeomDet->surface()));
 
-    if (ihit == hitRange.second - 1) {
+    if (ihit == hitRange.end() - 1) {
       TSOS updatedState = startingTSOS(seed);
       result.emplace_back(invalidState, updatedState, recHit);
     } else {
@@ -148,13 +146,11 @@ vector<const TrackingRecHit *> CosmicTrajectoryBuilder::SortHits(const SiStripRe
   vector<const TrackingRecHit *> allHits;
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
-  TrajectorySeed::range hRange = seed.recHits();
-  TrajectorySeed::const_iterator ihit;
   float yref = 0.;
-  for (ihit = hRange.first; ihit != hRange.second; ihit++) {
-    yref = RHBuilder->build(&(*ihit))->globalPosition().y();
-    hits.push_back((RHBuilder->build(&(*ihit))));
-    LogDebug("CosmicTrackFinder") << "SEED HITS" << RHBuilder->build(&(*ihit))->globalPosition();
+  for (auto const &recHit : seed.recHits()) {
+    yref = RHBuilder->build(&recHit)->globalPosition().y();
+    hits.push_back((RHBuilder->build(&recHit)));
+    LogDebug("CosmicTrackFinder") << "SEED HITS" << RHBuilder->build(&recHit)->globalPosition();
   }
 
   SiPixelRecHitCollection::DataContainer::const_iterator ipix;

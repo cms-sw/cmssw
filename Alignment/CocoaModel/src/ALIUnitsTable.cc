@@ -36,7 +36,10 @@ ALIUnitDefinition::~ALIUnitDefinition() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIUnitDefinition::ALIUnitDefinition(ALIUnitDefinition& right) { *this = right; }
+ALIUnitDefinition::ALIUnitDefinition(ALIUnitDefinition& right)
+    : std::enable_shared_from_this<ALIUnitDefinition>(right) {
+  *this = right;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 

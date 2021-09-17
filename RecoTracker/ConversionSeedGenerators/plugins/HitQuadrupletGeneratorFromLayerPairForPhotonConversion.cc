@@ -9,7 +9,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -85,7 +84,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     GlobalPoint oPos = ohit->globalPosition();
 
     totCountP2++;
-    const HitRZCompatibility *checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit, es);
     for (nextoh = oh + 1; nextoh != outerHits.second; ++nextoh) {
       RecHitsSortedInPhi::Hit nohit = (*nextoh).hit();
       GlobalPoint noPos = nohit->globalPosition();
@@ -104,7 +103,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       totCountM2++;
 
       /*Check the compatibility of the ohit with the eta of the seeding track*/
-      if (failCheckRZCompatibility(nohit, *outerLayerObj.detLayer(), checkRZ, region))
+      if (failCheckRZCompatibility(nohit, *outerLayerObj.detLayer(), checkRZ.get(), region))
         continue;
 
       /*  
@@ -127,8 +126,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       (*ss) << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
 #endif
 
-      const HitRZCompatibility *checkRZb = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
-      const HitRZCompatibility *checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit, es);
+      std::unique_ptr<const HitRZCompatibility> checkRZb = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
+      std::unique_ptr<const HitRZCompatibility> checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit, es);
 
       /*Loop on inner hits*/
       vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();
@@ -148,8 +147,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
         totCountP1++;
 
         /*Check the compatibility of the ihit with the two outer hits*/
-        if (failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZb, region) ||
-            failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZc, region))
+        if (failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZb.get(), region) ||
+            failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZc.get(), region))
           continue;
 
         for (vector<RecHitsSortedInPhi::Hit>::const_iterator nextih = ih + 1; nextih != ieh; ++nextih) {
@@ -170,8 +169,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
           totCountM1++;
 
           /*Check the compatibility of the nihit with the two outer hits*/
-          if (failCheckRZCompatibility(nihit, *innerLayerObj.detLayer(), checkRZb, region) ||
-              failCheckRZCompatibility(nihit, *innerLayerObj.detLayer(), checkRZc, region))
+          if (failCheckRZCompatibility(nihit, *innerLayerObj.detLayer(), checkRZb.get(), region) ||
+              failCheckRZCompatibility(nihit, *innerLayerObj.detLayer(), checkRZc.get(), region))
             continue;
 
           /*Sguazz modifica qui*/
@@ -181,9 +180,6 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
           if (theMaxElement != 0 && result.size() >= theMaxElement) {
             result.clear();
             edm::LogError("TooManyQuads") << "number of Quad combinations exceed maximum, no quads produced";
-            delete checkRZ;
-            delete checkRZb;
-            delete checkRZc;
 #ifdef mydebug_QSeed
             (*ss) << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << "\tP2 " << totCountP2
                   << "\tM2 " << totCountM2 << "\tP1 " << totCountP1 << "\tM1 " << totCountM1 << "\tsel " << selCount
@@ -200,10 +196,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
           //#endif
         }
       }
-      delete checkRZb;
-      delete checkRZc;
     }
-    delete checkRZ;
   }
 #ifdef mydebug_QSeed
   (*ss) << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << "\tP2 " << totCountP2 << "\tM2 "

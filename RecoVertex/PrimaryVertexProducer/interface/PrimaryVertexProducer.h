@@ -30,6 +30,8 @@
 
 //#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
@@ -58,11 +60,15 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   // access to config
   edm::ParameterSet config() const { return theConfig; }
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
+
   TrackFilterForPVFindingBase* theTrackFilter;
   TrackClusterizerInZ* theTrackClusterizer;
 
@@ -79,6 +85,9 @@ private:
 
   edm::ParameterSet theConfig;
   bool fVerbose;
+
+  bool fRecoveryIteration;
+  edm::EDGetTokenT<reco::VertexCollection> recoveryVtxToken;
 
   edm::EDGetTokenT<reco::BeamSpot> bsToken;
   edm::EDGetTokenT<reco::TrackCollection> trkToken;

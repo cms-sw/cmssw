@@ -32,23 +32,23 @@ public:
   ~DigiTask() override {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
 
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHE;
+  edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
+  edm::InputTag _tagQIE10;
+  edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
-  double _cutSumQ_HBHE, _cutSumQ_HE, _cutSumQ_HO, _cutSumQ_HF;
+  double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
   double _thresh_unihf;
 
   //	flag vector
@@ -70,7 +70,8 @@ protected:
   hcaldqm::filter::HashFilter _filter_FEDHF;
   hcaldqm::filter::HashFilter _filter_QIE1011;
   hcaldqm::filter::HashFilter _filter_QIE8;
-  hcaldqm::filter::HashFilter _filter_HEP17;
+  hcaldqm::filter::HashFilter _filter_TDC2bit;
+  hcaldqm::filter::HashFilter _filter_TDC6bit;
 
   /* hcaldqm::Containers */
   //	ADC, fC - Charge - just filling - no summary!
@@ -150,11 +151,13 @@ protected:
   hcaldqm::ContainerXXX<uint32_t> _xBadCapid;      // online only
 
   // QIE10 TDC histograms
-  hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
-  hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
-  hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsADC_2bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsADC_6bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsTS_2bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsTS_6bit_SubdetPM;
   hcaldqm::Container1D _cLETDCTime_SubdetPM;
   hcaldqm::ContainerProf2D _cLETDCTime_depth;
+  hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
 
   // Bad TDC histograms
   hcaldqm::Container1D _cBadTDCValues_SubdetPM;

@@ -1,16 +1,11 @@
 <export>
   <lib name="1"/>
 </export>
-
 <use name="DataFormats/CSCDigi"/>
-<use name="DataFormats/L1DTTrackFinder"/>
-<use name="DataFormats/RPCDigi"/>
 <use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/L1CSCTrackFinder"/>
 <use name="DataFormats/Common"/>
-<use name="L1Trigger/CSCCommonTrigger"/>
 <use name="DataFormats/Candidate"/>
-<use name="L1Trigger/DTTrackFinder"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="rootrflx"/>
 <flags ADD_SUBDIR="1"/>

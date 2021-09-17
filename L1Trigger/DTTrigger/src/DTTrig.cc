@@ -25,12 +25,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 //---------------
 // C++ Headers --
@@ -59,6 +55,9 @@ DTTrig::DTTrig(const edm::ParameterSet& params, edm::ConsumesCollector&& iC)
 
   _digitag = params.getParameter<edm::InputTag>("digiTag");
   iC.consumes<DTDigiCollection>(_digitag);
+  dtGeomToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
+  confToken_ = iC.esConsumes<DTConfigManager, DTConfigManagerRcd>();
+  dtGeomBeginRunToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
 
 void DTTrig::createTUs(const edm::EventSetup& iSetup) {
@@ -89,8 +88,7 @@ void DTTrig::createTUs(const edm::EventSetup& iSetup) {
     }
   }
 
-  edm::ESHandle<DTGeometry> dtGeom;
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  edm::ESHandle<DTGeometry> dtGeom = iSetup.getHandle(dtGeomBeginRunToken_);
   for (std::vector<const DTChamber*>::const_iterator ich = dtGeom->chambers().begin(); ich != dtGeom->chambers().end();
        ich++) {
     const DTChamber* chamb = (*ich);
@@ -216,7 +214,7 @@ void DTTrig::updateES(const edm::EventSetup& iSetup) {
       std::cout << "DTTrig::updateES updating DTTPG configuration" << std::endl;
 
     _configid = iSetup.get<DTConfigManagerRcd>().cacheIdentifier();
-    iSetup.get<DTConfigManagerRcd>().get(confHandle);
+    confHandle = iSetup.getHandle(confToken_);
     _conf_manager = confHandle.product();
     for (TU_iterator it = _cache.begin(); it != _cache.end(); it++) {
       (*it).second.setConfig(_conf_manager);
@@ -231,7 +229,7 @@ void DTTrig::updateES(const edm::EventSetup& iSetup) {
       std::cout << "DTTrig::updateES updating muon geometry" << std::endl;
 
     _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
-    iSetup.get<MuonGeometryRecord>().get(geomHandle);
+    geomHandle = iSetup.getHandle(dtGeomToken_);
     for (TU_iterator it = _cache.begin(); it != _cache.end(); it++) {
       (*it).second.setGeom(geomHandle->chamber((*it).second.statId()));
     }

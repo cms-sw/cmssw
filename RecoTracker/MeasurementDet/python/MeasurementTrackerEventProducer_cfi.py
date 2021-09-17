@@ -19,11 +19,15 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(MeasurementTrackerEvent,
     pixelClusterProducer = '',
     stripClusterProducer = '',
-    inactivePixelDetectorLabels = cms.VInputTag(),
-    inactiveStripDetectorLabels = cms.VInputTag(),
+    inactivePixelDetectorLabels = [],
+    inactiveStripDetectorLabels = [],
     switchOffPixelsIfEmpty = False
 )
-
+from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
+vectorHits.toModify(MeasurementTrackerEvent,
+    vectorHits = "siPhase2VectorHits:accepted",
+    vectorHitsRej = "siPhase2VectorHits:rejected",
+)
 
 MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
     pixelClusterProducer = 'siPixelClustersPreSplitting'

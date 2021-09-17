@@ -9,9 +9,11 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <vector>
-#include <ext/hash_map>
 
 class SiPixelBadModuleByHandBuilder : public ConditionDBWriter<SiPixelQuality> {
 public:
@@ -19,12 +21,19 @@ public:
   ~SiPixelBadModuleByHandBuilder();
 
 private:
-  std::unique_ptr<SiPixelQuality> getNewObject();
+  std::unique_ptr<SiPixelQuality> getNewObject() override;
+  void algoBeginJob(const edm::EventSetup& es) override {
+    edm::ESHandle<TrackerTopology> htopo;
+    es.get<TrackerTopologyRcd>().get(htopo);
+    tTopo_ = htopo.product();
+  };
 
 private:
   bool printdebug_;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BadModuleList_;
+  std::string ROCListFile_;
+  const TrackerTopology* tTopo_;
 };
 
 #endif

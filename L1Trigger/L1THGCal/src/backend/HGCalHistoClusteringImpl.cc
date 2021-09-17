@@ -12,7 +12,8 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
                                    ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer_coefficientB")
                                    : std::vector<double>()),
       ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-      cluster_association_input_(conf.getParameter<string>("cluster_association")) {
+      cluster_association_input_(conf.getParameter<string>("cluster_association")),
+      shape_(conf) {
   if (cluster_association_input_ == "NearestNeighbour") {
     cluster_association_strategy_ = NearestNeighbour;
   } else if (cluster_association_input_ == "EnergySplit") {
@@ -31,16 +32,15 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
 }
 
 float HGCalHistoClusteringImpl::dR(const l1t::HGCalCluster& clu, const GlobalPoint& seed) const {
-  Basic3DVector<float> seed_3dv(seed);
-  GlobalPoint seed_proj(seed_3dv / seed.z());
-  return (seed_proj - clu.centreProj()).mag();
+  return (seed - clu.centreProj()).mag();
 }
 
 std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticluster(
     const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs,
-    const std::vector<std::pair<GlobalPoint, double>>& seeds) const {
+    const std::vector<std::pair<GlobalPoint, double>>& seeds,
+    std::vector<l1t::HGCalCluster>& rejected_clusters) const {
   std::map<int, l1t::HGCalMulticluster> mapSeedMulticluster;
-  std::vector<l1t::HGCalMulticluster> multiclustersTmp;
+  std::vector<l1t::HGCalMulticluster> multiclustersOut;
 
   for (const auto& clu : clustersPtrs) {
     int z_side = triggerTools_.zside(clu->detId());
@@ -78,8 +78,10 @@ std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticl
       }
     }
 
-    if (targetSeedsEnergy.empty())
+    if (targetSeedsEnergy.empty()) {
+      rejected_clusters.emplace_back(*clu);
       continue;
+    }
     //Loop over target seeds and divide up the clusters energy
     double totalTargetSeedEnergy = 0;
     for (const auto& energy : targetSeedsEnergy) {
@@ -98,25 +100,35 @@ std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticl
     }
   }
 
+  multiclustersOut.reserve(mapSeedMulticluster.size());
   for (const auto& mclu : mapSeedMulticluster)
-    multiclustersTmp.emplace_back(mclu.second);
+    multiclustersOut.emplace_back(mclu.second);
 
-  return multiclustersTmp;
+  return multiclustersOut;
 }
 
 void HGCalHistoClusteringImpl::clusterizeHisto(const std::vector<edm::Ptr<l1t::HGCalCluster>>& clustersPtrs,
                                                const std::vector<std::pair<GlobalPoint, double>>& seedPositionsEnergy,
                                                const HGCalTriggerGeometryBase& triggerGeometry,
-                                               l1t::HGCalMulticlusterBxCollection& multiclusters) const {
+                                               l1t::HGCalMulticlusterBxCollection& multiclusters,
+                                               l1t::HGCalClusterBxCollection& rejected_clusters) const {
   /* clusterize clusters around seeds */
-  std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs, seedPositionsEnergy);
+  std::vector<l1t::HGCalCluster> rejected_clusters_vec;
+  std::vector<l1t::HGCalMulticluster> multiclusters_vec =
+      clusterSeedMulticluster(clustersPtrs, seedPositionsEnergy, rejected_clusters_vec);
   /* making the collection of multiclusters */
-  finalizeClusters(multiclustersTmp, multiclusters, triggerGeometry);
+  finalizeClusters(multiclusters_vec, rejected_clusters_vec, multiclusters, rejected_clusters, triggerGeometry);
 }
 
 void HGCalHistoClusteringImpl::finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
+                                                const std::vector<l1t::HGCalCluster>& rejected_clusters_in,
                                                 l1t::HGCalMulticlusterBxCollection& multiclusters_out,
+                                                l1t::HGCalClusterBxCollection& rejected_clusters_out,
                                                 const HGCalTriggerGeometryBase& triggerGeometry) const {
+  for (const auto& tc : rejected_clusters_in) {
+    rejected_clusters_out.push_back(0, tc);
+  }
+
   for (auto& multicluster : multiclusters_in) {
     // compute the eta, phi from its barycenter
     // + pT as scalar sum of pT of constituents
@@ -134,6 +146,10 @@ void HGCalHistoClusteringImpl::finalizeClusters(std::vector<l1t::HGCalMulticlust
       multicluster.saveHOverE();
 
       multiclusters_out.push_back(0, multicluster);
+    } else {
+      for (const auto& tc : multicluster.constituents()) {
+        rejected_clusters_out.push_back(0, *(tc.second));
+      }
     }
   }
 }

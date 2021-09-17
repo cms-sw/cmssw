@@ -3,6 +3,8 @@
   <class name="TrajectoryStateOnSurface"/>
   <class name="std::vector<TrajectoryStateOnSurface>" persistent="false"/>
   <class name="edm::Wrapper<std::vector<TrajectoryStateOnSurface> >" persistent="false"/>
+  <class name="std::vector<std::vector<TrajectoryStateOnSurface>>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<std::vector<TrajectoryStateOnSurface>>>" persistent="false"/>
   <class name="edm::RefProd<std::vector<TrajectoryStateOnSurface> >"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<TrajectoryStateOnSurface>, unsigned int> >" >
     <field name="transientMap_" transient="true" />

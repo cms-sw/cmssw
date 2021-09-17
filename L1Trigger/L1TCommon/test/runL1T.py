@@ -21,8 +21,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 ############################
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 #### Sim L1 Emulator Sequence:
@@ -43,9 +43,10 @@ process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1t_debug.root')
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
-process.MessageLogger.categories.append('L1TGlobalEvents')
-process.MessageLogger.categories.append('l1t|Global')
+process.MessageLogger.L1TCaloEvents=dict()
+process.MessageLogger.L1TGlobalEvents=dict()
+process.MessageLogger.l1t=dict()
+process.MessageLogger.Global=dict()
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 

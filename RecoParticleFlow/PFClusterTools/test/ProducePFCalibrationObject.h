@@ -12,6 +12,8 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
 
 #include <vector>
 #include <string>
@@ -38,5 +40,7 @@ private:
 
   std::vector<edm::ParameterSet> fToWrite;
   std::vector<std::string> fToRead;
+
+  const edm::ESGetToken<PerformancePayload, PFCalibrationRcd> perfToken;
 };
 #endif

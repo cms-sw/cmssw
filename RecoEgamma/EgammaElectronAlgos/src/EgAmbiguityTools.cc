@@ -11,13 +11,13 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-namespace EgAmbiguityTools {
+namespace egamma {
 
-  bool isBetter(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
+  bool isBetterElectron(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
     return (std::abs(e1.eSuperClusterOverP() - 1) < std::abs(e2.eSuperClusterOverP() - 1));
   }
 
-  bool isInnerMost(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
+  bool isInnermostElectron(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
     // retreive first valid hit
     int gsfHitCounter1 = 0;
     for (auto const& elHit : e1.gsfTrack()->recHits()) {
@@ -41,7 +41,7 @@ namespace EgAmbiguityTools {
     } else if (HitPattern::getLayer(gsfHit1) != HitPattern::getLayer(gsfHit2)) {
       return (HitPattern::getLayer(gsfHit1) < HitPattern::getLayer(gsfHit2));
     } else {
-      return isBetter(e1, e2);
+      return isBetterElectron(e1, e2);
     }
   }
 
@@ -177,4 +177,4 @@ namespace EgAmbiguityTools {
     return energyShared;
   }
 
-}  // namespace EgAmbiguityTools
+}  // namespace egamma

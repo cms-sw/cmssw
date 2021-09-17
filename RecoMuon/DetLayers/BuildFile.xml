@@ -1,15 +1,13 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="Utilities/BinningTools"/>
-<use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/GEMGeometry"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="Geometry/CSCGeometry"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="Utilities/BinningTools"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

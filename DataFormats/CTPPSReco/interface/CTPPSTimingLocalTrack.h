@@ -28,17 +28,17 @@ public:
 
   //--- spatial get'ters
 
-  inline float getX0() const { return pos0_.x(); }
-  inline float getX0Sigma() const { return pos0_sigma_.x(); }
+  inline float x0() const { return pos0_.x(); }
+  inline float x0Sigma() const { return pos0_sigma_.x(); }
 
-  inline float getY0() const { return pos0_.y(); }
-  inline float getY0Sigma() const { return pos0_sigma_.y(); }
+  inline float y0() const { return pos0_.y(); }
+  inline float y0Sigma() const { return pos0_sigma_.y(); }
 
-  inline float getZ0() const { return pos0_.z(); }
-  inline float getZ0Sigma() const { return pos0_sigma_.z(); }
+  inline float z0() const { return pos0_.z(); }
+  inline float z0Sigma() const { return pos0_sigma_.z(); }
 
-  inline int getNumOfHits() const { return num_hits_; }
-  inline int getNumOfPlanes() const { return num_planes_; }
+  inline int numberOfHits() const { return num_hits_; }
+  inline int numberOfPlanes() const { return num_planes_; }
 
   //--- spatial set'ters
 
@@ -55,13 +55,13 @@ public:
 
   //--- temporal get'ters
 
-  inline float getT() const { return t_; }
-  inline float getTSigma() const { return t_sigma_; }
+  inline float time() const { return t_; }
+  inline float timeSigma() const { return t_sigma_; }
 
   //--- temporal set'ters
 
-  inline void setT(float t) { t_ = t; }
-  inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
+  inline void setTime(float t) { t_ = t; }
+  inline void setTimeSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
 private:
   //--- spatial information

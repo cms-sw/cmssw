@@ -11,6 +11,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct2XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
@@ -18,6 +19,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBCheckGunPosition_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -25,11 +27,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
-    process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('HcalSim')
-    process.MessageLogger.categories.append('HcalTB06BeamSD')
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.SimG4CoreGeometry=dict()
+    process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.HcalTB06BeamSD=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -42,6 +44,21 @@ process.configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('SingleMuonE200_cfi nevts:10'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
+)
+
+# Output definition
+
+process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('GEN-SIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:TBGenSim181Oct2.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
@@ -69,28 +86,60 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MinZ = -800.0
-process.VtxSmeared.MaxZ = -800.0
-process.VtxSmeared.MinX = -7.5
-process.VtxSmeared.MaxX =  7.5
-process.VtxSmeared.MinY = -7.5
-process.VtxSmeared.MaxY =  7.5
+process.VtxSmeared.MinZ                 = -800.0
+process.VtxSmeared.MaxZ                 = -800.0
+process.VtxSmeared.MinX                 = -7.5
+process.VtxSmeared.MaxX                 =  7.5
+process.VtxSmeared.MinY                 = -7.5
+process.VtxSmeared.MaxY                 =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+		HGCPassive = cms.PSet(
+                    LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
+                    MotherName = cms.string('OCMS'),
+                    IfDD4Hep = cms.bool(False),
+                ),
+		type = cms.string('HGCPassive'),
+		)
+				       )
+process.HGCalTBAnalyzer.doDigis         = False
+process.HGCalTBAnalyzer.doRecHits       = False
+process.HGCalTBAnalyzer.useFH           = True
+process.HGCalTBAnalyzer.useBH           = True
+process.HGCalTBAnalyzer.useBeam         = True
+process.HGCalTBAnalyzer.zFrontEE        = 1110.0
+process.HGCalTBAnalyzer.zFrontFH        = 1176.5
+process.HGCalTBAnalyzer.zFrontFH        = 1307.5
+process.HGCalTBAnalyzer.maxDepth        = 39
+process.HGCalTBAnalyzer.deltaZ          = 26.2
+process.HGCalTBAnalyzer.zFirst          = 22.8
+process.HGCalTBAnalyzer.doPassive       = True
+process.HGCalTBAnalyzer.doPassiveEE     = True
+process.HGCalTBAnalyzer.doPassiveHE     = True
+process.HGCalTBAnalyzer.doPassiveBH     = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.gunfilter_step  = cms.Path(process.HGCalTBCheckGunPostion)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
+process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.genfiltersummary_step,
 				process.simulation_step,
 				process.gunfilter_step,
+				process.analysis_step,
 				process.endjob_step,
+                                process.FEVTDEBUGoutput_step
 				)
 # filter all path with the production filter sequence
 for path in process.paths:

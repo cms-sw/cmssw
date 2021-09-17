@@ -1,10 +1,10 @@
-#ifndef CSCComparatorDigi_CSCComparatorDigi_h
-#define CSCComparatorDigi_CSCComparatorDigi_h
+#ifndef DataFormats_CSCDigi_CSCComparatorDigi_h
+#define DataFormats_CSCDigi_CSCComparatorDigi_h
 
 /** \class CSCComparatorDigi
  *
  * Digi for CSC Comparators.
- *  
+ *
  *
  * \author M. Schmitt, Northwestern
  *
@@ -28,8 +28,14 @@ public:
   /// sort by time first, then by strip
   bool operator<(const CSCComparatorDigi& digi) const;
 
+  /// Get the distrip number. Counts from 0.
+  int getDiStrip() const;
+
   /// Get the strip number. Counts from 1.
   int getStrip() const { return strip_; }
+
+  /// Get the CFEB number. Counts from 0.
+  int getCFEB() const;
 
   /// Get Comparator readings. Can be 0 or 1.
   int getComparator() const { return comparator_; }

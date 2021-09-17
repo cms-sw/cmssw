@@ -1,89 +1,113 @@
 //*****************************************************************************
 // File:      EgammaEcalRecHitIsolationProducer.cc
 // ----------------------------------------------------------------------------
-// OrigAuth:  Matthias Mozer
-// Institute: IIHE-VUB
+// OrigAuth:  Matthias Mozer, adapted from EgammaHcalIsolationProducer by S. Harper
+// Institute: IIHE-VUB, RAL
 //=============================================================================
 //*****************************************************************************
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalRecHitIsolationProducer.h"
-
-// Framework
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
-  // use configuration file to setup input/output collection names
-  //inputs
-  emObjectProducer_ = conf_.getParameter<edm::InputTag>("emObjectProducer");
-  ecalBarrelRecHitProducer_ = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer");
-  ecalBarrelRecHitCollection_ = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
-  ecalEndcapRecHitProducer_ = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer");
-  ecalEndcapRecHitCollection_ = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
+class EgammaEcalRecHitIsolationProducer : public edm::global::EDProducer<> {
+public:
+  explicit EgammaEcalRecHitIsolationProducer(const edm::ParameterSet&);
 
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> emObjectProducer_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ecalBarrelRecHitCollection_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ecalEndcapRecHitCollection_;
+
+  double egIsoPtMinBarrel_;       //minimum Et noise cut
+  double egIsoEMinBarrel_;        //minimum E noise cut
+  double egIsoPtMinEndcap_;       //minimum Et noise cut
+  double egIsoEMinEndcap_;        //minimum E noise cut
+  double egIsoConeSizeOut_;       //outer cone size
+  double egIsoConeSizeInBarrel_;  //inner cone size
+  double egIsoConeSizeInEndcap_;  //inner cone size
+  double egIsoJurassicWidth_;     // exclusion strip width for jurassic veto
+
+  bool useIsolEt_;  //switch for isolEt rather than isolE
+  bool tryBoth_;    // use rechits from barrel + endcap
+  bool subtract_;   // subtract SC energy (allows veto cone of zero size)
+
+  bool useNumCrystals_;  // veto on number of crystals
+  bool vetoClustered_;   // veto all clusterd rechits
+
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevLvToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometrytoken_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaEcalRecHitIsolationProducer);
+
+EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::ParameterSet& config)
+    //inputs
+    : emObjectProducer_{consumes(config.getParameter<edm::InputTag>("emObjectProducer"))},
+      ecalBarrelRecHitCollection_{consumes(config.getParameter<edm::InputTag>("ecalBarrelRecHitCollection"))},
+      ecalEndcapRecHitCollection_{consumes(config.getParameter<edm::InputTag>("ecalEndcapRecHitCollection"))} {
   //vetos
-  egIsoPtMinBarrel_ = conf_.getParameter<double>("etMinBarrel");
-  egIsoEMinBarrel_ = conf_.getParameter<double>("eMinBarrel");
-  egIsoPtMinEndcap_ = conf_.getParameter<double>("etMinEndcap");
-  egIsoEMinEndcap_ = conf_.getParameter<double>("eMinEndcap");
-  egIsoConeSizeInBarrel_ = conf_.getParameter<double>("intRadiusBarrel");
-  egIsoConeSizeInEndcap_ = conf_.getParameter<double>("intRadiusEndcap");
-  egIsoConeSizeOut_ = conf_.getParameter<double>("extRadius");
-  egIsoJurassicWidth_ = conf_.getParameter<double>("jurassicWidth");
+  egIsoPtMinBarrel_ = config.getParameter<double>("etMinBarrel");
+  egIsoEMinBarrel_ = config.getParameter<double>("eMinBarrel");
+  egIsoPtMinEndcap_ = config.getParameter<double>("etMinEndcap");
+  egIsoEMinEndcap_ = config.getParameter<double>("eMinEndcap");
+  egIsoConeSizeInBarrel_ = config.getParameter<double>("intRadiusBarrel");
+  egIsoConeSizeInEndcap_ = config.getParameter<double>("intRadiusEndcap");
+  egIsoConeSizeOut_ = config.getParameter<double>("extRadius");
+  egIsoJurassicWidth_ = config.getParameter<double>("jurassicWidth");
 
   // options
-  useIsolEt_ = conf_.getParameter<bool>("useIsolEt");
-  tryBoth_ = conf_.getParameter<bool>("tryBoth");
-  subtract_ = conf_.getParameter<bool>("subtract");
-  useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
-  vetoClustered_ = conf_.getParameter<bool>("vetoClustered");
+  useIsolEt_ = config.getParameter<bool>("useIsolEt");
+  tryBoth_ = config.getParameter<bool>("tryBoth");
+  subtract_ = config.getParameter<bool>("subtract");
+  useNumCrystals_ = config.getParameter<bool>("useNumCrystals");
+  vetoClustered_ = config.getParameter<bool>("vetoClustered");
+
+  //EventSetup Tokens
+  sevLvToken_ = esConsumes();
+  caloGeometrytoken_ = esConsumes();
 
   //register your products
   produces<edm::ValueMap<double>>();
 }
 
-EgammaEcalRecHitIsolationProducer::~EgammaEcalRecHitIsolationProducer() {}
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
-void EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaEcalRecHitIsolationProducer::produce(edm::StreamID,
+                                                edm::Event& iEvent,
+                                                const edm::EventSetup& iSetup) const {
   // Get the  filtered objects
-  edm::Handle<edm::View<reco::Candidate>> emObjectHandle;
-  iEvent.getByLabel(emObjectProducer_, emObjectHandle);
+  auto emObjectHandle = iEvent.getHandle(emObjectProducer_);
 
   // Next get Ecal hits barrel
-  edm::Handle<EcalRecHitCollection> ecalBarrelRecHitHandle;  //EcalRecHitCollection is a typedef to
-  iEvent.getByLabel(ecalBarrelRecHitProducer_.label(), ecalBarrelRecHitCollection_.label(), ecalBarrelRecHitHandle);
+  auto ecalBarrelRecHitHandle = iEvent.getHandle(ecalBarrelRecHitCollection_);
 
   // Next get Ecal hits endcap
-  edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
-  iEvent.getByLabel(ecalEndcapRecHitProducer_.label(), ecalEndcapRecHitCollection_.label(), ecalEndcapRecHitHandle);
+  auto ecalEndcapRecHitHandle = iEvent.getHandle(ecalEndcapRecHitCollection_);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv = iSetup.getHandle(sevLvToken_);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
   //Get Calo Geometry
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pG = iSetup.getHandle(caloGeometrytoken_);
   const CaloGeometry* caloGeom = pG.product();
 
   //reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations( reco::CandidateBaseRefProd( emObjectHandle ) );

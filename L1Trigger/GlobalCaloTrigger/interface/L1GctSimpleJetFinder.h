@@ -3,7 +3,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
 /*! \class L1GctSimpleJetFinder
@@ -18,19 +17,15 @@
  * \date June 2006
  */
 
-
-
-class L1GctSimpleJetFinder : public L1GctJetFinderBase
-{
- public:
-
+class L1GctSimpleJetFinder : public L1GctJetFinderBase {
+public:
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctSimpleJetFinder(int id);
-                 
+
   ~L1GctSimpleJetFinder();
-   
+
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctSimpleJetFinder& algo);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctSimpleJetFinder& algo);
 
   /// get input data from sources
   virtual void fetchInput();
@@ -38,8 +33,7 @@ class L1GctSimpleJetFinder : public L1GctJetFinderBase
   /// process the data, fill output buffers
   virtual void process();
 
- protected:
-
+protected:
   // Each jetFinder must define the constants as private and copy the
   // function definitions below.
   virtual unsigned maxRegionsIn() const { return MAX_REGIONS_IN; }
@@ -47,16 +41,14 @@ class L1GctSimpleJetFinder : public L1GctJetFinderBase
   virtual unsigned nCols() const { return N_COLS; }
 
 private:
-
   /// The real jetFinders must define these constants
-  static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
+  static const unsigned int MAX_REGIONS_IN;  ///< Dependent on number of rows and columns.
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
-  void findJets();  
-
+  void findJets();
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctSimpleJetFinder& algo);
+std::ostream& operator<<(std::ostream& os, const L1GctSimpleJetFinder& algo);
 
 #endif /*L1GCTSIMPLEJETFINDER_H_*/

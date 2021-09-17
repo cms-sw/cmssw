@@ -7,7 +7,6 @@ Original Author: John Paul Chou (Brown University)
 
 #include "HBHEIsolatedNoiseReflagger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
@@ -16,8 +15,6 @@ Original Author: John Paul Chou (Brown University)
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
-#include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
@@ -66,6 +63,15 @@ HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& 
   tok_trackExt_ =
       consumes<std::vector<reco::TrackExtrapolation> >(iConfig.getParameter<edm::InputTag>("trackExtrapolationInput"));
 
+  // ES tokens
+  ecalChStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  hcalChStatusToken_ = esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"));
+  hcalSevToken_ = esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>();
+  ecalSevToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  ctcmToken_ = esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>();
+  hfemapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd>();
+  geoToken_ = esConsumes();
+
   produces<HBHERecHitCollection>();
 }
 
@@ -73,33 +79,20 @@ HBHEIsolatedNoiseReflagger::~HBHEIsolatedNoiseReflagger() {}
 
 void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // get the ECAL channel status map
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  evSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* dbEcalChStatus = ecalChStatus.product();
+  const EcalChannelStatus* dbEcalChStatus = &evSetup.getData(ecalChStatusToken_);
 
   // get the HCAL channel status map
-
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  evSetup.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus);
-  const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
+  const HcalChannelQuality* dbHcalChStatus = &evSetup.getData(hcalChStatusToken_);
 
   // get the severity level computers
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
-  evSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
-  const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
-  evSetup.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
-  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = ecalSevLvlAlgoHndl.product();
+  const HcalSeverityLevelComputer* hcalSevLvlComputer = &evSetup.getData(hcalSevToken_);
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = &evSetup.getData(ecalSevToken_);
 
   // get the calotower mappings
-  edm::ESHandle<CaloTowerConstituentsMap> ctcm;
-  evSetup.get<CaloGeometryRecord>().get(ctcm);
+  const CaloTowerConstituentsMap& ctcm = evSetup.getData(ctcmToken_);
 
   // get hcal frontend map
-  edm::ESHandle<HcalFrontEndMap> hfemapHndl;
-  evSetup.get<HcalFrontEndMapRcd>().get(hfemapHndl);
-  hfemap = hfemapHndl.product();
+  const HcalFrontEndMap* hfemap = &evSetup.getData(hfemapToken_);
 
   // get the HB/HE hits
   edm::Handle<HBHERecHitCollection> hbhehits_h;
@@ -125,7 +118,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
 
   // organizer the hits
   PhysicsTowerOrganizer pto(
-      iEvent, evSetup, hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, *(ctcm.product()));
+      hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, ctcm, evSetup.getData(geoToken_));
   HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto, hfemap);
 
   // get the rbxs, hpds, dihits, and monohits

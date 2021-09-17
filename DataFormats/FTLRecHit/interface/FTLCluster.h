@@ -14,7 +14,6 @@
 #include <cassert>
 #include <algorithm>
 #include <numeric>
-#include <functional>
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -220,9 +219,8 @@ private:
 
   uint8_t seed_;
 
-  float weighted_sum(const std::vector<float>& weights,
-                     const std::function<float(unsigned int i)>& sumFunc,
-                     const std::function<float(float, float)>& outFunc) const {
+  template <typename SumFunc, typename OutFunc>
+  float weighted_sum(const std::vector<float>& weights, SumFunc&& sumFunc, OutFunc&& outFunc) const {
     float tot = 0;
     float sumW = 0;
     for (unsigned int i = 0; i < weights.size(); ++i) {
@@ -232,7 +230,8 @@ private:
     return outFunc(tot, sumW);
   }
 
-  float weighted_mean(const std::vector<float>& weights, const std::function<float(unsigned int)>& value) const {
+  template <typename Value>
+  float weighted_mean(const std::vector<float>& weights, Value&& value) const {
     auto sumFunc = [&weights, value](unsigned int i) { return weights[i] * value(i); };
     auto outFunc = [](float x, float y) {
       if (y > 0)
@@ -243,7 +242,8 @@ private:
     return weighted_sum(weights, sumFunc, outFunc);
   }
 
-  float weighted_mean_error(const std::vector<float>& weights, const std::function<float(unsigned int)>& err) const {
+  template <typename Err>
+  float weighted_mean_error(const std::vector<float>& weights, Err&& err) const {
     auto sumFunc = [&weights, err](unsigned int i) { return weights[i] * weights[i] * err(i) * err(i); };
     auto outFunc = [](float x, float y) {
       if (y > 0)

@@ -18,7 +18,7 @@
 #include "TFile.h"
 #include <cmath>
 #include <string>
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -130,14 +130,14 @@ namespace edm {
     std::string GenHistName_;
     std::string DataHistName_;
     edm::InputTag pileupSumInfoTag_;
-    boost::shared_ptr<TFile> generatedFile_;
-    boost::shared_ptr<TFile> dataFile_;
-    boost::shared_ptr<TH1> weights_;
+    std::shared_ptr<TFile> generatedFile_;
+    std::shared_ptr<TFile> dataFile_;
+    std::shared_ptr<TH1> weights_;
 
     //keep copies of normalized distributions:
 
-    boost::shared_ptr<TH1> MC_distr_;
-    boost::shared_ptr<TH1> Data_distr_;
+    std::shared_ptr<TH1> MC_distr_;
+    std::shared_ptr<TH1> Data_distr_;
 
     int OldLumiSection_;
     bool FirstWarning_;

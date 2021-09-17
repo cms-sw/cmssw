@@ -24,7 +24,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 
@@ -48,6 +47,8 @@ class TTree;
 
 class ConversionPostprocessing : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   //
   explicit ConversionPostprocessing(const edm::ParameterSet& pset);
   ~ConversionPostprocessing() override;

@@ -21,17 +21,25 @@ process.noScraping= cms.EDFilter("FilterOutScraping",
                                  )
 ####################################
 
+# Use compressions settings of TFile
+# see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+# settings = 100 * algorithm + level
+# level is from 1 (small) to 9 (large compression)
+# algo: 1 (ZLIB), 2 (LMZA)
+# see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+compressionSettings = 207
 
  ##
  ## Load and Configure OfflineValidation and Output File
  ##
 process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..compressionSettings = compressionSettings
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'FinalTrackRefitter'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'FinalTrackRefitter'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..stripYResiduals = .oO[stripYResiduals]Oo.
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = .oO[maxtracks]Oo./ .oO[parallelJobs]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..maxTracks = int(.oO[maxtracks]Oo./.oO[parallelJobs]Oo.)
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..chargeCut = .oO[chargeCut]Oo.
 """
 
@@ -64,7 +72,6 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
 ######################################################################
 ######################################################################
 offlineDqmFileOutputTemplate = """
-process.TrackerOfflineValidationSummary.oO[offlineValidationMode]Oo..removeModuleLevelHists = .oO[offlineModuleLevelHistsTransient]Oo.
 process.DqmSaverTkAl.workflow = '.oO[workflow]Oo.'
 process.DqmSaverTkAl.dirName = '.oO[workdir]Oo./.'
 process.DqmSaverTkAl.forceRunNumber = .oO[firstRunNumber]Oo.
@@ -77,7 +84,7 @@ extendedValidationExecution="""
 #run extended offline validation scripts
 echo -e "\n\nRunning extended offline validation"
 
-rfcp .oO[extendedValScriptPath]Oo. .
+cp .oO[extendedValScriptPath]Oo. .
 root -x -b -q -l TkAlExtendedOfflineValidation.C
 
 """

@@ -13,7 +13,6 @@
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -33,7 +32,6 @@ using namespace std;
 DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTTriggerLut");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   thresholdWarnPhi = ps.getUntrackedParameter<double>("thresholdWarnPhi");
   thresholdErrPhi = ps.getUntrackedParameter<double>("thresholdErrPhi");
   thresholdWarnPhiB = ps.getUntrackedParameter<double>("thresholdWarnPhiB");
@@ -294,7 +292,7 @@ int DTTriggerLutTest::performLutTest(double perc, double thresholdWarn, double t
 }
 
 void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, string folder) {
-  string basedir = topFolder(true);
+  string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
   }

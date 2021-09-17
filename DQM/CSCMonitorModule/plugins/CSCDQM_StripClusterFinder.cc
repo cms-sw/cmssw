@@ -174,8 +174,7 @@ namespace cscdqm {
 
   void StripClusterFinder::Match(void) {
     //              MATCHING THE OVERLAPING CLASTERS
-    bool find2match;
-    find2match = true;
+    bool find2match = true;
     do {
       find2match = FindAndMatch();
     } while (find2match);

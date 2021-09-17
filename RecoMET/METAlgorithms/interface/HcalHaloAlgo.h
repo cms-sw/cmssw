@@ -33,15 +33,15 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
+
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 class HcalHaloAlgo {
 public:
   //constructor
-  HcalHaloAlgo();
-  //destructor
-  ~HcalHaloAlgo() {}
+  explicit HcalHaloAlgo(edm::ConsumesCollector iC);
 
   // run algorithm
   reco::HcalHaloData Calculate(const CaloGeometry& TheCaloGeometry,
@@ -99,6 +99,7 @@ private:
   float SumEnergyThreshold;
   int NHitsThreshold;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
   const CaloGeometry* geo_;
   const HcalGeometry* hgeo_;
   math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);

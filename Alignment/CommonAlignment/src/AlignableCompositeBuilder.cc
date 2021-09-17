@@ -18,7 +18,7 @@ AlignableCompositeBuilder ::AlignableCompositeBuilder(const TrackerTopology* tra
                                                       const TrackerGeometry* trackerGeometry,
                                                       const AlignableIndexer& alignableIndexer)
     : trackerTopology_(trackerTopology),
-      alignableObjectId_(trackerGeometry, nullptr, nullptr),
+      alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
       alignableIndexer_(alignableIndexer) {}
 
 //_____________________________________________________________________________

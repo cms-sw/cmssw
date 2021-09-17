@@ -12,12 +12,14 @@
 using namespace std;
 using namespace magfieldparam;
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : theParam(B) {}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : theParam(B) { setNominalValue(); }
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : theParam(T) {}
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : theParam(T) { setNominalValue(); }
 
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters)
-    : theParam(parameters.getParameter<string>("BValue")) {}
+    : theParam(parameters.getParameter<string>("BValue")) {
+  setNominalValue();
+}
 
 OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {}
 
@@ -25,8 +27,8 @@ GlobalVector OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const 
   if (isDefined(gp)) {
     return inTeslaUnchecked(gp);
   } else {
-    edm::LogWarning("MagneticField|FieldOutsideValidity")
-        << " Point " << gp << " is outside the validity region of OAEParametrizedMagneticField";
+    edm::LogWarning("MagneticField") << " Point " << gp
+                                     << " is outside the validity region of OAEParametrizedMagneticField";
     return GlobalVector();
   }
 }

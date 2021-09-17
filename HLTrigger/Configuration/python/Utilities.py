@@ -1,12 +1,11 @@
-import imp as _imp
+import types
 
 import HLTrigger.Configuration.Tools.options as _options
 import HLTrigger.Configuration.Tools.confdb  as _confdb
-import six
 
 def _build_options(**args):
   options = _options.HLTProcessOptions()
-  for key, val in six.iteritems(args):
+  for key, val in args.items():
     setattr(options, key, val)
   return options
 
@@ -26,7 +25,7 @@ def loadHltConfiguration(process, menu, **args):
   args['fragment'] = True
   options = _build_options(**args)
 
-  hlt = _imp.new_module('hlt')
+  hlt = types.ModuleType('hlt')
   exec(_confdb.HLTProcess(options).dump(), globals(), hlt.__dict__)
   process.extend( hlt )
 

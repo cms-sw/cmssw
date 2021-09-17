@@ -12,14 +12,15 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -32,6 +33,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -107,6 +109,8 @@ namespace edm {
     EventProcessor(EventProcessor const&) = delete;             // Disallow copying and moving
     EventProcessor& operator=(EventProcessor const&) = delete;  // Disallow copying and moving
 
+    void taskCleanup();
+
     /**This should be called before the first call to 'run'
        If this is not called in time, it will automatically be called
        the first time 'run' is called
@@ -156,10 +160,6 @@ namespace edm {
     /// inactive.
     bool endPathsEnabled() const;
 
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
-
     /// Clears counters used by trigger report.
     void clearCounters();
 
@@ -201,6 +201,7 @@ namespace edm {
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return fb_.get() != nullptr; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -215,6 +216,10 @@ namespace edm {
     bool shouldWeCloseOutput() const;
 
     void doErrorStuff();
+
+    void beginProcessBlock(bool& beginProcessBlockSucceeded);
+    void inputProcessBlocks();
+    void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
     void beginRun(ProcessHistoryID const& phid,
                   RunNumber_t run,
@@ -237,13 +242,14 @@ namespace edm {
 
     void handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder);
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
-    void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
-                            unsigned int iStreamIndex,
-                            std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
+    void streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex);
+    void readProcessBlock(ProcessBlockPrincipal&);
     std::pair<ProcessHistoryID, RunNumber_t> readRun();
     std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
+    using ProcessBlockType = PrincipalCache::ProcessBlockType;
+    void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
     void writeRunAsync(WaitingTaskHolder,
                        ProcessHistoryID const& phid,
                        RunNumber_t run,
@@ -282,7 +288,7 @@ namespace edm {
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
 
-    void processEventWithLooper(EventPrincipal&);
+    void processEventWithLooper(EventPrincipal&, unsigned int iStreamIndex);
 
     std::shared_ptr<ProductRegistry const> preg() const { return get_underlying_safe(preg_); }
     std::shared_ptr<ProductRegistry>& preg() { return get_underlying_safe(preg_); }
@@ -300,6 +306,7 @@ namespace edm {
     std::shared_ptr<EDLooperBase>& looper() { return get_underlying_safe(looper_); }
 
     void warnAboutModulesRequiringLuminosityBLockSynchronization() const;
+    void warnAboutLegacyModules() const;
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -307,16 +314,20 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
+    //Guarantee that task group is the last to be destroyed
+    tbb::task_group taskGroup_;
+
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
     InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
-    edm::SerialTaskQueue iovQueue_;
+    edm::SerialTaskQueue queueWhichWaitsForIOVsToFinish_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;
@@ -331,7 +342,7 @@ namespace edm {
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
-    edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
+    edm::propagate_const<std::shared_ptr<FileBlock>> fb_;
     edm::propagate_const<std::shared_ptr<EDLooperBase>> looper_;
 
     //The atomic protects concurrent access of deferredExceptionPtr_
@@ -362,6 +373,7 @@ namespace edm {
     ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
+    bool deleteNonConsumedUnscheduledModules_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

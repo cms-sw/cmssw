@@ -1,5 +1,5 @@
 
-#include "FWCore/ParameterSet/interface/XORGroupDescription.h"
+#include "FWCore/ParameterSet/src/XORGroupDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
@@ -78,11 +78,9 @@ namespace edm {
     }
   }
 
-  void XORGroupDescription::writeCfi_(std::ostream& os,
-                                      bool& startWithComma,
-                                      int indentation,
-                                      bool& wroteSomething) const {
-    node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
+  void XORGroupDescription::writeCfi_(
+      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+    node_left_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
   }
 
   void XORGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {

@@ -1,17 +1,30 @@
-<use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TrackFitters"/>
-<use   name="MagneticField/Engine"/>
-
-<use   name="CLHEP"/>
-<use   name="rootmath"/>
-<use   name="roothistmatrix"/>
+<use name="DataFormats/TrackReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrackFitters"/>
+<use name="MagneticField/Engine"/>
+<use name="Alignment/TrackerAlignment"/>
+<use name="CondFormats/Alignment"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="FWCore/MessageLogger"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Records"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrackingRecHit"/>
+<use name="CLHEP"/>
+<use name="rootmath"/>
+<use name="roothistmatrix"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

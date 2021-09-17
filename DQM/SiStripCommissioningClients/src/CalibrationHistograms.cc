@@ -143,8 +143,8 @@ void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::st
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH";
     std::string dir = "";
-    if (getenv(scratch.c_str()) != nullptr) {
-      dir = getenv(scratch.c_str());
+    if (std::getenv(scratch.c_str()) != nullptr) {
+      dir = std::getenv(scratch.c_str());
     }
 
     // Add directory path
@@ -176,9 +176,7 @@ void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::st
   TFile* outputFile = TFile::Open(path.c_str(), "UPDATE");
   outputFile->cd();
 
-  // get all sub-dirs
-  std::vector<std::string> contents;
-  bei()->getContents(contents);
+  auto contents = bei()->getAllContents("");
 
   TMultiGraph* graph_isha = new TMultiGraph("riseTime_vs_isha", "");
   TMultiGraph* graph_vfs = new TMultiGraph("decayTime_vs_vfs", "");
@@ -195,14 +193,8 @@ void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::st
       SiStripFecKey feckey = anal->fecKey();
 
       TString directory;
-      for (auto content : contents) {
-        std::vector<std::string> tokens;
-        std::string token;
-        std::istringstream tokenStream(content);
-        while (std::getline(tokenStream, token, ':')) {
-          tokens.push_back(token);
-        }
-        directory = Form("%s", tokens.at(0).c_str());
+      for (auto me : contents) {
+        directory = me->getPathname();
         if (directory.Contains(Form("FecCrate%d", feckey.fecCrate())) and
             directory.Contains(Form("FecRing%d", feckey.fecRing())) and
             directory.Contains(Form("FecSlot%d", feckey.fecSlot())) and

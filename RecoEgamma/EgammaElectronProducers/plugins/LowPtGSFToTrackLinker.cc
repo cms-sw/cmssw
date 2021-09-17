@@ -22,72 +22,64 @@
 
 class LowPtGSFToTrackLinker : public edm::global::EDProducer<> {
 public:
-	explicit LowPtGSFToTrackLinker(const edm::ParameterSet&);
-	~LowPtGSFToTrackLinker() override;
-    
-	void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-	static void fillDescriptions(edm::ConfigurationDescriptions&);
-   
+  explicit LowPtGSFToTrackLinker(const edm::ParameterSet&);
+
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
-	const edm::EDGetTokenT<reco::TrackCollection>          tracks_;
-	const edm::EDGetTokenT< std::vector<reco::PreId> > preid_;	
-	const edm::EDGetTokenT< std::vector<reco::GsfTrack> > gsftracks_;	
+  const edm::EDGetTokenT<reco::TrackCollection> tracks_;
+  const edm::EDGetTokenT<std::vector<reco::PreId> > preid_;
+  const edm::EDGetTokenT<std::vector<reco::GsfTrack> > gsftracks_;
 };
 
-LowPtGSFToTrackLinker::LowPtGSFToTrackLinker(const edm::ParameterSet& iConfig) :
-  tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
-  preid_{consumes<std::vector<reco::PreId> >(iConfig.getParameter<edm::InputTag>("gsfPreID"))},
-  gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {     
-		produces< edm::Association<reco::TrackCollection> > ();
-	}
+LowPtGSFToTrackLinker::LowPtGSFToTrackLinker(const edm::ParameterSet& iConfig)
+    : tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
+      preid_{consumes<std::vector<reco::PreId> >(iConfig.getParameter<edm::InputTag>("gsfPreID"))},
+      gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {
+  produces<edm::Association<reco::TrackCollection> >();
+}
 
-LowPtGSFToTrackLinker::~LowPtGSFToTrackLinker() {}
+void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
+  auto gsftracks = iEvent.getHandle(gsftracks_);
+  auto tracks = iEvent.getHandle(tracks_);
+  auto preid = iEvent.getHandle(preid_);
 
-void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-	edm::Handle<std::vector<reco::GsfTrack> > gsftracks;
-	iEvent.getByToken(gsftracks_, gsftracks);
+  // collection sizes, for reference
+  const size_t ngsf = gsftracks->size();
 
-	edm::Handle<reco::TrackCollection> tracks;
-	iEvent.getByToken(tracks_, tracks);
+  //store mapping for association
+  std::vector<int> gsf2track(ngsf, -1);
 
-	edm::Handle<std::vector<reco::PreId> > preid;
-	iEvent.getByToken(preid_, preid);
+  //map Track --> GSF and fill GSF --> PackedCandidates and GSF --> Lost associations
+  for (unsigned int igsf = 0; igsf < ngsf; ++igsf) {
+    reco::GsfTrackRef gref(gsftracks, igsf);
+    reco::TrackRef trk = preid->at(gref->seedRef().castTo<reco::ElectronSeedRef>().index()).trackRef();
 
-	// collection sizes, for reference
-	const size_t ngsf = gsftracks->size();
+    if (trk.id() != tracks.id()) {
+      throw cms::Exception(
+          "WrongCollection",
+          "The reco::Track collection used to match against the GSF Tracks was not used to produce such tracks");
+    }
 
-	//store mapping for association
-	std::vector<int> gsf2track(ngsf, -1);
+    size_t trkid = trk.index();
+    gsf2track[igsf] = trkid;
+  }
 
-	//map Track --> GSF and fill GSF --> PackedCandidates and GSF --> Lost associations
-	for(unsigned int igsf=0; igsf < ngsf; ++igsf) {
-		reco::GsfTrackRef gref(gsftracks, igsf);
-		reco::TrackRef trk = preid->at(
-			gref->seedRef().castTo<reco::ElectronSeedRef>().index()
-			).trackRef();
-
-		if(trk.id() != tracks.id()) {
-			throw cms::Exception("WrongCollection", "The reco::Track collection used to match against the GSF Tracks was not used to produce such tracks");
-		}
-
-		size_t trkid = trk.index();
-		gsf2track[igsf] = trkid;
-	}
-
-	// create output collections from the mappings
-	auto assoc = std::make_unique< edm::Association<reco::TrackCollection> >(tracks);
-	edm::Association<reco::TrackCollection>::Filler filler(*assoc);
-	filler.insert(gsftracks, gsf2track.begin(), gsf2track.end());
-	filler.fill();
-	iEvent.put(std::move(assoc));
+  // create output collections from the mappings
+  auto assoc = std::make_unique<edm::Association<reco::TrackCollection> >(tracks);
+  edm::Association<reco::TrackCollection>::Filler filler(*assoc);
+  filler.insert(gsftracks, gsf2track.begin(), gsf2track.end());
+  filler.fill();
+  iEvent.put(std::move(assoc));
 }
 
 void LowPtGSFToTrackLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-	edm::ParameterSetDescription desc;
-	desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-	desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
-	desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
-	descriptions.add("lowPtGsfToTrackLinksDefault", desc);
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
+  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
+  descriptions.add("lowPtGsfToTrackLinks", desc);
 }
 
 DEFINE_FWK_MODULE(LowPtGSFToTrackLinker);

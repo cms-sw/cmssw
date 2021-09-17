@@ -182,6 +182,7 @@ bool MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1,
         }
       }
     }
+      [[fallthrough]];
     case ByPropagatingSrc: {
       FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
       TrajectoryStateOnSurface target = targetState(c2, whichTrack2_, whichState2_);

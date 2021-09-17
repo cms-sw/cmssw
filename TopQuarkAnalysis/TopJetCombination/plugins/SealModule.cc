@@ -1,11 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 
 // define mva modules
 DEFINE_FWK_MODULE(TtSemiLepJetCombMVAComputer);
-DEFINE_FWK_MODULE(TtSemiLepJetCombMVATrainer);
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombGeom.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMaxSumPtWMass.h"

@@ -1319,9 +1319,9 @@ void L1GtAnalyzer::analyzeConditionsInRunBlock(const edm::Run& iRun, const edm::
     return;
   }
 
-  const boost::uint16_t beamModeVal = condInRunBlock->beamMode;
-  const boost::uint16_t beamMomentumVal = condInRunBlock->beamMomentum;
-  const boost::uint32_t lhcFillNumberVal = condInRunBlock->lhcFillNumber;
+  const uint16_t beamModeVal = condInRunBlock->beamMode;
+  const uint16_t beamMomentumVal = condInRunBlock->beamMomentum;
+  const uint32_t lhcFillNumberVal = condInRunBlock->lhcFillNumber;
 
   // print via supplied "print" function
   myCoutStream << "\nLHC quantities in run " << iRun.run() << "\n  Beam Mode = " << beamModeVal
@@ -1351,8 +1351,8 @@ void L1GtAnalyzer::analyzeConditionsInLumiBlock(const edm::LuminosityBlock& iLum
     return;
   }
 
-  const boost::uint32_t totalIntensityBeam1Val = condInLumiBlock->totalIntensityBeam1;
-  const boost::uint32_t totalIntensityBeam2Val = condInLumiBlock->totalIntensityBeam2;
+  const uint32_t totalIntensityBeam1Val = condInLumiBlock->totalIntensityBeam1;
+  const uint32_t totalIntensityBeam2Val = condInLumiBlock->totalIntensityBeam2;
 
   myCoutStream << "\nLHC quantities in luminosity section "
 
@@ -1381,8 +1381,8 @@ void L1GtAnalyzer::analyzeConditionsInEventBlock(const edm::Event& iEvent, const
     return;
   }
 
-  const boost::uint16_t bstMasterStatusVal = condInEventBlock->bstMasterStatus;
-  const boost::uint32_t turnCountNumberVal = condInEventBlock->turnCountNumber;
+  const uint16_t bstMasterStatusVal = condInEventBlock->bstMasterStatus;
+  const uint32_t turnCountNumberVal = condInEventBlock->turnCountNumber;
 
   myCoutStream << "\nLHC quantities in event " << iEvent.id().event() << " from luminosity section "
                << iEvent.luminosityBlock() << " from run " << iEvent.run()

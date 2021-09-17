@@ -6,7 +6,8 @@ bool operator==(const FCDTask::FCDChannel& lhs, const FCDTask::FCDChannel& rhs) 
           (lhs.fiberChannel == rhs.fiberChannel));
 }
 
-FCDTask::FCDTask(edm::ParameterSet const& ps) {
+FCDTask::FCDTask(edm::ParameterSet const& ps)
+    : hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis", "ZDC"));
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
@@ -23,8 +24,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
 }
 
 /* virtual */ void FCDTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
-  edm::ESHandle<HcalDbService> dbService;
-  es.get<HcalDbRecord>().get(dbService);
+  edm::ESHandle<HcalDbService> dbService = es.getHandle(hcalDbServiceToken_);
   _emap = dbService->getHcalMapping();
   _ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);
 
@@ -50,7 +50,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
     histoname = std::to_string(it_eid.crateId()) + "-" + std::to_string(it_eid.slot()) + "-" +
                 std::to_string(it_eid.fiberIndex()) + "-" + std::to_string(it_eid.fiberChanId());
     ib.setCurrentFolder("Hcal/FCDTask/ADC");
-    _cADC[it_eid] = ib.book1D(histoname.c_str(), histoname.c_str(), 256, 0, 256);
+    _cADC[it_eid] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC[it_eid]->setAxisTitle("ADC", 1);
     _cADC[it_eid]->setAxisTitle("N", 2);
 
@@ -60,11 +60,11 @@ FCDTask::FCDTask(edm::ParameterSet const& ps) {
     _cADC_vs_TS[it_eid]->setAxisTitle("ADC", 2);
 
     ib.setCurrentFolder("Hcal/FCDTask/TDCTime");
-    _cTDCTime[it_eid] = ib.book1D(histoname.c_str(), histoname.c_str(), 500, 0., 250.);
+    _cTDCTime[it_eid] = ib.book1DD(histoname.c_str(), histoname.c_str(), 500, 0., 250.);
     _cTDCTime[it_eid]->setAxisTitle("TDC time [ns]", 1);
 
     ib.setCurrentFolder("Hcal/FCDTask/TDC");
-    _cTDC[it_eid] = ib.book1D(histoname.c_str(), histoname.c_str(), 64, -0.5, 63.5);
+    _cTDC[it_eid] = ib.book1DD(histoname.c_str(), histoname.c_str(), 64, -0.5, 63.5);
     _cTDC[it_eid]->setAxisTitle("TDC", 1);
   }
 }

@@ -45,9 +45,10 @@ int CSCTriggerNumbering::chamberFromTriggerLabels(int TriggerSector,
 
   if (station != 1)
     if (TriggerCSCID <= 3)
-      chamber =
-          (TriggerCSCID + 3 * (TriggerSector - 1)) % 18 + 1;  // Derived from CMS Note: CMS IN 2000/04 ver 2.1 Oct/2005
-                                                              // As far as I know this is reality.
+      // Derived from CMS Note: CMS IN 2000/04 ver 2.1 Oct/2005
+      // As far as I know this is reality.
+      chamber = (TriggerCSCID + 3 * (TriggerSector - 1)) % 18 + 1;
+
     else
       chamber = (TriggerCSCID + 6 * (TriggerSector - 1) - 2) % 36 + 1;
   else if (TriggerCSCID <= 3)
@@ -92,9 +93,9 @@ int CSCTriggerNumbering::triggerSectorFromLabels(int station, int ring, int cham
                  ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;
   }
 
-  return (result <= 6) ? result
-                       : 6;  // Max sector is 6, some calculations give a value greater than six but this is expected
-                             // and delt with.
+  // Max sector is 6, some calculations give a value greater than six but this is expected
+  // and delt with.
+  return (result <= 6) ? result : 6;
 }
 
 int CSCTriggerNumbering::triggerSectorFromLabels(CSCDetId id) {

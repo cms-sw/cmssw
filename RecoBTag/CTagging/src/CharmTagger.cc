@@ -3,24 +3,32 @@
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
-#include <iostream>
-#include <vector>
+#include <memory>
 #include <algorithm>
-#include <map>
 #include <iostream>
+#include <map>
+#include <vector>
 
-CharmTagger::CharmTagger(const edm::ParameterSet &configuration)
+CharmTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
+  if (configuration.getParameter<bool>("useCondDB")) {
+    gbrForest_ = cc.consumes(edm::ESInputTag{"",
+                                             configuration.existsAs<std::string>("gbrForestLabel")
+                                                 ? configuration.getParameter<std::string>("gbrForestLabel")
+                                                 : ""});
+  }
+}
+
+CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
     : sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg")),
       mva_name_(configuration.getParameter<std::string>("mvaName")),
-      use_condDB_(configuration.getParameter<bool>("useCondDB")),
-      gbrForest_label_(configuration.getParameter<std::string>("gbrForestLabel")),
       weight_file_(configuration.getParameter<edm::FileInPath>("weightFile")),
       use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
       use_adaBoost_(configuration.getParameter<bool>("useAdaBoost")),
-      defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks")) {
+      defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks")),
+      tokens_{tokens} {
   vpset vars_definition = configuration.getParameter<vpset>("variables");
   for (auto &var : vars_definition) {
     MVAVar mva_var;
@@ -40,7 +48,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration)
 }
 
 void CharmTagger::initialize(const JetTagComputerRecord &record) {
-  mvaID_.reset(new TMVAEvaluator());
+  mvaID_ = std::make_unique<TMVAEvaluator>();
 
   std::vector<std::string> variable_names;
   variable_names.reserve(variables_.size());
@@ -50,13 +58,8 @@ void CharmTagger::initialize(const JetTagComputerRecord &record) {
   }
   std::vector<std::string> spectators;
 
-  if (use_condDB_) {
-    const GBRWrapperRcd &gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
-
-    edm::ESHandle<GBRForest> gbrForestHandle;
-    gbrWrapperRecord.get(gbrForest_label_.c_str(), gbrForestHandle);
-
-    mvaID_->initializeGBRForest(gbrForestHandle.product(), variable_names, spectators, use_adaBoost_);
+  if (tokens_.gbrForest_.isInitialized()) {
+    mvaID_->initializeGBRForest(&record.get(tokens_.gbrForest_), variable_names, spectators, use_adaBoost_);
   } else {
     mvaID_->initialize("Color:Silent:Error",
                        mva_name_,

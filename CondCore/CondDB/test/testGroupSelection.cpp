@@ -138,7 +138,8 @@ int main(int argc, char** argv) {
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString("sqlite_file:GroupSelection.db");
-  ret = run(connectionString, connectionString);
+  std::string connectionString0("sqlite_file:group_selection.db");
+  std::string connectionString1("sqlite_file:group_selection.db");
+  ret = run(connectionString0, connectionString1);
   return ret;
 }

@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
@@ -31,6 +30,7 @@ typedef uint64_t Word64;
 
 RPCPackingModule::RPCPackingModule(const ParameterSet& pset) {
   dataLabel_ = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("InputLabel"));
+  readoutMappingToken_ = esConsumes<RPCEMap, RPCEMapRcd>();
   theCabling = new RPCReadOutMapping("");
   produces<FEDRawDataCollection>();
 }
@@ -45,8 +45,7 @@ void RPCPackingModule::produce(edm::Event& ev, const edm::EventSetup& es) {
   if (recordWatcher_.check(es)) {
     delete theCabling;
     LogTrace("") << "record has CHANGED!!, initialise readout map!";
-    ESHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
+    ESHandle<RPCEMap> readoutMapping = es.getHandle(readoutMappingToken_);
     theCabling = readoutMapping->convert();
     LogTrace("") << " READOUT MAP VERSION: " << theCabling->version() << endl;
   }

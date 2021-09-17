@@ -6,13 +6,14 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/FillDescriptionFromPSet.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
+#include "FWCore/ParameterSet/src/FillDescriptionFromPSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -411,14 +412,15 @@ namespace edm {
     // but that approach was rejected because it would require the
     // ParameterSetDescription to know how to parse the strings.
     void formatDouble(double value, std::string& result) {
-      std::stringstream s;
-      s << std::setprecision(17) << value;
-      result = s.str();
-
-      if (result.size() > 15 && std::string::npos != result.find(".")) {
-        std::stringstream s;
-        s << std::setprecision(15) << value;
-        std::string resultLessPrecision = s.str();
+      {
+        std::stringstream ss;
+        ss << std::setprecision(17) << value;
+        result = ss.str();
+      }
+      if (result.size() > 15 && std::string::npos != result.find('.')) {
+        std::stringstream ss;
+        ss << std::setprecision(15) << value;
+        std::string resultLessPrecision = ss.str();
 
         if (resultLessPrecision.size() < result.size() - 2) {
           double test = std::strtod(resultLessPrecision.c_str(), nullptr);
@@ -519,6 +521,15 @@ namespace edm {
     }
 
     template <>
+    void writeSingleValue<ESInputTag>(std::ostream& os, ESInputTag const& value, ValueFormat format) {
+      if (format == CFI) {
+        os << "'" << value.module() << "', '" << value.data() << "'";
+      } else {
+        os << "'" << value.module() << ":" << value.data() << "'";
+      }
+    }
+
+    template <>
     void writeSingleValue<FileInPath>(std::ostream& os, FileInPath const& value, ValueFormat) {
       os << "'" << value.relativePath() << "'";
     }
@@ -571,6 +582,11 @@ namespace edm {
         os << ":" << value.process();
       }
       os << "'";
+    }
+
+    template <>
+    void writeValueInVector<ESInputTag>(std::ostream& os, ESInputTag const& value, ValueFormat) {
+      os << "'" << value.module() << ":" << value.data() << "'";
     }
 
     template <typename T>
@@ -721,6 +737,14 @@ namespace edm {
       writeVector<InputTag>(os, indentation, value_, format);
     }
 
+    void writeValue(std::ostream& os, int, ESInputTag const& value_, ValueFormat format) {
+      writeValue<ESInputTag>(os, value_, format);
+    }
+
+    void writeValue(std::ostream& os, int indentation, std::vector<ESInputTag> const& value_, ValueFormat format) {
+      writeVector<ESInputTag>(os, indentation, value_, format);
+    }
+
     void writeValue(std::ostream& os, int, FileInPath const& value_, ValueFormat format) {
       writeValue<FileInPath>(os, value_, format);
     }
@@ -748,6 +772,8 @@ namespace edm {
     bool hasNestedContent(std::vector<EventRange> const& value) { return value.size() > 5U; }
     bool hasNestedContent(InputTag const&) { return false; }
     bool hasNestedContent(std::vector<InputTag> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(ESInputTag const&) { return false; }
+    bool hasNestedContent(std::vector<ESInputTag> const& value) { return value.size() > 5U; }
     bool hasNestedContent(FileInPath const&) { return false; }
   }  // namespace writeParameterValue
 }  // namespace edm

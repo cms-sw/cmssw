@@ -9,6 +9,7 @@ def applyDeepBtagging( process, postfix="" ) :
     from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+    from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
@@ -31,7 +32,7 @@ def applyDeepBtagging( process, postfix="" ) :
           'pfDeepFlavourJetTags:probc',
           'pfDeepFlavourJetTags:probuds',
           'pfDeepFlavourJetTags:probg',
-       ],
+       ] + pfParticleNetAK4JetTagsAll,
        postfix = 'SlimmedDeepFlavour'+postfix,
        printWarning = False
     )
@@ -42,25 +43,22 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
-    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+    from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+    from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
     addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
     _btagDiscriminators = cms.PSet( names = cms.vstring(
-        'pfDeepDoubleBvLJetTags:probQCD',
-        'pfDeepDoubleBvLJetTags:probHbb',
-        'pfDeepDoubleCvLJetTags:probQCD',
-        'pfDeepDoubleCvLJetTags:probHcc',
-        'pfDeepDoubleCvBJetTags:probHbb',
-        'pfDeepDoubleCvBJetTags:probHcc',
-        'pfMassIndependentDeepDoubleBvLJetTags:probQCD',
-        'pfMassIndependentDeepDoubleBvLJetTags:probHbb',
-        'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
-        'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-        'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
-        'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
-        ) + pfDeepBoostedJetTagsAll
+        'pfMassIndependentDeepDoubleBvLV2JetTags:probQCD',
+        'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
+        'pfMassIndependentDeepDoubleCvLV2JetTags:probQCD',
+        'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
+        'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
+        'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
+        ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs
     )
     updateJetCollection(
        process,
@@ -84,5 +82,4 @@ def applyDeepBtagging( process, postfix="" ) :
     addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix).clone(), process, task)
     # delete module not used anymore (slimmedJetsAK8 substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix)
-
 

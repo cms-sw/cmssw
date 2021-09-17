@@ -66,7 +66,7 @@ namespace clangcms {
 
   void FWalker::ReportDeclRef(const clang::DeclRefExpr *DRE) {
     const clang::VarDecl *D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl());
-    if (D && (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()))
+    if (D && (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString()))
       return;
@@ -133,7 +133,7 @@ namespace clangcms {
   }
 
   void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager &mgr, BugReporter &BR) const {
-    if (MD->hasAttr<CMSThreadSafeAttr>())
+    if (MD->hasAttr<CMSThreadSafeAttr>() || MD->hasAttr<CMSSaAllowAttr>())
       return;
     const char *sfile = BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
     if (!support::isCmsLocalFile(sfile))
@@ -149,7 +149,7 @@ namespace clangcms {
   }
 
   void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager &mgr, BugReporter &BR) const {
-    if (FD->hasAttr<CMSThreadSafeAttr>())
+    if (FD->hasAttr<CMSThreadSafeAttr>() || FD->hasAttr<CMSSaAllowAttr>())
       return;
     if (FD->isInExternCContext()) {
       std::string buf;
@@ -180,7 +180,7 @@ namespace clangcms {
   }
 
   void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager &mgr, BugReporter &BR) const {
-    if (TD->hasAttr<CMSThreadSafeAttr>())
+    if (TD->hasAttr<CMSThreadSafeAttr>() || TD->hasAttr<CMSSaAllowAttr>())
       return;
     const char *sfile = BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
     if (!support::isCmsLocalFile(sfile))

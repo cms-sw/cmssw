@@ -1,4 +1,3 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepairESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepair.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -8,6 +7,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 #include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,18 +18,45 @@
 #include <string>
 #include <memory>
 
+class PixelCPEClusterRepairESProducer : public edm::ESProducer {
+public:
+  PixelCPEClusterRepairESProducer(const edm::ParameterSet& p);
+  ~PixelCPEClusterRepairESProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord&);
+
+private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> hTTToken_;
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
+  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd> templateDBobject2DToken_;
+
+  edm::ParameterSet pset_;
+  bool doLorentzFromAlignment_;
+  bool useLAFromDB_;
+};
+
 using namespace edm;
 
 PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
 
-  //DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
-  DoLorentz_ = p.existsAs<bool>("DoLorentz") ? p.getParameter<bool>("DoLorentz") : false;
+  useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
+  doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
 
   pset_ = p;
-  setWhatProduced(this, myname);
-
-  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
+  auto c = setWhatProduced(this, myname);
+  magfieldToken_ = c.consumes();
+  pDDToken_ = c.consumes();
+  hTTToken_ = c.consumes();
+  templateDBobjectToken_ = c.consumes();
+  templateDBobject2DToken_ = c.consumes();
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
+  }
 }
 
 PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
@@ -36,58 +64,35 @@ PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
 void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // templates2
   edm::ParameterSetDescription desc;
-  desc.add<bool>("DoLorentz", true);
-  desc.add<bool>("DoCosmics", false);
-  desc.add<bool>("LoadTemplatesFromDB", true);
-  desc.add<bool>("RunDamagedClusters", false);
   desc.add<std::string>("ComponentName", "PixelCPEClusterRepair");
-  desc.add<double>("MinChargeRatio", 0.8);
-  desc.add<double>("MaxSizeMismatchInY", 0.3);
-  desc.add<bool>("Alpha2Order", true);
-  desc.add<std::vector<std::string>>("Recommend2D",
-                                     {
-                                         "PXB 2",
-                                         "PXB 3",
-                                         "PXB 4",
-                                     });
-  desc.add<int>("ClusterProbComputationFlag", 0);
-  desc.add<int>("speed", -2);
-  desc.add<bool>("UseClusterSplitter", false);
-  descriptions.add("templates2", desc);
+
+  // from PixelCPEBase
+  PixelCPEBase::fillPSetDescription(desc);
+
+  // from PixelCPEClusterRepair
+  PixelCPEClusterRepair::fillPSetDescription(desc);
+
+  // specific to PixelCPEClusterRepairESProducer
+  descriptions.add("_templates2_default", desc);
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer::produce(
     const TkPixelCPERecord& iRecord) {
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
-
-  edm::ESHandle<TrackerTopology> hTT;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
-
-  edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
+  // Normal, default LA is used in case of template failure, load it unless
+  // turned off
+  // if turned off, null is ok, becomes zero
   const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  if (DoLorentz_) {  //  LA correction from alignment
-    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment", lorentzAngle);
-    lorentzAngleProduct = lorentzAngle.product();
-  } else {  // Normal, deafult LA actually is NOT needed
-    //iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
-    lorentzAngleProduct = nullptr;  // null is ok becuse LA is not use by templates in this mode
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
   }
 
-  ESHandle<SiPixelTemplateDBObject> templateDBobject;
-  iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-
-  ESHandle<SiPixel2DTemplateDBObject> templateDBobject2D;
-  iRecord.getRecord<SiPixel2DTemplateDBObjectESProducerRcd>().get(templateDBobject2D);
-
   return std::make_unique<PixelCPEClusterRepair>(pset_,
-                                                 magfield.product(),
-                                                 *pDD.product(),
-                                                 *hTT.product(),
+                                                 &iRecord.get(magfieldToken_),
+                                                 iRecord.get(pDDToken_),
+                                                 iRecord.get(hTTToken_),
                                                  lorentzAngleProduct,
-                                                 templateDBobject.product(),
-                                                 templateDBobject2D.product());
+                                                 &iRecord.get(templateDBobjectToken_),
+                                                 &iRecord.get(templateDBobject2DToken_));
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEClusterRepairESProducer);

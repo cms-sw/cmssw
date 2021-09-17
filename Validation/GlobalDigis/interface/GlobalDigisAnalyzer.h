@@ -93,18 +93,17 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TString.h"
 
 class PGlobalDigi;
-
+class TrackerTopology;
+class TrackerTopologyRcd;
 class GlobalDigisAnalyzer : public DQMEDAnalyzer {
 public:
   typedef std::vector<float> FloatVector;
@@ -157,6 +156,10 @@ private:
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
   edm::InputTag ECalESSrc_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCtoGevToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcaldbToken_;
 
   std::map<int, double, std::less<int>> ECalgainConv_;
   double ECalbarrelADCtoGeV_;

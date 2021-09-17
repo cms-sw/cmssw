@@ -29,7 +29,7 @@ public:
   struct NodeType {
     edm::ModuleDescription module_;
     edm::EDMModuleType type_;
-    bool scheduled_;
+    bool scheduled_ = false;
   };
 
   // directed graph, with `NodeType` properties attached to each vertex
@@ -114,8 +114,8 @@ public:
     ProcessType(ProcessType const &other) = default;
     ProcessType(ProcessType &&other) = default;
 
-    ProcessType &operator=(ProcessType const &other) = default;
-    ProcessType &operator=(ProcessType &&other) = default;
+    ProcessType &operator=(ProcessType const &other) = delete;
+    ProcessType &operator=(ProcessType &&other) = delete;
   };
 
 public:

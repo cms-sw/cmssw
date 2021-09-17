@@ -54,7 +54,7 @@ namespace edm {
 
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
-    product_type const* get() const { return isNull() ? 0 : this->operator->(); }
+    product_type const* get() const { return isNull() ? nullptr : this->operator->(); }
 
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
@@ -76,7 +76,7 @@ namespace edm {
     EDProductGetter const* productGetter() const { return product_.productGetter(); }
 
     /// Checks if product is in memory.
-    bool hasCache() const { return product_.productPtr() != 0; }
+    bool hasCache() const { return product_.productPtr() != nullptr; }
 
     RefToBaseProd<T>& operator=(const RefToBaseProd<T>& other);
 
@@ -195,11 +195,11 @@ namespace edm {
   template <typename T>
   template <typename C>
   inline RefToBaseProd<T>::RefToBaseProd(OrphanHandle<C> const& handle)
-      : product_(handle.id(), handle.product(), 0, false) {
+      : product_(handle.id(), handle.product(), nullptr, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
     fillView(*handle, handle.id(), pointers, helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers, 0));
+    product_.setProductPtr(new View<T>(pointers, helpers, nullptr));
   }
 
   template <typename T>

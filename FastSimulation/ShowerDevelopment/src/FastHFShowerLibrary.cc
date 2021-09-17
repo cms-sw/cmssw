@@ -8,14 +8,12 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -32,15 +30,16 @@
 #include "G4ParticleTypes.hh"
 
 // STL headers
-#include <vector>
 #include <iostream>
 #include <mutex>
+#include <vector>
 
 //#define DebugLog
 
 static std::once_flag initializeOnce;
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
+    : fast(p), hcalDDDSimConstantsESToken_(iC.esConsumes()), hcalSimulationConstantsESToken_(iC.esConsumes()) {
   edm::ParameterSet m_HS = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
 }
@@ -48,16 +47,12 @@ FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
   edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
 
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get(cpv);
-
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  iSetup.get<HcalSimNumberingRecord>().get(hdc);
-  hcalConstants = hdc.product();
+  hcalConstants = &iSetup.getData(hcalDDDSimConstantsESToken_);
+  const HcalSimulationConstants* hsps = &iSetup.getData(hcalSimulationConstantsESToken_);
 
   std::string name = "HcalHits";
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-  hfshower.reset(new HFShowerLibrary(name, *cpv, fast));
+  numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);
+  hfshower = std::make_unique<HFShowerLibrary>(name, hcalConstants, hsps->hcalsimpar(), fast);
 
   //only one thread can be allowed to setup the G4 physics table.
   std::call_once(initializeOnce, []() {
@@ -67,8 +62,8 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
     G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
     partTable->SetReadiness();
   });
-  G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  hfshower->initRun(partTable, hcalConstants);  // init particle code
+  //G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  //hfshower->initRun(partTable, hcalConstants);  // init particle code
 }
 
 void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution* rnd) {

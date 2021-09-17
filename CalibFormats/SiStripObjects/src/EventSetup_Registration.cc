@@ -20,3 +20,6 @@ TYPELOOKUP_DATA_REG(SiStripDelay);
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 TYPELOOKUP_DATA_REG(SiStripQuality);
+
+#include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
+TYPELOOKUP_DATA_REG(SiStripClusterizerConditions);

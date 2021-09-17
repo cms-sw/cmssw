@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<PosPartSection label="hgcalpos.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Fineb0"/>
+    <Translation x="-2.5*cm" y="-2.5*cm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Fineg0"/>
+    <Translation x="0*fm" y="-2.5*cm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Finegm0"/>
+    <Translation x="2.5*cm" y="-2.5*cm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Finea0"/>
+    <Translation x="-2.5*cm" y="0*fm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Fined0"/>
+    <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Finedm0"/>
+    <Translation x="2.5*cm" y="0*fm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Finec0"/>
+    <Translation x="-2.5*cm" y="2.5*cm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Fineam0"/>
+    <Translation x="0.0*fm" y="2.5*cm" z="0.0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer0Finebm0"/>
+    <Translation x="2.5*cm" y="2.5*cm" z="0.0*fm"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

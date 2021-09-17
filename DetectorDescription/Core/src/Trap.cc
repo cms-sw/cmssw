@@ -1,11 +1,11 @@
-#include "DetectorDescription/Core/src/Trap.h"
+#include "DetectorDescription/Core/interface/Trap.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 
 using std::sqrt;
 using namespace geant_units::operators;

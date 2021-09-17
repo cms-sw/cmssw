@@ -1,11 +1,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -21,10 +20,10 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
@@ -40,7 +39,7 @@
 
 class PreMixingSiPixelWorker : public PreMixingWorker {
 public:
-  PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingSiPixelWorker() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -55,8 +54,8 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> PixelDigiToken_;   // Token to retrieve information
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> PixelDigiPToken_;  // Token to retrieve information
-
-  edm::ESHandle<TrackerGeometry> pDD;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
 
   SiPixelDigitizerAlgorithm digitizer_;
 
@@ -73,17 +72,17 @@ private:
 
   SiGlobalIndex SiHitStorage_;
 
-  const std::string geometryType_;
-
   bool firstInitializeEvent_ = true;
   bool firstFinalizeEvent_ = true;
 };
 
 // Constructor
 PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
-                                               edm::ProducerBase& producer,
+                                               edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
-    : digitizer_(ps), geometryType_(ps.getParameter<std::string>("PixGeometryType")) {
+    : tTopoToken_(iC.esConsumes()),
+      pDDToken_(iC.esConsumes(edm::ESInputTag("", ps.getParameter<std::string>("PixGeometryType")))),
+      digitizer_(ps, iC) {
   // declare the products to produce
 
   pixeldigi_collectionSig_ = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
@@ -93,7 +92,8 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
   PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionSig_);
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionPile_);
 
-  producer.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
+  producesCollector.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
+  producesCollector.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
 
   // clear local storage for this event
   SiHitStorage_.clear();
@@ -102,7 +102,6 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
 // Need an event initialization
 
 void PreMixingSiPixelWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD);
   if (firstInitializeEvent_) {
     digitizer_.init(iSetup);
     firstInitializeEvent_ = false;
@@ -266,7 +265,7 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
 
   // Load inefficiency constants (1st pass), set pileup information.
   if (firstFinalizeEvent_) {
-    digitizer_.init_DynIneffDB(iSetup, bs);
+    digitizer_.init_DynIneffDB(iSetup);
     firstFinalizeEvent_ = false;
   }
 
@@ -276,11 +275,18 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
+  auto const& pDD = iSetup.getData(pDDToken_);
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
-  for (const auto& iu : pDD->detUnits()) {
+  if (digitizer_.killBadFEDChannels()) {
+    std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = digitizer_.chooseScenario(ps, engine);
+    if (PixelFEDChannelCollection_ == nullptr) {
+      throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
+    }
+    e.put(std::move(PixelFEDChannelCollection_), PixelDigiCollectionDM_);
+  }
+
+  for (const auto& iu : pDD.detUnits()) {
     if (iu->type().isTrackerPixel()) {
       edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
       edm::DetSet<PixelDigiSimLink> linkcollector(

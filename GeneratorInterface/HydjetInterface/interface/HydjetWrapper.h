@@ -1,16 +1,11 @@
 #ifndef GeneratorInterface_HydjetInterface_HydjetWrapper
 #define GeneratorInterface_HydjetInterface_HydjetWrapper
 
-//
-//
-
-/*
- *
- * Wrapper for FORTRAN version of HYDJET
- *
- * Camelia Mironov
- *
- */
+/**
+   \brief Wrapper for FORTRAN version of HYDJET
+   \version 2.0
+   \authors Camelia Mironov
+*/
 
 extern "C" {
 void hyinit_(double& energy, double& a, int& ifb1, double& bmin, double& bmax, double& bfix1, int& nh1);
@@ -20,9 +15,14 @@ void hyinit_(double& energy, double& a, int& ifb1, double& bmin, double& bmax, d
 #define _MAXMULsize_ 150000
 
 extern "C" {
-void hyevnt_();
+void hyevnt_(double& bfix1);
 }
 #define HYEVNT hyevnt_
+
+extern "C" {
+void hyjver_(int&, int&, int&, int&);
+}
+#define HYJVER hyjver_
 
 extern "C" {
 extern struct { double psi3; } hypsi3_;

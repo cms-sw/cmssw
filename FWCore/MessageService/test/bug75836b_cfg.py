@@ -5,7 +5,7 @@ process.source = cms.Source("EmptySource")
 
 process.doit = cms.EDAnalyzer ("IntTestAnalyzer",
 		valueMustMatch = cms.untracked.int32(90),
-		moduleLabel = cms.untracked.string("missing"))
+		moduleLabel = cms.untracked.InputTag("missing"))
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3))
 

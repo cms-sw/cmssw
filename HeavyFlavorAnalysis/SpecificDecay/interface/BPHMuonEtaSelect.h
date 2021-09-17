@@ -33,6 +33,10 @@ public:
    */
   BPHMuonEtaSelect(double eta) : BPHParticleEtaSelect(eta) {}
 
+  // deleted copy constructor and assignment operator
+  BPHMuonEtaSelect(const BPHMuonEtaSelect& x) = delete;
+  BPHMuonEtaSelect& operator=(const BPHMuonEtaSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHMuonEtaSelect() override {}
@@ -45,11 +49,6 @@ public:
       return false;
     return BPHParticleEtaSelect::accept(cand);
   }
-
-private:
-  // private copy and assigment constructors
-  BPHMuonEtaSelect(const BPHMuonEtaSelect& x) = delete;
-  BPHMuonEtaSelect& operator=(const BPHMuonEtaSelect& x) = delete;
 };
 
 #endif

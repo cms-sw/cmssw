@@ -7,7 +7,6 @@
 namespace l1t {
   namespace stage2 {
     EMTFTokens::EMTFTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) {
-      // std::cout << "Inside EMTFTokens.cc: EMTFTokens" << std::endl;
       auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
 
       regionalMuonCandToken_ = cc.consumes<RegionalMuonCandBxCollection>(tag);
@@ -16,6 +15,7 @@ namespace l1t {
       EMTFTrackToken_ = cc.consumes<EMTFTrackCollection>(tag);
       EMTFLCTToken_ = cc.consumes<CSCCorrelatedLCTDigiCollection>(tag);
       EMTFCPPFToken_ = cc.consumes<CPPFDigiCollection>(tag);
+      EMTFGEMPadClusterToken_ = cc.consumes<GEMPadDigiClusterCollection>(tag);
     }
   }  // namespace stage2
 }  // namespace l1t

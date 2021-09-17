@@ -17,14 +17,16 @@
 #endif
 
 #include <iterator>
+#include <memory>
+
 #include <numeric>  // for std::accumulate
 #include <unordered_map>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -123,14 +125,13 @@ using DecayChain = adjacency_list<listS, vecS, directedS, VertexMotherParticlePr
 
 class CaloTruthAccumulator : public DigiAccumulatorMixMod {
 public:
-  explicit CaloTruthAccumulator(const edm::ParameterSet &config, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  explicit CaloTruthAccumulator(const edm::ParameterSet &config, edm::ProducesCollector, edm::ConsumesCollector &iC);
 
 private:
   void initializeEvent(const edm::Event &event, const edm::EventSetup &setup) override;
   void accumulate(const edm::Event &event, const edm::EventSetup &setup) override;
   void accumulate(const PileUpEventPrincipal &event, const edm::EventSetup &setup, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &event, const edm::EventSetup &setup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &setup) override;
 
   /** @brief Both forms of accumulate() delegate to this templated method. */
   template <class T>
@@ -173,6 +174,8 @@ private:
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex
   edm::InputTag hepMCproductLabel_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESWatcher<CaloGeometryRecord> geomWatcher_;
 
   const double minEnergy_, maxPseudoRapidity_;
   const bool premixStage1_;
@@ -206,6 +209,7 @@ private:
   calo_particles m_caloParticles;
   // geometry type (0 pre-TDR; 1 TDR)
   int geometryType_;
+  bool doHGCAL;
 };
 
 /* Graph utility functions */
@@ -355,7 +359,7 @@ namespace {
 }  // namespace
 
 CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
-                                           edm::ProducerBase &mixMod,
+                                           edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector &iC)
     : messageCategory_("CaloTruthAccumulator"),
       maximumPreviousBunchCrossing_(config.getParameter<unsigned int>("maximumPreviousBunchCrossing")),
@@ -365,14 +369,16 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       collectionTags_(),
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
+      geomToken_(iC.esConsumes()),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
       premixStage1_(config.getParameter<bool>("premixStage1")),
-      geometryType_(-1) {
-  mixMod.produces<SimClusterCollection>("MergedCaloTruth");
-  mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
+      geometryType_(-1),
+      doHGCAL(config.getParameter<bool>("doHGCAL")) {
+  producesCollector.produces<SimClusterCollection>("MergedCaloTruth");
+  producesCollector.produces<CaloParticleCollection>("MergedCaloTruth");
   if (premixStage1_) {
-    mixMod.produces<std::vector<std::pair<unsigned int, float>>>("MergedCaloTruth");
+    producesCollector.produces<std::vector<std::pair<unsigned int, float>>>("MergedCaloTruth");
   }
 
   iC.consumes<std::vector<SimTrack>>(simTrackLabel_);
@@ -395,46 +401,49 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
   }
 }
 
-void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const &iLumiBlock, const edm::EventSetup &iSetup) {
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
-  const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
-  const HcalGeometry *bhgeom = nullptr;
-
-  eegeom = static_cast<const HGCalGeometry *>(
-      geom->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-  // check if it's the new geometry
-  if (eegeom) {
-    geometryType_ = 1;
-    fhgeom = static_cast<const HGCalGeometry *>(
-        geom->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    bhgeomnew = static_cast<const HGCalGeometry *>(
-        geom->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-  } else {
-    geometryType_ = 0;
-    eegeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-    fhgeom = static_cast<const HGCalGeometry *>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-    bhgeom = static_cast<const HcalGeometry *>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-  }
-  hgtopo_[0] = &(eegeom->topology());
-  hgtopo_[1] = &(fhgeom->topology());
-  if (bhgeomnew)
-    hgtopo_[2] = &(bhgeomnew->topology());
-
-  for (unsigned i = 0; i < 3; ++i) {
-    if (hgtopo_[i])
-      hgddd_[i] = &(hgtopo_[i]->dddConstants());
-  }
-
-  if (bhgeom)
-    hcddd_ = bhgeom->topology().dddConstants();
-}
-
 void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
-  output_.pSimClusters.reset(new SimClusterCollection());
-  output_.pCaloParticles.reset(new CaloParticleCollection());
+  output_.pSimClusters = std::make_unique<SimClusterCollection>();
+  output_.pCaloParticles = std::make_unique<CaloParticleCollection>();
 
   m_detIdToTotalSimEnergy.clear();
+
+  if (geomWatcher_.check(setup)) {
+    auto const &geom = setup.getData(geomToken_);
+    const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
+    const HcalGeometry *bhgeom = nullptr;
+    bhgeom = static_cast<const HcalGeometry *>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+
+    if (doHGCAL) {
+      eegeom = static_cast<const HGCalGeometry *>(
+          geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+      // check if it's the new geometry
+      if (eegeom) {
+        geometryType_ = 1;
+        fhgeom = static_cast<const HGCalGeometry *>(
+            geom.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+        bhgeomnew = static_cast<const HGCalGeometry *>(
+            geom.getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+      } else {
+        geometryType_ = 0;
+        eegeom = static_cast<const HGCalGeometry *>(geom.getSubdetectorGeometry(DetId::Forward, HGCEE));
+        fhgeom = static_cast<const HGCalGeometry *>(geom.getSubdetectorGeometry(DetId::Forward, HGCHEF));
+        bhgeom = static_cast<const HcalGeometry *>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+      }
+      hgtopo_[0] = &(eegeom->topology());
+      hgtopo_[1] = &(fhgeom->topology());
+      if (bhgeomnew)
+        hgtopo_[2] = &(bhgeomnew->topology());
+
+      for (unsigned i = 0; i < 3; ++i) {
+        if (hgtopo_[i])
+          hgddd_[i] = &(hgtopo_[i]->dddConstants());
+      }
+    }
+
+    if (bhgeom) {
+      hcddd_ = bhgeom->topology().dddConstants();
+    }
+  }
 }
 
 /** Create handle to edm::HepMCProduct here because event.getByLabel with
@@ -486,6 +495,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
       sc.clearHitsAndFractions();
+      sc.clearHitsEnergy();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
         float fraction = 0.;
@@ -495,6 +505,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
           edm::LogWarning(messageCategory_)
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
         sc.addRecHitAndFraction(hAndE.first, fraction);
+        sc.addHitEnergy(hAndE.second);
       }
     }
   }
@@ -670,37 +681,51 @@ void CaloTruthAccumulator::fillSimHits(std::vector<std::pair<DetId, const PCaloH
     edm::Handle<std::vector<PCaloHit>> hSimHits;
     const bool isHcal = (collectionTag.instance().find("HcalHits") != std::string::npos);
     event.getByLabel(collectionTag, hSimHits);
+
     for (auto const &simHit : *hSimHits) {
       DetId id(0);
-      const uint32_t simId = simHit.id();
-      if (geometryType_ == 1) {
-        // no test numbering in new geometry
-        id = simId;
-      } else if (isHcal) {
-        HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
-        if (hid.subdet() == HcalEndcap)
-          id = hid;
+
+      //Relabel as necessary for HGCAL
+      if (doHGCAL) {
+        const uint32_t simId = simHit.id();
+        if (geometryType_ == 1) {
+          // no test numbering in new geometry
+          id = simId;
+        } else if (isHcal) {
+          HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
+          if (hid.subdet() == HcalEndcap)
+            id = hid;
+        } else {
+          int subdet, layer, cell, sec, subsec, zp;
+          HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
+          const HGCalDDDConstants *ddd = hgddd_[subdet - 3];
+          std::pair<int, int> recoLayerCell = ddd->simToReco(cell, layer, sec, hgtopo_[subdet - 3]->detectorType());
+          cell = recoLayerCell.first;
+          layer = recoLayerCell.second;
+          // skip simhits with bad barcodes or non-existant layers
+          if (layer == -1 || simHit.geantTrackId() == 0)
+            continue;
+          id = HGCalDetId((ForwardSubdetector)subdet, zp, layer, subsec, sec, cell);
+        }
       } else {
-        int subdet, layer, cell, sec, subsec, zp;
-        HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
-        const HGCalDDDConstants *ddd = hgddd_[subdet - 3];
-        std::pair<int, int> recoLayerCell = ddd->simToReco(cell, layer, sec, hgtopo_[subdet - 3]->detectorType());
-        cell = recoLayerCell.first;
-        layer = recoLayerCell.second;
-        // skip simhits with bad barcodes or non-existant layers
-        if (layer == -1 || simHit.geantTrackId() == 0)
-          continue;
-        id = HGCalDetId((ForwardSubdetector)subdet, zp, layer, subsec, sec, cell);
+        id = simHit.id();
+        //Relabel all HCAL hits
+        if (isHcal) {
+          HcalDetId hid = HcalHitRelabeller::relabel(simHit.id(), hcddd_);
+          id = hid;
+        }
       }
 
-      if (DetId(0) == id)
+      if (id == DetId(0)) {
         continue;
+      }
+      if (simHit.geantTrackId() == 0) {
+        continue;
+      }
 
-      uint32_t detId = id.rawId();
       returnValue.emplace_back(id, &simHit);
       simTrackDetIdEnergyMap[simHit.geantTrackId()][id.rawId()] += simHit.energy();
-
-      m_detIdToTotalSimEnergy[detId] += simHit.energy();
+      m_detIdToTotalSimEnergy[id.rawId()] += simHit.energy();
     }
   }  // end of loop over InputTags
 }

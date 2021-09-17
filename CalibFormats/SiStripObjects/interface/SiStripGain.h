@@ -40,6 +40,7 @@
 #include <vector>
 
 class TrackerTopology;
+class SiStripDetInfo;
 
 class SiStripGain {
 public:
@@ -48,22 +49,25 @@ public:
   const SiStripGain &operator=(const SiStripGain &) = delete;
 
   /// Kept for compatibility
-  inline SiStripGain(const SiStripApvGain &apvgain, const double &factor) : apvgain_(nullptr) {
-    multiply(apvgain, factor, std::make_pair("", ""));
+  inline SiStripGain(const SiStripApvGain &apvgain, const double &factor, const SiStripDetInfo &detInfo)
+      : apvgain_(nullptr) {
+    multiply(apvgain, factor, std::make_pair("", ""), detInfo);
   }
 
   inline SiStripGain(const SiStripApvGain &apvgain,
                      const double &factor,
-                     const std::pair<std::string, std::string> &recordLabelPair)
+                     const std::pair<std::string, std::string> &recordLabelPair,
+                     const SiStripDetInfo &detInfo)
       : apvgain_(nullptr) {
-    multiply(apvgain, factor, recordLabelPair);
+    multiply(apvgain, factor, recordLabelPair, detInfo);
   }
 
   /// Used to input additional gain values that will be multiplied to the first
   /// one
   void multiply(const SiStripApvGain &apvgain,
                 const double &factor,
-                const std::pair<std::string, std::string> &recordLabelPair);
+                const std::pair<std::string, std::string> &recordLabelPair,
+                const SiStripDetInfo &detInfo);
 
   // getters
   // For the product of all apvGains
@@ -103,6 +107,7 @@ public:
 private:
   void fillNewGain(const SiStripApvGain *apvgain,
                    const double &factor,
+                   SiStripDetInfo const &detInfo,
                    const SiStripApvGain *apvgain2 = nullptr,
                    const double &factor2 = 1.);
 

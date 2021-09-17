@@ -107,10 +107,11 @@ selectedJets = cms.EDFilter("PFJetSelector",
 )
 
 
-selectionSequenceForMVANoPUMET = cms.Sequence(
-selectedMuons+
-selectedElectrons+
-selectedTaus+
-selectedPhotons+
+selectionSequenceForMVANoPUMETTask = cms.Task(
+selectedMuons,
+selectedElectrons,
+selectedTaus,
+selectedPhotons,
 selectedJets
 )
+selectionSequenceForMVANoPUMET = cms.Sequence(selectionSequenceForMVANoPUMETTask)

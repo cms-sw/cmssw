@@ -1,11 +1,11 @@
-#ifndef Framework_ProxyArgumentFactoryTemplate_h
-#define Framework_ProxyArgumentFactoryTemplate_h
+#ifndef FWCore_Framework_ProxyArgumentFactoryTemplate_h
+#define FWCore_Framework_ProxyArgumentFactoryTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ProxyArgumentFactoryTemplate
 //
-/**\class ProxyArgumentFactoryTemplate ProxyArgumentFactoryTemplate.h FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h
+/**\class edm::eventsetup::ProxyArgumentFactoryTemplate
 
  Description: <one line class summary>
 
@@ -19,45 +19,53 @@
 //
 
 // system include files
+#include <cassert>
 #include <memory>
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ProxyFactoryBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
-// forward declarations
 namespace edm {
   namespace eventsetup {
 
-    template <class T, class ArgT>
+    class DataProxy;
+
+    template <class ProxyType, class CallbackType>
     class ProxyArgumentFactoryTemplate : public ProxyFactoryBase {
     public:
-      typedef typename T::record_type record_type;
+      using RecordType = typename ProxyType::RecordType;
 
-      ProxyArgumentFactoryTemplate(ArgT iArg) : arg_(iArg) {}
-      //virtual ~ProxyArgumentFactoryTemplate()
+      ProxyArgumentFactoryTemplate(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback)
+          : callback_(std::move(callback)) {}
 
-      // ---------- const member functions ---------------------
-      std::unique_ptr<DataProxy> makeProxy() const override { return std::make_unique<T>(arg_); }
+      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete;
+      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete;
 
-      DataKey makeKey(const std::string& iName) const override {
-        return DataKey(DataKey::makeTypeTag<typename T::value_type>(), iName.c_str());
+      std::unique_ptr<DataProxy> makeProxy(unsigned int iovIndex) override {
+        if (iovIndex != callback_->first) {
+          // We are using the fact that we know all the factories related
+          // to one iovIndex are dealt with before makeProxy is called with
+          // a different iovIndex and that these calls are made in an
+          // order such that the iovIndex increments by 1 when it changes.
+          // We must clone, because we need a different callback object
+          // for each iovIndex.
+          assert(iovIndex == callback_->first + 1);
+          callback_->first = callback_->first + 1;
+          callback_->second = std::shared_ptr<CallbackType>(callback_->second->clone());
+        }
+        return std::make_unique<ProxyType>(callback_->second);
       }
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
+      DataKey makeKey(const std::string& iName) const override {
+        return DataKey(DataKey::makeTypeTag<typename ProxyType::ValueType>(), iName.c_str());
+      }
 
     private:
-      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete;  // stop default
-
-      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete;  // stop default
-
-      // ---------- member data --------------------------------
-      mutable ArgT arg_;
+      std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback_;
     };
-
   }  // namespace eventsetup
 }  // namespace edm
 #endif

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from __future__ import print_function
 from FWCore.PythonUtilities.XML2Python import xml2obj
@@ -9,7 +9,6 @@ import ast
 import optparse
 import sys
 
-import six
 
 if __name__ == '__main__':
 
@@ -46,7 +45,7 @@ if __name__ == '__main__':
                     for runObject in runObjects:
                         try:
                             runs = ast.literal_eval(runObject)
-                            for (run, lumis) in six.iteritems(runs):
+                            for (run, lumis) in runs.items():
                                 runList = runsLumisDict.setdefault (int(run), [])
                                 runList.extend(lumis)
                         except ValueError: # Old style handled above

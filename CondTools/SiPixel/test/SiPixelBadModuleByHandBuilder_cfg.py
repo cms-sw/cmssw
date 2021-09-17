@@ -1,11 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
+
+process.load("Configuration.Geometry.GeometryExtended2017_cff")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('cout')
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -32,6 +40,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.prod = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
+    ROCListFile = cms.untracked.string(""), 
     BadModuleList = cms.untracked.VPSet(cms.PSet(
         errortype = cms.string('whole'),
         detid = cms.uint32(302197784)

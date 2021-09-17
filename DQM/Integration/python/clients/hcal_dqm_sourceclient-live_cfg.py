@@ -11,8 +11,8 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process      = cms.Process('HCALDQM', Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process      = cms.Process('HCALDQM', Run3)
 subsystem    = 'Hcal'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -22,20 +22,31 @@ useOfflineGT = False
 useFileInput = False
 useMap       = False
 
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
+	useFileInput=False
+
 #-------------------------------------
 #	Central DQM Stuff imports
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+	process.GlobalTag.globaltag = '106X_dataRun3_HLT_Candidate_2019_11_26_14_48_16'
+	#process.GlobalTag.globaltag = '106X_dataRun2_PromptLike_Candidate_2019_05_04_08_47_47'
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
-if useFileInput:
+if unitTest:
+	process.load("DQM.Integration.config.unittestinputsource_cfi")
+	from DQM.Integration.config.unittestinputsource_cfi import options
+elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
+	from DQM.Integration.config.fileinputsource_cfi import options
 else:
 	process.load('DQM.Integration.config.inputsource_cfi')
+	from DQM.Integration.config.inputsource_cfi import options
 process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
@@ -43,11 +54,13 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.DQMStore.referenceFileName = referenceFileName
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = subsystem
+process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
-process.source.minEventsPerLumi=100
+if not useFileInput and not unitTest:
+	process.source.minEventsPerLumi = 100
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -74,57 +87,57 @@ runTypeName		= process.runType.getRunTypeName()
 isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
-rawTag			= cms.InputTag("rawDataCollector")
-rawTagUntracked = cms.untracked.InputTag("rawDataCollector")
+rawTag			= "rawDataCollector"
+rawTagUntracked = "rawDataCollector"
 if isHeavyIon:
-	rawTag = cms.InputTag("rawDataRepacker")
-	rawTagUntracked = cms.untracked.InputTag("rawDataRepacker")
+	rawTag = "rawDataRepacker"
+	rawTagUntracked = "rawDataRepacker"
 	process.castorDigis.InputLabel = rawTag
 
-process.emulTPDigis = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-process.emulTPDigis.inputLabel = \
-		cms.VInputTag("hcalDigis", 'hcalDigis')
-process.emulTPDigis.FrontEndFormatError = \
-		cms.bool(True)
-process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.emulTPDigis.FG_threshold = cms.uint32(2)
-process.emulTPDigis.InputTagFEDRaw = rawTag
-process.emulTPDigis.upgradeHF = cms.bool(True)
-process.emulTPDigis.upgradeHE = cms.bool(True)
-process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
-process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
-# Enable ZS on emulated TPs, to match what is done in data
-process.emulTPDigis.RunZS = cms.bool(True)
-process.emulTPDigis.ZS_threshold = cms.uint32(0)
+process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
+   inputLabel = ["hcalDigis", 'hcalDigis'],
+   FrontEndFormatError = True,
+   FG_threshold = 2,
+   InputTagFEDRaw = rawTag,
+   upgradeHF = True,
+   upgradeHE = True,
+   upgradeHB = True,
+   inputUpgradeLabel = ["hcalDigis", "hcalDigis"],
+   # Enable ZS on emulated TPs, to match what is done in data
+   RunZS = True,
+   ZS_threshold = 0
+)
+
 process.hcalDigis.InputLabel = rawTag
-process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+process.emulTPDigisNoTDCCut = process.emulTPDigis.clone(
+     parameters = cms.untracked.PSet(
 	ADCThresholdHF = cms.uint32(255),
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+     )
 )
+process.HcalTPGCoderULUT.LUTGenerationMode = False
 
 # For sent-received comparison
 process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 # For heavy ion runs, need to reconfigure sources for L1TRawToDigi
 if isHeavyIon:
-	process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-	process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-	process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
-	process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
-	process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker") #new
-	process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker") #not sure
-	process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
-	process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
-	process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+	process.csctfDigis.producer = "rawDataRepacker"
+	process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+	process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
+	process.omtfStage2Digis.inputLabel = "rawDataRepacker"
+	process.caloStage1Digis.InputLabel = "rawDataRepacker" #new
+	process.bmtfDigis.InputLabel = "rawDataRepacker"
+	process.emtfStage2Digis.InputLabel = "rawDataRepacker"
+	process.caloLayer1Digis.InputLabel = "rawDataRepacker" #not sure
+	process.caloStage2Digis.InputLabel = "rawDataRepacker"
+	process.gmtStage2Digis.InputLabel = "rawDataRepacker"
+	process.gtStage2Digis.InputLabel = "rawDataRepacker"
+	process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
+	process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
+#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=[724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123])
 
 #-------------------------------------
 #	Hcal DQM Tasks and Harvesters import
@@ -147,7 +160,8 @@ process.load('DQM.HcalTasks.HcalQualityTests')
 if useMap:
     process.GlobalTag.toGet.append(cms.PSet(
 		record = cms.string("HcalElectronicsMapRcd"),
-        tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+        #tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+        tag = cms.string("HcalElectronicsMap_v9.0_hlt"),
         )
     )    
 
@@ -215,6 +229,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
+		*process.dqmSaverPB
 )
 process.qtPath = cms.Path(process.hcalQualityTests)
 
@@ -237,7 +252,7 @@ process.options = cms.untracked.PSet(
 			"TooFewProducts"
 		)
 )
-process.options.wantSummary = cms.untracked.bool(True)
+process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")

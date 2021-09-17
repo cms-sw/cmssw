@@ -14,6 +14,8 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
+#include <memory>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -66,7 +68,7 @@ namespace {  // anonymous
 
   ProcTMVA::ProcTMVA(const char *name, const Calibration::ProcExternal *calib, const MVAComputer *computer)
       : VarProcessor(name, calib, computer) {
-    reader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+    reader = std::make_unique<TMVA::Reader>("!Color:Silent");
 
     ext::imemstream is(reinterpret_cast<const char *>(&calib->store.front()), calib->store.size());
     ext::izstream izs(&is);

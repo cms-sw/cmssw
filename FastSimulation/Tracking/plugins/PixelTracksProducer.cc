@@ -39,8 +39,7 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : theReg
 
   const edm::ParameterSet& regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{
-      TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector())};
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector());
 
   fitterToken = consumes<PixelFitter>(conf.getParameter<edm::InputTag>("Fitter"));
   filterToken = consumes<PixelTrackFilter>(conf.getParameter<edm::InputTag>("Filter"));
@@ -99,15 +98,13 @@ void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     TrajectorySeedCollection::const_iterator aSeed = theSeeds->begin();
     TrajectorySeedCollection::const_iterator lastSeed = theSeeds->end();
     for (; aSeed != lastSeed; ++aSeed) {
-      // Find the first hit and last hit of the Seed
-      TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-      edm::OwnVector<TrackingRecHit>::const_iterator aSeedingRecHit = theSeedingRecHitRange.first;
-      edm::OwnVector<TrackingRecHit>::const_iterator theLastSeedingRecHit = theSeedingRecHitRange.second;
-
       // Loop over the rechits
       std::vector<const TrackingRecHit*> TripletHits(3, static_cast<const TrackingRecHit*>(nullptr));
-      for (unsigned i = 0; aSeedingRecHit != theLastSeedingRecHit; ++i, ++aSeedingRecHit)
-        TripletHits[i] = &(*aSeedingRecHit);
+      unsigned int iRecHit = 0;
+      for (auto const& recHit : aSeed->recHits()) {
+        TripletHits[iRecHit] = &recHit;
+        ++iRecHit;
+      }
 
       // fitting the triplet
       std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region, es);

@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,7 +45,7 @@ MCMuonSeedGenerator2::MCMuonSeedGenerator2(const edm::ParameterSet& parameterSet
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // Error Scale
   theErrorScale = parameterSet.getParameter<double>("ErrorScale");

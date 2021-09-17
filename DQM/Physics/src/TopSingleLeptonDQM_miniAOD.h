@@ -1,12 +1,10 @@
 #ifndef TOPSINGLELEPTONDQM_MINIAOD
 #define TOPSINGLELEPTONDQM_MINIAOD
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
@@ -26,6 +24,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 namespace TopSingleLepton_miniAOD {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:
@@ -117,7 +117,7 @@ namespace TopSingleLepton_miniAOD {
     std::unique_ptr<StringCutObjectSelector<pat::Muon> > muonSelect_;
 
     /// jetCorrector
-    std::string jetCorrector_;
+    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets
@@ -181,9 +181,8 @@ namespace TopSingleLepton_miniAOD {
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class TopSingleLeptonDQM_miniAOD : public DQMEDAnalyzer {
+class TopSingleLeptonDQM_miniAOD : public DQMOneEDAnalyzer<> {
 public:
   /// default constructor
   TopSingleLeptonDQM_miniAOD(const edm::ParameterSet& cfg);

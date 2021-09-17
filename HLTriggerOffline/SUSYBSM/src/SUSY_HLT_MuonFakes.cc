@@ -99,10 +99,6 @@ void SUSY_HLT_MuonFakes::analyze(edm::Event const &e, edm::EventSetup const &eSe
   //  }
 }
 
-void SUSY_HLT_MuonFakes::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::endRun" << std::endl;
-}
-
 void SUSY_HLT_MuonFakes::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.cd();
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);

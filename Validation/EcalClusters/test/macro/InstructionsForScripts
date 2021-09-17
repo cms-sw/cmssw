@@ -34,13 +34,13 @@ e.g. how to plot performace vs. ET:
 
 > root -l FitEt.C > out.et
 > grep Result out.et > output
-> python plotMeanVsET.py    
+> python3 plotMeanVsET.py    
 ( Which takes file 'output' as an input and produces plot_MeanVsET.C )
 > root -l plot_MeanVsET.C  
 
 or
 
-> python plotEffSigmaVsET.py
+> python3 plotEffSigmaVsET.py
 > root -l plot_EffSigmaVsET.C
 
 //-------------------------------------

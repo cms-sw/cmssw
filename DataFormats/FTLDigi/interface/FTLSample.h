@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <ostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /**
    @class FTLSample

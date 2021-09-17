@@ -14,11 +14,18 @@
   </class>
   <class name="edm::Wrapper<TotemTriggerCounters>"/>
 
-  <class name="TotemVFATStatus" ClassVersion="4">
-    <version ClassVersion="4" checksum="1562789855"/>
+  <class name="TotemVFATStatus" ClassVersion="5">
     <version ClassVersion="2" checksum="3003040825"/>
     <version ClassVersion="3" checksum="1439138260"/>
+    <version ClassVersion="4" checksum="1562789855"/>
+    <version ClassVersion="5" checksum="1998337285"/>
   </class>
+  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t chipPosition" target="chipPosition_">
+  <![CDATA[ chipPosition_ = onfile.chipPosition;]]>
+  </ioread>
+  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t numberOfClusters" target="numberOfClusters_">
+  <![CDATA[ numberOfClusters_ = onfile.numberOfClusters;]]>
+  </ioread>
   <class name="edm::DetSet<TotemVFATStatus>"/>
   <class name="std::vector<TotemVFATStatus>"/>
   <class name="std::vector<edm::DetSet<TotemVFATStatus> >"/>
@@ -29,9 +36,16 @@
   <class name="std::bitset<8>"/>
   <class name="edm::Wrapper<std::bitset<8> >"/>
 
-  <class name="TotemFEDInfo" ClassVersion="2">
+  <class name="TotemFEDInfo" ClassVersion="3">
     <version ClassVersion="2" checksum="2844972317"/>
+    <version ClassVersion="3" checksum="3276964679"/>
   </class>
+  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="int fedId" target="fedId_">
+  <![CDATA[ fedId_ = onfile.fedId;]]>
+  </ioread>
+  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="uint32_t orbitCounter" target="orbitCounter_">
+  <![CDATA[ orbitCounter_ = onfile.orbitCounter;]]>
+  </ioread>
   <class name="std::vector<TotemFEDInfo>"/>
   <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
 

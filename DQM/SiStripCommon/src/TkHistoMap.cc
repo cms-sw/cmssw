@@ -84,7 +84,7 @@ void TkHistoMap::loadTkHistoMap(const std::string& path, const std::string& MapN
       LogTrace("TkHistoMap") << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName
                              << " find " << folder.find_last_of("/") << "  length " << folder.length();
 #endif
-      if (folder.find_last_of("/") != folder.length() - 1)
+      if (folder.find_last_of('/') != folder.length() - 1)
         folder += "/";
       tkHistoMap_[layer] = igetter.get(folder + fullName);
 #ifdef debug_TkHistoMap
@@ -181,9 +181,9 @@ void TkHistoMap::fill(DetId detid, float value) {
                          << value << " ix,iy " << xybin.ix << " " << xybin.iy << " " << xybin.x << " " << xybin.y << " "
                          << tkHistoMap_[layer]->getTProfile2D()->GetName();
 #endif
-  if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D)
     tkHistoMap_[layer]->getTProfile2D()->Fill(xybin.x, xybin.y, value);
-  else if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F)
+  else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
     tkHistoMap_[layer]->getTH2F()->Fill(xybin.x, xybin.y, value);
 
 #ifdef debug_TkHistoMap
@@ -191,10 +191,10 @@ void TkHistoMap::fill(DetId detid, float value) {
                          << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(xybin.ix, xybin.iy);
   for (size_t ii = 0; ii < 4; ii++)
     for (size_t jj = 0; jj < 11; jj++) {
-      if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+      if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D)
         LogTrace("TkHistoMap") << "[TkHistoMap::fill] " << ii << " " << jj << " "
                                << tkHistoMap_[layer]->getTProfile2D()->GetBinContent(ii, jj);
-      if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F)
+      if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
         LogTrace("TkHistoMap") << "[TkHistoMap::fill] " << ii << " " << jj << " "
                                << tkHistoMap_[layer]->getTH2F()->GetBinContent(ii, jj);
     }
@@ -204,13 +204,13 @@ void TkHistoMap::fill(DetId detid, float value) {
 void TkHistoMap::setBinContent(DetId detid, float value) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
-  if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D) {
     tkHistoMap_[layer]->getTProfile2D()->SetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy),
                                                        1);
     tkHistoMap_[layer]->getTProfile2D()->SetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy),
                                                        value);
-  } else if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F) {
-    tkHistoMap_[layer]->getTH2F()->SetBinContent(xybin.ix, xybin.iy, value);
+  } else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F) {
+    tkHistoMap_[layer]->setBinContent(xybin.ix, xybin.iy, value);
   }
 
 #ifdef debug_TkHistoMap
@@ -235,12 +235,12 @@ void TkHistoMap::add(DetId detid, float value) {
 #endif
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
-  if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TPROFILE2D)
     setBinContent(detid,
                   tkHistoMap_[layer]->getTProfile2D()->GetBinContent(
                       tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy)) +
                       value);
-  else if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F)
+  else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
     setBinContent(
         detid,
         tkHistoMap_[layer]->getTH2F()->GetBinContent(tkHistoMap_[layer]->getTH2F()->GetBin(xybin.ix, xybin.iy)) +
@@ -251,7 +251,7 @@ float TkHistoMap::getValue(DetId detid) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
 
-  if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F)
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
     return tkHistoMap_[layer]->getTH2F()->GetBinContent(tkHistoMap_[layer]->getTH2F()->GetBin(xybin.ix, xybin.iy));
   else
     return tkHistoMap_[layer]->getTProfile2D()->GetBinContent(
@@ -260,7 +260,7 @@ float TkHistoMap::getValue(DetId detid) {
 float TkHistoMap::getEntries(DetId detid) {
   int16_t layer = tkdetmap_->findLayer(detid, cached_detid, cached_layer, cached_XYbin);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid, cached_detid, cached_layer, cached_XYbin);
-  if (tkHistoMap_[layer]->kind() == MonitorElement::DQM_KIND_TH2F)
+  if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F)
     return 1;
   else
     return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(

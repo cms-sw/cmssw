@@ -97,9 +97,13 @@
    <field name="m_getter" transient="true"/>
    <field name="m_dataSize" transient="true"/>
 </class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="10">
- <version ClassVersion="10" checksum="1062438024"/>
+<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="11">
+   <version ClassVersion="10" checksum="1062438024"/>
+   <version ClassVersion="11" checksum="3545691837"/>
 </class>
+<ioread sourceClass="edmNew::dstvdetails::DetSetVectorTrans::Item" version="[1-10]" targetClass="edmNew::dstvdetails::DetSetVectorTrans::Item" source="int offset" target="offset">
+<![CDATA[offset=onfile.offset;]]>
+</ioread>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
 
@@ -146,13 +150,24 @@
  <class name="edm::ValueMap<bool>" />
  <class name="edm::ValueMap<float>" />
  <class name="edm::ValueMap<double>" />
+ <class name="edm::ValueMap<std::pair<float, float>>" />
+ <class name="edm::ValueMap<std::vector<float>>" />
  <class name="edm::Wrapper<edm::ValueMap<int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<bool> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<float> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<double> >" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::ValueMap<std::pair<float, float>> >" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::ValueMap<std::vector<float>> >" splitLevel="0"/>
  <class name="std::vector<edm::EventAuxiliary>"/>
  <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
+ <class name="edm::ErrorSummaryEntry" ClassVersion="10">
+  <version ClassVersion="10" checksum="3974422774"/>
+ </class>
+ <class name="edm::ELseverityLevel" ClassVersion="10">
+  <version ClassVersion="10" checksum="2388166397"/>
+ </class>
+ <class name="std::vector<edm::ErrorSummaryEntry>"/>
  <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
  <class name="edm::MergeableCounter" ClassVersion="10">
   <version ClassVersion="10" checksum="3792606006"/>
@@ -185,5 +200,8 @@
 
  <class name="edm::RefProd<std::vector<int> >"/>
  <class name="edm::RefToBaseProd<int>"/>
-
+ <class name="edm::RandomNumberGeneratorState" ClassVersion="3">
+  <version ClassVersion="3" checksum="2237762164"/>
+ </class>
+ <class name="edm::Wrapper<std::map<edm::ParameterSetID,edm::ParameterSetBlob>>"/>
 </lcgdict>

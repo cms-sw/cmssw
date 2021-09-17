@@ -22,8 +22,6 @@
 
 - ElectronLikelihoodCalibration
 - ElectronLikelihoodCategoryData
-- GBRForest
-- GBRTree
 
 
 \subsection pluginai Plugins

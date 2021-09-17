@@ -3,7 +3,6 @@
 
 import FWCore.ParameterSet.Config as cms
 import os
-import six
 
 ##############################################################################
 
@@ -121,11 +120,11 @@ def customiseL1EmulatorFromRaw(process):
         process.simGtDigis )
 
     # replace the SimL1Emulator in all paths and sequences
-    for iterable in six.itervalues(process.sequences):
+    for iterable in process.sequences.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.paths):
+    for iterable in process.paths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.endpaths):
+    for iterable in process.endpaths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
     process.SimL1Emulator = SimL1Emulator
 

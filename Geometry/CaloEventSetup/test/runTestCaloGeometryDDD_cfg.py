@@ -28,6 +28,8 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('calogeom.root')
                                    )
 
-process.p1 = cms.Path(process.etta*process.ctgw*process.cga*process.mfa)
+# process.p1 = cms.Path(process.etta*process.ctgw*process.cga*process.mfa)
+process.p1 = cms.Path(process.etta*process.ctgw*process.cga)
+# FIXME Restore magnetic field test. Code has to be added to read field record
 
 

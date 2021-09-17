@@ -115,11 +115,9 @@ protected:
       inFile.close();
       std::cout << "we are here4" << std::endl;
       delete[] buffer;
-
     } catch (SQLException &e) {
       throw(std::runtime_error(std::string("populateClob():  ") + e.getMessage()));
     }
-
     std::cout << "Populating the Clob - Success" << std::endl;
   }
 

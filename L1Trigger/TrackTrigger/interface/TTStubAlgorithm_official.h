@@ -17,7 +17,6 @@
 #define L1_TRACK_TRIGGER_STUB_ALGO_official_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -26,7 +25,7 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include <memory>
@@ -44,8 +43,8 @@ private:
   std::string className_;
 
   std::vector<double> barrelCut;
-  std::vector<std::vector<double> > ringCut;
-  std::vector<std::vector<double> > tiltedCut;
+  std::vector<std::vector<double>> ringCut;
+  std::vector<std::vector<double>> tiltedCut;
   std::vector<double> barrelNTilt;
 
 public:
@@ -53,8 +52,8 @@ public:
   TTStubAlgorithm_official(const TrackerGeometry *const theTrackerGeom,
                            const TrackerTopology *const theTrackerTopo,
                            std::vector<double> setBarrelCut,
-                           std::vector<std::vector<double> > setRingCut,
-                           std::vector<std::vector<double> > setTiltedCut,
+                           std::vector<std::vector<double>> setRingCut,
+                           std::vector<std::vector<double>> setTiltedCut,
                            std::vector<double> setBarrelNTilt,
                            bool aPerformZMatchingPS,
                            bool aPerformZMatching2S)
@@ -74,7 +73,6 @@ public:
   void PatternHitCorrelation(bool &aConfirmation,
                              int &aDisplacement,
                              int &anOffset,
-                             float &anROffset,
                              float &anHardBend,
                              const TTStub<T> &aTTStub) const override;
 
@@ -95,7 +93,6 @@ void TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>::PatternHitCorrelation(
     bool &aConfirmation,
     int &aDisplacement,
     int &anOffset,
-    float &anROffset,
     float &anHardBend,
     const TTStub<Ref_Phase2TrackerDigi_> &aTTStub) const;
 
@@ -114,11 +111,13 @@ template <typename T>
 class ES_TTStubAlgorithm_official : public edm::ESProducer {
 private:
   /// Data members
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> mGeomToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> mTopoToken;
 
   /// Windows
   std::vector<double> setBarrelCut;
-  std::vector<std::vector<double> > setRingCut;
-  std::vector<std::vector<double> > setTiltedCut;
+  std::vector<std::vector<double>> setRingCut;
+  std::vector<std::vector<double>> setTiltedCut;
 
   std::vector<double> setBarrelNTilt;
 
@@ -131,46 +130,39 @@ public:
   ES_TTStubAlgorithm_official(const edm::ParameterSet &p) {
     mPerformZMatchingPS = p.getParameter<bool>("zMatchingPS");
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
-    setBarrelCut = p.getParameter<std::vector<double> >("BarrelCut");
-    setBarrelNTilt = p.getParameter<std::vector<double> >("NTiltedRings");
+    setBarrelCut = p.getParameter<std::vector<double>>("BarrelCut");
+    setBarrelNTilt = p.getParameter<std::vector<double>>("NTiltedRings");
 
-    std::vector<edm::ParameterSet> vPSet = p.getParameter<std::vector<edm::ParameterSet> >("EndcapCutSet");
-    std::vector<edm::ParameterSet> vPSet2 = p.getParameter<std::vector<edm::ParameterSet> >("TiltedBarrelCutSet");
+    std::vector<edm::ParameterSet> vPSet = p.getParameter<std::vector<edm::ParameterSet>>("EndcapCutSet");
+    std::vector<edm::ParameterSet> vPSet2 = p.getParameter<std::vector<edm::ParameterSet>>("TiltedBarrelCutSet");
 
     std::vector<edm::ParameterSet>::const_iterator iPSet;
     for (iPSet = vPSet.begin(); iPSet != vPSet.end(); iPSet++) {
-      setRingCut.push_back(iPSet->getParameter<std::vector<double> >("EndcapCut"));
+      setRingCut.push_back(iPSet->getParameter<std::vector<double>>("EndcapCut"));
     }
 
     for (iPSet = vPSet2.begin(); iPSet != vPSet2.end(); iPSet++) {
-      setTiltedCut.push_back(iPSet->getParameter<std::vector<double> >("TiltedCut"));
+      setTiltedCut.push_back(iPSet->getParameter<std::vector<double>>("TiltedCut"));
     }
 
-    setWhatProduced(this);
+    auto cc = setWhatProduced(this);
+    mGeomToken = cc.consumes();
+    mTopoToken = cc.consumes();
   }
 
   /// Destructor
   ~ES_TTStubAlgorithm_official() override {}
 
   /// Implement the producer
-  std::unique_ptr<TTStubAlgorithm<T> > produce(const TTStubAlgorithmRecord &record) {
-    edm::ESHandle<TrackerGeometry> tGeomHandle;
-    record.getRecord<TrackerDigiGeometryRecord>().get(tGeomHandle);
-    const TrackerGeometry *const theTrackerGeom = tGeomHandle.product();
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    record.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology *const theTrackerTopo = tTopoHandle.product();
-
-    TTStubAlgorithm<T> *TTStubAlgo = new TTStubAlgorithm_official<T>(theTrackerGeom,
-                                                                     theTrackerTopo,
-                                                                     setBarrelCut,
-                                                                     setRingCut,
-                                                                     setTiltedCut,
-                                                                     setBarrelNTilt,
-                                                                     mPerformZMatchingPS,
-                                                                     mPerformZMatching2S);
-
-    return std::unique_ptr<TTStubAlgorithm<T> >(TTStubAlgo);
+  std::unique_ptr<TTStubAlgorithm<T>> produce(const TTStubAlgorithmRecord &record) {
+    return std::make_unique<TTStubAlgorithm_official<T>>(&record.get(mGeomToken),
+                                                         &record.get(mTopoToken),
+                                                         setBarrelCut,
+                                                         setRingCut,
+                                                         setTiltedCut,
+                                                         setBarrelNTilt,
+                                                         mPerformZMatchingPS,
+                                                         mPerformZMatching2S);
   }
 };
 

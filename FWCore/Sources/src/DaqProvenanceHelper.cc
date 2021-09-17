@@ -11,25 +11,31 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+
+namespace {
+  edm::BranchDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType) {
+    edm::BranchDescription desc(edm::InEvent,
+                                "rawDataCollector",
+                                // "source",
+                                "LHC",
+                                // "HLT",
+                                "FEDRawDataCollection",
+                                "FEDRawDataCollection",
+                                "",
+                                "FedRawDataInputSource",
+                                edm::ParameterSetID(),
+                                edm::TypeWithDict(rawDataType.typeInfo()),
+                                false);
+    desc.setIsProvenanceSetOnRead();
+    return desc;
+  }
+}  // namespace
 
 namespace edm {
   DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
-      : constBranchDescription_(BranchDescription(InEvent,
-                                                  "rawDataCollector"
-                                                  //, "source"
-                                                  ,
-                                                  "LHC"
-                                                  // , "HLT"
-                                                  ,
-                                                  "FEDRawDataCollection",
-                                                  "FEDRawDataCollection",
-                                                  "",
-                                                  "FedRawDataInputSource",
-                                                  ParameterSetID(),
-                                                  TypeWithDict(rawDataType.typeInfo()),
-                                                  false)),
+      : constBranchDescription_(makeDescriptionForDaqProvHelper(rawDataType)),
         dummyProvenance_(constBranchDescription_.branchID()),
         processParameterSet_(),
         oldProcessName_(),

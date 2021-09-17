@@ -72,8 +72,8 @@ private:
   int eventn;
   int lumi;
   int bx;
-  boost::uint64_t orbitn;
-  boost::uint64_t timest;
+  uint64_t orbitn;
+  uint64_t timest;
 
   // Generator info
   float weight;
@@ -157,9 +157,9 @@ private:
   int idxCSC[MAXGMT];
 
   // GT info
-  boost::uint64_t gttw1[3];
-  boost::uint64_t gttw2[3];
-  boost::uint64_t gttt[3];
+  uint64_t gttw1[3];
+  uint64_t gttw2[3];
+  uint64_t gttt[3];
 
   //PSB info
   int nele;

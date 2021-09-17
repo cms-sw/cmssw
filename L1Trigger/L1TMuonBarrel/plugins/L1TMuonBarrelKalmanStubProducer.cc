@@ -38,11 +38,12 @@ private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  edm::EDGetTokenT<L1MuDTChambPhContainer> srcPhi_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> srcTheta_;
-  L1TMuonBarrelKalmanStubProcessor* proc_;
-  int verbose_;
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle_;
+  const edm::EDGetTokenT<L1MuDTChambPhContainer> srcPhi_;
+  const edm::EDGetTokenT<L1MuDTChambThContainer> srcTheta_;
+  std::unique_ptr<L1TMuonBarrelKalmanStubProcessor> proc_;
+  const int verbose_;
+  const edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> bmtfParamsToken_;
+  const edm::EDPutTokenT<L1MuKBMTCombinedStubCollection> putToken_;
 };
 
 //
@@ -59,17 +60,12 @@ private:
 L1TMuonBarrelKalmanStubProducer::L1TMuonBarrelKalmanStubProducer(const edm::ParameterSet& iConfig)
     : srcPhi_(consumes<L1MuDTChambPhContainer>(iConfig.getParameter<edm::InputTag>("srcPhi"))),
       srcTheta_(consumes<L1MuDTChambThContainer>(iConfig.getParameter<edm::InputTag>("srcTheta"))),
-      proc_(new L1TMuonBarrelKalmanStubProcessor(iConfig)),
-      verbose_(iConfig.getParameter<int>("verbose")) {
-  produces<L1MuKBMTCombinedStubCollection>();
-}
+      proc_(std::make_unique<L1TMuonBarrelKalmanStubProcessor>(iConfig)),
+      verbose_(iConfig.getParameter<int>("verbose")),
+      bmtfParamsToken_(esConsumes()),
+      putToken_(produces<L1MuKBMTCombinedStubCollection>()) {}
 
-L1TMuonBarrelKalmanStubProducer::~L1TMuonBarrelKalmanStubProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-  if (proc_ != nullptr)
-    delete proc_;
-}
+L1TMuonBarrelKalmanStubProducer::~L1TMuonBarrelKalmanStubProducer() {}
 
 //
 // member functions
@@ -86,9 +82,7 @@ void L1TMuonBarrelKalmanStubProducer::produce(edm::Event& iEvent, const edm::Eve
 
   //Get parameters
 
-  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = iSetup.get<L1TMuonBarrelParamsRcd>();
-  bmtfParamsRcd.get(bmtfParamsHandle_);
-  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle_.product();
+  const L1TMuonBarrelParams& bmtfParams = iSetup.getData(bmtfParamsToken_);
 
   L1MuKBMTCombinedStubCollection stubs = proc_->makeStubs(phiIn.product(), thetaIn.product(), bmtfParams);
   if (verbose_ == 1)
@@ -110,7 +104,7 @@ void L1TMuonBarrelKalmanStubProducer::produce(edm::Event& iEvent, const edm::Eve
       proc_->makeInputPattern(phiIn.product(), thetaIn.product(), sector);
   }
 
-  iEvent.put(std::make_unique<L1MuKBMTCombinedStubCollection>(stubs));
+  iEvent.emplace(putToken_, std::move(stubs));
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

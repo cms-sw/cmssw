@@ -47,6 +47,16 @@ namespace edm {
                                   bool subsequent);
 
     /**
+     * Detect if buffer starts with "XZ\0" which means it is compressed in LZMA format
+     */
+    bool isBufferLZMA(unsigned char const* inputBuffer, unsigned int inputSize);
+
+    /**
+     * Detect if buffer starts with "Z\0" which means it is compressed in ZStandard format
+     */
+    bool isBufferZSTD(unsigned char const* inputBuffer, unsigned int inputSize);
+
+    /**
      * Uncompresses the data in the specified input buffer into the
      * specified output buffer.  The inputSize should be set to the size
      * of the compressed data in the inputBuffer.  The expectedFullSize should
@@ -58,6 +68,18 @@ namespace edm {
                                          unsigned int inputSize,
                                          std::vector<unsigned char>& outputBuffer,
                                          unsigned int expectedFullSize);
+
+    static unsigned int uncompressBufferLZMA(unsigned char* inputBuffer,
+                                             unsigned int inputSize,
+                                             std::vector<unsigned char>& outputBuffer,
+                                             unsigned int expectedFullSize,
+                                             bool hasHeader = true);
+
+    static unsigned int uncompressBufferZSTD(unsigned char* inputBuffer,
+                                             unsigned int inputSize,
+                                             std::vector<unsigned char>& outputBuffer,
+                                             unsigned int expectedFullSize,
+                                             bool hasHeader = true);
 
   protected:
     static void declareStreamers(SendDescs const& descs);
@@ -71,10 +93,12 @@ namespace edm {
       ~EventPrincipalHolder() override;
 
       WrapperBase const* getIt(ProductID const& id) const override;
-      WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
+                                                                                         unsigned int) const override;
       void getThinnedProducts(ProductID const& pid,
                               std::vector<WrapperBase const*>& wrappers,
                               std::vector<unsigned int>& keys) const override;
+      OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override;
 
       unsigned int transitionIndex_() const override;
 
@@ -88,8 +112,6 @@ namespace edm {
     void read(EventPrincipal& eventPrincipal) override;
 
     void setRun(RunNumber_t r) override;
-
-    std::unique_ptr<FileBlock> readFile_() override;
 
     edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;

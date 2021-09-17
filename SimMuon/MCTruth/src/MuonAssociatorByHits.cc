@@ -1,3 +1,4 @@
+#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -9,8 +10,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
+#include <memory>
+
 #include <sstream>
 
 using namespace reco;
@@ -135,14 +137,16 @@ namespace muonAssociatorByHitsDiagnostics {
 }  // namespace muonAssociatorByHitsDiagnostics
 
 MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
-    : helper_(conf), conf_(conf), trackerHitAssociatorConfig_(conf, std::move(iC)) {
+    : helper_(conf),
+      trackerHitAssociatorConfig_(conf, std::move(iC)),
+      gemHitAssociatorConfig_(conf, iC),
+      rpcHitAssociatorConfig_(conf, iC),
+      cscHitAssociatorConfig_(conf, iC),
+      dtHitAssociatorConfig_(conf, iC),
+      ttopoToken_(iC.esConsumes()) {
   // hack for consumes
-  RPCHitAssociator rpctruth(conf, std::move(iC));
-  GEMHitAssociator gemtruth(conf, std::move(iC));
-  DTHitAssociator dttruth(conf, std::move(iC));
-  CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
-    diagnostics_.reset(new InputDumper(conf, std::move(iC)));
+    diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
 }
 
@@ -161,23 +165,22 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS(true);
-  DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
+  DTHitAssociator dttruth(*e, *setup, dtHitAssociatorConfig_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, rpcHitAssociatorConfig_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   if (diagnostics_) {
     resources.diagnostics_ = [this, e](const TrackHitsCollection &hC, const TrackingParticleCollection &pC) {
@@ -208,23 +211,22 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo = tTopoHand.product();
+  const TrackerTopology *tTopo = &setup->getData(ttopoToken_);
 
   // Tracker hit association
   TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
-  CSCHitAssociator csctruth(*e, *setup, conf_);
+  CSCHitAssociator csctruth(*e, *setup, cscHitAssociatorConfig_);
   // DT hit association
   bool printRtS = false;
-  DTHitAssociator dttruth(*e, *setup, conf_, printRtS);
+  DTHitAssociator dttruth(*e, *setup, dtHitAssociatorConfig_, printRtS);
   // RPC hit association
-  RPCHitAssociator rpctruth(*e, *setup, conf_);
+  RPCHitAssociator rpctruth(*e, rpcHitAssociatorConfig_);
   // GEM hit association
-  GEMHitAssociator gemtruth(*e, *setup, conf_);
+  GEMHitAssociator gemtruth(*e, gemHitAssociatorConfig_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
   for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {

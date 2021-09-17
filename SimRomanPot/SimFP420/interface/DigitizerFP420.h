@@ -2,7 +2,6 @@
 #define DigitizerFP420_h
 
 ///////////////////////////////////////////////////////////////////////
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"

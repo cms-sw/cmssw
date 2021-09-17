@@ -36,8 +36,11 @@ DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_Photon*"]
 hltDiPhotonCaloIdIsoObjectProducer = cms.EDProducer("CandidateTriggerObjectProducer",
                                              triggerName = cms.string("HLT_Photon.*_CaloId.*_Iso.*_Photon.*_CaloId.*_Iso.*_.*"),
                                              triggerResults = cms.InputTag("TriggerResults","","HLT"),
-                                             triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT")
+                                             triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                                             stageL1Trigger = cms.uint32(1)
                                              )
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(hltDiPhotonCaloIdIsoObjectProducer, stageL1Trigger = 2)
 
 TrailingPtCaloIdIsoPhotons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),

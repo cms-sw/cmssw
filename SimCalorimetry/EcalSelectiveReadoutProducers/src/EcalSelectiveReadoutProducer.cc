@@ -2,11 +2,10 @@
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+
 //#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
@@ -18,7 +17,7 @@
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-    : params_(params), firstCallEB_(true), firstCallEE_(true), iEvent_(1) {
+    : suppressor_(params, consumesCollector()), firstCallEB_(true), firstCallEE_(true), iEvent_(1) {
   //settings:
   //  settings which are only in python config files:
   digiProducer_ = params.getParameter<string>("digiProducer");
@@ -47,7 +46,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
                                                "Selective readout configuration will be read from python file.";
   }
   if (!useCondDb_) {
-    settingsFromFile_ = unique_ptr<EcalSRSettings>(new EcalSRSettings());
+    settingsFromFile_ = std::make_unique<EcalSRSettings>();
     EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
@@ -74,6 +73,14 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, eedigiCollection_));
   ;
   EcTP_token = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(trigPrimProducer_, trigPrimCollection_));
+  if (useFullReadout_) {
+    hSr_token_ = esConsumes<EcalSRSettings, EcalSRSettingsRcd>(edm::ESInputTag("", "fullReadout"));
+  } else {
+    hSr_token_ = esConsumes<EcalSRSettings, EcalSRSettingsRcd>();
+  }
+  geom_token_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  eTTmap_token_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
+  eElecmap_token_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
   ;
 }
 
@@ -82,13 +89,8 @@ EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer() {}
 void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   if (useCondDb_) {
     //getting selective readout configuration:
-    edm::ESHandle<EcalSRSettings> hSr;
+    edm::ESHandle<EcalSRSettings> hSr = eventSetup.getHandle(hSr_token_);
 
-    if (useFullReadout_) {
-      eventSetup.get<EcalSRSettingsRcd>().get("fullReadout", hSr);
-    } else {
-      eventSetup.get<EcalSRSettingsRcd>().get(hSr);
-    }
     settings_ = hSr.product();
   }
 
@@ -111,21 +113,21 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
   unique_ptr<EESrFlagCollection> eeSrFlags;
 
   if (produceDigis_) {
-    selectedEBDigis = unique_ptr<EBDigiCollection>(new EBDigiCollection);
-    selectedEEDigis = unique_ptr<EEDigiCollection>(new EEDigiCollection);
+    selectedEBDigis = std::make_unique<EBDigiCollection>();
+    selectedEEDigis = std::make_unique<EEDigiCollection>();
   }
 
   if (writeSrFlags_) {
-    ebSrFlags = unique_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
-    eeSrFlags = unique_ptr<EESrFlagCollection>(new EESrFlagCollection);
+    ebSrFlags = std::make_unique<EBSrFlagCollection>();
+    eeSrFlags = std::make_unique<EESrFlagCollection>();
   }
 
-  if (suppressor_.get() == nullptr) {
+  if (not suppressorSettingsSet_) {
     //Check the validity of EcalSRSettings
     checkValidity(*settings_);
 
-    //instantiates the selective readout algorithm:
-    suppressor_ = unique_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+    suppressor_.setSettings(settings_);
+    suppressorSettingsSet_ = true;
 
     // check that everything is up-to-date
     checkGeometry(eventSetup);
@@ -133,25 +135,25 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
     checkElecMap(eventSetup);
   }
 
-  suppressor_->run(eventSetup,
-                   *trigPrims,
-                   *ebDigis,
-                   *eeDigis,
-                   selectedEBDigis.get(),
-                   selectedEEDigis.get(),
-                   ebSrFlags.get(),
-                   eeSrFlags.get());
+  suppressor_.run(eventSetup,
+                  *trigPrims,
+                  *ebDigis,
+                  *eeDigis,
+                  selectedEBDigis.get(),
+                  selectedEEDigis.get(),
+                  ebSrFlags.get(),
+                  eeSrFlags.get());
 
   if (dumpFlags_ >= iEvent_) {
     ofstream ttfFile("TTF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
-    suppressor_->printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
+    suppressor_.printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
 
     ofstream srfFile("SRF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
     if (iEvent_ == 1) {
-      suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+      suppressor_.getEcalSelectiveReadout()->printHeader(srfFile);
     }
     srfFile << "# Event " << iEvent_ << "\n";
-    suppressor_->getEcalSelectiveReadout()->print(srfFile);
+    suppressor_.getEcalSelectiveReadout()->print(srfFile);
     srfFile << "\n";
 
     ofstream afFile("AF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
@@ -206,41 +208,38 @@ const EcalTrigPrimDigiCollection* EcalSelectiveReadoutProducer::getTrigPrims(edm
 }
 
 void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
+  edm::ESHandle<CaloGeometry> hGeometry = eventSetup.getHandle(geom_token_);
 
   const CaloGeometry* pGeometry = &*hGeometry;
 
   // see if we need to update
   if (pGeometry != theGeometry) {
     theGeometry = pGeometry;
-    suppressor_->setGeometry(theGeometry);
+    suppressor_.setGeometry(theGeometry);
   }
 }
 
 void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
-  eventSetup.get<IdealGeometryRecord>().get(eTTmap);
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap = eventSetup.getHandle(eTTmap_token_);
 
   const EcalTrigTowerConstituentsMap* pMap = &*eTTmap;
 
   // see if we need to update
   if (pMap != theTriggerTowerMap) {
     theTriggerTowerMap = pMap;
-    suppressor_->setTriggerMap(theTriggerTowerMap);
+    suppressor_.setTriggerMap(theTriggerTowerMap);
   }
 }
 
 void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup& eventSetup) {
-  edm::ESHandle<EcalElectronicsMapping> eElecmap;
-  eventSetup.get<EcalMappingRcd>().get(eElecmap);
+  edm::ESHandle<EcalElectronicsMapping> eElecmap = eventSetup.getHandle(eElecmap_token_);
 
   const EcalElectronicsMapping* pMap = &*eElecmap;
 
   // see if we need to update
   if (pMap != theElecMap) {
     theElecMap = pMap;
-    suppressor_->setElecMap(theElecMap);
+    suppressor_.setElecMap(theElecMap);
   }
 }
 
@@ -340,8 +339,8 @@ bool EcalSelectiveReadoutProducer::getBinOfMax(const edm::Event& evt,
                                                const edm::ProductID& noZsDigiId,
                                                int& binOfMax) const {
   bool rc;
-  const edm::Provenance p = evt.getProvenance(noZsDigiId);
-  const edm::ParameterSet& result = parameterSet(p);
+  const edm::StableProvenance& p = evt.getStableProvenance(noZsDigiId);
+  const edm::ParameterSet& result = parameterSet(p, evt.processHistory());
   vector<string> ebDigiParamList = result.getParameterNames();
   string bofm("binOfMaximum");
   if (find(ebDigiParamList.begin(), ebDigiParamList.end(), bofm) != ebDigiParamList.end()) {  //bofm found

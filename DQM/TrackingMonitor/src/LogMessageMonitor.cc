@@ -55,11 +55,9 @@
 #include "DQM/TrackingMonitor/interface/LogMessageMonitor.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -116,13 +114,10 @@ void LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     lumiDetails_->getValue(iEvent);
 
   // Take the ErrorSummaryEntry container
-  edm::Handle<std::vector<edm::ErrorSummaryEntry> > errors;
-  iEvent.getByToken(errorToken_, errors);
+  edm::Handle<std::vector<edm::ErrorSummaryEntry> > errors = iEvent.getHandle(errorToken_);
   // Check that errors is valid
   if (!errors.isValid())
     return;
-  // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error
-  edm::ELseverityLevel el("-e");
 
   // Find the total number of errors in iEvent
   if (errors->empty()) {
@@ -265,21 +260,9 @@ void LogMessageMonitor::endJob() {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
-    dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 }
-
-/*
-// ------------ method called when starting to processes a run  ------------
-void 
-LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-}
-*/
-// ------------ method called when ending the processing of a run  ------------
-void LogMessageMonitor::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

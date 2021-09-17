@@ -4,7 +4,7 @@
 //
 // Package:     ESSources
 // Class  :     ProxyFactory
-// 
+//
 /**\class ProxyFactory ProxyFactory.h CondCore/ESSources/interface/ProxyFactory.h
    
 Description: <one line class summary>
@@ -18,7 +18,7 @@ Usage:
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
 //
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include<string>
+#include <string>
 
 namespace cond {
   class DataProxyWrapperBase;
@@ -26,9 +26,9 @@ namespace cond {
     class Session;
   }
 
-  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ()  > ProxyFactory;
+  typedef edmplugin::PluginFactory<cond::DataProxyWrapperBase*()> ProxyFactory;
 
-   const char* pluginCategory();
-}
+  const char* pluginCategory();
+}  // namespace cond
 
 #endif /* CONDCORE_PLUGINSYSTEM_PROXYFACTORY_H */

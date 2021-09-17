@@ -10,17 +10,12 @@ DTSimHitMatcher::DTSimHitMatcher(const edm::ParameterSet& ps, edm::ConsumesColle
   discardEleHits_ = simHitPSet_.getParameter<bool>("discardEleHits");
 
   simHitInput_ = iC.consumes<edm::PSimHitContainer>(simHitPSet_.getParameter<edm::InputTag>("inputTag"));
+  geomToken_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
 }
 
 /// initialize the event
 void DTSimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(dt_geom_);
-  if (dt_geom_.isValid()) {
-    geometry_ = &*dt_geom_;
-  } else {
-    hasGeometry_ = false;
-    edm::LogWarning("DTSimHitMatcher") << "+++ Info: DT geometry is unavailable. +++\n";
-  }
+  geometry_ = &iSetup.getData(geomToken_);
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
@@ -29,22 +24,19 @@ void DTSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
-  if (hasGeometry_) {
-    matchSimHitsToSimTrack();
+  matchSimHitsToSimTrack();
 
-    if (verbose_) {
-      edm::LogInfo("DTSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedDTSimHits " << hits_.size()
-                                      << endl;
-      edm::LogInfo("DTSimHitMatcher") << "detids DT " << detIds(0).size() << endl;
+  if (verbose_) {
+    edm::LogInfo("DTSimHitMatcher") << "nTrackIds " << track_ids_.size() << " nSelectedDTSimHits " << hits_.size();
+    edm::LogInfo("DTSimHitMatcher") << "detids DT " << detIds(0).size();
 
-      const auto& dt_det_ids = detIds(0);
-      for (const auto& id : dt_det_ids) {
-        const auto& dt_simhits = MuonSimHitMatcher::hitsInDetId(id);
-        const auto& dt_simhits_gp = simHitsMeanPosition(dt_simhits);
-        edm::LogInfo("DTSimHitMatcher") << "DTWireId " << DTWireId(id) << ": nHits " << dt_simhits.size() << " eta "
-                                        << dt_simhits_gp.eta() << " phi " << dt_simhits_gp.phi() << " nCh "
-                                        << chamber_to_hits_[id].size() << endl;
-      }
+    const auto& dt_det_ids = detIds(0);
+    for (const auto& id : dt_det_ids) {
+      const auto& dt_simhits = MuonSimHitMatcher::hitsInDetId(id);
+      const auto& dt_simhits_gp = simHitsMeanPosition(dt_simhits);
+      edm::LogInfo("DTSimHitMatcher") << "DTWireId " << DTWireId(id) << ": nHits " << dt_simhits.size() << " eta "
+                                      << dt_simhits_gp.eta() << " phi " << dt_simhits_gp.phi() << " nCh "
+                                      << chamber_to_hits_[id].size();
     }
   }
 }
@@ -58,7 +50,7 @@ void DTSimHitMatcher::matchSimHitsToSimTrack() {
       if (simMuOnly_ && std::abs(pdgid) != 13)
         continue;
       // discard electron hits in the DT chambers
-      if (discardEleHits_ && pdgid == 11)
+      if (discardEleHits_ && std::abs(pdgid) == 11)
         continue;
 
       const DTWireId layer_id(h.detUnitId());
@@ -245,7 +237,7 @@ std::set<unsigned int> DTSimHitMatcher::hitWiresInDTLayerId(unsigned int detid, 
       DTWireId wid(id, wn);
       for (const auto& h : MuonSimHitMatcher::hitsInDetId(wid.rawId())) {
         if (verbose_)
-          edm::LogInfo("DTSimHitMatcher") << "central DTWireId " << wid << " simhit " << h << endl;
+          edm::LogInfo("DTSimHitMatcher") << "central DTWireId " << wid << " simhit " << h;
         int smin = wn - margin_n_wires;
         smin = (smin > 0) ? smin : 1;
         int smax = wn + margin_n_wires;
@@ -253,7 +245,7 @@ std::set<unsigned int> DTSimHitMatcher::hitWiresInDTLayerId(unsigned int detid, 
         for (int ss = smin; ss <= smax; ++ss) {
           DTWireId widd(id, ss);
           if (verbose_)
-            edm::LogInfo("DTSimHitMatcher") << "\tadding DTWireId to collection " << widd << endl;
+            edm::LogInfo("DTSimHitMatcher") << "\tadding DTWireId to collection " << widd;
           result.insert(widd.rawId());
         }
       }
@@ -267,7 +259,7 @@ std::set<unsigned int> DTSimHitMatcher::hitWiresInDTSuperLayerId(unsigned int de
   const auto& layers(dynamic_cast<const DTGeometry*>(geometry_)->superLayer(DTSuperLayerId(detid))->layers());
   for (const auto& l : layers) {
     if (verbose_)
-      edm::LogInfo("DTSimHitMatcher") << "hitWiresInDTSuperLayerId::l id " << l->id() << endl;
+      edm::LogInfo("DTSimHitMatcher") << "hitWiresInDTSuperLayerId::l id " << l->id();
     const auto& p(hitWiresInDTLayerId(l->id().rawId(), margin_n_wires));
     result.insert(p.begin(), p.end());
   }
@@ -279,7 +271,7 @@ std::set<unsigned int> DTSimHitMatcher::hitWiresInDTChamberId(unsigned int detid
   const auto& superLayers(dynamic_cast<const DTGeometry*>(geometry_)->chamber(DTChamberId(detid))->superLayers());
   for (const auto& sl : superLayers) {
     if (verbose_)
-      edm::LogInfo("DTSimHitMatcher") << "hitWiresInDTChamberId::sl id " << sl->id() << endl;
+      edm::LogInfo("DTSimHitMatcher") << "hitWiresInDTChamberId::sl id " << sl->id();
     const auto& p(hitWiresInDTSuperLayerId(sl->id().rawId(), margin_n_wires));
     result.insert(p.begin(), p.end());
   }

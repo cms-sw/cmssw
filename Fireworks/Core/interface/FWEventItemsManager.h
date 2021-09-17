@@ -74,11 +74,12 @@ public:
   sigc::signal<void, const FWEventItem*> removingItem_;
   sigc::signal<void> goingToClearItems_;
 
-private:
-  void removeItem(const FWEventItem*);
   FWEventItemsManager(const FWEventItemsManager&) = delete;  // stop default
 
   const FWEventItemsManager& operator=(const FWEventItemsManager&) = delete;  // stop default
+
+private:
+  void removeItem(const FWEventItem*);
 
   // ---------- member data --------------------------------
   std::vector<FWEventItem*> m_items;

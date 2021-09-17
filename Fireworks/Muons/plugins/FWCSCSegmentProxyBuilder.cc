@@ -11,6 +11,7 @@
 //
 
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveStraightLineSet.h"
 #include "TGeoArb8.h"
 
@@ -28,10 +29,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWCSCSegmentProxyBuilder(const FWCSCSegmentProxyBuilder&) = delete;
   const FWCSCSegmentProxyBuilder& operator=(const FWCSCSegmentProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<CSCSegment>::build;
   void build(const CSCSegment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

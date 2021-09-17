@@ -1,5 +1,6 @@
 #include "TGMenu.h"
 #include "KeySymbols.h"
+#include "TVirtualX.h"
 
 class FWPopupMenu : public TGPopupMenu {
 public:
@@ -72,7 +73,9 @@ public:
         void* dummy = nullptr;
         return EndMenu(dummy);
       }
-      default: { break; }
+      default: {
+        break;
+      }
     }
 
     return kTRUE;

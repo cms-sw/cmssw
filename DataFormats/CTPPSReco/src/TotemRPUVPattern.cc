@@ -11,29 +11,29 @@
 //----------------------------------------------------------------------------------------------------
 
 bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r) {
-  if (l.projection < r.projection)
+  if (l.projection_ < r.projection_)
     return true;
-  if (l.projection > r.projection)
+  if (l.projection_ > r.projection_)
     return false;
 
-  if (l.a < r.a)
+  if (l.a_ < r.a_)
     return true;
-  if (l.a > r.a)
+  if (l.a_ > r.a_)
     return false;
 
-  if (l.b < r.b)
+  if (l.b_ < r.b_)
     return true;
-  if (l.b > r.b)
+  if (l.b_ > r.b_)
     return false;
 
-  if (l.w < r.w)
+  if (l.w_ < r.w_)
     return true;
-  if (l.w > r.w)
+  if (l.w_ > r.w_)
     return false;
 
-  if (l.fittable < r.fittable)
+  if (l.fittable_ < r.fittable_)
     return true;
-  if (l.fittable > r.fittable)
+  if (l.fittable_ > r.fittable_)
     return false;
 
   return false;

@@ -57,7 +57,7 @@ namespace ecaldqm {
   bool qualityOK(int _quality) { return (_quality != kBad && _quality != kUnknown); }
 
   DBWriterWorker::DBWriterWorker(std::string const &_name, edm::ParameterSet const &_ps)
-      : name_(_name), runTypes_(), source_(), active_(false) {
+      : DQWorker(), name_(_name), runTypes_(), source_(), active_(false) {
     edm::ParameterSet const &params(_ps.getUntrackedParameterSet(name_));
 
     std::vector<std::string> runTypes(params.getUntrackedParameter<std::vector<std::string>>("runTypes"));
@@ -79,7 +79,7 @@ namespace ecaldqm {
   void DBWriterWorker::retrieveSource(DQMStore::IGetter &_igetter) {
     std::string failedPath;
     for (MESetCollection::iterator sItr(this->source_.begin()); sItr != this->source_.end(); ++sItr) {
-      if (!sItr->second->retrieve(_igetter, &failedPath)) {
+      if (!sItr->second->retrieve(GetElectronicsMap(), _igetter, &failedPath)) {
         edm::LogError("EcalDQM") << name_ << ": MESet " << sItr->first << "@" << failedPath << " not found";
         this->active_ = false;
         return;
@@ -136,19 +136,20 @@ namespace ecaldqm {
     if (verbosity_ > 1)
       edm::LogInfo("EcalDQM") << " Looping over crystals";
 
-    MESet::const_iterator dEnd(digiME.end());
-    MESet::const_iterator qItr(qualityME);
-    for (MESet::const_iterator dItr(digiME.beginChannel()); dItr != dEnd; dItr.toNextChannel()) {
+    MESet::const_iterator dEnd(digiME.end(GetElectronicsMap()));
+    MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+    for (MESet::const_iterator dItr(digiME.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       DetId id(dItr->getId());
 
       int nDigis(dItr->getBinContent());
-      int gain(gainME.getBinContent(id));
-      int chid(chidME.getBinContent(id));
-      int gainswitch(gainswitchME.getBinContent(id));
+      int gain(gainME.getBinContent(getEcalDQMSetupObjects(), id));
+      int chid(chidME.getBinContent(getEcalDQMSetupObjects(), id));
+      int gainswitch(gainswitchME.getBinContent(getEcalDQMSetupObjects(), id));
       qItr = dItr;
 
       if (gain > 0 || chid > 0 || gainswitch > 0) {
-        MonCrystalConsistencyDat &data(crystalConsistencies[crystalID(id)]);
+        MonCrystalConsistencyDat &data(crystalConsistencies[crystalID(id, GetElectronicsMap())]);
         data.setProcessedEvents(nDigis);
         data.setProblematicEvents(gain + chid + gainswitch);
         data.setProblemsGainZero(gain);
@@ -172,22 +173,22 @@ namespace ecaldqm {
           continue;
 
         EcalElectronicsId eid(iDCC + 1, iTower, 1, 1);
-        std::vector<DetId> channels(getElectronicsMap()->dccTowerConstituents(iDCC + 1, iTower));
+        std::vector<DetId> channels(GetElectronicsMap()->dccTowerConstituents(iDCC + 1, iTower));
         int nDigis(0);
         bool towerBad(false);
         for (unsigned iD(0); iD < channels.size(); ++iD) {
-          int n(digiME.getBinContent(channels[iD]));
+          int n(digiME.getBinContent(getEcalDQMSetupObjects(), channels[iD]));
           if (n > nDigis)
             nDigis = n;
-          int channelStatus(qualityME.getBinContent(channels[iD]));
+          int channelStatus(qualityME.getBinContent(getEcalDQMSetupObjects(), channels[iD]));
           if (channelStatus == kBad || channelStatus == kMBad)
             towerBad = true;
         }
 
-        int towerid(toweridME.getBinContent(eid));
-        int blocksize(blocksizeME.getBinContent(eid));
-        int l1a(l1aME.getBinContent(iDCC + 1, iTower));
-        int bx(bxME.getBinContent(iDCC + 1, iTower));
+        int towerid(toweridME.getBinContent(getEcalDQMSetupObjects(), eid));
+        int blocksize(blocksizeME.getBinContent(getEcalDQMSetupObjects(), eid));
+        int l1a(l1aME.getBinContent(getEcalDQMSetupObjects(), iDCC + 1, iTower));
+        int bx(bxME.getBinContent(getEcalDQMSetupObjects(), iDCC + 1, iTower));
 
         if (towerid > 0 || blocksize > 0 || l1a > 0 || bx > 0) {
           MonTTConsistencyDat &data(towerConsistencies[towerID(eid)]);
@@ -215,9 +216,9 @@ namespace ecaldqm {
       for (unsigned iPN(1); iPN <= 10; ++iPN) {
         EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
 
-        int nDigis(memdigiME.getBinContent(pnid));
-        int memchid(memchidME.getBinContent(pnid));
-        int memgain(memgainME.getBinContent(pnid));
+        int nDigis(memdigiME.getBinContent(getEcalDQMSetupObjects(), pnid));
+        int memchid(memchidME.getBinContent(getEcalDQMSetupObjects(), pnid));
+        int memgain(memgainME.getBinContent(getEcalDQMSetupObjects(), pnid));
 
         if (memchid > 0 || memgain > 0) {
           MonMemChConsistencyDat &data(memChannelConsistencies[memChannelID(pnid)]);
@@ -227,7 +228,7 @@ namespace ecaldqm {
           data.setProblemsID(memchid);
           data.setProblemsGainZero(memgain);
 
-          int channelStatus(pnqualityME.getBinContent(pnid));
+          int channelStatus(pnqualityME.getBinContent(getEcalDQMSetupObjects(), pnid));
           bool channelBad(channelStatus == kBad || channelStatus == kMBad);
           data.setTaskStatus(channelBad);
 
@@ -242,16 +243,16 @@ namespace ecaldqm {
         bool towerBad(false);
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
           EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
-          int n(memdigiME.getBinContent(pnid));
+          int n(memdigiME.getBinContent(getEcalDQMSetupObjects(), pnid));
           if (n > nDigis)
             nDigis = n;
-          int channelStatus(pnqualityME.getBinContent(pnid));
+          int channelStatus(pnqualityME.getBinContent(getEcalDQMSetupObjects(), pnid));
           if (channelStatus == kBad || channelStatus == kMBad)
             towerBad = true;
         }
 
-        int towerid(memtoweridME.getBinContent(eid));
-        int blocksize(memblocksizeME.getBinContent(eid));
+        int towerid(memtoweridME.getBinContent(getEcalDQMSetupObjects(), eid));
+        int blocksize(memblocksizeME.getBinContent(getEcalDQMSetupObjects(), eid));
 
         if (towerid > 0 || blocksize > 0) {
           MonMemTTConsistencyDat &data(memTowerConsistencies[memTowerID(eid)]);
@@ -368,11 +369,12 @@ namespace ecaldqm {
       static_cast<MESetMulti const &>(pnME).use(iM);
       static_cast<MESetMulti const &>(pnQualityME).use(iM);
 
-      MESet::const_iterator aEnd(ampME.end());
-      MESet::const_iterator qItr(qualityME);
-      MESet::const_iterator oItr(aopME);
-      MESet::const_iterator tItr(timeME);
-      for (MESet::const_iterator aItr(ampME.beginChannel()); aItr != aEnd; aItr.toNextChannel()) {
+      MESet::const_iterator aEnd(ampME.end(GetElectronicsMap()));
+      MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+      MESet::const_iterator oItr(GetElectronicsMap(), aopME);
+      MESet::const_iterator tItr(GetElectronicsMap(), timeME);
+      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float aEntries(aItr->getBinEntries());
         if (aEntries < 1.)
           continue;
@@ -397,7 +399,7 @@ namespace ecaldqm {
         int channelStatus(qItr->getBinContent());
         bool channelBad(channelStatus == kBad || channelStatus == kMBad);
 
-        EcalLogicID logicID(crystalID(id));
+        EcalLogicID logicID(crystalID(id, GetElectronicsMap()));
 
         switch (wl) {
           case 1: {
@@ -464,18 +466,18 @@ namespace ecaldqm {
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
           EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
 
-          float entries(pnME.getBinEntries(pnid));
+          float entries(pnME.getBinEntries(getEcalDQMSetupObjects(), pnid));
           if (entries < 1.)
             continue;
 
-          float mean(pnME.getBinContent(pnid));
-          float rms(pnME.getBinError(pnid) * std::sqrt(entries));
+          float mean(pnME.getBinContent(getEcalDQMSetupObjects(), pnid));
+          float rms(pnME.getBinError(getEcalDQMSetupObjects(), pnid) * std::sqrt(entries));
 
-          float pedestalEntries(pnPedestalME.getBinEntries(pnid));
-          float pedestalMean(pnPedestalME.getBinContent(pnid));
-          float pedestalRms(pnPedestalME.getBinError(pnid) * std::sqrt(pedestalEntries));
+          float pedestalEntries(pnPedestalME.getBinEntries(getEcalDQMSetupObjects(), pnid));
+          float pedestalMean(pnPedestalME.getBinContent(getEcalDQMSetupObjects(), pnid));
+          float pedestalRms(pnPedestalME.getBinError(getEcalDQMSetupObjects(), pnid) * std::sqrt(pedestalEntries));
 
-          int channelStatus(pnQualityME.getBinContent(pnid));
+          int channelStatus(pnQualityME.getBinContent(getEcalDQMSetupObjects(), pnid));
           bool channelBad(channelStatus == kBad || channelStatus == kMBad);
 
           switch (wl) {
@@ -626,9 +628,10 @@ namespace ecaldqm {
       static_cast<MESetMulti const &>(pedestalME).use(iM);
       static_cast<MESetMulti const &>(qualityME).use(iM);
 
-      MESet::const_iterator pEnd(pedestalME.end());
-      MESet::const_iterator qItr(qualityME);
-      for (MESet::const_iterator pItr(pedestalME.beginChannel()); pItr != pEnd; pItr.toNextChannel()) {
+      MESet::const_iterator pEnd(pedestalME.end(GetElectronicsMap()));
+      MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+      for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd;
+           pItr.toNextChannel(GetElectronicsMap())) {
         float entries(pItr->getBinEntries());
         if (entries < 1.)
           continue;
@@ -638,7 +641,7 @@ namespace ecaldqm {
         float mean(pItr->getBinContent());
         float rms(pItr->getBinError() * std::sqrt(entries));
 
-        EcalLogicID logicID(crystalID(pItr->getId()));
+        EcalLogicID logicID(crystalID(pItr->getId(), GetElectronicsMap()));
         if (pedestals.find(logicID) == pedestals.end()) {
           MonPedestalsDat &insertion(pedestals[logicID]);
           insertion.setPedMeanG1(-1.);
@@ -690,12 +693,12 @@ namespace ecaldqm {
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
           EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
 
-          float entries(pnPedestalME.getBinEntries(pnid));
+          float entries(pnPedestalME.getBinEntries(getEcalDQMSetupObjects(), pnid));
           if (entries < 1.)
             continue;
 
-          float mean(pnPedestalME.getBinContent(pnid));
-          float rms(pnPedestalME.getBinError(pnid) * std::sqrt(entries));
+          float mean(pnPedestalME.getBinContent(getEcalDQMSetupObjects(), pnid));
+          float rms(pnPedestalME.getBinError(getEcalDQMSetupObjects(), pnid) * std::sqrt(entries));
 
           EcalLogicID logicID(lmPNID(pnid));
           if (pnPedestals.find(logicID) == pnPedestals.end()) {
@@ -719,7 +722,7 @@ namespace ecaldqm {
               break;
           }
 
-          int channelStatus(pnQualityME.getBinContent(pnid));
+          int channelStatus(pnQualityME.getBinContent(getEcalDQMSetupObjects(), pnid));
           bool channelBad(channelStatus == kBad || channelStatus == kMBad);
           if (channelBad)
             data.setTaskStatus(true);
@@ -758,9 +761,10 @@ namespace ecaldqm {
     MESet const &pedestalME(source_.at("Pedestal"));
     MESet const &qualityME(source_.at("Quality"));
 
-    MESet::const_iterator pEnd(pedestalME.end());
-    MESet::const_iterator qItr(qualityME);
-    for (MESet::const_iterator pItr(pedestalME.beginChannel()); pItr != pEnd; pItr.toNextChannel()) {
+    MESet::const_iterator pEnd(pedestalME.end(GetElectronicsMap()));
+    MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+    for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd;
+         pItr.toNextChannel(GetElectronicsMap())) {
       float entries(pItr->getBinEntries());
       if (entries < 1.)
         continue;
@@ -770,7 +774,7 @@ namespace ecaldqm {
       float mean(pItr->getBinContent());
       float rms(pItr->getBinError() * std::sqrt(entries));
 
-      MonPedestalsOnlineDat &data(pedestals[crystalID(pItr->getId())]);
+      MonPedestalsOnlineDat &data(pedestals[crystalID(pItr->getId(), GetElectronicsMap())]);
       data.setADCMeanG12(mean);
       data.setADCRMSG12(rms);
 
@@ -857,9 +861,10 @@ namespace ecaldqm {
       static_cast<MESetMulti const &>(shapeME).use(iM);
       static_cast<MESetMulti const &>(qualityME).use(iM);
 
-      MESet::const_iterator aEnd(amplitudeME.end());
-      MESet::const_iterator qItr(qualityME);
-      for (MESet::const_iterator aItr(amplitudeME.beginChannel()); aItr != aEnd; aItr.toNextChannel()) {
+      MESet::const_iterator aEnd(amplitudeME.end(GetElectronicsMap()));
+      MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+      for (MESet::const_iterator aItr(amplitudeME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float entries(aItr->getBinEntries());
         if (entries < 1.)
           continue;
@@ -869,7 +874,7 @@ namespace ecaldqm {
         float mean(aItr->getBinContent());
         float rms(aItr->getBinError() * std::sqrt(entries));
 
-        EcalLogicID logicID(crystalID(aItr->getId()));
+        EcalLogicID logicID(crystalID(aItr->getId(), GetElectronicsMap()));
         if (amplitude.find(logicID) == amplitude.end()) {
           MonTestPulseDat &insertion(amplitude[logicID]);
           insertion.setADCMeanG1(-1.);
@@ -907,7 +912,7 @@ namespace ecaldqm {
 
       for (unsigned iSM(0); iSM < 54; ++iSM) {
         std::vector<float> samples(10, 0.);
-        std::vector<DetId> ids(getElectronicsMap()->dccConstituents(iSM + 1));
+        std::vector<DetId> ids(GetElectronicsMap()->dccConstituents(iSM + 1));
         unsigned nId(ids.size());
         unsigned nChannels(0);
         EcalLogicID logicID;
@@ -915,15 +920,15 @@ namespace ecaldqm {
           DetId &id(ids[iD]);
 
           if (iD == 0)
-            logicID = crystalID(id);
+            logicID = crystalID(id, GetElectronicsMap());
 
-          if (shapeME.getBinEntries(id, 1) < 1.)
+          if (shapeME.getBinEntries(getEcalDQMSetupObjects(), id, 1) < 1.)
             continue;
 
           ++nChannels;
 
           for (int i(0); i < 10; ++i)
-            samples[i] += shapeME.getBinContent(id, i + 1);
+            samples[i] += shapeME.getBinContent(getEcalDQMSetupObjects(), id, i + 1);
         }
 
         if (nChannels == 0)
@@ -960,15 +965,15 @@ namespace ecaldqm {
         for (unsigned iPN(1); iPN <= 10; ++iPN) {
           EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
 
-          float entries(pnAmplitudeME.getBinEntries(pnid));
+          float entries(pnAmplitudeME.getBinEntries(getEcalDQMSetupObjects(), pnid));
           if (entries < 1.)
             continue;
 
-          float mean(pnAmplitudeME.getBinContent(pnid));
-          float rms(pnAmplitudeME.getBinError(pnid) * std::sqrt(entries));
-          float pedestalEntries(pnPedestalME.getBinEntries(pnid));
-          float pedestalMean(pnPedestalME.getBinContent(pnid));
-          float pedestalRms(pnPedestalME.getBinError(pnid) * std::sqrt(pedestalEntries));
+          float mean(pnAmplitudeME.getBinContent(getEcalDQMSetupObjects(), pnid));
+          float rms(pnAmplitudeME.getBinError(getEcalDQMSetupObjects(), pnid) * std::sqrt(entries));
+          float pedestalEntries(pnPedestalME.getBinEntries(getEcalDQMSetupObjects(), pnid));
+          float pedestalMean(pnPedestalME.getBinContent(getEcalDQMSetupObjects(), pnid));
+          float pedestalRms(pnPedestalME.getBinError(getEcalDQMSetupObjects(), pnid) * std::sqrt(pedestalEntries));
 
           EcalLogicID logicID(lmPNID(pnid));
           if (pnAmplitude.find(logicID) == pnAmplitude.end()) {
@@ -1001,7 +1006,7 @@ namespace ecaldqm {
               break;
           }
 
-          int channelStatus(pnQualityME.getBinContent(pnid));
+          int channelStatus(pnQualityME.getBinContent(getEcalDQMSetupObjects(), pnid));
           bool channelBad(channelStatus == kBad || channelStatus == kMBad);
           if (channelBad)
             data.setTaskStatus(true);
@@ -1042,9 +1047,10 @@ namespace ecaldqm {
     MESet const &timingME(source_.at("Timing"));
     MESet const &qualityME(source_.at("Quality"));
 
-    MESet::const_iterator tEnd(timingME.end());
-    MESet::const_iterator qItr(qualityME);
-    for (MESet::const_iterator tItr(timingME.beginChannel()); tItr != tEnd; tItr.toNextChannel()) {
+    MESet::const_iterator tEnd(timingME.end(GetElectronicsMap()));
+    MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+    for (MESet::const_iterator tItr(timingME.beginChannel(GetElectronicsMap())); tItr != tEnd;
+         tItr.toNextChannel(GetElectronicsMap())) {
       float entries(tItr->getBinEntries());
       if (entries < 1.)
         continue;
@@ -1054,7 +1060,7 @@ namespace ecaldqm {
       float mean(tItr->getBinContent());
       float rms(tItr->getBinError() * std::sqrt(entries));
 
-      MonTimingCrystalDat &data(timing[crystalID(tItr->getId())]);
+      MonTimingCrystalDat &data(timing[crystalID(tItr->getId(), GetElectronicsMap())]);
       data.setTimingMean(mean);
       data.setTimingRMS(rms);
 
@@ -1139,11 +1145,12 @@ x      PNDiodeTask.Pedestal (i13, i14)
       //       static_cast<MESetMulti const&>(pnME).use(iM);
       //       static_cast<MESetMulti const&>(pnQualityME).use(iM);
 
-      MESet::const_iterator aEnd(ampME.end());
-      MESet::const_iterator qItr(qualityME);
-      MESet::const_iterator oItr(aopME);
-      MESet::const_iterator tItr(timeME);
-      for (MESet::const_iterator aItr(ampME.beginChannel()); aItr != aEnd; aItr.toNextChannel()) {
+      MESet::const_iterator aEnd(ampME.end(GetElectronicsMap()));
+      MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
+      MESet::const_iterator oItr(GetElectronicsMap(), aopME);
+      MESet::const_iterator tItr(GetElectronicsMap(), timeME);
+      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float aEntries(aItr->getBinEntries());
         if (aEntries < 1.)
           continue;
@@ -1168,7 +1175,7 @@ x      PNDiodeTask.Pedestal (i13, i14)
         int channelStatus(qItr->getBinContent());
         bool channelBad(channelStatus == kBad || channelStatus == kMBad);
 
-        EcalLogicID logicID(crystalID(id));
+        EcalLogicID logicID(crystalID(id, GetElectronicsMap()));
 
         switch (wl) {
           case 1: {
@@ -1295,9 +1302,10 @@ x      PNDiodeTask.Pedestal (i13, i14)
     MESet const &occupancyME(source_.at("Occupancy"));
     MESet const &energyME(source_.at("Energy"));
 
-    MESet::const_iterator oEnd(occupancyME.end());
-    MESet::const_iterator eItr(energyME);
-    for (MESet::const_iterator oItr(occupancyME.beginChannel()); oItr != oEnd; oItr.toNextChannel()) {
+    MESet::const_iterator oEnd(occupancyME.end(GetElectronicsMap()));
+    MESet::const_iterator eItr(GetElectronicsMap(), energyME);
+    for (MESet::const_iterator oItr(occupancyME.beginChannel(GetElectronicsMap())); oItr != oEnd;
+         oItr.toNextChannel(GetElectronicsMap())) {
       if (oItr->getME()->getTH1()->GetEntries() < 1000.)
         continue;
 
@@ -1310,7 +1318,7 @@ x      PNDiodeTask.Pedestal (i13, i14)
       int eEntries(eItr->getBinEntries());
       float energy(eEntries > 10 ? eItr->getBinContent() : -1.);
 
-      MonOccupancyDat &data(occupancy[crystalID(oItr->getId())]);
+      MonOccupancyDat &data(occupancy[crystalID(oItr->getId(), GetElectronicsMap())]);
       data.setEventsOverLowThreshold(entries);
       data.setEventsOverHighThreshold(eEntries);
       data.setAvgEnergy(energy);

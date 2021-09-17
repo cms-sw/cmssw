@@ -15,16 +15,14 @@
  *          V. Sordini
  */
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -44,8 +42,6 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
@@ -61,7 +57,7 @@
 //class StripSignalOverNoiseCalculator;
 //}
 
-class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
+class DQMPFCandidateAnalyzer : public DQMOneEDAnalyzer<> {
 public:
   /// Constructor
   DQMPFCandidateAnalyzer(const edm::ParameterSet&);
@@ -77,9 +73,6 @@ public:
 
   /// Initialize run-based parameters
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  /// Finish up a run
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

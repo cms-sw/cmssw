@@ -20,13 +20,14 @@
 
 // system include files
 #include <limits>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ESTagGetter.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
-#include <vector>
 // forward declarations
 namespace edm::eventsetup {
   struct ComponentDescription;
@@ -41,12 +42,21 @@ namespace edm::eventsetup {
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
+    ///Returns ESTagGetter for all products matching the type iTT for record iRK
+    ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
+
     static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
-      return ESRecordIndex{std::numeric_limits<int>::max()};
+      return ESRecordIndex{ESRecordIndex::invalidValue()};
     }
 
     ESRecordIndex recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
+
+    std::pair<std::vector<DataKey>::const_iterator, std::vector<DataKey>::const_iterator> keysForRecord(
+        EventSetupRecordKey const& iRK) const noexcept;
+    ///The sorted list of keys
+    std::vector<EventSetupRecordKey> recordKeys() const noexcept { return recordKeys_; }
+
     // ---------- member functions ---------------------------
     ///This should be called for all records in the list passed to the constructor and
     /// in the same order as the list.

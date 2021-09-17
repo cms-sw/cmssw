@@ -25,7 +25,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class CaloTowersValidation : public DQMEDAnalyzer {
@@ -40,7 +40,7 @@ private:
 
   std::string outputFile_;
   std::string hcalselector_;
-  std::string mc_;
+  bool mc_;
   bool useAllHistos_;
 
   typedef math::RhoEtaPhiVector Vector;

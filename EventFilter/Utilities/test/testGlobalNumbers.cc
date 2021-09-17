@@ -22,10 +22,10 @@
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
+#include <ctime>
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <time.h>
 
 namespace test {
 
@@ -40,7 +40,7 @@ namespace test {
         : m_fedRawDataCollectionToken(consumes<FEDRawDataCollection>(
               pset.getUntrackedParameter<edm::InputTag>("inputTag", edm::InputTag("source")))) {}
 
-    void analyze(const edm::Event& e, const edm::EventSetup& c) {
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override {
       boost::posix_time::ptime event_timestamp;
       event_timestamp = boost::posix_time::from_time_t((time_t)e.time().unixTime());
       event_timestamp += boost::posix_time::microseconds(e.time().microsecondOffset());

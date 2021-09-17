@@ -90,24 +90,13 @@ namespace cond {
       void createDatabase();
 
       // read access to the iov sequence.
-      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
-      IOVProxy readIov(const std::string& tag, bool full = false);
+      IOVProxy readIov(const std::string& tag);
 
       // read access to the iov sequence.
-      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
-      IOVProxy readIov(const std::string& tag, const boost::posix_time::ptime& snapshottime, bool full = false);
+      IOVProxy readIov(const std::string& tag, const boost::posix_time::ptime& snapshottime);
 
       //
       bool existsIov(const std::string& tag);
-
-      //
-      bool getTagInfo(const std::string& tag, cond::Tag_t& info);
-
-      // retrieves an IOV range. Peforms a query at every call.
-      bool getIovRange(const std::string& tag,
-                       cond::Time_t begin,
-                       cond::Time_t end,
-                       std::vector<std::tuple<cond::Time_t, cond::Hash> >& range);
 
       // create a non-existing iov sequence with the specified tag.
       // the type is required for consistency with the referenced payloads.
@@ -156,9 +145,6 @@ namespace cond {
                             cond::Binary& payloadData,
                             cond::Binary& streamerInfoData);
 
-      // internal functions. creates proxies without loading a specific tag.
-      IOVProxy iovProxy();
-
       bool existsGlobalTag(const std::string& name);
 
       GTEditor createGlobalTag(const std::string& name);
@@ -170,6 +156,9 @@ namespace cond {
 
       // runinfo read only access
       RunInfoProxy getRunInfo(cond::Time_t start, cond::Time_t end);
+
+      // get the ongoing run
+      cond::RunInfo_t getLastRun();
 
       // runinfo write access
       RunInfoEditor editRunInfo();

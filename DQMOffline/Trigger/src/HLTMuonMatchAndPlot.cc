@@ -110,7 +110,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
 
   book1D(iBooker, "resolutionPt", "resolutionRel", ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
-  for (auto suffix : EFFICIENCY_SUFFIXES) {
+  for (const auto& suffix : EFFICIENCY_SUFFIXES) {
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
     else
@@ -289,7 +289,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     }
 
     // Fill numerators and denominators for efficiency plots.
-    for (auto suffix : EFFICIENCY_SUFFIXES) {
+    for (const auto& suffix : EFFICIENCY_SUFFIXES) {
       // If no match was found, then the numerator plots don't get filled.
       if (suffix == "numer" && matches[i] >= targetMuons.size())
         continue;
@@ -554,7 +554,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
   for (size_t i = 0; i < hltMuons.size(); i++) {
     TriggerObject& hltMuon = hltMuons[i];
     bool isFake = hltMatches[i] > hltMuons.size();
-    for (auto suffix : EFFICIENCY_SUFFIXES) {
+    for (const auto& suffix : EFFICIENCY_SUFFIXES) {
       // If match is found, then numerator plots should not get filled
       if (suffix == "numer" && !isFake)
         continue;
@@ -721,7 +721,7 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
   hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
     if (hists_[name]->getTH1F()->GetSumw2N())
-      hists_[name]->getTH1F()->Sumw2();
+      hists_[name]->enableSumw2();
 
   if (edges)
     delete[] edges;
@@ -749,7 +749,7 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
   hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
   if (hists_[name])
     if (hists_[name]->getTH2F()->GetSumw2N())
-      hists_[name]->getTH2F()->Sumw2();
+      hists_[name]->enableSumw2();
 
   if (edgesX)
     delete[] edgesX;

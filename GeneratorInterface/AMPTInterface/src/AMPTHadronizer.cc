@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "boost/lexical_cast.hpp"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -152,7 +150,7 @@ bool AMPTHadronizer::generatePartonsAndHadronize() {
     rotateEvtPlane();
 
   // generate a AMPT event
-  AMPT(frame_.data(), bmin_, bmax_, strlen(frame_.data()));
+  AMPT(frame_.c_str(), bmin_, bmax_, frame_.length());
 
   // event information
   HepMC::GenEvent* evt = new HepMC::GenEvent();
@@ -230,17 +228,8 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent* evt) {
 bool AMPTHadronizer::call_amptset(
     double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt) {
   // initialize hydjet
-  AMPTSET(efrm,
-          frame.data(),
-          proj.data(),
-          targ.data(),
-          iap,
-          izp,
-          iat,
-          izt,
-          strlen(frame.data()),
-          strlen(proj.data()),
-          strlen(targ.data()));
+  AMPTSET(
+      efrm, frame.c_str(), proj.c_str(), targ.c_str(), iap, izp, iat, izt, frame.length(), proj.length(), targ.length());
   return true;
 }
 //______________________________________________________________________

@@ -31,9 +31,10 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
 
-class RKTestField GCC11_FINAL : public MagneticField {
+class RKTestField final : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  RKTestField() { setNominalValue(); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 using namespace std;

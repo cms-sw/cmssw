@@ -251,7 +251,7 @@ double fnc_gaussalpha1alpha2(double* v, double* par) {
   double alpha2 = par[4];
   double t = TMath::Abs((v[0] - mean) / sigma);
   double cut = 1.0;
-  return (t <= cut) ? N * TMath::Exp(-0.5 * t * t)
-                    : ((v[0] - mean) >= 0) ? N * TMath::Exp(-0.5 * (alpha1 * (t - cut) + cut * cut))
-                                           : N * TMath::Exp(-0.5 * (alpha2 * (t - cut) + cut * cut));
+  return (t <= cut)             ? N * TMath::Exp(-0.5 * t * t)
+         : ((v[0] - mean) >= 0) ? N * TMath::Exp(-0.5 * (alpha1 * (t - cut) + cut * cut))
+                                : N * TMath::Exp(-0.5 * (alpha2 * (t - cut) + cut * cut));
 }

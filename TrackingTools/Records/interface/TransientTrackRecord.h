@@ -6,9 +6,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TransientTrackRecord : public edm::eventsetup::DependentRecordImplementation<
                                  TransientTrackRecord,
-                                 boost::mpl::vector<IdealMagneticFieldRecord, GlobalTrackingGeometryRecord> > {};
+                                 edm::mpl::Vector<IdealMagneticFieldRecord, GlobalTrackingGeometryRecord> > {};
 #endif

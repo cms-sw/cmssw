@@ -9,6 +9,7 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *          Vladimir Rekovic - extend for indexing
+ *          Rick Cavanaugh - extend for displaced muons
  *
  * $Date$
  * $Revision$
@@ -79,6 +80,8 @@ void MuonTemplate::print(std::ostream& myCout) const {
     myCout << "  Template for object " << i << " [ hex ]" << std::endl;
     myCout << "    ptHighThreshold   = " << std::hex << m_objectParameter[i].ptHighThreshold << std::endl;
     myCout << "    ptLowThreshold    = " << std::hex << m_objectParameter[i].ptLowThreshold << std::endl;
+    myCout << "    uptHighCut        = " << std::hex << m_objectParameter[i].unconstrainedPtHigh << std::endl;
+    myCout << "    uptLowCut         = " << std::hex << m_objectParameter[i].unconstrainedPtLow << std::endl;
     myCout << "    indexHigh           = " << std::hex << m_objectParameter[i].indexHigh << std::endl;
     myCout << "    indexLow            = " << std::hex << m_objectParameter[i].indexLow << std::endl;
     myCout << "    enableMip         = " << std::hex << m_objectParameter[i].enableMip << std::endl;
@@ -87,6 +90,7 @@ void MuonTemplate::print(std::ostream& myCout) const {
     myCout << "    charge            =" << std::dec << m_objectParameter[i].charge << std::endl;
     myCout << "    qualityLUT        = " << std::hex << m_objectParameter[i].qualityLUT << std::endl;
     myCout << "    isolationLUT      = " << std::hex << m_objectParameter[i].isolationLUT << std::endl;
+    myCout << "    impactParameterLUT= " << std::hex << m_objectParameter[i].impactParameterLUT << std::endl;
     //       myCout << "    etaRange          = "
     //       << std::hex << m_objectParameter[i].etaRange << std::endl;
     //       myCout << "    phiHigh           = "

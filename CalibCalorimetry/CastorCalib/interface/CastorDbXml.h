@@ -26,13 +26,13 @@ namespace CastorDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const CastorPedestals& fObject);
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const CastorPedestalWidths& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const CastorPedestalWidths& fObject) {
     return false;
   }
   bool dumpObject(std::ostream& fOutput,
@@ -50,40 +50,40 @@ namespace CastorDbXml {
                   const std::string& fTag,
                   unsigned fVersion,
                   const CastorGains& fObject);
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const CastorGainWidths& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const CastorGainWidths& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const CastorElectronicsMap& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const CastorElectronicsMap& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const CastorQIEData& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const CastorQIEData& fObject) {
     return false;
   }
-  bool dumpObject(std::ostream& fOutput,
-                  unsigned fRun,
-                  unsigned long fGMTIOVBegin,
-                  unsigned long fGMTIOVEnd,
-                  const std::string& fTag,
-                  unsigned fVersion,
-                  const CastorCalibrationQIEData& fObject) {
+  inline bool dumpObject(std::ostream& fOutput,
+                         unsigned fRun,
+                         unsigned long fGMTIOVBegin,
+                         unsigned long fGMTIOVEnd,
+                         const std::string& fTag,
+                         unsigned fVersion,
+                         const CastorCalibrationQIEData& fObject) {
     return false;
   }
 }  // namespace CastorDbXml

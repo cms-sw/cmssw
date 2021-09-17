@@ -81,12 +81,17 @@ void testCreateCoralSession(cond::persistency::ConnectionPool& connPool,
 void testCreateSession(cond::persistency::ConnectionPool& connPool,
                        std::string const& connectionString,
                        bool const writeCapable) {
+  cond::Iov_t iov;
   cond::persistency::Session session = connPool.createSession(connectionString, writeCapable);
-  cond::persistency::PayloadProxy<RunInfo> pp;
-  pp.setUp(session);
-  pp.loadTag("RunInfo_v1_mc");
-  pp.setIntervalFor(1, true);
-  std::cout << "run number: " << pp().m_run << std::endl;
+  auto requests = std::make_shared<std::vector<cond::Iov_t>>();
+  cond::persistency::PayloadProxy<RunInfo> pp(&iov, &session, &requests);
+  session.transaction().start(true);
+  cond::persistency::IOVProxy iovProxy = session.readIov("RunInfo_v1_mc");
+  iov = iovProxy.getInterval(1);
+  session.transaction().commit();
+  pp.initializeForNewIOV();
+  pp.make();
+  std::cout << "# run number: " << pp().m_run << std::endl;
 }
 
 void testCreateReadOnlySession(cond::persistency::ConnectionPool& connPool,
@@ -94,9 +99,9 @@ void testCreateReadOnlySession(cond::persistency::ConnectionPool& connPool,
                                std::string const& transactionId) {
   cond::persistency::Session session = connPool.createReadOnlySession(connectionString, transactionId);
   session.transaction().start();
-  cond::persistency::IOVProxy iov = session.readIov("RunInfo_v1_mc", true);
+  cond::persistency::IOVProxy iov = session.readIov("RunInfo_v1_mc");
   std::cout << "Loaded size=" << iov.loadedSize() << std::endl;
-  cond::Iov_t currentIov = *(iov.find(1));
+  cond::Iov_t currentIov = iov.getInterval(1);
   std::cout << "run number: " << session.fetchPayload<RunInfo>(currentIov.payloadId)->m_run << std::endl;
   session.transaction().commit();
 }
@@ -109,8 +114,8 @@ int main(int argc, char** argv) {
   edm::ParameterSet pSet;
   pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
-  static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  static const edm::ServiceRegistry::Operate operate(services);
+  const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+  const edm::ServiceRegistry::Operate operate(services);
 
   std::array<std::string, 2> connectionStrings{
       {"frontier://FrontierPrep/CMS_CONDITIONS",

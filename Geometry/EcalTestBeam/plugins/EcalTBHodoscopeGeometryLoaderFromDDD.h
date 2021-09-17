@@ -3,7 +3,6 @@
 
 #include "Geometry/EcalTestBeam/interface/EcalHodoscopeNumberingScheme.h"
 
-
 /** \class EcalTBHodoscopeGeometryLoaderFromDDD
  *
  *
@@ -20,28 +19,24 @@ class EcalTBHodoscopeGeometry;
 #include <memory>
 #include <string>
 
-class EcalTBHodoscopeGeometryLoaderFromDDD
-{
-   public:
+class EcalTBHodoscopeGeometryLoaderFromDDD {
+public:
+  EcalTBHodoscopeGeometryLoaderFromDDD(){};
 
-      EcalTBHodoscopeGeometryLoaderFromDDD() {} ;
+  virtual ~EcalTBHodoscopeGeometryLoaderFromDDD(){};
 
-      virtual ~EcalTBHodoscopeGeometryLoaderFromDDD() {} ;
+  std::unique_ptr<CaloSubdetectorGeometry> load(const DDCompactView* cpv);
 
-      std::unique_ptr<CaloSubdetectorGeometry> load( const DDCompactView* cpv ) ;
+private:
+  void makeGeometry(const DDCompactView* cpv, CaloSubdetectorGeometry* ebg);
 
-   private:
+  unsigned int getDetIdForDDDNode(const DDFilteredView& fv);
 
-      void makeGeometry( const DDCompactView*     cpv ,
-			 CaloSubdetectorGeometry* ebg  ) ;
+  std::string getDDDString(std::string s, DDFilteredView* fv);
 
-      unsigned int getDetIdForDDDNode( const DDFilteredView &fv ) ;
+  DDFilter* getDDFilter();
 
-      std::string getDDDString( std::string s, DDFilteredView* fv ) ;
-
-      DDFilter* getDDFilter();
-
-      EcalHodoscopeNumberingScheme _scheme;
+  EcalHodoscopeNumberingScheme _scheme;
 };
 
 #endif

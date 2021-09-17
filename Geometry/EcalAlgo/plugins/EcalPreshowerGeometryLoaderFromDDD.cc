@@ -8,9 +8,12 @@ template <>
 void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id);
+                       const DetId& id,
+                       const double& scale);
 template <>
 void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
+template <>
+void EcalPGL::fillNamedParams(const cms::DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
@@ -22,11 +25,12 @@ template <>
 void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const EcalPGL::ParmVec& pv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id) {
+                       const DetId& id,
+                       const double& scale) {
   std::vector<CCGFloat> vv;
   vv.reserve(pv.size() + 1);
   for (unsigned int i(0); i != pv.size(); ++i) {
-    vv.emplace_back(k_ScaleFromDDDtoGeant * pv[i]);
+    vv.emplace_back(scale * pv[i]);
   }
 
   const Pt3D cor1(vv[0], vv[1], vv[2]);
@@ -38,10 +42,7 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
   const CCGFloat z3(Pt3D(tr * cor3).z());
 
   const CCGFloat y1(Pt3D(tr * cor3).y());
-  //   const CCGFloat y3 ( Pt3D( tr*cor3 ).y() ) ;
-
   const CCGFloat x1(Pt3D(tr * cor3).x());
-  //   const CCGFloat x2 ( Pt3D( tr*cor3 ).x() ) ;
 
   const CCGFloat zdif(0.00001 > fabs(z1 - z2) ? (y1 > 0 ? +1.0 : -1.0) * (z1 - z3)
                                               : (x1 > 0 ? +1.0 : -1.0) * (z1 - z2));
@@ -61,5 +62,10 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
 
 template <>
 void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
+  // nothing yet for preshower
+}
+
+template <>
+void EcalPGL::fillNamedParams(const cms::DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
   // nothing yet for preshower
 }

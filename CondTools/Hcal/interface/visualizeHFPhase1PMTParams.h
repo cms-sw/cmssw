@@ -20,13 +20,13 @@ struct VisualizationOptions {
   bool verbose{false};
 
   void load(cmdline::CmdLine& cmdline) {
-    cmdline.option(0, "--minAsymm") >> minAsymm;
-    cmdline.option(0, "--maxAsymm") >> maxAsymm;
-    cmdline.option(0, "--minCharge") >> minCharge;
-    cmdline.option(0, "--maxCharge") >> maxCharge;
-    cmdline.option(0, "--minTDC") >> minTDC;
-    cmdline.option(0, "--maxTDC") >> maxTDC;
-    cmdline.option(0, "--plotPoints") >> plotPoints;
+    cmdline.option(nullptr, "--minAsymm") >> minAsymm;
+    cmdline.option(nullptr, "--maxAsymm") >> maxAsymm;
+    cmdline.option(nullptr, "--minCharge") >> minCharge;
+    cmdline.option(nullptr, "--maxCharge") >> maxCharge;
+    cmdline.option(nullptr, "--minTDC") >> minTDC;
+    cmdline.option(nullptr, "--maxTDC") >> maxTDC;
+    cmdline.option(nullptr, "--plotPoints") >> plotPoints;
     verbose = cmdline.has("-v");
   }
 

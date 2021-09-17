@@ -12,20 +12,13 @@ emtfParamsSource = cms.ESSource(
     toGet   = cms.VPSet(
         cms.PSet(
             record = cms.string("L1TMuonEndCapParamsRcd"),
-            tag    = cms.string("L1TMuonEndCapParams_Stage2v1_hlt")
+            tag    = cms.string("L1TMuonEndCapParams_Stage2v3_hlt")
             )
         )
     )
 
 
 ## Fills pT LUT XMLs ("forests") from the database
-emtfForestsSource = cms.ESSource(
-    "EmptyESSource",
-    recordName = cms.string('L1TMuonEndCapForestRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-    )
-
 emtfForestsDB = cms.ESSource(
     "PoolDBESSource",
     CondDB,
@@ -38,4 +31,3 @@ emtfForestsDB = cms.ESSource(
             )
         )
     )
-

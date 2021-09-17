@@ -17,7 +17,7 @@
 TrackerAlignmentLevelBuilder ::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology,
                                                             const TrackerGeometry* trackerGeometry)
     : trackerTopology_(trackerTopology),
-      alignableObjectId_(trackerGeometry, nullptr, nullptr),
+      alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
       trackerNameSpace_(trackerTopology) {}
 
 //_____________________________________________________________________________

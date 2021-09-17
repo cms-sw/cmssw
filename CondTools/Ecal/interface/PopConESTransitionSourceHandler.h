@@ -48,7 +48,7 @@ namespace popcon {
           << "PopConESTransitionSourceHandler::" << __func__ << "]: "
           << "Loading tag for RunInfo " << m_tagForRunInfo << " and IOV valid for run number: " << m_run << std::endl;
       cond::persistency::IOVProxy iov = session.readIov(m_tagForRunInfo);
-      cond::Iov_t currentIov = *(iov.find(m_run));
+      cond::Iov_t currentIov = iov.getInterval(m_run);
       LogDebug("PopConESTransitionSourceHandler")
           << "Loaded IOV sequence from tag " << m_tagForRunInfo << " with size: " << iov.loadedSize()
           << ", IOV valid for run number " << m_run << " starting from: " << currentIov.since
@@ -82,15 +82,15 @@ namespace popcon {
                                                       << "Loading tag for ES " << (isLowGain ? "LowGain" : "HighGain")
                                                       << ": " << (isLowGain ? m_tagForLowGain : m_tagForHighGain)
                                                       << " and IOV valid for run number: " << m_run << std::endl;
-      cond::persistency::IOVProxy iov = session.readIov(isLowGain ? m_tagForLowGain : m_tagForHighGain, true);
-      cond::Iov_t currentIov = *(iov.find(m_run));
+      cond::persistency::IOVProxy iov = session.readIov(isLowGain ? m_tagForLowGain : m_tagForHighGain);
+      cond::Iov_t currentIov = iov.getInterval(m_run);
       LogDebug("PopConESTransitionSourceHandler")
           << "Loaded IOV sequence from tag " << (isLowGain ? m_tagForLowGain : m_tagForHighGain)
           << " with size: " << iov.loadedSize() << ", IOV valid for run number " << m_run
           << " starting from: " << currentIov.since << ", with corresponding payload hash: " << currentIov.payloadId
           << std::endl;
       std::string destTag = this->tagInfo().name;
-      if (currentIov.payloadId != this->tagInfo().lastPayloadToken) {
+      if (currentIov.payloadId != this->tagInfo().lastInterval.payloadId) {
         std::ostringstream ss;
         ss << "Adding iov with since " << m_run << " pointing to hash " << currentIov.payloadId
            << " corresponding to the ES Gain " << (isLowGain ? "LOW" : "HIGH");
@@ -101,7 +101,7 @@ namespace popcon {
         if (session.existsIov(destTag)) {
           editor = session.editIov(destTag);
         } else {
-          editor = session.createIov<T>(destTag, iov.timeType());
+          editor = session.createIov<T>(destTag, iov.tagInfo().timeType);
           editor.setDescription("Tag created by PopConESTransitionSourceHandler");
         }
         editor.insert(m_run, currentIov.payloadId);
@@ -124,18 +124,18 @@ namespace popcon {
           << "["
           << "PopConESTransitionSourceHandler::" << __func__ << "]: "
           << "Destination Tag Info: name " << this->tagInfo().name << ", size " << this->tagInfo().size
-          << ", last object valid since " << this->tagInfo().lastInterval.first << ", hash "
-          << this->tagInfo().lastPayloadToken << std::endl;
+          << ", last object valid since " << this->tagInfo().lastInterval.since << ", hash "
+          << this->tagInfo().lastInterval.payloadId << std::endl;
       //check if a transfer is needed:
       //if the new run number is smaller than or equal to the latest IOV, exit.
       //This is needed as now the IOV Editor does not always protect for insertions:
       //ANY and VALIDATION sychronizations are allowed to write in the past.
-      if (this->tagInfo().size > 0 && this->tagInfo().lastInterval.first >= m_run) {
+      if (this->tagInfo().size > 0 && this->tagInfo().lastInterval.since >= m_run) {
         edm::LogInfo("PopConESTransitionSourceHandler")
             << "["
             << "PopConESTransitionSourceHandler::" << __func__ << "]: "
-            << "last IOV " << this->tagInfo().lastInterval.first
-            << (this->tagInfo().lastInterval.first == m_run ? " is equal to" : " is larger than")
+            << "last IOV " << this->tagInfo().lastInterval.since
+            << (this->tagInfo().lastInterval.since == m_run ? " is equal to" : " is larger than")
             << " the run proposed for insertion " << m_run << ". No transfer needed." << std::endl;
         return;
       }

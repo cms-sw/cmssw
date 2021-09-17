@@ -9,8 +9,8 @@ contains one channel status and corresponding DetId
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 class CastorChannelStatus {
 public:

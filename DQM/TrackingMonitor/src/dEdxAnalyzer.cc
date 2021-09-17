@@ -41,16 +41,6 @@ dEdxAnalyzer::~dEdxAnalyzer() {
     delete genTriggerEventFlag_;
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void dEdxAnalyzer::endJob() {
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if (outputMEsInRootFile) {
-    dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-}
-
 /*
 // -- BeginRun
 //---------------------------------------------------------------------------------//
@@ -159,14 +149,12 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     return;
 
   if (doDeDxPlots_ || doAllPlots_) {
-    edm::Handle<reco::TrackCollection> trackCollectionHandle;
-    iEvent.getByToken(trackToken_, trackCollectionHandle);
+    edm::Handle<reco::TrackCollection> trackCollectionHandle = iEvent.getHandle(trackToken_);
     if (!trackCollectionHandle.isValid())
       return;
 
     for (unsigned int i = 0; i < dEdxInputList_.size(); i++) {
-      edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
-      iEvent.getByToken(dEdxTokenList_[i], dEdxObjectHandle);
+      edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle = iEvent.getHandle(dEdxTokenList_[i]);
       if (!dEdxObjectHandle.isValid())
         continue;
       const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();

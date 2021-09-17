@@ -3,7 +3,6 @@
 #include "HLTriggerOffline/JetMET/interface/JetMETDQMPostProcessor.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 

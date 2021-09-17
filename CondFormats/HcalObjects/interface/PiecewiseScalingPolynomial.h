@@ -6,6 +6,8 @@
 #include "boost/serialization/vector.hpp"
 #include "boost/serialization/version.hpp"
 
+#include <vector>
+
 class PiecewiseScalingPolynomial {
 public:
   inline PiecewiseScalingPolynomial() {}

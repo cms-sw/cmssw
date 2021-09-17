@@ -1,4 +1,3 @@
-
 #ifndef SiStripMonitorTrack_H
 #define SiStripMonitorTrack_H
 
@@ -16,12 +15,13 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
@@ -37,12 +37,17 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //******** Single include for the TkMap *************/
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -52,7 +57,6 @@
 
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
-class TrackerTopology;
 
 //
 // class declaration
@@ -64,9 +68,9 @@ public:
   enum RecHitType { Single = 0, Matched = 1, Projected = 2, Null = 3 };
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack() override;
-  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, const edm::EventSetup&) override;
 
 private:
   enum ClusterFlags { OffTrack, OnTrack };
@@ -87,25 +91,21 @@ private:
   MonitorElement* bookMEProfile(DQMStore::IBooker&, const char*, const char*);
   MonitorElement* bookMETrend(DQMStore::IBooker&, const char*);
   // internal evaluation of monitorables
-  void AllClusters(const edm::Event& ev, const edm::EventSetup& es);
+  void AllClusters(const edm::Event& ev);
   void trackStudyFromTrack(edm::Handle<reco::TrackCollection> trackCollectionHandle,
                            const edm::DetSetVector<SiStripDigi>& digilist,
-                           const edm::Event& ev,
-                           const edm::EventSetup& es);
+                           const edm::Event& ev);
   void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection> trackCollectionHandle,
                                 const edm::DetSetVector<SiStripDigi>& digilist,
-                                const edm::Event& ev,
-                                const edm::EventSetup& es);
+                                const edm::Event& ev);
   void trajectoryStudy(const reco::Track& track,
                        const edm::DetSetVector<SiStripDigi>& digilist,
                        const edm::Event& ev,
-                       const edm::EventSetup& es,
                        bool track_ok);
-  void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
+  void trackStudy(const edm::Event& ev);
   bool trackFilter(const reco::Track& track);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   void hitStudy(const edm::Event& ev,
-                const edm::EventSetup& es,
                 const edm::DetSetVector<SiStripDigi>& digilist,
                 const ProjectedSiStripRecHit2D* projhit,
                 const SiStripMatchedRecHit2D* matchedhit,
@@ -123,17 +123,16 @@ private:
                     const SiStripGain* stripGain,
                     const SiStripQuality* stripQuality,
                     const edm::DetSetVector<SiStripDigi>& digilist,
-		    float clustZ,
-		    float clustPhi);
+                    float clustZ,
+                    float clustPhi);
   template <class T>
   void RecHitInfo(const T* tkrecHit,
                   LocalVector LV,
                   const edm::DetSetVector<SiStripDigi>& digilist,
                   const edm::Event& ev,
-                  const edm::EventSetup& es,
                   bool track_ok);
 
-  bool fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es);
+  bool fillControlViewHistos(const edm::Event& ev);
   void return2DME(MonitorElement* input1, MonitorElement* input2, int binx, int biny, double value);
 
   // fill monitorables
@@ -167,6 +166,8 @@ private:
   float iOrbitSec, iLumisection;
 
   std::string topFolderName_;
+
+  SiStripClusterInfo siStripClusterInfo_;
 
   //******* TkHistoMaps*/
   std::unique_ptr<TkHistoMap> tkhisto_StoNCorrOnTrack, tkhisto_NumOnTrack, tkhisto_NumOffTrack;
@@ -262,15 +263,22 @@ private:
     struct SubDetMEs* iSubdet;
   };
 
-  edm::ESHandle<TrackerGeometry> tkgeom_;
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
-
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
 
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> siStripDetCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyRunToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyEventToken_;
+
+  const TrackerGeometry* tkgeom_ = nullptr;
+  const SiStripDetCabling* siStripDetCabling_ = nullptr;
+  const TrackerTopology* trackerTopology_ = nullptr;
 
   bool Mod_On_;
   bool Trend_On_;

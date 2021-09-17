@@ -6,8 +6,6 @@
 #include <string>
 #include <set>
 
-#include <boost/shared_ptr.hpp>
-
 // #include <HepMC/GenEvent.h>
 // #include <HepMC/SimpleVector.h>
 

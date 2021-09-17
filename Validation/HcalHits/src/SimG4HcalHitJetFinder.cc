@@ -26,15 +26,15 @@ std::vector<SimG4HcalHitCluster> *SimG4HcalHitJetFinder::getClusters(bool hcal_o
 
   std::vector<CaloHit>::iterator itr;
   for (itr = input.begin(); itr != input.end(); itr++) {
-    LogDebug("ValidHcal") << "HcalHitJetFinder::getClusters_1 - input :  e " << itr->e() << "  eta " << itr->eta()
-                          << "  phi " << itr->phi() << "  subdet " << itr->det();
+    edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder::getClusters_1 - input :  e " << itr->e() << "  eta "
+                                  << itr->eta() << "  phi " << itr->phi() << "  subdet " << itr->det();
   }
 
   sort(input.begin(), input.end());  // sort input in descending order
 
   for (itr = input.begin(); itr != input.end(); itr++) {
-    LogDebug("ValidHcal") << "HcalHitJetFinder::getClusters_2 - input :  e " << itr->e() << "  eta " << itr->eta()
-                          << "  phi " << itr->phi() << "  subdet " << itr->det();
+    edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder::getClusters_2 - input :  e " << itr->e() << "  eta "
+                                  << itr->eta() << "  phi " << itr->phi() << "  subdet " << itr->det();
   }
 
   std::vector<SimG4HcalHitCluster> temp;  // dummy container for clusters
@@ -54,9 +54,7 @@ std::vector<SimG4HcalHitCluster> *SimG4HcalHitJetFinder::getClusters(bool hcal_o
          hcal_only) ||
         (!hcal_only)) {
       cluster += input[j];
-      LogDebug("ValidHcal") << "HcalHitJetFinder:: First seed hit "
-                            << "..................\n"
-                            << (*itr_hits);
+      edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder:: First seed hit ..................\n" << (*itr_hits);
       first_seed = j;
       break;
     }
@@ -73,19 +71,18 @@ std::vector<SimG4HcalHitCluster> *SimG4HcalHitJetFinder::getClusters(bool hcal_o
           hcal_only) ||
          (!hcal_only)) &&
         (j != first_seed)) {
-      LogDebug("ValidHcal") << "HcalHitJetFinder:: ........... Consider hit"
-                            << " ..................\n"
-                            << (*itr_hits);
+      edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder:: ........... Consider hit ..................\n"
+                                    << (*itr_hits);
 
       int incl = 0;  // if the hit is included in one of clusters
 
       int iclus;
       for (itr_clus = temp.begin(), iclus = 0; itr_clus != temp.end(); itr_clus++, iclus++) {
-        LogDebug("ValidHcal") << "HcalHitJetFinder::=======> Cluster " << iclus << "\n" << (*itr_clus);
+        edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder::=======> Cluster " << iclus << "\n" << (*itr_clus);
 
         double d = rDist(&(*itr_clus), &(*itr_hits));
         if (d < jetcone) {
-          LogDebug("ValidHcal") << "HcalHitJetFinder:: -> associated ... ";
+          edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder:: -> associated ... ";
           temp[iclus] += *itr_hits;
           incl = 1;
           break;
@@ -97,9 +94,7 @@ std::vector<SimG4HcalHitCluster> *SimG4HcalHitJetFinder::getClusters(bool hcal_o
         SimG4HcalHitCluster cl;
         cl += *itr_hits;
         temp.push_back(cl);
-        LogDebug("ValidHcal") << "HcalHitJetFinder:: ************ NEW CLUSTER"
-                              << " !\n"
-                              << cl;
+        edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder:: ************ NEW CLUSTER !\n" << cl;
       }
     }
   }
@@ -129,9 +124,8 @@ double SimG4HcalHitJetFinder::rDist(const double etac, const double phic, const 
 
   double tmp = sqrt(delta_eta * delta_eta + delta_phi * delta_phi);
 
-  LogDebug("ValidHcal") << "HcalHitJetFinder::rDist:\n"
-                        << " Clus. eta, phi = " << etac << " " << phic << "\n"
-                        << " hit   eta, phi = " << etah << " " << phih << " rDist = " << tmp;
+  edm::LogVerbatim("ValidHcal") << "HcalHitJetFinder::rDist:\n Clus. eta, phi = " << etac << " " << phic
+                                << "\n hit   eta, phi = " << etah << " " << phih << " rDist = " << tmp;
 
   return tmp;
 }

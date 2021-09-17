@@ -1,26 +1,41 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("CASTORDQM")
+
+unitTest=False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
+
 #=================================
 # Event Source
 #================================+
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #================================
 # DQM Environment
 #================================
-#process.DQMStore.referenceFileName = 'castor_reference.root'
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
 process.dqmSaver.tag = "Castor"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "Castor"
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -107,13 +122,13 @@ process.options = cms.untracked.PSet(
 # castorreco    -> CastorSimpleReconstructor_cfi
 # castorMonitor -> CastorMonitorModule_cfi
 
-process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver)
-#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver)
-#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+#process.p = cms.Path(process.castorDigis*process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+#process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
+process.castorDigis.InputLabel = "rawDataCollector"
+process.castorMonitor.rawLabel = "rawDataCollector"
     
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -122,8 +137,8 @@ process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
 print("Running with run type = ", process.runType.getRunTypeName())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
+    process.castorDigis.InputLabel = "rawDataRepacker"
+    process.castorMonitor.rawLabel = "rawDataRepacker"
 
 
 ### process customizations included here

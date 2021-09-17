@@ -27,12 +27,15 @@ class TrackerRecoGeometryRecord;
 class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
 class DetLayer;
+class TrackerTopology;
+class TrackerTopologyRcd;
+class GeometricSearchTracker;
+class TrackerRecoGeometryRecord;
 
 class SeedingLayerSetsBuilder {
 public:
   using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide, int>;
 
-  SeedingLayerSetsBuilder() = default;
   SeedingLayerSetsBuilder(const edm::ParameterSet& cfg,
                           edm::ConsumesCollector& iC,
                           const edm::InputTag& fastsimHitTag);  //FastSim specific constructor
@@ -68,6 +71,8 @@ private:
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
   edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
   edm::EDGetTokenT<FastTrackerRecHitCollection> fastSimrecHitsToken_;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   struct LayerSpec {
     LayerSpec(unsigned short index,
               const std::string& layerName,
@@ -77,11 +82,12 @@ private:
     LayerSpec(const LayerSpec&) = delete;
     LayerSpec& operator=(const LayerSpec&) = delete;
     LayerSpec(LayerSpec&&) = default;
-    LayerSpec& operator=(LayerSpec&&) = default;
+    LayerSpec& operator=(LayerSpec&&) = delete;
     const unsigned short nameIndex;
     std::string pixelHitProducer;
     bool usePixelHitProducer;
     const std::string hitBuilder;
+    const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitBuilderToken;
 
     GeomDetEnumerators::SubDetector subdet;
     TrackerDetSide side;

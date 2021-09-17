@@ -9,7 +9,7 @@
 #ifndef EventFilter_CTPPSRawToDigi_VFATFrameCollection
 #define EventFilter_CTPPSRawToDigi_VFATFrameCollection
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 

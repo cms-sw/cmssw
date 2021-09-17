@@ -26,7 +26,6 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-#include <boost/shared_ptr.hpp>
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 

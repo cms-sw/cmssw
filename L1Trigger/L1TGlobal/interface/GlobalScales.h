@@ -38,6 +38,12 @@ namespace l1t {
       double etStep;
       std::vector<std::pair<double, double>> etBins;
 
+      // Added displaced muons
+      double uptMin;
+      double uptMax;
+      double uptStep;
+      std::vector<std::pair<double, double>> uptBins;
+
       double phiMin;
       double phiMax;
       double phiStep;
@@ -67,6 +73,9 @@ namespace l1t {
     virtual void setLUT_DeltaEta(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
     virtual void setLUT_DeltaPhi(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
     virtual void setLUT_Pt(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
+    virtual void setLUT_Upt(const std::string& lutName,
+                            std::vector<long long> lut,
+                            unsigned int precision);  // Added for displaced muons
     virtual void setLUT_Cosh(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
     virtual void setLUT_Cos(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
     virtual void setLUT_Sin(const std::string& lutName, std::vector<long long> lut, unsigned int precision);
@@ -90,6 +99,7 @@ namespace l1t {
     long long getLUT_DeltaEta(std::string lutName, int element) const;
     long long getLUT_DeltaPhi(std::string lutName, int element) const;
     long long getLUT_Pt(const std::string& lutName, int element) const;
+    long long getLUT_Upt(const std::string& lutName, int element) const;  // Added for displaced muons
     long long getLUT_DeltaEta_Cosh(std::string lutName, int element) const;
     long long getLUT_DeltaPhi_Cos(std::string lutName, int element) const;
     long long getLUT_Cos(const std::string& lutName, int element) const;
@@ -98,6 +108,7 @@ namespace l1t {
     unsigned int getPrec_DeltaEta(const std::string& lutName) const;
     unsigned int getPrec_DeltaPhi(const std::string& lutName) const;
     unsigned int getPrec_Pt(const std::string& lutName) const;
+    unsigned int getPrec_Upt(const std::string& lutName) const;  // Added for displaced muons
     unsigned int getPrec_DeltaEta_Cosh(const std::string& lutName) const;
     unsigned int getPrec_DeltaPhi_Cos(const std::string& lutName) const;
     unsigned int getPrec_Cos(const std::string& lutName) const;
@@ -131,6 +142,7 @@ namespace l1t {
     std::map<std::string, std::vector<long long>> m_lut_DeltaEta;
     std::map<std::string, std::vector<long long>> m_lut_DeltaPhi;
     std::map<std::string, std::vector<long long>> m_lut_Pt;
+    std::map<std::string, std::vector<long long>> m_lut_Upt;  // Added for displaced muons
     std::map<std::string, std::vector<long long>> m_lut_Cosh;
     std::map<std::string, std::vector<long long>> m_lut_Cos;
     std::map<std::string, std::vector<long long>> m_lut_Sin;
@@ -139,6 +151,7 @@ namespace l1t {
     std::map<std::string, unsigned int> m_Prec_DeltaEta;
     std::map<std::string, unsigned int> m_Prec_DeltaPhi;
     std::map<std::string, unsigned int> m_Prec_Pt;
+    std::map<std::string, unsigned int> m_Prec_Upt;  // Added for displaced muons
     std::map<std::string, unsigned int> m_Prec_Cosh;
     std::map<std::string, unsigned int> m_Prec_Cos;
     std::map<std::string, unsigned int> m_Prec_Sin;

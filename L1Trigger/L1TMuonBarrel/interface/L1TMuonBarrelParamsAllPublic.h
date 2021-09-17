@@ -1,6 +1,8 @@
 #ifndef L1TMuonBarrelParamsAllPublic_h
 #define L1TMuonBarrelParamsAllPublic_h
 
+#include <cassert>
+
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 
 class L1TMuonBarrelParamsAllPublic : public L1TMuonBarrelParams {

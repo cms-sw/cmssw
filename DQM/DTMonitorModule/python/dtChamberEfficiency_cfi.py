@@ -9,11 +9,11 @@ dtEfficiencyMonitor = DQMEDAnalyzer('DTChamberEfficiency',
     TrackCollection = cms.InputTag("standAloneMuons"),
     theMaxChi2 = cms.double(1000.),
     theNSigma = cms.double(3.),
-    theMinNrec = cms.double(5.),
-    dt4DSegments = cms.InputTag("dt4DSegments"),
-    theRPCRecHits = cms.InputTag("dummy"),
-    cscSegments = cms.InputTag("dummy"),
+    theMinNrec = cms.double(3.),
+    dt4DSegments = cms.InputTag('dt4DSegments'),
+    theRPCRecHits = cms.InputTag('dummy'),
+    cscSegments = cms.InputTag('dummy'),
     RPCLayers = cms.bool(False),
-    NavigationType = cms.string("Standard")
+    NavigationType = cms.string('Standard')
 )
 

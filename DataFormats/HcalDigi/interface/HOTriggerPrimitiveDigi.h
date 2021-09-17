@@ -1,9 +1,9 @@
 #ifndef DIGIHCAL_HOTRIGGERPRIMITIVEDIGI_H
 #define DIGIHCAL_HOTRIGGERPRIMITIVEDIGI_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include <cstdint>
 
 /** \class HOTriggerprimitiveDigi
  *  Simple container packer/unpacker for a single 

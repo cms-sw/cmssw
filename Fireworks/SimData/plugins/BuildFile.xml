@@ -1,13 +1,13 @@
 <library name="FireworksSimDataPlugins" file="*.cc">
- <use name="Fireworks/Core"/>
- <use name="SimDataFormats/Track"/>
- <use name="SimDataFormats/TrackingHit"/>
- <use name="SimDataFormats/CaloHit"/>
- <use name="SimDataFormats/Vertex"/>
- <use name="SimDataFormats/TrackingAnalysis"/>
- <use name="SimDataFormats/CaloAnalysis"/>
- <lib name="Eve"/>
- <lib name="EG"/>
- <lib name="Geom"/>
- <flags EDM_PLUGIN="1"/>
+  <use name="Fireworks/Core"/>
+  <use name="SimDataFormats/Track"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimDataFormats/CaloHit"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+  <use name="SimDataFormats/CaloAnalysis"/>
+  <use name="rooteve"/>
+  <use name="rooteg"/>
+  <use name="rootgeom"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

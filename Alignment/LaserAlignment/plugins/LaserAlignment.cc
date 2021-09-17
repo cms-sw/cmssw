@@ -11,13 +11,22 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 ///
 ///
 ///
 LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
-    : theEvents(0),
+    : topoToken_(esConsumes()),
+      geomToken_(esConsumes()),
+      geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
+      gprToken_(esConsumes()),
+      stripPedestalsToken_(esConsumes()),
+      theEvents(0),
       theDoPedestalSubtraction(theConf.getUntrackedParameter<bool>("SubtractPedestals", true)),
       theUseMinuitAlgorithm(theConf.getUntrackedParameter<bool>("RunMinuitAlignmentTubeAlgorithm", false)),
       theApplyBeamKinkCorrections(theConf.getUntrackedParameter<bool>("ApplyBeamKinkCorrections", true)),
@@ -271,34 +280,31 @@ void LaserAlignment::beginJob() {
 void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSetup) {
   if (firstEvent_) {
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    theSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology* const tTopo = tTopoHandle.product();
+    const TrackerTopology* const tTopo = &theSetup.getData(topoToken_);
 
     // access the tracker
-    theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-    theSetup.get<IdealGeometryRecord>().get(gD);
+    gD = theSetup.getHandle(geomDetToken_);
+    theTrackerGeometry = theSetup.getHandle(geomToken_);
 
     // access pedestals (from db..) if desired
     edm::ESHandle<SiStripPedestals> pedestalsHandle;
     if (theDoPedestalSubtraction) {
-      theSetup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+      pedestalsHandle = theSetup.getHandle(stripPedestalsToken_);
       fillPedestalProfiles(pedestalsHandle);
     }
 
     // global positions
-    //  edm::ESHandle<Alignments> theGlobalPositionRcd;
-    theSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(theGlobalPositionRcd);
+    theGlobalPositionRcd = &theSetup.getData(gprToken_);
 
     // select the reference geometry
     if (!updateFromInputGeometry) {
       // the AlignableTracker object is initialized with the ideal geometry
-      edm::ESHandle<GeometricDet> theGeometricDet;
-      theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-      edm::ESHandle<PTrackerParameters> ptp;
-      theSetup.get<PTrackerParametersRcd>().get(ptp);
+      const GeometricDet* theGeometricDet = &theSetup.getData(geomDetToken_);
+      const PTrackerParameters* ptp = &theSetup.getData(ptpToken_);
+      const PTrackerAdditionalParametersPerDet* ptitp = &theSetup.getData(ptitpToken_);
+
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, &*ptitp, *ptp, tTopo);
 
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     } else {

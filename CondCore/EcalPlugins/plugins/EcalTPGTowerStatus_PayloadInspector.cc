@@ -18,7 +18,7 @@
 #include <string>
 
 namespace {
-  enum { kEBTotalTowers = 2448, kEETotalTowers = 1584 };
+  enum { kEBTotalTowers = 2448 };
   enum { MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 17, MAX_IPHI = 72 };  // barrel lower and upper bounds on eta and phi
 
   /***********************************************
@@ -32,7 +32,7 @@ namespace {
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       TH2F* barrel = new TH2F("EB", "EB TPG Tower Status", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
-      int EBstat = 0, EEstat = 0;
+      int EBstat = 0;
 
       auto iov = iovs.front();
       std::shared_ptr<EcalTPGTowerStatus> payload = fetchPayload(std::get<1>(iov));
@@ -53,8 +53,7 @@ namespace {
             if (ttId.subDet() == 1) {  // barrel
               barrel->Fill(iphi, ieta, (*it).second);
               EBstat++;
-            } else
-              EEstat++;
+            }
           }
         }
       }  // payload
@@ -80,7 +79,6 @@ namespace {
       }
       t1.SetTextSize(0.03);
       t1.DrawLatex(0.2, 0.88, Form("%i towers", EBstat));
-      t1.DrawLatex(0.5, 0.02, Form("EE : %i tower(s)", EEstat));
       //      canvas.cd();
       pad[0]->cd();
       //      barrel->SetStats(false);
@@ -104,22 +102,40 @@ namespace {
   /************************************************************************
      2d plot of ECAL TPGTowerStatus difference between 2 IOVs
   ************************************************************************/
-  class EcalTPGTowerStatusDiff : public cond::payloadInspector::PlotImage<EcalTPGTowerStatus> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalTPGTowerStatusDiffBase : public cond::payloadInspector::PlotImage<EcalTPGTowerStatus, nIOVs, ntags> {
   public:
-    EcalTPGTowerStatusDiff() : cond::payloadInspector::PlotImage<EcalTPGTowerStatus>("ECAL TPGTowerStatus difference") {
-      setSingleIov(false);
-    }
+    EcalTPGTowerStatusDiffBase()
+        : cond::payloadInspector::PlotImage<EcalTPGTowerStatus, nIOVs, ntags>("ECAL TPGTowerStatus difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* barrel = new TH2F("EB", "EB difference", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
       //      int EBstat[2] = {0, 0};
-      int EBstat = 0, EEstat = 0;
+      int EBstat = 0;
 
-      unsigned int run[2] = {0, 0}, irun = 0, vEB[kEBTotalTowers];
-      //      EcalTrigTowerDetId  EBId[kEBTotalTowers];
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTPGTowerStatus> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      unsigned int run[2] = {0, 0}, vEB[kEBTotalTowers];
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTPGTowerStatus> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           const EcalTPGTowerStatusMap& towerMap = (*payload).getMap();
           //	  std::cout << " tower map size " << towerMap.size() << std::endl;
@@ -138,16 +154,8 @@ namespace {
                 if (stat > 0) {  // bad tower
                   if (towerId >= kEBTotalTowers)
                     std::cout << " strange tower Id " << towerId << std::endl;
-                  else {
-                    //		    std::cout << " phi " << iphi << " eta " << ieta << std::endl;
-                    //		    EBId[towerId] = ttId;
-                  }
                 }
-              }  // barrel
-              else if (stat > 0) {
-                //		std::cout << " EE phi " << iphi << " eta " << ieta << std::endl;
-                EEstat--;
-              }
+              }                          // barrel
             }                            // 1st run
             else {                       // 2nd run
               if (ttId.subDet() == 1) {  // barrel
@@ -164,16 +172,11 @@ namespace {
                 //		  vEB[towerId] = 0;
                 EBstat += diff;
               }  // barrel
-              else if (stat > 0) {
-                //		std::cout << " EE phi " << iphi << " eta " << ieta << std::endl;
-                EEstat++;
-              }
-            }  // 2nd run
-          }    // loop over towers
-        }      // payload
+            }    // 2nd run
+          }      // loop over towers
+        }        // payload
         else
           return false;
-        irun++;
       }  // loop over IOVs
       /*
       // now check if towers have disappered
@@ -199,8 +202,20 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2) {
+        if (len < 80) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(0.5, 0.96, Form("%s %i - %s %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal TPGTowerStatus, IOV %i - %i", run[1], run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i - %i", l_tagname[0].c_str(), run[1], run[0]));
+      }
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal TPGTowerStatus, IOV %i - %i", run[1], run[0]));
 
       TPad** pad = new TPad*;
       for (int obj = 0; obj < 1; obj++) {
@@ -209,11 +224,10 @@ namespace {
       }
       t1.SetTextSize(0.03);
       t1.DrawLatex(0.2, 0.88, Form("%i tower(s)", EBstat));
-      t1.DrawLatex(0.5, 0.02, Form("EE : %i tower(s)", EEstat));
 
       pad[0]->cd();
       //      barrel->SetStats(false);
-      barrel->Draw("col");
+      barrel->Draw("colz");
       TLine* l = new TLine(0., 0., 0., 0.);
       l->SetLineWidth(1);
       for (int i = 0; i < MAX_IETA; i++) {
@@ -224,15 +238,17 @@ namespace {
       l = new TLine(0., 0., 72., 0.);
       l->Draw();
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalTPGTowerStatusDiffBase
+  using EcalTPGTowerStatusDiffOneTag = EcalTPGTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalTPGTowerStatusDiffTwoTags = EcalTPGTowerStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
-  /*****************************************
- 2d plot of EcalTPGTowerStatus Error Summary of 1 IOV
- ******************************************/
+  /*******************************************************
+    2d plot of EcalTPGTowerStatus Error Summary of 1 IOV
+  ********************************************************/
   class EcalTPGTowerStatusSummaryPlot : public cond::payloadInspector::PlotImage<EcalTPGTowerStatus> {
   public:
     EcalTPGTowerStatusSummaryPlot()
@@ -308,6 +324,7 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalTPGTowerStatus) {
   PAYLOAD_INSPECTOR_CLASS(EcalTPGTowerStatusPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTPGTowerStatusDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGTowerStatusDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGTowerStatusDiffTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalTPGTowerStatusSummaryPlot);
 }

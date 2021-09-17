@@ -1,5 +1,4 @@
-<library   file="AlignPCLThresholds_PayloadInspector.cc" name="AlignPCLThresholds_PayloadInspector">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/CondDB"/>
-  <use   name="CondFormats/Common"/>
+<library file="AlignPCLThresholds_PayloadInspector.cc" name="AlignPCLThresholds_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
 </library>

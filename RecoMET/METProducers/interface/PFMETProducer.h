@@ -41,9 +41,9 @@
 #include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
+#include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
+#include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
-
-#include "TVector.h"
 
 #include <string>
 
@@ -59,13 +59,14 @@ namespace cms {
     explicit PFMETProducer(const edm::ParameterSet&);
     ~PFMETProducer() override {}
     void produce(edm::Event&, const edm::EventSetup&) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
                                        const edm::EventSetup&,
-                                       const edm::Handle<edm::View<reco::Candidate> >& input) const;
-
-    edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
+                                       const edm::Handle<edm::View<reco::Candidate>>& input) const;
+    edm::InputTag src_;
+    edm::EDGetTokenT<edm::View<reco::Candidate>> inputToken_;
 
     bool calculateSignificance_;
     metsig::METSignificance* metSigAlgo_;
@@ -73,12 +74,16 @@ namespace cms {
     double globalThreshold_;
     double jetThreshold_;
 
-    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
-    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
-    std::string jetSFType_;
-    std::string jetResPtType_;
-    std::string jetResPhiType_;
+    edm::EDGetTokenT<edm::View<reco::Jet>> jetToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> lepTokens_;
+
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionScaleFactorRcd> jetSFToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPtToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPhiToken_;
     edm::EDGetTokenT<double> rhoToken_;
+    bool applyWeight_;
+    edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+    edm::ValueMap<float> const* weights_;
   };
 }  // namespace cms
 

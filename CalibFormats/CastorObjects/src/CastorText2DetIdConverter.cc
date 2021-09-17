@@ -85,9 +85,9 @@ bool CastorText2DetIdConverter::init(const std::string& fFlavor,
   field2 = strip(fField2);
   field3 = strip(fField3);
   if (flavorName.find("CASTOR_") == 0) {
-    HcalCastorDetId::Section section =
-        flavorName == "CASTOR_EM" ? HcalCastorDetId::EM
-                                  : flavorName == "CASTOR_HAD" ? HcalCastorDetId::HAD : HcalCastorDetId::Unknown;
+    HcalCastorDetId::Section section = flavorName == "CASTOR_EM"    ? HcalCastorDetId::EM
+                                       : flavorName == "CASTOR_HAD" ? HcalCastorDetId::HAD
+                                                                    : HcalCastorDetId::Unknown;
     mId = HcalCastorDetId(section, getField(1) > 0, getField(2), getField(3));
   }
 

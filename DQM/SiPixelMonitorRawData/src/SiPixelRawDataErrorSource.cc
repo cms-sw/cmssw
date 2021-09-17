@@ -26,6 +26,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
@@ -33,16 +34,13 @@
 
 // Geometry
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 //
@@ -69,6 +67,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet &iC
                       << endl;
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   inputSourceToken_ = consumes<FEDRawDataCollection>(conf_.getUntrackedParameter<string>("inputSource", "source"));
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 }
 
 SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource() {
@@ -185,12 +185,9 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event &iEvent, const edm::Eve
 void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup &iSetup) {
   LogInfo("PixelDQM") << " SiPixelRawDataErrorSource::buildStructure";
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  edm::ESHandle<TrackerTopology> tTopoHandle;
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
@@ -285,8 +282,10 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(topFolderName_ + "/AdditionalPixelErrors");
   char title[80];
   sprintf(title, "By-LumiSection Error counters");
-  byLumiErrors = iBooker.book1D("byLumiErrors", title, 2, 0., 2.);
-  byLumiErrors->setLumiFlag();
+  {
+    auto scope = DQMStore::IBooker::UseLumiScope(iBooker);
+    byLumiErrors = iBooker.book1D("byLumiErrors", title, 2, 0., 2.);
+  }
   char title1[80];
   sprintf(title1, "Errors per LumiSection;LumiSection;NErrors");
   errorRate = iBooker.book1D("errorRate", title1, 5000, 0., 5000.);

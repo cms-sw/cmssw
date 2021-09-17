@@ -12,7 +12,7 @@
 * 
 */
 
-#include "RecoTracker/FinalTrackSelectors/src/TrackCollectionCloner.cc"
+#include "RecoTracker/FinalTrackSelectors/interface/TrackCollectionCloner.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,9 +26,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include <vector>
-
-using namespace std;
-using namespace reco;
 
 class HLTMuonTrackSelector : public edm::global::EDProducer<> {
 public:
@@ -45,7 +42,7 @@ private:
   TrackCollectionCloner collectionCloner;
   const TrackCollectionCloner::Tokens collectionClonerTokens;
 
-  const edm::EDGetTokenT<vector<reco::Muon> > token_muon;
+  const edm::EDGetTokenT<std::vector<reco::Muon> > token_muon;
   const edm::EDGetTokenT<MVACollection> token_originalMVAVals;
   const bool flag_copyMVA;
 };

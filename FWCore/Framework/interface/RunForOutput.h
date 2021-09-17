@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 #include <memory>
 #include <string>
@@ -38,8 +39,13 @@ namespace edm {
 
   class RunForOutput : public OccurrenceForOutput {
   public:
-    RunForOutput(RunPrincipal const& rp,
-                 ModuleDescription const& md,
+    RunForOutput(RunTransitionInfo const&,
+                 ModuleDescription const&,
+                 ModuleCallingContext const*,
+                 bool isAtEnd,
+                 MergeableRunProductMetadata const* = nullptr);
+    RunForOutput(RunPrincipal const&,
+                 ModuleDescription const&,
                  ModuleCallingContext const*,
                  bool isAtEnd,
                  MergeableRunProductMetadata const* = nullptr);
@@ -51,6 +57,10 @@ namespace edm {
     Timestamp const& beginTime() const { return aux_.beginTime(); }
     Timestamp const& endTime() const { return aux_.endTime(); }
     MergeableRunProductMetadata const* mergeableRunProductMetadata() const { return mergeableRunProductMetadata_; }
+
+    /**\return Reusable index which can be used to separate data for different simultaneous Runs.
+     */
+    RunIndex index() const;
 
   private:
     friend class edmtest::TestOutputModule;  // For testing

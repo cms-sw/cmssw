@@ -32,7 +32,6 @@ public:
   void build(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc) override;
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFTrack3DProxyBuilder(const FWPFTrack3DProxyBuilder&) = delete;
   const FWPFTrack3DProxyBuilder& operator=(const FWPFTrack3DProxyBuilder&) = delete;
 

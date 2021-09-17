@@ -14,7 +14,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -32,7 +32,7 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTKeyedConfigDBInit : public edm::EDAnalyzer {
+class DTKeyedConfigDBInit : public edm::one::EDAnalyzer<> {
 public:
   /** Constructor
    */

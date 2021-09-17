@@ -17,7 +17,8 @@
 
 using namespace std;
 
-PiZeroAnalyzer::PiZeroAnalyzer(const edm::ParameterSet& pset) {
+PiZeroAnalyzer::PiZeroAnalyzer(const edm::ParameterSet& pset)
+    : caloGeometryToken_{esConsumes()}, caloTopologyToken_{esConsumes()} {
   fName_ = pset.getUntrackedParameter<std::string>("Name");
   prescaleFactor_ = pset.getUntrackedParameter<int>("prescaleFactor", 1);
 
@@ -113,11 +114,13 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
                                 const edm::Handle<EcalRecHitCollection> rhEE) {
   const EcalRecHitCollection* hitCollection_p = rhEB.product();
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  //edm::ESHandle<CaloGeometry> geoHandle;
+  //es.get<CaloGeometryRecord>().get(geoHandle);
+  auto geoHandle = es.getHandle(caloGeometryToken_);
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  es.get<CaloTopologyRecord>().get(theCaloTopology);
+  //edm::ESHandle<CaloTopology> theCaloTopology;
+  //es.get<CaloTopologyRecord>().get(theCaloTopology);
+  auto theCaloTopology = es.getHandle(caloTopologyToken_);
 
   const CaloSubdetectorTopology* topology_p;
   const CaloSubdetectorGeometry* geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);

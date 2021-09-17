@@ -16,7 +16,7 @@
 //
 //
 
-#include "PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.h"
+#include "PhysicsTools/PatAlgos/interface/BaseMVAValueMapProducer.h"
 
 typedef BaseMVAValueMapProducer<pat::Jet> JetBaseMVAValueMapProducer;
 typedef BaseMVAValueMapProducer<pat::Muon> MuonBaseMVAValueMapProducer;

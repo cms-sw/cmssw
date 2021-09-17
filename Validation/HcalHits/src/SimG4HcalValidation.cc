@@ -58,26 +58,22 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
   if (infolevel > 1)
     produces<PHcalValidInfoJets>(labelJets);
 
-  edm::LogVerbatim("ValidHcal") 
-    << "HcalTestAnalysis:: Initialised as observer of begin/end events and "
-    << "of G4step with Parameter values: \n\tInfoLevel     = " << infolevel 
-    << "\n\thcalOnly      = " << hcalOnly << "\n\tapplySampling = " 
-    << applySampling << "\n\tconeSize      = " << coneSize
-    << "\n\tehitThreshold = " << ehitThreshold << "\n\thhitThreshold = " 
-    << hhitThreshold  << "\n\tttimeLowlim   = " << timeLowlim 
-    << "\n\tttimeUplim    = " << timeUplim << "\n\teta0          = " << eta0
-    << "\n\tphi0          = " << phi0 << "\nLabels (Layer): " << labelLayer 
-    << " (NxN): " << labelNxN << " (Jets): " << labelJets;
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of begin/end events and "
+                                << "of G4step with Parameter values: \n\tInfoLevel     = " << infolevel
+                                << "\n\thcalOnly      = " << hcalOnly << "\n\tapplySampling = " << applySampling
+                                << "\n\tconeSize      = " << coneSize << "\n\tehitThreshold = " << ehitThreshold
+                                << "\n\thhitThreshold = " << hhitThreshold << "\n\tttimeLowlim   = " << timeLowlim
+                                << "\n\tttimeUplim    = " << timeUplim << "\n\teta0          = " << eta0
+                                << "\n\tphi0          = " << phi0 << "\nLabels (Layer): " << labelLayer
+                                << " (NxN): " << labelNxN << " (Jets): " << labelJets;
 
   init();
 }
 
 SimG4HcalValidation::~SimG4HcalValidation() {
-  edm::LogVerbatim("ValidHcal") 
-    << "\n -------->  Total number of selected entries"
-    << " : " << count << "\nPointers:: JettFinder " << jetf 
-    << ", Numbering Scheme " << org
-    << " and FromDDD " << numberingFromDDD;
+  edm::LogVerbatim("ValidHcal") << "\n -------->  Total number of selected entries"
+                                << " : " << count << "\nPointers:: JettFinder " << jetf << ", Numbering Scheme " << org
+                                << " and FromDDD " << numberingFromDDD;
   if (jetf) {
     edm::LogVerbatim("ValidHcal") << "Delete Jetfinder";
     delete jetf;
@@ -147,7 +143,7 @@ void SimG4HcalValidation::update(const BeginOfJob *job) {
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
   const HcalDDDSimConstants *hcons = hdc.product();
   edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise "
-				<< "HcalNumberingFromDDD";
+                                << "HcalNumberingFromDDD";
   numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Numbering scheme
@@ -169,13 +165,11 @@ void SimG4HcalValidation::update(const BeginOfRun *run) {
                                    << "Setup";
     } else {
       HCalSD *theCaloSD = dynamic_cast<HCalSD *>(aSD);
-      edm::LogVerbatim("ValidHcal") 
-	<< "SimG4HcalValidation::beginOfRun: Finds SD with name " 
-	<< theCaloSD->GetName() << " in this Setup";
+      edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD with name " << theCaloSD->GetName()
+                                    << " in this Setup";
       if (org) {
         theCaloSD->setNumberingScheme(org);
-        edm::LogVerbatim("ValidHcal") 
-	  << "SimG4HcalValidation::beginOfRun: set a new numbering scheme";
+        edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a new numbering scheme";
       }
     }
   } else {
@@ -282,7 +276,8 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " << names[0] << " of ID " << HCHCid
                         << " is obtained at " << theHCHC;
   if (HCHCid >= 0 && theHCHC != nullptr) {
-    for (j = 0; j < theHCHC->entries(); j++) {
+    int nhits = theHCHC->entries();
+    for (j = 0; j < nhits; j++) {
       CaloG4Hit *aHit = (*theHCHC)[j];
 
       double e = aHit->getEnergyDeposit() / GeV;
@@ -312,11 +307,9 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
         else if (layer == 0)
           vhitec += e;
         else
-          edm::LogVerbatim("ValidHcal") 
-	    << "SimG4HcalValidation::HitPMT " << subdet << " " 
-	    << (2*zside-1)*etaIndex << " " << phiIndex << " " << layer + 1 
-	    << " R " << pos.rho() << " Phi " << convertRadToDeg(phi)
-	    << " Edep " << e << " Time " << time;
+          edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::HitPMT " << subdet << " " << (2 * zside - 1) * etaIndex
+                                        << " " << phiIndex << " " << layer + 1 << " R " << pos.rho() << " Phi "
+                                        << convertRadToDeg(phi) << " Edep " << e << " Time " << time;
       } else if (subdet == static_cast<int>(HcalEndcap)) {
         if (etaIndex <= 20) {
           det = "HES";
@@ -361,8 +354,9 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
       CaloG4HitCollection *theECHC = (CaloG4HitCollection *)allHC->GetHC(ECHCid);
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for " << names[idty] << " of ID " << ECHCid
                             << " is obtained at " << theECHC;
+      int theechc_entries = theECHC->entries();
       if (ECHCid >= 0 && theECHC != nullptr) {
-        for (j = 0; j < theECHC->entries(); j++) {
+        for (j = 0; j < theechc_entries; j++) {
           CaloG4Hit *aHit = (*theECHC)[j];
 
           double e = aHit->getEnergyDeposit() / GeV;

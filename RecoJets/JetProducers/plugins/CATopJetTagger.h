@@ -5,7 +5,7 @@
 //
 // Package:    CATopJetTagger
 // Class:      CATopJetTagger
-// 
+//
 /**\class CATopJetTagger CATopJetTagger.cc TopQuarkAnalysis/TopJetProducers/src/CATopJetTagger.cc
 
  Description: This is a tagger to identify boosted top quark jets.
@@ -25,7 +25,6 @@
 //         Created:  Thu Jul  3 00:19:30 CDT 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -57,32 +56,27 @@
 #include <TH2.h>
 #include <TTree.h>
 
-
 //
 // class decleration
 //
 
 class CATopJetTagger : public edm::global::EDProducer<> {
- public:
+public:
   explicit CATopJetTagger(const edm::ParameterSet&);
   ~CATopJetTagger() override;
-  
-  
- private:
-  void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
   // ----------member data ---------------------------
-  
-  const edm::InputTag   src_;
-  
-  const double      TopMass_;
-  const double      WMass_;
-  const bool        verbose_;
+
+  const edm::InputTag src_;
+
+  const double TopMass_;
+  const double WMass_;
+  const bool verbose_;
 
   const edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
-
 };
-
-
 
 #endif

@@ -10,6 +10,7 @@
 #include "TGeoSphere.h"
 #include "TGeoMatrix.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveVSDStructs.h"
 
 // include files
@@ -25,10 +26,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&) = delete;                   // stop default
   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;
   void build(const reco::SecondaryVertexTagInfo& iData,

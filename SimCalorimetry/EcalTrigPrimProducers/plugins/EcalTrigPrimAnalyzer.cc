@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
@@ -34,9 +33,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
@@ -48,6 +44,7 @@ using namespace edm;
 class CaloSubdetectorGeometry;
 
 EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
+    : tokens_(consumesCollector())
 
 {
   ecal_parts_.push_back("Barrel");
@@ -78,6 +75,10 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
     hTPoverRechit_ = new TH1F("TP_over_RecHit", "TP over rechit", 500, 0, 4);
     rechits_labelEB_ = iConfig.getParameter<edm::InputTag>("inputRecHitsEB");
     rechits_labelEE_ = iConfig.getParameter<edm::InputTag>("inputRecHitsEE");
+    geomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+    endcapGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalEndcapGeometryRecord>(edm::ESInputTag("", "EcalEndcap"));
+    barrelGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalBarrelGeometryRecord>(edm::ESInputTag("", "EcalBarrel"));
+    eTTmapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
   }
 }
 
@@ -126,17 +127,13 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
   edm::Handle<EcalRecHitCollection> rechit_EE_col;
   iEvent.getByLabel(rechits_labelEE_, rechit_EE_col);
 
-  edm::ESHandle<CaloGeometry> theGeometry;
-  edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
-  edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-  iSetup.get<CaloGeometryRecord>().get(theGeometry);
-  iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-  iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel", theBarrelGeometry_handle);
+  edm::ESHandle<CaloGeometry> theGeometry = iSetup.getHandle(geomToken_);
+  edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle = iSetup.getHandle(barrelGeomToken_);
+  edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle = iSetup.getHandle(endcapGeomToken_);
 
   const CaloSubdetectorGeometry *theEndcapGeometry = theEndcapGeometry_handle.product();
   const CaloSubdetectorGeometry *theBarrelGeometry = theBarrelGeometry_handle.product();
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  iSetup.get<IdealGeometryRecord>().get(eTTmap_);
+  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_ = iSetup.getHandle(eTTmapToken_);
 
   map<EcalTrigTowerDetId, float> mapTow_Et;
 
@@ -199,8 +196,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     mapTow_Et.insert(pair<EcalTrigTowerDetId, float>(towid1, Etsum));
   }
 
-  EcalTPGScale ecalScale;
-  ecalScale.setEventSetup(iSetup);
+  EcalTPGScale ecalScale(tokens_, iSetup);
   for (unsigned int i = 0; i < tp.product()->size(); i++) {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid = d.id();

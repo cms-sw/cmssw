@@ -21,7 +21,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 //
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -30,8 +29,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 //
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 //
@@ -73,11 +70,8 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 //
 //
@@ -98,7 +92,11 @@
 
 using namespace std;
 
-TkConvValidator::TkConvValidator(const edm::ParameterSet& pset) {
+TkConvValidator::TkConvValidator(const edm::ParameterSet& pset)
+    : magneticFieldToken_{esConsumes<edm::Transition::BeginRun>()},
+      caloGeometryToken_{esConsumes()},
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
+      trackerGeometryToken_{esConsumes()} {
   fName_ = pset.getUntrackedParameter<std::string>("Name");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
   parameters_ = pset;
@@ -145,7 +143,7 @@ TkConvValidator::TkConvValidator(const edm::ParameterSet& pset) {
 
 TkConvValidator::~TkConvValidator() {}
 
-void TkConvValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& es) {
+void TkConvValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const&) {
   nEvt_ = 0;
   nEntry_ = 0;
   nRecConv_ = 0;
@@ -1229,14 +1227,12 @@ void TkConvValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field"
                                           << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
+  theMF_ = theEventSetup.getHandle(magneticFieldToken_);
 
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 }
 
-void TkConvValidator::endRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
-  delete thePhotonMCTruthFinder_;
-}
+void TkConvValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { delete thePhotonMCTruthFinder_; }
 
 void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   thePhotonMCTruthFinder_->clear();
@@ -1259,11 +1255,10 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   //  std::cout << "TkConvValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
   // get the geometry from the event setup:
-  esup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = esup.getHandle(caloGeometryToken_);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  edm::ESHandle<TransientTrackBuilder> theTTB;
-  esup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTB);
+  auto theTTB = esup.getHandle(transientTrackBuilderToken_);
 
   ///// Get the recontructed  conversions
   Handle<reco::ConversionCollection> convHandle;
@@ -1313,8 +1308,9 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   const reco::BeamSpot& thebs = *bsHandle.product();
 
   //get tracker geometry for hits positions
-  edm::ESHandle<TrackerGeometry> tracker;
-  esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  //edm::ESHandle<TrackerGeometry> tracker;
+  //esup.get<TrackerDigiGeometryRecord>().get(tracker);
+  auto tracker = esup.getHandle(trackerGeometryToken_);
   const TrackerGeometry* trackerGeom = tracker.product();
 
   //////////////////// Get the MC truth
@@ -1354,8 +1350,6 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   //edm::Handle<reco::GenJetCollection> GenJetsHandle;
   //e.getByToken(genjets_Token_, GenJetsHandle);
   //const reco::GenJetCollection &genJetCollection = *(GenJetsHandle.product());
-
-  ConversionHitChecker hitChecker;
 
   // ################  SIM to RECO ######################### //
   std::map<const reco::Track*, TrackingParticleRef> myAss;
@@ -1408,7 +1402,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
-      for (const TrackingParticleRef tp : tpForEfficiency) {
+      for (const TrackingParticleRef& tp : tpForEfficiency) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1645,12 +1639,11 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     const reco::Track refTk1 = aConv.conversionVertex().refittedTracks().front();
     const reco::Track refTk2 = aConv.conversionVertex().refittedTracks().back();
 
-    //TODO replace it with phi at vertex
-    float dPhiTracksAtVtx = aConv.dPhiTracksAtVtx();
+    float dPhiTracksAtVtx;
     // override with the phi calculated at the vertex
     math::XYZVector p1AtVtx = recalculateMomentumAtFittedVertex((*theMF_), *trackerGeom, tk1, aConv.conversionVertex());
     math::XYZVector p2AtVtx = recalculateMomentumAtFittedVertex((*theMF_), *trackerGeom, tk2, aConv.conversionVertex());
-    if (sqrt(p1AtVtx.perp2()) > sqrt(p2AtVtx.perp2()))
+    if (p1AtVtx.perp2() > p2AtVtx.perp2())
       dPhiTracksAtVtx = p1AtVtx.phi() - p2AtVtx.phi();
     else
       dPhiTracksAtVtx = p2AtVtx.phi() - p1AtVtx.phi();
@@ -1853,7 +1846,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     }
 
     bool associated = false;
-    float mcConvPt_ = -99999999;
+    float mcConvPt_ = -99999999.0;
     //    float mcPhi= 0; // unused
     float simPV_Z = 0;
     for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
@@ -1887,7 +1880,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         continue;
 
       theConvTP_.clear();
-      for (const TrackingParticleRef tp : tpForFakeRate) {
+      for (const TrackingParticleRef& tp : tpForFakeRate) {
         if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
             fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
           theConvTP_.push_back(tp);
@@ -1976,7 +1969,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
           continue;
 
         theConvTP_.clear();
-        for (TrackingParticleRef tp : tpForFakeRate) {
+        for (const TrackingParticleRef& tp : tpForFakeRate) {
           if (fabs(tp->vx() - (*mcPho).vertex().x()) < 0.0001 && fabs(tp->vy() - (*mcPho).vertex().y()) < 0.0001 &&
               fabs(tp->vz() - (*mcPho).vertex().z()) < 0.0001) {
             theConvTP_.push_back(tp);

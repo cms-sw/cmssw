@@ -68,7 +68,6 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TString.h"
 
 class GlobalHitsHistogrammer : public DQMEDAnalyzer {

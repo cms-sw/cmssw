@@ -11,7 +11,7 @@
   <Constant name="NumberOfCellsCoarse"   value="[hgcal:NumberOfCellsCoarse]"/>
 </ConstantsSection>
 
-<PosPartSection label="hgcalcell.xml">
+<PosPartSection label="hgcalcell.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"    value="[WaferSize]"/>

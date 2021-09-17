@@ -11,6 +11,13 @@
 // user include files
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -21,18 +28,12 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/MuonDetId/interface/ME0DetId.h"
-
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
-
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
-MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
+MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
+    : geomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
+      propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
 
   produces<reco::MuonCollection>();
@@ -48,9 +49,11 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
   addExtraSoftMuons_ = iConfig.getParameter<bool>("addExtraSoftMuons");
   maxAbsEta_ = iConfig.getParameter<double>("maxAbsEta");
   maxAbsDx_ = iConfig.getParameter<double>("maxAbsDx");
-  maxAbsPullX_ = iConfig.getParameter<double>("maxAbsPullX");
+  maxAbsPullX2_ = iConfig.getParameter<double>("maxAbsPullX");
+  maxAbsPullX2_ *= maxAbsPullX2_;
   maxAbsDy_ = iConfig.getParameter<double>("maxAbsDy");
-  maxAbsPullY_ = iConfig.getParameter<double>("maxAbsPullY");
+  maxAbsPullY2_ = iConfig.getParameter<double>("maxAbsPullY");
+  maxAbsPullY2_ *= maxAbsPullY2_;
   fillCaloCompatibility_ = iConfig.getParameter<bool>("fillCaloCompatibility");
   fillEnergy_ = iConfig.getParameter<bool>("fillEnergy");
   storeCrossedHcalRecHits_ = iConfig.getParameter<bool>("storeCrossedHcalRecHits");
@@ -86,6 +89,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
   if (fillShowerDigis_ && fillMatching_) {
     edm::ParameterSet showerDigiParameters = iConfig.getParameter<edm::ParameterSet>("ShowerDigiFillerParameters");
     theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>(showerDigiParameters, consumesCollector());
+  } else {
+    theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>();  // to be used to call fillDefault only
   }
 
   if (fillCaloCompatibility_) {
@@ -98,18 +103,18 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
     // Load MuIsoExtractor parameters
     edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorCalo_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(caloExtractorName, caloExtractorPSet, consumesCollector())};
+    muIsoExtractorCalo_ =
+        IsoDepositExtractorFactory::get()->create(caloExtractorName, caloExtractorPSet, consumesCollector());
 
     edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
     std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorTrack_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(trackExtractorName, trackExtractorPSet, consumesCollector())};
+    muIsoExtractorTrack_ =
+        IsoDepositExtractorFactory::get()->create(trackExtractorName, trackExtractorPSet, consumesCollector());
 
     edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
     std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-    muIsoExtractorJet_ = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-        IsoDepositExtractorFactory::get()->create(jetExtractorName, jetExtractorPSet, consumesCollector())};
+    muIsoExtractorJet_ =
+        IsoDepositExtractorFactory::get()->create(jetExtractorName, jetExtractorPSet, consumesCollector());
   }
   if (fillIsolation_ && writeIsoDeposits_) {
     trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
@@ -146,7 +151,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig) {
 
   if (fillTrackerKink_) {
     trackerKinkFinder_ =
-        std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"));
+        std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"), iC);
   }
 
   //create mesh holder
@@ -195,9 +200,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   pickyCollectionHandle_.clear();
   dytCollectionHandle_.clear();
 
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  trackAssociator_.setPropagator(propagator.product());
+  trackAssociator_.setPropagator(&iSetup.getData(propagatorToken_));
 
   if (fillTrackerKink_)
     trackerKinkFinder_->init(iSetup);
@@ -411,10 +414,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track) {
 }
 
 void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CSCGeometry> geomHandle;
-  iSetup.get<MuonGeometryRecord>().get(geomHandle);
-
-  meshAlgo_->setCSCGeometry(geomHandle.product());
+  meshAlgo_->setCSCGeometry(&iSetup.getData(geomTokenRun_));
 
   if (fillShowerDigis_ && fillMatching_)
     theShowerDigiFiller_->getES(iSetup);
@@ -445,7 +445,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // muons first - no cleaning, take as is.
   if (muonCollectionHandle_.isValid()) {
-    for (const auto muon : *muonCollectionHandle_) {
+    for (const auto& muon : *muonCollectionHandle_) {
       outputMuons->push_back(muon);
     }
   }
@@ -506,7 +506,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         continue;
       // check if this muon is already in the list
       bool newMuon = true;
-      for (auto muon : *outputMuons) {
+      for (const auto& muon : *outputMuons) {
         if (muon.track() == iLink.trackerTrack() && muon.standAloneMuon() == iLink.standAloneTrack() &&
             muon.combinedMuon() == iLink.globalTrack()) {
           newMuon = false;
@@ -567,7 +567,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         for (auto& muon : *outputMuons) {
           if (muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
-              cos(phiOfMuonIneteractionRegion(muon) - phiOfMuonIneteractionRegion(trackerMuon)) > 0) {
+              std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), phiOfMuonInteractionRegion(trackerMuon))) <
+                  M_PI_2) {
             newMuon = false;
             muon.setMatches(trackerMuon.matches());
             if (trackerMuon.isTimeValid())
@@ -668,7 +669,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       // predict direction based on the muon interaction region location
       // if it's available
       if (muon.isStandAloneMuon()) {
-        if (cos(phiOfMuonIneteractionRegion(muon) - muon.phi()) > 0) {
+        if (std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), muon.phi())) < M_PI_2) {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::InsideOut);
         } else {
           fillMuonId(iEvent, iSetup, muon, TrackDetectorAssociator::OutsideIn);
@@ -683,7 +684,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       // Fill global quality information
       fillGlbQuality(iEvent, iSetup, muon);
     }
-    LogDebug("MuonIdentification");
+    LogDebug("MuonIdentification") << "";
 
     if (fillTrackerKink_) {
       fillTrackerKink(muon);
@@ -863,7 +864,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   std::vector<reco::MuonChamberMatch> muonChamberMatches;
   unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
   for (const auto& chamber : info.chambers) {
-    if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid())
+    if (chamber.id.subdetId() == MuonSubdetId::RPC && rpcHitHandle_.isValid())
       continue;  // Skip RPC chambers, they are taken care of below)
     reco::MuonChamberMatch matchedChamber;
 
@@ -889,7 +890,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
     matchedChamber.id = chamber.id;
 
-    if (fillShowerDigis_) {
+    if (fillShowerDigis_ && fillMatching_) {
       theShowerDigiFiller_->fill(matchedChamber);
     } else {
       theShowerDigiFiller_->fillDefault(matchedChamber);
@@ -928,21 +929,29 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
                                      << ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
       const double matchedSegChDx = std::abs(matchedSegment.x - matchedChamber.x);
       const double matchedSegChDy = std::abs(matchedSegment.y - matchedChamber.y);
-      const double matchedSegChPullX = matchedSegChDx / std::hypot(matchedSegment.xErr, matchedChamber.xErr);
-      const double matchedSegChPullY = matchedSegChDy / std::hypot(matchedSegment.yErr, matchedChamber.yErr);
       if (matchedSegment.xErr > 0 && matchedChamber.xErr > 0)
-        LogTrace("MuonIdentification") << " xpull: " << matchedSegChPullX;
+        LogTrace("MuonIdentification") << " xpull: "
+                                       << matchedSegChDx / std::sqrt(std::pow(matchedSegment.xErr, 2) +
+                                                                     std::pow(matchedChamber.xErr, 2));
       if (matchedSegment.yErr > 0 && matchedChamber.yErr > 0)
-        LogTrace("MuonIdentification") << " ypull: " << matchedSegChPullY;
+        LogTrace("MuonIdentification") << " ypull: "
+                                       << matchedSegChDy / std::sqrt(std::pow(matchedSegment.yErr, 2) +
+                                                                     std::pow(matchedChamber.yErr, 2));
 
       if (matchedSegChDx < maxAbsDx_)
         matchedX = true;
+      else if (matchedSegment.xErr > 0 && matchedChamber.xErr > 0) {
+        const double invMatchedSegChPullX2 = std::pow(matchedSegment.xErr, 2) + std::pow(matchedChamber.xErr, 2);
+        if (matchedSegChDx * matchedSegChDx < maxAbsPullX2_ * invMatchedSegChPullX2)
+          matchedX = true;
+      }
       if (matchedSegChDy < maxAbsDy_)
         matchedY = true;
-      if (matchedSegment.xErr > 0 && matchedChamber.xErr > 0 && matchedSegChPullX < maxAbsPullX_)
-        matchedX = true;
-      if (matchedSegment.yErr > 0 && matchedChamber.yErr > 0 && matchedSegChPullY < maxAbsPullY_)
-        matchedY = true;
+      else if (matchedSegment.yErr > 0 && matchedChamber.yErr > 0) {
+        const double invMatchedSegChPullY2 = std::pow(matchedSegment.yErr, 2) + std::pow(matchedChamber.yErr, 2);
+        if (matchedSegChDy * matchedSegChDy < maxAbsPullY2_ * invMatchedSegChPullY2)
+          matchedY = true;
+      }
       if (matchedX && matchedY) {
         if (matchedChamber.id.subdetId() == MuonSubdetId::ME0)
           matchedChamber.me0Matches.push_back(matchedSegment);
@@ -959,7 +968,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill RPC info";
   if (rpcHitHandle_.isValid()) {
     for (const auto& chamber : info.chambers) {
-      if (chamber.id.subdetId() != 3)
+      if (chamber.id.subdetId() != MuonSubdetId::RPC)
         continue;  // Consider RPC chambers only
       const auto& lErr = chamber.tState.localError();
       const auto& lPos = chamber.tState.localPosition();
@@ -998,7 +1007,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         rpcHitMatch.bx = rpcRecHit.BunchX();
 
         const double absDx = std::abs(rpcRecHit.localPosition().x() - chamber.tState.localPosition().x());
-        if (absDx <= 20 or absDx / sqrt(localError.xx()) <= 4)
+        if (absDx <= 20 or absDx * absDx <= 16 * localError.xx())
           matchedChamber.rpcMatches.push_back(rpcHitMatch);
       }
 
@@ -1300,7 +1309,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent,
 }
 
 reco::Muon MuonIdProducer::makeMuon(const reco::Track& track) {
-  const double energy = hypot(track.p(), 0.105658369);
+  const double energy = std::sqrt(track.p() * track.p() + 0.105658369 * 0.105658369);
   const math::XYZTLorentzVector p4(track.px(), track.py(), track.pz(), energy);
   return reco::Muon(track.charge(), p4, track.vertex());
 }
@@ -1325,7 +1334,7 @@ double MuonIdProducer::sectorPhi(const DetId& id) {
   return phi;
 }
 
-double MuonIdProducer::phiOfMuonIneteractionRegion(const reco::Muon& muon) const {
+double MuonIdProducer::phiOfMuonInteractionRegion(const reco::Muon& muon) const {
   if (muon.isStandAloneMuon())
     return muon.standAloneMuon()->innerPosition().phi();
   // the rest is tracker muon only

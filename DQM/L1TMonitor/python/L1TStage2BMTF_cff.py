@@ -39,7 +39,7 @@ l1tStage2BmtfSecond = l1tStage2Bmtf.clone()
 l1tStage2BmtfSecond.bmtfSource = cms.InputTag("bmtfDigis","BMTF2")
 l1tStage2BmtfSecond.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary")
 l1tStage2BmtfSecond.verbose = cms.untracked.bool(False)
-l1tStage2BmtfSecond.isBmtf = cms.untracked.bool(True)
+l1tStage2BmtfSecond.hasDisplacementInfo = cms.untracked.bool(True)
 
 # sequences
 l1tStage2BmtfOnlineDQMSeq = cms.Sequence(

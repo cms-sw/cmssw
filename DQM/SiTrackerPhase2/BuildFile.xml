@@ -1,0 +1,5 @@
+<use name="DataFormats/TrackerCommon"/>
+<use name="DQMServices/Core"/>
+<export>
+  <lib name="1"/>
+</export>

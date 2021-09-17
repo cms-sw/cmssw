@@ -21,11 +21,10 @@
 using namespace std;
 using namespace edm;
 
-MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet) {
+MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet)
+    : trasientTrackToken_(
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   parameters = pSet;
-
-  // the services
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
 
@@ -54,7 +53,7 @@ MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pS
   hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
   hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
 }
-MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() { delete theService; }
+MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() {}
 void MuonEnergyDepositAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                                edm::Run const& /*iRun*/,
                                                edm::EventSetup const& /* iSetup */) {
@@ -160,7 +159,6 @@ void MuonEnergyDepositAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogTrace(metname) << "[MuonEnergyDepositAnalyzer] Filling the histos";
-  theService->update(iSetup);
 
   // Take the muon container
   edm::Handle<reco::MuonCollection> muons;
@@ -212,8 +210,9 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
       hoS9DepEnergy->Fill(muEnergy.hoS9);
 
     // plot for energy tests
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+
+    theB = iSetup.getHandle(trasientTrackToken_);
+
     reco::TransientTrack TransTrack;
 
     if (recoMu->isGlobalMuon())

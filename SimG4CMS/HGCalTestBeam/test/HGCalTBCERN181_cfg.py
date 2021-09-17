@@ -25,9 +25,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('HcalSim')
-    process.MessageLogger.categories.append('HcalTB06BeamSD')
+    process.MessageLogger.HGCSim=dict()
+    process.MessageLogger.HcalSim=dict()
+    process.MessageLogger.HcalTB06BeamSD=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -75,6 +75,10 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

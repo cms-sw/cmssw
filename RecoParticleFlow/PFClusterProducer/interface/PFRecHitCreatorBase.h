@@ -23,11 +23,11 @@
 class PFRecHitCreatorBase {
 public:
   PFRecHitCreatorBase() {}
-  PFRecHitCreatorBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) {
+  PFRecHitCreatorBase(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     std::vector<edm::ParameterSet> qTests = iConfig.getParameter<std::vector<edm::ParameterSet> >("qualityTests");
     for (auto& qTest : qTests) {
       std::string name = qTest.getParameter<std::string>("name");
-      qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name, qTest));
+      qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name, qTest, cc));
     }
   }
   virtual ~PFRecHitCreatorBase() = default;

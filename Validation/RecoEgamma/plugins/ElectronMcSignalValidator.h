@@ -32,6 +32,7 @@ public:
 private:
   edm::EDGetTokenT<reco::GenParticleCollection> mcTruthCollection_;           // genParticles
   edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;          // gedGsfElectrons
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionEndcaps_;   // gedGsfElectrons
   edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;  // gedGsfElectronCore
   edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
@@ -57,7 +58,7 @@ private:
 
   double maxPt_;
   double maxAbsEta_;
-  double deltaR_, deltaR2_;
+  double deltaR2_;
   std::vector<int> matchingIDs_;
   std::vector<int> matchingMotherIDs_;
   std::string inputFile_;
@@ -118,6 +119,21 @@ private:
   double enerror_max;
   bool set_EfficiencyFlag;
   bool set_StatOverflowFlag;
+  int opv_nbin;
+  double opv_min;
+  double opv_max;
+  int ele_nbin;
+  double ele_min;
+  double ele_max;
+  int core_nbin;
+  double core_min;
+  double core_max;
+  int track_nbin;
+  double track_min;
+  double track_max;
+  int seed_nbin;
+  double seed_min;
+  double seed_max;
 
   // histos
 
@@ -163,11 +179,7 @@ private:
   MonitorElement *h1_ele_EseedOP_all_barrel;
   MonitorElement *h1_ele_EseedOP_all_endcaps;
   MonitorElement *h1_ele_EoPout_all;
-  MonitorElement *h1_ele_EoPout_all_barrel;
-  MonitorElement *h1_ele_EoPout_all_endcaps;
   MonitorElement *h1_ele_EeleOPout_all;
-  MonitorElement *h1_ele_EeleOPout_all_barrel;
-  MonitorElement *h1_ele_EeleOPout_all_endcaps;
   MonitorElement *h1_ele_dEtaSc_propVtx_all;
   MonitorElement *h1_ele_dEtaSc_propVtx_all_barrel;
   MonitorElement *h1_ele_dEtaSc_propVtx_all_endcaps;
@@ -252,7 +264,6 @@ private:
   MonitorElement *h2_scl_EtaVsPhi;
   MonitorElement *h1_scl_Eta;
   MonitorElement *h1_scl_Phi;
-  //    MonitorElement *h1_scl_ESFrac;
   MonitorElement *h1_scl_ESFrac_endcaps;
 
   MonitorElement *h2_scl_EoEtruePfVsEg;

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "SeedForPhotonConversion1Leg.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
@@ -22,7 +23,7 @@
 #include "CombinedHitPairGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
-#include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <sstream>

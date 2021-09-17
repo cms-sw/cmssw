@@ -1,5 +1,7 @@
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMOffline/CalibTracker/plugins/SiStripDQMPopConSourceHandler.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 class FedChannelConnection;
 class SiStripFedCabling;
 
@@ -11,7 +13,10 @@ class SiStripFedCabling;
 */
 class SiStripPopConFEDErrorsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip> {
 public:
-  explicit SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig);
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
+  explicit SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   ~SiStripPopConFEDErrorsHandlerFromDQM() override;
   // interface methods: implemented in template
   void initES(const edm::EventSetup& iSetup) override;
@@ -36,30 +41,26 @@ private:
   void addErrors();
 
 private:
-  edm::FileInPath fp_;
   double threshold_;
   unsigned int debug_;
-  uint32_t cablingCacheId_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
   const SiStripFedCabling* cabling_;
   SiStripBadStrip obj_;
   std::map<uint32_t, std::vector<unsigned int> > detIdErrors_;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-SiStripPopConFEDErrorsHandlerFromDQM::SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig)
+SiStripPopConFEDErrorsHandlerFromDQM::SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig,
+                                                                           edm::ConsumesCollector&& iC)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),
-      fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
       threshold_(iConfig.getUntrackedParameter<double>("Threshold", 0)),
       debug_(iConfig.getUntrackedParameter<unsigned int>("Debug", 0)),
-      cablingCacheId_(0) {
+      fedCablingToken_(iC.esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()) {
   edm::LogInfo("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::SiStripFEDErrorsDQM()]";
 }
 
@@ -68,19 +69,13 @@ SiStripPopConFEDErrorsHandlerFromDQM::~SiStripPopConFEDErrorsHandlerFromDQM() {
 }
 
 void SiStripPopConFEDErrorsHandlerFromDQM::initES(const edm::EventSetup& iSetup) {
-  uint32_t currentCacheId = iSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    iSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
+  if (fedCablingWatcher_.check(iSetup)) {
+    cabling_ = &iSetup.getData(fedCablingToken_);
   }
 }
 
 void SiStripPopConFEDErrorsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& getter) {
   obj_ = SiStripBadStrip();
-
-  SiStripDetInfoFileReader lReader(fp_.fullPath());
 
   std::ostringstream lPath;
   lPath << "Run " << getRunNumber() << "/SiStrip/Run summary/ReadoutView/";
@@ -407,6 +402,7 @@ void SiStripPopConFEDErrorsHandlerFromDQM::addErrors() {
     //encode the new flag
     std::vector<unsigned int> lStripVector;
     const unsigned short lConsecutiveBadStrips = 128;
+    lStripVector.reserve(lAPVMap.size());
     for (const auto& lIter : lAPVMap) {
       lStripVector.push_back(obj_.encode(lIter.first, lConsecutiveBadStrips, lIter.second));
     }

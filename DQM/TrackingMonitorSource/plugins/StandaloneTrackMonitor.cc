@@ -1,7 +1,20 @@
-#include "TFile.h"
-#include "TH1.h"
-#include "TMath.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -9,7 +22,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TPRegexp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -17,9 +29,133 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DQM/TrackingMonitorSource/interface/StandaloneTrackMonitor.h"
+
+#include "TFile.h"
+#include "TH1.h"
+#include "TMath.h"
+#include "TPRegexp.h"
+
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+
+class StandaloneTrackMonitor : public DQMEDAnalyzer {
+public:
+  StandaloneTrackMonitor(const edm::ParameterSet&);
+
+protected:
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, double wfac = 1);
+  void processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, double wfac = 1);
+  void addClusterToMap(uint32_t detid, const SiStripCluster* cluster);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+
+private:
+  edm::ParameterSet parameters_;
+
+  std::string moduleName_;
+  std::string folderName_;
+  const edm::InputTag trackTag_;
+  const edm::InputTag bsTag_;
+  const edm::InputTag vertexTag_;
+  const edm::InputTag puSummaryTag_;
+  const edm::InputTag clusterTag_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puSummaryToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
+
+  const std::string trackQuality_;
+  SiStripClusterInfo siStripClusterInfo_;
+  const bool doPUCorrection_;
+  const bool isMC_;
+  const bool haveAllHistograms_;
+  const std::string puScaleFactorFile_;
+  const bool verbose_;
+
+  MonitorElement* trackEtaH_;
+  MonitorElement* trackEtaerrH_;
+  MonitorElement* trackCosThetaH_;
+  MonitorElement* trackThetaerrH_;
+  MonitorElement* trackPhiH_;
+  MonitorElement* trackPhierrH_;
+  MonitorElement* trackPH_;
+  MonitorElement* trackPtH_;
+  MonitorElement* trackPtUpto2GeVH_;
+  MonitorElement* trackPtOver10GeVH_;
+  MonitorElement* trackPterrH_;
+  MonitorElement* trackqOverpH_;
+  MonitorElement* trackqOverperrH_;
+  MonitorElement* trackChargeH_;
+  MonitorElement* trackChi2H_;
+  MonitorElement* tracknDOFH_;
+  MonitorElement* trackd0H_;
+  MonitorElement* trackChi2bynDOFH_;
+
+  MonitorElement* nlostHitsH_;
+  MonitorElement* nvalidTrackerHitsH_;
+  MonitorElement* nvalidPixelHitsH_;
+  MonitorElement* nvalidStripHitsH_;
+  MonitorElement* trkLayerwithMeasurementH_;
+  MonitorElement* pixelLayerwithMeasurementH_;
+  MonitorElement* stripLayerwithMeasurementH_;
+
+  MonitorElement* beamSpotXYposH_;
+  MonitorElement* beamSpotXYposerrH_;
+  MonitorElement* beamSpotZposH_;
+  MonitorElement* beamSpotZposerrH_;
+
+  MonitorElement* vertexXposH_;
+  MonitorElement* vertexYposH_;
+  MonitorElement* vertexZposH_;
+  MonitorElement* nVertexH_;
+
+  MonitorElement* nPixBarrelH_;
+  MonitorElement* nPixEndcapH_;
+  MonitorElement* nStripTIBH_;
+  MonitorElement* nStripTOBH_;
+  MonitorElement* nStripTECH_;
+  MonitorElement* nStripTIDH_;
+  MonitorElement* nTracksH_;
+
+  // MC only
+  MonitorElement* bunchCrossingH_;
+  MonitorElement* nPUH_;
+  MonitorElement* trueNIntH_;
+
+  // Exclusive Quantities
+  MonitorElement* nHitsVspTH_;
+  MonitorElement* nHitsVsnVtxH_;
+  MonitorElement* nHitsVsEtaH_;
+  MonitorElement* nHitsVsCosThetaH_;
+  MonitorElement* nHitsVsPhiH_;
+  MonitorElement* nLostHitsVspTH_;
+  MonitorElement* nLostHitsVsEtaH_;
+  MonitorElement* nLostHitsVsCosThetaH_;
+  MonitorElement* nLostHitsVsPhiH_;
+
+  MonitorElement* hOnTrkClusChargeThinH_;
+  MonitorElement* hOnTrkClusWidthThinH_;
+  MonitorElement* hOnTrkClusChargeThickH_;
+  MonitorElement* hOnTrkClusWidthThickH_;
+
+  MonitorElement* hOffTrkClusChargeThinH_;
+  MonitorElement* hOffTrkClusWidthThinH_;
+  MonitorElement* hOffTrkClusChargeThickH_;
+  MonitorElement* hOffTrkClusWidthThickH_;
+
+  unsigned long long m_cacheID_;
+
+  std::vector<float> vpu_;
+  std::map<uint32_t, std::set<const SiStripCluster*> > clusterMap_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+};
+
 // -----------------------------
 // constructors and destructor
 // -----------------------------
@@ -39,12 +175,14 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       puSummaryToken_(consumes<std::vector<PileupSummaryInfo> >(puSummaryTag_)),
       clusterToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(clusterTag_)),
       trackQuality_(parameters_.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
+      siStripClusterInfo_(consumesCollector()),
       doPUCorrection_(parameters_.getUntrackedParameter<bool>("doPUCorrection", false)),
       isMC_(parameters_.getUntrackedParameter<bool>("isMC", false)),
       haveAllHistograms_(parameters_.getUntrackedParameter<bool>("haveAllHistograms", false)),
       puScaleFactorFile_(
           parameters_.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor_run203002.root")),
-      verbose_(parameters_.getUntrackedParameter<bool>("verbose", false)) {
+      verbose_(parameters_.getUntrackedParameter<bool>("verbose", false)),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   trackEtaH_ = nullptr;
   trackEtaerrH_ = nullptr;
   trackCosThetaH_ = nullptr;
@@ -121,6 +259,10 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       vpu_.push_back(h1->GetBinContent(i));
     f1->Close();
   }
+}
+
+void StandaloneTrackMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  tkGeom_ = &(iSetup.getData(geomToken_));
 }
 
 void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& iBook,
@@ -319,9 +461,8 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& iBook,
 }
 void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry& tkGeom = (*geomHandle);
+
+  siStripClusterInfo_.initEvent(iSetup);
 
   // Primary vertex collection
   edm::Handle<reco::VertexCollection> vertexColl;
@@ -489,7 +630,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
               ++nStripTID;
 
             // Find on-track clusters
-            processHit(hit, iSetup, tkGeom, wfac);
+            processHit(hit, iSetup, wfac);
           }
         }
       }
@@ -513,12 +654,9 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
     nTracksH_->Fill(ntracks);
 
   // off track cluster properties
-  processClusters(iEvent, iSetup, tkGeom, wfac);
+  processClusters(iEvent, iSetup, wfac);
 }
-void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
-                                             edm::EventSetup const& iSetup,
-                                             const TrackerGeometry& tkGeom,
-                                             double wfac) {
+void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, double wfac) {
   // SiStripClusters
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
   iEvent.getByToken(clusterToken_, clusterHandle);
@@ -540,11 +678,11 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
             continue;
         }
 
-        SiStripClusterInfo info(*clusit, iSetup, detId);
-        float charge = info.charge();
-        float width = info.width();
+        siStripClusterInfo_.setCluster(*clusit, detId);
+        float charge = siStripClusterInfo_.charge();
+        float width = siStripClusterInfo_.width();
 
-        const GeomDetUnit* detUnit = tkGeom.idToDetUnit(detId);
+        const GeomDetUnit* detUnit = tkGeom_->idToDetUnit(detId);
         float thickness = detUnit->surface().bounds().thickness();  // unit cm
         if (thickness > 0.035) {
           hOffTrkClusChargeThickH_->Fill(charge, wfac);
@@ -559,12 +697,9 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
     edm::LogError("StandaloneTrackMonitor") << "ClusterCollection " << clusterTag_ << " not valid!!" << std::endl;
   }
 }
-void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
-                                        edm::EventSetup const& iSetup,
-                                        const TrackerGeometry& tkGeom,
-                                        double wfac) {
+void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, double wfac) {
   uint32_t detid = recHit.geographicalId();
-  const GeomDetUnit* detUnit = tkGeom.idToDetUnit(detid);
+  const GeomDetUnit* detUnit = tkGeom_->idToDetUnit(detid);
   float thickness = detUnit->surface().bounds().thickness();  // unit cm
 
   auto const& thit = static_cast<BaseTrackerRecHit const&>(recHit);
@@ -581,35 +716,35 @@ void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
     const SiStripMatchedRecHit2D& matchedHit = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
 
     auto& clusterM = matchedHit.monoCluster();
-    SiStripClusterInfo infoM(clusterM, iSetup, detid);
+    siStripClusterInfo_.setCluster(clusterM, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(infoM.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(infoM.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(infoM.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(infoM.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &clusterM);
 
     auto& clusterS = matchedHit.stereoCluster();
-    SiStripClusterInfo infoS(clusterS, iSetup, detid);
+    siStripClusterInfo_.setCluster(clusterS, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(infoS.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(infoS.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(infoS.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(infoS.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &clusterS);
   } else {
     auto& cluster = clus.stripCluster();
-    SiStripClusterInfo info(cluster, iSetup, detid);
+    siStripClusterInfo_.setCluster(cluster, detid);
     if (thickness > 0.035) {
-      hOnTrkClusChargeThickH_->Fill(info.charge(), wfac);
-      hOnTrkClusWidthThickH_->Fill(info.width(), wfac);
+      hOnTrkClusChargeThickH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThickH_->Fill(siStripClusterInfo_.width(), wfac);
     } else {
-      hOnTrkClusChargeThinH_->Fill(info.charge(), wfac);
-      hOnTrkClusWidthThinH_->Fill(info.width(), wfac);
+      hOnTrkClusChargeThinH_->Fill(siStripClusterInfo_.charge(), wfac);
+      hOnTrkClusWidthThinH_->Fill(siStripClusterInfo_.width(), wfac);
     }
     addClusterToMap(detid, &cluster);
   }

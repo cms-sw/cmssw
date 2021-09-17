@@ -96,7 +96,7 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterSource                            1        1
+    1 FwkReport            -f AfterSource                            1        1
     2 cat_A                -e UnitTestClient_R                   10000*   10000
     3 cat_B                -e UnitTestClient_R                   10000*   10000
 
@@ -110,7 +110,7 @@ MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                    1                   1
+FwkInfo                 1                   1
 Error               20000               20000
 
 dropped waiting message count 0

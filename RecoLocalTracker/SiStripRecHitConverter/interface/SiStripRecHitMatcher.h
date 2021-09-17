@@ -18,9 +18,8 @@
 class GluedGeomDet;
 
 #include <cfloat>
+#include <functional>
 #include <memory>
-
-#include <boost/function.hpp>
 
 class SiStripRecHitMatcher {
 public:
@@ -31,7 +30,7 @@ public:
   typedef std::vector<const SiStripRecHit2D*> SimpleHitCollection;
   typedef SimpleHitCollection::const_iterator SimpleHitIterator;
 
-  typedef boost::function<void(SiStripMatchedRecHit2D const&)> Collector;
+  typedef std::function<void(SiStripMatchedRecHit2D const&)> Collector;
 
   typedef std::pair<LocalPoint, LocalPoint> StripPosition;
 

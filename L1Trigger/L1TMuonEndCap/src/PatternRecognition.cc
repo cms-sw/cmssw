@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 #include "helper.h"  // to_hex, to_binary
 
@@ -34,6 +35,8 @@ void PatternRecognition::configure(int verbose,
 }
 
 void PatternRecognition::configure_details() {
+  emtf_assert(1 <= bxWindow_ && bxWindow_ <= 3);  // only work for BX windows <= 3
+
   patterns_.clear();
 
   // Parse pattern definitions
@@ -41,11 +44,7 @@ void PatternRecognition::configure_details() {
     // Normal patterns
     for (const auto& s : pattDefinitions_) {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
-      if (not(tokens.size() == 9))                                         // want to find 9 numbers
-      {
-        edm::LogError("L1T") << "tokens.size() = " << tokens.size();
-        return;
-      }
+      emtf_assert(tokens.size() == 9);                                     // want to find 9 numbers
 
       std::vector<std::string>::const_iterator tokens_it = tokens.begin();
 
@@ -63,11 +62,7 @@ void PatternRecognition::configure_details() {
 
       // There can only be one zone hit in the key station in the pattern
       // and it has to be this magic number
-      if (not(st2_max == padding_w_st3 && st2_min == padding_w_st3)) {
-        edm::LogError("L1T") << "st2_max = " << st2_max << ", padding_w_st3 = " << padding_w_st3
-                             << ", st2_min = " << st2_min << ", padding_w_st3 = " << padding_w_st3;
-        return;
-      }
+      emtf_assert(st2_max == padding_w_st3 && st2_min == padding_w_st3);
 
       // There is extra "padding" in st1 w.r.t st2,3,4
       // Add the extra padding to st2,3,4
@@ -96,21 +91,13 @@ void PatternRecognition::configure_details() {
       pattern.rotr(padding_extra_w_st1);
       patterns_.push_back(pattern);
     }
-    if (not(patterns_.size() == pattDefinitions_.size())) {
-      edm::LogError("L1T") << "patterns_.size() = " << patterns_.size()
-                           << ", pattDefinitions_.size() = " << pattDefinitions_.size();
-      return;
-    }
+    emtf_assert(patterns_.size() == pattDefinitions_.size());
 
   } else {
     // Symmetrical patterns
     for (const auto& s : symPattDefinitions_) {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
-      if (not(tokens.size() == 17))                                        // want to find 17 numbers
-      {
-        edm::LogError("L1T") << "tokens.size() = " << tokens.size();
-        return;
-      }
+      emtf_assert(tokens.size() == 17);                                    // want to find 17 numbers
 
       std::vector<std::string>::const_iterator tokens_it = tokens.begin();
 
@@ -136,16 +123,8 @@ void PatternRecognition::configure_details() {
 
       // There can only be one zone hit in the key station in the pattern
       // and it has to be this magic number
-      if (not(st2_max1 == padding_w_st3 && st2_min1 == padding_w_st3)) {
-        edm::LogError("L1T") << "st2_max1 = " << st2_max1 << ", padding_w_st3 = " << padding_w_st3
-                             << ", st2_min1 = " << st2_min1 << ", padding_w_st3 = " << padding_w_st3;
-        return;
-      }
-      if (not(st2_max2 == padding_w_st3 && st2_min2 == padding_w_st3)) {
-        edm::LogError("L1T") << "st2_max2 = " << st2_max2 << ", padding_w_st3 = " << padding_w_st3
-                             << ", st2_min2 = " << st2_min2 << ", padding_w_st3 = " << padding_w_st3;
-        return;
-      }
+      emtf_assert(st2_max1 == padding_w_st3 && st2_min1 == padding_w_st3);
+      emtf_assert(st2_max2 == padding_w_st3 && st2_min2 == padding_w_st3);
 
       // There is extra "padding" in st1 w.r.t st2,3,4
       // Add the extra padding to st2,3,4
@@ -188,11 +167,7 @@ void PatternRecognition::configure_details() {
       pattern.rotr(padding_extra_w_st1);
       patterns_.push_back(pattern);
     }
-    if (not(patterns_.size() == symPattDefinitions_.size())) {
-      edm::LogError("L1T") << "patterns_.size() = " << patterns_.size()
-                           << ", symPattDefinitions_.size() = " << symPattDefinitions_.size();
-      return;
-    }
+    emtf_assert(patterns_.size() == symPattDefinitions_.size());
   }
 
   if (verbose_ > 2) {  // debug
@@ -218,11 +193,10 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
   if (verbose_ > 0) {  // debug
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
+        if (conv_hit.Subsystem() == L1TMuon::kCSC) {
           std::cout << "CSC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
-                    << " ph_hit: " << (1ul << conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
-                    << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
+                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
+                    << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
                     << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
                     << " bx: " << conv_hit.BX() << std::endl;
         }
@@ -231,7 +205,7 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
 
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kRPC) {
+        if (conv_hit.Subsystem() == L1TMuon::kRPC) {
           std::cout << "RPC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
                     << " ph>>2: " << (conv_hit.Phi_fp() >> 2) << " th>>2: " << (conv_hit.Theta_fp() >> 2)
                     << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
@@ -242,7 +216,7 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
 
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
-        if (conv_hit.Subsystem() == TriggerPrimitive::kGEM) {
+        if (conv_hit.Subsystem() == L1TMuon::kGEM) {
           std::cout << "GEM hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
                     << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
                     << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern() << " bx: " << conv_hit.BX()
@@ -308,16 +282,13 @@ bool PatternRecognition::is_zone_empty(int zone,
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
-      if (not(conv_hits_it->PC_segment() <= 4))  // With 2 unique LCTs per chamber, 4 possible strip/wire combinations
-      {
-        edm::LogError("L1T") << "conv_hits_it->PC_segment() = " << conv_hits_it->PC_segment();
-        return true;
-      }
+      emtf_assert(conv_hits_it->PC_segment() <=
+                  4);  // With 2 unique LCTs per chamber, 4 possible strip/wire combinations
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
+      if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
         continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
@@ -351,10 +322,10 @@ void PatternRecognition::make_zone_image(int zone,
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
+      if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == TriggerPrimitive::kGEM)
+      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
         continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
@@ -431,12 +402,6 @@ void PatternRecognition::process_single_zone(int zone,
             is_lifetime_up = true;
           } else if (drift_time == 0) {
             is_lifetime_up = true;
-          } else {
-            // The bx_shifter keeps track of a number of booleans from BX 0, 1, ..., drift_time.
-            if (not(drift_time == 2 || drift_time == 1 || drift_time == 0)) {
-              edm::LogError("L1T") << "drift_time = " << drift_time << ", not 0 or 1 or 2";
-              return;
-            }
           }
 
           bx2 = bx1;
@@ -479,7 +444,7 @@ void PatternRecognition::process_single_zone(int zone,
         // Find max quality code in a given key_zhit
         if (max_quality_code < quality_code) {
           max_quality_code = quality_code;
-          tmp_road = std::move(road);
+          tmp_road = road;
         }
       }  // end if is_lifetime_up
 
@@ -560,10 +525,7 @@ void PatternRecognition::sort_single_zone(EMTFRoadCollection& roads) const {
   if (roads.size() > n) {
     roads.erase(roads.begin() + n, roads.end());
   }
-  if (not(roads.size() <= n)) {
-    edm::LogError("L1T") << "roads.size() = " << roads.size() << ", n = " << n;
-    return;
-  }
+  emtf_assert(roads.size() <= n);
 
   // Assign the winner variable
   for (unsigned iroad = 0; iroad < roads.size(); ++iroad) {

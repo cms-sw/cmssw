@@ -23,7 +23,6 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -65,6 +64,9 @@ struct EVTColContainer;
 /// of all HLT paths related to that analysis.
 class HLTExoticaSubAnalysis {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   enum class Level { GEN = 98, RECO = 99 };
 
   HLTExoticaSubAnalysis(const edm::ParameterSet &pset,

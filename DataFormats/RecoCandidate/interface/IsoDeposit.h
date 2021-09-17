@@ -89,21 +89,21 @@ namespace reco {
     double depositWithin(double coneSize,               //dR in which deposit is computed
                          const Vetos& vetos = Vetos(),  //additional vetos
                          bool skipDepositVeto = false   //skip exclusion of veto
-                         ) const;
+    ) const;
 
     //! Get deposit wrt other direction
     double depositWithin(Direction dir,
                          double coneSize,               //dR in which deposit is computed
                          const Vetos& vetos = Vetos(),  //additional vetos
                          bool skipDepositVeto = false   //skip exclusion of veto
-                         ) const;
+    ) const;
 
     //! Get deposit
     std::pair<double, int> depositAndCountWithin(double coneSize,               //dR in which deposit is computed
                                                  const Vetos& vetos = Vetos(),  //additional vetos
                                                  double threshold = -1e+36,     //threshold on counted deposits
                                                  bool skipDepositVeto = false   //skip exclusion of veto
-                                                 ) const;
+    ) const;
 
     //! Get deposit wrt other direction
     std::pair<double, int> depositAndCountWithin(Direction dir,                 //wrt another direction
@@ -111,19 +111,19 @@ namespace reco {
                                                  const Vetos& vetos = Vetos(),  //additional vetos
                                                  double threshold = -1e+36,     //threshold on deposits
                                                  bool skipDepositVeto = false   //skip exclusion of veto
-                                                 ) const;
+    ) const;
 
     //! Get deposit with new style vetos
     double depositWithin(double coneSize,              //dR in which deposit is computed
                          const AbsVetos& vetos,        //additional vetos
                          bool skipDepositVeto = false  //skip exclusion of veto
-                         ) const;
+    ) const;
 
     //! Get deposit
     std::pair<double, int> depositAndCountWithin(double coneSize,              //dR in which deposit is computed
                                                  const AbsVetos& vetos,        //additional vetos
                                                  bool skipDepositVeto = false  //skip exclusion of veto
-                                                 ) const;
+    ) const;
 
     //! Get energy or pT attached to cand trajectory
     double candEnergy() const { return theCandTag; }
@@ -249,44 +249,44 @@ namespace reco {
     double algoWithin(double coneSize,                     //dR in which deposit is computed
                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
                       bool skipDepositVeto = false         //skip exclusion of veto
-                      ) const;
+    ) const;
     //! Get some info about the deposit (e.g. sum, max, sum2, count) w.r.t. other direction
     template <typename Algo>
     double algoWithin(const Direction&,
                       double coneSize,                     //dR in which deposit is computed
                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
                       bool skipDepositVeto = false         //skip exclusion of veto
-                      ) const;
+    ) const;
     // count of the non-vetoed deposits in the cone
     double countWithin(double coneSize,                     //dR in which deposit is computed
                        const AbsVetos& vetos = AbsVetos(),  //additional vetos
                        bool skipDepositVeto = false         //skip exclusion of veto
-                       ) const;
+    ) const;
     // sum of the non-vetoed deposits in the cone
     double sumWithin(double coneSize,                     //dR in which deposit is computed
                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
                      bool skipDepositVeto = false         //skip exclusion of veto
-                     ) const;
+    ) const;
     // sum of the non-vetoed deposits in the cone w.r.t. other direction
     double sumWithin(const Direction& dir,
                      double coneSize,                      //dR in which deposit is computed
                      const AbsVetos& vetos = AbsVetos(),   //additional vetos
                      bool skipDepositVeto = false          //skip exclusion of veto
-                     ) const;                              // sum of the squares of the non-vetoed deposits in the cone
+    ) const;                                               // sum of the squares of the non-vetoed deposits in the cone
     double sum2Within(double coneSize,                     //dR in which deposit is computed
                       const AbsVetos& vetos = AbsVetos(),  //additional vetos
                       bool skipDepositVeto = false         //skip exclusion of veto
-                      ) const;
+    ) const;
     // maximum value among the non-vetoed deposits in the cone
     double maxWithin(double coneSize,                     //dR in which deposit is computed
                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
                      bool skipDepositVeto = false         //skip exclusion of veto
-                     ) const;
+    ) const;
     // maximum value among the non-vetoed deposits in the cone
     double nearestDR(double coneSize,                     //dR in which deposit is computed
                      const AbsVetos& vetos = AbsVetos(),  //additional vetos
                      bool skipDepositVeto = false         //skip exclusion of veto
-                     ) const;
+    ) const;
 
   private:
     //! direcion of deposit (center of isolation cone)

@@ -10,7 +10,7 @@
    Description: <one line class summary>
 
    Usage:
-   <usage>
+   This class is not safe to use across different threads
 
 */
 //
@@ -35,6 +35,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -56,6 +57,9 @@ namespace fwlite {
     // at least as long as Run
     Run(TFile* iFile);
     Run(std::shared_ptr<BranchMapReader> branchMap);
+    Run(const Run&) = delete;                   // stop default
+    const Run& operator=(const Run&) = delete;  // stop default
+
     ~Run() override;
 
     const Run& operator++() override;
@@ -99,22 +103,19 @@ namespace fwlite {
     friend class internal::ProductGetter;
     friend class RunHistoryGetter;
 
-    Run(const Run&) = delete;  // stop default
-
-    const Run& operator=(const Run&) = delete;  // stop default
-
     const edm::ProcessHistory& history() const;
     void updateAux(Long_t runIndex) const;
 
     // ---------- member data --------------------------------
-    mutable std::shared_ptr<BranchMapReader> branchMap_;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::shared_ptr<BranchMapReader> branchMap_;
 
     //takes ownership of the strings used by the DataKey keys in data_
-    mutable std::vector<char const*> labels_;
-    mutable edm::ProcessHistoryMap historyMap_;
-    mutable std::vector<std::string> procHistoryNames_;
-    mutable edm::RunAuxiliary aux_;
-    mutable EntryFinder entryFinder_;
+    CMS_SA_ALLOW mutable std::vector<char const*> labels_;
+    CMS_SA_ALLOW mutable edm::ProcessHistoryMap historyMap_;
+    CMS_SA_ALLOW mutable std::vector<std::string> procHistoryNames_;
+    CMS_SA_ALLOW mutable edm::RunAuxiliary aux_;
+    CMS_SA_ALLOW mutable EntryFinder entryFinder_;
     edm::RunAuxiliary const* pAux_;
     edm::RunAux const* pOldAux_;
     TBranch* auxBranch_;

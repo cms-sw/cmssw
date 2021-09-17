@@ -18,10 +18,10 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/getRef.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
-#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/MatchedPartons.h"
+#include "DataFormats/JetMatching/interface/JetMatchedPartons.h"
 
 // system include files
 #include <memory>

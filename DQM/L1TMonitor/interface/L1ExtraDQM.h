@@ -64,15 +64,13 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1RetrieveL1Extra.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "boost/lexical_cast.hpp"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // forward declarations
 
 // class declaration
-class L1ExtraDQM : public DQMEDAnalyzer {
+class L1ExtraDQM : public DQMOneEDAnalyzer<> {
 public:
   // constructor(s)
   explicit L1ExtraDQM(const edm::ParameterSet&);
@@ -172,7 +170,7 @@ protected:
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
+  void dqmEndRun(const edm::Run& run, const edm::EventSetup& evSetup) override;
 
 private:
   /// input parameters

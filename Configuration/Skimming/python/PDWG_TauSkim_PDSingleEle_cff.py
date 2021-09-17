@@ -21,13 +21,16 @@ import L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff
 TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
    src = cms.InputTag("hpsPFTauProducer"),
    discriminators = cms.VPSet(
-	cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-		   selectionCut=cms.double(0.5)           
-	),
-   cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),
-		   selectionCut=cms.double(0.5)           
-	),
-
+      cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+         selectionCut=cms.double(0.5)           
+      )
+   ),
+   discriminatorContainers = cms.VPSet(
+      cms.PSet( discriminator=cms.InputTag("hpsPFTauBasicDiscriminators"),
+         rawValues=cms.vstring(),
+         selectionCuts=cms.vdouble(),
+         workingPoints=cms.vstring("ByLooseCombinedIsolationDBSumPtCorr3Hits")
+      )
    ),
    cut = cms.string('et > 15. && abs(eta) < 2.5') 
 )

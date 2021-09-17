@@ -46,7 +46,7 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
@@ -90,8 +90,13 @@ private:
   const bool doEEfilter_;
 
   // Channel status related
+
   edm::ESHandle<EcalChannelStatus> ecalStatus;
   edm::ESHandle<CaloGeometry> geometry;
+  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalStatusToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttmapToken_;
 
   void loadEcalDigis(edm::Event& iEvent, edm::Handle<EcalTrigPrimDigiCollection>& pTPDigis);
   void loadEcalRecHits(edm::Event& iEvent,
@@ -102,8 +107,6 @@ private:
   const edm::InputTag eeReducedRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionToken_;
-
-  edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
 
   const int maskedEcalChannelStatusThreshold_;
 
@@ -140,6 +143,7 @@ private:
   bool useHITmethod_ = false;
 
   edm::EDPutTokenT<bool> putToken_;
+  EcalTPGScale::Tokens tokens_;
 
   // Only for EB since the dead front-end has one-to-one map to TT
   std::map<EcalTrigTowerDetId, double> accuTTetMap;
@@ -168,6 +172,9 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
       debug_(iConfig.getParameter<bool>("debug")),
       verbose_(iConfig.getParameter<int>("verbose")),
       doEEfilter_(iConfig.getUntrackedParameter<bool>("doEEfilter")),
+      ecalStatusToken_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd, edm::Transition::BeginRun>()),
+      geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      ttmapToken_(esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord, edm::Transition::BeginRun>()),
       ebReducedRecHitCollection_(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
       eeReducedRecHitCollection_(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
       maskedEcalChannelStatusThreshold_(iConfig.getParameter<int>("maskedEcalChannelStatusThreshold")),
@@ -176,7 +183,8 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
       tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_)),
       useTTsum_(iConfig.getParameter<bool>("useTTsum")),
       usekTPSaturated_(iConfig.getParameter<bool>("usekTPSaturated")),
-      putToken_(produces<bool>()) {
+      putToken_(produces<bool>()),
+      tokens_(consumesCollector()) {
   callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
     // If TP is available, always use TP.
     // In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
@@ -244,11 +252,9 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent,
 void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
   if (debug_ && verbose_ >= 2)
     edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter") << "***envSet***";
-
-  iSetup.get<IdealGeometryRecord>().get(ttMap_);
-
-  iSetup.get<EcalChannelStatusRcd>().get(ecalStatus);
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  ecalStatus = iSetup.getHandle(ecalStatusToken_);
+  geometry = iSetup.getHandle(geomToken_);
+  ttMap_ = iSetup.getHandle(ttmapToken_);
 
   if (!ecalStatus.isValid())
     throw "Failed to get ECAL channel status!";
@@ -270,8 +276,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
     edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
     loadEcalDigis(iEvent, pTPDigis);
 
-    EcalTPGScale ecalScale;
-    ecalScale.setEventSetup(iSetup);
+    EcalTPGScale ecalScale(tokens_, iSetup);
     evtTagged = setEvtTPstatus(*pTPDigis, etValToBeFlagged_, 13, ecalScale);
   }
 

@@ -1,7 +1,6 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
-import six
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
 ## and replacing that to a given value
@@ -156,12 +155,13 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = [], addToTask = False, verbose = False):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
         self._noClones = noClones
         self._addToTask = addToTask
+        self._verbose = verbose
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
@@ -189,7 +189,7 @@ class CloneSequenceVisitor(object):
 
     def clonedSequence(self):
         for label in self._moduleLabels:
-            massSearchReplaceAnyInputTag(self._clonedSequence, label, self._newLabel(label), moduleLabelOnly=True, verbose=False)
+            massSearchReplaceAnyInputTag(self._clonedSequence, label, self._newLabel(label), moduleLabelOnly=True, verbose=self._verbose)
         self._moduleLabels = [] # prevent the InputTag replacement next time the 'clonedSequence' function is called.
         return self._clonedSequence
 
@@ -254,7 +254,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False, verbose = False):
     """
     ------------------------------------------------------------------
     copy a sequence plus the modules and sequences therein
@@ -264,7 +264,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
     """
     result = sequence
     if not postfix == "":
-        visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
+        visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask, verbose)
         sequence.visit(visitor)
         result = visitor.clonedSequence()
     return result
@@ -275,7 +275,7 @@ def listDependencyChain(process, module, sources, verbose=False):
     """
     def allDirectInputModules(moduleOrPSet,moduleName,attrName):
         ret = set()
-        for name,value in six.iteritems(moduleOrPSet.parameters_()):
+        for name,value in moduleOrPSet.parameters_().items():
             type = value.pythonTypeName()
             if type == 'cms.PSet':
                 ret.update(allDirectInputModules(value,moduleName,moduleName+"."+name))
@@ -353,7 +353,7 @@ def listDependencyChain(process, module, sources, verbose=False):
 
 def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
     """Add new keep statements to any PoolOutputModule of the process that has the old keep statements"""
-    for name,out in six.iteritems(process.outputModules):
+    for name,out in process.outputModules.items():
         if out.type_() == 'PoolOutputModule' and hasattr(out, "outputCommands"):
             if oldKeep in out.outputCommands:
                 out.outputCommands += newKeeps
@@ -364,6 +364,21 @@ def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
 
 if __name__=="__main__":
     import unittest
+    def _lineDiff(newString, oldString):
+        newString = ( x for x in newString.split('\n') if len(x) > 0)
+        oldString = [ x for x in oldString.split('\n') if len(x) > 0]
+        diff = []
+        oldStringLine = 0
+        for l in newString:
+            if oldStringLine >= len(oldString):
+                diff.append(l)
+                continue
+            if l == oldString[oldStringLine]:
+                oldStringLine +=1
+                continue
+            diff.append(l)
+        return "\n".join( diff )
+
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
@@ -375,51 +390,28 @@ if __name__=="__main__":
             p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
             p.s = cms.Sequence(p.a*p.b*p.c *p.a)
             cloneProcessingSnippet(p, p.s, "New", addToTask = True)
-            self.assertEqual(p.dumpPython(),
- """import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-process.a = cms.EDProducer("a",
+            self.assertEqual(_lineDiff(p.dumpPython(), cms.Process("test").dumpPython()),
+ """process.a = cms.EDProducer("a",
     src = cms.InputTag("gen")
 )
-
-
 process.aNew = cms.EDProducer("a",
     src = cms.InputTag("gen")
 )
-
-
 process.b = cms.EDProducer("b",
     src = cms.InputTag("a")
 )
-
-
 process.bNew = cms.EDProducer("b",
     src = cms.InputTag("aNew")
 )
-
-
 process.c = cms.EDProducer("c",
     src = cms.InputTag("b","instance")
 )
-
-
 process.cNew = cms.EDProducer("c",
     src = cms.InputTag("bNew","instance")
 )
-
-
 process.patAlgosToolsTask = cms.Task(process.aNew, process.bNew, process.cNew)
-
-
 process.s = cms.Sequence(process.a+process.b+process.c+process.a)
-
-
-process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
-
-
-""")
+process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)""")
         def testContains(self):
             p = cms.Process("test")
             p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
@@ -427,8 +419,8 @@ process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
             p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
             p.s1 = cms.Sequence(p.a*p.b*p.c)
             p.s2 = cms.Sequence(p.b*p.c)
-            self.assert_( contains(p.s1, "a") )
-            self.assert_( not contains(p.s2, "a") )
+            self.assertTrue( contains(p.s1, "a") )
+            self.assertTrue( not contains(p.s2, "a") )
         def testJetCollectionString(self):
             self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patJetsFooBar')
             self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatJetsFooBar')
@@ -441,3 +433,65 @@ process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
             self.assertEqual([p.a,p.b,p.c], listModules(p.s))
 
     unittest.main()
+
+class CloneTaskVisitor(object):
+    """Visitor that travels within a cms.Task, and returns a cloned version of the Task.
+    All modules are cloned and a postfix is added"""
+    def __init__(self, process, label, postfix, removePostfix="", noClones = [], verbose = False):
+        self._process = process
+        self._postfix = postfix
+        self._removePostfix = removePostfix
+        self._noClones = noClones
+        self._verbose = verbose
+        self._moduleLabels = []
+        self._clonedTask = cms.Task()
+        setattr(process, self._newLabel(label), self._clonedTask)
+
+    def enter(self, visitee):
+        if isinstance(visitee, cms._Module):
+            label = visitee.label()
+            newModule = None
+            if label in self._noClones: #keep unchanged
+                newModule = getattr(self._process, label)
+            elif label in self._moduleLabels: # has the module already been cloned ?
+                newModule = getattr(self._process, self._newLabel(label))
+            else:
+                self._moduleLabels.append(label)
+                newModule = visitee.clone()
+                setattr(self._process, self._newLabel(label), newModule)
+            self.__appendToTopTask(newModule)
+
+    def leave(self, visitee):
+        pass
+
+    def clonedTask(self):#FIXME: can the following be used for Task?
+        for label in self._moduleLabels:
+            massSearchReplaceAnyInputTag(self._clonedTask, label, self._newLabel(label), moduleLabelOnly=True, verbose=self._verbose)
+        self._moduleLabels = [] # prevent the InputTag replacement next time the 'clonedTask' function is called.
+        return self._clonedTask
+
+    def _newLabel(self, label):
+        if self._removePostfix != "":
+            if label[-len(self._removePostfix):] == self._removePostfix:
+                label = label[0:-len(self._removePostfix)]
+            else:
+                raise Exception("Tried to remove postfix %s from label %s, but it wasn't there" % (self._removePostfix, label))
+        return label + self._postfix
+
+    def __appendToTopTask(self, visitee):
+        self._clonedTask.add(visitee)
+
+def cloneProcessingSnippetTask(process, task, postfix, removePostfix="", noClones = [], verbose = False):
+    """
+    ------------------------------------------------------------------
+    copy a task plus the modules therein (including modules in subtasks)
+    both are renamed by getting a postfix
+    input tags are automatically adjusted
+    ------------------------------------------------------------------
+    """
+    result = task
+    if not postfix == "":
+        visitor = CloneTaskVisitor(process, task.label(), postfix, removePostfix, noClones, verbose)
+        task.visit(visitor)
+        result = visitor.clonedTask()
+    return result

@@ -64,7 +64,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 # # Message Logger
 # process.load("FWCore.MessageService.MessageLogger_cfi")
-# process.MessageLogger.categories = ['hltResults']
+# 
 # #process.MessageLogger.destinations = ['cout', 'detailedInfo', 'critical']
 # process.MessageLogger.cout = cms.untracked.PSet(
 #     #threshold = cms.untracked.string('ERROR'),
@@ -77,7 +77,7 @@ process.dqmSaver.saveAtJobEnd = True
 #     limit = cms.untracked.int32(-1) ## DEBUG, all messages
 #     )
 #     )
-# process.MessageLogger.categories = ['Status', 'Parameter']
+# 
 # # copy stdout to a file
 # process.MessageLogger.detailedInfo = process.MessageLogger.cout
 # process.MessageLogger.debugModules = ['hltResults']

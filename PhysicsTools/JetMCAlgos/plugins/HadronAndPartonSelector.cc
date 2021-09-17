@@ -69,7 +69,7 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
+typedef std::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 
 //
 // class declaration
@@ -140,8 +140,13 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
     std::string moduleName = "";
     if (genEvtInfoProduct.isValid()) {
-      const edm::Provenance& prov = iEvent.getProvenance(genEvtInfoProduct.id());
-      moduleName = edm::moduleName(prov);
+      const edm::StableProvenance& prov = iEvent.getStableProvenance(genEvtInfoProduct.id());
+      moduleName = edm::moduleName(prov, iEvent.processHistory());
+      if (moduleName == "ExternalGeneratorFilter") {
+        moduleName = edm::parameterSet(prov, iEvent.processHistory()).getParameter<std::string>("@external_type");
+        edm::LogInfo("SpecialModule") << "GEN events are produced by ExternalGeneratorFilter, "
+                                      << "which is a wrapper of the original module: " << moduleName;
+      }
     }
 
     if (moduleName.find("Pythia6") != std::string::npos)

@@ -1,8 +1,8 @@
 #ifndef RecoTracker_TkDetLayers_BladeShapeBuilderFromDet_h
 #define RecoTracker_TkDetLayers_BladeShapeBuilderFromDet_h
 
-#include "BoundDiskSector.h"
-#include "DiskSectorBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
+#include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>

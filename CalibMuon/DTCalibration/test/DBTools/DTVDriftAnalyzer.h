@@ -18,6 +18,7 @@
 #include <vector>
 
 class DTMtime;
+class DTRecoConditions;
 class TFile;
 class TH1D;
 
@@ -31,30 +32,29 @@ public:
 
   /// Operations
   //Read the DTGeometry and the vdrift DB
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();
 
 protected:
-
 private:
   std::string getHistoName(const DTWireId& lId) const;
   std::string getDistribName(const DTWireId& wId) const;
 
   // The file which will contain the histos
-  TFile *theFile;
+  TFile* theFile;
 
   //The t0 map
-  const DTMtime *mTimeMap;
-  
+  const DTMtime* mTimeMap;             // legacy DB object
+  const DTRecoConditions* vDriftMap_;  // DB object in new format
+  bool readLegacyVDriftDB;             // which one to use
+
   // Map of the vdrift, reso histos by wheel/sector/SL
-  std::map<std::pair<int,int>, TH1D*> theVDriftHistoMap;
-  std::map<std::pair<int,int>, TH1D*> theResoHistoMap;
- // Map of the vdrift, reso distributions by wheel/station/SL
+  std::map<std::pair<int, int>, TH1D*> theVDriftHistoMap;
+  std::map<std::pair<int, int>, TH1D*> theResoHistoMap;
+  // Map of the vdrift, reso distributions by wheel/station/SL
   std::map<std::vector<int>, TH1D*> theVDriftDistribMap;
   std::map<std::vector<int>, TH1D*> theResoDistribMap;
-
 };
 #endif
-

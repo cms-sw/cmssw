@@ -1,13 +1,15 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripFEDBufferComponents_H
 #define EventFilter_SiStripRawToDigi_SiStripFEDBufferComponents_H
 
-#include "boost/cstdint.hpp"
 #include <ostream>
 #include <memory>
 #include <cstring>
 #include <vector>
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 namespace sistrip {
 
@@ -135,6 +137,22 @@ namespace sistrip {
                                  CHANNEL_STATUS_APV1_NO_ERROR_BIT
   };
 
+  enum class FEDBufferStatusCode {
+    // for FEDBufferBase
+    SUCCESS = 0,
+    BUFFER_NULL,
+    BUFFER_TOO_SHORT,
+    UNRECOGNIZED_FORMAT,
+    // for FEDBuffer and FEDSpyBuffer
+    EXPECT_NOT_SPY,
+    EXPECT_SPY,
+    // for FEDBuffer
+    WRONG_HEADERTYPE,
+    CHANNEL_BEGIN_BEYOND_PAYLOAD,
+    CHANNEL_TOO_SHORT,
+    CHANNEL_END_BEYOND_PAYLOAD,
+  };
+
   //
   // Global function declarations
   //
@@ -153,6 +171,7 @@ namespace sistrip {
   std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value);
   std::ostream& operator<<(std::ostream& os, const FEDBufferState& value);
   std::ostream& operator<<(std::ostream& os, const FEDChannelStatus& value);
+  std::ostream& operator<<(std::ostream& os, const FEDBufferStatusCode& value);
   //convert name of an element of enum to enum value (useful for getting values from config)
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
@@ -338,6 +357,20 @@ namespace sistrip {
                          const uint8_t feEnableRegister = 0xFF,
                          const uint8_t feOverflowRegister = 0x00,
                          const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
+
+    // detect the buffer format without constructing the full header
+    static FEDBufferFormat bufferFormat(const uint8_t* headerPointer) {
+      if (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_NEW) {
+        return BUFFER_FORMAT_NEW;
+      } else if (headerPointer[BUFFERFORMAT] == BUFFER_FORMAT_CODE_OLD) {
+        return BUFFER_FORMAT_OLD_SLINK;
+      } else if (headerPointer[BUFFERFORMAT ^ 4] == BUFFER_FORMAT_CODE_OLD) {
+        // same case as used to detect "wordSwapped_" in the constructor
+        return BUFFER_FORMAT_OLD_VME;
+      } else {
+        return BUFFER_FORMAT_INVALID;
+      }
+    }
 
   private:
     void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
@@ -546,8 +579,8 @@ namespace sistrip {
     void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) override;
     void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) override;
     static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
-    const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
     uint8_t* feWord(const uint8_t internalFEUnitNum);
+    const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
     FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED, 0),
                        const std::vector<uint8_t>& feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED, 0),
                        const std::vector<FEDChannelStatus>& channelStatus =
@@ -582,12 +615,19 @@ namespace sistrip {
   //holds information about position of a channel in the buffer for use by unpacker
   class FEDChannel {
   public:
-    FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length);
+    FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
     //gets length from first 2 bytes (assuming normal FED channel)
-    FEDChannel(const uint8_t* const data, const size_t offset);
+    FEDChannel(const uint8_t* const data, const uint32_t offset);
     uint16_t length() const;
     const uint8_t* data() const;
-    size_t offset() const;
+    uint32_t offset() const;
+    /**
+     * Retrieve the APV CM median for a non-lite zero-suppressed channel
+     *
+     * apvIndex should be either 0 or 1 (there are, by construction, two APVs on every channel)
+     * No additional checks are done here, so the caller should check
+     * the readout mode and/or packet code.
+     */
     uint16_t cmMedian(const uint8_t apvIndex) const;
     //third byte of channel data for normal FED channels
     uint8_t packetCode() const;
@@ -595,14 +635,22 @@ namespace sistrip {
   private:
     friend class FEDBuffer;
     const uint8_t* data_;
-    size_t offset_;
+    uint32_t offset_;
     uint16_t length_;
   };
 
   //base class for sistrip FED buffers which have a DAQ header/trailer and tracker special header
   class FEDBufferBase {
   public:
-    FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat = false);
+    /**
+     * constructor from a FEDRawData buffer
+     *
+     * The sistrip::preconstructCheckFEDBufferBase() method should be used to check
+     * the validity of the fedBuffer before constructing a sistrip::FEDBufferBase.
+     *
+     * @see sistrip::preconstructCheckFEDBufferBase()
+     */
+    explicit FEDBufferBase(const FEDRawData& fedBuffer);
     virtual ~FEDBufferBase();
     //dump buffer to stream
     void dump(std::ostream& os) const;
@@ -654,7 +702,7 @@ namespace sistrip {
     //check for errors in DAQ heaqder and trailer (not including bad CRC)
     bool doDAQHeaderAndTrailerChecks() const;
     //do both
-    virtual bool doChecks() const;
+    bool doChecks() const;
     //print the result of all detailed checks
     virtual std::string checkSummary() const;
 
@@ -678,14 +726,11 @@ namespace sistrip {
   protected:
     const uint8_t* getPointerToDataAfterTrackerSpecialHeader() const;
     const uint8_t* getPointerToByteAfterEndOfPayload() const;
-    FEDBufferBase(const uint8_t* fedBuffer,
-                  const size_t fedBufferSize,
-                  const bool allowUnrecognizedFormat,
-                  const bool fillChannelVector);
+    FEDBufferBase(const FEDRawData& fedBuffer, const bool fillChannelVector);
     std::vector<FEDChannel> channels_;
 
   private:
-    void init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat);
+    void init();
     const uint8_t* originalBuffer_;
     const uint8_t* orderedBuffer_;
     const size_t bufferSize_;
@@ -697,6 +742,39 @@ namespace sistrip {
   //
   // Inline function definitions
   //
+
+  /**
+   * Check if a FEDRawData object satisfies the requirements for constructing a sistrip::FEDBufferBase
+   *
+   * These are:
+   *   - FEDRawData::data() is non-null
+   *   - FEDRawData::size() is large enough (at least big enough to hold a sistrip::TrackerSpecialHeader)
+   *   - (unless checkRecognizedFormat is false) the buffer format (inside the sistrip::TrackerSpecialHeader) is recognized
+   *
+   * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+   * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+   */
+  inline FEDBufferStatusCode preconstructCheckFEDBufferBase(const FEDRawData& fedBuffer,
+                                                            bool checkRecognizedFormat = true) {
+    if (!fedBuffer.data())
+      return FEDBufferStatusCode::BUFFER_NULL;
+    //min buffer length. DAQ header, DAQ trailer, tracker special header.
+    static const size_t MIN_BUFFER_SIZE = 8 + 8 + 8;
+    //check size is non zero
+    if (fedBuffer.size() < MIN_BUFFER_SIZE) {
+      LogDebug("FEDBuffer") << "Buffer is too small. Min size is " << MIN_BUFFER_SIZE << ". Buffer size is "
+                            << fedBuffer.size() << ". ";
+      return FEDBufferStatusCode::BUFFER_TOO_SHORT;
+    }
+    if (checkRecognizedFormat) {
+      if (BUFFER_FORMAT_INVALID == TrackerSpecialHeader::bufferFormat(fedBuffer.data() + 8)) {
+        LogDebug("FEDBuffer") << "Buffer format not recognized. Tracker special header: "
+                              << TrackerSpecialHeader(fedBuffer.data() + 8);
+        return FEDBufferStatusCode::UNRECOGNIZED_FORMAT;
+      }
+    }
+    return FEDBufferStatusCode::SUCCESS;
+  }
 
   inline std::ostream& operator<<(std::ostream& os, const FEDBufferBase& obj) {
     obj.print(os);
@@ -759,7 +837,50 @@ namespace sistrip {
 
   inline uint8_t TrackerSpecialHeader::headerTypeNibble() const { return ((specialHeader_[BUFFERTYPE] & 0xF0) >> 4); }
 
+  inline FEDHeaderType TrackerSpecialHeader::headerType() const {
+    const auto nibble = headerTypeNibble();
+    switch (nibble) {
+      case HEADER_TYPE_FULL_DEBUG:
+      case HEADER_TYPE_APV_ERROR:
+      case HEADER_TYPE_NONE:
+        return FEDHeaderType(nibble);
+      default:
+        return HEADER_TYPE_INVALID;
+    }
+  }
+
   inline uint8_t TrackerSpecialHeader::trackerEventTypeNibble() const { return (specialHeader_[BUFFERTYPE] & 0x0F); }
+
+  inline FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
+    const auto nibble = trackerEventTypeNibble();
+    //if it is scope mode then return as is (it cannot be fake data)
+    //if it is premix then return as is: stripping last bit would make it spy data !
+    if ((nibble == READOUT_MODE_SCOPE) || (nibble == READOUT_MODE_PREMIX_RAW))  // 0x or 0xf
+      return FEDReadoutMode(nibble);
+    //if not then ignore the last bit which indicates if it is real or fake
+    else {
+      const uint8_t mode = (nibble & 0xF);
+      switch (mode) {
+        case READOUT_MODE_VIRGIN_RAW:
+        case READOUT_MODE_PROC_RAW:
+        case READOUT_MODE_ZERO_SUPPRESSED:
+        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        case READOUT_MODE_SPY:
+          return FEDReadoutMode(mode);
+        default:
+          return READOUT_MODE_INVALID;
+      }
+    }
+  }
 
   inline uint8_t TrackerSpecialHeader::apveAddress() const { return specialHeader_[APVEADDRESS]; }
 
@@ -1186,7 +1307,7 @@ namespace sistrip {
 
   //re-use const method
   inline uint8_t* FEDFullDebugHeader::feWord(const uint8_t internalFEUnitNum) {
-    return const_cast<uint8_t*>(static_cast<const FEDFullDebugHeader*>(this)->feWord(internalFEUnitNum));
+    return const_cast<uint8_t*>(std::as_const(*this).feWord(internalFEUnitNum));
   }
 
   inline void FEDFullDebugHeader::setUnlocked(const uint8_t internalFEDChannelNum, const bool value) {
@@ -1308,6 +1429,8 @@ namespace sistrip {
   inline FEDLegacyReadoutMode FEDBufferBase::legacyReadoutMode() const { return specialHeader_.legacyReadoutMode(); }
 
   inline FEDReadoutMode FEDBufferBase::readoutMode() const { return specialHeader_.readoutMode(); }
+
+  inline bool FEDBufferBase::doChecks() const { return doTrackerSpecialHeaderChecks() & doDAQHeaderAndTrailerChecks(); }
 
   inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const {
     if (legacy) {
@@ -1432,21 +1555,28 @@ namespace sistrip {
 
   //FEDChannel
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset) : data_(data), offset_(offset) {
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset) : data_(data), offset_(offset) {
     length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
   }
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length)
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length)
       : data_(data), offset_(offset), length_(length) {}
 
   inline uint16_t FEDChannel::length() const { return length_; }
 
   inline uint8_t FEDChannel::packetCode() const { return data_[(offset_ + 2) ^ 7]; }
 
+  inline uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
+    uint16_t result = 0;
+    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
+    result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
+    result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
+    return result;
+  }
+
   inline const uint8_t* FEDChannel::data() const { return data_; }
 
-  inline size_t FEDChannel::offset() const { return offset_; }
-
+  inline uint32_t FEDChannel::offset() const { return offset_; }
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_FEDBufferComponents_H

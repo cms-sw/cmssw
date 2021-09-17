@@ -79,16 +79,16 @@ public:
   const GlobalTrajectoryParameters& parameters() const { return theGlobalParameters; }
 
   CartesianTrajectoryError cartesianError() const {
-    if
-      UNLIKELY(!hasError()) missingError();
+    if UNLIKELY (!hasError())
+      missingError();
     CartesianTrajectoryError aCartesianError;
     createCartesianError(aCartesianError);
     return aCartesianError;
   }
 
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if
-      UNLIKELY(!hasError()) missingError();
+    if UNLIKELY (!hasError())
+      missingError();
     return theCurvilinearError;
   }
 

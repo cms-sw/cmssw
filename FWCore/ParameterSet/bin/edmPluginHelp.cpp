@@ -23,7 +23,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
 #include <vector>
@@ -73,7 +72,7 @@ namespace {
       return;
     previousName = pluginInfo.name_;
 
-    if (!library.empty() && pluginInfo.loadable_.leaf() != library) {
+    if (!library.empty() && pluginInfo.loadable_.filename() != library) {
       return;
     }
 
@@ -137,13 +136,13 @@ namespace {
       os << std::setw(6) << iPlugin << " ";
       os << std::setw(50) << pluginInfo.name_;
       os << std::setw(24) << baseType;
-      os << pluginInfo.loadable_.leaf() << "\n";
+      os << pluginInfo.loadable_.filename() << "\n";
       os.flags(oldFlags);
       return;
     }
 
-    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf()
-       << "\n";
+    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  "
+       << pluginInfo.loadable_.filename() << "\n";
     os.flags(oldFlags);
 
     edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginInfo.name_);
@@ -230,6 +229,8 @@ int main(int argc, char** argv) try {
   descString += "At least one of the following options must be used: -p, -l, -a, -q, or -t\n\n";
   descString += "Allowed options:";
   boost::program_options::options_description desc(descString);
+
+  // clang-format off
   desc.add_options()(kHelpCommandOpt, "produce help message")(
       kPluginCommandOpt, boost::program_options::value<std::string>(), "only print descriptions for this plugin")(
       kLibraryCommandOpt,
@@ -255,6 +256,7 @@ int main(int argc, char** argv) try {
       boost::program_options::value<std::string>(),
       "print only the description for the top level parameter set with this name. Allowed names are 'options', "
       "'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'.");
+  // clang-format on
 
   boost::program_options::variables_map vm;
   try {

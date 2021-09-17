@@ -54,7 +54,8 @@ process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 
  ################# Quality Tests #########################
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTesterRPC = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )
@@ -64,9 +65,14 @@ process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
 
 ############# Message Logger ####################
 process.MessageLogger = cms.Service("MessageLogger",
-     debugModules = cms.untracked.vstring('rpcdqmclient'),
-     destinations = cms.untracked.vstring('cout'),
-     cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    debugModules = cms.untracked.vstring('rpcdqmclient')
 )
 
 

@@ -32,7 +32,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // class declaration
@@ -40,13 +39,15 @@
 
 class StatisticsFilter : public edm::EDFilter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit StatisticsFilter(const edm::ParameterSet&);
   ~StatisticsFilter() override;
 
 private:
   void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -118,9 +119,6 @@ bool StatisticsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void StatisticsFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void StatisticsFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(StatisticsFilter);

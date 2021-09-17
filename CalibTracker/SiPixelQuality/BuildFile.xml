@@ -1,16 +1,23 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/DetId"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="DQM/SiPixelPhase1Common"/>
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="root"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="rootcling"/>
+<use name="rootrflx"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
+

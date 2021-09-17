@@ -8,11 +8,15 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 process.load('DQM.Integration.config.inputsource_cfi')
+from DQM.Integration.config.inputsource_cfi import options
 process.load('DQMServices.Components.DQMEnvironment_cfi')
 process.load('DQM.Integration.config.environment_cfi')
 
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = subsystem
+process.dqmSaverPB.runNumber = options.runNumber
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.analyzer = DQMEDAnalyzer('RamdiskMonitor',

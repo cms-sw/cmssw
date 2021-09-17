@@ -9,7 +9,6 @@ import array
 import difflib
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -310,14 +309,16 @@ def _calculateRatios(histos, ratioUncertainty=False):
             return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
 
     def wrap(o):
-        if isinstance(o, ROOT.TH1):
+        if isinstance(o, ROOT.TH1) and not isinstance(o, ROOT.TH2):
             return WrapTH1(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph):
             return WrapTGraph(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph2D):
             return WrapTGraph2D(o, ratioUncertainty)
 
-    wrappers = [wrap(h) for h in histos]
+    wrappers = [wrap(h) for h in histos if wrap(h) is not None]
+    if len(wrappers) < 1:
+        return []
     ref = wrappers[0]
 
     wrappers_bins = []
@@ -445,12 +446,12 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
     if nvals < 2:
         # Take median and +- 1 values
         if len(yvals) % 2 == 0:
-            half = len(yvals)/2
+            half = len(yvals)//2
             return ( yvals[half-1], yvals[half] )
         else:
-            middle = len(yvals)/2
+            middle = len(yvals)//2
             return ( yvals[middle-1], yvals[middle+1] )
-    ind_min = (len(yvals)-nvals)/2
+    ind_min = (len(yvals)-nvals)//2
     ind_max = len(yvals)-1 - ind_min
 
     return (yvals[ind_min], yvals[ind_max])
@@ -997,7 +998,7 @@ class AggregateBins:
         values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
-        for i, (key, labels) in enumerate(six.iteritems(self._mapping)):
+        for i, (key, labels) in enumerate(self._mapping.items()):
             sumTime = 0.
             sumErrorSq = 0.
             nsum = 0
@@ -1019,7 +1020,7 @@ class AggregateBins:
                 # the iteration timing plots), so let's test them all
                 for lab in labels:
                     if lab in values:
-                        ivalue = values.keys().index(lab)
+                        ivalue = list(values.keys()).index(lab)
                         break
             binIndexOrder.append( (ivalue, i) )
 
@@ -1094,7 +1095,7 @@ class AggregateHistos:
     def create(self, tdirectory):
         """Create and return the histogram from a TDirectory"""
         result = []
-        for key, histoName in six.iteritems(self._mapping):
+        for key, histoName in self._mapping.items():
             th1 = _getObject(tdirectory, histoName)
             if th1 is None:
                 continue
@@ -1180,8 +1181,8 @@ class ROC:
 
 
 # Plot styles
-_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
-_plotStylesMarker = [21, 20, 22, 34, 33]
+_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3, ROOT.kGreen+2]
+_plotStylesMarker = [21, 20, 22, 34, 33, 23]
 
 def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
     """Function to draw a frame
@@ -1828,7 +1829,7 @@ class Plot:
         self._histograms = []
 
     def setProperties(self, **kwargs):
-        for name, value in six.iteritems(kwargs):
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -1858,6 +1859,9 @@ class Plot:
         if self._ratio is None:
             return ratio
         return ratio and self._ratio
+
+    def setName(self, name):
+        self._name = name
 
     def getName(self):
         if self._outname is not None:
@@ -1929,9 +1933,9 @@ class Plot:
             return th1
 
         if self._fallback is not None:
-            self._histograms = map(_modifyHisto, self._histograms, profileX)
+            self._histograms = list(map(_modifyHisto, self._histograms, profileX))
         else:
-            self._histograms = map(lambda h: _modifyHisto(h, self._profileX), self._histograms)
+            self._histograms =list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
@@ -1962,10 +1966,11 @@ class Plot:
             if self._fit:
                 st.SetOptFit(0o010)
                 st.SetOptStat(1001)
+            st.SetOptStat(1110)
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
             st.SetY1NDC(startingY+dy)
-            st.SetY2NDC(startingY+dy+0.15)
+            st.SetY2NDC(startingY+dy+0.12)
             st.SetTextColor(col)
 
         dy = 0.0
@@ -1974,7 +1979,7 @@ class Plot:
                 dy += self._statyadjust[i]
 
             _doStats(h, _plotStylesColor[i], dy)
-            dy -= 0.19
+            dy -= 0.16
 
     def _normalize(self):
         """Normalise histograms to unit area"""
@@ -2158,7 +2163,9 @@ class Plot:
 
         # Set properties of frame
         frame.setTitle(histos[0].GetTitle())
-        if self._xtitle is not None:
+        if self._xtitle == 'Default':
+            frame.setXTitle( histos[0].GetXaxis().GetTitle() )
+        elif self._xtitle is not None:
             frame.setXTitle(self._xtitle)
         if self._xtitlesize is not None:
             frame.setXTitleSize(self._xtitlesize)
@@ -2166,7 +2173,9 @@ class Plot:
             frame.setXTitleOffset(self._xtitleoffset)
         if self._xlabelsize is not None:
             frame.setXLabelSize(self._xlabelsize)
-        if self._ytitle is not None:
+        if self._ytitle == 'Default':
+            frame.setYTitle( histos[0].GetYaxis().GetTitle() )
+        elif self._ytitle is not None:
             frame.setYTitle(self._ytitle)
         if self._ytitlesize is not None:
             frame.setYTitleSize(self._ytitlesize)
@@ -2198,7 +2207,7 @@ class Plot:
             addl.Draw("same")
 
         # Draw ratios
-        if ratio and len(histos) > 0:
+        if ratio and len(self._ratios) > 0:
             frame._padRatio.cd()
             firstRatio = self._ratios[0].getRatio()
             if self._ratioUncertainty and firstRatio is not None:
@@ -2281,7 +2290,7 @@ class PlotGroup(object):
         self._ratioFactor = 1.25
 
     def setProperties(self, **kwargs):
-        for name, value in six.iteritems(kwargs):
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2407,16 +2416,6 @@ class PlotGroup(object):
         width = 500
         height = 500
 
-        canvas = _createCanvas(self._name+"Single", width, height)
-        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
-
-        # from TDRStyle
-        for c in [canvas, canvasRatio]:
-            c.SetTopMargin(0.05)
-            c.SetBottomMargin(0.13)
-            c.SetLeftMargin(0.16)
-            c.SetRightMargin(0.05)
-
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -2427,6 +2426,16 @@ class PlotGroup(object):
         for plot in self._plots:
             if plot.isEmpty():
                 continue
+
+            canvas = _createCanvas(self._name+"Single", width, height)
+            canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
+            # from TDRStyle
+            for c in [canvas, canvasRatio]:
+                c.SetTopMargin(0.05)
+                c.SetBottomMargin(0.13)
+                c.SetLeftMargin(0.16)
+                c.SetRightMargin(0.05)
 
             ratioForThisPlot = plot.isRatio(ratio)
             c = canvas
@@ -2461,7 +2470,7 @@ class PlotGroup(object):
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True, directory=directory))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="/"+plot.getName(), single=True, directory=directory))
         return ret
 
     def _modifyPadForRatio(self, pad):
@@ -2487,6 +2496,8 @@ class PlotGroup(object):
     def _save(self, canvas, saveFormat, prefix=None, postfix=None, single=False, directory=""):
         # Save the canvas to file and clear
         name = self._name
+        if not os.path.exists(directory+'/'+name):
+            os.makedirs(directory+'/'+name)
         if prefix is not None:
             name = prefix+name
         if postfix is not None:
@@ -2525,15 +2536,15 @@ class PlotOnSideGroup(PlotGroup):
 
     def create(self, tdirectoryNEvents, requireAllHistograms=False):
         self._plots = []
-        for element in tdirectoryNEvents:
+        for i, element in enumerate(tdirectoryNEvents):
             pl = self._plot.clone()
             pl.create([element], requireAllHistograms)
+            pl.setName(pl.getName()+"_"+str(i))
             self._plots.append(pl)
 
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
-        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
@@ -2725,8 +2736,7 @@ class PlotterFolder:
                     if sf_translated is not None and not sf_translated in subfolders:
                         subfolders[sf_translated] = DQMSubFolder(sf, sf_translated)
 
-            self._dqmSubFolders = subfolders.values()
-            self._dqmSubFolders.sort(key=lambda sf: sf.subfolder)
+            self._dqmSubFolders = sorted(subfolders.values(), key=lambda sf: sf.subfolder)
 
         self._fallbackNames = fallbackNames
         self._fallbackDqmSubFolders = fallbackDqmSubFolders
@@ -2906,6 +2916,8 @@ class PlotterItem:
                                 subf.append(key.GetName())
                         subFolders.append(subf)
                     break
+                else:
+                    print("Did not find directory '%s' from file %s" % (pd, tfile.GetName()))
 
             if not isOpenFile:
                 tfile.Close()

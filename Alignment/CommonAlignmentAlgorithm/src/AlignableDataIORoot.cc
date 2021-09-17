@@ -89,7 +89,7 @@ int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData& ad) {
   Rot[8] = rot.zz();
 
   const std::vector<double>& deformPars = ad.deformationParameters();
-  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? (unsigned)kMaxNumPar : deformPars.size());
   for (unsigned int i = 0; i < numDeformationValues_; ++i) {
     deformationValues_[i] = deformPars[i];
   }
@@ -118,7 +118,7 @@ int AlignableDataIORoot::writeRelRaw(const AlignableRelData& ad) {
   Rot[8] = rot.zz();
 
   const std::vector<double>& deformPars = ad.deformationParameters();
-  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? (unsigned)kMaxNumPar : deformPars.size());
   for (unsigned int i = 0; i < numDeformationValues_; ++i) {
     deformationValues_[i] = deformPars[i];
   }

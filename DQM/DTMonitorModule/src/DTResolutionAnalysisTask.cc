@@ -11,17 +11,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+//#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -31,7 +29,8 @@
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
+DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset)
+    : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
@@ -54,7 +53,7 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask() {
 
 void DTResolutionAnalysisTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = &setup.getData(muonGeomToken_);
 }
 
 void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
@@ -73,7 +72,7 @@ void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
     }
   }
 }
-
+/*
 void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionTask]: Begin of LS transition" << endl;
@@ -89,7 +88,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
     }
   }
 }
-
+*/
 void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
       << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run() << " #Event: " << event.id().event() << endl;

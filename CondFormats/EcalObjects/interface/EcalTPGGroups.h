@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /*
 this class is used to define groups which associate a rawId to an objectId where:

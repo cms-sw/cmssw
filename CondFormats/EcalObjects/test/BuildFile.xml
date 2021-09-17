@@ -1,16 +1,19 @@
 <environment>
-  <use   name="clhep"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondCore/DBOutputService"/>
-  <library   file="stubs/EcalObjectAnalyzer.cc" name="EcalObjectAnalyzer">
-    <flags   EDM_PLUGIN="1"/>
+  <use name="clhep"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="CondCore/DBOutputService"/>
+  <library file="stubs/EcalObjectAnalyzer.cc" name="EcalObjectAnalyzer">
+    <flags EDM_PLUGIN="1"/>
   </library>
-  <library   file="stubs/EcalTimeBiasCorrectionsFillInitial.cc" name="EcalTimeBiasCorrectionsFillInitial">
-    <flags   EDM_PLUGIN="1"/>
-  </library>
-</environment>
 
+  <library file="stubs/EcalTimeBiasCorrectionsFillInitial.cc" name="EcalTimeBiasCorrectionsFillInitial">
+    <flags EDM_PLUGIN="1"/>
+  </library>
+
+</environment>
 <bin file="testSerializationEcalObjects.cpp">
+</bin>
+<bin file="EcalPulseSymmCovariance_catch2.cc">
+  <use name="catch2"/>
 </bin>

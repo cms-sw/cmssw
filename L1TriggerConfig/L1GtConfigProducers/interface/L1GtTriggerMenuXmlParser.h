@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -43,6 +41,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
+#include <cstdint>
 
 // forward declarations
 class L1GtCondition;
@@ -264,14 +263,14 @@ private:
   /// get the text value of a xml node as string
   std::string getXMLTextValue(XERCES_CPP_NAMESPACE::DOMNode* node);
 
-  /// convert a hexadecimal string with up to 128 to 2 boost::uint64_t
-  bool hexString2UInt128(const std::string& hexString, boost::uint64_t& dstL, boost::uint64_t& dstH);
+  /// convert a hexadecimal string with up to 128 to 2 uint64_t
+  bool hexString2UInt128(const std::string& hexString, uint64_t& dstL, uint64_t& dstH);
 
   /// get a hexadecimal value of a xml node containing text with up to 128 bit
-  bool getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNode* node, boost::uint64_t& dstL, boost::uint64_t& dstH);
+  bool getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNode* node, uint64_t& dstL, uint64_t& dstH);
 
   /// get a hexadecimal value of a xml node containing text
-  bool getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node, boost::uint64_t& dst);
+  bool getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node, uint64_t& dst);
 
   /// get the number of bits in the max attribute of a condition child
   bool countConditionChildMaxBits(XERCES_CPP_NAMESPACE::DOMNode* node, const std::string& childName, unsigned int& dst);
@@ -280,7 +279,7 @@ private:
   bool getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
                                const std::string& childName,
                                unsigned int num,
-                               std::vector<boost::uint64_t>& dst);
+                               std::vector<uint64_t>& dst);
 
   /// shutdown the xml utils and deallocate parser and error handler
   void cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);

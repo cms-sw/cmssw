@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelFakeGainOfflineReader
 // Class:      SiPixelFakeGainOfflineReader
-// 
+//
 /**\class SiPixelFakeGainOfflineReader SiPixelFakeGainOfflineReader.h SiPixelESProducers/test/SiPixelFakeGainOfflineReader.h
 
  Description: Test analyzer for fake pixel calibrationOffline
@@ -19,13 +19,9 @@
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 
 #include "TROOT.h"
@@ -34,31 +30,27 @@
 #include "TBranch.h"
 #include "TH1F.h"
 
-namespace cms{
-class SiPixelFakeGainOfflineReader : public edm::EDAnalyzer {
+namespace cms {
+  class SiPixelFakeGainOfflineReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelFakeGainOfflineReader(const edm::ParameterSet& iConfig);
 
-public:
+    ~SiPixelFakeGainOfflineReader(){};
+    virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-  explicit SiPixelFakeGainOfflineReader( const edm::ParameterSet& iConfig);
+  private:
+    edm::ParameterSet conf_;
 
-  ~SiPixelFakeGainOfflineReader(){};
-  virtual void beginJob( );
-  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
-
-private:
-
-  edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  //edm::ESHandle<SiPixelGainCalibrationOffline> SiPixelGainCalibrationOffline_;
-  SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
-
-  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
-  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  std::string filename_;
-  TFile* fFile;
-
-};
-}
+    SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
+    std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F*> _TH1F_Gains_m;
+    std::string filename_;
+    TFile* fFile;
+  };
+}  // namespace cms
 #endif

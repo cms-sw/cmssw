@@ -1,14 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PrintGeom")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('PrintGeometry',Run3)
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+
+#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+#process = cms.Process('PrintGeometry',Run3_dd4hep)
+#process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+
+#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+#process = cms.Process('PrintGeometry',Phase2C11)
+#process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Geometry.CMSCommonData.cmsIdealGeometryXML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
 
-process.MessageLogger.destinations = cms.untracked.vstring("SensDet.txt")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.SensDet = dict(extension="txt")
+process.MessageLogger.G4cout=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -57,6 +65,6 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmea
 process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.string('HCal*'),
+	Name           = cms.untracked.string('*'),
 	type           = cms.string('PrintSensitive')
 ))

@@ -1003,13 +1003,11 @@ void HcalLedAnalysis::ProcessCalibEvent(int fiberChan, HcalCalibDetId calibId, c
     char name[1024];
     std::string prefix;
     if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
-      std::string sector = (calibId.hcalSubdet() == HcalBarrel)
-                               ? ("HB")
-                               : (calibId.hcalSubdet() == HcalEndcap)
-                                     ? ("HE")
-                                     : (calibId.hcalSubdet() == HcalOuter)
-                                           ? ("HO")
-                                           : (calibId.hcalSubdet() == HcalForward) ? ("HF") : "";
+      std::string sector = (calibId.hcalSubdet() == HcalBarrel)    ? ("HB")
+                           : (calibId.hcalSubdet() == HcalEndcap)  ? ("HE")
+                           : (calibId.hcalSubdet() == HcalOuter)   ? ("HO")
+                           : (calibId.hcalSubdet() == HcalForward) ? ("HF")
+                                                                   : "";
       snprintf(name,
                sizeof name,
                "%s %+d iphi=%d %s",

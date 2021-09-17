@@ -1,7 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripHistoPlotter.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -75,8 +74,8 @@ void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParamete
     std::string tag;
     int icol;
     SiStripUtility::getMEStatusColor(istat, icol, tag);
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F || me->kind() == MonitorElement::DQM_KIND_TH2F ||
-        me->kind() == MonitorElement::DQM_KIND_TPROFILE || me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (me->kind() == MonitorElement::Kind::TH1F || me->kind() == MonitorElement::Kind::TH2F ||
+        me->kind() == MonitorElement::Kind::TPROFILE || me->kind() == MonitorElement::Kind::TPROFILE2D) {
       TH1* histo = me->getTH1();
       TH1F* tproject = nullptr;
       if (dopt == "projection") {
@@ -88,7 +87,7 @@ void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParamete
       } else {
         dopt = "";
         std::string name = histo->GetName();
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+        if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
           dopt = "colz";
           histo->SetStats(kFALSE);
         } else {
@@ -242,7 +241,7 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
   std::string ptit = me->getTitle();
   ptit += "-Yprojection";
 
-  if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me->kind() == MonitorElement::Kind::TH2F) {
     TH2F* hist2 = me->getTH2F();
     tp = new TH1F(
         ptit.c_str(), ptit.c_str(), hist2->GetNbinsY(), hist2->GetYaxis()->GetXmin(), hist2->GetYaxis()->GetXmax());
@@ -254,14 +253,14 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
       }
       tp->SetBinContent(j, tot_count);
     }
-  } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  } else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     TProfile* prof = me->getTProfile();
     tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, prof->GetMaximum() * 1.2);
     tp->GetXaxis()->SetTitle(ptit.c_str());
     for (int i = 1; i < prof->GetNbinsX() + 1; i++) {
       tp->Fill(prof->GetBinContent(i));
     }
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  } else if (me->kind() == MonitorElement::Kind::TH1F) {
     TH1F* hist1 = me->getTH1F();
     tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, hist1->GetMaximum() * 1.2);
     tp->GetXaxis()->SetTitle(ptit.c_str());
@@ -269,39 +268,6 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
       tp->Fill(hist1->GetBinContent(i));
     }
   }
-}
-//
-// -- create static plots
-//
-void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const std::string& file_name) {
-  TH1* hist1 = me->getTH1();
-  auto canvas = new TCanvas("TKCanvas", "TKCanvas", 600, 400);
-  if (hist1) {
-    TText tTitle;
-    tTitle.SetTextFont(64);
-    tTitle.SetTextSizePixels(20);
-
-    setDrawingOption(hist1);
-    hist1->Draw();
-    std::string name = hist1->GetName();
-    if (me->getRefRootObject()) {
-      TH1* hist1_ref = me->getRefTH1();
-      if (hist1_ref) {
-        hist1_ref->SetLineColor(3);
-        hist1_ref->SetMarkerColor(3);
-        if (name.find("Summary") != std::string::npos)
-          hist1_ref->Draw("same");
-        else
-          hist1_ref->DrawNormalized("same", hist1->GetEntries());
-      }
-    }
-  }
-  canvas->Update();
-  std::string command = "rm -f " + file_name;
-  gSystem->Exec(command.c_str());
-  canvas->Print(file_name.c_str(), "png");
-  canvas->Clear();
-  delete canvas;
 }
 //
 // -- Set New CondDB Plot

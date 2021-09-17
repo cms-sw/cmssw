@@ -5,16 +5,14 @@ process = cms.Process("i")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-     debugModules = cms.untracked.vstring('dumper'),
-     destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
-     cout = cms.untracked.PSet(
-#         threshold = cms.untracked.string('DEBUG')
-         threshold = cms.untracked.string('WARNING')
-     )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    debugModules = cms.untracked.vstring('dumper')
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -90,7 +90,7 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("DQMServices.Core.DQMStore_cfg")
 
 # SiStrip Offline DQM Client
-process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
+process.siStripOfflineAnalyser = cms.EDProducer("SiStripOfflineDQM",
        GlobalStatusFilling      = cms.untracked.int32(-1),
 #        GlobalStatusFilling      = cms.untracked.int32(2),
         SummaryCreationFrequency  = cms.untracked.int32(-1),                                              
@@ -137,7 +137,7 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 )
 
 # Services needed for TkHistoMap / DetIdInfoFile
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 process.TFileService = cms.Service('TFileService',
   fileName = cms.string(options.detIdInfoFile)
 )
@@ -154,12 +154,11 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 #        cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
         )
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.ssqualitystat = DQMEDAnalyzer("SiStripQualityStatistics",
-                                      dataLabel = cms.untracked.string(""),
-                                      TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
-                                      SaveTkHistoMap = cms.untracked.bool(False)
-                                      )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.ssqualitystat = siStripQualityStatistics.clone(
+        TkMapFileName=cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
+        SaveTkHistoMap=cms.untracked.bool(False)
+        )
 
 
 process.p1 = cms.Path(process.siStripOfflineAnalyser + process.ssqualitystat)

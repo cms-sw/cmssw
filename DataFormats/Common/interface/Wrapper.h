@@ -11,7 +11,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/WrapperDetail.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include <algorithm>
@@ -28,6 +27,8 @@ namespace edm {
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
+    Wrapper(Wrapper<T> const& rh) = delete;             // disallow copy construction
+    Wrapper<T>& operator=(Wrapper<T> const&) = delete;  // disallow assignment
 
     template <typename... Args>
     explicit Wrapper(Emplace, Args&&...);
@@ -72,11 +73,6 @@ namespace edm {
     std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
 
   private:
-    // We wish to disallow copy construction and assignment.
-    // We make the copy constructor and assignment operator private.
-    Wrapper(Wrapper<T> const& rh) = delete;             // disallow copy construction
-    Wrapper<T>& operator=(Wrapper<T> const&) = delete;  // disallow assignment
-
     bool present;
     T obj;
   };

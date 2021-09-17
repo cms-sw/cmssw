@@ -6,10 +6,10 @@
 
 namespace reco {
 
-typedef  FeaturesTagInfo<btagbtvdeep::DeepDoubleXFeatures> DeepDoubleXTagInfo;
+  typedef FeaturesTagInfo<btagbtvdeep::DeepDoubleXFeatures> DeepDoubleXTagInfo;
 
-DECLARE_EDM_REFS( DeepDoubleXTagInfo )
+  DECLARE_EDM_REFS(DeepDoubleXTagInfo)
 
-}
+}  // namespace reco
 
-#endif // DataFormats_BTauReco_DeepDoubleXTagInfo_h
+#endif  // DataFormats_BTauReco_DeepDoubleXTagInfo_h

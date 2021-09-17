@@ -16,7 +16,7 @@
 //local  data formats
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 
-bool isLooseMuonCustom(const reco::Muon& recoMu) {
+inline bool isLooseMuonCustom(const reco::Muon& recoMu) {
   bool flag = false;
   if (recoMu.isPFMuon() && (recoMu.isGlobalMuon() || recoMu.isTrackerMuon()))
     flag = true;
@@ -24,7 +24,7 @@ bool isLooseMuonCustom(const reco::Muon& recoMu) {
   return flag;
 }
 
-bool isMediumMuonCustom(const reco::Muon& recoMu) {
+inline bool isMediumMuonCustom(const reco::Muon& recoMu) {
   bool goodGlob = recoMu.isGlobalMuon() && recoMu.globalTrack()->normalizedChi2() < 3 &&
                   recoMu.combinedQuality().chi2LocalPosition < 12 && recoMu.combinedQuality().trkKink < 20;
   bool isMedium = isLooseMuonCustom(recoMu) && recoMu.innerTrack()->validFraction() > 0.49 &&
@@ -33,7 +33,7 @@ bool isMediumMuonCustom(const reco::Muon& recoMu) {
   return isMedium;
 }
 
-bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex recoVtx) {
+inline bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex recoVtx) {
   //bp
   bool isTight = recoMu.isGlobalMuon() && recoMu.isPFMuon() && recoMu.globalTrack()->normalizedChi2() < 10. &&
                  recoMu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&

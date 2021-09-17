@@ -17,6 +17,7 @@
 #include "RecoMuon/MuonIdentification/interface/DTTimingExtractor.h"
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -70,7 +71,9 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher* segMatcher)
+DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,
+                                     MuonSegmentMatcher* segMatcher,
+                                     edm::ConsumesCollector& iC)
     : theHitsMin_(iConfig.getParameter<int>("HitsMin")),
       thePruneCut_(iConfig.getParameter<double>("PruneCut")),
       theTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),
@@ -81,7 +84,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig, MuonSegme
       requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
       debug(iConfig.getParameter<bool>("debug")) {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
   theMatcher = segMatcher;
 }
 

@@ -20,7 +20,9 @@ ________________________________________________________________________
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -29,9 +31,12 @@ namespace CLHEP {
 class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
   ~BetafuncEvtVtxGenerator() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
@@ -59,11 +64,6 @@ public:
   double BetaFunction(double z, double z0) const;
 
 private:
-  /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
-
   void setBoost(double alpha, double phi);
 
 private:
@@ -80,6 +80,7 @@ private:
 
   void update(const edm::EventSetup& iEventSetup);
   edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
+  edm::ESGetToken<SimBeamSpotObjects, SimBeamSpotObjectsRcd> beamToken_;
 };
 
 #endif

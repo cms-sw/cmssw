@@ -1,6 +1,6 @@
 /****************************************************************************
  * Author: Seyed Mohsen Etesami
- *  September 2016 
+ *  September 2016
  ****************************************************************************/
 
 #ifndef DataFormats_CTPPSDetId_CTPPSDiamondDetId
@@ -17,7 +17,7 @@
 /**
  *\brief Detector ID class for CTPPS Timing Diamond detectors.
  * Bits [19:31] : Assigend in CTPPSDetId Calss
- * Bits [17:18] : 2 bits for diamond plane 0,1,2,3 
+ * Bits [17:18] : 2 bits for diamond plane 0,1,2,3
  * Bits [12:16] : 5 bits for Diamond  channel numbers 1,2,3,..16
  * Bits [0:11]  : unspecified yet
  **/
@@ -58,7 +58,7 @@ public:
 
   //-------------------- id getters for higher-level objects --------------------
 
-  CTPPSDiamondDetId getPlaneId() const { return CTPPSDiamondDetId(rawId() & (~lowMaskPlane)); }
+  CTPPSDiamondDetId planeId() const { return CTPPSDiamondDetId(rawId() & (~lowMaskPlane)); }
 
   //-------------------- name methods --------------------
 

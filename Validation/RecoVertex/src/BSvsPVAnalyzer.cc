@@ -27,7 +27,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -46,7 +46,7 @@
 // class decleration
 //
 
-class BSvsPVAnalyzer : public edm::EDAnalyzer {
+class BSvsPVAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit BSvsPVAnalyzer(const edm::ParameterSet&);
   ~BSvsPVAnalyzer() override;
@@ -83,7 +83,7 @@ BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
       _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection"))),
       _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly", false)) {
   //now do what ever initialization is needed
-
+  usesResource(TFileService::kSharedResource);
   //
 
   _bspvhm.book();

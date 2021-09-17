@@ -1,17 +1,20 @@
-#ifndef CSCTMBHeader_h
-#define CSCTMBHeader_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader_h
+#define EventFilter_CSCRawToDigi_CSCTMBHeader_h
 
 ///A.Tumanov Sept 18, 07
 
 #include <iosfwd>
 #include <vector>
+#include <memory>
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
+
 #ifndef LOCAL_UNPACK
 #include <atomic>
 #endif
@@ -97,9 +100,10 @@ public:
   /// these methods need more brains to figure which one goes first
   void add(const std::vector<CSCCLCTDigi>& digis);
   void add(const std::vector<CSCCorrelatedLCTDigi>& digis);
+  void add(const std::vector<CSCShowerDigi>& digis);
 
   /// tests that packing and unpacking give same results
-  static void selfTest();
+  static void selfTest(int firmwwareVersion, int firmwareRevision);
 
   friend std::ostream& operator<<(std::ostream& os, const CSCTMBHeader& hdr);
 
@@ -112,7 +116,7 @@ private:
   static std::atomic<bool> debug;
 #endif
 
-  boost::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
+  std::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;
 };
 

@@ -15,10 +15,12 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 class TrackerTopology;
 class TrackingUtility {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   static int getMEList(std::string name, std::vector<std::string>& values);
   static bool checkME(std::string element, std::string name, std::string& full_path);
   static int getMEList(std::string name, std::string& dir_path, std::vector<std::string>& me_names);

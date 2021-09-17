@@ -1,10 +1,13 @@
+#ifndef PhysicsTools_TagAndProbe_ColinsSuperVariables
+#define PhysicsTools_TagAndProbe_ColinsSuperVariables
+
 #define CM_ENERGY 7000.0
 #include "TLorentzVector.h"
 #include "TVector3.h"
 
 // calculate the Colins-Soper variables;
 // everything is in the lab frame
-void calCSVariables(TLorentzVector mu, TLorentzVector mubar, double *res, bool swap) {
+inline void calCSVariables(TLorentzVector mu, TLorentzVector mubar, double *res, bool swap) {
   // convention. beam direction is on the positive Z direction.
   // beam contains quark flux.
   TLorentzVector Pbeam(0, 0, CM_ENERGY / 2.0, CM_ENERGY / 2.0);
@@ -62,3 +65,5 @@ void calCSVariables(TLorentzVector mu, TLorentzVector mubar, double *res, bool s
   res[1] = sin2theta;
   res[2] = tanphi;
 }
+
+#endif

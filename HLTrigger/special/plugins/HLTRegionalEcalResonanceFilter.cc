@@ -8,7 +8,10 @@
 using namespace std;
 using namespace edm;
 
-HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::ParameterSet &iConfig) {
+HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::ParameterSet &iConfig)
+    : caloTopologyRecordToken_(esConsumes()),
+      ecalChannelStatusRcdToken_(esConsumes()),
+      caloGeometryRecordToken_(esConsumes()) {
   barrelHits_ = iConfig.getParameter<edm::InputTag>("barrelHits");
   barrelClusters_ = iConfig.getParameter<edm::InputTag>("barrelClusters");
   barrelHitsToken_ = consumes<EBRecHitCollection>(barrelHits_);
@@ -18,6 +21,8 @@ HLTRegionalEcalResonanceFilter::HLTRegionalEcalResonanceFilter(const edm::Parame
   endcapClusters_ = iConfig.getParameter<edm::InputTag>("endcapClusters");
   endcapHitsToken_ = consumes<EERecHitCollection>(endcapHits_);
   endcapClustersToken_ = consumes<reco::BasicClusterCollection>(endcapClusters_);
+
+  store5x5RecHitEB_ = false;
 
   doSelBarrel_ = iConfig.getParameter<bool>("doSelBarrel");
 
@@ -298,14 +303,13 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
   vector<DetId> selectedEBDetIds;
   vector<DetId> selectedEEDetIds;
 
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
+  auto const &pTopology = iSetup.getHandle(caloTopologyRecordToken_);
   const CaloSubdetectorTopology *topology_eb = pTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorTopology *topology_ee = pTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  auto const &geoHandle = iSetup.getHandle(caloGeometryRecordToken_);
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
   std::unique_ptr<CaloSubdetectorTopology> topology_es;
   if (geometry_es) {
     topology_es = std::make_unique<EcalPreshowerTopology>();
@@ -316,7 +320,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
   ///get status from DB
   edm::ESHandle<EcalChannelStatus> csHandle;
   if (useDBStatus_)
-    iSetup.get<EcalChannelStatusRcd>().get(csHandle);
+    csHandle = iSetup.getHandle(ecalChannelStatusRcdToken_);
   const EcalChannelStatus &channelStatus = *csHandle;
 
   ///==============Start to process barrel part==================///

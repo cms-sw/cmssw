@@ -3,9 +3,11 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -16,7 +18,7 @@
 
 class EGHcalRecHitSelector {
 public:
-  explicit EGHcalRecHitSelector(const edm::ParameterSet& config);
+  explicit EGHcalRecHitSelector(const edm::ParameterSet& config, edm::ConsumesCollector);
   ~EGHcalRecHitSelector() {}
 
   template <typename CollType>
@@ -24,7 +26,7 @@ public:
                  const HBHERecHitCollection& recHits,
                  CollType& detIdsToStore) const;
 
-  void setup(const edm::EventSetup& iSetup) { iSetup.get<CaloGeometryRecord>().get(towerMap_); }
+  void setup(const edm::EventSetup& iSetup) { towerMap_ = iSetup.getHandle(towerMapToken_); }
 
   static edm::ParameterSetDescription makePSetDescription();
 
@@ -40,6 +42,7 @@ private:
   float minEnergyHEDefault_;
 
   edm::ESHandle<CaloTowerConstituentsMap> towerMap_;
+  edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> towerMapToken_;
 };
 
 template <typename CollType>

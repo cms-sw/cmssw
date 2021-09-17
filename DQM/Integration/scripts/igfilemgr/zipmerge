@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 zipmerge [-sret] [-n size ] [--help] [-o name] file1 
   file2 [filen...]
@@ -47,7 +47,7 @@ def openOutputZipFile(filename):
       key="x"
       while  key not in ["y","Y","n","N","a","A","all","All",""] and not ALL:
         print "\nOutput file %s already exist and will be overwriten!!!" % filename
-        key=raw_input("Do you want to proceed? (y,n,[all])")
+        key=input("Do you want to proceed? (y,n,[all])")
         ALL=key in ["a","A","all","All",""]
       if key in ["y","Y",""] or ALL: 
         os.remove(filename)

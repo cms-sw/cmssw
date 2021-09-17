@@ -12,11 +12,6 @@
   \version  $Id: ObjectResolutionCalc.h,v 1.5 2008/10/08 19:19:25 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -24,11 +19,9 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "TF1.h"
-#include "TH1.h"
 #include "TFile.h"
-#include "TKey.h"
-#include "TString.h"
 #include "TMultiLayerPerceptron.h"
+#include "TString.h"
 
 namespace pat {
 

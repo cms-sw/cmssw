@@ -12,9 +12,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 //#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
-
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
 
 class EcalCleaningAlgo;
@@ -53,6 +55,7 @@ private:
   edm::EDGetTokenT<std::set<EEDetId> > eeDetIdToBeRecoveredToken_;
   edm::EDGetTokenT<std::set<EcalTrigTowerDetId> > ebFEToBeRecoveredToken_;
   edm::EDGetTokenT<std::set<EcalScDetId> > eeFEToBeRecoveredToken_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalChannelStatusToken_;
 };
 
 #endif

@@ -27,15 +27,15 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
 class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
-  public:
-    RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
-    ~RecoTauPiZeroUnembedder() override{}
-    void produce(edm::Event& evt, const edm::EventSetup& es) override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+public:
+  RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
+  ~RecoTauPiZeroUnembedder() override {}
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  private:
-    edm::InputTag src_;
-    edm::EDGetTokenT<reco::CandidateView> token; 
+private:
+  edm::InputTag src_;
+  edm::EDGetTokenT<reco::CandidateView> token;
 };
 
 RecoTauPiZeroUnembedder::RecoTauPiZeroUnembedder(const edm::ParameterSet& pset) {
@@ -51,12 +51,10 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   edm::Handle<reco::CandidateView> tauView;
   evt.getByToken(token, tauView);
 
-  reco::PFTauRefVector taus =
-      reco::tau::castView<reco::PFTauRefVector>(tauView);
+  reco::PFTauRefVector taus = reco::tau::castView<reco::PFTauRefVector>(tauView);
 
   // Get the reference to the product of where the final pizeros will end up
-  reco::RecoTauPiZeroRefProd piZeroProd =
-    evt.getRefBeforePut<reco::RecoTauPiZeroCollection>("pizeros");
+  reco::RecoTauPiZeroRefProd piZeroProd = evt.getRefBeforePut<reco::RecoTauPiZeroCollection>("pizeros");
 
   for (size_t iTau = 0; iTau < taus.size(); ++iTau) {
     // Make a copy
@@ -67,23 +65,19 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
 
     // Copy the PiZeros into the new vector, while updating what refs they will
     // have
-    const reco::RecoTauPiZeroCollection& signalPiZeros =
-      myTau.signalPiZeroCandidates();
+    const reco::RecoTauPiZeroCollection& signalPiZeros = myTau.signalPiZeroCandidates();
 
     for (size_t iPiZero = 0; iPiZero < signalPiZeros.size(); ++iPiZero) {
       piZerosOut->push_back(signalPiZeros[iPiZero]);
       // Figure out what the ref for this pizero will be in the new coll.
-      signalPiZeroRefs.push_back(
-          reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size()-1));
+      signalPiZeroRefs.push_back(reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size() - 1));
     }
 
-    const reco::RecoTauPiZeroCollection& isolationPiZeroCandidates =
-      myTau.isolationPiZeroCandidates();
+    const reco::RecoTauPiZeroCollection& isolationPiZeroCandidates = myTau.isolationPiZeroCandidates();
     for (size_t iPiZero = 0; iPiZero < isolationPiZeroCandidates.size(); ++iPiZero) {
       piZerosOut->push_back(isolationPiZeroCandidates[iPiZero]);
       // Figure out what the ref for this pizero will be in the new coll.
-      isolationPiZeroRefs.push_back(
-          reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size()-1));
+      isolationPiZeroRefs.push_back(reco::RecoTauPiZeroRef(piZeroProd, piZerosOut->size() - 1));
     }
 
     myTau.setSignalPiZeroCandidatesRefs(signalPiZeroRefs);
@@ -96,8 +90,7 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   evt.put(std::move(tausOut));
 }
 
-void
-RecoTauPiZeroUnembedder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void RecoTauPiZeroUnembedder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // RecoTauPiZeroUnembedder
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("hpsPFTauProducerSansRefs"));

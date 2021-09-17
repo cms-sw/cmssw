@@ -176,7 +176,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   (*m_xos) << std::scientific << std::setprecision(18);
 
   (*m_xos) << "<MaterialSection label=\"" << ns_ << "\">" << std::endl;
-  for (auto it : matStore) {
+  for (const auto& it : matStore) {
     if (!it.isDefined().second)
       continue;
     out.material(it, *m_xos);

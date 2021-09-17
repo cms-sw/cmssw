@@ -1,9 +1,7 @@
 #include <iostream>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -11,18 +9,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "HLTDisplacedtktkVtxProducer.h"
 
 using namespace edm;
@@ -33,7 +26,8 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTDisplacedtktkVtxProducer::HLTDisplacedtktkVtxProducer(const edm::ParameterSet& iConfig)
-    : srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
+    : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
       srcToken_(consumes<reco::RecoChargedCandidateCollection>(srcTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
@@ -45,9 +39,7 @@ HLTDisplacedtktkVtxProducer::HLTDisplacedtktkVtxProducer(const edm::ParameterSet
       massParticle1_(iConfig.getParameter<double>("massParticle1")),
       massParticle2_(iConfig.getParameter<double>("massParticle2")),
       chargeOpt_(iConfig.getParameter<int>("ChargeOpt")),
-      triggerTypeDaughters_(iConfig.getParameter<int>("triggerTypeDaughters"))
-
-{
+      triggerTypeDaughters_(iConfig.getParameter<int>("triggerTypeDaughters")) {
   produces<VertexCollection>();
 }
 
@@ -70,12 +62,6 @@ void HLTDisplacedtktkVtxProducer::fillDescriptions(edm::ConfigurationDescription
   descriptions.add("hltDisplacedtktkVtxProducer", desc);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedtktkVtxProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTDisplacedtktkVtxProducer::endJob() {}
-
 // ------------ method called on each new Event  ------------
 void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double const firstTrackMass = massParticle1_;
@@ -87,9 +73,8 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
   Handle<RecoChargedCandidateCollection> trackcands;
   iEvent.getByToken(srcToken_, trackcands);
 
-  //get the transient track builder:
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  // get the transient track builder
+  auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
   std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
@@ -205,7 +190,7 @@ void HLTDisplacedtktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 bool HLTDisplacedtktkVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                    vector<RecoChargedCandidateRef>& refVect) {
+                                                    const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

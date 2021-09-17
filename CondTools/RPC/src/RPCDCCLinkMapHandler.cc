@@ -37,10 +37,10 @@ RPCDCCLinkMapHandler::~RPCDCCLinkMapHandler() {}
 
 void RPCDCCLinkMapHandler::getNewObjects() {
   edm::LogInfo("RPCDCCLinkMapHandler") << "getNewObjects";
-  cond::TagInfo const& tag_info = tagInfo();
-  if (since_run_ < tag_info.lastInterval.first)
+  cond::TagInfo_t const& tag_info = tagInfo();
+  if (since_run_ < tag_info.lastInterval.since)
     throw cms::Exception("RPCDCCLinkMapHandler") << "Refuse to create RPCDCCLinkMap for run " << since_run_
-                                                 << ", older than most recent tag" << tag_info.lastInterval.first;
+                                                 << ", older than most recent tag" << tag_info.lastInterval.since;
 
   edm::LogInfo("RPCDCCLinkMapHandler") << "Opening read-only Input Session";
   auto input_session = connection_.createCoralSession(connect_, false);  // writeCapable

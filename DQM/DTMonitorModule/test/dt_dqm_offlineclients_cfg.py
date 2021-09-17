@@ -65,11 +65,9 @@ process.maxEvents.input = -1
 
 process.source.processingMode = "RunsAndLumis"
 
-process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
-process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
@@ -84,19 +82,25 @@ process.p1 = cms.Path(process.EDMtoMEConverter*
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
-                                    debugModules = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('DTBlockedROChannelsTest'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'),
-                                                              noLineBreaks = cms.untracked.bool(False),
-                                                              DEBUG = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              INFO = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              DTBlockedROChannelsTest = cms.untracked.PSet(
-                                                                                 limit = cms.untracked.int32(-1))
-                                                              )
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        DTBlockedROChannelsTest = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(False),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 
 

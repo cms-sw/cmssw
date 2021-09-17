@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -75,8 +74,6 @@ void ESRawDataTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, Event
   meOrbitNumberDiff_->setAxisTitle("ES - GT orbit number", 1);
   meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
 }
-
-void ESRawDataTask::endJob(void) { LogInfo("ESRawDataTask") << "analyzed " << ievt_ << " events"; }
 
 void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;

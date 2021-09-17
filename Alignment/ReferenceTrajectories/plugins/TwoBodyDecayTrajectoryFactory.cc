@@ -7,7 +7,7 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -93,15 +93,18 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
+  setup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+
   if (tracks.size() == 2) {
     // produce transient tracks from persistent tracks
     std::vector<reco::TransientTrack> transientTracks(2);
 
     transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField.product());
-    transientTracks[0].setES(setup);
+    transientTracks[0].setTrackingGeometry(trackingGeometry);
 
     transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField.product());
-    transientTracks[1].setES(setup);
+    transientTracks[1].setTrackingGeometry(trackingGeometry);
 
     // estimate the decay parameters
     VirtualMeasurement vm(thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot);
@@ -131,6 +134,9 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
+  setup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+
   if (tracks.size() == 2 && external.size() == 2) {
     if (external[0].isValid() && external[1].isValid())  // Include external estimates
     {
@@ -138,10 +144,10 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
       std::vector<reco::TransientTrack> transientTracks(2);
 
       transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField.product());
-      transientTracks[0].setES(setup);
+      transientTracks[0].setTrackingGeometry(trackingGeometry);
 
       transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField.product());
-      transientTracks[1].setES(setup);
+      transientTracks[1].setTrackingGeometry(trackingGeometry);
 
       // estimate the decay parameters. the transient tracks are not really associated to the
       // the external tsos, but this is o.k., because the only information retrieved from them

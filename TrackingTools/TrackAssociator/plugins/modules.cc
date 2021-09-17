@@ -1,9 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
-
 #include "DetIdAssociatorFactory.h"
 #include "EcalDetIdAssociatorMaker.h"
 #include "HcalDetIdAssociatorMaker.h"
@@ -18,4 +15,3 @@ DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, HODetIdAssociatorMaker, "HODetIdAssoci
 DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, CaloDetIdAssociatorMaker, "CaloDetIdAssociator");
 DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, MuonDetIdAssociatorMaker, "MuonDetIdAssociator");
 DEFINE_EDM_PLUGIN(DetIdAssociatorFactory, PreshowerDetIdAssociatorMaker, "PreshowerDetIdAssociator");
-

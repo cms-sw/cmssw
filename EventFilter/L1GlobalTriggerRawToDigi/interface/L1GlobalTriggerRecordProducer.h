@@ -27,8 +27,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 
 // forward declarations
 class L1GtTriggerMask;
@@ -61,6 +65,10 @@ private:
 private:
   /// InputTag for the L1 Global Trigger DAQ readout record
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtReadoutRecordTag;
+  /// EventSetup Token for l1GtTriggerMaskAlgo
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_l1GtTmAlgoToken;
+  ///  EventSetupToken for L1GtTriggerMaskTech
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_l1GtTmTechToken;
 };
 
 #endif  // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRecordProducer_h

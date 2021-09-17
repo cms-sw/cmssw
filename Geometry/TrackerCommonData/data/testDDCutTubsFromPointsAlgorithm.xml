@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+    <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="MotherOfAllBoxes">
+      <rMaterial name="materials:Air"/>
+      <rSolid name="MotherOfAllBoxes"/>
+    </LogicalPart> 
+  </LogicalPartSection>
+  <Algorithm name="track:DDCutTubsFromPoints">
+    <rParent name="testDDCutTubsFromPointsAlgorithm:MotherOfAllBoxes"/>
+    <String name="SolidName" value="cutTubFromPoints"/>
+    <String name="Material" value="materials:Air"/>
+    <Numeric name="zPos" value="36.625*mm"/>
+    <Numeric name="rMin" value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMin]"/>
+    <Numeric name="rMax" value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMax]"/>
+    <String  name="Phi" value="pixfwdSupportRingParameters:InnerDiskOuterRing_Phi"/>
+    <String  name="z_t" value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_t_Minus"/>
+    <String  name="z_l" value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_l_Minus"/>
+  </Algorithm>
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name=":world_volume"/>
+      <rChild name="MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

@@ -1,12 +1,11 @@
 #include "Calibration/EcalAlCaRecoProducers/plugins/AlCaECALRecHitReducer.h"
-//#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 //#define ALLrecHits
 //#define DEBUG
@@ -35,6 +34,8 @@ AlCaECALRecHitReducer::AlCaECALRecHitReducer(const edm::ParameterSet& iConfig) {
   EESuperClusterToken_ =
       consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("EESuperClusterCollection"));
 
+  caloTopologyToken_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+
   minEta_highEtaSC_ = iConfig.getParameter<double>("minEta_highEtaSC");
 
   alcaBarrelHitsCollection_ = iConfig.getParameter<std::string>("alcaBarrelHitCollection");
@@ -62,13 +63,11 @@ AlCaECALRecHitReducer::AlCaECALRecHitReducer(const edm::ParameterSet& iConfig) {
 AlCaECALRecHitReducer::~AlCaECALRecHitReducer() {}
 
 // ------------ method called to produce the data  ------------
-void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlCaECALRecHitReducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   //using namespace std;
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
+  const CaloTopology* caloTopology = &iSetup.getData(caloTopologyToken_);
 
   // Get Photons
   Handle<reco::PhotonCollection> phoHandle;
@@ -192,7 +191,7 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 void AlCaECALRecHitReducer::AddMiniRecHitCollection(const reco::SuperCluster& sc,
                                                     std::set<DetId>& reducedRecHitMap,
-                                                    const CaloTopology* caloTopology) {
+                                                    const CaloTopology* caloTopology) const {
   DetId seed = (sc.seed()->seed());
   int phiSize = phiSize_, etaSize = etaSize_;
   if (seed.subdetId() != EcalBarrel) {  // if not EB, take a square window

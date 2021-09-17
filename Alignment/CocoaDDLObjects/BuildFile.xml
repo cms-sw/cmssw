@@ -1,5 +1,5 @@
-<use   name="CLHEP"/>
-<use   name="Alignment/CocoaUtilities"/>
+<use name="CLHEP"/>
+<use name="Alignment/CocoaUtilities"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

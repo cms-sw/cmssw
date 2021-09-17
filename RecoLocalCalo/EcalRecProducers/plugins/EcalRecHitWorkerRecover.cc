@@ -5,25 +5,22 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
-    : EcalRecHitWorkerBaseClass(ps, c) {
+    : EcalRecHitWorkerBaseClass(ps, c), ecalScaleTokens_(c), tpgscaleTokens_(c) {
   rechitMaker_ = std::make_unique<EcalRecHitSimpleAlgo>();
   // isolated channel recovery
   singleRecoveryMethod_ = ps.getParameter<std::string>("singleChannelRecoveryMethod");
   singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
+  sum8RecoveryThreshold_ = ps.getParameter<double>("sum8ChannelRecoveryThreshold");
   killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
   recoverEBIsolatedChannels_ = ps.getParameter<bool>("recoverEBIsolatedChannels");
   recoverEEIsolatedChannels_ = ps.getParameter<bool>("recoverEEIsolatedChannels");
@@ -31,6 +28,13 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, ed
   recoverEEVFE_ = ps.getParameter<bool>("recoverEEVFE");
   recoverEBFE_ = ps.getParameter<bool>("recoverEBFE");
   recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
+  laserToken_ = c.esConsumes<EcalLaserDbService, EcalLaserDbRecord>();
+  caloTopologyToken_ = c.esConsumes<CaloTopology, CaloTopologyRecord>();
+  pEcalMappingToken_ = c.esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
+  pEBGeomToken_ = c.esConsumes<CaloSubdetectorGeometry, EcalBarrelGeometryRecord>(edm::ESInputTag("", "EcalBarrel"));
+  caloGeometryToken_ = c.esConsumes<CaloGeometry, CaloGeometryRecord>();
+  chStatusToken_ = c.esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  ttMapToken_ = c.esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
 
   dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
   dbStatusToBeExcludedEB_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEB");
@@ -40,24 +44,26 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, ed
 
   tpDigiToken_ =
       c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
+
+  if (recoverEBIsolatedChannels_ && singleRecoveryMethod_ == "BDTG")
+    ebDeadChannelCorrector.setParameters(ps);
 }
 
 void EcalRecHitWorkerRecover::set(const edm::EventSetup& es) {
-  es.get<EcalLaserDbRecord>().get(laser);
-  es.get<CaloTopologyRecord>().get(caloTopology_);
-  ecalScale_.setEventSetup(es);
-  es.get<EcalMappingRcd>().get(pEcalMapping_);
+  laser = es.getHandle(laserToken_);
+  caloTopology_ = es.getHandle(caloTopologyToken_);
+  pEcalMapping_ = es.getHandle(pEcalMappingToken_);
   ecalMapping_ = pEcalMapping_.product();
   // geometry...
-  es.get<EcalBarrelGeometryRecord>().get("EcalBarrel", pEBGeom_);
-  es.get<CaloGeometryRecord>().get(caloGeometry_);
-  es.get<EcalChannelStatusRcd>().get(chStatus_);
+  pEBGeom_ = es.getHandle(pEBGeomToken_);
+  caloGeometry_ = es.getHandle(caloGeometryToken_);
+  chStatus_ = es.getHandle(chStatusToken_);
   geo_ = caloGeometry_.product();
   ebGeom_ = pEBGeom_.product();
-  es.get<IdealGeometryRecord>().get(ttMap_);
+  ttMap_ = es.getHandle(ttMapToken_);
   recoveredDetIds_EB_.clear();
   recoveredDetIds_EE_.clear();
-  tpgscale_.setEventSetup(es);
+  eventSetup_ = &es;
 }
 
 bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
@@ -124,8 +130,9 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 
     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
     bool AcceptRecHit = true;
-    EcalRecHit hit =
-        ebDeadChannelCorrector.correct(detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+    float ebEn = ebDeadChannelCorrector.correct(
+        detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
+    EcalRecHit hit(detId, ebEn, 0., EcalRecHit::kDead);
 
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
@@ -141,8 +148,9 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 
     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
     bool AcceptRecHit = true;
-    EcalRecHit hit =
-        eeDeadChannelCorrector.correct(detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+    float eeEn = eeDeadChannelCorrector.correct(
+        detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
+    EcalRecHit hit(detId, eeEn, 0., EcalRecHit::kDead);
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
     } else {
@@ -169,9 +177,10 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find(ttDetId);
     // recover the whole trigger tower
     if (tp != tpDigis->end()) {
+      EcalTPGScale ecalScale{ecalScaleTokens_, *eventSetup_};
       //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
-      float tpEt = ecalScale_.getTPGInGeV(tp->compressedEt(), tp->id());
+      float tpEt = ecalScale.getTPGInGeV(tp->compressedEt(), tp->id());
       float tpEtThreshEB = logWarningEtThreshold_EB_FE_;
       if (tpEt > tpEtThreshEB) {
         edm::LogWarning("EnergyInDeadEB_FE") << "TP energy in the dead TT = " << tpEt << " at " << ttDetId;
@@ -183,7 +192,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
           if (alreadyInserted(*dit))
             continue;
           float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
-          float tpEt = ecalScale_.getTPGInGeV(tp->compressedEt(), tp->id());
+          float tpEt = ecalScale.getTPGInGeV(tp->compressedEt(), tp->id());
           if (checkChannelStatus(*dit, dbStatusToBeExcludedEB_)) {
             EcalRecHit hit(*dit, tpEt / ((float)vid.size()) / sin(theta), 0.);
             hit.setFlag(EcalRecHit::kTowerRecovered);
@@ -242,6 +251,9 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
     for (std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it) {
       aTT.insert(ttMap_->towerOf(*it));
     }
+
+    EcalTPGScale tpgscale(tpgscaleTokens_, *eventSetup_);
+    EcalTPGScale ecalScale(ecalScaleTokens_, *eventSetup_);
     // associated trigger towers: total energy
     float totE = 0;
     // associated trigger towers: EEDetId constituents
@@ -271,7 +283,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
           //Estimate energy sums the energy in the working channels, then decides how much energy
           //to put here depending on that. Duncan 20101203
 
-          totE += estimateEnergy(itTP->id().ietaAbs(), &result, eeC, v);
+          totE += estimateEnergy(itTP->id().ietaAbs(), &result, eeC, v, tpgscale);
 
           /* 
 					     These commented out lines use
@@ -286,7 +298,7 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 					  //std::cout << count << ", " << v.size() << std::endl;
 					  totE+=((float)count/(float)v.size())* ((it->ietaAbs()>26)?2*ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ):ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ));*/
         } else {
-          totE += ((it->ietaAbs() > 26) ? 2 : 1) * ecalScale_.getTPGInGeV(itTP->compressedEt(), itTP->id());
+          totE += ((it->ietaAbs() > 26) ? 2 : 1) * ecalScale.getTPGInGeV(itTP->compressedEt(), itTP->id());
         }
 
         // get the trigger tower constituents
@@ -350,7 +362,8 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 float EcalRecHitWorkerRecover::estimateEnergy(int ieta,
                                               EcalRecHitCollection* hits,
                                               const std::set<DetId>& sId,
-                                              const std::vector<DetId>& vId) {
+                                              const std::vector<DetId>& vId,
+                                              const EcalTPGScale& tpgscale) {
   float xtalE = 0;
   int count = 0;
   for (std::vector<DetId>::const_iterator vIdit = vId.begin(); vIdit != vId.end(); ++vIdit) {
@@ -366,9 +379,9 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta,
 
   if (count == 0) {  // If there are no overlapping crystals return saturated value.
 
-    double etsat = tpgscale_.getTPGInGeV(0xFF,
-                                         ttMap_->towerOf(*vId.begin()));  // get saturation value for the first
-                                                                          // constituent, for the others it's the same
+    double etsat = tpgscale.getTPGInGeV(0xFF,
+                                        ttMap_->towerOf(*vId.begin()));  // get saturation value for the first
+                                                                         // constituent, for the others it's the same
 
     return etsat / cosh(ieta) * (ieta > 26 ? 2 : 1);  // account for duplicated TT in EE for ieta>26
   } else

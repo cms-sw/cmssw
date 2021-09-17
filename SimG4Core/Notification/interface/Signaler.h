@@ -57,11 +57,10 @@ namespace sim_act {
     ///does not take ownership of memory
     void connect(Observer<const T*>& iObs) { observers_.push_back(&iObs); }
 
-  private:
-    Signaler(const Signaler&) = delete;  // stop default
-
+    Signaler(const Signaler&) = delete;                   // stop default
     const Signaler& operator=(const Signaler&) = delete;  // stop default
 
+  private:
     void update(const T* iData) override { this->operator()(iData); }
     // ---------- member data --------------------------------
     std::vector<Observer<const T*>*> observers_;

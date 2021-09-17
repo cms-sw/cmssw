@@ -2,9 +2,6 @@
 #ifndef ElectronDqmAnalyzerBase_h
 #define ElectronDqmAnalyzerBase_h
 
-class DQMStore;
-class MonitorElement;
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <Rtypes.h>
@@ -14,7 +11,7 @@ class MonitorElement;
 //DQM
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace edab {
   struct Empty {};

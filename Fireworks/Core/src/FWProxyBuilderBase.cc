@@ -12,7 +12,7 @@
 
 // system include files
 #include <iostream>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "TEveElement.h"
@@ -254,7 +254,7 @@ TEveElementList* FWProxyBuilderBase::createProduct(const FWViewType::EType viewT
   m_products.push_back(product);
   if (viewContext) {
     product->m_scaleConnection =
-        viewContext->scaleChanged_.connect(boost::bind(&FWProxyBuilderBase::scaleChanged, this, _1));
+        viewContext->scaleChanged_.connect(std::bind(&FWProxyBuilderBase::scaleChanged, this, std::placeholders::_1));
   }
 
   if (item()) {

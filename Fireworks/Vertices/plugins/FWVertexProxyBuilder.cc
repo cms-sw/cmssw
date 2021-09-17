@@ -35,6 +35,7 @@
 #include "TEveBoxSet.h"
 #include "TGeoSphere.h"
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveVSDStructs.h"
 
 class FWVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Vertex> {
@@ -57,10 +58,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWVertexProxyBuilder(const FWVertexProxyBuilder&) = delete;                   // stop default
   const FWVertexProxyBuilder& operator=(const FWVertexProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::Vertex>::build;
   void build(const reco::Vertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 

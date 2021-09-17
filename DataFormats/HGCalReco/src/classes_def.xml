@@ -1,0 +1,57 @@
+
+<lcgdict>
+  <class name="ticl::Trackster" ClassVersion="9">
+    <version ClassVersion="9" checksum="1001808235"/>
+    <version ClassVersion="8" checksum="749412802"/>
+    <version ClassVersion="7" checksum="1072014319"/>
+    <version ClassVersion="6" checksum="3003722924"/>
+    <version ClassVersion="5" checksum="1679804166"/>
+    <version ClassVersion="4" checksum="2963413313"/>
+    <version ClassVersion="3" checksum="3878166595"/>
+  </class>
+  <class name="std::vector<ticl::Trackster>" />
+  <class name="edm::Wrapper<ticl::Trackster>" />
+  <class name="edm::Wrapper<std::vector<ticl::Trackster> >" />
+
+  <class name="ticl::TICLLayerTile" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::Tiles>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::Tiles>>" persistent="false"/>
+
+  <class name="TICLGenericTile<ticl::TracksterTiles>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTiles>>" persistent="false"/>
+
+  <class name="ticl::TICLLayerTileHFNose" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::TilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TilesHFNose>>" persistent="false"/>
+
+  <class name="TICLGenericTile<ticl::TracksterTilesHFNose>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTilesHFNose>>" persistent="false"/>
+
+  <class name="TICLSeedingRegion" ClassVersion="3">
+    <version ClassVersion="3" checksum="2409655320"/>
+  </class>
+  <class name="std::vector<TICLSeedingRegion>" />
+  <class name="edm::Wrapper<TICLSeedingRegion>" />
+  <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
+
+  <class name="TICLCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="450468662"/>
+  </class>
+  <class name="std::vector<TICLCandidate>" />
+  <class name="edm::Wrapper<TICLCandidate>" />
+  <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
+</lcgdict>

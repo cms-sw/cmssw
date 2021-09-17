@@ -17,9 +17,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorCalibrationsSet.h"
 #include "CalibFormats/CastorObjects/interface/CastorCalibrationWidthsSet.h"
 
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "CondFormats/CastorObjects/interface/AllObjects.h"
 
 class CastorCalibrations;

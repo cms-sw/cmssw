@@ -55,7 +55,7 @@ function makeCreateConfig() {
   workDir="$baseDir"
 
   # try to read the .jar files from AFS, or download them
-  if checkJars "$baseDir" $jars; then
+  if checkJars "$baseDir" $JARS; then
     # read the .jar fles from AFS
     workDir="$baseDir"
   else
@@ -75,7 +75,7 @@ function makeCreateConfig() {
       fi
       # download to a temporay file and use an atomic move (in case an other istance is downloading the same file
       local TMPJAR=$(mktemp -p "$workDir" .${JAR}.XXXXXXXXXX)
-      curl -s "$baseUrl/$JAR" -o "$TMPJAR"
+      curl -s -L "$baseUrl/$JAR" -o "$TMPJAR"
       mv -n "$TMPJAR" "$workDir/$JAR"
       rm -f "$TMPJAR"
     done

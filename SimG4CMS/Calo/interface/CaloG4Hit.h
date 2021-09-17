@@ -62,10 +62,12 @@ public:
   void setIncidentEnergy(double e) { theIncidentEnergy = e; }
 
   int getTrackID() const { return hitID.trackID(); }
+
   uint32_t getUnitID() const { return hitID.unitID(); }
   double getTimeSlice() const { return hitID.timeSlice(); }
   int getTimeSliceID() const { return hitID.timeSliceID(); }
   uint16_t getDepth() const { return hitID.depth(); }
+  bool isFinecaloTrackID() const { return hitID.isFinecaloTrackID(); }
 
   CaloHitID getID() const { return hitID; }
   void setID(uint32_t i, double d, int j, uint16_t k = 0) { hitID.setID(i, d, j, k); }

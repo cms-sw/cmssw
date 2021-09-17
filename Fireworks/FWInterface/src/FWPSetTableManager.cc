@@ -15,7 +15,7 @@
 
 #include "Fireworks/FWInterface/src/FWPSetTableManager.h"
 #include "Fireworks/FWInterface/src/FWPSetCellEditor.h"
-#include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/TableWidget/interface/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -370,7 +370,9 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry, const std::string 
       createScalarString(data, entry.getEventRange());
       break;
     }
-    default: { break; }
+    default: {
+      break;
+    }
   }
 }
 

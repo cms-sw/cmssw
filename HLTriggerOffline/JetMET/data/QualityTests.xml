@@ -1,15 +1,4 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="KolmogorovQTest0.3">
-        <TYPE>Comp2RefKolmogorov</TYPE>	
-	<PARAM name="testparam">0</PARAM>
-	<PARAM name="error">0.3</PARAM>
-	<PARAM name="warning">0.5</PARAM>
-</QTEST>
-
-<LINK name="HLT/HLTJETMET/*/*Turn-On*">
-	<TestName activate="true">KolmogorovQTest0.3</TestName>
-</LINK>
-
 
 </TESTSCONFIGURATION>

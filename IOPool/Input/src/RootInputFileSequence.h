@@ -3,7 +3,10 @@
 
 /*----------------------------------------------------------------------
 
-RootInputFileSequence: This is an InputSource
+RootInputFileSequence: This is an InputSource. initTheFile tries to open
+a file using a list of PFN names constructed from multiple data catalogs
+in site-local-config.xml. These are accessed via FileCatalogItem iterator
+fileIter_.
 
 ----------------------------------------------------------------------*/
 
@@ -35,11 +38,14 @@ namespace edm {
     RootInputFileSequence& operator=(RootInputFileSequence const&) = delete;  // Disallow copying and moving
 
     bool containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
-    void readEvent(EventPrincipal& cache);
+    bool readEvent(EventPrincipal& cache);
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     void readRun_(RunPrincipal& runPrincipal);
+    void fillProcessBlockHelper_();
+    bool nextProcessBlock_(ProcessBlockPrincipal&);
+    void readProcessBlock_(ProcessBlockPrincipal&);
     bool skipToItem(RunNumber_t run,
                     LuminosityBlockNumber_t lumi,
                     EventNumber_t event,
@@ -56,6 +62,7 @@ namespace edm {
                      InputSource* input,
                      char const* inputTypeName,
                      InputType inputType);
+
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
 
@@ -72,9 +79,9 @@ namespace edm {
     void setAtNextFile() { ++fileIter_; }
     void setAtPreviousFile() { --fileIter_; }
 
-    std::string const& fileName() const { return fileIter_->fileName(); }
+    std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
+
     std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
-    std::string const& fallbackFileName() const { return fileIter_->fallbackFileName(); }
     std::string const& lfn() const { return lfn_; }
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 

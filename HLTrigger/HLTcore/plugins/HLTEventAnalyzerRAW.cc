@@ -28,6 +28,13 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
@@ -196,6 +203,20 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
   l1etmissRefs_.clear();
   l1hfringsIds_.clear();
   l1hfringsRefs_.clear();
+  l1ttkmuIds_.clear();
+  l1ttkmuRefs_.clear();
+  l1ttkeleIds_.clear();
+  l1ttkeleRefs_.clear();
+  l1ttkemIds_.clear();
+  l1ttkemRefs_.clear();
+  l1tpfjetIds_.clear();
+  l1tpfjetRefs_.clear();
+  l1tpftauIds_.clear();
+  l1tpftauRefs_.clear();
+  l1thpspftauIds_.clear();
+  l1thpspftauRefs_.clear();
+  l1tpftrackIds_.clear();
+  l1tpftrackRefs_.clear();
   pfjetIds_.clear();
   pfjetRefs_.clear();
   pftauIds_.clear();
@@ -346,6 +367,80 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
                                              << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1NegEta) << " "
                                              << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2PosEta) << " "
                                              << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2NegEta) << endl;
+        }
+      }
+
+      /* Phase-2 */
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkmuIds_, l1ttkmuRefs_);
+      const unsigned int nL1TTkMuons(l1ttkmuIds_.size());
+      if (nL1TTkMuons > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTkMuons: " << nL1TTkMuons << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TTkMuons; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1ttkmuIds_[i] << " " << l1ttkmuRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkeleIds_, l1ttkeleRefs_);
+      const unsigned int nL1TTkElectrons(l1ttkeleIds_.size());
+      if (nL1TTkElectrons > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW")
+            << "   L1TTkElectrons: " << nL1TTkElectrons << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TTkElectrons; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1ttkeleIds_[i] << " " << l1ttkeleRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkemIds_, l1ttkemRefs_);
+      const unsigned int nL1TTkEMs(l1ttkemIds_.size());
+      if (nL1TTkEMs > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTkEMs: " << nL1TTkEMs << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TTkEMs; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1ttkemIds_[i] << " " << l1ttkemRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpfjetIds_, l1tpfjetRefs_);
+      const unsigned int nL1TPFJets(l1tpfjetIds_.size());
+      if (nL1TPFJets > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFJets: " << nL1TPFJets << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TPFJets; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1tpfjetIds_[i] << " " << l1tpfjetRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpftauIds_, l1tpftauRefs_);
+      const unsigned int nL1TPFTaus(l1tpftauIds_.size());
+      if (nL1TPFTaus > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFTaus: " << nL1TPFTaus << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TPFTaus; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1tpftauIds_[i] << " " << l1tpftauRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1thpspftauIds_, l1thpspftauRefs_);
+      const unsigned int nL1THPSPFTaus(l1thpspftauIds_.size());
+      if (nL1THPSPFTaus > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW")
+            << "   L1THPSPFTaus: " << nL1THPSPFTaus << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1THPSPFTaus; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1thpspftauIds_[i] << " " << l1thpspftauRefs_[i]->pt() << endl;
+        }
+      }
+
+      triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpftrackIds_, l1tpftrackRefs_);
+      const unsigned int nL1TPFTracks(l1tpftrackIds_.size());
+      if (nL1TPFTracks > 0) {
+        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFTracks: " << nL1TPFTracks << "  - the objects: # id pt" << endl;
+        for (unsigned int i = 0; i != nL1TPFTracks; ++i) {
+          LogVerbatim("HLTEventAnalyzerRAW")
+              << "   " << i << " " << l1tpftrackIds_[i] << " " << l1tpftrackRefs_[i]->pt() << endl;
         }
       }
 

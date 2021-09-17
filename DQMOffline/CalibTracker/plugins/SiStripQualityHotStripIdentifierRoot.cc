@@ -9,8 +9,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sstream>
 
 #include "TH1F.h"
@@ -19,11 +20,10 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
-      m_cacheID_(0),
-      dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
       UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB", false)),
       conf_(iConfig),
       tracker_(nullptr),
@@ -32,9 +32,14 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
       dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath", "")),
       TotNumberOfEvents(0),
       MeanNumberOfCluster(0),
-      calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold", 10000)) {
+      calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold", 10000)),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      stripQualityToken_(UseInputDB_
+                             ? decltype(stripQualityToken_)(esConsumes<edm::Transition::BeginRun>(
+                                   edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("dataLabel", "")}))
+                             : decltype(stripQualityToken_){}) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmStore_->setVerbose(iConfig.getUntrackedParameter<uint32_t>("verbosity", 0));
 
   if (!filename.empty()) {
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();
@@ -81,7 +86,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier->setTrackerGeometry(tracker_);
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier->extractBadStrips(
             qobj,
             ClusterPositionHistoMap,
@@ -126,7 +133,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile", false));
         theIdentifier2->setTrackerGeometry(tracker_);
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier2->extractBadAPVs(qobj, ClusterPositionHistoMap, SiStripQuality_);
 
         //----------
@@ -177,7 +186,9 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
             parameters.getUntrackedParameter<double>("OccupancyThreshold", 1.E-5));
         theIdentifier3->setMinNumOfEvents();
 
-        SiStripQuality* qobj = new SiStripQuality();
+        const auto detInfo =
+            SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+        SiStripQuality* qobj = new SiStripQuality(detInfo);
         theIdentifier3->extractBadAPVSandStrips(
             qobj,
             ClusterPositionHistoMap,
@@ -232,23 +243,10 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
 }
 
 void SiStripQualityHotStripIdentifierRoot::algoBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeom);
-  tracker_ = &(*theTrackerGeom);
-
-  if (UseInputDB_) {
-    unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
-
-    if (m_cacheID_ == cacheID)
-      return;
-
-    m_cacheID_ = cacheID;
-
-    iSetup.get<SiStripQualityRcd>().get(dataLabel_, SiStripQuality_);
+  tTopo = &iSetup.getData(tTopoToken_);
+  tracker_ = &iSetup.getData(tkGeomToken_);
+  if (UseInputDB_ && stripQualityWatcher_.check(iSetup)) {
+    SiStripQuality_ = &iSetup.getData(stripQualityToken_);
   }
 }
 
@@ -299,7 +297,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
   }
   if (!gotNentries) {
     edm::LogWarning("SiStripQualityHotStripIdentifierRoot")
-        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing"
+        << " [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of events missing"
         << std::endl;
   }
   for (; iter != iterEnd; ++iter) {
@@ -325,6 +323,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
     LogDebug("SiStripQualityHotStripIdentifierRoot")
         << " [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid << std::endl;
 
-    ClusterPositionHistoMap[detid] = boost::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
+    ClusterPositionHistoMap[detid] = std::make_shared<TH1F>(*(*iter)->getTH1F());
   }
 }

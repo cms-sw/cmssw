@@ -44,7 +44,7 @@ seqALCARECOSiStripCalMinBiasAAG = cms.Sequence(ALCARECOSiStripCalMinBiasAAGHLT*
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOSiStripCalMinBiasAAGHLT,
-                                           eventSetupPathsKey='SiStripCalMinBiasAAGHI'
-                                           )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOSiStripCalMinBiasAAGHLT,
+                                      eventSetupPathsKey='SiStripCalMinBiasAAGHI'
+)

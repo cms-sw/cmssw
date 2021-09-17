@@ -18,10 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -40,7 +37,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  MuonServiceProxy *theService;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
   // Switch for verbosity

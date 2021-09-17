@@ -5,13 +5,15 @@
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
 class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
 public:
-  LatencyHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  LatencyHistosUsingDb(const edm::ParameterSet& pset,
+                       DQMStore*,
+                       SiStripConfigDb* const,
+                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~LatencyHistosUsingDb() override;
 

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"

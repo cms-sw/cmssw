@@ -1,5 +1,6 @@
 #ifndef RKCylindricalDistance_H
 #define RKCylindricalDistance_H
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "RKDistance.h"
 #include "RKSmallVector.h"

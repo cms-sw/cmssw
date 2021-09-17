@@ -31,6 +31,7 @@ protected:
   //	tags
   edm::InputTag _tagQIE10;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	hcaldqm::Containers
   std::map<HcalElectronicsId, MonitorElement*> _cADC;

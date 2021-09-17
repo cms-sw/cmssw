@@ -6,8 +6,7 @@ using namespace std;
 
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
-void proof_thing_sel()
-{
+void proof_thing_sel() {
   if (gSystem->Getenv("TMPDIR")) {
     std::string t = gSystem->Getenv("TMPDIR");
     if (t.size() > 80)
@@ -18,7 +17,7 @@ void proof_thing_sel()
   }
 
   //Setup the proof server
-  TProof *myProof=TProof::Open( "", "workers=2" );
+  TProof *myProof = TProof::Open("", "workers=2");
 
   // This makes sure the TSelector library and dictionary are properly
   // installed in the remote PROOF servers
@@ -28,15 +27,18 @@ void proof_thing_sel()
   //myProof->Exec(".x proof_remote.C");
 
   // So inline it...
-  myProof->Exec("gSystem->Load(\"libFWCoreFWLite\"); "
-               "FWLiteEnabler::enable(); "
-               "gSystem->Load(\"libFWCoreTFWLiteSelectorTest\");");
+  myProof->Exec(
+      "gSystem->Load(\"libFWCoreFWLite\"); "
+      "FWLiteEnabler::enable(); "
+      "gSystem->Load(\"libFWCoreTFWLiteSelectorTest\");");
 
   // This creates the 'data set' which defines what files we need to process
   // NOTE: the files given must be accessible by the remote systems
-  TDSet c( "TTree", "Events");
+  TDSet c("TTree", "Events");
   c.Add("testTFWLiteSelector.root");
-  
+
   //This makes the actual processing happen
-  c.Process( "tfwliteselectortest::ThingsTSelector" );
+  c.Process("tfwliteselectortest::ThingsTSelector");
+
+  myProof->Close("S");
 }

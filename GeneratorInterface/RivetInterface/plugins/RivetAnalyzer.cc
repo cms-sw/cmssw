@@ -2,61 +2,55 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Rivet/Run.hh"
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
+
+#include <regex>
 
 using namespace Rivet;
 using namespace edm;
 
 RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
-    : _analysisHandler(),
-      _isFirstEvent(true),
+    : _isFirstEvent(true),
       _outFileName(pset.getParameter<std::string>("OutputFile")),
-      //decide whether to finlaize tthe plots or not.
+      _analysisNames(pset.getParameter<std::vector<std::string> >("AnalysisNames")),
+      //decide whether to finalize the plots or not.
       //deciding not to finalize them can be useful for further harvesting of many jobs
       _doFinalize(pset.getParameter<bool>("DoFinalize")),
       _produceDQM(pset.getParameter<bool>("ProduceDQMOutput")),
+      _lheLabel(pset.getParameter<edm::InputTag>("LHECollection")),
       _xsection(-1.) {
   usesResource("Rivet");
 
-  //retrive the analysis name from paarmeter set
-  std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
-
   _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
+  _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
-  _useExternalWeight = pset.getParameter<bool>("UseExternalWeight");
-  if (_useExternalWeight) {
-    if (!pset.exists("GenEventInfoCollection")) {
-      throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the "
-                                               "GenEventInfoProduct collection from which the weight has to be taken ";
-    }
-
-    _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
-    _useGENweights = pset.getParameter<bool>("useGENweights");
-    _GENweightNumber = pset.getParameter<int>("GENweightNumber");
-    _LHECollection = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
-    _useLHEweights = pset.getParameter<bool>("useLHEweights");
-    _LHEweightNumber = pset.getParameter<int>("LHEweightNumber");
+  _useLHEweights = pset.getParameter<bool>("useLHEweights");
+  if (_useLHEweights) {
+    _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun>(_lheLabel);
+    _LHECollection = consumes<LHEEventProduct>(_lheLabel);
   }
 
-  //get the analyses
-  _analysisHandler.addAnalyses(analysisNames);
+  _weightCap = pset.getParameter<double>("weightCap");
+  _NLOSmearing = pset.getParameter<double>("NLOSmearing");
+  _skipMultiWeights = pset.getParameter<bool>("skipMultiWeights");
+  _selectMultiWeights = pset.getParameter<std::string>("selectMultiWeights");
+  _deselectMultiWeights = pset.getParameter<std::string>("deselectMultiWeights");
+  _setNominalWeightName = pset.getParameter<std::string>("setNominalWeightName");
 
-  //go through the analyses and check those that need the cross section
+  //set user cross section if needed
   _xsection = pset.getParameter<double>("CrossSection");
-  for (AnaHandle iana : _analysisHandler.analyses()) {
-    if (iana->needsCrossSection())
-      iana->setCrossSection(_xsection);
-  }
+
   if (_produceDQM) {
     // book stuff needed for DQM
     dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
-    dbe->setVerbose(50);
   }
 }
 
@@ -64,9 +58,9 @@ RivetAnalyzer::~RivetAnalyzer() {}
 
 void RivetAnalyzer::beginJob() {
   //set the environment, very ugly but rivet is monolithic when it comes to paths
-  char* cmsswbase = getenv("CMSSW_BASE");
-  char* cmsswrelease = getenv("CMSSW_RELEASE_BASE");
-  if (!getenv("RIVET_REF_PATH")) {
+  char* cmsswbase = std::getenv("CMSSW_BASE");
+  char* cmsswrelease = std::getenv("CMSSW_RELEASE_BASE");
+  if (!std::getenv("RIVET_REF_PATH")) {
     const std::string rivetref = "RIVET_REF_PATH=" + string(cmsswbase) +
                                  "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
                                  "/src/GeneratorInterface/RivetInterface/data";
@@ -74,7 +68,7 @@ void RivetAnalyzer::beginJob() {
     putenv(rivetrefCstr);
     free(rivetrefCstr);
   }
-  if (!getenv("RIVET_INFO_PATH")) {
+  if (!std::getenv("RIVET_INFO_PATH")) {
     const std::string rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) +
                                   "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
                                   "/src/GeneratorInterface/RivetInterface/data";
@@ -84,9 +78,55 @@ void RivetAnalyzer::beginJob() {
   }
 }
 
-void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { return; }
+void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if (_useLHEweights) {
+    edm::Handle<LHERunInfoProduct> lheRunInfoHandle;
+    iRun.getByLabel(_lheLabel, lheRunInfoHandle);
+    typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+
+    std::regex reg("<weight.*> ?(.*?) ?<\\/weight>");
+    for (headers_const_iterator iter = lheRunInfoHandle->headers_begin(); iter != lheRunInfoHandle->headers_end();
+         iter++) {
+      std::vector<std::string> lines = iter->lines();
+      for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
+        std::smatch match;
+        std::regex_search(lines.at(iLine), match, reg);
+        if (!match.empty()) {
+          _lheWeightNames.push_back(match[1]);
+        }
+      }
+    }
+  }
+}
+
+void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+  edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
+  if (iLumi.getByToken(_genLumiInfoToken, genLumiInfoHandle)) {
+    _weightNames = genLumiInfoHandle->weightNames();
+  }
+
+  // need to reset the default weight name (or plotting will fail)
+  if (!_weightNames.empty()) {
+    _weightNames[0] = "";
+  } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
+    _weightNames.push_back("");
+  }
+}
+
+void RivetAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) { return; }
 
 void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //finalize weight names on the first event
+  if (_isFirstEvent) {
+    if (_useLHEweights) {
+      _weightNames.insert(_weightNames.end(), _lheWeightNames.begin(), _lheWeightNames.end());
+    }
+    // clean weight names to be accepted by Rivet plotting
+    for (const std::string& wn : _weightNames) {
+      _cleanedWeightNames.push_back(std::regex_replace(wn, std::regex("[^A-Za-z\\d\\._=]"), "_"));
+    }
+  }
+
   //get the hepmc product from the event
   edm::Handle<HepMCProduct> evt;
   iEvent.getByToken(_hepmcCollection, evt);
@@ -95,61 +135,65 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
   std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
   //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight
-  if (_useExternalWeight || _xsection > 0) {
-    tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
+  tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
 
-    if (_xsection > 0) {
-      HepMC::GenCrossSection xsec;
-      xsec.set_cross_section(_xsection);
-      tmpGenEvtPtr->set_cross_section(xsec);
-    }
-
-    if (_useExternalWeight) {
-      if (tmpGenEvtPtr->weights().empty()) {
-        throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
-      }
-      if (tmpGenEvtPtr->weights().size() > 1) {
-        edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size()
-                                         << ". Will change only the first one ";
-      }
-
-      edm::Handle<GenEventInfoProduct> genEventInfoProduct;
-      iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
-      double weightForRivet = genEventInfoProduct->weight();
-
-      if (_useGENweights) {
-        weightForRivet = genEventInfoProduct->weights().at(_GENweightNumber);
-      }
-      if (_useLHEweights) {
-        edm::Handle<LHEEventProduct> lheEventHandle;
-        iEvent.getByToken(_LHECollection, lheEventHandle);
-        weightForRivet *= lheEventHandle->weights().at(_LHEweightNumber).wgt / lheEventHandle->originalXWGTUP();
-      }
-
-      tmpGenEvtPtr->weights()[0] = weightForRivet;
-    }
-    myGenEvent = tmpGenEvtPtr.get();
+  if (_xsection > 0) {
+    HepMC::GenCrossSection xsec;
+    xsec.set_cross_section(_xsection);
+    tmpGenEvtPtr->set_cross_section(xsec);
   }
 
-  //aaply the beams initialization on the first event
+  std::vector<double> mergedWeights;
+  for (unsigned int i = 0; i < tmpGenEvtPtr->weights().size(); i++) {
+    mergedWeights.push_back(tmpGenEvtPtr->weights()[i]);
+  }
+
+  if (_useLHEweights) {
+    edm::Handle<LHEEventProduct> lheEventHandle;
+    iEvent.getByToken(_LHECollection, lheEventHandle);
+    for (unsigned int i = 0; i < _lheWeightNames.size(); i++) {
+      mergedWeights.push_back(tmpGenEvtPtr->weights()[0] * lheEventHandle->weights().at(i).wgt /
+                              lheEventHandle->originalXWGTUP());
+    }
+  }
+
+  tmpGenEvtPtr->weights().clear();
+  for (unsigned int i = 0; i < _cleanedWeightNames.size(); i++) {
+    tmpGenEvtPtr->weights()[_cleanedWeightNames[i]] = mergedWeights[i];
+  }
+  myGenEvent = tmpGenEvtPtr.get();
+
+  //apply the beams initialization on the first event
   if (_isFirstEvent) {
-    _analysisHandler.init(*myGenEvent);
+    _analysisHandler = std::make_unique<Rivet::AnalysisHandler>();
+    _analysisHandler->addAnalyses(_analysisNames);
+
+    /// Set analysis handler weight options
+    _analysisHandler->skipMultiWeights(_skipMultiWeights);
+    _analysisHandler->selectMultiWeights(_selectMultiWeights);
+    _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
+    _analysisHandler->setNominalWeightName(_setNominalWeightName);
+    _analysisHandler->setWeightCap(_weightCap);
+    _analysisHandler->setNLOSmearing(_NLOSmearing);
+
+    _analysisHandler->init(*myGenEvent);
+
     _isFirstEvent = false;
   }
 
   //run the analysis
-  _analysisHandler.analyze(*myGenEvent);
+  _analysisHandler->analyze(*myGenEvent);
 }
 
 void RivetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (_doFinalize)
-    _analysisHandler.finalize();
+    _analysisHandler->finalize();
   else {
     //if we don't finalize we just want to do the transformation from histograms to DPS
-    ////normalizeTree(_analysisHandler.tree());
+    ////normalizeTree(_analysisHandler->tree());
     //normalizeTree();
   }
-  _analysisHandler.writeData(_outFileName);
+  _analysisHandler->writeData(_outFileName);
 
   return;
 }
@@ -164,23 +208,23 @@ void RivetAnalyzer::endJob() {}
 
 void RivetAnalyzer::normalizeTree() {
   using namespace YODA;
-  std::vector<string> analyses = _analysisHandler.analysisNames();
+  std::vector<string> analyses = _analysisHandler->analysisNames();
 
   //tree.ls(".", true);
   const string tmpdir = "/RivetNormalizeTmp";
   //tree.mkdir(tmpdir);
-  foreach (const string& analysis, analyses) {
+  for (const string& analysis : analyses) {
     if (_produceDQM) {
       dbe->setCurrentFolder("Rivet/" + analysis);
       //global variables that are always present
       //sumOfWeights
       TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
-      nevent.SetBinContent(1, _analysisHandler.sumOfWeights());
+      nevent.SetBinContent(1, _analysisHandler->sumW());
       _mes.push_back(dbe->book1D("nEvt", &nevent));
     }
     //cross section
     //TH1F xsection("xSection", "Cross Section", 1, 0., 1.);
-    //xsection.SetBinContent(1,_analysisHandler.crossSection());
+    //xsection.SetBinContent(1,_analysisHandler->crossSection());
     //_mes.push_back(dbe->book1D("xSection",&xsection));
     //now loop over the histograms
 
@@ -206,7 +250,7 @@ void RivetAnalyzer::normalizeTree() {
         if (histo) {
           IHistogram1D* tmphisto = dynamic_cast<IHistogram1D*>(tree.find(tmppath));
           if (tmphisto) {
-            _analysisHandler.datapointsetFactory().create(path, *tmphisto);
+            _analysisHandler->datapointsetFactory().create(path, *tmphisto);
           }
           //now convert to root and then ME
     //need aida2flat (from Rivet 1.X) & flat2root here
@@ -220,7 +264,7 @@ void RivetAnalyzer::normalizeTree() {
         else if (prof) {
           IProfile1D* tmpprof = dynamic_cast<IProfile1D*>(tree.find(tmppath));
           if (tmpprof) {
-            _analysisHandler.datapointsetFactory().create(path, *tmpprof);
+            _analysisHandler->datapointsetFactory().create(path, *tmpprof);
           }
           //now convert to root and then ME
     //need aida2flat (from Rivet 1.X) & flat2root here

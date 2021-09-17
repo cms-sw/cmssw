@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Needed for the SST cabling
@@ -123,7 +123,10 @@ private:
   std::vector<uint32_t> detIDs_;  //!< Vector of detIDs that are of interest (config-specified).
   //now from utility class
   //    edm::ESHandle<SiStripDetCabling> cabling_;        //!< The Strip Tracker cabling object.
-  sistrip::SpyUtilities utility_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const SiStripDetCabling* detCabling_;
+  edm::ESWatcher<SiStripDetCablingRcd> cablingWatcher_;
+  void updateDetCabling(const SiStripDetCablingRcd& rcd);
 
   // Data input labels
   //===================
@@ -182,6 +185,8 @@ using namespace std;
 //
 SiStripSpyDisplayModule::SiStripSpyDisplayModule(const edm::ParameterSet& iConfig)
     : detIDs_(iConfig.getParameter<std::vector<uint32_t> >("detIDs")),
+      detCablingToken_(esConsumes<>()),
+      cablingWatcher_(this, &SiStripSpyDisplayModule::updateDetCabling),
       inputScopeModeRawDigiLabel_(iConfig.getParameter<edm::InputTag>("InputScopeModeRawDigiLabel")),
       inputPayloadRawDigiLabel_(iConfig.getParameter<edm::InputTag>("InputPayloadRawDigiLabel")),
       inputReorderedPayloadRawDigiLabel_(iConfig.getParameter<edm::InputTag>("InputReorderedPayloadRawDigiLabel")),
@@ -218,6 +223,11 @@ SiStripSpyDisplayModule::~SiStripSpyDisplayModule() {
 //
 // member functions
 //
+//
+
+void SiStripSpyDisplayModule::updateDetCabling(const SiStripDetCablingRcd& rcd) {
+  detCabling_ = &rcd.get(detCablingToken_);
+}
 
 void SiStripSpyDisplayModule::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // Retrieve FED cabling object
@@ -246,8 +256,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
   using namespace edm;
   using namespace std;
 
-  //retrieve cabling
-  const SiStripDetCabling* lCabling = utility_.getDetCabling(iSetup);
+  cablingWatcher_.check(iSetup);
 
   // Set up the event-level histogram folder
   //-----------------------------------------
@@ -288,7 +297,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
   // Loop over detIDs as obtained from the SpyChannelMonitor config file.
   for (std::vector<uint32_t>::iterator d = detIDs_.begin(); d != detIDs_.end(); ++d) {
     // TODO: Need some error checking here, probably...
-    const std::vector<const FedChannelConnection*>& conns = lCabling->getConnections(*d);
+    const std::vector<const FedChannelConnection*>& conns = detCabling_->getConnections(*d);
     //cout << "________________________________________________" << endl;
     //cout << "FED channels found in detId " << *d << " is " << conns.size() << endl;
     if (!(conns.size())) {

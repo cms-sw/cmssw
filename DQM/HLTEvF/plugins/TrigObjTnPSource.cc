@@ -21,7 +21,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const std::vector<TrigObjTnPHistColl>&) const override;
-  void bookHistograms(DQMStore::ConcurrentBooker&,
+  void bookHistograms(DQMStore::IBooker&,
                       const edm::Run&,
                       const edm::EventSetup&,
                       std::vector<TrigObjTnPHistColl>&) const override;
@@ -50,7 +50,7 @@ void TrigObjTnPSource::fillDescriptions(edm::ConfigurationDescriptions& descript
   descriptions.add("trigObjTnPSource", desc);
 }
 
-void TrigObjTnPSource::bookHistograms(DQMStore::ConcurrentBooker& iBooker,
+void TrigObjTnPSource::bookHistograms(DQMStore::IBooker& iBooker,
                                       const edm::Run& run,
                                       const edm::EventSetup& setup,
                                       std::vector<TrigObjTnPHistColl>& tnpHistColls) const {

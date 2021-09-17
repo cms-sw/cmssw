@@ -63,7 +63,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
   // Pull the config from the ES
   edm::ESHandle<L1TMuonOverlapParams> handle1;
   evSetup.get<L1TMuonOverlapParamsRcd>().get(handle1);
-  boost::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
 
   cout << "Some fields in L1TMuonOverlapParamsParams: " << endl;
 

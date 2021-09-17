@@ -16,6 +16,6 @@
 class L1TMuonEndCapParamsO2ORcd
     : public edm::eventsetup::DependentRecordImplementation<
           L1TMuonEndCapParamsO2ORcd,
-          boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonEndCapParamsRcd> > {};
+          edm::mpl::Vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TMuonEndCapParamsRcd> > {};
 
 #endif

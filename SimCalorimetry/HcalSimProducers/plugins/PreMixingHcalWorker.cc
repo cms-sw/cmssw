@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -21,7 +21,7 @@
 
 class PreMixingHcalWorker : public PreMixingWorker {
 public:
-  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
+  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingHcalWorker() override = default;
 
   PreMixingHcalWorker(const PreMixingHcalWorker &) = delete;
@@ -57,6 +57,8 @@ private:
   edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
   edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
+
   HcalDigiProducer myHcalDigitizer_;
   HBHESignalGenerator theHBHESignalGenerator;
   HOSignalGenerator theHOSignalGenerator;
@@ -68,7 +70,7 @@ private:
 
 // Constructor
 PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
-                                         edm::ProducerBase &producer,
+                                         edm::ProducesCollector producesCollector,
                                          edm::ConsumesCollector &&iC)
     : HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
       HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
@@ -76,6 +78,7 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
       ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
       QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
       QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
+      tokDB_(iC.esConsumes()),
       myHcalDigitizer_(ps, iC) {
   tok_hbhe_ = iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
   tok_ho_ = iC.consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
@@ -101,13 +104,13 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
   QIE10DigiCollectionDM_ = ps.getParameter<std::string>("QIE10DigiCollectionDM");
   QIE11DigiCollectionDM_ = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
-  producer.produces<HBHEDigiCollection>();
-  producer.produces<HODigiCollection>();
-  producer.produces<HFDigiCollection>();
-  producer.produces<ZDCDigiCollection>();
+  producesCollector.produces<HBHEDigiCollection>();
+  producesCollector.produces<HODigiCollection>();
+  producesCollector.produces<HFDigiCollection>();
+  producesCollector.produces<ZDCDigiCollection>();
 
-  producer.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
-  producer.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
+  producesCollector.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  producesCollector.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
   // initialize HcalDigitizer here...
   myHcalDigitizer_.setHBHENoiseSignalGenerator(&theHBHESignalGenerator);
@@ -135,12 +138,12 @@ void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal &pep, const edm:
   LogDebug("PreMixingHcalWorker") << "\n===============> adding pileups from event  " << ep.id()
                                   << " for bunchcrossing " << pep.bunchCrossing();
 
-  theHBHESignalGenerator.initializeEvent(&ep, &ES);
-  theHOSignalGenerator.initializeEvent(&ep, &ES);
-  theHFSignalGenerator.initializeEvent(&ep, &ES);
-  theZDCSignalGenerator.initializeEvent(&ep, &ES);
-  theQIE10SignalGenerator.initializeEvent(&ep, &ES);
-  theQIE11SignalGenerator.initializeEvent(&ep, &ES);
+  theHBHESignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theHOSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theHFSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theZDCSignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theQIE10SignalGenerator.initializeEvent(&ep, &ES, tokDB_);
+  theQIE11SignalGenerator.initializeEvent(&ep, &ES, tokDB_);
 
   // put digis from pileup event into digitizer
 

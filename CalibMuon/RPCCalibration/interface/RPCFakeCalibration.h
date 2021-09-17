@@ -8,7 +8,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/cstdint.hpp"
 #include <memory>
 
 class RPCCalibSetUp;

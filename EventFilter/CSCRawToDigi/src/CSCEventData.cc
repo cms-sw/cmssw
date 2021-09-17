@@ -1,12 +1,13 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <iterator>
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCEventData::debug = false;
@@ -25,7 +26,7 @@ CSCEventData::CSCEventData(int chamberType, uint16_t format_version)
       alctZSErecovered(nullptr),
       zseEnable(0),
       theFormatVersion(format_version) {
-  for (unsigned i = 0; i < MAX_CFEB; ++i) {
+  for (unsigned i = 0; i < CSCConstants::MAX_CFEBS_RUN2; ++i) {
     theCFEBData[i] = nullptr;
   }
 }
@@ -216,7 +217,7 @@ void CSCEventData::unpack_data(const uint16_t* buf) {
     }
   }
   if (dmbTrailerReached) {
-    for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+    for (int icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
       theCFEBData[icfeb] = nullptr;
       int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
       unsigned int cfebTimeout = theDMBTrailer.cfeb_starttimeout() | theDMBTrailer.cfeb_endtimeout();
@@ -272,7 +273,7 @@ void CSCEventData::init() {
   theAnodeData = nullptr;
   theALCTTrailer = nullptr;
   theTMBData = nullptr;
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+  for (int icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
     theCFEBData[icfeb] = nullptr;
   }
   alctZSErecovered = nullptr;
@@ -292,7 +293,7 @@ void CSCEventData::copy(const CSCEventData& data) {
     theALCTTrailer = new CSCALCTTrailer(*(data.theALCTTrailer));
   if (data.theTMBData != nullptr)
     theTMBData = new CSCTMBData(*(data.theTMBData));
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+  for (int icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
     theCFEBData[icfeb] = nullptr;
     if (data.theCFEBData[icfeb] != nullptr)
       theCFEBData[icfeb] = new CSCCFEBData(*(data.theCFEBData[icfeb]));
@@ -309,7 +310,7 @@ void CSCEventData::destroy() {
   delete theAnodeData;
   delete theALCTTrailer;
   delete theTMBData;
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+  for (int icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
     delete theCFEBData[icfeb];
   }
   /*
@@ -321,7 +322,7 @@ void CSCEventData::destroy() {
 
 std::vector<CSCStripDigi> CSCEventData::stripDigis(const CSCDetId& idlayer) const {
   std::vector<CSCStripDigi> result;
-  for (unsigned icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+  for (unsigned icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
     std::vector<CSCStripDigi> newDigis = stripDigis(idlayer, icfeb);
     result.insert(result.end(), newDigis.begin(), newDigis.end());
   }
@@ -329,7 +330,6 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(const CSCDetId& idlayer) cons
 }
 
 std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned idlayer, unsigned icfeb) const {
-  //  assert(ilayer > 0 && ilayer <= 6); // off because now idlayer is raw cscdetid
   std::vector<CSCStripDigi> result;
   if (theCFEBData[icfeb] != nullptr) {
     std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(idlayer);
@@ -349,7 +349,7 @@ std::vector<CSCWireDigi> CSCEventData::wireDigis(unsigned ilayer) const {
 
 std::vector<std::vector<CSCStripDigi> > CSCEventData::stripDigis() const {
   std::vector<std::vector<CSCStripDigi> > result;
-  for (int layer = 1; layer <= 6; ++layer) {
+  for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
     std::vector<CSCStripDigi> digis = stripDigis(layer);
     result.push_back(digis);
   }
@@ -358,7 +358,7 @@ std::vector<std::vector<CSCStripDigi> > CSCEventData::stripDigis() const {
 
 std::vector<std::vector<CSCWireDigi> > CSCEventData::wireDigis() const {
   std::vector<std::vector<CSCWireDigi> > result;
-  for (int layer = 1; layer <= 6; ++layer) {
+  for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
     result.push_back(wireDigis(layer));
   }
   return result;
@@ -396,10 +396,10 @@ CSCTMBHeader* CSCEventData::tmbHeader() const {
   return tmbData()->tmbHeader();
 }
 
-CSCCLCTData* CSCEventData::clctData() const {
+CSCComparatorData* CSCEventData::comparatorData() const {
   if ((nclct() == 0) || (tmbData() == nullptr))
     throw cms::Exception("No CLCT data for this chamber");
-  return tmbData()->clctData();
+  return tmbData()->comparatorData();
 }
 
 void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
@@ -414,20 +414,14 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
 
     assert(theChamberType > 0);
 
-    theTMBData->tmbHeader()->setNCFEBs(5);
+    theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS_RUN1);
 
     // Set number of CFEBs to 7 for Post-LS1 ME11
     if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
-      theTMBData->tmbHeader()->setNCFEBs(7);
+      theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS_RUN2);
     }
-    /*
-      // Set number of CFEBs to 4 for ME13 chambers
-      if (theChamberType == 4) { 
-	theTMBData->tmbHeader()->setNCFEBs(4);
-      }
-*/
   }
-  for (unsigned cfeb = 0; cfeb < 7; cfeb++) {
+  for (unsigned cfeb = 0; cfeb < CSCConstants::MAX_CFEBS_RUN2; cfeb++) {
     if (theCFEBData[cfeb])
       theCFEBData[cfeb]->setL1A(lvl1num);
   }
@@ -447,9 +441,9 @@ void CSCEventData::checkALCTClasses() {
 }
 
 void CSCEventData::checkTMBClasses() {
-  int nCFEBs = 5;
+  int nCFEBs = CSCConstants::MAX_CFEBS_RUN1;
   if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
-    nCFEBs = 7;
+    nCFEBs = CSCConstants::MAX_CFEBS_RUN2;
   }
   if (theTMBData == nullptr) {
     if (theFormatVersion == 2013) {  // Set to TMB format for Post-LS1 data
@@ -466,7 +460,7 @@ void CSCEventData::checkTMBClasses() {
 
 void CSCEventData::add(const CSCStripDigi& digi, int layer) {
   //@@ need special logic here for ME11
-  unsigned cfeb = (digi.getStrip() - 1) / 16;
+  unsigned cfeb = digi.getCFEB();
   bool sixteenSamples = false;
   if (digi.getADCCounts().size() == 16)
     sixteenSamples = true;
@@ -489,12 +483,12 @@ void CSCEventData::add(const CSCWireDigi& digi, int layer) {
 
 void CSCEventData::add(const CSCComparatorDigi& digi, int layer) {
   checkTMBClasses();
-  theTMBData->clctData()->add(digi, layer);
+  theTMBData->comparatorData()->add(digi, layer);
 }
 
 void CSCEventData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) {
   checkTMBClasses();
-  theTMBData->clctData()->add(digi, cid);
+  theTMBData->comparatorData()->add(digi, cid);
 }
 
 void CSCEventData::add(const std::vector<CSCALCTDigi>& digis) {
@@ -512,8 +506,12 @@ void CSCEventData::add(const std::vector<CSCCorrelatedLCTDigi>& digis) {
   theTMBData->tmbHeader()->add(digis);
 }
 
+void CSCEventData::add(const std::vector<CSCShowerDigi>& digis) { checkTMBClasses(); }
+
+void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId&) { checkTMBClasses(); }
+
 std::ostream& operator<<(std::ostream& os, const CSCEventData& evt) {
-  for (int ilayer = 1; ilayer <= 6; ++ilayer) {
+  for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
     std::vector<CSCStripDigi> stripDigis = evt.stripDigis(ilayer);
     //copy(stripDigis.begin(), stripDigis.end(), std::ostream_iterator<CSCStripDigi>(os, "\n"));
     //print your scas here
@@ -552,7 +550,7 @@ boost::dynamic_bitset<> CSCEventData::pack() {
     result = bitset_utilities::append(result, theTMBData->pack());
   }
 
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb) {
+  for (int icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
     if (theCFEBData[icfeb] != nullptr) {
       boost::dynamic_bitset<> cfebData =
           bitset_utilities::ushortToBitset(theCFEBData[icfeb]->sizeInWords() * 16, theCFEBData[icfeb]->data());

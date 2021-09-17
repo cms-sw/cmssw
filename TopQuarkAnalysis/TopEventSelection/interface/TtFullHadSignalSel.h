@@ -56,16 +56,19 @@ public:
   double pt(unsigned short i) const { return (pts_.size() >= i) ? pts_.at(i - 1) : -1.; }
 
   double EtSin2Theta(unsigned short i, bool boosted = false) const {
-    return boosted ? ((EtStars_.size() >= i) ? EtStars_.at(i - 1) : -1.)
-                   : (EtSin2Thetas_.size() >= i) ? EtSin2Thetas_.at(i - 1) : -1.;
+    return boosted                       ? ((EtStars_.size() >= i) ? EtStars_.at(i - 1) : -1.)
+           : (EtSin2Thetas_.size() >= i) ? EtSin2Thetas_.at(i - 1)
+                                         : -1.;
   }
   double theta(unsigned short i, bool boosted = false) const {
-    return boosted ? ((thetaStars_.size() >= i) ? thetaStars_.at(i - 1) : -1.)
-                   : (thetas_.size() >= i) ? thetas_.at(i - 1) : -1.;
+    return boosted                 ? ((thetaStars_.size() >= i) ? thetaStars_.at(i - 1) : -1.)
+           : (thetas_.size() >= i) ? thetas_.at(i - 1)
+                                   : -1.;
   }
   double sinTheta(unsigned short i, bool boosted = false) const {
-    return boosted ? ((thetaStars_.size() >= i) ? sin(thetaStars_.at(i - 1)) : -1.)
-                   : (thetas_.size() >= i) ? sin(thetas_.at(i - 1)) : -1.;
+    return boosted                 ? ((thetaStars_.size() >= i) ? sin(thetaStars_.at(i - 1)) : -1.)
+           : (thetas_.size() >= i) ? sin(thetas_.at(i - 1))
+                                   : -1.;
   }
 
   double EtSin2Theta3jet(bool boosted = false) const { return boosted ? EtStar3jet_ : EtSin2Theta3jet_; }
@@ -78,15 +81,18 @@ public:
 
   double jet_etaetaMoment(unsigned short i, bool noB = false) const {
     return noB ? ((etaetaMomentsNoB_.size() >= i) ? etaetaMomentsNoB_.at(etaetaMomentsNoB_.size() - i) : -100.)
-               : (etaetaMoments_.size() >= i) ? etaetaMoments_.at(etaetaMoments_.size() - i) : -100.;
+           : (etaetaMoments_.size() >= i) ? etaetaMoments_.at(etaetaMoments_.size() - i)
+                                          : -100.;
   }
   double jet_etaphiMoment(unsigned short i, bool noB = false) const {
     return noB ? ((etaphiMomentsNoB_.size() >= i) ? etaphiMomentsNoB_.at(etaphiMomentsNoB_.size() - i) : -100.)
-               : (etaphiMoments_.size() >= i) ? etaphiMoments_.at(etaphiMoments_.size() - i) : -100.;
+           : (etaphiMoments_.size() >= i) ? etaphiMoments_.at(etaphiMoments_.size() - i)
+                                          : -100.;
   }
   double jet_phiphiMoment(unsigned short i, bool noB = false) const {
     return noB ? ((phiphiMomentsNoB_.size() >= i) ? phiphiMomentsNoB_.at(phiphiMomentsNoB_.size() - i) : -100.)
-               : (phiphiMoments_.size() >= i) ? phiphiMoments_.at(phiphiMoments_.size() - i) : -100.;
+           : (phiphiMoments_.size() >= i) ? phiphiMoments_.at(phiphiMoments_.size() - i)
+                                          : -100.;
   }
 
   double jet_etaetaMomentMoment(unsigned short i) const {

@@ -31,19 +31,7 @@ Mixing2DB::~Mixing2DB() {
 //
 
 // ------------ method called for each event  ------------
-void Mixing2DB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-}
+void Mixing2DB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void Mixing2DB::beginJob() {}

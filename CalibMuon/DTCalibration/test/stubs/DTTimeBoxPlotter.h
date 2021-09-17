@@ -11,7 +11,6 @@
 
 #include "TString.h"
 
-
 class TFile;
 class TCanvas;
 class TH1F;
@@ -21,8 +20,7 @@ class DTTimeBoxFitter;
 class DTTimeBoxPlotter {
 public:
   /// Constructor
-  DTTimeBoxPlotter(TFile *file);
-
+  DTTimeBoxPlotter(TFile* file);
 
   /// Destructor
   virtual ~DTTimeBoxPlotter();
@@ -31,20 +29,16 @@ public:
 
   /// Plot the time box of a given chamber.
   /// Options: "same" -> histo drawn in the active canvas, "fit" -> fit the rising edge of the time box
-  TH1F* plotTimeBox(int wheel, int station, int sector,
-		    const TString& drawOptions = "");
+  TH1F* plotTimeBox(int wheel, int station, int sector, const TString& drawOptions = "");
   /// Plot the time box of a given superlayer.
   /// Options: "same" -> histo drawn in the active canvas, "fit" -> fit the rising edge of the time box
-  TH1F* plotTimeBox(int wheel, int station, int sector, int sl,
-		    const TString& drawOptions = "");
+  TH1F* plotTimeBox(int wheel, int station, int sector, int sl, const TString& drawOptions = "");
   /// Plot the time box of a given layer.
   /// Options: "same" -> histo drawn in the active canvas, "fit" -> fit the rising edge of the time box
-  TH1F* plotTimeBox(int wheel, int station, int sector, int sl, int layer,
-		    const TString& drawOptions = "");
+  TH1F* plotTimeBox(int wheel, int station, int sector, int sl, int layer, const TString& drawOptions = "");
   /// Plot the time box of a given wire.
   /// Options: "same" -> histo drawn in the active canvas, "fit" -> fit the rising edge of the time box
-  TH1F* plotTimeBox(int wheel, int station, int sector, int sl, int layer, int wire,
-		    const TString& drawOptions = "");
+  TH1F* plotTimeBox(int wheel, int station, int sector, int sl, int layer, int wire, const TString& drawOptions = "");
 
   /// Print all canvases in a pdf file.
   void printPDF();
@@ -55,7 +49,6 @@ public:
   void setRebinning(int rebin);
 
 protected:
-
 private:
   TString getHistoNameSuffix(int wheel, int station, int sector);
   TString getHistoNameSuffix(int wheel, int station, int sector, int sl);
@@ -65,20 +58,15 @@ private:
   TH1F* plotHisto(const TString& histoName, const TString& drawOptions = "");
   TH2F* plotHisto2D(const TString& histoName, const TString& drawOptions = "");
 
-  TCanvas * newCanvas(TString name="",
-		      TString title="",
-		      int xdiv=0,
-		      int ydiv=0,
-		      int form = 1,
-		      int w=-1);
+  TCanvas* newCanvas(TString name = "", TString title = "", int xdiv = 0, int ydiv = 0, int form = 1, int w = -1);
 
-  TCanvas * newCanvas(TString name, int xdiv, int ydiv, int form, int w);
-  TCanvas * newCanvas(int xdiv, int ydiv, int form = 1);
-  TCanvas * newCanvas(int form = 1);
-  TCanvas * newCanvas(TString name, int form, int w=-1);
+  TCanvas* newCanvas(TString name, int xdiv, int ydiv, int form, int w);
+  TCanvas* newCanvas(int xdiv, int ydiv, int form = 1);
+  TCanvas* newCanvas(int form = 1);
+  TCanvas* newCanvas(TString name, int form, int w = -1);
 
-  DTTimeBoxFitter *theFitter;
-  TFile *theFile;
+  DTTimeBoxFitter* theFitter;
+  TFile* theFile;
   unsigned int theVerbosityLevel;
 };
 #endif

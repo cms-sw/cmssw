@@ -44,6 +44,9 @@ class TFile;
 
 class TestSuite : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit TestSuite(const edm::ParameterSet &);
   ~TestSuite() override;
 

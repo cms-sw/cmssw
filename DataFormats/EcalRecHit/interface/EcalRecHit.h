@@ -198,6 +198,8 @@ public:
     return false;
   }
 
+  uint32_t flagsBits() const { return flagBits_; }
+
   /// apply a bitmask to our flags. Experts only
   bool checkFlagMask(uint32_t mask) const { return flagBits_ & mask; }
 

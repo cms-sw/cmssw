@@ -6,14 +6,8 @@
 #include "DataFormats/Common/interface/traits.h"
 
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/any.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-
-#if !defined(__ROOTCLING__)
-#define DSVN_USE_ATOMIC
-// #warning using atomic
-#endif
 
 #include <atomic>
 #include <memory>
@@ -71,11 +65,7 @@ namespace edmNew {
         // better no one is filling...
         assert(rh.m_filling == false);
         m_getter = rh.m_getter;
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.load());
-#else
-        m_dataSize = rh.m_dataSize;
-#endif
       }
 
       DetSetVectorTrans(DetSetVectorTrans&& rh)
@@ -84,31 +74,19 @@ namespace edmNew {
         // better no one is filling...
         assert(rh.m_filling == false);
         m_getter = std::move(rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        m_dataSize = std::move(rh.m_dataSize);
-#endif
       }
       DetSetVectorTrans& operator=(DetSetVectorTrans&& rh) {  // can't be default because of atomics
         // better no one is filling...
         assert(m_filling == false);
         assert(rh.m_filling == false);
         m_getter = std::move(rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        m_dataSize = std::move(rh.m_dataSize);
-#endif
         return *this;
       }
       mutable std::atomic<bool> m_filling;
-      boost::any m_getter;
-#ifdef DSVN_USE_ATOMIC
+      std::shared_ptr<void> m_getter;
       mutable std::atomic<size_type> m_dataSize;
-#else
-      mutable size_type m_dataSize;
-#endif
 
       void swap(DetSetVectorTrans& rh) {
         // better no one is filling...
@@ -116,11 +94,7 @@ namespace edmNew {
         assert(rh.m_filling == false);
         //	std::swap(m_filling,rh.m_filling);
         std::swap(m_getter, rh.m_getter);
-#ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
-#else
-        std::swap(m_dataSize, rh.m_dataSize);
-#endif
       }
 
       struct Item {
@@ -133,24 +107,20 @@ namespace edmNew {
           size = rh.size;
           return *this;
         }
-        Item(Item&& rh) noexcept : id(std::move(rh.id)), offset(int(rh.offset)), size(std::move(rh.size)) {}
+        Item(Item&& rh) noexcept : id(rh.id), offset(int(rh.offset)), size(rh.size) {}
         Item& operator=(Item&& rh) noexcept {
-          id = std::move(rh.id);
+          id = rh.id;
           offset = int(rh.offset);
-          size = std::move(rh.size);
+          size = rh.size;
           return *this;
         }
 
         id_type id;
-#ifdef DSVN_USE_ATOMIC
         mutable std::atomic<int> offset;
         bool initialize() const {
           int expected = -1;
           return offset.compare_exchange_strong(expected, -2);
         }
-#else
-        mutable int offset;
-#endif
         CMS_THREAD_GUARD(offset) mutable size_type size;
 
         bool uninitialized() const { return (-1) == offset; }
@@ -160,16 +130,12 @@ namespace edmNew {
         operator id_type() const { return id; }
       };
 
-#ifdef DSVN_USE_ATOMIC
       bool ready() const {
         bool expected = false;
         if (!m_filling.compare_exchange_strong(expected, true))
           errorFilling();
         return true;
       }
-#else
-      bool ready() const { return true; }
-#endif
     };
 
     inline void throwCapacityExausted() { throw CapacityExaustedException(); }
@@ -246,6 +212,7 @@ namespace edmNew {
         static DetSetVector<T>::Item d;
         return d;
       }
+
       FastFiller(DetSetVector<T>& iv, id_type id, bool isaveEmpty = false)
           : m_v(iv), m_item(m_v.ready() ? m_v.push_back(id) : dummy()), m_saveEmpty(isaveEmpty) {
         if (m_v.onDemand())
@@ -305,12 +272,21 @@ namespace edmNew {
       DataIter begin() { return m_v.m_data.begin() + m_item.offset; }
       DataIter end() { return begin() + size(); }
 
+      template <typename... Args>
+      void emplace_back(Args&&... args) {
+        checkCapacityExausted();
+        m_v.m_data.emplace_back(args...);
+        ++m_v.m_dataSize;
+        m_item.size++;
+      }
+
       void push_back(data_type const& d) {
         checkCapacityExausted();
         m_v.m_data.push_back(d);
         ++m_v.m_dataSize;
         m_item.size++;
       }
+
       void push_back(data_type&& d) {
         checkCapacityExausted();
         m_v.m_data.push_back(std::move(d));
@@ -338,7 +314,6 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type id_type;
       typedef typename DetSetVector<T>::size_type size_type;
 
-#ifdef DSVN_USE_ATOMIC
       // here just to make the compiler happy
       static DetSetVector<T>::Item const& dummy() {
         assert(false);
@@ -372,8 +347,6 @@ namespace edmNew {
         m_v.m_filling = false;
       }
 
-#endif
-
       bool full() const {
         int offset = m_v.m_dataSize;
         return m_v.m_data.capacity() < offset + m_lv.size();
@@ -392,6 +365,11 @@ namespace edmNew {
       data_type& operator[](size_type i) { return m_lv[i]; }
       DataIter begin() { return m_lv.begin(); }
       DataIter end() { return m_lv.end(); }
+
+      template <typename... Args>
+      void emplace_back(Args&&... args) {
+        m_lv.emplace_back(args...);
+      }
 
       void push_back(data_type const& d) { m_lv.push_back(d); }
       void push_back(data_type&& d) { m_lv.push_back(std::move(d)); }
@@ -417,9 +395,7 @@ namespace edmNew {
       using second_argument_type = unsigned int;
       using result_type = const T*;
 
-      result_type operator()(first_argument_type iContainer, second_argument_type iIndex)
-#ifdef DSVN_USE_ATOMIC
-      {
+      result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
         bool expected = false;
         while (!iContainer.m_filling.compare_exchange_weak(expected, true, std::memory_order_acq_rel)) {
           expected = false;
@@ -430,15 +406,12 @@ namespace edmNew {
         iContainer.m_filling = false;
         return item;
       }
-#else
-          ;
-#endif
     };
     friend class FindForDetSetVector;
 
     explicit DetSetVector(int isubdet = 0) : m_subdetId(isubdet) {}
 
-    DetSetVector(std::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets, int isubdet = 0);
+    DetSetVector(std::shared_ptr<dslv::LazyGetter<T>> iGetter, const std::vector<det_id_type>& iDets, int isubdet = 0);
 
     ~DetSetVector() {
       // delete content if T is pointer...
@@ -454,7 +427,7 @@ namespace edmNew {
     DetSetVector(DetSetVector&&) = default;
     DetSetVector& operator=(DetSetVector&&) = default;
 
-    bool onDemand() const { return !m_getter.empty(); }
+    bool onDemand() const { return static_cast<bool>(m_getter); }
 
     void swap(DetSetVector& rh) {
       DetSetVectorTrans::swap(rh);
@@ -658,11 +631,10 @@ namespace edmNew {
     }
   }
 
-#ifdef DSVN_USE_ATOMIC
   template <typename T>
   inline void DetSetVector<T>::update(const Item& item) const {
     // no m_getter or already updated
-    if (m_getter.empty()) {
+    if (!m_getter) {
       assert(item.isValid());
       return;
     }
@@ -670,14 +642,12 @@ namespace edmNew {
       assert(item.initializing());
       {
         TSFastFiller ff(*this, item);
-        (*boost::any_cast<std::shared_ptr<Getter> >(&m_getter))->fill(ff);
+        static_cast<Getter*>(m_getter.get())->fill(ff);
       }
       assert(item.isValid());
     }
   }
-#endif
 
-#ifdef DSVN_USE_ATOMIC
   template <typename T>
   inline void DetSet<T>::set(DetSetVector<T> const& icont, typename Container::Item const& item, bool update) {
     // if an item is being updated we wait
@@ -690,7 +660,6 @@ namespace edmNew {
     m_offset = item.offset;
     m_size = item.size;
   }
-#endif
 }  // namespace edmNew
 
 #include "DataFormats/Common/interface/Ref.h"
@@ -721,7 +690,7 @@ namespace edm {
     };
 
     template <typename T>
-    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T> > {
+    struct FindTrait<edmNew::DetSetVector<T>, edmNew::DetSet<T>> {
       typedef FindSetForNewDetSetVector<T> value;
     };
   }  // namespace refhelper
@@ -735,7 +704,7 @@ namespace edmNew {
   edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> makeRefTo(
       const HandleT& iHandle, typename HandleT::element_type::value_type::const_iterator itIter) {
     static_assert(std::is_same<typename HandleT::element_type,
-                               DetSetVector<typename HandleT::element_type::value_type::value_type> >::value,
+                               DetSetVector<typename HandleT::element_type::value_type::value_type>>::value,
                   "Handle and DetSetVector do not have compatible types.");
     auto index = itIter - &iHandle->data().front();
     return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>(
@@ -747,7 +716,7 @@ namespace edmNew {
 
 namespace edm {
   template <typename T>
-  class ContainerMaskTraits<edmNew::DetSetVector<T> > {
+  class ContainerMaskTraits<edmNew::DetSetVector<T>> {
   public:
     typedef T value_type;
 
@@ -758,8 +727,30 @@ namespace edm {
   };
 }  // namespace edm
 
-#ifdef DSVN_USE_ATOMIC
-#undef DSVN_USE_ATOMIC
-#endif
+// Thinning support
+#include "DataFormats/Common/interface/fillCollectionForThinning.h"
+namespace edm::detail {
+  template <typename T>
+  struct ElementType<edmNew::DetSetVector<T>> {
+    using type = typename edmNew::DetSetVector<T>::data_type;
+  };
+}  // namespace edm::detail
+namespace edmNew {
+  template <typename T, typename Selector>
+  void fillCollectionForThinning(edmNew::DetSet<T> const& detset,
+                                 Selector& selector,
+                                 unsigned int& iIndex,
+                                 edmNew::DetSetVector<T>& output,
+                                 edm::ThinnedAssociation& association) {
+    typename edmNew::DetSetVector<T>::FastFiller ff(output, detset.detId());
+    for (auto iter = detset.begin(), end = detset.end(); iter != end; ++iter, ++iIndex) {
+      edm::detail::fillCollectionForThinning(*iter, selector, iIndex, ff, association);
+    }
+    if (detset.begin() != detset.end()) {
+      // need to decrease the global index by one because the outer loop will increase it
+      --iIndex;
+    }
+  }
+}  // namespace edmNew
 
 #endif

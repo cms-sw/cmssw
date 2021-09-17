@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.JetMCAlgos.SelectPartons_cff import myPartons
 genPartons = myPartons.clone(
-    src = cms.InputTag("hiGenParticles")
-    )
+    src = "hiGenParticles"
+)
 
 hiPartons = cms.EDProducer('HiPartonCleaner',
                            src = cms.InputTag('genPartons'),
@@ -21,9 +21,5 @@ heavyIonCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
                                         createNewCollection = cms.untracked.bool(True),
                                         fillDummyEntries = cms.untracked.bool(True)
                                         )
-
-heavyIonCleaned = cms.Sequence(genPartons*hiPartons+heavyIonCleanedGenJets)
-
-
-
-
+heavyIonCleanedTask = cms.Task(genPartons,hiPartons,heavyIonCleanedGenJets)
+heavyIonCleaned = cms.Sequence(heavyIonCleanedTask)

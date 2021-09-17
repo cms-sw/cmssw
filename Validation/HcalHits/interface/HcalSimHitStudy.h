@@ -4,7 +4,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -13,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -42,10 +40,11 @@ protected:
   void analyzeHits(std::vector<PCaloHit> &);
 
 private:
-  const HcalDDDRecConstants *hcons;
+  const HcalDDDRecConstants *hcons_;
   int maxDepthHB_, maxDepthHE_;
   int maxDepthHO_, maxDepthHF_;
   int maxDepth_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   int iphi_bins;
   float iphi_min, iphi_max;

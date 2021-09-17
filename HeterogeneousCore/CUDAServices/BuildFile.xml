@@ -1,0 +1,11 @@
+<iftool name="cuda">
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="cuda"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

@@ -26,10 +26,10 @@ public:
 
   void setViewer(FWEveView *ev) { m_viewer = ev; }
 
-private:
   FWGLEventHandler(const FWGLEventHandler &) = delete;                   // stop default
   const FWGLEventHandler &operator=(const FWGLEventHandler &) = delete;  // stop default
 
+private:
   FWEveView *m_viewer;
 };
 

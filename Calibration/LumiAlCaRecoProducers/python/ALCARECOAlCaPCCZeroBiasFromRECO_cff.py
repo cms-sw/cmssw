@@ -11,8 +11,8 @@ ALCARECOZeroBiasFromRECOHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
 alcaPCCProducerZBFromRECO = alcaPCCProducer.clone()
-alcaPCCProducerZBFromRECO.AlcaPCCProducerParameters.pixelClusterLabel = cms.InputTag("siPixelClusters")
-alcaPCCProducerZBFromRECO.AlcaPCCProducerParameters.trigstring        = cms.untracked.string("alcaPCCZeroBiasFromRECO")
+alcaPCCProducerZBFromRECO.pixelClusterLabel = cms.InputTag("siPixelClusters")
+alcaPCCProducerZBFromRECO.trigstring        = cms.untracked.string("alcaPCCZeroBiasFromRECO")
 
 
 # Sequence #

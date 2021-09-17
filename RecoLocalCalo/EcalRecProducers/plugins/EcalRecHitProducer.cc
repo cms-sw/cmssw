@@ -19,9 +19,6 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -56,14 +53,15 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
 
   eeFEToBeRecoveredToken_ = consumes<std::set<EcalScDetId>>(ps.getParameter<edm::InputTag>("eeFEToBeRecovered"));
 
+  ecalChannelStatusToken_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+
   std::string componentType = ps.getParameter<std::string>("algo");
   edm::ConsumesCollector c{consumesCollector()};
-  worker_ = std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
+  worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
   // to recover problematic channels
   componentType = ps.getParameter<std::string>("algoRecover");
-  workerRecover_ =
-      std::unique_ptr<EcalRecHitWorkerBaseClass>{EcalRecHitWorkerFactory::get()->create(componentType, ps, c)};
+  workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
   edm::ParameterSet cleaningPs = ps.getParameter<edm::ParameterSet>("cleaningConfig");
   cleaningAlgo_ = std::make_unique<EcalCleaningAlgo>(cleaningPs);
@@ -128,8 +126,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     detIds = pEBDetId.product();
 
     if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus;
-      es.get<EcalChannelStatusRcd>().get(chStatus);
+      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
       for (std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
         EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
@@ -164,8 +161,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     detIds = pEEDetId.product();
 
     if (detIds) {
-      edm::ESHandle<EcalChannelStatus> chStatus;
-      es.get<EcalChannelStatusRcd>().get(chStatus);
+      edm::ESHandle<EcalChannelStatus> chStatus = es.getHandle(ecalChannelStatusToken_);
       for (std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
         EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
@@ -309,6 +305,13 @@ void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("eeFEToBeRecovered", edm::InputTag("ecalDetIdToBeRecovered", "eeFE"));
   desc.add<edm::InputTag>("ebDetIdToBeRecovered", edm::InputTag("ecalDetIdToBeRecovered", "ebDetId"));
   desc.add<double>("singleChannelRecoveryThreshold", 8);
+  desc.add<double>("sum8ChannelRecoveryThreshold", 0.);
+  desc.add<edm::FileInPath>("bdtWeightFileNoCracks",
+                            edm::FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/"
+                                            "bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml"));
+  desc.add<edm::FileInPath>("bdtWeightFileCracks",
+                            edm::FileInPath("RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/"
+                                            "bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml"));
   {
     std::vector<std::string> temp1;
     temp1.reserve(9);

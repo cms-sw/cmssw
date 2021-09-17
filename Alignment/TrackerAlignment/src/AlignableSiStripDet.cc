@@ -11,7 +11,7 @@
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"

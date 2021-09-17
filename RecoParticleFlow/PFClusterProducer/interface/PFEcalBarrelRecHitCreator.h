@@ -27,13 +27,15 @@
 
 class PFEcalBarrelRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        triggerTowerMap_(nullptr),
+        geomToken_(cc.esConsumes()),
+        towerToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
-      srFlagToken_ = iC.consumes<EBSrFlagCollection>(srF);
-    triggerTowerMap_ = nullptr;
+      srFlagToken_ = cc.consumes<EBSrFlagCollection>(srF);
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
@@ -44,8 +46,7 @@ public:
 
     edm::Handle<EcalRecHitCollection> recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
 
     bool useSrF = false;
     if (not srFlagToken_.isUninitialized()) {
@@ -63,6 +64,7 @@ public:
       const DetId& detid = erh.detid();
       auto energy = erh.energy();
       auto time = erh.time();
+      auto flags = erh.flagsBits();
       bool hi = (useSrF ? isHighInterest(detid) : true);
 
       const auto thisCell = ecalGeo->getGeometry(detid);
@@ -72,7 +74,7 @@ public:
         throw cms::Exception("PFEcalBarrelRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
       }
 
-      out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy);
+      out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_BARREL, energy, flags);
 
       auto& rh = out->back();
 
@@ -97,11 +99,7 @@ public:
     }
   }
 
-  void init(const edm::EventSetup& es) override {
-    edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-    es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-    triggerTowerMap_ = hTriggerTowerMap.product();
-  }
+  void init(const edm::EventSetup& es) override { triggerTowerMap_ = &es.getData(towerToken_); }
 
 protected:
   bool isHighInterest(const EBDetId& detid) {
@@ -123,6 +121,10 @@ protected:
   const EcalTrigTowerConstituentsMap* triggerTowerMap_;
   // selective readout flags collection
   edm::Handle<EBSrFlagCollection> srFlagHandle_;
+
+private:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> towerToken_;
 };
 
 #endif

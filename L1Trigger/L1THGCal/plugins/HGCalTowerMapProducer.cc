@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
@@ -25,16 +25,17 @@ public:
 
 private:
   // inputs
-  edm::EDGetToken input_cell_;
+  edm::EDGetToken input_sums_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
   std::unique_ptr<HGCalTowerMapProcessorBase> towersMapProcess_;
 };
 
 DEFINE_FWK_MODULE(HGCalTowerMapProducer);
 
 HGCalTowerMapProducer::HGCalTowerMapProducer(const edm::ParameterSet& conf)
-    : input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))) {
+    : input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums"))),
+      triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   //setup TowerMap parameters
   const edm::ParameterSet& towerMapParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& towerMapProcessorName = towerMapParamConfig.getParameter<std::string>("ProcessorName");
@@ -45,7 +46,7 @@ HGCalTowerMapProducer::HGCalTowerMapProducer(const edm::ParameterSet& conf)
 }
 
 void HGCalTowerMapProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
   towersMapProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -54,11 +55,11 @@ void HGCalTowerMapProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   auto towersMap_output = std::make_unique<l1t::HGCalTowerMapBxCollection>();
 
   // Input collections
-  edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
+  edm::Handle<l1t::HGCalTriggerSumsBxCollection> trigSumBxColl;
 
-  e.getByToken(input_cell_, trigCellBxColl);
+  e.getByToken(input_sums_, trigSumBxColl);
 
-  towersMapProcess_->run(trigCellBxColl, *towersMap_output, es);
+  towersMapProcess_->run(trigSumBxColl, *towersMap_output, es);
 
   e.put(std::move(towersMap_output), towersMapProcess_->name());
 }

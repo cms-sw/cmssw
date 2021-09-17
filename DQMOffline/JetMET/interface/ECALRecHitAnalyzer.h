@@ -63,12 +63,12 @@
 #include <TH2.h>
 #include <TFile.h>
 #include <TMath.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class DetId;
 //class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;
+class CaloGeometryRecord;
 //class CaloTowerConstituentsMap;
 //class CaloRecHit;
 
@@ -93,7 +93,8 @@ private:
   // Inputs from Configuration
   edm::EDGetTokenT<EBRecHitCollection> EBRecHitsLabel_;
   edm::EDGetTokenT<EERecHitCollection> EERecHitsLabel_;
-
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  const CaloGeometry* caloGeom_;
   bool debug_;
   bool finebinning_;
   std::string FolderName_;

@@ -36,14 +36,13 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "boost/tuple/tuple.hpp"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <map>
 #include <set>
+#include <tuple>
 #include <vector>
 
 #include "TPRegexp.h"
@@ -52,13 +51,16 @@ const unsigned int kNull = (unsigned int)-1;
 
 class HLTMuonPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTMuonPlotter(const edm::ParameterSet &,
                  std::string,
                  const std::vector<std::string> &,
                  const std::vector<std::string> &,
-                 const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                                    edm::EDGetTokenT<reco::GenParticleCollection>,
-                                    edm::EDGetTokenT<reco::MuonCollection>> &);
+                 const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+                                  edm::EDGetTokenT<reco::GenParticleCollection>,
+                                  edm::EDGetTokenT<reco::MuonCollection>> &);
 
   ~HLTMuonPlotter() {
     delete genMuonSelector_;
@@ -69,9 +71,9 @@ public:
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
 
-  static boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                      edm::EDGetTokenT<reco::GenParticleCollection>,
-                      edm::EDGetTokenT<reco::MuonCollection>>
+  static std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+                    edm::EDGetTokenT<reco::GenParticleCollection>,
+                    edm::EDGetTokenT<reco::MuonCollection>>
   getTokens(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
 private:

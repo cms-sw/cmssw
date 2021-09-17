@@ -10,13 +10,12 @@
 
 namespace btagbtvdeep {
 
-
-  void svToFeatures( const reco::VertexCompositePtrCandidate & sv,
-		     const reco::Vertex & pv, const reco::Jet & jet,
-		     SecondaryVertexFeatures & sv_features,
-		     const bool flip = false) ;
-
+  void svToFeatures(const reco::VertexCompositePtrCandidate& sv,
+                    const reco::Vertex& pv,
+                    const reco::Jet& jet,
+                    SecondaryVertexFeatures& sv_features,
+                    const bool flip = false);
 
 }
 
-#endif //RecoBTag_FeatureTools_SecondaryVertexConverter_h
+#endif  //RecoBTag_FeatureTools_SecondaryVertexConverter_h

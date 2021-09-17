@@ -6,7 +6,7 @@
 //
 
 #include "TEveGeoNode.h"
-
+#include "TEveGeoShape.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -24,6 +24,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+
+public:
   FWPhase2TrackerCluster1DDetProxyBuilder(const FWPhase2TrackerCluster1DDetProxyBuilder&) = delete;
   const FWPhase2TrackerCluster1DDetProxyBuilder& operator=(const FWPhase2TrackerCluster1DDetProxyBuilder&) = delete;
 };

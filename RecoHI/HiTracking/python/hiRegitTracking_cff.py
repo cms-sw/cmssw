@@ -8,14 +8,15 @@ from RecoHI.HiTracking.hiRegitMixedTripletStep_cff import *
 
 from RecoHI.HiTracking.MergeRegitTrackCollectionsHI_cff import *
 
-hiRegitTracking = cms.Sequence(
-    hiRegitInitialStep
-    *hiRegitLowPtTripletStep
-    *hiRegitPixelPairStep
-    *hiRegitDetachedTripletStep
-    *hiRegitMixedTripletStep
-    *hiRegitTracks
+hiRegitTrackingTask = cms.Task(
+    hiRegitInitialStepTask
+    ,hiRegitLowPtTripletStepTask
+    ,hiRegitPixelPairStepTask
+    ,hiRegitDetachedTripletStepTask
+    ,hiRegitMixedTripletStepTask
+    ,hiRegitTracks
     )
+hiRegitTracking = cms.Sequence(hiRegitTrackingTask)
 
 # Define region around jet 
 
@@ -45,6 +46,4 @@ hiRegitMixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.deltaPhiRegion = 0.4
 hiRegitMixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.deltaEtaRegion = 0.4
 hiRegitMixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.deltaPhiRegion = 0.4
 hiRegitMixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.deltaEtaRegion = 0.4
-
-
 

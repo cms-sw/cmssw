@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,7 +15,7 @@
 template <typename DigiSimLinkCollection>
 class PreMixingDigiSimLinkWorker : public PreMixingWorker {
 public:
-  PreMixingDigiSimLinkWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingDigiSimLinkWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingDigiSimLinkWorker() override = default;
 
   void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
@@ -36,12 +36,12 @@ private:
 
 template <typename DigiSimLinkCollection>
 PreMixingDigiSimLinkWorker<DigiSimLinkCollection>::PreMixingDigiSimLinkWorker(const edm::ParameterSet& ps,
-                                                                              edm::ProducerBase& producer,
+                                                                              edm::ProducesCollector producesCollector,
                                                                               edm::ConsumesCollector&& iC)
     : signalToken_(iC.consumes<DigiSimLinkCollection>(ps.getParameter<edm::InputTag>("labelSig"))),
       pileupTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
       collectionDM_(ps.getParameter<std::string>("collectionDM")) {
-  producer.produces<DigiSimLinkCollection>(collectionDM_);
+  producesCollector.produces<DigiSimLinkCollection>(collectionDM_);
 }
 
 template <typename DigiSimLinkCollection>

@@ -5,9 +5,10 @@
 #include <vector>
 class TTree;
 
-#define fNchsel 1700
-
 class TShapeAnalysis : public TObject {
+public:
+  static constexpr int fNchsel = 1700;
+
 private:
   char filename[80];
   long int timestart, timestop;

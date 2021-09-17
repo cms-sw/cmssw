@@ -78,6 +78,7 @@ namespace edm {
     int storeNumber() const { return storeNumber_; }
 
   private:
+    // NOTE: any member data added here MUST also be added to CompactEventAuxiliaryVector.h
     // Process history ID of the full process history (not the reduced process history)
     ProcessHistoryID processHistoryID_;
     // Event ID

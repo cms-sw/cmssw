@@ -97,7 +97,14 @@ namespace {
     std::unique_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
 
   private:
-    const edm::ParameterSet m_pset;
+    const double m_maxChi2;
+    const double m_nSigma;
+    const double m_maxDis;
+    const double m_maxSag;
+    const double m_minTol;
+    const double m_minpt;
+    const float m_minGoodStripCharge;
+    const double m_pTChargeCutThreshold;
   };
 
   void Chi2ChargeMeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -110,7 +117,14 @@ namespace {
   }
 
   Chi2ChargeMeasurementEstimatorESProducer::Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet& pset)
-      : m_pset(pset) {
+      : m_maxChi2(pset.getParameter<double>("MaxChi2")),
+        m_nSigma(pset.getParameter<double>("nSigma")),
+        m_maxDis(pset.getParameter<double>("MaxDisplacement")),
+        m_maxSag(pset.getParameter<double>("MaxSagitta")),
+        m_minTol(pset.getParameter<double>("MinimalTolerance")),
+        m_minpt(pset.getParameter<double>("MinPtForHitRecoveryInGluedDet")),
+        m_minGoodStripCharge(clusterChargeCut(pset)),
+        m_pTChargeCutThreshold(pset.getParameter<double>("pTChargeCutThreshold")) {
     std::string const& myname = pset.getParameter<std::string>("ComponentName");
     setWhatProduced(this, myname);
   }
@@ -119,18 +133,17 @@ namespace {
 
   std::unique_ptr<Chi2MeasurementEstimatorBase> Chi2ChargeMeasurementEstimatorESProducer::produce(
       const TrackingComponentsRecord& iRecord) {
-    auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
-    auto nSigma = m_pset.getParameter<double>("nSigma");
-    auto maxDis = m_pset.getParameter<double>("MaxDisplacement");
-    auto maxSag = m_pset.getParameter<double>("MaxSagitta");
-    auto minTol = m_pset.getParameter<double>("MinimalTolerance");
-    auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
     auto minGoodPixelCharge = 0;
-    auto minGoodStripCharge = clusterChargeCut(m_pset);
-    auto pTChargeCutThreshold = m_pset.getParameter<double>("pTChargeCutThreshold");
 
-    return std::make_unique<Chi2ChargeMeasurementEstimator>(
-        minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold, maxChi2, nSigma, maxDis, maxSag, minTol, minpt);
+    return std::make_unique<Chi2ChargeMeasurementEstimator>(minGoodPixelCharge,
+                                                            m_minGoodStripCharge,
+                                                            m_pTChargeCutThreshold,
+                                                            m_maxChi2,
+                                                            m_nSigma,
+                                                            m_maxDis,
+                                                            m_maxSag,
+                                                            m_minTol,
+                                                            m_minpt);
   }
 
 }  // namespace

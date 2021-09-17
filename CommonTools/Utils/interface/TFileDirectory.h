@@ -50,7 +50,7 @@ public:
 
   /// make new ROOT object
   template <typename T, typename... Args>
-  T *make(const Args &... args) const {
+  T *make(const Args &...args) const {
     TDirectory *d = _cd();
     T *t = new T(args...);
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();

@@ -195,7 +195,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
   return 1;
 }
 
-MonitorElement* HcalDigisClient::monitor(std::string name) {
+HcalDigisClient::MonitorElement* HcalDigisClient::monitor(std::string name) {
   if (!msm_->count(name))
     return nullptr;
   else

@@ -56,7 +56,7 @@ namespace {
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -77,7 +77,7 @@ namespace {
   }
 
   TrackCollectionFilterCloner::TrackCollectionFilterCloner(const edm::ParameterSet& iConfig)
-      : collectionCloner(*this, iConfig, true),
+      : collectionCloner(producesCollector(), iConfig, true),
         originalTrackSource_(iConfig.getParameter<edm::InputTag>("originalSource"), consumesCollector()),
         originalMVAValsToken_(consumes<MVACollection>(iConfig.getParameter<edm::InputTag>("originalMVAVals"))),
         originalQualValsToken_(

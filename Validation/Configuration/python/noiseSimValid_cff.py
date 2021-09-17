@@ -8,13 +8,11 @@ from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.HcalHits.HcalSimHitStudy_cfi import *
 from Validation.HcalDigis.hcalDigisValidationSequence_cff import *
-from Validation.HcalRecHits.hcalRecHitsValidationSequence_cff import *
-from Validation.CaloTowers.calotowersValidationSequence_cff import *
 from Validation.MuonHits.muonHitsValidation_cfi import *
 from Validation.MuonDTDigis.dtDigiValidation_cfi import *
 from Validation.MuonCSCDigis.cscDigiValidation_cfi import *
 from Validation.MuonRPCDigis.validationMuonRPCDigis_cfi import *
 
-noiseSimValid = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+hcalSimHitStudy+hcalDigisValidationSequence+hcalRecHitsValidationSequence+calotowersValidationSequence+validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis)
+noiseSimValid = cms.Sequence(trackerHitsValidation+trackerDigisValidation+trackerRecHitsValidation+ecalSimHitsValidationSequence+ecalDigisValidationSequence+ecalRecHitsValidationSequence+hcalSimHitStudy+hcalDigisValidationSequence+validSimHit+muondtdigianalyzer+cscDigiValidation+validationMuonRPCDigis)
 
 

@@ -151,7 +151,7 @@ namespace gs {
   struct GenericReader<Stream, State, T, Int2Type<IOTraits<int>::ISPOD>> {
     inline static bool readIntoPtr(T *&ptr, Stream &str, State *, const bool processClassId) {
       CPP11_auto_ptr<T> myptr;
-      if (ptr == 0)
+      if (ptr == nullptr)
         myptr = CPP11_auto_ptr<T>(new T());
       if (processClassId) {
         static const ClassId current(ClassId::makeId<T>());
@@ -161,7 +161,7 @@ namespace gs {
       read_pod(str, ptr ? ptr : myptr.get());
       if (str.fail())
         return false;
-      if (ptr == 0)
+      if (ptr == nullptr)
         ptr = myptr.release();
       return true;
     }
@@ -408,7 +408,7 @@ namespace gs {
           ptr, str, s, processClassId);
       if (status) {
         assert(ptr);
-        a = CPP11_shared_ptr<Pointee>(ptr);
+        a = std::shared_ptr<Pointee>(ptr);
         return true;
       } else {
         delete ptr;
@@ -553,7 +553,7 @@ namespace gs {
           GenericReader<Stream, State, Pointee *, Int2Type<IOTraits<int>::ISNULLPOINTER>>::process(ptr, is, st, true);
       if (status) {
         assert(ptr);
-        CPP11_shared_ptr<Pointee> sptr(ptr);
+        std::shared_ptr<Pointee> sptr(ptr);
         InsertContainerItem<Container>::insert(obj, sptr, itemN);
       } else
         delete ptr;

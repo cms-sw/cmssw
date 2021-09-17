@@ -41,7 +41,6 @@
 //-------------------
 // Initializations --
 //-------------------
-cond::persistency::KeyList* DTKeyedConfigHandler::keyList = nullptr;
 
 //----------------
 // Constructors --
@@ -72,8 +71,8 @@ DTKeyedConfigHandler::~DTKeyedConfigHandler() {}
 //--------------
 void DTKeyedConfigHandler::getNewObjects() {
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const& ti = tagInfo();
-  unsigned int last = ti.lastInterval.first;
+  cond::TagInfo_t const& ti = tagInfo();
+  cond::Time_t last = ti.lastInterval.since;
   std::cout << "last configuration key already copied for run: " << last << std::endl;
 
   std::vector<DTConfigKey> lastKey;
@@ -509,7 +508,6 @@ void DTKeyedConfigHandler::chkConfigList() {
   coral::ICursor& brickConfigCursor = brickConfigQuery->execute();
   DTKeyedConfig* brickData = nullptr;
   std::vector<int> missingList;
-  std::vector<unsigned long long> checkedKeys;
   while (brickConfigCursor.next()) {
     const coral::AttributeList& row = brickConfigCursor.currentRow();
     int brickConfigId = row["BRKID"].data<int>();
@@ -526,11 +524,9 @@ void DTKeyedConfigHandler::chkConfigList() {
       continue;
     std::string brickConfigName = row["BRKNAME"].data<std::string>();
     std::cout << "brick " << brickConfigId << " : " << brickConfigName << std::endl;
-    checkedKeys.push_back(brickConfigId);
     bool brickFound = false;
     try {
-      keyList->load(checkedKeys);
-      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>(0);
+      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->getUsingKey<DTKeyedConfig>(brickConfigId);
       if (brickCheck.get())
         brickFound = (brickCheck->getId() == brickConfigId);
     } catch (std::exception const&) {
@@ -539,9 +535,7 @@ void DTKeyedConfigHandler::chkConfigList() {
       std::cout << "brick " << brickConfigId << " missing, copy request" << std::endl;
       missingList.push_back(brickConfigId);
     }
-    checkedKeys.clear();
   }
-  keyList->load(checkedKeys);
 
   std::vector<int>::const_iterator brickIter = missingList.begin();
   std::vector<int>::const_iterator brickIend = missingList.end();
@@ -608,4 +602,4 @@ bool DTKeyedConfigHandler::sameConfigList(const std::vector<DTConfigKey>& cfgl, 
   return true;
 }
 
-void DTKeyedConfigHandler::setList(cond::persistency::KeyList* list) { keyList = list; }
+void DTKeyedConfigHandler::setList(const cond::persistency::KeyList* list) { keyList = list; }

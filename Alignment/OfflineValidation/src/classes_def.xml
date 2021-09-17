@@ -1,4 +1,6 @@
 <lcgdict>
   <class name="TkOffTreeVariables"/>
   <class name="EopVariables"/>
+  <class name="pvCand"/>
+  <class name="pvEvent"/>
 </lcgdict>

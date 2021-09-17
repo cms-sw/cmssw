@@ -1,6 +1,6 @@
 //-------------------------------------------------
 //
-//   Class L1MuDTChambThDigi	
+//   Class L1MuDTChambThDigi
 //
 //   Description: input data for ETTF trigger
 //
@@ -16,16 +16,13 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //----------------------
 // Base Class Headers --
 //----------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
@@ -34,33 +31,28 @@
 typedef unsigned char myint8;
 
 class L1MuDTChambThDigi {
-
- public:
-
+public:
   //  Constructors
   L1MuDTChambThDigi();
 
-  L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
-	             int* uos, int* uqual );
+  L1MuDTChambThDigi(int ubx, int uwh, int usc, int ust, int* uos, int* uqual);
 
-  L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
-	             int* uos );
+  L1MuDTChambThDigi(int ubx, int uwh, int usc, int ust, int* uos);
 
   //  Destructor
   ~L1MuDTChambThDigi();
 
   // Operations
-  int bxNum()       const;
-  int whNum()       const;
-  int scNum()       const;
-  int stNum()       const;
+  int bxNum() const;
+  int whNum() const;
+  int scNum() const;
+  int stNum() const;
 
   int code(const int i) const;
   int position(const int i) const;
   int quality(const int i) const;
 
- private:
-
+private:
   int bx;
   int wheel;
   int sector;

@@ -22,8 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 
 //   base class
@@ -31,6 +29,7 @@
 //
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 // forward declarations
 
@@ -91,6 +90,17 @@ namespace l1t {
                               const Type1& thresholdH,
                               const Type2& value,
                               bool condGEqValue) const;
+
+    /// check if a value is greater than a threshold or
+    /// greater-or-equal depending on the value of the condGEqValue flag
+    /// Added by Rick Cavanaugh for Displaced Muons:
+    ///       Above checkThreshold fails when value overflows or threshold window is invalid
+    ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
+    template <class Type1, class Type2>
+    const bool checkUnconstrainedPt(const Type1& thresholdL,
+                                    const Type1& thresholdH,
+                                    const Type2& value,
+                                    bool condGEqValue) const;
 
     /// check if a index is in a given range
     template <class Type1>
@@ -185,6 +195,39 @@ namespace l1t {
     }
   }
 
+  // check if a value is greater than a threshold or
+  // greater-or-equal depending on the value of the condGEqValue flag
+  /// Added by Rick Cavanaugh for Displaced Muons:
+  ///       Above checkThreshold fails when value overflows or threshold window is invalid
+  ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
+  template <class Type1, class Type2>
+  const bool ConditionEvaluation::checkUnconstrainedPt(const Type1& thresholdL,
+                                                       const Type1& thresholdH,
+                                                       const Type2& value,
+                                                       const bool condGEqValue) const {
+    if (value > 0) {
+      LogTrace("L1GlobalTrigger") << "  checkUnconstrainedPt check for condGEqValue = " << condGEqValue
+                                  << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
+                                  << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL
+                                  << " - " << thresholdH << " value = " << value << std::endl;
+    }
+    if (thresholdH > 0)  // Only evaluate cut if threshold window is valid
+    {
+      if (condGEqValue) {
+        if (value >= (Type2)thresholdL && (Type1)value <= thresholdH) {
+          return true;
+        }
+        return false;
+      } else {
+        if (value == (Type2)thresholdL) {
+          return true;
+        }
+        return false;
+      }
+    } else  // If invalid threshold window, do not evaluate cut (ie. pass through)
+      return true;
+  }
+
   // check if a index in a given range
   template <class Type1>
   const bool ConditionEvaluation::checkIndex(const Type1& indexLo,
@@ -208,7 +251,7 @@ namespace l1t {
   // check if a bit with a given number is set in a mask
   template <class Type1>
   const bool ConditionEvaluation::checkBit(const Type1& mask, const unsigned int bitNumber) const {
-    boost::uint64_t oneBit = 1ULL;
+    uint64_t oneBit = 1ULL;
 
     if (bitNumber >= (sizeof(oneBit) * 8)) {
       if (m_verbosity) {

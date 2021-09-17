@@ -649,19 +649,19 @@ void TauValidation::countParticles(const reco::GenParticle *p,
     allCount++;
     if (abs(pid) == 11)
       eCount++;
-    if (abs(pid) == 13)
+    else if (abs(pid) == 13)
       muCount++;
-    if (abs(pid) == 111)
+    else if (abs(pid) == 111)
       pi0Count++;
-    if (abs(pid) == 211)
+    else if (abs(pid) == 211)
       piCount++;
-    if (abs(pid) == 213)
+    else if (abs(pid) == 213)
       rhoCount++;
-    if (abs(pid) == 20213)
+    else if (abs(pid) == 20213)
       a1Count++;
-    if (abs(pid) == 321)
+    else if (abs(pid) == 321)
       KCount++;
-    if (abs(pid) == 323)
+    else if (abs(pid) == 323)
       KstarCount++;
     countParticles(dau, allCount, eCount, muCount, pi0Count, piCount, rhoCount, a1Count, KCount, KstarCount);
   }
@@ -678,19 +678,17 @@ void TauValidation::spinEffectsWHpm(
     if (decay == TauDecay::MODE_PION) {
       if (abs(mother) == 24)
         TauSpinEffectsW_X->Fill(energy, weight);
-      if (abs(mother) == 37)
+      else if (abs(mother) == 37)
         TauSpinEffectsHpm_X->Fill(energy, weight);
-    }
-    if (decay == TauDecay::MODE_MUON) {
+    } else if (decay == TauDecay::MODE_MUON) {
       if (abs(mother) == 24)
         TauSpinEffectsW_muX->Fill(energy, weight);
-      if (abs(mother) == 37)
+      else if (abs(mother) == 37)
         TauSpinEffectsHpm_muX->Fill(energy, weight);
-    }
-    if (decay == TauDecay::MODE_ELECTRON) {
+    } else if (decay == TauDecay::MODE_ELECTRON) {
       if (abs(mother) == 24)
         TauSpinEffectsW_eX->Fill(energy, weight);
-      if (abs(mother) == 37)
+      else if (abs(mother) == 37)
         TauSpinEffectsHpm_eX->Fill(energy, weight);
     }
   } else if (decay == TauDecay::MODE_PIPI0) {
@@ -700,14 +698,13 @@ void TauValidation::spinEffectsWHpm(
       if (abs(part.at(i)->pdgId()) == PdtPdgMini::pi_plus) {
         pi += LV;
         rho += LV;
-      }
-      if (abs(part.at(i)->pdgId()) == PdtPdgMini::pi0) {
+      } else if (abs(part.at(i)->pdgId()) == PdtPdgMini::pi0) {
         rho += LV;
       }
     }
     if (abs(mother) == 24)
       TauSpinEffectsW_UpsilonRho->Fill(2 * pi.P() / rho.P() - 1, weight);
-    if (abs(mother) == 37)
+    else if (abs(mother) == 37)
       TauSpinEffectsHpm_UpsilonRho->Fill(2 * pi.P() / rho.P() - 1, weight);
   } else if (decay == TauDecay::MODE_3PI || decay == TauDecay::MODE_PI2PI0) {  // only for pi2pi0 for now
     TLorentzVector a1(0, 0, 0, 0), pi_p(0, 0, 0, 0), pi_m(0, 0, 0, 0);
@@ -718,8 +715,7 @@ void TauValidation::spinEffectsWHpm(
         pi_p += LV;
         a1 += LV;
         nplus++;
-      }
-      if (part.at(i)->pdgId() == PdtPdgMini::pi_minus) {
+      } else if (part.at(i)->pdgId() == PdtPdgMini::pi_minus) {
         pi_m += LV;
         a1 += LV;
         nminus++;
@@ -728,7 +724,7 @@ void TauValidation::spinEffectsWHpm(
     double gamma = 0;
     if (nplus + nminus == 3 && nplus == 1)
       gamma = 2 * pi_p.P() / a1.P() - 1;
-    if (nplus + nminus == 3 && nminus == 1)
+    else if (nplus + nminus == 3 && nminus == 1)
       gamma = 2 * pi_m.P() / a1.P() - 1;
     else {
       pi_p += pi_m;
@@ -736,7 +732,7 @@ void TauValidation::spinEffectsWHpm(
     }
     if (abs(mother) == 24)
       TauSpinEffectsW_UpsilonA1->Fill(gamma, weight);
-    if (abs(mother) == 37)
+    else if (abs(mother) == 37)
       TauSpinEffectsHpm_UpsilonA1->Fill(gamma, weight);
   }
 }

@@ -1,6 +1,11 @@
 #ifndef FWCore_Services_SiteLocalConfigService_H
 #define FWCore_Services_SiteLocalConfigService_H
 
+///////////////////////////////////////////////////////////////////////
+//
+// dataCatalogs() returns multiple data catalogs in site-local-config.xml
+//
+///////////////////////////////////////////////////////////////////////
 //<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 #include <list>
@@ -25,8 +30,7 @@ namespace edm {
     public:
       explicit SiteLocalConfigService(ParameterSet const& pset);
 
-      std::string const dataCatalog(void) const override;
-      std::string const fallbackDataCatalog(void) const override;
+      std::vector<std::string> const& dataCatalogs(void) const override;
       std::string const lookupCalibConnect(std::string const& input) const override;
       std::string const rfioType(void) const override;
 
@@ -43,6 +47,9 @@ namespace edm {
       struct addrinfo const* statisticsDestination() const override;
       std::set<std::string> const* statisticsInfo() const override;
       std::string const& siteName() const override;
+      bool useLocalConnectString() const override;
+      std::string const& localConnectPrefix() const override;
+      std::string const& localConnectSuffix() const override;
 
       // implicit copy constructor
       // implicit assignment operator
@@ -55,8 +62,7 @@ namespace edm {
       void computeStatisticsDestination();
       std::string const frontierConnect(std::string const& servlet) const;
       std::string m_url;
-      std::string m_dataCatalog;
-      std::string m_fallbackDataCatalog;
+      std::vector<std::string> m_dataCatalogs;
       std::string m_frontierConnect;
       std::string m_rfioType;
       bool m_connected;
@@ -85,6 +91,9 @@ namespace edm {
       std::set<std::string> m_statisticsInfo;
       bool m_statisticsInfoAvail;
       std::string m_siteName;
+      bool m_useLocalConnectString = false;
+      std::string m_localConnectPrefix;
+      std::string m_localConnectSuffix;
     };
 
     inline bool isProcessWideService(SiteLocalConfigService const*) { return true; }

@@ -14,6 +14,7 @@
 #include <utility>
 #include <memory>
 #include <algorithm>
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -30,19 +31,18 @@ public:
 
   using Tokens = TrackCollectionTokens;
 
-  template <typename Producer>
-  TrackCollectionCloner(Producer& producer, const edm::ParameterSet& cfg, bool copyDefault)
+  TrackCollectionCloner(edm::ProducesCollector producesCollector, const edm::ParameterSet& cfg, bool copyDefault)
       : copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", copyDefault)),
         copyTrajectories_(cfg.template getUntrackedParameter<bool>("copyTrajectories", copyDefault)) {
     std::string alias(cfg.getParameter<std::string>("@module_label"));
-    producer.template produces<reco::TrackCollection>().setBranchAlias(alias + "Tracks");
+    producesCollector.produces<reco::TrackCollection>().setBranchAlias(alias + "Tracks");
     if (copyExtras_) {
-      producer.template produces<reco::TrackExtraCollection>().setBranchAlias(alias + "TrackExtras");
-      producer.template produces<TrackingRecHitCollection>().setBranchAlias(alias + "RecHits");
+      producesCollector.produces<reco::TrackExtraCollection>().setBranchAlias(alias + "TrackExtras");
+      producesCollector.produces<TrackingRecHitCollection>().setBranchAlias(alias + "RecHits");
     }
     if (copyTrajectories_) {
-      producer.template produces<std::vector<Trajectory> >().setBranchAlias(alias + "Trajectories");
-      producer.template produces<TrajTrackAssociationCollection>().setBranchAlias(alias +
+      producesCollector.produces<std::vector<Trajectory> >().setBranchAlias(alias + "Trajectories");
+      producesCollector.produces<TrajTrackAssociationCollection>().setBranchAlias(alias +
                                                                                   "TrajectoryTrackAssociations");
     }
   }

@@ -11,7 +11,8 @@ namespace edm {
   class EmptyESSource : public EventSetupRecordIntervalFinder {
   public:
     EmptyESSource(ParameterSet const&);
-    //virtual ~EmptyESSource();
+    EmptyESSource(EmptyESSource const&) = delete;                   // stop default
+    EmptyESSource const& operator=(EmptyESSource const&) = delete;  // stop default
 
     // ---------- const member functions ---------------------
 
@@ -22,11 +23,9 @@ namespace edm {
                         IOVSyncValue const& iTime,
                         ValidityInterval& oInterval) override;
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
   private:
-    EmptyESSource(EmptyESSource const&) = delete;  // stop default
-
-    EmptyESSource const& operator=(EmptyESSource const&) = delete;  // stop default
-
     void delaySettingRecords() override;
     // ---------- member data --------------------------------
     std::string recordName_;
@@ -37,7 +36,7 @@ namespace edm {
   EmptyESSource::EmptyESSource(ParameterSet const& pset)
       : recordName_(pset.getParameter<std::string>("recordName")),
         iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")) {
-    std::vector<unsigned int> temp(pset.getParameter<std::vector<unsigned int> >("firstValid"));
+    std::vector<unsigned int> temp(pset.getParameter<std::vector<unsigned int>>("firstValid"));
     for (std::vector<unsigned int>::iterator itValue = temp.begin(), itValueEnd = temp.end(); itValue != itValueEnd;
          ++itValue) {
       if (iovIsTime_) {
@@ -97,6 +96,21 @@ namespace edm {
       }
     }
     oInterval = ValidityInterval(*(itFound.first), endOfInterval);
+  }
+
+  void EmptyESSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("recordName")
+        ->setComment(
+            "The name of the EventSetup Record for which intervals are to be generated.\n The record type must be used "
+            "by some module in the job else an exception will occur.");
+    desc.add<bool>("iovIsRunNotTime", true)->setComment("Sets how to interpret integer values used in 'firstValid'");
+    desc.add<std::vector<unsigned int>>("firstValid")
+        ->setComment(
+            "Sets the beginning point of an IOV. The end point is assumed to be the next entry in the list. If there "
+            "are no further entries than 'end of time' is used.");
+
+    descriptions.addDefault(desc);
   }
 
 }  // namespace edm

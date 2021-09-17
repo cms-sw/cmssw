@@ -18,20 +18,20 @@
 
 #include "V0Fitter.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include <Math/Functions.h>
-#include <Math/SVector.h>
 #include <Math/SMatrix.h>
-#include <typeinfo>
-#include <memory>
-#include "DataFormats/VertexReco/interface/Vertex.h"
+#include <Math/SVector.h>
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include <memory>
+#include <typeinfo>
 
 // pdg mass constants
 namespace {
@@ -46,7 +46,7 @@ namespace {
 typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3>> SMatrixSym3D;
 typedef ROOT::Math::SVector<double, 3> SVector3;
 
-V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollector&& iC) {
+V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollector&& iC) : esTokenMF_(iC.esConsumes()) {
   token_beamSpot = iC.consumes<reco::BeamSpot>(theParameters.getParameter<edm::InputTag>("beamSpot"));
   useVertex_ = theParameters.getParameter<bool>("useVertex");
   token_vertices = iC.consumes<std::vector<reco::Vertex>>(theParameters.getParameter<edm::InputTag>("vertices"));
@@ -108,9 +108,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
     referencePos = referenceVtx.position();
   }
 
-  edm::ESHandle<MagneticField> theMagneticFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagneticFieldHandle);
-  const MagneticField* theMagneticField = theMagneticFieldHandle.product();
+  const MagneticField* theMagneticField = &iSetup.getData(esTokenMF_);
 
   std::vector<reco::TrackRef> theTrackRefs;
   std::vector<reco::TransientTrack> theTransTracks;
@@ -175,7 +173,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
 
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
-      if (sqrt(cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. || std::abs(cxPt.z()) > 300.)
+      if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
       // the tracks should at least point in the same quadrant
@@ -190,8 +188,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       double totalE = sqrt(posTSCP.momentum().mag2() + piMassSquared) + sqrt(negTSCP.momentum().mag2() + piMassSquared);
       double totalESq = totalE * totalE;
       double totalPSq = (posTSCP.momentum() + negTSCP.momentum()).mag2();
-      double mass = sqrt(totalESq - totalPSq);
-      if (mass > mPiPiCut_)
+      double massSquared = totalESq - totalPSq;
+      if (massSquared > mPiPiCut_ * mPiPiCut_)
         continue;
 
       // Fill the vector of TransientTracks to send to KVF
@@ -239,18 +237,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       }
 
       // make sure the vertex radius is within the inner track hit radius
+      double tkHitPosLimitSquared =
+          (distMagXY - sigmaDistMagXY * innerHitPosCut_) * (distMagXY - sigmaDistMagXY * innerHitPosCut_);
       if (innerHitPosCut_ > 0. && positiveTrackRef->innerOk()) {
         reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
         double posTkHitPosD2 = (posTkHitPos.x() - referencePos.x()) * (posTkHitPos.x() - referencePos.x()) +
                                (posTkHitPos.y() - referencePos.y()) * (posTkHitPos.y() - referencePos.y());
-        if (sqrt(posTkHitPosD2) < (distMagXY - sigmaDistMagXY * innerHitPosCut_))
+        if (posTkHitPosD2 < tkHitPosLimitSquared)
           continue;
       }
       if (innerHitPosCut_ > 0. && negativeTrackRef->innerOk()) {
         reco::Vertex::Point negTkHitPos = negativeTrackRef->innerPosition();
         double negTkHitPosD2 = (negTkHitPos.x() - referencePos.x()) * (negTkHitPos.x() - referencePos.x()) +
                                (negTkHitPos.y() - referencePos.y()) * (negTkHitPos.y() - referencePos.y());
-        if (sqrt(negTkHitPosD2) < (distMagXY - sigmaDistMagXY * innerHitPosCut_))
+        if (negTkHitPosD2 < tkHitPosLimitSquared)
           continue;
       }
 
@@ -274,11 +274,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         }
         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr)
           continue;
-        trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
-        trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
       } else {
-        trajPlus.reset(new TrajectoryStateClosestToPoint(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
-        trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
       }
 
       if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid())

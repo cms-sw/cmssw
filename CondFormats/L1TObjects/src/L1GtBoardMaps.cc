@@ -57,7 +57,7 @@ void L1GtBoardMaps::printGtDaqRecordMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
@@ -84,7 +84,7 @@ void L1GtBoardMaps::printGtEvmRecordMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
@@ -111,7 +111,7 @@ void L1GtBoardMaps::printGtDaqActiveBoardsMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
@@ -138,7 +138,7 @@ void L1GtBoardMaps::printGtEvmActiveBoardsMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
@@ -165,7 +165,7 @@ void L1GtBoardMaps::printGtBoardSlotMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
@@ -192,7 +192,7 @@ void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& myCout) const {
 
   int nrBoards = 0;
   int posRec = -1;
-  boost::uint16_t boardId = 0;
+  uint16_t boardId = 0;
   std::string boardName;
 
   for (std::vector<L1GtBoard>::const_iterator cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {

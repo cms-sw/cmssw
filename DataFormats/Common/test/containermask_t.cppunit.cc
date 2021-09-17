@@ -52,14 +52,15 @@ void testContainerMask::testVector() {
     CPPUNIT_ASSERT(mask[index] == cMask.mask(&(*it)));
   }
 
-  std::vector<bool> alternate(4, false);
-  alternate[1] = true;
-  cMask.applyOrTo(alternate);
-  CPPUNIT_ASSERT(alternate[0]);
-  CPPUNIT_ASSERT(alternate[1]);
-  CPPUNIT_ASSERT(alternate[2]);
-  CPPUNIT_ASSERT(!alternate[3]);
-
+  {
+    std::vector<bool> alternate(4, false);
+    alternate[1] = true;
+    cMask.applyOrTo(alternate);
+    CPPUNIT_ASSERT(alternate[0]);
+    CPPUNIT_ASSERT(alternate[1]);
+    CPPUNIT_ASSERT(alternate[2]);
+    CPPUNIT_ASSERT(!alternate[3]);
+  }
   {
     std::vector<bool> alternate(3, false);
     cMask.copyMaskTo(alternate);

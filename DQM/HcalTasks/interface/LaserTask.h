@@ -27,7 +27,7 @@ public:
   ~LaserTask() override {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &r, edm::EventSetup const &) override {
+  void dqmEndRun(edm::Run const &r, edm::EventSetup const &) override {
     if (_ptype == hcaldqm::fLocal) {
       if (r.runAuxiliary().run() == 1)
         return;
@@ -35,7 +35,7 @@ public:
         this->_dump();
     }
   }
-  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   //	funcs
@@ -46,16 +46,15 @@ protected:
   void processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vector<int> &iLaserMonADC);
 
   //	tags and tokens
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHE;
+  edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
+  edm::InputTag _tagQIE10;
   edm::InputTag _taguMN;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
+  edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   enum LaserFlag { fBadTiming = 0, fMissingLaserMon = 1, nLaserFlag = 2 };
   std::vector<hcaldqm::flag::Flag> _vflags;

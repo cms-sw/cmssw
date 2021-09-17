@@ -3,7 +3,6 @@ import os
 import logging 
 
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer as CoreAnalyzer
-import six
 
 class Analyzer(CoreAnalyzer):
     '''Base Analyzer class. Used in Looper.'''
@@ -31,8 +30,8 @@ class Analyzer(CoreAnalyzer):
         # if not self.beginLoopCalled:
         #    # necessary in case the user calls process to go straight to a given event, before looping
         #    self.beginLoop(setup)
-        for str,handle in six.iteritems(self.handles):
+        for str,handle in self.handles.items():
             handle.Load( iEvent )
         if self.cfg_comp.isMC:
-            for str,handle in six.iteritems(self.mchandles):
+            for str,handle in self.mchandles.items():
                 handle.Load( iEvent )

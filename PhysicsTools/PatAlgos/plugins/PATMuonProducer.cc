@@ -1,58 +1,322 @@
-//
-//
+/**
+  \class    pat::PATMuonProducer PATMuonProducer.h "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
+  \brief    Produces pat::Muon's
 
-#include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
+   The PATMuonProducer produces analysis-level pat::Muon's starting from
+   a collection of objects of reco::Muon.
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
-
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
-#include "DataFormats/PatCandidates/interface/PFIsolation.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "DataFormats/Common/interface/Association.h"
+  \author   Steven Lowette, Roger Wolf
+  \version  $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
+*/
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-#include "TMath.h"
+namespace pat {
 
-#include "FWCore/Utilities/interface/transform.h"
+  class PATMuonHeavyObjectCache {
+  public:
+    PATMuonHeavyObjectCache(const edm::ParameterSet&);
 
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
-#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+    pat::MuonMvaEstimator const& muonMvaEstimator() const { return *muonMvaEstimator_; }
+    pat::MuonMvaEstimator const& muonLowPtMvaEstimator() const { return *muonLowPtMvaEstimator_; }
 
-#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
+    pat::SoftMuonMvaEstimator const& softMuonMvaEstimator() const { return *softMuonMvaEstimator_; }
 
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+  private:
+    std::unique_ptr<const pat::MuonMvaEstimator> muonLowPtMvaEstimator_;
+    std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
+    std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
+  };
 
-#include <vector>
-#include <memory>
+  /// foward declarations
+  class TrackerIsolationPt;
+  class CaloIsolationEnergy;
+
+  /// class definition
+  class PATMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<PATMuonHeavyObjectCache>> {
+  public:
+    /// default constructir
+    explicit PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyObjectCache const*);
+    /// default destructur
+    ~PATMuonProducer() override;
+
+    static std::unique_ptr<PATMuonHeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& iConfig) {
+      return std::make_unique<PATMuonHeavyObjectCache>(iConfig);
+    }
+
+    static void globalEndJob(PATMuonHeavyObjectCache*) {}
+
+    /// everything that needs to be done during the event loop
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    /// description of config file parameters
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    /// typedefs for convenience
+    typedef edm::RefToBase<reco::Muon> MuonBaseRef;
+    typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection>>> GenAssociations;
+    typedef std::vector<edm::Handle<edm::ValueMap<IsoDeposit>>> IsoDepositMaps;
+    typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
+    typedef std::pair<pat::IsolationKeys, edm::InputTag> IsolationLabel;
+    typedef std::vector<IsolationLabel> IsolationLabels;
+
+    /// common muon filling, for both the standard and PF2PAT case
+    void fillMuon(Muon& aMuon,
+                  const MuonBaseRef& muonRef,
+                  const reco::CandidateBaseRef& baseRef,
+                  const GenAssociations& genMatches,
+                  const IsoDepositMaps& deposits,
+                  const IsolationValueMaps& isolationValues) const;
+    /// fill label vector from the contents of the parameter set,
+    /// for the embedding of isoDeposits or userIsolation values
+    template <typename T>
+    void readIsolationLabels(const edm::ParameterSet& iConfig,
+                             const char* psetName,
+                             IsolationLabels& labels,
+                             std::vector<edm::EDGetTokenT<edm::ValueMap<T>>>& tokens);
+
+    void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection* pc);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon, double rho, const std::vector<double>& area);
+
+    double puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection* pc);
+    bool isNeutralHadron(long pdgid);
+    bool isChargedHadron(long pdgid);
+    bool isPhoton(long pdgid);
+
+    // embed various impact parameters with errors
+    // embed high level selection
+    void embedHighLevel(pat::Muon& aMuon,
+                        reco::TrackRef track,
+                        reco::TransientTrack& tt,
+                        reco::Vertex& primaryVertex,
+                        bool primaryVertexIsValid,
+                        reco::BeamSpot& beamspot,
+                        bool beamspotIsValid);
+    double relMiniIsoPUCorrected(const pat::Muon& aMuon, double rho);
+    std::optional<GlobalPoint> getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+                                                const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+                                                const DetId& chamberId);
+    void fillL1TriggerInfo(pat::Muon& muon,
+                           edm::Handle<std::vector<pat::TriggerObjectStandAlone>>& triggerObjects,
+                           const edm::TriggerNames& names,
+                           const edm::ESHandle<GlobalTrackingGeometry>& geometry);
+    void fillHltTriggerInfo(pat::Muon& muon,
+                            edm::Handle<std::vector<pat::TriggerObjectStandAlone>>& triggerObjects,
+                            const edm::TriggerNames& names,
+                            const std::vector<std::string>& collection_names);
+
+  private:
+    /// input source
+    edm::EDGetTokenT<edm::View<reco::Muon>> muonToken_;
+
+    // for mini-iso calculation
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pcToken_;
+    bool computeMiniIso_;
+    bool computePuppiCombinedIso_;
+    std::vector<double> effectiveAreaVec_;
+    std::vector<double> miniIsoParams_;
+    double relMiniIsoPUCorrected_;
+
+    /// embed the track from best muon measurement (global pflow)
+    bool embedBestTrack_;
+    /// embed the track from best muon measurement (muon only)
+    bool embedTunePBestTrack_;
+    /// force separate embed of the best track even if already embedded
+    bool forceEmbedBestTrack_;
+    /// embed the track from inner tracker into the muon
+    bool embedTrack_;
+    /// embed track from muon system into the muon
+    bool embedStandAloneMuon_;
+    /// embed track of the combined fit into the muon
+    bool embedCombinedMuon_;
+    /// embed muon MET correction info for caloMET into the muon
+    bool embedCaloMETMuonCorrs_;
+    /// source of caloMET muon corrections
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> caloMETMuonCorrsToken_;
+    /// embed muon MET correction info for tcMET into the muon
+    bool embedTcMETMuonCorrs_;
+    /// source of tcMET muon corrections
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETMuonCorrsToken_;
+    /// embed track from picky muon fit into the muon
+    bool embedPickyMuon_;
+    /// embed track from tpfms muon fit into the muon
+    bool embedTpfmsMuon_;
+    /// embed track from DYT muon fit into the muon
+    bool embedDytMuon_;
+    /// add combined inverse beta measurement into the muon
+    bool addInverseBeta_;
+    /// input tag for reading inverse beta
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonTimeExtra>> muonTimeExtraToken_;
+    /// add generator match information
+    bool addGenMatch_;
+    /// input tags for generator match information
+    std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>>> genMatchTokens_;
+    /// embed the gen match information into the muon
+    bool embedGenMatch_;
+    /// add resolutions to the muon (this will be data members of th muon even w/o embedding)
+    bool addResolutions_;
+    /// helper class to add resolutions to the muon
+    pat::helper::KinResolutionsLoader resolutionLoader_;
+    /// switch to use particle flow (PF2PAT) or not
+    bool useParticleFlow_;
+    /// input source pfCandidates that will be to be transformed into pat::Muons, when using PF2PAT
+    edm::EDGetTokenT<reco::PFCandidateCollection> pfMuonToken_;
+    /// embed pfCandidates into the muon
+    bool embedPFCandidate_;
+    /// embed high level selection variables
+    bool embedHighLevelSelection_;
+    /// input source of the primary vertex/beamspot
+    edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
+    /// input source of the primary vertex
+    edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
+    /// input source for isoDeposits
+    IsolationLabels isoDepositLabels_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit>>> isoDepositTokens_;
+    /// input source isolation value maps
+    IsolationLabels isolationValueLabels_;
+    std::vector<edm::EDGetTokenT<edm::ValueMap<double>>> isolationValueTokens_;
+    /// add efficiencies to the muon (this will be data members of th muon even w/o embedding)
+    bool addEfficiencies_;
+    /// add user data to the muon (this will be data members of th muon even w/o embedding)
+    bool useUserData_;
+    /// add ecal PF energy
+    bool embedPfEcalEnergy_;
+    /// add puppi isolation
+    bool addPuppiIsolation_;
+    //PUPPI isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPIIsolation_photons_;
+    //PUPPINoLeptons isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons_;
+    /// standard muon selectors
+    bool computeMuonMVA_;
+    bool computeSoftMuonMVA_;
+    bool recomputeBasicSelectors_;
+    bool mvaUseJec_;
+    edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
+    edm::EDGetTokenT<double> rho_;
+
+    /// --- tools ---
+    /// helper class to add userdefined isolation values to the muon
+    pat::helper::MultiIsolator isolator_;
+    /// isolation value pair for temporary storage before being folded into the muon
+    pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_;
+    /// helper class to add efficiencies to the muon
+    pat::helper::EfficiencyLoader efficiencyLoader_;
+    /// helper class to add userData to the muon
+    pat::PATUserDataHelper<pat::Muon> userDataHelper_;
+
+    /// MC info
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo>> simInfo_;
+
+    /// Trigger
+    bool addTriggerMatching_;
+    edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+    std::vector<std::string> hltCollectionFilters_;
+
+    const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
+
+    const edm::EDPutTokenT<std::vector<Muon>> patMuonPutToken_;
+  };
+
+}  // namespace pat
+
+template <typename T>
+void pat::PATMuonProducer::readIsolationLabels(const edm::ParameterSet& iConfig,
+                                               const char* psetName,
+                                               pat::PATMuonProducer::IsolationLabels& labels,
+                                               std::vector<edm::EDGetTokenT<edm::ValueMap<T>>>& tokens) {
+  labels.clear();
+
+  if (iConfig.exists(psetName)) {
+    edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
+
+    if (depconf.exists("tracker"))
+      labels.emplace_back(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker"));
+    if (depconf.exists("ecal"))
+      labels.emplace_back(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal"));
+    if (depconf.exists("hcal"))
+      labels.emplace_back(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal"));
+    if (depconf.exists("pfAllParticles")) {
+      labels.emplace_back(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles"));
+    }
+    if (depconf.exists("pfChargedHadrons")) {
+      labels.emplace_back(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons"));
+    }
+    if (depconf.exists("pfChargedAll")) {
+      labels.emplace_back(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll"));
+    }
+    if (depconf.exists("pfPUChargedHadrons")) {
+      labels.emplace_back(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons"));
+    }
+    if (depconf.exists("pfNeutralHadrons")) {
+      labels.emplace_back(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons"));
+    }
+    if (depconf.exists("pfPhotons")) {
+      labels.emplace_back(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons"));
+    }
+    if (depconf.exists("user")) {
+      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag>>("user");
+      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      int key = pat::IsolationKeys::UserBaseIso;
+      for (; it != ed; ++it, ++key) {
+        labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
+      }
+      tokens = edm::vector_transform(
+          labels, [this](IsolationLabel const& label) { return consumes<edm::ValueMap<T>>(label.second); });
+    }
+  }
+  tokens = edm::vector_transform(labels, [this](pat::PATMuonProducer::IsolationLabel const& label) {
+    return consumes<edm::ValueMap<T>>(label.second);
+  });
+}
 
 using namespace pat;
 using namespace std;
@@ -82,7 +346,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
                                                 : edm::ParameterSet(),
                 consumesCollector(),
-                false) {
+                false),
+      geometryToken_{esConsumes()},
+      transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
+      patMuonPutToken_{produces<std::vector<Muon>>()} {
   // input source
   muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSource"));
   // embedding of tracks
@@ -108,6 +375,12 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   embedPickyMuon_ = iConfig.getParameter<bool>("embedPickyMuon");
   embedTpfmsMuon_ = iConfig.getParameter<bool>("embedTpfmsMuon");
   embedDytMuon_ = iConfig.getParameter<bool>("embedDytMuon");
+  // embedding of inverse beta variable information
+  addInverseBeta_ = iConfig.getParameter<bool>("addInverseBeta");
+  if (addInverseBeta_) {
+    muonTimeExtraToken_ =
+        consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
+  }
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
@@ -130,7 +403,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   // resolutions
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
   // puppi
   addPuppiIsolation_ = iConfig.getParameter<bool>("addPuppiIsolation");
@@ -205,9 +479,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
     triggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
   }
   hltCollectionFilters_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionFilters");
-
-  // produces vector of muons
-  produces<std::vector<Muon>>();
 }
 
 PATMuonProducer::~PATMuonProducer() {}
@@ -259,7 +530,7 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     return;
   for (const auto& triggerObject : *triggerObjects) {
     if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)) {
-      if (fabs(triggerObject.eta()) < 0.001) {
+      if (std::abs(triggerObject.eta()) < 0.001) {
         // L1 is defined in X-Y plain
         if (deltaPhi(triggerObject.phi(), muonPosition->phi()) > 0.1)
           continue;
@@ -303,8 +574,7 @@ void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
 
 void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the tracking Geometry
-  edm::ESHandle<GlobalTrackingGeometry> geometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
+  auto geometry = iSetup.getHandle(geometryToken_);
   if (!geometry.isValid())
     throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
 
@@ -323,7 +593,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
+  TransientTrackBuilder const* trackBuilder = nullptr;
 
   if (isolator_.enabled())
     isolator_.beginEvent(iEvent, iSetup);
@@ -408,7 +678,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           << "No primary vertex available from EventSetup, not adding high level selection \n";
     }
     // this is needed by the IPTools methods from the tracking group
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+    trackBuilder = &iSetup.getData(transientTrackBuilderToken_);
   }
 
   // MC info
@@ -416,7 +686,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool simInfoIsAvailalbe = iEvent.getByToken(simInfo_, simInfo);
 
   // this will be the new object collection
-  std::vector<Muon>* patMuons = new std::vector<Muon>();
+  std::vector<Muon> patMuons;
 
   edm::Handle<reco::PFCandidateCollection> pfMuons;
   if (useParticleFlow_) {
@@ -490,7 +760,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
       }
 
-      patMuons->push_back(aMuon);
+      patMuons.push_back(aMuon);
     }
   } else {
     edm::Handle<edm::View<reco::Muon>> muons;
@@ -510,9 +780,15 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
 
-    if (embedPfEcalEnergy_) {
+    if (embedPfEcalEnergy_ || embedPFCandidate_) {
       // get the PFCandidates of type muons
       iEvent.getByToken(pfMuonToken_, pfMuons);
+    }
+
+    edm::Handle<edm::ValueMap<reco::MuonTimeExtra>> muonsTimeExtra;
+    if (addInverseBeta_) {
+      // get MuonTimerExtra value map
+      iEvent.getByToken(muonTimeExtraToken_, muonsTimeExtra);
     }
 
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
@@ -592,18 +868,31 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (embedTcMETMuonCorrs_)
         aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs)[muonRef]);
 
-      if (embedPfEcalEnergy_) {
-        aMuon.setPfEcalEnergy(-99.0);
+      if (embedPfEcalEnergy_ || embedPFCandidate_) {
+        if (embedPfEcalEnergy_)
+          aMuon.setPfEcalEnergy(-99.0);
+        unsigned index = 0;
         for (const reco::PFCandidate& pfmu : *pfMuons) {
           if (pfmu.muonRef().isNonnull()) {
             if (pfmu.muonRef().id() != muonRef.id())
               throw cms::Exception("Configuration")
                   << "Muon reference within PF candidates does not point to the muon collection." << std::endl;
             if (pfmu.muonRef().key() == muonRef.key()) {
-              aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+              reco::PFCandidateRef pfRef(pfMuons, index);
+              aMuon.setPFCandidateRef(pfRef);
+              if (embedPfEcalEnergy_)
+                aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+              if (embedPFCandidate_)
+                aMuon.embedPFCandidate();
+              break;
             }
           }
+          index++;
         }
+      }
+
+      if (addInverseBeta_) {
+        aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
       }
       // MC info
       aMuon.initSimInfo();
@@ -624,12 +913,12 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         aMuon.setSimPhi(msi.p4.phi());
         aMuon.setSimMatchQuality(msi.tpAssoQuality);
       }
-      patMuons->push_back(aMuon);
+      patMuons.push_back(aMuon);
     }
   }
 
   // sort muons in pt
-  std::sort(patMuons->begin(), patMuons->end(), pTComparator_);
+  std::sort(patMuons.begin(), patMuons.end(), [](auto const& t1, auto const& t2) { return t1.pt() > t2.pt(); });
 
   // Store standard muon selection decisions and jet related
   // quantaties.
@@ -651,7 +940,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     triggerResultsAvailable = iEvent.getByToken(triggerResults_, triggerResults);
   }
 
-  for (auto& muon : *patMuons) {
+  for (auto& muon : patMuons) {
     // trigger info
     if (addTriggerMatching_ and triggerObjectsAvailable and triggerResultsAvailable) {
       const edm::TriggerNames& triggerNames(iEvent.triggerNames(*triggerResults));
@@ -690,28 +979,28 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float mva_lowpt = 0.0;
     if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_) {
       if (mvaUseJec_) {
-        mva = globalCache()->muonMvaEstimator()->computeMva(muon,
-                                                            primaryVertex,
-                                                            *(mvaBTagCollectionTag.product()),
-                                                            jetPtRatio,
-                                                            jetPtRel,
-                                                            miniIsoValue,
-                                                            &*mvaL1Corrector,
-                                                            &*mvaL1L2L3ResCorrector);
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
-                                                                       primaryVertex,
-                                                                       *(mvaBTagCollectionTag.product()),
-                                                                       jetPtRatio,
-                                                                       jetPtRel,
-                                                                       miniIsoValue,
-                                                                       &*mvaL1Corrector,
-                                                                       &*mvaL1L2L3ResCorrector);
+        mva = globalCache()->muonMvaEstimator().computeMva(muon,
+                                                           primaryVertex,
+                                                           *(mvaBTagCollectionTag.product()),
+                                                           jetPtRatio,
+                                                           jetPtRel,
+                                                           miniIsoValue,
+                                                           mvaL1Corrector.product(),
+                                                           mvaL1L2L3ResCorrector.product());
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(muon,
+                                                                      primaryVertex,
+                                                                      *(mvaBTagCollectionTag.product()),
+                                                                      jetPtRatio,
+                                                                      jetPtRel,
+                                                                      miniIsoValue,
+                                                                      mvaL1Corrector.product(),
+                                                                      mvaL1L2L3ResCorrector.product());
 
       } else {
-        mva = globalCache()->muonMvaEstimator()->computeMva(
-            muon, primaryVertex, *(mvaBTagCollectionTag.product()), jetPtRatio, jetPtRel, miniIsoValue);
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(
-            muon, primaryVertex, *(mvaBTagCollectionTag.product()), jetPtRatio, jetPtRel, miniIsoValue);
+        mva = globalCache()->muonMvaEstimator().computeMva(
+            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(
+            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
       }
 
       muon.setMvaValue(mva);
@@ -727,11 +1016,11 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      double dB2D = fabs(muon.dB(pat::Muon::PV2D));
-      double dB3D = fabs(muon.dB(pat::Muon::PV3D));
-      double edB3D = fabs(muon.edB(pat::Muon::PV3D));
-      double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
-      double dz = fabs(muon.muonBestTrack()->dz(primaryVertex.position()));
+      const double dB2D = std::abs(muon.dB(pat::Muon::PV2D));
+      const double dB3D = std::abs(muon.dB(pat::Muon::PV3D));
+      const double edB3D = std::abs(muon.edB(pat::Muon::PV3D));
+      const double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
+      const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
 
       // muon preselection
       if (muon.pt() > 5 and muon.isLooseMuon() and muon.passed(reco::Muon::MiniIsoLoose) and sip3D < 8.0 and
@@ -750,7 +1039,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //SOFT MVA
     if (computeSoftMuonMVA_) {
-      float mva = globalCache()->softMuonMvaEstimator()->computeMva(muon);
+      float mva = globalCache()->softMuonMvaEstimator().computeMva(muon);
       muon.setSoftMvaValue(mva);
       //preselection in SoftMuonMvaEstimator.cc
       muon.setSelector(reco::Muon::SoftMvaId, muon.softMvaValue() > 0.58);  //WP choose for bmm4
@@ -758,8 +1047,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // put products in Event
-  std::unique_ptr<std::vector<Muon>> ptr(patMuons);
-  iEvent.put(std::move(ptr));
+  iEvent.emplace(patMuonPutToken_, std::move(patMuons));
 
   if (isolator_.enabled())
     isolator_.endEvent();
@@ -803,8 +1091,8 @@ void PATMuonProducer::fillMuon(Muon& aMuon,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for (size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genMuon = (*genMatches[i])[baseRef];
+    for (auto const& genMatch : genMatches) {
+      reco::GenParticleRef genMuon = (*genMatch)[baseRef];
       aMuon.addGenParticleRef(genMuon);
     }
     if (embedGenMatch_)
@@ -851,7 +1139,7 @@ void PATMuonProducer::fillMuon(Muon& aMuon,
 
 void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollection* pc) {
   pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc,
-                                                     aMuon.p4(),
+                                                     aMuon.polarP4(),
                                                      miniIsoParams_[0],
                                                      miniIsoParams_[1],
                                                      miniIsoParams_[2],
@@ -868,22 +1156,24 @@ double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double r
   double mindr(miniIsoParams_[0]);
   double maxdr(miniIsoParams_[1]);
   double kt_scale(miniIsoParams_[2]);
-  double drcut = pat::miniIsoDr(muon.p4(), mindr, maxdr, kt_scale);
-  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, area);
+  double drcut = pat::miniIsoDr(muon.polarP4(), mindr, maxdr, kt_scale);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.polarP4(), drcut, rho, area);
 }
 
 double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection* pc) {
-  double dR_threshold = 0.4;
-  double dR2_threshold = dR_threshold * dR_threshold;
-  double mix_fraction = 0.5;
+  constexpr double dR_threshold = 0.4;
+  constexpr double dR2_threshold = dR_threshold * dR_threshold;
+  constexpr double mix_fraction = 0.5;
   enum particleType { CH = 0, NH = 1, PH = 2, OTHER = 100000 };
   double val_PuppiWithLep = 0.0;
   double val_PuppiWithoutLep = 0.0;
 
   for (const auto& cand : *pc) {  //pat::pat::PackedCandidate loop start
 
-    const particleType pType =
-        isChargedHadron(cand.pdgId()) ? CH : isNeutralHadron(cand.pdgId()) ? NH : isPhoton(cand.pdgId()) ? PH : OTHER;
+    const particleType pType = isChargedHadron(cand.pdgId())   ? CH
+                               : isNeutralHadron(cand.pdgId()) ? NH
+                               : isPhoton(cand.pdgId())        ? PH
+                                                               : OTHER;
     if (pType == OTHER) {
       if (cand.pdgId() != 1 && cand.pdgId() != 2 && abs(cand.pdgId()) != 11 && abs(cand.pdgId()) != 13) {
         LogTrace("PATMuonProducer") << "candidate with PDGID = " << cand.pdgId()
@@ -961,6 +1251,11 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
   iDesc.add<bool>("embedPfEcalEnergy", true)->setComment("add ecal energy as reconstructed by PF");
+
+  // inverse beta computation
+  iDesc.add<bool>("addInverseBeta", true)->setComment("add combined inverse beta");
+  iDesc.add<edm::InputTag>("sourceInverseBeta", edm::InputTag("muons", "combined"))
+      ->setComment("source of inverse beta values");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
@@ -1077,27 +1372,24 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   // Correct to PV
 
   // PV2D
-  std::pair<bool, Measurement1D> result =
-      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  double d0_corr = result.second.value();
-  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
-  aMuon.setDB(d0_corr, d0_err, pat::Muon::PV2D);
+  aMuon.setDB(track->dxy(primaryVertex.position()),
+              track->dxyError(primaryVertex.position(), primaryVertex.covariance()),
+              pat::Muon::PV2D);
 
   // PV3D
-  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  d0_corr = result.second.value();
-  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  std::pair<bool, Measurement1D> result =
+      IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
+  double d0_corr = result.second.value();
+  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   aMuon.setDB(d0_corr, d0_err, pat::Muon::PV3D);
 
   // Correct to beam spot
-  // make a fake vertex out of beam spot
-  reco::Vertex vBeamspot(beamspot.position(), beamspot.rotatedCovariance3D());
 
   // BS2D
-  result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
-  d0_corr = result.second.value();
-  d0_err = beamspotIsValid ? result.second.error() : -1.0;
-  aMuon.setDB(d0_corr, d0_err, pat::Muon::BS2D);
+  aMuon.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Muon::BS2D);
+
+  // make a fake vertex out of beam spot
+  reco::Vertex vBeamspot(beamspot.position(), beamspot.rotatedCovariance3D());
 
   // BS3D
   result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);

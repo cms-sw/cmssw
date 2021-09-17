@@ -20,19 +20,17 @@ namespace ecaldqm {
 
   void RawDataTask::beginRun(edm::Run const& _run, edm::EventSetup const&) { runNumber_ = _run.run(); }
 
-  void RawDataTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    // Reset by LS plots at beginning of every LS
-    MEs_.at("DesyncByLumi").reset();
-    MEs_.at("FEByLumi").reset();
-    MEs_.at("FEStatusErrMapByLumi").reset();
-  }
-
-  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&) {
+  void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&, bool const& ByLumiResetSwitch, bool&) {
     orbit_ = _evt.orbitNumber() & 0xffffffff;
     bx_ = _evt.bunchCrossing() & 0xfff;
     triggerType_ = _evt.experimentType() & 0xf;
     l1A_ = 0;
     feL1Offset_ = _evt.isRealData() ? 1 : 0;
+    if (ByLumiResetSwitch) {
+      MEs_.at("DesyncByLumi").reset(GetElectronicsMap());
+      MEs_.at("FEByLumi").reset(GetElectronicsMap());
+      MEs_.at("FEStatusErrMapByLumi").reset(GetElectronicsMap());
+    }
   }
 
   void RawDataTask::runOnSource(FEDRawDataCollection const& _fedRaw) {
@@ -51,7 +49,7 @@ namespace ecaldqm {
       if (length > 1) {  // FED header is one 64 bit word
         const uint64_t* pData(reinterpret_cast<uint64_t const*>(fedData.data()));
         if ((pData[length - 1] & 0x4) != 0)
-          meCRC.fill(iFED - 600);
+          meCRC.fill(getEcalDQMSetupObjects(), iFED - 600);
       }
     }
   }
@@ -72,6 +70,7 @@ namespace ecaldqm {
     MESet& meL1AFE(MEs_.at("L1AFE"));
     MESet& meFEStatus(MEs_.at("FEStatus"));
     MESet& meFEStatusErrMapByLumi(MEs_.at("FEStatusErrMapByLumi"));
+    MESet& meFEStatusMEM(MEs_.at("FEStatusMEM"));
     MESet& meDesyncByLumi(MEs_.at("DesyncByLumi"));
     MESet& meDesyncTotal(MEs_.at("DesyncTotal"));
     MESet& meFEByLumi(MEs_.at("FEByLumi"));
@@ -106,21 +105,21 @@ namespace ecaldqm {
       short dccL1AShort(dccL1A & 0xfff);
       int dccBX(dcchItr->getBX());
 
-      meOrbitDiff.fill(dccId, dcchItr->getOrbit() - orbit_);
-      meBXDCCDiff.fill(dccId, dccBX - bx_);
+      meOrbitDiff.fill(getEcalDQMSetupObjects(), dccId, dcchItr->getOrbit() - orbit_);
+      meBXDCCDiff.fill(getEcalDQMSetupObjects(), dccId, dccBX - bx_);
       if (dccBX == -1)
-        meBXFEInvalid.fill(dccId, 68.5);
+        meBXFEInvalid.fill(getEcalDQMSetupObjects(), dccId, 68.5);
 
       if (dcchItr->getRunNumber() != int(runNumber_))
-        meRunNumber.fill(dccId);
+        meRunNumber.fill(getEcalDQMSetupObjects(), dccId);
       if (dcchItr->getOrbit() != orbit_)
-        meOrbit.fill(dccId);
+        meOrbit.fill(getEcalDQMSetupObjects(), dccId);
       if (dcchItr->getBasicTriggerType() != triggerType_)
-        meTriggerType.fill(dccId);
+        meTriggerType.fill(getEcalDQMSetupObjects(), dccId);
       if (dccL1A != l1A_)
-        meL1ADCC.fill(dccId);
+        meL1ADCC.fill(getEcalDQMSetupObjects(), dccId);
       if (dccBX != bx_)
-        meBXDCC.fill(dccId);
+        meBXDCC.fill(getEcalDQMSetupObjects(), dccId);
 
       const vector<short>& feStatus(dcchItr->getFEStatus());
       const vector<short>& feBxs(dcchItr->getFEBxs());
@@ -136,34 +135,43 @@ namespace ecaldqm {
         short status(feStatus[iFE]);
 
         if (feBxs[iFE] != -1 && dccBX != -1) {
-          meBXFEDiff.fill(dccId, feBxs[iFE] - dccBX);
+          meBXFEDiff.fill(getEcalDQMSetupObjects(), dccId, feBxs[iFE] - dccBX);
         }
         if (feBxs[iFE] == -1)
-          meBXFEInvalid.fill(dccId, iFE + 0.5);
+          meBXFEInvalid.fill(getEcalDQMSetupObjects(), dccId, iFE + 0.5);
 
         if (status != BXDesync && status != L1ABXDesync) {  // BX desync not detected in the DCC
           if (feBxs[iFE] != dccBX && feBxs[iFE] != -1 && dccBX != -1) {
-            meBXFE.fill(dccId, iFE + 0.5);
+            meBXFE.fill(getEcalDQMSetupObjects(), dccId, iFE + 0.5);
             feDesync += 1.;
           }
         }
 
         if (status != L1ADesync && status != L1ABXDesync) {
           if (feL1s[iFE] + feL1Offset_ != dccL1AShort && feL1s[iFE] != -1 && dccL1AShort != 0) {
-            meL1AFE.fill(dccId, iFE + 0.5);
+            meL1AFE.fill(getEcalDQMSetupObjects(), dccId, iFE + 0.5);
             feDesync += 1.;
           }
         }
 
-        if (iFE >= 68)
+        if (iFE >= 68) {
+          // FE Status for MEM boxes (towerIds 69 and 70)
+          // Plot contains two bins per dccId. Integer number
+          // bins correspond to towerId 69 and half integer
+          // number bins correspond to towerId 70.
+          if (iFE + 1 == 69)
+            meFEStatusMEM.fill(getEcalDQMSetupObjects(), dccId + 0.0, status);
+          else if (iFE + 1 == 70)
+            meFEStatusMEM.fill(getEcalDQMSetupObjects(), dccId + 0.5, status);
           continue;
+        }
 
-        DetId id(getElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
-        meFEStatus.fill(id, status);
+        DetId id(GetElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
+        meFEStatus.fill(getEcalDQMSetupObjects(), id, status);
         // Fill FE Status Error Map with error states only
         if (status != Enabled && status != Suppressed && status != FIFOFull && status != FIFOFullL1ADesync &&
             status != ForcedZS)
-          meFEStatusErrMapByLumi.fill(id, status);
+          meFEStatusErrMapByLumi.fill(getEcalDQMSetupObjects(), id, status);
 
         switch (status) {
           case Timeout:
@@ -184,12 +192,12 @@ namespace ecaldqm {
       }
 
       if (feDesync > 0.) {
-        meDesyncByLumi.fill(dccId, feDesync);
-        meDesyncTotal.fill(dccId, feDesync);
-        meTrendNSyncErrors.fill(double(timestamp_.iLumi), feDesync);
+        meDesyncByLumi.fill(getEcalDQMSetupObjects(), dccId, feDesync);
+        meDesyncTotal.fill(getEcalDQMSetupObjects(), dccId, feDesync);
+        meTrendNSyncErrors.fill(getEcalDQMSetupObjects(), double(timestamp_.iLumi), feDesync);
       }
       if (statusError > 0.)
-        meFEByLumi.fill(dccId, statusError);
+        meFEByLumi.fill(getEcalDQMSetupObjects(), dccId, statusError);
 
       const vector<short>& tccBx(dcchItr->getTCCBx());
       const vector<short>& tccL1(dcchItr->getTCCLv1());
@@ -198,17 +206,17 @@ namespace ecaldqm {
         if (dccId <= kEEmHigh + 1 || dccId >= kEEpLow + 1) {
           for (int iTCC(0); iTCC < 4; iTCC++) {
             if (tccBx[iTCC] != dccBX && tccBx[iTCC] != -1 && dccBX != -1)
-              meBXTCC.fill(dccId);
+              meBXTCC.fill(getEcalDQMSetupObjects(), dccId);
 
             if (tccL1[iTCC] != dccL1AShort && tccL1[iTCC] != -1 && dccL1AShort != 0)
-              meL1ATCC.fill(dccId);
+              meL1ATCC.fill(getEcalDQMSetupObjects(), dccId);
           }
         } else {
           if (tccBx[0] != dccBX && tccBx[0] != -1 && dccBX != -1)
-            meBXTCC.fill(dccId);
+            meBXTCC.fill(getEcalDQMSetupObjects(), dccId);
 
           if (tccL1[0] != dccL1AShort && tccL1[0] != -1 && dccL1AShort != 0)
-            meL1ATCC.fill(dccId);
+            meL1ATCC.fill(getEcalDQMSetupObjects(), dccId);
         }
       }
 
@@ -216,10 +224,10 @@ namespace ecaldqm {
       short srpL1(dcchItr->getSRPLv1());
 
       if (srpBx != dccBX && srpBx != -1 && dccBX != -1)
-        meBXSRP.fill(dccId);
+        meBXSRP.fill(getEcalDQMSetupObjects(), dccId);
 
       if (srpL1 != dccL1AShort && srpL1 != -1 && dccL1AShort != 0)
-        meL1ASRP.fill(dccId);
+        meL1ASRP.fill(getEcalDQMSetupObjects(), dccId);
 
       const int calibBX(3490);
 
@@ -227,11 +235,11 @@ namespace ecaldqm {
       if (runType < 0 || runType > 22)
         runType = 0;
       if (dccBX < calibBX)
-        meEventTypePreCalib.fill(dccId, runType, 1. / 54.);
+        meEventTypePreCalib.fill(getEcalDQMSetupObjects(), dccId, runType, 1. / 54.);
       else if (dccBX == calibBX)
-        meEventTypeCalib.fill(dccId, runType, 1. / 54.);
+        meEventTypeCalib.fill(getEcalDQMSetupObjects(), dccId, runType, 1. / 54.);
       else
-        meEventTypePostCalib.fill(dccId, runType, 1. / 54.);
+        meEventTypePostCalib.fill(getEcalDQMSetupObjects(), dccId, runType, 1. / 54.);
     }
   }
 

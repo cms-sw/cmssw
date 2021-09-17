@@ -50,11 +50,10 @@ public:
 
   typedef std::vector<MEtoEDMObject> MEtoEdmObjectVector;
 
-  void putMEtoEdmObject(const std::string &name, const TagList &tags, const T &object) {
+  void putMEtoEdmObject(const std::string &name, const T &object) {
     typename MEtoEdmObjectVector::value_type temp;
     MEtoEdmObject.push_back(temp);
     MEtoEdmObject.back().name = name;
-    MEtoEdmObject.back().tags = tags;
     MEtoEdmObject.back().object = object;
   }
 

@@ -41,22 +41,22 @@ namespace edm {
   public:
     using value_type = unsigned int;
 
-    EDPutToken() : m_value{s_uninitializedValue} {}
+    constexpr EDPutToken() noexcept : m_value{s_uninitializedValue} {}
 
     template <typename T>
-    EDPutToken(EDPutTokenT<T> iOther) : m_value{iOther.m_value} {}
+    constexpr EDPutToken(EDPutTokenT<T> iOther) noexcept : m_value{iOther.m_value} {}
 
     // ---------- const member functions ---------------------
-    value_type index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+    constexpr value_type index() const noexcept { return m_value; }
+    constexpr bool isUninitialized() const noexcept { return m_value == s_uninitializedValue; }
 
   private:
     //for testing
     friend class TestEDPutToken;
 
-    static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
+    static constexpr unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
-    explicit EDPutToken(unsigned int iValue) : m_value(iValue) {}
+    explicit constexpr EDPutToken(unsigned int iValue) noexcept : m_value(iValue) {}
 
     // ---------- member data --------------------------------
     value_type m_value;
@@ -71,19 +71,42 @@ namespace edm {
   public:
     using value_type = EDPutToken::value_type;
 
-    EDPutTokenT() : m_value{s_uninitializedValue} {}
+    constexpr EDPutTokenT() noexcept : m_value{s_uninitializedValue} {}
+
+    constexpr EDPutTokenT(const EDPutTokenT<T>&) noexcept = default;
+    constexpr EDPutTokenT(EDPutTokenT<T>&&) noexcept = default;
+    constexpr EDPutTokenT(EDPutTokenT<T>& iToken) noexcept : EDPutTokenT(const_cast<EDPutTokenT<T> const&>(iToken)) {}
+
+    template <typename ADAPTER>
+    constexpr explicit EDPutTokenT(ADAPTER&& iAdapter) noexcept : EDPutTokenT(iAdapter.template produces<T>()) {}
+
+    constexpr EDPutTokenT& operator=(const EDPutTokenT<T>&) noexcept = default;
+    constexpr EDPutTokenT& operator=(EDPutTokenT<T>&&) noexcept = default;
+    constexpr EDPutTokenT& operator=(EDPutTokenT<T>& iOther) noexcept {
+      m_value = iOther.m_value;
+      return *this;
+    }
+
+    template <typename ADAPTER>
+    constexpr EDPutTokenT& operator=(ADAPTER&& iAdapter) noexcept {
+      EDPutTokenT<T> temp(iAdapter.template produces<T>());
+      m_value = temp.m_value;
+
+      return *this;
+    }
 
     // ---------- const member functions ---------------------
-    value_type index() const { return m_value; }
-    bool isUninitialized() const { return m_value == s_uninitializedValue; }
+    constexpr value_type index() const noexcept { return m_value; }
+    constexpr bool isUninitialized() const noexcept { return m_value == s_uninitializedValue; }
 
   private:
     //for testing
     friend class TestEDPutToken;
 
-    static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
+    static constexpr unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
-    explicit EDPutTokenT(unsigned int iValue) : m_value(iValue) {}
+    constexpr explicit EDPutTokenT(unsigned int iValue) noexcept : m_value(iValue) {}
+    constexpr explicit EDPutTokenT(unsigned long int iValue) noexcept : m_value(iValue) {}
 
     // ---------- member data --------------------------------
     value_type m_value;

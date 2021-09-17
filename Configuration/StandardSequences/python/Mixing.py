@@ -53,6 +53,7 @@ addMixingScenario("E8TeV_AVE_10_BX_50ns_300ns_spread",{'file':'SimGeneral.Mixing
 addMixingScenario("E8TeV_AVE_10_BX_25ns_300ns_spread",{'file':'SimGeneral.MixingModule.mix_E8TeV_AVE_10_BX_25ns_300ns_spread_cfi'})
 addMixingScenario("HiMix",{'file': 'SimGeneral.MixingModule.HiMix_cff'})
 addMixingScenario("HiMixGEN",{'file': 'SimGeneral.MixingModule.HiMixGEN_cff'})
+addMixingScenario("HiMixEmbGEN",{'file': 'SimGeneral.MixingModule.HiMixEmbGEN_cff'})
 addMixingScenario("HiMixNoPU",{'file': 'SimGeneral.MixingModule.HiMixNoPU_cff'})
 addMixingScenario("HighLumiPileUp",{'file': 'SimGeneral.MixingModule.mixHighLumPU_cfi'})
 addMixingScenario("InitialLumiPileUp",{'file': 'SimGeneral.MixingModule.mixInitialLumPU_cfi'})
@@ -113,6 +114,7 @@ addMixingScenario("2015_25ns_FallMC_matchData_PoissonOOTPU",{'file': 'SimGeneral
 addMixingScenario("2015_25nsLowPU_matchData_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2015_25nsLowPU_matchData_PoissonOOTPU_cfi'})
 addMixingScenario("2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2016_25ns_Moriond17MC_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_Moriond17MC_PoissonOOTPU_cfi'})
+addMixingScenario("2016_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_UltraLegacy_PoissonOOTPU_cfi'})
 addMixingScenario("mix_2016_PoissonOOTPU_HighPUTrains_Fill5412",{'file': 'SimGeneral.MixingModule.mix_2016_PoissonOOTPU_HighPUTrains_Fill5412_cfi'})
 addMixingScenario("2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2017_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_UltraLegacy_PoissonOOTPU_cfi'})
@@ -122,6 +124,7 @@ addMixingScenario("2018_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.Mixi
 addMixingScenario("Run3_Flat55To75_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_Run3_Flat55To75_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
+addMixingScenario("2022_LHC_Simulation_10h_2h",{'file': 'SimGeneral.MixingModule.Run3_2022_LHC_Simulation_10h_2h_cfi'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 4})
@@ -142,6 +145,7 @@ addMixingScenario("AVE_40_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON
 addMixingScenario("AVE_45_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 45})
 addMixingScenario("AVE_50_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 50})
 addMixingScenario("AVE_50_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 50})
+addMixingScenario("AVE_50_BX_25ns_m3p3",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 50})
 addMixingScenario("AVE_70_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 70})
 addMixingScenario("AVE_70_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 70})
 addMixingScenario("AVE_75_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 75})

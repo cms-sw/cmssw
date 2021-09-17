@@ -25,14 +25,10 @@
 
 void LaserDQM::trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  theSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &theSetup.getData(tTopoToken);
 
   // access the tracker
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  const TrackerGeometry &theTracker(*theTrackerGeometry);
+  const TrackerGeometry &theTracker = theSetup.getData(tGeoToken);
 
   // get the StripDigiCollection
   // get the StripDigiCollection

@@ -25,18 +25,19 @@
 template <typename DET, PFLayer::Layer Layer, DetId::Detector det, unsigned subdet>
 class PFHGCalRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
-    geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
-  }
+  PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc),
+        recHitToken_(cc.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        geometryInstance_(iConfig.getParameter<std::string>("geometryInstance")),
+        geomToken_(cc.esConsumes()) {}
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup) override {
     // Setup RecHitTools to properly compute the position of the HGCAL Cells vie their DetIds
-    recHitTools_.getEventSetup(iSetup);
+    edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
+    recHitTools_.setGeometry(*geoHandle);
 
     for (unsigned int i = 0; i < qualityTests_.size(); ++i) {
       qualityTests_.at(i)->beginEvent(iEvent, iSetup);
@@ -46,8 +47,6 @@ public:
     iEvent.getByToken(recHitToken_, recHitHandle);
     const HGCRecHitCollection& rechits = *recHitHandle;
 
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
     const CaloGeometry* geom = geoHandle.product();
 
     unsigned skipped_rechits = 0;
@@ -101,6 +100,7 @@ protected:
 
 private:
   hgcal::RecHitTools recHitTools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 #include "DataFormats/DetId/interface/DetId.h"

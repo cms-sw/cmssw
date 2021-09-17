@@ -14,7 +14,6 @@ from __future__ import print_function
 #==============================
 
 import sys
-import six
 
 f = open(sys.argv[1])
 
@@ -120,9 +119,9 @@ process.add_(cms.Service("Timing", summaryOnly = cms.untracked.bool(True)))
 # The following two lines reduce the clutter of repeated printouts
 # of the same exception message.
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+
+process.MessageLogger.cerr.enableStatistics = False
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 process.MessageLogger.cerr.threshold = 'WARNING'
 """)
@@ -134,7 +133,7 @@ modulesWithConsumes = set()
 #needed to get rid of PathStatus modules at end of paths
 pathNamesAsModules = set( (fixName(n) for n in pathParser._pathToModules.iterkeys()) )
 
-for m,c in six.iteritems(consumesParser._consumesForModule):
+for m,c in consumesParser._consumesForModule.items():
     if m in pathNamesAsModules:
         continue
     if m in consumesParser._isAnalyzer:
@@ -142,13 +141,13 @@ for m,c in six.iteritems(consumesParser._consumesForModule):
     elif not c:
         print("process.%s = cms.EDProducer('IntProducer', ivalue = cms.int32(1))"%m)
     else:
-        print("process.%s = cms.EDProducer('AddIntsProducer', labels = cms.vstring(*[%s]))"%(m,",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')])))
+        print("process.%s = cms.EDProducer('AddIntsProducer', labels = cms.VInputTag(*[%s]))"%(m,",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')])))
     allModules.add(m)
     for o  in c:
         allModules.add(o)
     modulesWithConsumes.add(m)
 
-for m in six.itervalues(pathParser._pathToModules):
+for m in pathParser._pathToModules.values():
     for i in m:
         allModules.add(i)
 
@@ -157,7 +156,7 @@ for m in allModules.difference(modulesWithConsumes):
 
 
 print('t = cms.Task(*[%s])'%(",".join(["process.%s"%i for i in allModules if i not in consumesParser._isAnalyzer])))
-for p,m in six.iteritems(pathParser._pathToModules):
+for p,m in pathParser._pathToModules.items():
     if p in pathParser._isEndPath:
         print("process.%s = cms.EndPath(%s)"%(p,"+".join(["process.%s"%i for i in m])))
     else:

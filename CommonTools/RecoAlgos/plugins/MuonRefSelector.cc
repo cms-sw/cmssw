@@ -26,10 +26,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
- typedef SingleObjectSelector<
-           reco::MuonCollection, 
-           StringCutObjectSelector<reco::Muon>,
-           reco::MuonRefVector
-         > MuonRefSelector;
+typedef SingleObjectSelector<reco::MuonCollection, StringCutObjectSelector<reco::Muon>, reco::MuonRefVector>
+    MuonRefSelector;
 
-DEFINE_FWK_MODULE( MuonRefSelector );
+DEFINE_FWK_MODULE(MuonRefSelector);

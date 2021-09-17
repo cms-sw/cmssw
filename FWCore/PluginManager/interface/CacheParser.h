@@ -24,12 +24,11 @@ If a space exists in either of these three fields, it will be replaced with a %,
 //
 
 // system include files
+#include <filesystem>
 #include <iosfwd>
 #include <string>
 #include <map>
 #include <vector>
-#include <boost/filesystem/path.hpp>
-
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -42,7 +41,10 @@ namespace edmplugin {
     typedef std::map<std::string, std::vector<PluginInfo> > CategoryToInfos;
     typedef std::pair<std::string, std::string> NameAndType;
     typedef std::vector<NameAndType> NameAndTypes;
-    typedef std::map<boost::filesystem::path, NameAndTypes> LoadableToPlugins;
+    typedef std::map<std::filesystem::path, NameAndTypes> LoadableToPlugins;
+
+    CacheParser(const CacheParser&) = delete;                   // stop default
+    const CacheParser& operator=(const CacheParser&) = delete;  // stop default
 
     // ---------- const member functions ---------------------
 
@@ -53,7 +55,7 @@ namespace edmplugin {
         PluginInfo.name_ where identical names are ordered by the order they are passed to read.
         In this way multiple calls to read for different directories will preserve the ordering
         */
-    static void read(std::istream&, const boost::filesystem::path& iDirectory, CategoryToInfos& oOut);
+    static void read(std::istream&, const std::filesystem::path& iDirectory, CategoryToInfos& oOut);
     static void write(const CategoryToInfos&, std::ostream&);
 
     static void read(std::istream&, LoadableToPlugins& oOut);
@@ -62,12 +64,9 @@ namespace edmplugin {
   private:
     //for testing
     friend class ::TestCacheParser;
-    CacheParser(const CacheParser&) = delete;  // stop default
-
-    const CacheParser& operator=(const CacheParser&) = delete;  // stop default
 
     static bool readline(std::istream& iIn,
-                         const boost::filesystem::path& iDirectory,
+                         const std::filesystem::path& iDirectory,
                          unsigned long iRecordNumber,
                          PluginInfo& oInfo,
                          std::string& oPluginType);

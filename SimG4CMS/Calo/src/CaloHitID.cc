@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // File: CaloHitID.cc
 // Description: Identifier for a calorimetric hit
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 #include <iomanip>
 
 CaloHitID::CaloHitID(uint32_t unitID, double timeSlice, int trackID, uint16_t depth, float tSlice, bool ignoreTkID)
-    : timeSliceUnit(tSlice), ignoreTrackID(ignoreTkID) {
+    : timeSliceUnit(tSlice), ignoreTrackID(ignoreTkID), isFinecaloTrackID_(false) {
   setID(unitID, timeSlice, trackID, depth);
 }
 
@@ -21,6 +21,7 @@ CaloHitID::CaloHitID(const CaloHitID& id) {
   theDepth = id.theDepth;
   timeSliceUnit = id.timeSliceUnit;
   ignoreTrackID = id.ignoreTrackID;
+  isFinecaloTrackID_ = id.isFinecaloTrackID_;
 }
 
 const CaloHitID& CaloHitID::operator=(const CaloHitID& id) {
@@ -31,7 +32,7 @@ const CaloHitID& CaloHitID::operator=(const CaloHitID& id) {
   theDepth = id.theDepth;
   timeSliceUnit = id.timeSliceUnit;
   ignoreTrackID = id.ignoreTrackID;
-
+  isFinecaloTrackID_ = id.isFinecaloTrackID_;
   return *this;
 }
 
@@ -51,6 +52,7 @@ void CaloHitID::reset() {
   theTrackID = -2;
   theTimeSliceID = (int)(theTimeSlice / timeSliceUnit);
   theDepth = 0;
+  isFinecaloTrackID_ = false;
 }
 
 bool CaloHitID::operator==(const CaloHitID& id) const {

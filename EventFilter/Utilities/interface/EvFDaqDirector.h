@@ -9,13 +9,14 @@
 #include "EventFilter/Utilities/interface/DirManager.h"
 
 //std headers
-#include <string>
-#include <sstream>
+#include <filesystem>
 #include <iomanip>
-#include <vector>
-#include <map>
 #include <list>
+#include <map>
 #include <mutex>
+#include <sstream>
+#include <string>
+#include <vector>
 
 //system headers
 #include <sys/stat.h>
@@ -26,7 +27,6 @@
 #include <cstdio>
 
 #include <tbb/concurrent_hash_map.h>
-#include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 
 class SystemBounds;
@@ -108,7 +108,12 @@ namespace evf {
     void removeFile(unsigned int ls, unsigned int index);
     void removeFile(std::string);
 
-    FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
+    FileStatus updateFuLock(unsigned int& ls,
+                            std::string& nextFile,
+                            uint32_t& fsize,
+                            uint16_t& rawHeaderSize,
+                            uint64_t& lockWaitTime,
+                            bool& setExceptionState);
     void tryInitializeFuLockFile();
     unsigned int getRunNumber() const { return run_; }
     void lockInitLock();
@@ -122,12 +127,30 @@ namespace evf {
     void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
-                                bool doCreateBoLS = true);
+                                bool doCreateBoLS,
+                                bool doCreateEoLS);
+    static int parseFRDFileHeader(std::string const& rawSourcePath,
+                                  int& rawFd,
+                                  uint16_t& rawHeaderSize,
+                                  uint32_t& lsFromHeader,
+                                  int32_t& eventsFromHeader,
+                                  int64_t& fileSizeFromHeader,
+                                  bool requireHeader,
+                                  bool retry,
+                                  bool closeFile);
+    bool rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize);
+    int grabNextJsonFromRaw(std::string const& rawSourcePath,
+                            int& rawFd,
+                            uint16_t& rawHeaderSize,
+                            int64_t& fileSizeFromHeader,
+                            bool& fileFound,
+                            uint32_t serverLS,
+                            bool closeFile);
     int grabNextJsonFile(std::string const& jsonSourcePath,
                          std::string const& rawSourcePath,
                          int64_t& fileSizeFromJson,
                          bool& fileFound);
-    int grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath);
+    int grabNextJsonFileAndUnlock(std::filesystem::path const& jsonSourcePath);
 
     EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus,
                                                  bool& serverState,
@@ -135,19 +158,24 @@ namespace evf {
                                                  uint32_t& closedServerLS,
                                                  std::string& nextFileJson,
                                                  std::string& nextFileRaw,
+                                                 bool& rawHeader,
                                                  int maxLS);
 
     FileStatus getNextFromFileBroker(const unsigned int currentLumiSection,
                                      unsigned int& ls,
                                      std::string& nextFile,
-                                     int& serverEventsInNewFile_,
+                                     int& rawFd,
+                                     uint16_t& rawHeaderSize,
+                                     int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,
                                      uint64_t& thisLockWaitTimeUs);
     void createRunOpendirMaybe();
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
-    void setDeleteTracking(std::mutex* fileDeleteLock, std::list<std::pair<int, InputFile*>>* filesToDelete) {
+    unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
+    void setDeleteTracking(std::mutex* fileDeleteLock,
+                           std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
       fileDeleteLockPtr_ = fileDeleteLock;
       filesToDeletePtr_ = filesToDelete;
     }
@@ -158,7 +186,13 @@ namespace evf {
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
   private:
-    bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
+    bool bumpFile(unsigned int& ls,
+                  unsigned int& index,
+                  std::string& nextFile,
+                  uint32_t& fsize,
+                  uint16_t& rawHeaderSize,
+                  int maxLS,
+                  bool& setExceptionState);
     void openFULockfileStream(bool create);
     std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
     std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -170,20 +204,22 @@ namespace evf {
 
     std::string base_dir_;
     std::string bu_base_dir_;
-    bool directorBu_;
     unsigned int run_;
     bool useFileBroker_;
+    bool fileBrokerHostFromCfg_;
     std::string fileBrokerHost_;
     std::string fileBrokerPort_;
     bool fileBrokerKeepAlive_;
     bool fileBrokerUseLocalLock_;
-    unsigned int startFromLS_ = 1;
+    unsigned int fuLockPollInterval_;
     bool outputAdler32Recheck_;
     bool requireTSPSet_;
     std::string selectedTransferMode_;
-    std::string hltSourceDirectory_;
-    unsigned int fuLockPollInterval_;
     std::string mergeTypePset_;
+    bool directorBU_;
+    std::string hltSourceDirectory_;
+
+    unsigned int startFromLS_ = 1;
 
     std::string hostname_;
     std::string run_string_;
@@ -220,7 +256,7 @@ namespace evf {
     evf::FastMonitoringService* fms_ = nullptr;
 
     std::mutex* fileDeleteLockPtr_ = nullptr;
-    std::list<std::pair<int, InputFile*>>* filesToDeletePtr_ = nullptr;
+    std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDeletePtr_ = nullptr;
 
     pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 

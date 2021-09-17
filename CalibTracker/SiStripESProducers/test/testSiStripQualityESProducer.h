@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,14 +16,13 @@
 class SiStripQuality;
 
 class testSiStripQualityESProducer : public edm::EDAnalyzer {
-
- public:
-  explicit testSiStripQualityESProducer( const edm::ParameterSet& );
+public:
+  explicit testSiStripQualityESProducer(const edm::ParameterSet&);
   ~testSiStripQualityESProducer(){};
-  
-  void analyze( const edm::Event&, const edm::EventSetup& );
-    
- private:
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
   void printObject(const SiStripQuality*);
   bool printdebug_;
   unsigned long long m_cacheID_;

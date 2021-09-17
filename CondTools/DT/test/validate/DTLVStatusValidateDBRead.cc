@@ -5,17 +5,17 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,9 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
 
 DTLVStatusValidateDBRead::DTLVStatusValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtlvstatusToken_(esConsumes()) {}
 
-DTLVStatusValidateDBRead::DTLVStatusValidateDBRead(int i) {}
+DTLVStatusValidateDBRead::DTLVStatusValidateDBRead(int i) : dtlvstatusToken_(esConsumes()) {}
 
 DTLVStatusValidateDBRead::~DTLVStatusValidateDBRead() {}
 
@@ -40,8 +42,7 @@ void DTLVStatusValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTLVStatus> lv;
-  context.get<DTLVStatusRcd>().get(lv);
+  auto lv = context.getHandle(dtlvstatusToken_);
   std::cout << lv->version() << std::endl;
   std::cout << std::distance(lv->begin(), lv->end()) << " data in the container" << std::endl;
   int status;

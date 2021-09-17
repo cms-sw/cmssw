@@ -16,7 +16,6 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace std;
 using namespace edm;

@@ -13,6 +13,8 @@
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
 #include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
@@ -51,6 +53,8 @@ public:
       const edm::Event &iEvent,
       const edm::EventSetup &iSetup,
       const edm::EDGetToken &recHitToken,
+      const edm::EDGetToken &rpcDigiToken,
+      const edm::EDGetToken &rpcDigiSimLinkToken,
       std::vector<RecHitProcessor::CppfItem> &CppfVec1,
       // Output
       l1t::CPPFDigiCollection &cppfDigis,
@@ -61,6 +65,8 @@ public:
       const edm::Event &iEvent,
       const edm::EventSetup &iSetup,
       const edm::EDGetToken &recHitToken,
+      const edm::EDGetToken &rpcDigiToken,
+      const edm::EDGetToken &rpcDigiSimLinkToken,
       // Output
       l1t::CPPFDigiCollection &cppfDigis) const;
 

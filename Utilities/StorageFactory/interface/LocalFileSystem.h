@@ -13,6 +13,11 @@ class LocalFileSystem {
 
 public:
   LocalFileSystem(void);
+
+  // undefined, no semantics
+  LocalFileSystem(LocalFileSystem &) = delete;
+  void operator=(LocalFileSystem &) = delete;
+
   ~LocalFileSystem(void);
 
   bool isLocalPath(const std::string &path) const;
@@ -27,10 +32,6 @@ private:
 
   std::vector<FSInfo *> fs_;
   std::vector<std::string> fstypes_;
-
-  // undefined, no semantics
-  LocalFileSystem(LocalFileSystem &) = delete;
-  void operator=(LocalFileSystem &) = delete;
 };
 
 #endif  // STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H

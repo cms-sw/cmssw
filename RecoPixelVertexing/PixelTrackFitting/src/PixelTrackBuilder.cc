@@ -130,7 +130,7 @@ reco::Track* PixelTrackBuilder::build(const Measurement1D& pt,
                                       const std::vector<const TrackingRecHit*>& hits,
                                       const MagneticField* mf,
                                       const GlobalPoint& origin) const {
-  LogDebug("PixelTrackBuilder::build");
+  LogDebug("PixelTrackBuilder::build") << "";
   LogTrace("") << "Reconstructed triplet kinematics: " << print(pt, phi, cotTheta, tip, zip, chi2, charge);
 
   double sinTheta = 1 / std::sqrt(1 + sqr(cotTheta.value()));

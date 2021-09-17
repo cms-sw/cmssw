@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *  CondFormats/CTPPSReadoutObjects/plugins/CTPPSBeamParametersESSource.cc
+ *  CondFormats/PPSObjects/plugins/CTPPSBeamParametersESSource.cc
  *
  *  Description :  - Loads CTPPSBeamParameters from the CTPPSBeamParametersESSource_cfi.py
  *                   config file.
@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <memory>
@@ -61,9 +61,9 @@ private:
   double beamDivX45_, beamDivY45_, beamDivX56_, beamDivY56_;
   double halfXangleX45_, halfXangleY45_;
   double halfXangleX56_, halfXangleY56_;
-  double vtxOffsetX45_, vtxOffsetY45_, vtxOffsetZ45_;
-  double vtxOffsetX56_, vtxOffsetY56_, vtxOffsetZ56_;
-  double vtxStddevX_, vtxStddevY_, vtxStddevZ_;
+  double vtxOffsetX45_, vtxOffsetY45_, vtxOffsetZ45_, vtxOffsetT45_;
+  double vtxOffsetX56_, vtxOffsetY56_, vtxOffsetZ56_, vtxOffsetT56_;
+  double vtxStddevX_, vtxStddevY_, vtxStddevZ_, vtxStddevT_;
 
 protected:
   /// sets infinite validity of this data
@@ -93,12 +93,15 @@ CTPPSBeamParametersESSource::CTPPSBeamParametersESSource(const edm::ParameterSet
       vtxOffsetX45_(0.),
       vtxOffsetY45_(0.),
       vtxOffsetZ45_(0.),
+      vtxOffsetT45_(0.),
       vtxOffsetX56_(0.),
       vtxOffsetY56_(0.),
       vtxOffsetZ56_(0.),
+      vtxOffsetT56_(0.),
       vtxStddevX_(0.),
       vtxStddevY_(0.),
-      vtxStddevZ_(0.) {
+      vtxStddevZ_(0.),
+      vtxStddevT_(0.) {
   if (setBeamPars_)
     setBeamParameters(iConfig);
 
@@ -137,12 +140,15 @@ void CTPPSBeamParametersESSource::setBeamParameters(const edm::ParameterSet& iCo
   vtxOffsetX45_ = iConfig.getParameter<double>("vtxOffsetX45");
   vtxOffsetY45_ = iConfig.getParameter<double>("vtxOffsetY45");
   vtxOffsetZ45_ = iConfig.getParameter<double>("vtxOffsetZ45");
+  vtxOffsetT45_ = iConfig.getParameter<double>("vtxOffsetT45");
   vtxOffsetX56_ = iConfig.getParameter<double>("vtxOffsetX56");
   vtxOffsetY56_ = iConfig.getParameter<double>("vtxOffsetY56");
   vtxOffsetZ56_ = iConfig.getParameter<double>("vtxOffsetZ56");
+  vtxOffsetT56_ = iConfig.getParameter<double>("vtxOffsetT56");
   vtxStddevX_ = iConfig.getParameter<double>("vtxStddevX");
   vtxStddevY_ = iConfig.getParameter<double>("vtxStddevY");
   vtxStddevZ_ = iConfig.getParameter<double>("vtxStddevZ");
+  vtxStddevT_ = iConfig.getParameter<double>("vtxStddevT");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -171,13 +177,16 @@ std::unique_ptr<CTPPSBeamParameters> CTPPSBeamParametersESSource::fillBeamParame
   p->setVtxOffsetX45(vtxOffsetX45_);
   p->setVtxOffsetY45(vtxOffsetY45_);
   p->setVtxOffsetZ45(vtxOffsetZ45_);
+  p->setVtxOffsetT45(vtxOffsetT45_);
   p->setVtxOffsetX56(vtxOffsetX56_);
   p->setVtxOffsetY56(vtxOffsetY56_);
   p->setVtxOffsetZ56(vtxOffsetZ56_);
+  p->setVtxOffsetT56(vtxOffsetT56_);
 
   p->setVtxStddevX(vtxStddevX_);
   p->setVtxStddevY(vtxStddevY_);
   p->setVtxStddevZ(vtxStddevZ_);
+  p->setVtxStddevT(vtxStddevT_);
 
   return p;
 }
@@ -222,13 +231,16 @@ void CTPPSBeamParametersESSource::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("vtxOffsetX45", 1.e-2);
   desc.add<double>("vtxOffsetY45", 1.e-2);
   desc.add<double>("vtxOffsetZ45", 1.e-2);
+  desc.add<double>("vtxOffsetT45", 1.e-2);
   desc.add<double>("vtxOffsetX56", 1.e-2);
   desc.add<double>("vtxOffsetY56", 1.e-2);
   desc.add<double>("vtxOffsetZ56", 1.e-2);
+  desc.add<double>("vtxOffsetT56", 1.e-2);
   // vertex sigma (cm)
   desc.add<double>("vtxStddevX", 2.e-2);
   desc.add<double>("vtxStddevY", 2.e-2);
   desc.add<double>("vtxStddevZ", 2.e-2);
+  desc.add<double>("vtxStddevT", 2.e-2);
 
   descriptions.add("ctppsBeamParametersESSource", desc);
 }

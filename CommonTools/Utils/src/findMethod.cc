@@ -2,10 +2,11 @@
 
 #include "CommonTools/Utils/src/ErrorCodes.h"
 #include "CommonTools/Utils/interface/Exception.h"
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
+#include <typeindex>
 #include <cassert>
 
 using AnyMethodArgument = reco::parser::AnyMethodArgument;
@@ -82,8 +83,7 @@ namespace reco {
       size_t i = 0;
       for (auto const& param : mem) {
         edm::TypeWithDict parameter(param);
-        std::pair<AnyMethodArgument, int> fixup =
-            boost::apply_visitor(reco::parser::AnyMethodArgumentFixup(parameter), args[i]);
+        std::pair<AnyMethodArgument, int> fixup = std::visit(reco::parser::AnyMethodArgumentFixup(parameter), args[i]);
         //std::cerr <<
         //  "\t ARG " <<
         //  i <<
@@ -162,7 +162,8 @@ namespace reco {
       if (!theArgs.empty()) {
         theArgs += ',';
       }
-      theArgs += edm::TypeID(item.type()).className();
+      theArgs += edm::TypeID(std::visit([](auto& variant) -> const std::type_info& { return typeid(variant); }, item))
+                     .className();
     }
     edm::FunctionWithDict f = type.functionMemberByName(name, theArgs, true);
     if (bool(f)) {

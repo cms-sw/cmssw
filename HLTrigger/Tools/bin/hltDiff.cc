@@ -22,7 +22,6 @@
 #include <cmath>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 
 #include <TFile.h>
 #include <TCanvas.h>
@@ -737,7 +736,7 @@ public:
   void write() {
     if (!writeJson)
       return;
-    std::set<std::string> filesCreated;
+    std::set<std::string> filesCreated, filesNotCreated;
     std::ofstream out_file;
     if (!m_run_events.empty()) {
       // Creating a separate file for each run
@@ -747,40 +746,46 @@ public:
         // Writing the output to a JSON file
         std::string output_name = output_filename_base(run) += ".json";
         out_file.open(output_name, std::ofstream::out);
-        out_file << '{';  // line open
-        out_file << configuration.serialise(1) << ',';
-        out_file << vars.serialise(1) << ',';
-        // writing block for each event
-        out_file << indent(1) << key("events") << '[';  // line open
-        for (auto it = v_events.begin(); it != v_events.end(); ++it) {
-          out_file << (*it).serialise(2);
-          if (it != --v_events.end())
-            out_file << ',';
-        }
-        out_file << indent(1) << ']';  // line close
-        out_file << indent(0) << "}";  // line close
-        out_file.close();
-        // Adding file name to the list of created files
-        filesCreated.insert(output_name);
+        if (out_file.good()) {
+          out_file << '{';  // line open
+          out_file << configuration.serialise(1) << ',';
+          out_file << vars.serialise(1) << ',';
+          // writing block for each event
+          out_file << indent(1) << key("events") << '[';  // line open
+          for (auto it = v_events.begin(); it != v_events.end(); ++it) {
+            out_file << (*it).serialise(2);
+            if (it != --v_events.end())
+              out_file << ',';
+          }
+          out_file << indent(1) << ']';  // line close
+          out_file << indent(0) << "}";  // line close
+          out_file.close();
+          // Adding file name to the list of created files
+          filesCreated.insert(output_name);
+        } else
+          filesNotCreated.insert(output_name);
       }
     } else {
       // Creating a single file containing with only configuration part
       std::string output_name = output_filename_base(0) += ".json";
       out_file.open(output_name, std::ofstream::out);
-      out_file << '{';  // line open
-      out_file << configuration.serialise(1) << ',';
-      out_file << vars.serialise(1) << ',';
-      // writing block for each event
-      out_file << indent(1) << key("events") << '[';  // line open
-      // for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
-      //   out_file << (*it).serialise(2);
-      //   if (it != --v_events.end()) out_file << ',';
-      // }
-      out_file << indent(1) << ']';  // line close
-      out_file << indent(0) << "}";  // line close
-      out_file.close();
-      // Adding file name to the list of created files
-      filesCreated.insert(output_name);
+      if (out_file.good()) {
+        out_file << '{';  // line open
+        out_file << configuration.serialise(1) << ',';
+        out_file << vars.serialise(1) << ',';
+        // writing block for each event
+        out_file << indent(1) << key("events") << '[';  // line open
+        // for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+        //   out_file << (*it).serialise(2);
+        //   if (it != --v_events.end()) out_file << ',';
+        // }
+        out_file << indent(1) << ']';  // line close
+        out_file << indent(0) << "}";  // line close
+        out_file.close();
+        // Adding file name to the list of created files
+        filesCreated.insert(output_name);
+      } else
+        filesNotCreated.insert(output_name);
     }
 
     if (!filesCreated.empty()) {
@@ -788,8 +793,16 @@ public:
       for (const std::string& filename : filesCreated)
         std::cout << " " << filename << std::endl;
     }
+
+    if (!filesNotCreated.empty()) {
+      std::cout << "Failed to create the following JSON files (check output directory and its permissions):"
+                << std::endl;
+      for (const std::string& filename : filesNotCreated)
+        std::cout << " " << filename << std::endl;
+    }
   }
 };
+
 size_t JsonOutputProducer::tab_spaces = 0;
 
 class SummaryOutputProducer {
@@ -941,7 +954,15 @@ private:
     }
   }
 
-  std::string writeHistograms() const {
+  bool writeHistograms(std::string& file_name) const {
+    // Storing histograms to a ROOT file
+    file_name = json.output_filename_base(this->run) += ".root";
+    auto out_file = new TFile(file_name.c_str(), "RECREATE");
+    if (not out_file or out_file->IsZombie()) {
+      out_file->Close();
+      return false;
+    }
+
     std::map<std::string, TH1*> m_histo;
     // Counting the numbers of bins for different types of histograms
     // *_c - changed; *_gl - gained or lost
@@ -1069,9 +1090,6 @@ private:
       }
     }
 
-    // Storing histograms to a ROOT file
-    std::string file_name = json.output_filename_base(this->run) += ".root";
-    auto out_file = new TFile(file_name.c_str(), "RECREATE");
     // Storing the histograms in a proper folder according to the DQM convention
     char savePath[1000];
     sprintf(savePath, "DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
@@ -1082,57 +1100,65 @@ private:
       nameHisto.second->Write(nameHisto.first.c_str());
     out_file->Close();
 
-    return file_name;
+    return true;
   }
 
-  std::string writeCSV_trigger() const {
-    std::string file_name = json.output_filename_base(this->run) += "_trigger.csv";
-    FILE* out_file = fopen((file_name).c_str(), "w");
+  bool writeCSV_trigger(std::string& file_name) const {
+    bool ret = false;
 
-    fprintf(out_file,
-            "Total,Accepted OLD,Accepted NEW,Gained,Lost,|G|/A_N + "
-            "|L|/AO,sigma(AN)+sigma(AO),Changed,C/(T-AO),sigma(T-AO),trigger\n");
-    for (const auto& idSummary : m_triggerSummary) {
-      const SummaryOutputProducer::TriggerSummary& S = idSummary.second;
+    file_name = json.output_filename_base(this->run) += "_trigger.csv";
+    FILE* out_file = fopen(file_name.c_str(), "w");
+
+    if (out_file) {
       fprintf(out_file,
-              "%d,%d,%d,%+.f,%+.f,%.2f%%,%.2f%%,~%.f,~%.2f%%,%.2f%%,%s\n",
-              this->json.configuration.events,
-              S.accepted_o,
-              S.accepted_n,
-              S.gained().v,
-              -1.0 * S.lost().v,
-              (S.gained(1).v + S.lost(1).v) * 100.0,
-              (S.gained(1).e + S.lost(1).e) * 100.0,
-              S.changed().v,
-              S.changed(1).v * 100.0,
-              S.changed(1).e * 100.0,
-              S.name.c_str());
+              "Total,Accepted OLD,Accepted NEW,Gained,Lost,|G|/A_N + "
+              "|L|/AO,sigma(AN)+sigma(AO),Changed,C/(T-AO),sigma(T-AO),trigger\n");
+      for (const auto& idSummary : m_triggerSummary) {
+        const SummaryOutputProducer::TriggerSummary& S = idSummary.second;
+        fprintf(out_file,
+                "%d,%d,%d,%+.f,%+.f,%.2f%%,%.2f%%,~%.f,~%.2f%%,%.2f%%,%s\n",
+                this->json.configuration.events,
+                S.accepted_o,
+                S.accepted_n,
+                S.gained().v,
+                -1.0 * S.lost().v,
+                (S.gained(1).v + S.lost(1).v) * 100.0,
+                (S.gained(1).e + S.lost(1).e) * 100.0,
+                S.changed().v,
+                S.changed(1).v * 100.0,
+                S.changed(1).e * 100.0,
+                S.name.c_str());
+      }
+      fclose(out_file);
+      ret = true;
     }
 
-    fclose(out_file);
-
-    return file_name;
+    return ret;
   }
 
-  std::string writeCSV_module() const {
-    std::string file_name = json.output_filename_base(this->run) += "_module.csv";
-    FILE* out_file = fopen((file_name).c_str(), "w");
+  bool writeCSV_module(std::string& file_name) const {
+    bool ret = false;
 
-    fprintf(out_file, "Total,Gained,Lost,Changed,module\n");
-    for (const auto& idSummary : m_moduleSummary) {
-      const SummaryOutputProducer::GenericSummary& S = idSummary.second;
-      fprintf(out_file,
-              "%d,+%.f,-%.f,~%.f,%s\n",
-              this->json.configuration.events,
-              S.gained().v,
-              S.lost().v,
-              S.changed().v,
-              S.name.c_str());
+    file_name = json.output_filename_base(this->run) += "_module.csv";
+    FILE* out_file = fopen(file_name.c_str(), "w");
+
+    if (out_file) {
+      fprintf(out_file, "Total,Gained,Lost,Changed,module\n");
+      for (const auto& idSummary : m_moduleSummary) {
+        const SummaryOutputProducer::GenericSummary& S = idSummary.second;
+        fprintf(out_file,
+                "%d,+%.f,-%.f,~%.f,%s\n",
+                this->json.configuration.events,
+                S.gained().v,
+                S.lost().v,
+                S.changed().v,
+                S.name.c_str());
+      }
+      fclose(out_file);
+      ret = true;
     }
 
-    fclose(out_file);
-
-    return file_name;
+    return ret;
   }
 
 public:
@@ -1143,32 +1169,53 @@ public:
       : json(_json), run(0), storeROOT(_storeROOT), storeCSV(_storeCSV) {}
 
   void write() {
-    std::vector<std::string> filesCreated;
+    std::vector<std::string> filesCreated, filesNotCreated;
     // Processing every run from the JSON producer
     if (!json.m_run_events.empty()) {
       for (const auto& runEvents : json.m_run_events) {
         prepareSummaries(runEvents.first, runEvents.second);
         if (storeROOT) {
-          filesCreated.push_back(writeHistograms());
+          std::string fName;
+          auto& fNameVec = writeHistograms(fName) ? filesCreated : filesNotCreated;
+          fNameVec.push_back(fName);
         }
         if (storeCSV) {
-          filesCreated.push_back(writeCSV_trigger());
-          filesCreated.push_back(writeCSV_module());
+          std::string fNameTrigger;
+          auto& fNameTriggerVec = writeCSV_trigger(fNameTrigger) ? filesCreated : filesNotCreated;
+          fNameTriggerVec.push_back(fNameTrigger);
+
+          std::string fNameModule;
+          auto& fNameModuleVec = writeCSV_module(fNameModule) ? filesCreated : filesNotCreated;
+          fNameModuleVec.push_back(fNameModule);
         }
       }
     } else {
       if (storeROOT) {
-        filesCreated.push_back(writeHistograms());
+        std::string fName;
+        auto& fNameVec = writeHistograms(fName) ? filesCreated : filesNotCreated;
+        fNameVec.push_back(fName);
       }
       if (storeCSV) {
-        filesCreated.push_back(writeCSV_trigger());
-        filesCreated.push_back(writeCSV_module());
+        std::string fNameTrigger;
+        auto& fNameTriggerVec = writeCSV_trigger(fNameTrigger) ? filesCreated : filesNotCreated;
+        fNameTriggerVec.push_back(fNameTrigger);
+
+        std::string fNameModule;
+        auto& fNameModuleVec = writeCSV_module(fNameModule) ? filesCreated : filesNotCreated;
+        fNameModuleVec.push_back(fNameModule);
       }
     }
 
     if (!filesCreated.empty()) {
       std::cout << "Created the following summary files:" << std::endl;
       for (const std::string& filename : filesCreated)
+        std::cout << " " << filename << std::endl;
+    }
+
+    if (!filesNotCreated.empty()) {
+      std::cout << "Failed to create the following summary files (check output directory and its permissions):"
+                << std::endl;
+      for (const std::string& filename : filesNotCreated)
         std::cout << " " << filename << std::endl;
     }
   }
@@ -1490,7 +1537,7 @@ public:
       std::cout << "\n" << std::endl;
     }
     // Printing the summary of affected triggers with affected-event counts
-    if (!quiet) {
+    if (!quiet and old_config) {
       bool summaryHeaderPrinted = false;
       for (size_t p = 0; p < old_config->size(); ++p) {
         if (differences.at(p).total() < 1)
@@ -1560,7 +1607,7 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
       safer if files are run for the first time, but can cause a substantial delay\n\
 \n\
   -d|--debug\n\
-      display messages about missing events and collectiions\n\
+      display messages about missing events and collections\n\
 \n\
   -q|--quiet\n\
       don't display summary printout with the list of affected trigger paths\n\

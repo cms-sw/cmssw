@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="ecal" eval="true">
+  <SpecPar name="ecal_eb">
+   <PartSelector path="//EBRY_01"/>
+   <PartSelector path="//EBRY_02"/>
+   <PartSelector path="//EBRY_03"/>
+   <PartSelector path="//EBRY_04"/>
+   <PartSelector path="//EBRY_05"/>
+   <PartSelector path="//EBRY_06"/>
+   <PartSelector path="//EBRY_07"/>
+   <PartSelector path="//EBRY_08"/>
+   <PartSelector path="//EBRY_09"/>
+   <PartSelector path="//EBRY_10"/>
+   <PartSelector path="//EBRY_11"/>
+   <PartSelector path="//EBRY_12"/>
+   <PartSelector path="//EBRY_13"/>
+   <PartSelector path="//EBRY_14"/>
+   <PartSelector path="//EBRY_15"/>
+   <PartSelector path="//EBRY_16"/>
+   <PartSelector path="//EBRY_17"/>
+   <PartSelector path="//EAPD_01"/>
+   <PartSelector path="//EAPD_02"/>
+   <PartSelector path="//EAPD_03"/>
+   <PartSelector path="//EAPD_04"/>
+   <PartSelector path="//EAPD_05"/>
+   <PartSelector path="//EAPD_06"/>
+   <PartSelector path="//EAPD_07"/>
+   <PartSelector path="//EAPD_08"/>
+   <PartSelector path="//EAPD_09"/>
+   <PartSelector path="//EAPD_10"/>
+   <PartSelector path="//EAPD_11"/>
+   <PartSelector path="//EAPD_12"/>
+   <PartSelector path="//EAPD_13"/>
+   <PartSelector path="//EAPD_14"/>
+   <PartSelector path="//EAPD_15"/>
+   <PartSelector path="//EAPD_16"/>
+   <PartSelector path="//EAPD_17"/>
+   <PartSelector path="//EATJ_01"/>
+   <PartSelector path="//EATJ_02"/>
+   <PartSelector path="//EATJ_03"/>
+   <PartSelector path="//EATJ_04"/>
+   <PartSelector path="//EATJ_05"/>
+   <PartSelector path="//EATJ_06"/>
+   <PartSelector path="//EATJ_07"/>
+   <PartSelector path="//EATJ_08"/>
+   <PartSelector path="//EATJ_09"/>
+   <PartSelector path="//EATJ_10"/>
+   <PartSelector path="//EATJ_11"/>
+   <PartSelector path="//EATJ_12"/>
+   <PartSelector path="//EATJ_13"/>
+   <PartSelector path="//EATJ_14"/>
+   <PartSelector path="//EATJ_15"/>
+   <PartSelector path="//EATJ_16"/>
+   <PartSelector path="//EATJ_17"/>
+   <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
+   <Parameter name="nxtalEta" value="85.0"/>
+   <Parameter name="PhiBaskets" value="18.0"/>
+   <Parameter name="nxtalPhi" value="360.0"/>
+   <Parameter name="EtaBaskets" value="25.0"/>
+   <Parameter name="EtaBaskets" value="45.0"/>
+   <Parameter name="EtaBaskets" value="65.0"/>
+   <Parameter name="EtaBaskets" value="85.0"/>
+   <Parameter name="EnergyWeight" value="1.0"/>
+   <Parameter name="Depth1Name" value="EAPD" eval="false"/>
+   <Parameter name="Depth2Name" value="EATJ" eval="false"/>
+  </SpecPar>
+  <SpecPar name="ecal_ee">
+   <PartSelector path="//EFRY"/>
+   <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsEE" eval="false"/>
+   <Parameter name="ncrys" value="25.0"/>
+   <Parameter name="nmods" value="316.0"/>
+   <Parameter name="EnergyWeight" value="1.0"/>
+  </SpecPar>
+  <SpecPar name="ecal_sf">
+   <PartSelector path="//SFSX"/>
+   <PartSelector path="//SFSY"/>
+   <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsES" eval="false"/>
+   <Parameter name="EnergyWeight" value="0.0"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

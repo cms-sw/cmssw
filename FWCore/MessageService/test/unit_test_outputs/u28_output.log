@@ -17,7 +17,7 @@ LogInfo was used to send this message
 %MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG
-%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
+%MSG-i FwkTest:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
 <Message>LogInfo was used to send a job report</Message>
 %MSG
 Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
@@ -39,7 +39,7 @@ LogInfo was used to send this message
 %MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
 LogInfo was used to send this other message
 %MSG
-%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
+%MSG-i FwkTest:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
 <Message>LogInfo was used to send a job report</Message>
 %MSG
 Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 on stream 0 at {Timestamp} 
@@ -61,7 +61,7 @@ LogInfo was used to send this message
 %MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
 LogInfo was used to send this other message
 %MSG
-%MSG-i FwkJob:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
+%MSG-i FwkTest:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
 <Message>LogInfo was used to send a job report</Message>
 %MSG
 

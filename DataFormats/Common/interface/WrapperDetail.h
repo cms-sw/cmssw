@@ -7,6 +7,7 @@ WrapperDetail: Metafunction support for compile-time selection of code.
 
 ----------------------------------------------------------------------*/
 
+#include <memory>
 #include <typeinfo>
 #include <type_traits>
 #include <vector>
@@ -72,6 +73,16 @@ namespace edm {
 
     template <typename T>
     struct getMemberType<std::vector<edm::Ptr<T> >, true> {
+      std::type_info const& operator()() { return typeid(T); }
+    };
+
+    template <typename T, typename Deleter>
+    struct has_typedef_member_type<std::vector<std::unique_ptr<T, Deleter> > > {
+      static constexpr bool value = true;
+    };
+
+    template <typename T, typename Deleter>
+    struct getMemberType<std::vector<std::unique_ptr<T, Deleter> >, true> {
       std::type_info const& operator()() { return typeid(T); }
     };
 

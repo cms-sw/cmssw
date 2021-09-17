@@ -4,9 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
@@ -51,6 +49,8 @@
 */
 
 namespace SingleTopTChannelLepton {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:
@@ -133,8 +133,6 @@ namespace SingleTopTChannelLepton {
     /// electronId label
     //    edm::InputTag electronId_;
     edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
-    // Jet corrector
-    edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
     /// electronId pattern we expect the following pattern:
     ///  0: fails
     ///  1: passes electron ID only
@@ -165,7 +163,7 @@ namespace SingleTopTChannelLepton {
     /// extra selection on muons
     std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
     /// jetCorrector
-    std::string jetCorrector_;
+    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
 
@@ -240,7 +238,6 @@ namespace SingleTopTChannelLepton {
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /**
    \class   SingleTopTChannelLeptonDQM SingleTopTChannelLeptonDQM.h
@@ -276,7 +273,7 @@ namespace SingleTopTChannelLepton {
 /// define MonitorEnsembple to be used
 // using SingleTopTChannelLepton::MonitorEnsemble;
 
-class SingleTopTChannelLeptonDQM : public DQMEDAnalyzer {
+class SingleTopTChannelLeptonDQM : public DQMOneEDAnalyzer<> {
 public:
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);

@@ -1,4 +1,5 @@
 // system include files
+#include <cfloat>
 #include <memory>
 
 // framework stuff
@@ -7,7 +8,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // fast tracker rechits
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
@@ -71,11 +71,11 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
   edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken;
 };
 
 FastTrackerRecHitMatcher::FastTrackerRecHitMatcher(const edm::ParameterSet& iConfig)
-
-{
+    : trackerGeometryESToken(esConsumes()) {
   simHitsToken = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"));
   simHit2RecHitMapToken =
       consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"));
@@ -86,8 +86,7 @@ FastTrackerRecHitMatcher::FastTrackerRecHitMatcher(const edm::ParameterSet& iCon
 
 void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // services
-  edm::ESHandle<TrackerGeometry> geometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometry);
+  auto const& geometry = iSetup.getData(trackerGeometryESToken);
 
   // input
   edm::Handle<edm::PSimHitContainer> simHits;
@@ -149,7 +148,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
         //   - transform to global coordinates
         GlobalVector globalSimTrackDir = recHit->det()->surface().toGlobal(localSimTrackDir);
         //   - transform to local coordinates of glued module
-        const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry->idToDet(DetId(stripSubDetId.glued()));
+        const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry.idToDet(DetId(stripSubDetId.glued()));
         LocalVector gluedLocalSimTrackDir = gluedDet->surface().toLocal(globalSimTrackDir);
 
         // check whether next hit is partner
@@ -180,7 +179,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
         }
         // else: create projected hit
         else {
-          newRecHit = projectOnly(recHit, geometry->idToDet(detid), gluedDet, gluedLocalSimTrackDir);
+          newRecHit = projectOnly(recHit, geometry.idToDet(detid), gluedDet, gluedLocalSimTrackDir);
         }
         output_recHits->push_back(std::move(newRecHit));
         (*output_simHit2RecHitMap)[simHitCounter] =
@@ -214,8 +213,8 @@ std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSin
   // position of the initial and final point of the strip in local coordinates (mono det)
   StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-  if (trackdirection.mag2() <
-      FLT_MIN) {  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  if (trackdirection.mag2() < FLT_MIN) {
     LocalPoint lcenterofstrip = monoRH->localPosition();
     GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection = gcenterofstrip - GlobalPoint(0, 0, 0);

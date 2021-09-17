@@ -19,8 +19,6 @@
 #include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderText.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
-//t#include "Alignment/CocoaModel/interface/MeasurementDiffAngle.h"
-//t#include "Alignment/CocoaModel/interface/MeasurementCentreEntry.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/EntryAngle.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
@@ -431,12 +429,6 @@ void Model::readSystemDescription() {
       } else if (measType == ALIstring("COPS")) {
         meastemp = new MeasurementCOPS(4, measType, measName);
         meastemp->setConversionFactor(wordlist);
-        meastemp->construct();
-      } else if (measType == ALIstring("DIFFCENTRE")) {
-        //t       meastemp = new MeasurementDiffCentre( 1, measType, measName );
-        meastemp->construct();
-      } else if (measType == ALIstring("DIFFANGLE")) {
-        //t        meastemp = new MeasurementDiffAngle( 2, measType, measName );
         meastemp->construct();
       } else if (measType == ALIstring("DIFFENTRY")) {
         meastemp = new MeasurementDiffEntry(1, measType, measName);
@@ -1421,9 +1413,9 @@ void Model::copyMeasurements(const std::vector<ALIstring>& wl) {
 
   //----- get list of Measurement's that satisfy the query in their name
   //t  std::string querystr = wl[1].substr( wl[1].find("/")+1, wl[1].length() );
-  std::string subsstr1 = wl[1].substr(0, wl[1].find("/"));
-  std::string subsstr2 = wl[1].substr(wl[1].find("/") + 1, wl[1].rfind("/") - wl[1].find("/") - 1);
-  std::string querystr = wl[1].substr(wl[1].rfind("/") + 1, wl[1].length());
+  std::string subsstr1 = wl[1].substr(0, wl[1].find('/'));
+  std::string subsstr2 = wl[1].substr(wl[1].find('/') + 1, wl[1].rfind('/') - wl[1].find('/') - 1);
+  std::string querystr = wl[1].substr(wl[1].rfind('/') + 1, wl[1].length());
 
   std::cout << " Model::copyMeasurements "
             << " subsstr1 " << subsstr1 << " subsstr2 " << subsstr2 << " querystr " << querystr << std::endl;

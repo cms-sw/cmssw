@@ -4,16 +4,16 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingObjectPtCut_cfi import p
 
 pfRecoTauDiscriminationByLeadingTrackFinding = pfRecoTauDiscriminationByLeadingObjectPtCut.clone(
     # Tau collection to discriminate
-    PFTauProducer = cms.InputTag('pfRecoTauProducer'),
+    PFTauProducer = 'pfRecoTauProducer',
 
     # Only look for charged PFCandidates
-    UseOnlyChargedHadrons = cms.bool(True),            
+    UseOnlyChargedHadrons = True,            
 
     # no pre-reqs for this cut
     Prediscriminants = noPrediscriminants,
 
     # Any *existing* charged PFCandidate will meet this requirement - so it is 
     # a test for existence, not pt
-    MinPtLeadingObject = cms.double(0.0)
+    MinPtLeadingObject = 0.0
 )
 

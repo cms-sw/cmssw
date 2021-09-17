@@ -16,7 +16,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -30,7 +29,10 @@ using namespace edm;
 GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet& par,
                                                                      const MuonServiceProxy* service,
                                                                      edm::ConsumesCollector& iC)
-    : theService(service) {
+    : theService(service),
+      theTrackerRecHitBuilderToken(
+          iC.esConsumes(edm::ESInputTag("", par.getParameter<string>("TrackerRecHitBuilder")))),
+      theMuonRecHitBuilderToken(iC.esConsumes(edm::ESInputTag("", par.getParameter<string>("MuonRecHitBuilder")))) {
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new CosmicMuonSmoother(smootherPSet, theService);
 
@@ -39,8 +41,6 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
 
   theTkTrackToken = iC.consumes<reco::TrackCollection>(par.getParameter<InputTag>("TkTrackCollectionLabel"));
 
-  theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");
   category_ = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
 }
@@ -74,8 +74,8 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   //      tkTrajsAvailable = false;
   //  }
 
-  theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-  theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+  theTrackerRecHitBuilder = theService->eventSetup().getHandle(theTrackerRecHitBuilderToken);
+  theMuonRecHitBuilder = theService->eventSetup().getHandle(theMuonRecHitBuilderToken);
 }
 
 //
@@ -186,7 +186,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     return result;
   }
 
-  Trajectory* myTraj = new Trajectory(refitted.front());
+  auto myTraj = std::make_unique<Trajectory>(refitted.front());
 
   const std::vector<TrajectoryMeasurement>& mytms = myTraj->measurements();
   LogTrace(category_) << "measurements in final trajectory " << mytms.size();
@@ -197,8 +197,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     return result;
   }
 
-  MuonCandidate* myCand = new MuonCandidate(myTraj, muTrack, tkTrack);
-  result.push_back(myCand);
+  result.push_back(std::make_unique<MuonCandidate>(std::move(myTraj), muTrack, tkTrack));
   LogTrace(category_) << "final global cosmic muon: ";
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
     LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "

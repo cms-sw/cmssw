@@ -4,8 +4,8 @@
 #include <fstream>
 
 SiStripApvGainBuilder::SiStripApvGainBuilder(const edm::ParameterSet& iConfig)
-    : fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+    : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
+                                                         edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))),
       printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)) {}
 
 void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
@@ -16,27 +16,21 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
 
   SiStripApvGain* obj = new SiStripApvGain();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
-
   int count = -1;
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
     count++;
     //Generate Gain for det detid
     std::vector<float> theSiStripVector;
-    for (unsigned short j = 0; j < it->second.nApvs; j++) {
+    for (unsigned short j = 0; j < it.second.nApvs; j++) {
       float gain = (j + 1) * 1000 + (CLHEP::RandFlat::shoot(1.) * 100);
       if (count < printdebug_)
-        edm::LogInfo("SiStripApvGainBuilder") << "detid " << it->first << " \t"
+        edm::LogInfo("SiStripApvGainBuilder") << "detid " << it.first << " \t"
                                               << " apv " << j << " \t" << gain << " \t" << std::endl;
       theSiStripVector.push_back(gain);
     }
 
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-    if (!obj->put(it->first, range))
+    if (!obj->put(it.first, range))
       edm::LogError("SiStripApvGainBuilder") << "[SiStripApvGainBuilder::analyze] detid already exists" << std::endl;
   }
 

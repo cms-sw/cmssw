@@ -17,258 +17,289 @@ globalCosmicMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithM
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 
-muons = muons1stStep.clone()
+muons = muons1stStep.clone(
+    inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 
+                             'globalCosmicMuons', 
+                             'cosmicMuons', 
+                             'tevMuons:firstHit',
+                             'tevMuons:picky',
+                             'tevMuons:dyt'],
 
-muons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCosmicMuons', 'cosmicMuons', "tevMuons:firstHit","tevMuons:picky","tevMuons:dyt"]
-muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks', 'tev firstHit', 'tev picky', 'tev dyt']
-muons.fillIsolation = True
-muons.fillGlobalTrackQuality = True
-muons.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
-# need to modify track selection as well (not clear to what)
-muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
-muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-muons.CaloExtractorPSet.DR_Max = 1.0
+    inputCollectionTypes = ['inner tracks', 
+                            'links', 
+                            'outer tracks', 
+                            'tev firstHit', 
+                            'tev picky', 
+                            'tev dyt'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = True,
+    # need to modify track selection as well (not clear to what)
+    TrackExtractorPSet = dict(inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0),
+    TimingFillerParameters = dict(
+	DTTimingParameters = dict(PruneCut = 9999),
+	CSCTimingParameters = dict(PruneCut = 9999))
+)
 
 #similar to what's in pp configuration
-muonsFromCosmics = muons1stStep.clone()
-muonsFromCosmics.inputCollectionLabels = ['cosmicMuons']
-muonsFromCosmics.inputCollectionTypes = ['outer tracks']
-muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
-muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
-muonsFromCosmics.fillIsolation = False
-muonsFromCosmics.fillGlobalTrackQuality = False
-muonsFromCosmics.fillGlobalTrackRefits = False
+muonsFromCosmics = muons1stStep.clone(
+    inputCollectionLabels = ['cosmicMuons'],
+    inputCollectionTypes = ['outer tracks'],
+    fillIsolation = False,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'cosmicMuons'),
+    TimingFillerParameters = dict(
+	DTTimingParameters = dict(PruneCut = 9999),
+	CSCTimingParameters = dict(PruneCut = 9999))
+)
 
 ## Sequences
-
 # Stand Alone Tracking
-STAmuontrackingforcosmics = cms.Sequence(CosmicMuonSeed*cosmicMuons)
-# Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics = cms.Sequence(STAmuontrackingforcosmics)
+STAmuontrackingforcosmicsTask = cms.Task(CosmicMuonSeed,cosmicMuons)
+STAmuontrackingforcosmics = cms.Sequence(STAmuontrackingforcosmicsTask)
 
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmics = cms.Sequence(STAmuontrackingforcosmics*globalCosmicMuons)
+muontrackingforcosmicsTask = cms.Task(STAmuontrackingforcosmicsTask,globalCosmicMuons)
+muontrackingforcosmics = cms.Sequence(muontrackingforcosmicsTask)
 
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # muisodeposits based on "muons"
 # we are using copy extractors now
-muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag("muons:tracker"))
-muIsoDepositJets. inputTags = cms.VInputTag(cms.InputTag("muons:jets"))
-muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("muons:ecal"), cms.InputTag("muons:hcal"), cms.InputTag("muons:ho"))
-
-
+muIsoDepositTk.inputTags = ['muons:tracker']
+muIsoDepositJets.inputTags = ['muons:jets']
+muIsoDepositCalByAssociatorTowers.inputTags = ['muons:ecal', 'muons:hcal', 'muons:ho']
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
-tevMuons.MuonCollectionLabel = "globalCosmicMuons"
-tevMuons.RefitterParameters.PropDirForCosmics = cms.bool(True)
+tevMuons.MuonCollectionLabel = 'globalCosmicMuons'
+tevMuons.RefitterParameters.PropDirForCosmics = True
 
 # Glb Track Quality
 from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
-glbTrackQual.InputCollection = "globalCosmicMuons"
+glbTrackQual.InputCollection = 'globalCosmicMuons'
 
 # all muons id
-allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation)
+allmuonsTask = cms.Task(glbTrackQual,
+                        tevMuons,
+                        muons,
+                        muIsolationTask)
+allmuons = cms.Sequence(allmuonsTask)
 
 # Final sequence
-muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons*muonsFromCosmics)
-muonRecoAllGR = cms.Sequence(muonrecoforcosmics)
+muonrecoforcosmicsTask = cms.Task(muontrackingforcosmicsTask,
+				  allmuonsTask,
+                                  muonsFromCosmics)
+muonrecoforcosmics = cms.Sequence(muonrecoforcosmicsTask)
 
 # 1 leg mode
-
 # Stand alone muon track producer
-cosmicMuons1Leg = cosmicMuons.clone()
-cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
-cosmicMuons1Leg.MuonSeedCollectionLabel = 'CosmicMuonSeed'
+cosmicMuons1Leg = cosmicMuons.clone(
+    MuonSeedCollectionLabel = 'CosmicMuonSeed',
+    TrajectoryBuilderParameters = dict(BuildTraversingMuon = True)
+)
 
 # Global muon track producer
-globalCosmicMuons1Leg = globalCosmicMuons.clone()
-globalCosmicMuons1Leg.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
-globalCosmicMuons1Leg.MuonCollectionLabel = 'cosmicMuons1Leg'
+globalCosmicMuons1Leg = globalCosmicMuons.clone(
+    MuonCollectionLabel = 'cosmicMuons1Leg',
+    TrajectoryBuilderParameters = dict(TkTrackCollectionLabel = 'ctfWithMaterialTracksP5')
+)
 
 # Muon Id producer
-muons1Leg = muons1stStep.clone()
-muons1Leg.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons1Leg', 'cosmicMuons1Leg']
-muons1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-muons1Leg.fillIsolation = False
-muons1Leg.fillGlobalTrackQuality = False
-muons1Leg.fillGlobalTrackRefits = False
-muons1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
-muons1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
-# Sequences
+muons1Leg = muons1stStep.clone(
+    inputCollectionLabels = ['ctfWithMaterialTracksP5', 
+                             'globalCosmicMuons1Leg', 
+                             'cosmicMuons1Leg'],
+    inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
+    fillIsolation = False,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TimingFillerParameters = dict(
+        DTTimingParameters = dict(PruneCut = 9999),
+        CSCTimingParameters = dict(PruneCut = 9999))
+)
 
+# Sequences
 # Stand Alone Tracking
-STAmuontrackingforcosmics1Leg = cms.Sequence(CosmicMuonSeed*cosmicMuons1Leg)
+STAmuontrackingforcosmics1LegTask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
 
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg*globalCosmicMuons1Leg)
-
-# all muons id
-allmuons1Leg = cms.Sequence(muons1Leg)
-
-# Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg)
+muontrackingforcosmics1LegTask = cms.Task(STAmuontrackingforcosmics1LegTask, globalCosmicMuons1Leg)
 
 # Final sequence
-muonrecoforcosmics1Leg = cms.Sequence(muontrackingforcosmics1Leg*allmuons1Leg)
+muonrecoforcosmics1LegTask = cms.Task(muontrackingforcosmics1LegTask,muons1Leg)
 
 #####################################################
 
 # t0 Corrections
 
 # Seed generator
-CosmicMuonSeedWitht0Correction = CosmicMuonSeed.clone()
-CosmicMuonSeedWitht0Correction.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
+CosmicMuonSeedWitht0Correction = CosmicMuonSeed.clone(
+    DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
+)
 
 # Stand alone muon track producer
-cosmicMuonsWitht0Correction = cosmicMuons.clone()
-cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.BuildTraversingMuon = False
-cosmicMuonsWitht0Correction.MuonSeedCollectionLabel = 'CosmicMuonSeedWitht0Correction'
-cosmicMuonsWitht0Correction.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DSegmentsT0Seg'
+cosmicMuonsWitht0Correction = cosmicMuons.clone(
+    MuonSeedCollectionLabel = 'CosmicMuonSeedWitht0Correction',
+    TrajectoryBuilderParameters = dict(BuildTraversingMuon = False, DTRecSegmentLabel = 'dt4DSegmentsT0Seg')
+)
 
 # Global muon track producer
-globalCosmicMuonsWitht0Correction = globalCosmicMuons.clone()
-globalCosmicMuonsWitht0Correction.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
-globalCosmicMuonsWitht0Correction.MuonCollectionLabel = 'cosmicMuonsWitht0Correction'
+globalCosmicMuonsWitht0Correction = globalCosmicMuons.clone(
+    MuonCollectionLabel = 'cosmicMuonsWitht0Correction',
+    TrajectoryBuilderParameters = dict(TkTrackCollectionLabel = 'ctfWithMaterialTracksP5')
+)
 
 # Muon Id producer
-muonsWitht0Correction = muons1stStep.clone()
-muonsWitht0Correction.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsWitht0Correction', 'cosmicMuonsWitht0Correction']
-muonsWitht0Correction.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-muonsWitht0Correction.fillIsolation = True
-muonsWitht0Correction.fillGlobalTrackQuality = False
-muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.UseSegmentT0 = True
-muonsWitht0Correction.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
-muonsWitht0Correction.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
-muonsWitht0Correction.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-muonsWitht0Correction.CaloExtractorPSet.DR_Max = 1.0
-muonsWitht0Correction.fillGlobalTrackRefits = False
+muonsWitht0Correction = muons1stStep.clone(
+    inputCollectionLabels = ['ctfWithMaterialTracksP5', 
+                             'globalCosmicMuonsWitht0Correction', 
+                             'cosmicMuonsWitht0Correction'],
+    inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'ctfWithMaterialTracksP5'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0),
+    TimingFillerParameters = dict(
+	DTTimingParameters = dict(UseSegmentT0 = True),
+	MatchParameters = dict(DTsegments = 'dt4DSegmentsT0Seg'))
+)
+
 #Sequences
-
-
 # Stand Alone Tracking
-STAmuontrackingforcosmicsWitht0Correction = cms.Sequence(CosmicMuonSeedWitht0Correction*cosmicMuonsWitht0Correction)
+STAmuontrackingforcosmicsWitht0CorrectionTask = cms.Task(CosmicMuonSeedWitht0Correction,cosmicMuonsWitht0Correction)
+STAmuontrackingforcosmicsWitht0Correction = cms.Sequence(STAmuontrackingforcosmicsWitht0CorrectionTask)
 
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmicsWitht0Correction = cms.Sequence(STAmuontrackingforcosmicsWitht0Correction*globalCosmicMuonsWitht0Correction)
+muontrackingforcosmicsWitht0CorrectionTask = cms.Task(STAmuontrackingforcosmicsWitht0CorrectionTask,globalCosmicMuonsWitht0Correction)
+muontrackingforcosmicsWitht0Correction = cms.Sequence(muontrackingforcosmicsWitht0CorrectionTask)
 
 # Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmicsWitht0Correction = cms.Sequence(STAmuontrackingforcosmicsWitht0Correction)
-
-# all muons id
-allmuonsWitht0Correction = cms.Sequence(muonsWitht0Correction)
+STAmuonrecoforcosmicsWitht0Correction = cms.Sequence(STAmuontrackingforcosmicsWitht0CorrectionTask)
 
 # Final sequence
-muonrecoforcosmicsWitht0Correction = cms.Sequence(muontrackingforcosmicsWitht0Correction*allmuonsWitht0Correction)
+muonrecoforcosmicsWitht0CorrectionTask = cms.Task(muontrackingforcosmicsWitht0CorrectionTask,muonsWitht0Correction)
+muonrecoforcosmicsWitht0Correction = cms.Sequence(muonrecoforcosmicsWitht0CorrectionTask)
 
 ### Final sequence ###
-muonRecoGR = cms.Sequence(muonrecoforcosmics1Leg+muonrecoforcosmicsWitht0Correction)
+muonRecoGRTask = cms.Task(muonrecoforcosmics1LegTask,muonrecoforcosmicsWitht0CorrectionTask)
+muonRecoGR = cms.Sequence(muonRecoGRTask)
 
 #####################################################
 
 # Beam halo in Encaps only. GLB reco only is needed
 
 # Seed generator 
-CosmicMuonSeedEndCapsOnly = CosmicMuonSeed.clone()
-CosmicMuonSeedEndCapsOnly.EnableDTMeasurement = False
+CosmicMuonSeedEndCapsOnly = CosmicMuonSeed.clone(
+    EnableDTMeasurement = False
+)
 
 # Stand alone muon track producer
-cosmicMuonsEndCapsOnly = cosmicMuons.clone()
-cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.EnableDTMeasurement = False
-cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.MuonNavigationParameters.Barrel = False
-cosmicMuonsEndCapsOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedEndCapsOnly'
+cosmicMuonsEndCapsOnly = cosmicMuons.clone(
+    MuonSeedCollectionLabel = 'CosmicMuonSeedEndCapsOnly',
+    TrajectoryBuilderParameters = dict(
+	EnableDTMeasurement = False,
+	MuonNavigationParameters = dict(Barrel = False))
+)
 
 # Global muon track producer
-globalBeamHaloMuonEndCapslOnly = globalCosmicMuons.clone()
-globalBeamHaloMuonEndCapslOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'beamhaloTracks'
-globalBeamHaloMuonEndCapslOnly.MuonCollectionLabel = 'cosmicMuonsEndCapsOnly'
-
+globalBeamHaloMuonEndCapslOnly = globalCosmicMuons.clone(
+    MuonCollectionLabel = 'cosmicMuonsEndCapsOnly'
+)
 
 # Muon Id producer
-muonsBeamHaloEndCapsOnly = muons1stStep.clone()           
-muonsBeamHaloEndCapsOnly.inputCollectionLabels = ['beamhaloTracks', 'globalBeamHaloMuonEndCapslOnly', 'cosmicMuonsEndCapsOnly']
-muonsBeamHaloEndCapsOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-muonsBeamHaloEndCapsOnly.fillIsolation = True
-muonsBeamHaloEndCapsOnly.fillGlobalTrackQuality = False
-muonsBeamHaloEndCapsOnly.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
-muonsBeamHaloEndCapsOnly.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-muonsBeamHaloEndCapsOnly.CaloExtractorPSet.DR_Max = 1.0
-muonsBeamHaloEndCapsOnly.fillGlobalTrackRefits = False
+muonsBeamHaloEndCapsOnly = muons1stStep.clone(
+    inputCollectionLabels = ['beamhaloTracks', 
+                             'globalBeamHaloMuonEndCapslOnly', 
+                             'cosmicMuonsEndCapsOnly'],
+    inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'ctfWithMaterialTracksP5'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0)
+)
 
 # Sequences
-muonrecoBeamHaloEndCapsOnly = cms.Sequence(CosmicMuonSeedEndCapsOnly*cosmicMuonsEndCapsOnly*globalBeamHaloMuonEndCapslOnly*muonsBeamHaloEndCapsOnly)
+muonrecoBeamHaloEndCapsOnlyTask = cms.Task(CosmicMuonSeedEndCapsOnly,
+                                           cosmicMuonsEndCapsOnly,
+                                           globalBeamHaloMuonEndCapslOnly,
+                                           muonsBeamHaloEndCapsOnly)
+muonrecoBeamHaloEndCapsOnly = cms.Sequence(muonrecoBeamHaloEndCapsOnlyTask)
 
 ########
 
 ## Full detector but NO RPC ##
 
 # Stand alone muon track producer
-cosmicMuonsNoRPC = cosmicMuons.clone()
-cosmicMuonsNoRPC.TrajectoryBuilderParameters.EnableRPCMeasurement = False
+cosmicMuonsNoRPC = cosmicMuons.clone(
+    TrajectoryBuilderParameters = dict(EnableRPCMeasurement = False)
+)
 
 # Global muon track producer
-globalCosmicMuonsNoRPC = globalCosmicMuons.clone()
-globalCosmicMuonsNoRPC.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
-globalCosmicMuonsNoRPC.MuonCollectionLabel = 'cosmicMuonsNoRPC'
+globalCosmicMuonsNoRPC = globalCosmicMuons.clone(
+    MuonCollectionLabel = 'cosmicMuonsNoRPC',
+    TrajectoryBuilderParameters = dict(TkTrackCollectionLabel = 'ctfWithMaterialTracksP5')
+)
 
 # Muon Id producer
-muonsNoRPC = muons1stStep.clone()
-muonsNoRPC.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsNoRPC', 'cosmicMuonsNoRPC']
-muonsNoRPC.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-muonsNoRPC.fillIsolation = True
-muonsNoRPC.fillGlobalTrackQuality = False
-muonsNoRPC.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
-muonsNoRPC.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-muonsNoRPC.CaloExtractorPSet.DR_Max = 1.0
-muonsNoRPC.fillGlobalTrackRefits = False
+muonsNoRPC = muons1stStep.clone(
+    inputCollectionLabels = ['ctfWithMaterialTracksP5',
+                             'globalCosmicMuonsNoRPC', 
+                             'cosmicMuonsNoRPC'],
+    inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'ctfWithMaterialTracksP5'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0)
+)
 
 #Sequences
 
-# Stand Alone Tracking
-STAmuontrackingforcosmicsNoRPC = cms.Sequence(cosmicMuonsNoRPC)
-
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmicsNoRPC = cms.Sequence(STAmuontrackingforcosmicsNoRPC*globalCosmicMuonsNoRPC)
-
-# all muons id
-allmuonsNoRPC = cms.Sequence(muonsNoRPC)
+muontrackingforcosmicsNoRPCTask = cms.Task(cosmicMuonsNoRPC,globalCosmicMuonsNoRPC)
+muontrackingforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPCTask)
 
 # Final sequence
-muonrecoforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPC*allmuonsNoRPC)
+muonrecoforcosmicsNoRPCTask = cms.Task(muontrackingforcosmicsNoRPCTask,muonsNoRPC)
+muonrecoforcosmicsNoRPC = cms.Sequence(muonrecoforcosmicsNoRPCTask)
 
 ##############################################
 
 ## Split Tracks  ##
 
 # Global muon track producer
-globalCosmicSplitMuons = globalCosmicMuons.clone()
-globalCosmicSplitMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'splittedTracksP5'
-globalCosmicSplitMuons.MuonCollectionLabel = 'cosmicMuons'
+globalCosmicSplitMuons = globalCosmicMuons.clone(
+    MuonCollectionLabel = 'cosmicMuons',
+    TrajectoryBuilderParameters = dict(TkTrackCollectionLabel = 'splittedTracksP5')
+)
 
 # Muon Id producer
-
-splitMuons = muons1stStep.clone()
-splitMuons.inputCollectionLabels = ['splittedTracksP5', 'globalCosmicSplitMuons', 'cosmicMuons']
-splitMuons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-splitMuons.fillIsolation = True
-splitMuons.fillGlobalTrackQuality = False
-splitMuons.TrackExtractorPSet.inputTrackCollection = 'splittedTracksP5'
-splitMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-splitMuons.CaloExtractorPSet.DR_Max = 1.0
-splitMuons.fillGlobalTrackRefits = False
+splitMuons = muons1stStep.clone(
+    inputCollectionLabels = ['splittedTracksP5', 
+                             'globalCosmicSplitMuons', 
+                             'cosmicMuons'],
+    inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'splittedTracksP5'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0)
+)
 
 #Sequences
 
 # Final sequence
-muonrecoforsplitcosmics = cms.Sequence(globalCosmicSplitMuons*splitMuons)
+muonrecoforsplitcosmicsTask = cms.Task(globalCosmicSplitMuons,splitMuons)
+muonrecoforsplitcosmics = cms.Sequence(muonrecoforsplitcosmicsTask)
 
 ##############################################
 
@@ -278,29 +309,29 @@ muonrecoforsplitcosmics = cms.Sequence(globalCosmicSplitMuons*splitMuons)
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
 # Muon Id producer
-lhcSTAMuons = muons1stStep.clone()
-lhcSTAMuons.inputCollectionLabels = ['standAloneMuons']
-lhcSTAMuons.inputCollectionTypes = ['outer tracks']
-lhcSTAMuons.fillIsolation = True
-lhcSTAMuons.fillGlobalTrackQuality = False
-lhcSTAMuons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
-lhcSTAMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
-# set wide cone until the code is made to compute this wrt CalIntersection
-lhcSTAMuons.CaloExtractorPSet.DR_Max = 1.0
-lhcSTAMuons.fillGlobalTrackRefits = False
+lhcSTAMuons = muons1stStep.clone(
+    inputCollectionLabels = ['standAloneMuons'],
+    inputCollectionTypes = ['outer tracks'],
+    fillIsolation = True,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits = False,
+    TrackExtractorPSet = dict(inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'),
+    # set wide cone until the code is made to compute this wrt CalIntersection
+    CaloExtractorPSet = dict(CenterConeOnCalIntersection = True, DR_Max = 1.0)
+)
 
 # Final sequence
-muonRecoLHC = cms.Sequence(ancientMuonSeed*standAloneMuons*lhcSTAMuons)
-
-
+muonRecoLHCTask = cms.Task(ancientMuonSeed,
+                           standAloneMuons,
+                           lhcSTAMuons)
+muonRecoLHC = cms.Sequence(muonRecoLHCTask)
 
 ########################### SEQUENCE TO BE ADDED in ReconstructionGR_cff ##############################################
-
-muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoGR*muonrecoBeamHaloEndCapsOnly*muonrecoforcosmicsNoRPC*muonrecoforsplitcosmics*muonRecoLHC)
-
+muonRecoGRTask = cms.Task(muonrecoforcosmicsTask,
+                          muonRecoGRTask,
+                          muonrecoBeamHaloEndCapsOnlyTask,
+                          muonrecoforcosmicsNoRPCTask,
+                          muonrecoforsplitcosmicsTask,
+                          muonRecoLHCTask)
+muonRecoGR = cms.Sequence(muonRecoGRTask)
 #######################################################################################################################
-
-
-
-
-

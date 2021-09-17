@@ -14,8 +14,7 @@
 
 #include "TF1.h"
 #include "TH1F.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 double fitf(double *x, double *par);
 
@@ -36,6 +35,7 @@ private:
   MonitorElement *hTiming_[2][2];
   MonitorElement *h2DTiming_;
 
+  edm::ESGetToken<ESGain, ESGainRcd> esgainToken_;
   edm::ESHandle<ESGain> esgain_;
 
   TF1 *fit_;

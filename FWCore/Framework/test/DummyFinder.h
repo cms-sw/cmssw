@@ -18,19 +18,19 @@
 // Created:     Sat Apr 16 18:47:04 EDT 2005
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/test/DummyRecord.h"
-
-// forward declarations
 
 class DummyFinder : public edm::EventSetupRecordIntervalFinder {
 public:
   DummyFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<DummyRecord>(); }
 
-  void setInterval(const edm::ValidityInterval& iInterval) { interval_ = iInterval; }
+  void setInterval(const edm::ValidityInterval& iInterval) {
+    interval_ = iInterval;
+    const edm::eventsetup::EventSetupRecordKey dummyRecordKey = DummyRecord::keyForClass();
+    resetInterval(dummyRecordKey);
+  }
 
 protected:
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

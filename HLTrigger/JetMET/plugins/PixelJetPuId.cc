@@ -63,6 +63,8 @@ private:
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> const transientTrackRecordToken_;
+
   edm::InputTag m_primaryVertex;
   edm::InputTag m_tracks;
   edm::InputTag m_jets;
@@ -86,7 +88,8 @@ private:
 //
 // constructors and destructor
 //
-PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig) {
+PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
+    : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
   //InputTag
   m_tracks = iConfig.getParameter<edm::InputTag>("tracks");
   tracksToken = consumes<std::vector<reco::Track> >(m_tracks);
@@ -167,13 +170,12 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(primaryVertexToken, primaryVertex);
 
   //get Transient Track Builder
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  auto const& builder = iSetup.getHandle(transientTrackRecordToken_);
 
   //init JetTagCollection
   if (!generaljets.product()->empty()) {
     edm::RefToBase<reco::Jet> jj = edm::RefToBase<reco::Jet>(generaljets, 0);
-    pOut_jetTagCollection.reset(new reco::JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
+    pOut_jetTagCollection = std::make_unique<reco::JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   }
 
   //loop on trackIPTagInfos

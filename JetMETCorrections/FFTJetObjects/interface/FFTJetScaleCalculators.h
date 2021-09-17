@@ -11,7 +11,7 @@
 template <class MyJet, class Adjustable>
 class FFTEtaLogPtConeRadiusMapper : public AbsFFTJetScaleCalculator<MyJet, Adjustable> {
 public:
-  inline explicit FFTEtaLogPtConeRadiusMapper(CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f)
+  inline explicit FFTEtaLogPtConeRadiusMapper(std::shared_ptr<npstat::AbsMultivariateFunctor> f)
       : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f) {}
 
 private:
@@ -34,7 +34,7 @@ public:
   // AbsFFTSpecificScaleCalculator object provided
   // in the constructor
   //
-  inline FFTSpecificScaleCalculator(CPP11_shared_ptr<npstat::AbsMultivariateFunctor> f,
+  inline FFTSpecificScaleCalculator(std::shared_ptr<npstat::AbsMultivariateFunctor> f,
                                     const AbsFFTSpecificScaleCalculator* p)
       : AbsFFTJetScaleCalculator<MyJet, Adjustable>(f), calc_(p) {
     assert(p);

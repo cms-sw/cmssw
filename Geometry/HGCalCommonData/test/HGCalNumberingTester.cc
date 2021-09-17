@@ -36,13 +36,14 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester(const edm::ParameterSet&);
-  ~HGCalNumberingTester() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -89,7 +90,18 @@ HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& iC) {
               << std::endl;
 }
 
-HGCalNumberingTester::~HGCalNumberingTester() {}
+void HGCalNumberingTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  std::vector<double> vecxy;
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("NameSense", "HGCalEESensitive");
+  desc.add<std::string>("NameDevice", "HGCal EE");
+  desc.add<std::vector<double> >("LocalPositionX", vecxy);
+  desc.add<std::vector<double> >("LocalPositionY", vecxy);
+  desc.add<int>("Increment", 19);
+  desc.add<int>("DetType", 2);
+  desc.add<bool>("Reco", false);
+  descriptions.add("hgcalNumberingTesterEE", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -99,9 +111,13 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
   if (detType_ != 0) {
     std::cout << "Minimum Wafer # " << hgdc.waferMin() << " Mamximum Wafer # " << hgdc.waferMax() << " Wafer counts "
               << hgdc.waferCount(0) << ":" << hgdc.waferCount(1) << std::endl;
-    for (unsigned int i = 0; i < hgdc.layers(true); ++i)
-      std::cout << "Layer " << i + 1 << " Wafers " << hgdc.wafers(i + 1, 0) << ":" << hgdc.wafers(i + 1, 1) << ":"
-                << hgdc.wafers(i + 1, 2) << std::endl;
+    for (unsigned int i = 0; i < hgdc.layers(true); ++i) {
+      int lay = i + 1;
+      double z = hgdc.waferZ(lay, reco_);
+      std::cout << "Layer " << lay << " Wafers " << hgdc.wafers(lay, 0) << ":" << hgdc.wafers(lay, 1) << ":"
+                << hgdc.wafers(lay, 2) << " Z " << z << " R " << hgdc.rangeR(z, reco_).first << ":"
+                << hgdc.rangeR(z, reco_).second << std::endl;
+    }
   }
   std::cout << std::endl << std::endl;
   std::pair<float, float> xy;
@@ -199,7 +215,7 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // For scintillators
-  if (hgdc.geomMode() == HGCalGeometryMode::Trapezoid) {
+  if (hgdc.tileTrapezoid()) {
     unsigned int kk(0);
     for (auto const& lay : hgdc.getParameter()->layer_) {
       auto rRange = hgdc.getREtaRange(lay);

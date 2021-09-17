@@ -11,11 +11,32 @@ $WORK_DIR = "test_l1t";
 $MAIN_LOG = "MAIN.log";
 $JOB_LOG = "JOB.log";
 $DIE_FILE = "DIE";
-$NUM_JOBS = 6;
+$NUM_JOBS = 8;
 $TIMEOUT = 10*60;
 #$GEN_SIM_FILE = "/store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
 #$GEN_SIM_FILE = "file:/afs/cern.ch/work/m/mulhearn/data/gen-sim/GEN-SIM-08F44119-9C7F-E511-85C3-0025905B85A2.root";
-$GEN_SIM_FILE = "root://cms-xrd-global.cern.ch///store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
+#$GEN_SIM_FILE = "root://cms-xrd-global.cern.ch///store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
+$GEN_SIM_FILE = "root://eoscms//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/unit-test/input//store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
+#$DATA_2016_FILE = "root://eoscms//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/unit-test/input//store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
+$DATA_2016_FILE = "/store/data/Run2016H/HLTPhysics3/RAW/v1/000/281/602/00000/0E71643D-BF82-E611-8593-02163E011B19.root";
+#$DATA_2017_FILE = "/store/express/Run2017C/ExpressPhysics/FEVT/Express-v3/000/301/142/00000/0008C605-0881-E711-84A2-02163E019C07.root";
+#$DATA_2017_FILE = "/store/data/Run2017C/HLTPhysics/RAW/v1/000/301/142/00000/00682207-3181-E711-8706-02163E01445A.root";
+#$DATA_2017_FILE = "/store/data/Run2017G/HLTPhysics/RAW/v1/000/306/826/00000/3EFDFCB7-A2CE-E711-80E1-02163E019BEA.root";
+#$DATA_2017_FILE = "root://cms-xrd-global.cern.ch///store/data/Run2017H/SingleMuon/RAW/v1/000/307/082/00000/FE78107C-90D2-E711-84AB-02163E01A586.root";
+#$DATA_2018_FILE = "/store/data/Run2018A/HLTPhysics/RAW/v1/000/316/994/00000/CEFB7B46-3B62-E811-BA1F-FA163E4C0F07.root";
+#$DATA_2017_FILE = "root://cms-xrd-global.cern.ch///store/data/Run2017C/JetHT/RAW/v1/000/301/914/00000/C4B8EA5E-988A-E711-B38B-02163E01399E.root";
+$DATA_2017_FILE = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/unit-test/input//store/data/Run2017C/JetHT/RAW/v1/000/301/914/00000/C4B8EA5E-988A-E711-B38B-02163E01399E.root";
+#$DATA_2017_FILE = "root://cms-xrd-global.cern.ch///store/express/Run2017C/ExpressPhysics/FEVT/Express-v2/000/300/226/00000/0218D0FB-2376-E711-B5B1-02163E014257.root";
+#$DATA_2017_FILE = "root://cms-xrd-global.cern.ch///store/data/Run2017D/HLTPhysics9/RAW/v1/000/302/676/00000/7A9DB54D-6D98-E711-B9AE-02163E013478.root";
+#$DATA_2018_FILE = "root://cms-xrd-global.cern.ch///store/data/Run2018A/SingleMuon/RAW/v1/000/316/218/00000/3CA8127E-4E57-E811-887E-FA163EEA1DC3.root";
+#$DATA_2018_FILE = "root://cms-xrd-global.cern.ch///store/express/Run2017F/ExpressPhysics/FEVT/Express-v1/000/305/636/00002/581DD5E7-10BA-E711-8E38-02163E011B94.root";
+#$DATA_2018_FILE = "/store/express/Run2018C/ExpressPhysics/FEVT/Express-v1/000/319/992/00000/041AB4A0-708C-E811-921F-02163E0153F7.root";
+#$DATA_2018_FILE = "/store/express/Run2018C/ExpressPhysics/FEVT/Express-v1/000/319/992/00000/041AB4A0-708C-E811-921F-02163E0153F7.root";
+#$DATA_2018_FILE = "root://cms-xrd-global.cern.ch///store/data/Run2018A/JetHT/RAW/v1/000/316/995/00000/FEEAE7BF-CA64-E811-8959-FA163E35C0CD.root";
+#$DATA_2018_FILE = "root://eoscms//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/unit-test/input//data/Run2018A/JetHT/RAW/v1/000/316/995/00000/FEEAE7BF-CA64-E811-8959-FA163E35C0CD.root";
+$DATA_2018_FILE = "root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/rekovic/unit-test/input/store/data/Run2018B/JetHT/RAW/v1/000/316/995/00000/FEEAE7BF-CA64-E811-8959-FA163E35C0CD.root";
+#cmsDriver.py $PYTHON_OPT -s RAW2DIGI --era=Run2_2018 --data --conditions=101X_dataRun2_Prompt_v9 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleAODRAWEMU --customise=L1Trigger/Configuration/customiseSettings.L1TSettingsToCaloParams_2018_v1_2 --filein=/store/express/Run2017F/ExpressPhysics/FEVT/Express-v1/000/305/636/00002/581DD5E7-10BA-E711-8E38-02163E011B94.root
+
 $VERBOSE  = 0;
 $KILL     = 0;
 $DRYRUN   = 0;
@@ -34,8 +55,20 @@ $SINGLE  = 0;
 $SINGLE_JOB  = 0;
 
 $COND_MC   = "--conditions=auto:run2_mc";
-$COND_DATA_2015 = "--conditions=auto:run2_data";
-$COND_DATA_2016 = "--conditions=80X_dataRun2_Prompt_v8";
+#$COND_MC   = "--conditions=90X_mcRun2_asymptotic_v0";
+#$COND_MC   = "--conditions=90X_upgrade2017_realistic_v6_C1";
+#$COND_DATA_2015 = "--conditions=auto:run2_data";
+#$COND_DATA_2016 = "--conditions=auto:run2_data";
+#$COND_DATA_2017 = "--conditions=auto:run2_data";
+#$COND_DATA_2018 = "--conditions=auto:run2_data";
+$COND_DATA_2015 = "--conditions=101X_dataRun2_Prompt_v9";
+$COND_DATA_2016 = "--conditions=101X_dataRun2_Prompt_v9";
+$COND_DATA_2017 = "--conditions=101X_dataRun2_Prompt_v9";
+$COND_DATA_2018 = "--conditions=101X_dataRun2_Prompt_v9";
+#$COND_DATA_2017 = "--conditions=92X_dataRun2_Prompt_v8";
+#$COND_MC   = "--conditions=80X_mcRun2_asymptotic_v17";  # = run2_mc in CMSSW_8_0_19 
+#$COND_DATA_2015 = "--conditions=80X_dataRun2_v18";      # = run2_data in CMSSW_8_0_19 
+#$COND_DATA_2016 = "--conditions=80X_dataRun2_Prompt_v8";
 
 sub main;
 main @ARGV;
@@ -134,12 +167,12 @@ sub test_dummy {
 #
 sub test_unpackers_dont_crash {
     #$file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
-    $file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
+    #$file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
     $nevt = 200;
     if ($FAST) {$nevt = 10; }
     if ($SLOW) {$nevt = -1; }
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 $COND_DATA_2015 -n $nevt --data --filein=$file --no_output  --no_exec >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 $COND_DATA_2015 -n $nevt --data --filein=$DATA_2016_FILE --no_output  --no_exec >& CMSDRIVER.log");
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
 	    print "ERROR: abnormal status returned: $status\n";
@@ -166,7 +199,7 @@ sub test_unpack_2016_data {
     if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT $COND_DATA_2015 -s RAW2DIGI -n $nevt --era=Run2_2016 --data --filein=/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root --no_output --no_exec --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleRAW >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT $COND_DATA_2016 -s RAW2DIGI -n $nevt --era=Run2_2016 --data --filein=$DATA_2016_FILE --no_output --no_exec --customise=L1Trigger/Configuration/customiseUtils.L1TStage2DigisSummary --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleRAW >& CMSDRIVER.log");
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -293,15 +326,15 @@ sub test_reemul {
 
 sub test_reemul_2016 {
 #    $file = "/store/data/Run2015D/DoubleEG/RAW-RECO/ZElectron-PromptReco-v4/000/260/627/00000/12455212-1E85-E511-8913-02163E014472.root";
-    $file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
+    #$file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
     #$file = "/store/data/Run2016B/MuonEG/RAW-RECO/TopMuEG-PromptReco-v2/000/273/450/00000/8EF765B2-531C-E611-86D5-02163E012060.root";
     #$file = "/store/data/Run2016B/ZeroBias8/RAW/v1/000/272/021/00000/D821E02F-BA0D-E611-9DE0-02163E013885.root";
     $nevt = 100;
-    if ($FAST) {$nevt = 100; }
+    if ($FAST) {$nevt = 200; }
     if ($SLOW) {$nevt = 1000; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$file --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$DATA_2016_FILE --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalMenuXML >& CMSDRIVER.log");
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -351,13 +384,126 @@ sub test_reemul_2016 {
 
 }
 
+sub test_reemul_2017 {
+    $nevt = 100;
+    if ($FAST) {$nevt = 100; }
+    if ($SLOW) {$nevt = 1000; }
+
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2017 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2017 -n $nevt --data --no_exec --no_output --filein=$DATA_2017_FILE --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
+
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("$CMSRUN >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+    }
+
+    $SUCCESS = 0;
+    open INPUT,"root -b -q -x ../../L1Trigger/L1TCommon/macros/CheckL1Ntuple.C |";
+    while (<INPUT>){
+	print $_;
+	if (/SUCCESS/){	$SUCCESS = 1; }    
+    }
+    close INPUT;
+
+    if (! $SUCCESS){ 
+	print "ERROR:  L1Ntuple did not contain sufficient Calo and Muon candidates for success.\n";
+	return;
+    }
+    
+    #print "INFO: parsing the following menu summary:\n";
+    #system "grep 'L1T menu Name' -A 250 CMSRUN.log";
+
+    @TRIGGERS = ("L1_SingleMu3","L1_SingleEG5","L1_SingleJet16");
+    foreach $trig (@TRIGGERS) {	
+	open INPUT,"grep 'L1T menu Name' -A 250 CMSRUN.log | grep $trig |";
+	$FIRED = 0;
+	while (<INPUT>){
+	    #chomp; print "LINE:  $_\n";
+	    /$trig\W+(\w+)/;
+	    print "INFO:  $trig fired $1 times\n";
+	    if ($1 > 0){ $FIRED = 1; }
+	}
+	if (! $FIRED){
+	    print "ERROR:  $trig did not fire.\n";
+	    return;
+	}
+    }
+    system "touch SUCCESS";
+
+}
+
+sub test_reemul_2018 {
+    #$file = "/store/express/Run2017C/ExpressPhysics/FEVT/Express-v3/000/301/142/00000/0008C605-0881-E711-84A2-02163E019C07.root"
+    $nevt = 100;
+    if ($FAST) {$nevt = 100; }
+    if ($SLOW) {$nevt = 1000; }
+
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2018 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2018 -n $nevt --data --no_exec --no_output --filein=$DATA_2018_FILE --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
+
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("$CMSRUN >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+    }
+
+    $SUCCESS = 0;
+    open INPUT,"root -b -q -x ../../L1Trigger/L1TCommon/macros/CheckL1Ntuple.C |";
+    while (<INPUT>){
+	print $_;
+	if (/SUCCESS/){	$SUCCESS = 1; }    
+    }
+    close INPUT;
+
+    if (! $SUCCESS){ 
+	print "ERROR:  L1Ntuple did not contain sufficient Calo and Muon candidates for success.\n";
+	return;
+    }
+    
+    #print "INFO: parsing the following menu summary:\n";
+    #system "grep 'L1T menu Name' -A 250 CMSRUN.log";
+
+    @TRIGGERS = ("L1_SingleMu3","L1_SingleEG50","L1_SingleJet35");
+    foreach $trig (@TRIGGERS) {	
+	open INPUT,"grep 'L1T menu Name' -A 250 CMSRUN.log | grep $trig |";
+	$FIRED = 0;
+	while (<INPUT>){
+	    #chomp; print "LINE:  $_\n";
+	    /$trig\W+(\w+)/;
+	    print "INFO:  $trig fired $1 times\n";
+	    if ($1 > 0){ $FIRED = 1; }
+	}
+	if (! $FIRED){
+	    print "ERROR:  $trig did not fire.\n";
+	    return;
+	}
+    }
+    system "touch SUCCESS";
+
+}
+
 sub test_mc_prod {
     $nevt = 50;
     if ($FAST) {$nevt = 5; }
     if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $COND_MC -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=$GEN_SIM_FILE --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $COND_MC -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=$GEN_SIM_FILE --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree  --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
 # --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
 	print "INFO: status of cmsDriver call is $status\n";
@@ -415,6 +561,8 @@ sub run_job {
 	case 3 {test_pack_unpack_is_unity; }
 	case 4 {test_unpackers_dont_crash; }
 	case 5 {test_reemul_2016;}
+	case 6 {test_reemul_2017;}
+	case 7 {test_reemul_2018;}
 	else   {test_dummy; }
     }
     my $job_time = time() - $start_time;
@@ -565,6 +713,14 @@ sub main {
 	print "$ours\n";
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"reemul2016\",\"$ours\",\"$theirs\")'");
+
+	$ours = "../$DIR1/$WORK_DIR/test_6/L1Ntuple.root";
+	$theirs = "../$DIR2/$WORK_DIR/test_6/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"reemul2017\",\"$ours\",\"$theirs\")'");
 
 
 	# this is a hack until L1T uGT output goes into L1TNtuple:

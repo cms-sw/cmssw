@@ -13,10 +13,10 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-## customizations for the pp_on_AA_2018 eras
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(hcalminbiasHLT,
-                       eventSetupPathsKey='HcalCalMinBiasHI'
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(hcalminbiasHLT,
+                  eventSetupPathsKey='HcalCalMinBiasHI'
 )
 
 
@@ -67,11 +67,11 @@ seqALCARECOHcalCalMinBiasDigiNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB)
 
 seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoMBNZS*horecoMBNZS*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
-#Specify to use HI output for the pp_on_AA_2018 eras
+#Specify to use HI output for the pp_on_AA eras
 seqALCARECOHcalCalMinBiasHI = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
-pp_on_AA_2018.toReplaceWith(seqALCARECOHcalCalMinBias,
-                            seqALCARECOHcalCalMinBiasHI
-)
+pp_on_AA.toReplaceWith(seqALCARECOHcalCalMinBias,
+                       seqALCARECOHcalCalMinBiasHI
+                   )
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(

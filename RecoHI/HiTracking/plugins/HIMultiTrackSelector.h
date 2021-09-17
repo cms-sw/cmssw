@@ -30,7 +30,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 enum MVAVARIABLES {
   chi2perdofperlayer = 0,
@@ -49,6 +49,8 @@ enum MVAVARIABLES {
   ndof = 13,
   etaerror = 14
 };
+
+class GBRWrapperRcd;
 
 class dso_hidden HIMultiTrackSelector : public edm::stream::EDProducer<> {
 private:
@@ -175,6 +177,7 @@ protected:
   std::string forestLabel_;
   std::vector<std::string> forestVars_;
   GBRForest *forest_;
+  edm::ESGetToken<GBRForest, GBRWrapperRcd> forestToken_;
   bool useForestFromDB_;
   std::string dbFileName_;
 };

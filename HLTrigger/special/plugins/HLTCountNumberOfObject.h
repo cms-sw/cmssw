@@ -17,8 +17,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/MessageService/interface/MessageLogger.h"
-
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"

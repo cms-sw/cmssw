@@ -11,11 +11,12 @@ import FWCore.ParameterSet.Config as cms
 # but should probably not be used for track fitting.
 
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
-MaterialPropagatorPtMin09 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone()
-MaterialPropagatorPtMin09.ComponentName = 'PropagatorWithMaterialPtMin09'
-MaterialPropagatorPtMin09.ptMin = 0.9
-
+MaterialPropagatorPtMin09 = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialPtMin09',
+    ptMin         = 0.9
+)
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
-OppositeMaterialPropagatorPtMin09 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
-OppositeMaterialPropagatorPtMin09.ComponentName = 'PropagatorWithMaterialOppositePtMin09'
-OppositeMaterialPropagatorPtMin09.ptMin = 0.9
+OppositeMaterialPropagatorPtMin09 = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+    ComponentName = 'PropagatorWithMaterialOppositePtMin09',
+    ptMin         = 0.9
+)

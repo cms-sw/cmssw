@@ -36,7 +36,7 @@ void L1TGlobalPrescalesVetosWriter::analyze(const edm::Event& iEvent, const edm:
   else
     evSetup.get<L1TGlobalPrescalesVetosRcd>().get(handle1);
 
-  boost::shared_ptr<L1TGlobalPrescalesVetos> ptr1(new L1TGlobalPrescalesVetos(*(handle1.product())));
+  std::shared_ptr<L1TGlobalPrescalesVetos> ptr1(new L1TGlobalPrescalesVetos(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

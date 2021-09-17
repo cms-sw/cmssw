@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     CaloDetIdAssociatorMaker
-// 
+//
 /**\class CaloDetIdAssociatorMaker CaloDetIdAssociatorMaker.h "CaloDetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -33,23 +33,19 @@ class DetIdAssociatorRecord;
 class CaloGeometry;
 class CaloGeometryRecord;
 
-class CaloDetIdAssociatorMaker : public DetIdAssociatorMaker
-{
-  
- public:
-  CaloDetIdAssociatorMaker(edm::ParameterSet const&,
-                           edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& );
-  
+class CaloDetIdAssociatorMaker : public DetIdAssociatorMaker {
+public:
+  CaloDetIdAssociatorMaker(edm::ParameterSet const&, edm::ESConsumesCollectorT<DetIdAssociatorRecord>&&);
+
   // ---------- const member functions ---------------------
   std::unique_ptr<DetIdAssociator> make(const DetIdAssociatorRecord&) const final;
-  
- private:
-  virtual std::unique_ptr<DetIdAssociator> make(CaloGeometry const&, int nPhi, int nEta, double etaBinSize ) const;
+
+private:
+  virtual std::unique_ptr<DetIdAssociator> make(CaloGeometry const&, int nPhi, int nEta, double etaBinSize) const;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   const double etaBinSize;
   const int nPhi;
   const int nEta;
 };
-
 
 #endif

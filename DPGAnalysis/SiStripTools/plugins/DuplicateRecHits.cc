@@ -74,8 +74,8 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::TrackCollection> m_trkcollToken;
-  std::string m_buildername;
-  const TransientTrackingRecHitBuilder* m_builder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_builderToken;
+  const TransientTrackingRecHitBuilder* m_builder = nullptr;
 
   TH1F* m_nduplicate;
   TH1F* m_nduplmod;
@@ -94,9 +94,8 @@ private:
 //
 DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig)
     : m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
-      m_buildername(iConfig.getParameter<std::string>("TTRHBuilder"))
-
-{
+      m_builderToken(esConsumes<edm::Transition::BeginRun>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("TTRHBuilder")})) {
   //now do what ever initialization is needed
 
   // histogram parameters
@@ -153,9 +152,7 @@ void DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 void DuplicateRecHits::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  iSetup.get<TransientRecHitRecord>().get(m_buildername, theBuilder);
-  m_builder = theBuilder.product();
+  m_builder = &iSetup.getData(m_builderToken);
 }
 
 void DuplicateRecHits::endRun(const edm::Run& iRun, const edm::EventSetup&) {}

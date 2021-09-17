@@ -14,9 +14,7 @@
 #include <iostream>
 
 // user include files
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -44,7 +42,7 @@
 #include <TH2F.h>
 
 //  Define the interface
-class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
+class HigPhotonJetHLTOfflineSource : public DQMOneEDAnalyzer<> {
 public:
   explicit HigPhotonJetHLTOfflineSource(const edm::ParameterSet&);
 
@@ -53,7 +51,7 @@ private:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
   bool isMonitoredTriggerAccepted(const edm::TriggerNames&, const edm::Handle<edm::TriggerResults>&);
 
   // Input from Configuration File
@@ -63,6 +61,7 @@ private:
   std::string dirname_;
   bool verbose_;
   bool triggerAccept_;
+  bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
@@ -111,6 +110,7 @@ HigPhotonJetHLTOfflineSource::HigPhotonJetHLTOfflineSource(const edm::ParameterS
   hltProcessName_ = pset.getParameter<std::string>("hltProcessName");
   hltPathsToCheck_ = pset.getParameter<std::vector<std::string>>("hltPathsToCheck");
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
+  perLSsaving_ = pset.getUntrackedParameter<bool>("perLSsaving", false);
   triggerAccept_ = pset.getUntrackedParameter<bool>("triggerAccept", true);
   triggerResultsToken_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsToken"));
   dirname_ = pset.getUntrackedParameter<std::string>("dirname", std::string("HLT/Higgs/PhotonJet/"));
@@ -327,15 +327,17 @@ void HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::
     deletajj_->Fill(deletajj);
 }
 
-void HigPhotonJetHLTOfflineSource::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HigPhotonJetHLTOfflineSource::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // Normalize to the total number of events in the run
-  TH2F* h = trigvsnvtx_->getTH2F();
-  double integral = h->Integral();
-  double norm = (integral > 0.) ? evtsrun_ * hltPathsToCheck_.size() / integral : 1.;
-  h->Scale(norm);
-  if (verbose_) {
-    std::cout << "xshi:: endRun total number of events: " << evtsrun_ << ", integral = " << h->Integral()
-              << ", norm = " << norm << std::endl;
+  if (!perLSsaving_) {
+    TH2F* h = trigvsnvtx_->getTH2F();
+    double integral = h->Integral();
+    double norm = (integral > 0.) ? evtsrun_ * hltPathsToCheck_.size() / integral : 1.;
+    h->Scale(norm);
+    if (verbose_) {
+      std::cout << "xshi:: endRun total number of events: " << evtsrun_ << ", integral = " << h->Integral()
+                << ", norm = " << norm << std::endl;
+    }
   }
 }
 

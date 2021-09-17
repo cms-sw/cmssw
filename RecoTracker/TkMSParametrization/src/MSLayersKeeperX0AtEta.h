@@ -3,6 +3,7 @@
 
 #include "MSLayersKeeper.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 class SumX0AtEtaDataProvider;
 class MSLayersKeeperX0Averaged;
 

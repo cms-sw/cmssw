@@ -44,6 +44,7 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
   produces<edm::ValueMap<int>>("prescale");
 
   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+  m_tkGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   if (!usePixel && !useStrip)
     edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
@@ -53,7 +54,7 @@ DeDxHitInfoProducer::~DeDxHitInfoProducer() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void DeDxHitInfoProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
+  tkGeom = iSetup.getHandle(m_tkGeomToken);
   if (useCalibration && calibGains.empty()) {
     m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 

@@ -19,6 +19,12 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.intProducer = cms.EDProducer("IntProducer", ivalue = cms.int32(2))
 
-process.t = cms.Task(process.intProducer)
+process.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(10000))
+
+process.intProducerEndProcessBlock = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(100000))
+
+process.t = cms.Task(process.intProducer,
+                     process.intProducerBeginProcessBlock,
+                     process.intProducerEndProcessBlock )
 
 process.e = cms.EndPath(process.out, process.t)

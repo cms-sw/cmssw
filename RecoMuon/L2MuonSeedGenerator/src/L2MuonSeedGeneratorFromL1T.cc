@@ -21,6 +21,7 @@
 #include "RecoMuon/L2MuonSeedGenerator/src/L2MuonSeedGeneratorFromL1T.h"
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,7 +102,7 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet &
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   // the estimator
   theEstimator = new Chi2MeasurementEstimator(10000.);
@@ -300,9 +301,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
             if (assoOffseed != nullptr) {
               PTrajectoryStateOnDet const &seedTSOS = assoOffseed->startingState();
-              TrajectorySeed::const_iterator tsci = assoOffseed->recHits().first, tscie = assoOffseed->recHits().second;
-              for (; tsci != tscie; ++tsci) {
-                container.push_back(*tsci);
+              for (auto const &recHit : assoOffseed->recHits()) {
+                container.push_back(recHit);
               }
               output->push_back(
                   L2MuonTrajectorySeed(seedTSOS,
@@ -356,10 +356,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
                 if (assoOffseed != nullptr) {
                   PTrajectoryStateOnDet const &seedTSOS = assoOffseed->startingState();
-                  TrajectorySeed::const_iterator tsci = assoOffseed->recHits().first,
-                                                 tscie = assoOffseed->recHits().second;
-                  for (; tsci != tscie; ++tsci) {
-                    container.push_back(*tsci);
+                  for (auto const &recHit : assoOffseed->recHits()) {
+                    container.push_back(recHit);
                   }
                   output->push_back(
                       L2MuonTrajectorySeed(seedTSOS,
@@ -677,10 +675,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
             edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const &seedTSOS = selOffseeds[nL1][theOffs]->startingState();
-            TrajectorySeed::const_iterator tsci = selOffseeds[nL1][theOffs]->recHits().first,
-                                           tscie = selOffseeds[nL1][theOffs]->recHits().second;
-            for (; tsci != tscie; ++tsci) {
-              newContainer.push_back(*tsci);
+            for (auto const &recHit : selOffseeds[nL1][theOffs]->recHits()) {
+              newContainer.push_back(recHit);
             }
             output->push_back(L2MuonTrajectorySeed(seedTSOS,
                                                    newContainer,
@@ -733,10 +729,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
             edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const &seedTSOS = selOffseeds[theL1][theOffs]->startingState();
-            TrajectorySeed::const_iterator tsci = selOffseeds[theL1][theOffs]->recHits().first,
-                                           tscie = selOffseeds[theL1][theOffs]->recHits().second;
-            for (; tsci != tscie; ++tsci) {
-              newContainer.push_back(*tsci);
+            for (auto const &recHit : selOffseeds[theL1][theOffs]->recHits()) {
+              newContainer.push_back(recHit);
             }
             output->push_back(L2MuonTrajectorySeed(seedTSOS,
                                                    newContainer,
@@ -834,10 +828,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
             edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const &seedTSOS = selOffseeds[theL1][theOffs]->startingState();
-            TrajectorySeed::const_iterator tsci = selOffseeds[theL1][theOffs]->recHits().first,
-                                           tscie = selOffseeds[theL1][theOffs]->recHits().second;
-            for (; tsci != tscie; ++tsci) {
-              newContainer.push_back(*tsci);
+            for (auto const &recHit : selOffseeds[theL1][theOffs]->recHits()) {
+              newContainer.push_back(recHit);
             }
             output->push_back(L2MuonTrajectorySeed(seedTSOS,
                                                    newContainer,
@@ -875,10 +867,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
             edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const &seedTSOS = selOffseeds[i][theOffs]->startingState();
-            TrajectorySeed::const_iterator tsci = selOffseeds[i][theOffs]->recHits().first,
-                                           tscie = selOffseeds[i][theOffs]->recHits().second;
-            for (; tsci != tscie; ++tsci) {
-              newContainer.push_back(*tsci);
+            for (auto const &recHit : selOffseeds[i][theOffs]->recHits()) {
+              newContainer.push_back(recHit);
             }
             output->push_back(L2MuonTrajectorySeed(seedTSOS,
                                                    newContainer,

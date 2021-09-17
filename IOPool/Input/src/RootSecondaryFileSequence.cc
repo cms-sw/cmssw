@@ -21,7 +21,11 @@ namespace edm {
   RootSecondaryFileSequence::RootSecondaryFileSequence(ParameterSet const& pset,
                                                        PoolSource& input,
                                                        InputFileCatalog const& catalog)
-      : RootInputFileSequence(pset, catalog), input_(input), orderedProcessHistoryIDs_(), enablePrefetching_(false) {
+      : RootInputFileSequence(pset, catalog),
+        input_(input),
+        orderedProcessHistoryIDs_(),
+        enablePrefetching_(false),
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -33,7 +37,7 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    StorageFactory::get()->stagein(fileName());
+    StorageFactory::get()->stagein(fileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -65,7 +69,7 @@ namespace edm {
   RootSecondaryFileSequence::RootFileSharedPtr RootSecondaryFileSequence::makeRootFile(
       std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
                                       filePtr,
@@ -85,7 +89,8 @@ namespace edm {
                                       orderedProcessHistoryIDs_,
                                       input_.bypassVersionCheck(),
                                       input_.labelRawDataLikeMC(),
-                                      enablePrefetching_);
+                                      enablePrefetching_,
+                                      enforceGUIDInFileName_);
   }
 
   void RootSecondaryFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {

@@ -19,14 +19,18 @@
  */
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,6 +53,9 @@ public:
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry* g) { csc_g = g; }
@@ -66,14 +73,16 @@ public:
   void build(const CSCBadChambers* badChambers,
              const CSCWireDigiCollection* wiredc,
              const CSCComparatorDigiCollection* compdc,
-             const GEMPadDigiCollection* gemPads,
              const GEMPadDigiClusterCollection* gemPadClusters,
              CSCALCTDigiCollection& oc_alct,
              CSCCLCTDigiCollection& oc_clct,
+             CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
              CSCCLCTPreTriggerDigiCollection& oc_clctpretrigger,
              CSCCLCTPreTriggerCollection& oc_pretrig,
              CSCCorrelatedLCTDigiCollection& oc_lct,
              CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+             CSCShowerDigiCollection& oc_shower,
+             CSCShowerDigiCollection& oc_shower_anode,
              GEMCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
@@ -100,46 +109,37 @@ private:
   static const int min_chamber;  // chambers per trigger subsector
   static const int max_chamber;
 
-  //debug
+  // debug
   int infoV;
+
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
-  /** SLHC: special configuration parameters for ME11 treatment. */
-  bool isSLHC_;
+  /** Phase2: special configuration parameters for ME11 treatment. */
+  bool runPhase2_;
 
-  /** SLHC: special switch for disabling ME42 */
-  bool disableME1a_;
-
-  /** SLHC: special switch for disabling ME42 */
+  /** Phase2: special switch for disabling ME42 */
   bool disableME42_;
 
-  /** SLHC: individual switches */
+  /** Phase2: individual switches */
   bool runME11Up_;
   bool runME21Up_;
-  bool runME31Up_;
-  bool runME41Up_;
 
-  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  /** Phase2: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;
 
-  /** SLHC: special switch for the upgrade ME2/1 TMB */
+  /** Phase2: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
-
-  /** SLHC: special switch to use gem clusters */
-  bool useClusters_;
-
-  int m_minBX_, m_maxBX_;  // min and max BX to sort.
 
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<CSCMotherboard> tmb_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS][MAX_SUBSECTORS][MAX_CHAMBERS];
 
+  /** Pointer to MPC processors. */
+  std::unique_ptr<CSCMuonPortCard> mpc_[MAX_ENDCAPS][MAX_STATIONS][MAX_SECTORS];
+
   // pointers to the geometry
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-
-  /** Pointer to MPC processor. */
-  std::unique_ptr<CSCMuonPortCard> m_muonportcard;
 };
 
 template <class T, class S>

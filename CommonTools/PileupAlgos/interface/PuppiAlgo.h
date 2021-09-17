@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 #include <vector>
 
@@ -10,11 +11,12 @@ class PuppiAlgo {
 public:
   PuppiAlgo(edm::ParameterSet &iConfig);
   ~PuppiAlgo();
+  static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc);
   //Computing Mean and RMS
   void reset();
   void fixAlgoEtaBin(int i_eta);
   void add(const PuppiCandidate &iParticle, const double &iVal, const unsigned int iAlgo);
-  void computeMedRMS(const unsigned int &iAlgo, const double &iPVFrac);
+  void computeMedRMS(const unsigned int &iAlgo);
   //Get the Weight
   double compute(std::vector<double> const &iVals, double iChi2) const;
   const std::vector<float> &alphas() { return fPups; }
@@ -28,10 +30,12 @@ public:
   inline int algoId(unsigned int iAlgo) const { return fAlgoId.at(iAlgo); }
   inline bool isCharged(unsigned int iAlgo) const { return fCharged.at(iAlgo); }
   inline double coneSize(unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
-  inline double neutralPt(int iNPV) const { return cur_NeutralPtMin + iNPV * cur_NeutralPtSlope; }
+  inline double neutralPt(double const iPUProxy) const { return cur_NeutralPtMin + iPUProxy * cur_NeutralPtSlope; }
 
   inline double rms() const { return cur_RMS; }
   inline double median() const { return cur_Med; }
+
+  inline double etaMaxExtrap() const { return fEtaMaxExtrap; }
 
 private:
   unsigned int fNAlgos;

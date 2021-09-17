@@ -16,6 +16,6 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 class L1TUtmTriggerMenuO2ORcd : public edm::eventsetup::DependentRecordImplementation<
                                     L1TUtmTriggerMenuO2ORcd,
-                                    boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd> > {};
+                                    edm::mpl::Vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd> > {};
 
 #endif

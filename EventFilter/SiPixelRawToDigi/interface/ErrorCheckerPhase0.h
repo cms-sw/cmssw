@@ -1,45 +1,27 @@
-#ifndef ErrorCheckerPhase0_H
-#define ErrorCheckerPhase0_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_ErrorCheckerPhase0_h
+#define EventFilter_SiPixelRawToDigi_interface_ErrorCheckerPhase0_h
 /** \class ErrorCheckerPhase0
  *
  *  
  */
 
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerBase.h"
-#include "FWCore/Utilities/interface/typedefs.h"
 
 class ErrorCheckerPhase0 : public ErrorCheckerBase {
 public:
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
-
-  typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<cms_uint32_t, DetErrors> Errors;
-
   ErrorCheckerPhase0();
-
-  void setErrorStatus(bool ErrorStatus) override;
-
-  bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) override;
-
-  bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) override;
-
-  bool checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) override;
 
   bool checkROC(bool& errorsInEvent,
                 int fedId,
                 const SiPixelFrameConverter* converter,
                 const SiPixelFedCabling* theCablingTree,
                 Word32& errorWord,
-                Errors& errors) override;
+                SiPixelFormatterErrors& errors) const override;
 
-  void conversionError(
-      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) override;
-
-private:
-  bool includeErrors;
-
+protected:
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_ErrorCheckerPhase0_h

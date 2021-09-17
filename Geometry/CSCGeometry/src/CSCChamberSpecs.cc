@@ -1,7 +1,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include <Geometry/CSCGeometry/interface/CSCWireGroupPackage.h>
 #include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

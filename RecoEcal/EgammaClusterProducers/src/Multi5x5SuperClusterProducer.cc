@@ -1,24 +1,60 @@
-// C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <sstream>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-// Reconstruction Classes
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5BremRecoveryClusterAlgo.h"
 
-// Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/Multi5x5SuperClusterProducer.h"
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <vector>
+
+class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<> {
+public:
+  Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
+
+private:
+  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> endcapPutToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> barrelPutToken_;
+
+  const float barrelEtaSearchRoad_;
+  const float barrelPhiSearchRoad_;
+  const float endcapEtaSearchRoad_;
+  const float endcapPhiSearchRoad_;
+  const float seedTransverseEnergyThreshold_;
+
+  const bool doBarrel_;
+  const bool doEndcaps_;
+
+  std::unique_ptr<Multi5x5BremRecoveryClusterAlgo> bremAlgo_p;
+
+  double totalE;
+  int noSuperClusters;
+
+  reco::CaloClusterPtrVector getClusterPtrVector(
+      edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const;
+
+  void produceSuperclustersForECALPart(edm::Event& evt,
+                                       const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                       const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken);
+
+  void outputValidationInfo(reco::SuperClusterCollection& superclusterCollection);
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(Multi5x5SuperClusterProducer);
 
 Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps)
     : barrelEtaSearchRoad_{static_cast<float>(ps.getParameter<double>("barrelEtaSearchRoad"))},

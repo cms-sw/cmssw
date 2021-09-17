@@ -44,9 +44,9 @@ namespace edm {
 
   ///Specialize the getByLabel method to work with a Handle<GenericObject>
   template <>
-  bool edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                             std::string const& productInstanceName,
-                                             Handle<GenericObject>& result) const {
+  bool Event::getByLabel<GenericObject>(std::string const& label,
+                                        std::string const& productInstanceName,
+                                        Handle<GenericObject>& result) const {
     BasicHandle bh = provRecorder_.getByLabel_(
         TypeID(result.type().typeInfo()), label, productInstanceName, std::string(), moduleCallingContext_);
     convert_handle(std::move(bh), result);  // throws on conversion error
@@ -58,7 +58,7 @@ namespace edm {
   }
 
   template <>
-  bool edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag, Handle<GenericObject>& result) const {
+  bool Event::getByLabel<GenericObject>(InputTag const& tag, Handle<GenericObject>& result) const {
     if (tag.process().empty()) {
       return this->getByLabel(tag.label(), tag.instance(), result);
     } else {
@@ -71,6 +71,20 @@ namespace edm {
       }
     }
     return false;
+  }
+
+  ///Specialize the Event's getByToken method to work with a Handle<GenericObject>
+  template <>
+  bool Event::getByToken<GenericObject>(EDGetToken token, Handle<GenericObject>& result) const {
+    result.clear();
+    BasicHandle bh =
+        provRecorder_.getByToken_(TypeID(result.type().typeInfo()), PRODUCT_TYPE, token, moduleCallingContext_);
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (UNLIKELY(result.failedToGet())) {
+      return false;
+    }
+    addToGotBranchIDs(*result.provenance());
+    return true;
   }
 
 }  // namespace edm

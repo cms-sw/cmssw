@@ -1,4 +1,7 @@
-<use   name="EventFilter/CSCRawToDigi"/>
-<library   file="*.cc" name="EventFilterCSCRawToDigiPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CondFormats/DataRecord"/>
+<use name="EventFilter/CSCRawToDigi"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/L1CSCTrackFinder"/>
+<library file="*.cc" name="EventFilterCSCRawToDigiPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

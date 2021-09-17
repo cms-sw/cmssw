@@ -1,5 +1,3 @@
-
-
 #include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -37,15 +35,13 @@ private:
 
   edm::ReusableObjectHolder<HostType> holder_;
 
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const channelToken_;
   // threshold above which a channel will be considered "dead"
   int statusThreshold_;
 };
 
-EcalNextToDeadChannelESProducer::EcalNextToDeadChannelESProducer(const edm::ParameterSet& iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this);
-
+EcalNextToDeadChannelESProducer::EcalNextToDeadChannelESProducer(const edm::ParameterSet& iConfig)
+    : channelToken_(setWhatProduced(this).consumesFrom<EcalChannelStatus, EcalChannelStatusRcd>()) {
   statusThreshold_ = iConfig.getParameter<int>("channelStatusThresholdForDead");
 }
 
@@ -65,8 +61,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
 
   // Find channels next to dead ones and fill corresponding record
 
-  edm::ESHandle<EcalChannelStatus> h;
-  chs.get(h);
+  EcalChannelStatus const& h = chs.get(channelToken_);
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -75,7 +70,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
       if (EBDetId::validDetId(ieta, iphi)) {
         EBDetId detid(ieta, iphi);
 
-        if (EcalTools::isNextToDeadFromNeighbours(detid, *h, statusThreshold_)) {
+        if (EcalTools::isNextToDeadFromNeighbours(detid, h, statusThreshold_)) {
           rcd->setValue(detid, 1);
         };
       }
@@ -89,7 +84,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
       if (EEDetId::validDetId(iX, iY, 1)) {
         EEDetId detid(iX, iY, 1);
 
-        if (EcalTools::isNextToDeadFromNeighbours(detid, *h, statusThreshold_)) {
+        if (EcalTools::isNextToDeadFromNeighbours(detid, h, statusThreshold_)) {
           rcd->setValue(detid, 1);
         };
       }
@@ -97,7 +92,7 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
       if (EEDetId::validDetId(iX, iY, -1)) {
         EEDetId detid(iX, iY, -1);
 
-        if (EcalTools::isNextToDeadFromNeighbours(detid, *h, statusThreshold_)) {
+        if (EcalTools::isNextToDeadFromNeighbours(detid, h, statusThreshold_)) {
           rcd->setValue(detid, 1);
         };
       }
@@ -107,9 +102,3 @@ void EcalNextToDeadChannelESProducer::setupNextToDeadChannels(const EcalChannelS
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalNextToDeadChannelESProducer);
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd .. ; scram b"
-// End:

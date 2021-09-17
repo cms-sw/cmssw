@@ -1,7 +1,30 @@
-<use   name="RecoHI/HiTracking"/>
-<use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="rootminuit"/>
-<library   file="*.cc" name="RecoHIHiTrackingPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Utils"/>
+<use name="CondFormats/GBRForest"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/VertexReco"/>
+<use name="CondFormats/DataRecord"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoPixelVertexing/PixelTrackFitting"/>
+<use name="RecoTracker/TkTrackingRegions"/>
+<use name="RecoHI/HiTracking"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="rootminuit"/>
+<library file="*.cc" name="RecoHIHiTrackingPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

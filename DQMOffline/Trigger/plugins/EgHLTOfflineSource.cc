@@ -7,7 +7,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Run.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"

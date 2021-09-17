@@ -1,23 +1,27 @@
-<use   name="DataFormats/Luminosity"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/FWLite"/>
-<use   name="boost"/>
-<use   name="CommonTools/Utils"/>
-<use   name="PhysicsTools/Utilities"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/SelectorUtils"/>
+<use name="boost"/>
+<use name="DataFormats/FWLite"/>
+<use name="FWCore/FWLite"/>
+<use name="PhysicsTools/FWLite"/>
+
 <environment>
-  <use   name="hepmc"/>
-  <use   name="heppdt"/>
-  <use   name="CLHEP"/>
-  <use   name="root"/>
-  <use   name="rootgraphics"/>
-  <use   name="MuonAnalysis/MomentumScaleCalibration"/>
-  <use   name="ROOTMath"/>
-  <use   name="ROOTMinuit"/>
-  <bin   file="ZntupleToTreeConverter.cc"></bin>
-  <bin   file="MuScleFitTreeProvenance.cc"></bin>
-  <bin   file="TreeDump.cc"></bin>
-  <bin   file="TreeFromDump.cc"></bin>
+  <use name="CLHEP"/>
+  <use name="ROOTMath"/>
+  <use name="ROOTMinuit"/>
+  <use name="hepmc"/>
+  <use name="heppdt"/>
+  <use name="root"/>
+  <use name="rootgraphics"/>
+  <use name="MuonAnalysis/MomentumScaleCalibration"/>
+
+  <bin file="ZntupleToTreeConverter.cc">
+  </bin>
+
+  <bin file="MuScleFitTreeProvenance.cc">
+  </bin>
+
+  <bin file="TreeDump.cc">
+  </bin>
+
+  <bin file="TreeFromDump.cc">
+  </bin>
 </environment>

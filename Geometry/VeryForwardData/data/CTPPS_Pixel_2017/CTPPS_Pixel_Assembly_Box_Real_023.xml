@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL"
 	      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-  <ConstantsSection label="CTPPS_Pixel_Assembly_Box_Real_023.xml">
+  <ConstantsSection label="CTPPS_Pixel_Assembly_Box_Real_023.xml" eval="true">
     <Constant name="RotAngle"              value="18.4*deg"/>
 
     <Constant name="FullModuleThickness"   value="[CTPPS_Pixel_Module:EnvelopT]+[CTPPS_Pixel_Module:ROChipT]+[CTPPS_Pixel_Module:BumpBondT]+[CTPPS_Pixel_Module:WaferT]" />

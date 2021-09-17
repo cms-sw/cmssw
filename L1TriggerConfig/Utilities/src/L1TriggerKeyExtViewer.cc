@@ -27,7 +27,7 @@ using namespace std;
 void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TriggerKeyExt> handle1;
   evSetup.get<L1TriggerKeyExtRcd>().get(label, handle1);
-  boost::shared_ptr<L1TriggerKeyExt> ptr1(new L1TriggerKeyExt(*(handle1.product())));
+  std::shared_ptr<L1TriggerKeyExt> ptr1(new L1TriggerKeyExt(*(handle1.product())));
 
   cout << "L1TriggerKeyExt: parent key = " << ptr1->tscKey() << endl;
 
@@ -47,7 +47,7 @@ void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSe
   for (; itr != end; ++itr) {
     std::string recordType = itr->first;
     std::string objectKey = itr->second;
-    std::string recordName(recordType, 0, recordType.find_first_of("@"));
+    std::string recordName(recordType, 0, recordType.find_first_of('@'));
     cout << " record " << recordName << " key: " << itr->second << endl;
   }
 

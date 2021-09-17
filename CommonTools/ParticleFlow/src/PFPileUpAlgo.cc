@@ -1,6 +1,7 @@
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void PFPileUpAlgo::process(const PFCollection& pfCandidates, const reco::VertexCollection& vertices) {
   pfCandidatesFromVtx_.clear();

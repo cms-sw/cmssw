@@ -113,7 +113,7 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
 
   // Extract some relevant info from the 2D template
 
-  if (id > 0) {
+  if (id >= 0) {  // if id < 0, bypass interpolation (used in calibration)
     if (!templ2D.interpolate(id, cotalpha, cotbeta, locBz, locBx))
       return 4;
   }

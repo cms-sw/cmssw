@@ -19,15 +19,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDHarvester.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
@@ -40,7 +39,7 @@ class TH1D;
 class DTLocalTriggerBaseTest : public DQMEDHarvester {
 public:
   /// Constructor
-  DTLocalTriggerBaseTest(){};
+  DTLocalTriggerBaseTest() : muonGeomToken_(esConsumes<edm::Transition::BeginRun>()){};
 
   /// Destructor
   ~DTLocalTriggerBaseTest() override;
@@ -92,7 +91,7 @@ protected:
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
 
   /// Get top folder name
-  inline std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; };
+  inline std::string& topFolder() { return baseFolderTM; };
 
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; };
@@ -109,10 +108,11 @@ protected:
   edm::ParameterSet parameters;
   bool runOnline;
   std::string baseFolderTM;
-  std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;
-  edm::ESHandle<DTGeometry> muonGeom;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   std::map<int, std::map<std::string, MonitorElement*> > secME;
   std::map<int, std::map<std::string, MonitorElement*> > whME;
   std::map<std::string, MonitorElement*> cmsME;

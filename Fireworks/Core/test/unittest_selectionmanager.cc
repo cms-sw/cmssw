@@ -11,8 +11,8 @@
 //
 
 // system include files
-//#include <boost/test/auto_unit_test.hpp>
-#include <boost/bind.hpp>
+//#include <boost/test/unit_test.hpp>
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
@@ -21,7 +21,7 @@
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(selectionmanager) {
   //NOTE: have to pass a pointer to the listener else the bind will
   // create a copy of the listener and the original one will never
   // 'hear' any signal
-  sm.selectionChanged_.connect(boost::bind(&Listener::listen, &listener, _1));
+  sm.selectionChanged_.connect(std::bind(&Listener::listen, &listener, std::placeholders::_1));
 
   reco::TrackCollection fVector;
   fVector.push_back(reco::Track());

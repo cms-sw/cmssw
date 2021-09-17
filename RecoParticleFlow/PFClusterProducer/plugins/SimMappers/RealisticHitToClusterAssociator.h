@@ -10,22 +10,6 @@
 #include <unordered_map>
 #include "RealisticCluster.h"
 
-namespace {
-
-  float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) {
-    constexpr float eeDecayLengthInLayer = 2.f;
-    constexpr float fhDecayLengthInLayer = 1.5f;
-    constexpr float bhDecayLengthInLayer = 1.f;
-
-    if (layer <= fhOffset)
-      return eeDecayLengthInLayer;
-    else if (layer > fhOffset && layer <= bhOffset)
-      return fhDecayLengthInLayer;
-    else
-      return bhDecayLengthInLayer;
-  }
-}  // namespace
-
 class RealisticHitToClusterAssociator {
   using Hit3DPosition = std::array<float, 3>;
 
@@ -212,13 +196,15 @@ public:
               // hits that belonged completely to the absorbed cluster are redistributed
               // based on the fraction of energy shared in the shared hits
               float sharedFraction = pair.second / totalSharedEnergy;
-              float assignedEnergy = realisticHit.totalEnergy_ * sharedFraction;
-              realisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
-              realisticSimClusters_[pair.first].addHitAndFraction(hitId, sharedFraction);
-              realisticHit.hitToCluster_.emplace_back(
-                  RealisticHit::HitToCluster{pair.first, 0.f, -1.f, sharedFraction});
-              if (sharedFraction > exclusiveFraction)
-                realisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
+              if (sharedFraction > 1e-6) {
+                float assignedEnergy = realisticHit.totalEnergy_ * sharedFraction;
+                realisticSimClusters_[pair.first].increaseEnergy(assignedEnergy);
+                realisticSimClusters_[pair.first].addHitAndFraction(hitId, sharedFraction);
+                realisticHit.hitToCluster_.emplace_back(
+                    RealisticHit::HitToCluster{pair.first, 0.f, -1.f, sharedFraction});
+                if (sharedFraction > exclusiveFraction)
+                  realisticSimClusters_[pair.first].increaseExclusiveEnergy(assignedEnergy);
+              }
             }
           }
         }
@@ -281,6 +267,19 @@ public:
   const std::vector<RealisticCluster>& realisticClusters() const { return realisticSimClusters_; }
 
 private:
+  static float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) {
+    constexpr float eeDecayLengthInLayer = 2.f;
+    constexpr float fhDecayLengthInLayer = 1.5f;
+    constexpr float bhDecayLengthInLayer = 1.f;
+
+    if (layer <= fhOffset)
+      return eeDecayLengthInLayer;
+    else if (layer > fhOffset && layer <= bhOffset)
+      return fhDecayLengthInLayer;
+    else
+      return bhDecayLengthInLayer;
+  }
+
   // the vector of the Realistic SimClusters
   std::vector<RealisticCluster> realisticSimClusters_;
   // the vector of the Realistic SimClusters

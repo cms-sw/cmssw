@@ -7,10 +7,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 class OniaVtxReProducer {
 public:
@@ -23,7 +23,7 @@ public:
   /// Make the vertices
   std::vector<TransientVertex> makeVertices(const reco::TrackCollection &tracks,
                                             const reco::BeamSpot &bs,
-                                            const edm::EventSetup &iSetup) const;
+                                            const TransientTrackBuilder &theB) const;
 
   /// Get the configuration used in the VertexProducer
   const edm::ParameterSet &inputConfig() const { return config_; }

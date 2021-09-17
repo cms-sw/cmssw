@@ -1,17 +1,22 @@
-#include "FWCore/MessageService/test/UnitTestClient_G.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include <iostream>
-#include <string>
 #include <iomanip>
+#include <iostream>
 
 namespace edmtest {
 
-  void UnitTestClient_G::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_G : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_G(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_G::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     if (!edm::isMessageProcessingSetUp()) {
       std::cerr << "??? It appears that Message Processing is not Set Up???\n\n";
     }
@@ -27,7 +32,7 @@ namespace edmtest {
     for (int i = 0; i < 15; ++i) {
       edm::LogWarning("cat_C") << "\t\tEmit Warning level message " << i + 1;
     }
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

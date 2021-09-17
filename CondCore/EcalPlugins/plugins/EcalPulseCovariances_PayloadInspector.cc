@@ -232,17 +232,8 @@ namespace {
       std::shared_ptr<EcalPulseCovariances> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
       if (payload.get()) {
-        //	int chan = 0;
         for (int ieta = -MAX_IETA; ieta <= MAX_IETA; ieta++) {
-          Double_t eta = (Double_t)ieta;
-          if (ieta == 0)
-            continue;
-          else if (ieta > 0.)
-            eta = eta - 0.5;  //   0.5 to 84.5
-          else
-            eta = eta + 0.5;  //  -84.5 to -0.5
           for (int iphi = 1; iphi <= MAX_IPHI; iphi++) {
-            //Double_t phi = (Double_t)iphi - 0.5;
             EBDetId id(ieta, iphi);
             for (int i = 0; i < TEMPLATESAMPLES; ++i) {
               for (int j = 0; j < TEMPLATESAMPLES; ++j) {

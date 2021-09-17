@@ -10,23 +10,22 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalUncalibRecHitWorkerBaseClass.h"
 
-
 class HGCalUncalibRecHitProducer : public edm::stream::EDProducer<> {
-  
- public:
+public:
   explicit HGCalUncalibRecHitProducer(const edm::ParameterSet& ps);
   ~HGCalUncalibRecHitProducer() override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
-  
- private:
-  
-  const edm::EDGetTokenT<HGCalDigiCollection> eeDigiCollection_; // collection of HGCEE digis
-  const edm::EDGetTokenT<HGCalDigiCollection> hefDigiCollection_; // collection of HGCHEF digis
-  edm::EDGetTokenT<HGCalDigiCollection> hebDigiCollection_; // collection of HGCHEB digis
-  
-  const std::string eeHitCollection_; // instance name of HGCEE collection of hits
-  const std::string hefHitCollection_; // instance name of HGCHEF collection of hits
-  const std::string hebHitCollection_; // instance name of HGCHEB collection of hits
+
+private:
+  const edm::EDGetTokenT<HGCalDigiCollection> eeDigiCollection_;   // collection of HGCEE digis
+  const edm::EDGetTokenT<HGCalDigiCollection> hefDigiCollection_;  // collection of HGCHEF digis
+  edm::EDGetTokenT<HGCalDigiCollection> hebDigiCollection_;        // collection of HGCHEB digis
+  edm::EDGetTokenT<HGCalDigiCollection> hfnoseDigiCollection_;     // collection of HGCHFNose digis
+
+  const std::string eeHitCollection_;      // instance name of HGCEE collection of hits
+  const std::string hefHitCollection_;     // instance name of HGCHEF collection of hits
+  const std::string hebHitCollection_;     // instance name of HGCHEB collection of hits
+  const std::string hfnoseHitCollection_;  // instance name of HGCHFnose collection of hits
 
   std::unique_ptr<HGCalUncalibRecHitWorkerBaseClass> worker_;
 };

@@ -21,7 +21,7 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 //#include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 // HepMC headers
@@ -42,7 +42,7 @@
 
 using namespace HepMC;
 
-FamosManager::FamosManager(edm::ParameterSet const& p)
+FamosManager::FamosManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
     : iEvent(0),
       myCalorimetry(nullptr),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
@@ -66,7 +66,8 @@ FamosManager::FamosManager(edm::ParameterSet const& p)
                                            p.getParameter<edm::ParameterSet>("Calorimetry"),
                                            p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
                                            p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
-                                           p.getParameter<edm::ParameterSet>("GFlash"));
+                                           p.getParameter<edm::ParameterSet>("GFlash"),
+                                           std::move(iC));
 }
 
 FamosManager::~FamosManager() {

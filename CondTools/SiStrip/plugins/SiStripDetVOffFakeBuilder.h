@@ -9,6 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+class TrackerGeometry;
 
 class SiStripDetVOffFakeBuilder : public edm::EDAnalyzer {
 public:
@@ -22,6 +25,7 @@ public:
 
 private:
   bool printdebug_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   std::vector<uint32_t> detids;
 };
 #endif

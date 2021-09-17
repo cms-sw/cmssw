@@ -32,6 +32,7 @@
 TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet& config)
     : m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
       m_eventSetupWatcher(),
+      m_alcaRecoTriggerBitsRcdToken(esConsumes()),
       m_expression(nullptr),
       m_eventCache(config, consumesCollector()) {}
 
@@ -87,8 +88,8 @@ void TriggerResultsFilterFromDB::parse(const std::string& expression) {
 // read the triggerConditions from the database
 void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event& event, const edm::EventSetup& setup) {
   // Get map of strings to concatenated list of names of HLT paths from EventSetup:
-  edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
-  setup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+  auto const& triggerBits = setup.getHandle(m_alcaRecoTriggerBitsRcdToken);
+
   typedef std::map<std::string, std::string> TriggerMap;
   const TriggerMap& triggerMap = triggerBits->m_alcarecoToTrig;
 

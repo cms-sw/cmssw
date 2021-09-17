@@ -11,6 +11,7 @@
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
@@ -57,11 +58,7 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
   // N.B.  I've sorted the hits from layer 1-6 always, so can test if there are "holes",
   // that is layers without hits for a given chamber.
 
-  // Vector to store rechit within layer
-  std::vector<CSCRecHit2D> hitsInLayer;
-
   int layer_idx = 0;
-  int hits_in_layer = 0;
   CSCDetId old_id;
 
   for (CSCStripDigiCollection::DigiRangeIterator it = stripdc->begin(); it != stripdc->end(); ++it) {
@@ -112,9 +109,6 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     if (cscStripHit.empty())
       continue;
 
-    hitsInLayer.clear();
-    hits_in_layer = 0;
-
     // now build collection of wire only hits !
     std::vector<CSCWireHit> const& cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
 
@@ -124,11 +118,23 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     LogTrace("CSCRecHitBuilder") << "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and "
                                  << cscWireHit.size() << " wire hits in layer " << sDetId;
 
+    // Vector to store rechit within layer
+    std::vector<CSCRecHit2D> hitsInLayer;
+    unsigned int hits_in_layer = 0;
+
     for (auto const& s_hit : cscStripHit) {
       for (auto const& w_hit : cscWireHit) {
         CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
-
-        bool isInFiducial = make2DHits_->isHitInFiducial(layer, rechit);
+        // Store rechit as a Local Point:
+        LocalPoint rhitlocal = rechit.localPosition();
+        float yreco = rhitlocal.y();
+        bool isInFiducial = false;
+        //in me1/1 chambers the strip cut region is at local y = 30 cm, +-5 cm area around it proved to be a suitabla region for omiting the check
+        if ((sDetId.station() == 1) && (sDetId.ring() == 1 || sDetId.ring() == 4) && (fabs(yreco + 30.) < 5.)) {
+          isInFiducial = true;
+        } else {
+          isInFiducial = make2DHits_->isHitInFiducial(layer, rechit);
+        }
         if (isInFiducial) {
           hitsInLayer.push_back(rechit);
           hits_in_layer++;
@@ -137,14 +143,11 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     }
 
     LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
-    // std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
 
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
       oc.put(sDetId, hitsInLayer.begin(), hitsInLayer.end());
-      hitsInLayer.clear();
     }
-    hits_in_layer = 0;
     layer_idx++;
     old_id = sDetId;
   }

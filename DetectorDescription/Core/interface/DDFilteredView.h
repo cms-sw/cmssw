@@ -9,7 +9,9 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 
 class DDCompactView;
 class DDLogicalPart;
@@ -26,6 +28,12 @@ public:
 
   //! The logical-part of the current node in the filtered-view
   const DDLogicalPart &logicalPart() const;
+
+  //! The name of a logical-part of the current node in the filtered-view
+  const std::string &name() const;
+  const DDSolidShape shape() const;
+  std::string const material() const;
+  const std::vector<double> &parameters() const;
 
   //! The absolute translation of the current node
   const DDTranslation &translation() const;
@@ -48,6 +56,9 @@ public:
   std::vector<const DDsvalues_type *> specifics() const;
   void mergedSpecificsV(DDsvalues_type &merged) const;
   DDsvalues_type mergedSpecifics() const;
+
+  //! The DDVector information
+  std::vector<double> const &vector(std::string_view iKey) const { return epv_.vector(iKey); }
 
   //! Copy number associated with the current node
   int copyno() const;

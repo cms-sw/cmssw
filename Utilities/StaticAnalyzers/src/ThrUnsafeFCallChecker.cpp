@@ -46,7 +46,7 @@ namespace clangcms {
       os << "Known thread unsafe function " << mname << " is called in function " << pname;
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
       BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");
-      std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT, os.str(), CELoc);
+      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getSourceRange());
       BR.emitReport(std::move(R));

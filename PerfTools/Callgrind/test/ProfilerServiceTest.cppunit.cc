@@ -3,11 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
-using namespace boost::assign;
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
 
 #include <limits>
 #include <vector>
@@ -87,10 +83,8 @@ namespace test {
     int fe = 2;
     int le = 10;
     int di = 5;
-    std::vector<std::string> paths;
-    paths += "p1", "p2", "p3";
-    std::vector<std::string> ep;
-    ep += "e1", "e2", "e3";
+    std::vector<std::string> paths = {"p1", "p2", "p3"};
+    std::vector<std::string> ep = {"e1", "e2", "e3"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -107,7 +101,7 @@ namespace test {
       CPPUNIT_ASSERT(ps.m_paths == paths);
       CPPUNIT_ASSERT(!ps.m_allPaths);
     }
-    paths += "ALL";
+    paths.push_back("ALL");
     pset.addUntrackedParameter<std::vector<std::string> >("paths", paths);
     {
       ProfilerService ps(pset, activity);
@@ -173,8 +167,7 @@ namespace test {
   void TestProfilerService::check_FullEvent() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "FullEvent";
+    std::vector<std::string> paths = {"FullEvent"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -210,8 +203,7 @@ namespace test {
   void TestProfilerService::check_Event() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "ALL";
+    std::vector<std::string> paths = {"ALL"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -290,8 +282,7 @@ namespace test {
   void TestProfilerService::check_Path() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "p1", "p2", "p3";
+    std::vector<std::string> paths = {"p1", "p2", "p3"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -299,8 +290,7 @@ namespace test {
     edm::ActivityRegistry activity;
     ProfilerService ps(pset, activity);
 
-    std::vector<std::string> allPaths;
-    allPaths += "p1", "p21", "p22", "p3";
+    std::vector<std::string> allPaths = {"p1", "p21", "p22", "p3"};
     CheckPaths cp(ps, paths);
     CPPUNIT_ASSERT(std::find(paths.begin(), paths.end(), allPaths[0]) != paths.end());
     CPPUNIT_ASSERT(std::find(paths.begin(), paths.end(), allPaths[1]) == paths.end());
@@ -322,10 +312,8 @@ namespace test {
   void TestProfilerService::check_ExcludedPath() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "ALL";
-    std::vector<std::string> expaths;
-    expaths += "p21";
+    std::vector<std::string> paths = {"ALL"};
+    std::vector<std::string> expaths = {"p21"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -334,8 +322,7 @@ namespace test {
     edm::ActivityRegistry activity;
     ProfilerService ps(pset, activity);
 
-    std::vector<std::string> allPaths;
-    allPaths += "p1", "p21", "p22", "p3";
+    std::vector<std::string> allPaths = {"p1", "p21", "p22", "p3"};
     CheckPaths cp0(ps, expaths, 0, true);
     CheckPaths cp1(ps, expaths, 1, true);
     CPPUNIT_ASSERT(std::find(expaths.begin(), expaths.end(), allPaths[0]) == expaths.end());
@@ -360,8 +347,7 @@ namespace test {
   void TestProfilerService::check_AllPaths() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "ALL", "p2", "p3";
+    std::vector<std::string> paths = {"ALL", "p2", "p3"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -369,8 +355,7 @@ namespace test {
     edm::ActivityRegistry activity;
     ProfilerService ps(pset, activity);
 
-    std::vector<std::string> allPaths;
-    allPaths += "p1", "p21", "p22", "p3";
+    std::vector<std::string> allPaths = {"p1", "p21", "p22", "p3"};
     CheckPaths cp(ps, paths);
 
     ps.beginEvent();
@@ -390,8 +375,7 @@ namespace test {
   void TestProfilerService::check_Nesting() {
     int fe = 2;
     int le = 10;
-    std::vector<std::string> paths;
-    paths += "ALL", "p1", "p2", "p3";
+    std::vector<std::string> paths = {"ALL", "p1", "p2", "p3"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -399,8 +383,7 @@ namespace test {
     edm::ActivityRegistry activity;
     ProfilerService ps(pset, activity);
 
-    std::vector<std::string> allPaths;
-    allPaths += "p1", "p21", "p22", "p3";
+    std::vector<std::string> allPaths = {"p1", "p21", "p22", "p3"};
 
     CheckPaths cp0(ps, paths, 0);
     CheckPaths cp1(ps, paths, 1);

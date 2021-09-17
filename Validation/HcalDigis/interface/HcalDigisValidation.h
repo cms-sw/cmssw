@@ -5,25 +5,28 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -31,14 +34,10 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-
 /*TP Code*/
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -134,22 +133,22 @@ private:
   edm::EDGetTokenT<QIE10DigiCollection> tok_qie10_hf_;
   edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_hbhe_;
 
-  edm::ESHandle<CaloGeometry> geometry;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_Geom_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> tok_Decoder_;
+  edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> tok_TPGeom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_Topo_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_Cond_;
 
-  edm::ESHandle<HcalDbService> conditions;
-
-  //TP Code
-  edm::ESHandle<HcalTopology> htopo;
-  //~TP Code
+  const HcalDbService *conditions_;
+  const HcalDDDRecConstants *hcons_;
+  const HcalTopology *htopo_;
 
   int nevent1;
   int nevent2;
   int nevent3;
   int nevent4;
   int nevtot;
-
-  const HcalDDDRecConstants *hcons;
-  const HcalTopology *htopology;
 
   int maxDepth_[5];   // 0:any, 1:HB, 2:HE, 3:HF
   int nChannels_[5];  // 0:any, 1:HB, 2:HE,

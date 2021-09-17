@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 EleMuPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v"
+#        "HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v"
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     recMuonLabel  = cms.InputTag("muons"),

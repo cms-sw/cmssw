@@ -6,7 +6,6 @@
 #ifndef CaloSlaveSD_h
 #define CaloSlaveSD_h
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 

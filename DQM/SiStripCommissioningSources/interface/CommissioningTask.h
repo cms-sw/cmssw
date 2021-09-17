@@ -7,14 +7,13 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "boost/cstdint.hpp"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <cstdint>
 
 class TAxis;
-class DQMStore;
-class MonitorElement;
 namespace edm {
   class EventSetup;
 }
@@ -24,6 +23,8 @@ namespace edm {
 */
 class CommissioningTask {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   // ---------- Constructors, destructors ----------
 
   CommissioningTask(DQMStore*, const FedChannelConnection&, const std::string& my_name);
@@ -184,7 +185,7 @@ const uint32_t& CommissioningTask::updateFreq() const { return updateFreq_; }
 void CommissioningTask::updateFreq(const uint32_t& freq) { updateFreq_ = freq; }
 const std::string& CommissioningTask::myName() const { return myName_; }
 
-DQMStore* const CommissioningTask::dqm() const { return dqm_; }
+CommissioningTask::DQMStore* const CommissioningTask::dqm() const { return dqm_; }
 const FedChannelConnection& CommissioningTask::connection() const { return connection_; }
 
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }

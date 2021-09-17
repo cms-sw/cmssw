@@ -6,7 +6,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include <unistd.h>
-#include <boost/cstdint.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalTBWriter::HcalTBWriter(const edm::ParameterSet& pset)
@@ -155,5 +154,6 @@ void HcalTBWriter::extractEventInfo(const FEDRawDataCollection& raw, const edm::
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 
 DEFINE_FWK_MODULE(HcalTBWriter);

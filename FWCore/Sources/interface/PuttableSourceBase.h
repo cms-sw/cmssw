@@ -30,6 +30,8 @@ namespace edm {
   class PuttableSourceBase : public InputSource, public ProducerBase {
   public:
     PuttableSourceBase(ParameterSet const&, InputSourceDescription const&);
+    PuttableSourceBase(const PuttableSourceBase&) = delete;
+    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
 
     // ---------- const member functions ---------------------
 
@@ -40,9 +42,9 @@ namespace edm {
     using ProducerBase::resolvePutIndicies;
     void registerProducts() final;
 
-    bool hasAbilityToProduceInRuns() const final { return true; }
+    bool hasAbilityToProduceInBeginRuns() const final { return true; }
 
-    bool hasAbilityToProduceInLumis() const final { return true; }
+    bool hasAbilityToProduceInBeginLumis() const final { return true; }
 
   protected:
     //If inheriting class overrides, they need to call this function as well
@@ -54,10 +56,6 @@ namespace edm {
 
     virtual void beginRun(Run&);
     virtual void beginLuminosityBlock(LuminosityBlock&);
-
-    PuttableSourceBase(const PuttableSourceBase&) = delete;
-
-    PuttableSourceBase& operator=(const PuttableSourceBase&) = delete;
 
     // ---------- member data --------------------------------
   };

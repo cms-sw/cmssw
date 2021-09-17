@@ -23,7 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -67,8 +66,6 @@ public:
 protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -191,6 +188,8 @@ private:
   edm::EDGetTokenT<L1CSCTrackCollection> tracksToken_;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dtStubsToken_;
   edm::EDGetTokenT<L1CSCTrackCollection> mbtracksToken_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> l1muTscalesToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> ptscalesToken_;
 };
 
 #endif

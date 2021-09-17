@@ -1,12 +1,10 @@
 #ifndef _TrackingActionExecutor_h_
 #define _TrackingActionExecutor_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -25,6 +23,9 @@ class SiStripConfigWriter;
 
 class TrackingActionExecutor {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   TrackingActionExecutor(edm::ParameterSet const& ps);
   virtual ~TrackingActionExecutor();
 

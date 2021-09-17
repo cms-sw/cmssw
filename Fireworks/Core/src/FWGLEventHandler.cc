@@ -12,6 +12,7 @@
 #include "TEveGedEditor.h"
 #include "TEveViewer.h"
 #include "FWGeoTopNodeScene.h"
+#include "TVirtualX.h"
 
 FWGLEventHandler::FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego *l)
     : TEveLegoEventHandler(w, obj, l), m_viewer(nullptr) {}

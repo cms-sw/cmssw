@@ -139,12 +139,14 @@ namespace citk {
       }
       for (size_t ic = 0; ic < isolate_with->size(); ++ic) {
         auto isocand = isolate_with->ptrAt(ic);
-        edm::Ptr<pat::PackedCandidate> aspackedCandidate(isocand);
+        edm::Ptr<pat::PackedCandidate> aspackedCandidate;
         auto isotype = helper.translatePdgIdToType(isocand->pdgId());
         const auto& isolations = _isolation_types[isotype];
         for (unsigned i = 0; i < isolations.size(); ++i) {
           if (isolations[i]->isInIsolationCone(cand_to_isolate, isocand)) {
             double puppiWeight = 0.;
+            if (!useValueMapForPUPPI && aspackedCandidate.isNull())
+              aspackedCandidate = edm::Ptr<pat::PackedCandidate>(isocand);
             if (!useValueMapForPUPPI && !usePUPPINoLepton)
               puppiWeight = aspackedCandidate->puppiWeight();  // if miniAOD, take puppiWeight directly from the object
             else if (!useValueMapForPUPPI && usePUPPINoLepton)

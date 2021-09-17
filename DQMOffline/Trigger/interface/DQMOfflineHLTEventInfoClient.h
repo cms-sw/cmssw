@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <memory>
 #include <iostream>
@@ -20,6 +19,9 @@
 
 class DQMOfflineHLTEventInfoClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   /// Constructor
   DQMOfflineHLTEventInfoClient(const edm::ParameterSet& ps);
 
@@ -38,9 +40,6 @@ protected:
 
   /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-
-  /// Endjob
-  void endJob() override;
 
 private:
   void initialize();

@@ -24,7 +24,7 @@ namespace edm {
                                             "SiteLocalConfigService",
                                             "StatisticsSenderService",
                                             "CondorStatusService",
-                                            "XrdAdaptor::XrdStatisticsService"};
+                                            "XrdStatisticsService"};
 
     return returnValue;
   }

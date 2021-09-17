@@ -21,12 +21,18 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "FWCore/Framework/interface/TriggerTimingReport.h"
+#include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "SystemTimeKeeper.h"
+#include "FWCore/Framework/interface/SystemTimeKeeper.h"
 
 using namespace edm;
+
+namespace {
+  bool lessModuleDescription(const ModuleDescription* iLHS, const ModuleDescription* iRHS) {
+    return iLHS->id() < iRHS->id();
+  }
+}  // namespace
 //
 // constants, enums and typedefs
 //
@@ -48,10 +54,7 @@ SystemTimeKeeper::SystemTimeKeeper(unsigned int iNumStreams,
       m_processContext(iProcessContext),
       m_minModuleID(0),
       m_numberOfEvents(0) {
-  std::sort(
-      m_modules.begin(), m_modules.end(), [](const ModuleDescription* iLHS, const ModuleDescription* iRHS) -> bool {
-        return iLHS->id() < iRHS->id();
-      });
+  std::sort(m_modules.begin(), m_modules.end(), lessModuleDescription);
   if (not m_modules.empty()) {
     m_minModuleID = m_modules.front()->id();
     unsigned int numModuleSlots = m_modules.back()->id() - m_minModuleID + 1;
@@ -103,6 +106,15 @@ SystemTimeKeeper::SystemTimeKeeper(unsigned int iNumStreams,
 //
 // member functions
 //
+void SystemTimeKeeper::removeModuleIfExists(ModuleDescription const& module) {
+  // The deletion of a module is signaled to all (Sub)Processes, even
+  // though the module exists in only one of them.
+  auto found = std::lower_bound(m_modules.begin(), m_modules.end(), &module, lessModuleDescription);
+  if (*found == &module) {
+    m_modules.erase(found);
+  }
+}
+
 SystemTimeKeeper::PathTiming& SystemTimeKeeper::pathTiming(StreamContext const& iStream, PathContext const& iPath) {
   unsigned int offset = 0;
   if (iPath.isEndPath()) {
@@ -190,9 +202,15 @@ void SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream, ModuleCa
   }
 }
 
-void SystemTimeKeeper::startProcessingLoop() { m_processingLoopTimer.start(); }
+void SystemTimeKeeper::startProcessingLoop() {
+  m_processingLoopTimer.start();
+  m_processingLoopChildrenTimer.start();
+}
 
-void SystemTimeKeeper::stopProcessingLoop() { m_processingLoopTimer.stop(); }
+void SystemTimeKeeper::stopProcessingLoop() {
+  m_processingLoopTimer.stop();
+  m_processingLoopChildrenTimer.stop();
+}
 
 static void fillPathSummary(unsigned int iStartIndex,
                             unsigned int iEndIndex,
@@ -236,7 +254,7 @@ void SystemTimeKeeper::fillTriggerTimingReport(TriggerTimingReport& rep) const {
       sumEventTime += stream.realTime();
     }
     rep.eventSummary.realTime = m_processingLoopTimer.realTime();
-    rep.eventSummary.cpuTime = m_processingLoopTimer.cpuTime();
+    rep.eventSummary.cpuTime = m_processingLoopTimer.cpuTime() + m_processingLoopChildrenTimer.cpuTime();
     rep.eventSummary.sumStreamRealTime = sumEventTime;
   }
 

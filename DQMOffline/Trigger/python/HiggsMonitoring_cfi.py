@@ -52,7 +52,7 @@ hltHIGmonitoring.histoPSet.DRPSet = cms.PSet(
    xmax  = cms.double( 6.0 ),
 )
 
-hltHIGmonitoring.applyleptonPVcuts = cms.bool(True)
+hltHIGmonitoring.applyLeptonPVcuts = True
 hltHIGmonitoring.leptonPVcuts = cms.PSet(
   dxy = cms.double(   0.5  ),
   dz  = cms.double(   1.   ),

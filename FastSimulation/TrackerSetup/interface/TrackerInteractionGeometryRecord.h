@@ -21,10 +21,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TrackerInteractionGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<TrackerInteractionGeometryRecord,
-                                                            boost::mpl::vector<TrackerRecoGeometryRecord> > {};
+                                                            edm::mpl::Vector<TrackerRecoGeometryRecord> > {};
 
 #endif

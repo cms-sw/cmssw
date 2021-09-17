@@ -15,6 +15,6 @@ class L1TGlobalPrescalesVetosRcd : public edm::eventsetup::EventSetupRecordImple
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TGlobalPrescalesVetosRcd : public edm::eventsetup::DependentRecordImplementation<L1TGlobalPrescalesVetosRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class L1TGlobalPrescalesVetosRcd : public edm::eventsetup::DependentRecordImplementation<L1TGlobalPrescalesVetosRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

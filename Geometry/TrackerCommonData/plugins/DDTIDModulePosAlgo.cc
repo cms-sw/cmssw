@@ -3,15 +3,85 @@
 // Description: Position various components inside a TID Module
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTIDModulePosAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTIDModulePosAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTIDModulePosAlgo();
+  ~DDTIDModulePosAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+  void execute(DDCompactView& cpv) override;
+
+private:
+  int detectorN;             //Number of detectors
+  double detTilt;            //Tilt of stereo detector
+  double fullHeight;         //Height
+  string boxFrameName;       //Top frame Name
+  double boxFrameHeight;     //          height
+  double boxFrameWidth;      //          width
+  double dlTop;              //Width at top of wafer
+  double dlBottom;           //Width at bottom of wafer
+  double dlHybrid;           //Width at the hybrid end
+  vector<double> boxFrameZ;  //              z-positions
+  double bottomFrameHeight;  //Bottom of the frame
+  double bottomFrameOver;    //              overlap
+  double topFrameHeight;     //Top    of the frame
+  double topFrameOver;       //              overlap
+
+  vector<string> sideFrameName;  //Side Frame    name
+  vector<double> sideFrameZ;     //              z-positions
+  vector<string>
+      sideFrameRot;       //              rotation matrix (required for correct positiong of the hole in the StereoR)
+  double sideFrameWidth;  //              width
+  double sideFrameOver;   //              overlap (wrt wafer)
+
+  vector<string> kaptonName;  //Kapton Circuit    name
+  vector<double> kaptonZ;     //              z-positions
+  vector<string> kaptonRot;  //              rotation matrix (required for correct positiong of the hole in the StereoR)
+  vector<string> waferName;  //Wafer         name
+  vector<double> waferZ;     //              z-positions
+  vector<string> waferRot;   //              rotation matrix
+  string hybridName;         //Hybrid        name
+  double hybridHeight;       //              height
+  vector<double> hybridZ;    //              z-positions
+  vector<string> pitchName;  //Pitch adapter rotation matrix
+  double pitchHeight;        //              height
+  vector<double> pitchZ;     //              z-positions
+  vector<string> pitchRot;   //              rotation matrix
+  string coolName;           //Cool Insert   name
+  double coolHeight;         //              height
+  double coolZ;              //              z-position
+  double coolWidth;          //              width
+  vector<double> coolRadShift;  //
+
+  bool doSpacers;           //Spacers (alumina) to be made (Should be "Yes" for DS modules only)
+  string botSpacersName;    // Spacers at the "bottom" of the module
+  double botSpacersHeight;  //
+  double botSpacersZ;       //              z-position
+  string sidSpacersName;    //Spacers at the "sides" of the module
+  double sidSpacersHeight;
+  double sidSpacersZ;         //              z-position
+  double sidSpacersWidth;     //              width
+  double sidSpacersRadShift;  //
+};
 
 DDTIDModulePosAlgo::DDTIDModulePosAlgo() { LogDebug("TIDGeom") << "DDTIDModulePosAlgo info: Creating an instance"; }
 
@@ -95,7 +165,7 @@ void DDTIDModulePosAlgo::initialize(const DDNumericArguments& nArgs,
   coolWidth = nArgs["CoolInsertWidth"];
   coolRadShift = vArgs["CoolInsertShift"];
 
-  std::string comp = sArgs["DoSpacers"];
+  string comp = sArgs["DoSpacers"];
   if (comp == "No" || comp == "NO" || comp == "no")
     doSpacers = false;
   else
@@ -243,7 +313,7 @@ void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
       thetax = 90. * CLHEP::deg + thetaz;
       double thetadeg = thetax / CLHEP::deg;
       if (thetadeg != 0) {
-        std::string arotstr = DDSplit(sidSpacersName).first + std::to_string(thetadeg * 10.);
+        string arotstr = DDSplit(sidSpacersName).first + to_string(thetadeg * 10.);
         rot = DDrot(DDName(arotstr, DDSplit(sidSpacersName).second), thetax, phix, thetay, phiy, thetaz, phiz);
       }
 
@@ -269,8 +339,8 @@ void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
     }
     zpos = zWafer - zCenter;
     DDTranslation tran(xpos, ypos, zpos);
-    std::string rotstr = DDSplit(waferRot[k]).first;
-    std::string rotns;
+    string rotstr = DDSplit(waferRot[k]).first;
+    string rotns;
     if (rotstr != "NULL") {
       rotns = DDSplit(waferRot[k]).second;
       rot = DDRotation(DDName(rotstr, rotns));
@@ -392,3 +462,5 @@ void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TIDGeom") << "<<== End of DDTIDModulePosAlgo positioning ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTIDModulePosAlgo, "track:DDTIDModulePosAlgo");

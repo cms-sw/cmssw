@@ -27,10 +27,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/MessageService/src/ELdestination.h"
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {
@@ -47,9 +48,9 @@ namespace edm {
           newline("\n"),
           indent("      "),
           lineLength(defaultLineLength),
+          respondToMostModules(false),
           ignoreMostModules(false),
           respondToThese(),
-          respondToMostModules(false),
           ignoreThese() {
 #ifdef ELdestinationCONSTRUCTOR_TRACE
       std::cerr << "Constructor for ELdestination\n";
@@ -79,9 +80,9 @@ namespace edm {
     // generate data to a destination, stream or stream will warn at that place,
     // and all the no-op methods will issue an ELwarning2 at their own destination.
 
-    static const ELstring hereMsg = "available via this destination";
-    static const ELstring noosMsg = "No ostream";
-    static const ELstring notELoutputMsg = "This destination is not an ELoutput";
+    static const std::string hereMsg = "available via this destination";
+    static const std::string noosMsg = "No ostream";
+    static const std::string notELoutputMsg = "This destination is not an ELoutput";
 
     // ----------------------------------------------------------------------
     // Behavior control methods invoked by the framework
@@ -91,15 +92,15 @@ namespace edm {
 
     void ELdestination::setTraceThreshold(const ELseverityLevel& sv) { traceThreshold = sv; }
 
-    void ELdestination::setLimit(const ELstring& s, int n) { limits.setLimit(s, n); }
+    void ELdestination::setLimit(const std::string& s, int n) { limits.setLimit(s, n); }
 
     void ELdestination::setInterval(const ELseverityLevel& sv, int interval) { limits.setInterval(sv, interval); }
 
-    void ELdestination::setInterval(const ELstring& s, int interval) { limits.setInterval(s, interval); }
+    void ELdestination::setInterval(const std::string& s, int interval) { limits.setInterval(s, interval); }
 
     void ELdestination::setLimit(const ELseverityLevel& sv, int n) { limits.setLimit(sv, n); }
 
-    void ELdestination::setTimespan(const ELstring& s, int n) { limits.setTimespan(s, n); }
+    void ELdestination::setTimespan(const std::string& s, int n) { limits.setTimespan(s, n); }
 
     void ELdestination::setTimespan(const ELseverityLevel& sv, int n) { limits.setTimespan(sv, n); }
 
@@ -107,7 +108,7 @@ namespace edm {
 
     void ELdestination::zero() { limits.zero(); }
 
-    void ELdestination::respondToModule(ELstring const& moduleName) {
+    void ELdestination::respondToModule(std::string const& moduleName) {
       if (moduleName == "*") {
         ignoreMostModules = false;
         respondToMostModules = true;
@@ -119,7 +120,7 @@ namespace edm {
       }
     }
 
-    void ELdestination::ignoreModule(ELstring const& moduleName) {
+    void ELdestination::ignoreModule(std::string const& moduleName) {
       if (moduleName == "*") {
         respondToMostModules = false;
         ignoreMostModules = true;
@@ -131,12 +132,12 @@ namespace edm {
       }
     }
 
-    void ELdestination::filterModule(ELstring const& moduleName) {
+    void ELdestination::filterModule(std::string const& moduleName) {
       ignoreModule("*");
       respondToModule(moduleName);
     }
 
-    void ELdestination::excludeModule(ELstring const& moduleName) {
+    void ELdestination::excludeModule(std::string const& moduleName) {
       respondToModule("*");
       ignoreModule(moduleName);
     }
@@ -151,7 +152,7 @@ namespace edm {
       log(msg);
     }
 
-    void ELdestination::changeFile(const ELstring& filename) {
+    void ELdestination::changeFile(const std::string& filename) {
       edm::ErrorObj msg(ELwarning, noosMsg);
       msg << notELoutputMsg << newline << "file requested is" << filename;
       log(msg);
@@ -194,7 +195,7 @@ namespace edm {
     void ELdestination::separateEpilogue() { ; }
     void ELdestination::attachEpilogue() { ; }
 
-    ELstring ELdestination::getNewline() const { return newline; }
+    std::string ELdestination::getNewline() const { return newline; }
 
     int ELdestination::setLineLength(int len) {
       int temp = lineLength;
@@ -208,7 +209,7 @@ namespace edm {
     // Protected helper methods:
     // ----------------------------------------------------------------------
 
-    bool ELdestination::thisShouldBeIgnored(const ELstring& s) const {
+    bool ELdestination::thisShouldBeIgnored(std::string const& s) const {
       if (respondToMostModules) {
         return (ignoreThese.find(s) != ignoreThese.end());
       } else if (ignoreMostModules) {

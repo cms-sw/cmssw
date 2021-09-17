@@ -9,6 +9,7 @@
 //
 
 #include "TEveGeoNode.h"
+#include "TEveGeoShape.h"
 #include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -27,10 +28,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&) = delete;
   const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<RPCRecHit>::buildViewType;
   void buildViewType(const RPCRecHit& iData,
                      unsigned int iIndex,

@@ -9,12 +9,14 @@ ALCARECOLumiPixelsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone
 )
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
-siPixelDigisForLumi = siPixelDigis.clone()
-siPixelDigisForLumi.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
+siPixelDigisForLumi = siPixelDigis.cpu.clone(
+    InputLabel = "hltFEDSelectorLumiPixels"
+)
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
-siPixelClustersForLumi = siPixelClustersPreSplitting.clone()
-siPixelClustersForLumi.src = cms.InputTag("siPixelDigisForLumi")
+siPixelClustersForLumi = siPixelClustersPreSplitting.cpu.clone(
+    src = "siPixelDigisForLumi"
+)
 
 # Sequence #
 seqALCARECOLumiPixels = cms.Sequence(ALCARECOLumiPixelsHLT + siPixelDigisForLumi + siPixelClustersForLumi)

@@ -25,15 +25,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HGCSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True)
+    )
 )
 
 # Input source
@@ -97,8 +96,12 @@ process.VtxSmeared.MeanY  = 0.0
 process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
-process.HGCalTBAnalyzer.DoDigis = False
-process.HGCalTBAnalyzer.DoRecHits = False
+process.HGCalTBAnalyzer.doDigis = False
+process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.OnlySDs = ['HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector']
+process.g4SimHits.HGCSD.Detectors = 1
+process.g4SimHits.HGCSD.UseDetector = 1
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

@@ -37,17 +37,16 @@ void FillInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
     //check what is already inside the database
-    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ", IOVSequence token " << tagInfo().token
-                         << ": size " << tagInfo().size << ", last object valid since " << tagInfo().lastInterval.first
-                         << " ( "
+    edm::LogInfo(m_name) << "got info for tag " << tagInfo().name << ": size " << tagInfo().size
+                         << ", last object valid since " << tagInfo().lastInterval.since << " ( "
                          << boost::posix_time::to_iso_extended_string(
-                                cond::time::to_boost(tagInfo().lastInterval.first))
+                                cond::time::to_boost(tagInfo().lastInterval.since))
                          << " ); from " << m_name << "::getNewObjects";
     //retrieve the last payload...
     previousFill = this->lastPayload();
     //checking its content
     edm::LogInfo(m_name) << "The last payload in tag " << tagInfo().name << " valid since "
-                         << tagInfo().lastInterval.first << " has token " << tagInfo().lastPayloadToken
+                         << tagInfo().lastInterval.since << " has token " << tagInfo().lastInterval.payloadId
                          << " and values:\n"
                          << *previousFill << "from " << m_name << "::getNewObjects";
     if (m_firstFill <= previousFill->fillNumber()) {
@@ -146,7 +145,8 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   //execute the query
   coral::ICursor &fillDataCursor = fillDataQuery->execute();
   //initialize loop variables
-  unsigned short previousFillNumber = 1, currentFill = m_firstFill;
+  unsigned short previousFillNumber = 1;
+  unsigned short currentFill = m_firstFill;
   cond::Time_t previousFillEndTime = 0ULL, afterPreviousFillEndTime = 0ULL, beforeStableBeamStartTime = 0ULL;
   if (tagInfo().size > 0) {
     previousFillNumber = previousFill->fillNumber();

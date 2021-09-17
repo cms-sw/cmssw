@@ -24,6 +24,12 @@ namespace edm {
       case GlobalContext::Transition::kBeginJob:
         os << "BeginJob";
         break;
+      case GlobalContext::Transition::kBeginProcessBlock:
+        os << "BeginProcessBlock";
+        break;
+      case GlobalContext::Transition::kAccessInputProcessBlock:
+        os << "AccessInputProcessBlock";
+        break;
       case GlobalContext::Transition::kBeginRun:
         os << "BeginRun";
         break;
@@ -36,8 +42,14 @@ namespace edm {
       case GlobalContext::Transition::kEndRun:
         os << "EndRun";
         break;
+      case GlobalContext::Transition::kEndProcessBlock:
+        os << "EndProcessBlock";
+        break;
       case GlobalContext::Transition::kEndJob:
         os << "EndJob";
+        break;
+      case GlobalContext::Transition::kWriteProcessBlock:
+        os << "WriteProcessBlock";
         break;
       case GlobalContext::Transition::kWriteRun:
         os << "WriteRun";
@@ -62,6 +74,12 @@ namespace edm {
       case GlobalContext::Transition::kBeginJob:
         os << "begin Job";
         break;
+      case GlobalContext::Transition::kBeginProcessBlock:
+        os << "begin ProcessBlock";
+        break;
+      case GlobalContext::Transition::kAccessInputProcessBlock:
+        os << "access input ProcessBlock";
+        break;
       case GlobalContext::Transition::kBeginRun:
         os << "global begin Run " << RunID(gc.luminosityBlockID().run());
         break;
@@ -74,8 +92,14 @@ namespace edm {
       case GlobalContext::Transition::kEndRun:
         os << "global end Run " << RunID(gc.luminosityBlockID().run());
         break;
+      case GlobalContext::Transition::kEndProcessBlock:
+        os << "end ProcessBlock";
+        break;
       case GlobalContext::Transition::kEndJob:
         os << "endJob";
+        break;
+      case GlobalContext::Transition::kWriteProcessBlock:
+        os << "write ProcessBlock";
         break;
       case GlobalContext::Transition::kWriteRun:
         os << "write Run " << RunID(gc.luminosityBlockID().run());

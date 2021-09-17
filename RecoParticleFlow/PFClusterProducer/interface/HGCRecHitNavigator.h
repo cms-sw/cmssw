@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 template <ForwardSubdetector D1,
           typename hgcee,
@@ -34,38 +35,38 @@ public:
     desc.add<edm::ParameterSetDescription>("hgchef", deschef);
 
     edm::ParameterSetDescription descheb;
-    deschef.add<std::string>("name", "PFRecHitHGCHENavigator");
-    deschef.add<std::string>("topologySource", "HGCalHEScintillatorSensitive");
+    descheb.add<std::string>("name", "PFRecHitHGCHENavigator");
+    descheb.add<std::string>("topologySource", "HGCalHEScintillatorSensitive");
     desc.add<edm::ParameterSetDescription>("hgcheb", descheb);
 
     descriptions.add("navigator", desc);
   }
 
-  HGCRecHitNavigator(const edm::ParameterSet& iConfig) {
+  HGCRecHitNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     if (iConfig.exists("hgcee")) {
-      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"));
+      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"), cc);
     } else {
       eeNav_ = nullptr;
     }
     if (iConfig.exists("hgchef")) {
-      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"));
+      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"), cc);
     } else {
       hefNav_ = nullptr;
     }
     if (iConfig.exists("hgcheb")) {
-      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"));
+      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"), cc);
     } else {
       hebNav_ = nullptr;
     }
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) override {
+  void init(const edm::EventSetup& iSetup) override {
     if (nullptr != eeNav_)
-      eeNav_->beginEvent(iSetup);
+      eeNav_->init(iSetup);
     if (nullptr != hefNav_)
-      hefNav_->beginEvent(iSetup);
+      hefNav_->init(iSetup);
     if (nullptr != hebNav_)
-      hebNav_->beginEvent(iSetup);
+      hebNav_->init(iSetup);
   }
 
   void associateNeighbours(reco::PFRecHit& hit,

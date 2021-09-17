@@ -175,7 +175,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
       edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
           tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
       TrackRef staTrack = l3seedRef->l2Track();
-      LogDebug("HLTMuonL3PreFilter") << "L2 from: " << iEvent.getProvenance(staTrack.id()).moduleLabel()
+      LogDebug("HLTMuonL3PreFilter") << "L2 from: " << iEvent.getStableProvenance(staTrack.id()).moduleLabel()
                                      << " index: " << staTrack.key();
       L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands, i));
     }

@@ -14,50 +14,46 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
-template<class algo>
+template <class algo>
 class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
- public:
-   explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig) :
-            srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-            select_(iConfig, consumesCollector())
-   {
-        produces<edm::ValueMap<float> >();
-   }
+public:
+  explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig)
+      : srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+        select_(iConfig, consumesCollector()) {
+    produces<edm::ValueMap<float>>();
+  }
 
-   ~ElectronIDExternalProducer() override {}
+  ~ElectronIDExternalProducer() override {}
 
-   void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
- private:
-   edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_ ;
-   algo select_ ;
-
+private:
+  edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_;
+  algo select_;
 };
 
-template<typename algo>
-void ElectronIDExternalProducer<algo>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-     // read input collection
-     edm::Handle<reco::GsfElectronCollection> electrons;
-     iEvent.getByToken(srcToken_, electrons);
+template <typename algo>
+void ElectronIDExternalProducer<algo>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // read input collection
+  edm::Handle<reco::GsfElectronCollection> electrons;
+  iEvent.getByToken(srcToken_, electrons);
 
-     // initialize common selector
-     select_.newEvent(iEvent, iSetup);
+  // initialize common selector
+  select_.newEvent(iEvent, iSetup);
 
-     // prepare room for output
-     std::vector<float> values; values.reserve(electrons->size());
-     for ( reco::GsfElectronCollection::const_iterator eleIt = electrons->begin () ;
-             eleIt != electrons->end () ;
-             ++eleIt ) {
-         values.push_back( float( select_((*eleIt),iEvent,iSetup) ) );
-     }
+  // prepare room for output
+  std::vector<float> values;
+  values.reserve(electrons->size());
+  for (reco::GsfElectronCollection::const_iterator eleIt = electrons->begin(); eleIt != electrons->end(); ++eleIt) {
+    values.push_back(float(select_((*eleIt), iEvent, iSetup)));
+  }
 
-     // fill in the ValueMap
-     auto out = std::make_unique<edm::ValueMap<float>>();
-     edm::ValueMap<float>::Filler filler(*out);
-     filler.insert(electrons, values.begin(), values.end());
-     filler.fill();
-     // and put it into the event
-     iEvent.put(std::move(out));
-
+  // fill in the ValueMap
+  auto out = std::make_unique<edm::ValueMap<float>>();
+  edm::ValueMap<float>::Filler filler(*out);
+  filler.insert(electrons, values.begin(), values.end());
+  filler.fill();
+  // and put it into the event
+  iEvent.put(std::move(out));
 }
 #endif

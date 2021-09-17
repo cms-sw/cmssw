@@ -6,7 +6,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -73,7 +73,7 @@ namespace {
 
 }  // namespace
 
-MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet& conf,
+MeasurementTrackerImpl::MeasurementTrackerImpl(const BadStripCutsDet& badStripCuts,
                                                const PixelClusterParameterEstimator* pixelCPE,
                                                const StripClusterParameterEstimator* stripCPE,
                                                const SiStripRecHitMatcher* hitMatcher,
@@ -89,13 +89,11 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet& conf,
                                                int pixelQualityDebugFlags,
                                                const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE)
     : MeasurementTracker(trackerGeom, geometricSearchTracker),
-      pset_(conf),
-      name_(conf.getParameter<std::string>("ComponentName")),
       theStDetConditions(hitMatcher, stripCPE),
       thePxDetConditions(pixelCPE),
       thePhase2DetConditions(phase2OTCPE) {
   this->initialize(trackerTopology);
-  this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
+  this->initializeStripStatus(badStripCuts, stripQuality, stripQualityFlags, stripQualityDebugFlags);
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
 }
 
@@ -313,20 +311,15 @@ void MeasurementTrackerImpl::initStackDet(TkStackMeasurementDet& det) {
   theDetMap[gd.geographicalId()] = &det;
 }
 
-void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality* quality,
+void MeasurementTrackerImpl::initializeStripStatus(const BadStripCutsDet& badStripCuts,
+                                                   const SiStripQuality* quality,
                                                    int qualityFlags,
                                                    int qualityDebugFlags) {
-  edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
   if (qualityFlags & BadStrips) {
-    typedef StMeasurementConditionSet::BadStripCuts BadStripCuts;
-    theStDetConditions.badStripCuts_[SiStripDetId::TIB - 3] =
-        BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
-    theStDetConditions.badStripCuts_[SiStripDetId::TOB - 3] =
-        BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
-    theStDetConditions.badStripCuts_[SiStripDetId::TID - 3] =
-        BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
-    theStDetConditions.badStripCuts_[SiStripDetId::TEC - 3] =
-        BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
+    theStDetConditions.badStripCuts_[SiStripDetId::TIB - 3] = badStripCuts.tib;
+    theStDetConditions.badStripCuts_[SiStripDetId::TOB - 3] = badStripCuts.tob;
+    theStDetConditions.badStripCuts_[SiStripDetId::TID - 3] = badStripCuts.tid;
+    theStDetConditions.badStripCuts_[SiStripDetId::TEC - 3] = badStripCuts.tec;
   }
   theStDetConditions.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
 

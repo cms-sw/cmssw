@@ -1,6 +1,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToModule.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -99,58 +100,66 @@ void testWafer(int layer, double rin, double rout) {
 }
 
 void testScint(int layer) {
-  int type = (layer <= 12) ? 0 : 1;
-  int phimax = (type == 0) ? 360 : 240;
-  for (int ieta = 1; ieta < 128; ++ieta) {
+  int type = ((layer <= 8) ? 0 : ((layer <= 17) ? 1 : 2));
+  int phimax = (type == 0) ? 360 : 288;
+  int irmin = ((layer <= 12) ? 10 : ((layer <= 14) ? 14 : ((layer <= 18) ? 7 : 1)));
+  int irmax = ((layer <= 12) ? 33 : ((layer <= 14) ? 37 : 42));
+  int sipm = (layer <= 17) ? 0 : 1;
+  for (int ring = irmin; ring <= irmax; ++ring) {
     for (int phi = 1; phi <= phimax; ++phi) {
       for (int zp = 0; zp < 2; ++zp) {
-        int eta = (2 * zp - 1) * ieta;
-        HGCScintillatorDetId id(type, layer, eta, phi, false);
-        std::cout << "Input " << type << ":" << layer << ":" << eta << ":" << phi << " ID " << id;
-        if ((id.ieta() != eta) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type))
+        int radius = (2 * zp - 1) * ring;
+        HGCScintillatorDetId id(type, layer, radius, phi, false, sipm);
+        std::cout << "Input " << type << ":" << layer << ":" << radius << ":" << phi << ":" << sipm << " ID "
+                  << std::hex << id << std::dec;
+        if ((id.iradius() != radius) || (id.iphi() != phi) || (id.layer() != layer) || (id.type() != type) ||
+            (id.sipm() != sipm))
           std::cout << " ***** ERROR *****" << std::endl;
         else
           std::cout << std::endl;
       }
-      phi += 4;
+      phi += 9;
     }
-    ieta += 3;
+    ring += 3;
   }
 }
 
 void testTriggerCell(int type) {
   int N = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
-  const int waferu(0), waferv(0), layer(1), zside(1);
+  const int waferu(0), waferv(0), layer(1);
   std::string error[2] = {"ERROR", "OK"};
   int ntot(0), nerror(0);
-  for (int u = 0; u < 2 * N; ++u) {
-    for (int v = 0; v < 2 * N; ++v) {
-      if (((v - u) < N) && (u - v) <= N) {
-        HGCSiliconDetId id(DetId::HGCalEE, zside, type, layer, waferu, waferv, u, v);
-        std::cout << "ID " << std::hex << id.rawId() << std::dec << " " << id << " Trigger: " << id.triggerCellU()
-                  << ":" << id.triggerCellV() << std::endl;
-        HGCalTriggerDetId idt((int)(HGCalEETrigger),
-                              id.zside(),
-                              id.type(),
-                              id.layer(),
-                              id.waferU(),
-                              id.waferV(),
-                              id.triggerCellU(),
-                              id.triggerCellV());
-        int ok(0);
-        std::vector<std::pair<int, int> > uvs = idt.cellUV();
-        for (auto const& uv : uvs) {
-          HGCSiliconDetId idn(
-              DetId::HGCalEE, idt.zside(), idt.type(), idt.layer(), idt.waferU(), idt.waferV(), uv.first, uv.second);
-          if (idn == id) {
-            ok = 1;
-            break;
+  for (int iz = 0; iz < 2; ++iz) {
+    int zside = 2 * iz - 1;
+    for (int u = 0; u < 2 * N; ++u) {
+      for (int v = 0; v < 2 * N; ++v) {
+        if (((v - u) < N) && (u - v) <= N) {
+          HGCSiliconDetId id(DetId::HGCalEE, zside, type, layer, waferu, waferv, u, v);
+          std::cout << "ID " << std::hex << id.rawId() << std::dec << " " << id << " Trigger: " << id.triggerCellU()
+                    << ":" << id.triggerCellV() << std::endl;
+          HGCalTriggerDetId idt((int)(HGCalEETrigger),
+                                id.zside(),
+                                id.type(),
+                                id.layer(),
+                                id.waferU(),
+                                id.waferV(),
+                                id.triggerCellU(),
+                                id.triggerCellV());
+          int ok(0);
+          std::vector<std::pair<int, int> > uvs = idt.cellUV();
+          for (auto const& uv : uvs) {
+            HGCSiliconDetId idn(
+                DetId::HGCalEE, idt.zside(), idt.type(), idt.layer(), idt.waferU(), idt.waferV(), uv.first, uv.second);
+            if (idn == id) {
+              ok = 1;
+              break;
+            }
           }
+          std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
+          ++ntot;
+          if (ok == 0)
+            ++nerror;
         }
-        std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
-        ++ntot;
-        if (ok == 0)
-          ++nerror;
       }
     }
   }
@@ -183,6 +192,22 @@ void testROC() {
   }
 }
 
+void testModule(HGCSiliconDetId const& id) {
+  HGCSiliconDetIdToModule hgc;
+  HGCSiliconDetId module = hgc.getModule(id);
+  std::vector<HGCSiliconDetId> ids = hgc.getDetIds(module);
+  std::string ok = "***** ERROR *****";
+  for (auto const& id0 : ids) {
+    if (id0 == id) {
+      ok = "";
+      break;
+    }
+  }
+  std::cout << "Module ID of " << id << " is " << module << " which has " << ids.size() << " cells " << ok << std::endl;
+  for (unsigned int k = 0; k < ids.size(); ++k)
+    std::cout << "ID[" << k << "] " << ids[k] << std::endl;
+}
+
 int main() {
   testCell(0);
   testCell(1);
@@ -193,6 +218,7 @@ int main() {
   testTriggerCell(0);
   testTriggerCell(1);
   testROC();
-
+  testModule(HGCSiliconDetId(DetId::HGCalEE, 1, 0, 1, 5, 4, 0, 10));
+  testModule(HGCSiliconDetId(DetId::HGCalHSi, -1, 1, 30, -6, -4, 5, 5));
   return 0;
 }

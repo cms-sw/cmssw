@@ -14,11 +14,13 @@ using namespace magfieldparam;
 
 PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(double bVal) : theParam(new BFit()) {
   theParam->SetField(bVal);
+  setNominalValue();
 }
 
 PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(const edm::ParameterSet& parameters)
     : theParam(new BFit()) {
   theParam->SetField(parameters.getParameter<double>("BValue"));
+  setNominalValue();
 }
 
 PolyFit2DParametrizedMagneticField::~PolyFit2DParametrizedMagneticField() { delete theParam; }
@@ -27,8 +29,8 @@ GlobalVector PolyFit2DParametrizedMagneticField::inTesla(const GlobalPoint& gp) 
   if (isDefined(gp)) {
     return inTeslaUnchecked(gp);
   } else {
-    edm::LogWarning("MagneticField|FieldOutsideValidity")
-        << " Point " << gp << " is outside the validity region of PolyFit2DParametrizedMagneticField";
+    edm::LogWarning("MagneticField") << " Point " << gp
+                                     << " is outside the validity region of PolyFit2DParametrizedMagneticField";
     return GlobalVector();
   }
 }

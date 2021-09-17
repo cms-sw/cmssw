@@ -96,8 +96,9 @@ namespace edm {
       char* str = (char*)&ans[0];
       ans[3] = 0;
 
-      return strncmp(str, amd_str, amd_sz) == 0 ? AMD_CPU
-                                                : strncmp(str, intel_str, intel_sz) == 0 ? INTEL_CPU : UNKNOWN_CPU;
+      return strncmp(str, amd_str, amd_sz) == 0       ? AMD_CPU
+             : strncmp(str, intel_str, intel_sz) == 0 ? INTEL_CPU
+                                                      : UNKNOWN_CPU;
     }
 
     // values determined experimentally for each architecture
@@ -164,7 +165,7 @@ namespace edm {
   }
 
   bool MallocOptionSetter::retrieveFromEnv() {
-    const char* par = getenv("CMSRUN_MALLOC_RESET");
+    const char* par = std::getenv("CMSRUN_MALLOC_RESET");
     if (par == nullptr)
       return false;  // leave quickly here
     std::string spar(par);

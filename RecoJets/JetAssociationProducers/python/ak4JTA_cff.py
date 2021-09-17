@@ -37,4 +37,5 @@ ak4JTATask = cms.Task(ak4JetTracksAssociatorAtVertexPF,
                       ak4JetTracksAssociatorAtCaloFace,ak4JetExtender)
 ak4JTA = cms.Sequence(ak4JTATask)
 
-ak4JTAExplicit = cms.Sequence(ak4JetTracksAssociatorExplicit)
+ak4JTAExplicitTask = cms.Task(ak4JetTracksAssociatorExplicit)
+ak4JTAExplicit = cms.Sequence(ak4JTAExplicitTask)

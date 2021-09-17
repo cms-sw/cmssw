@@ -96,11 +96,13 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
          it++) {
       if (it->pt() > 0) {
         l1upgrade_.muonEt.push_back(it->et());
+        l1upgrade_.muonEtUnconstrained.push_back(it->ptUnconstrained());
         l1upgrade_.muonEta.push_back(it->eta());
         l1upgrade_.muonPhi.push_back(it->phi());
         l1upgrade_.muonEtaAtVtx.push_back(it->etaAtVtx());
         l1upgrade_.muonPhiAtVtx.push_back(it->phiAtVtx());
         l1upgrade_.muonIEt.push_back(it->hwPt());
+        l1upgrade_.muonIEtUnconstrained.push_back(it->hwPtUnconstrained());
         l1upgrade_.muonIEta.push_back(it->hwEta());
         l1upgrade_.muonIPhi.push_back(it->hwPhi());
         l1upgrade_.muonIEtaAtVtx.push_back(it->hwEtaAtVtx());
@@ -110,6 +112,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
         l1upgrade_.muonChg.push_back(it->charge());
         l1upgrade_.muonIso.push_back(it->hwIso());
         l1upgrade_.muonQual.push_back(it->hwQual());
+        l1upgrade_.muonDxy.push_back(it->hwDXY());
         l1upgrade_.muonTfMuonIdx.push_back(it->tfMuonIndex());
         l1upgrade_.muonBx.push_back(ibx);
         l1upgrade_.nMuons++;

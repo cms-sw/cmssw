@@ -11,7 +11,8 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     HEregion = cms.vint32(0,9),
     HOregion = cms.vint32(0,9),
     HFregion = cms.vint32(0,4),
-    useConfigZSvalues = cms.int32(1)
+    useConfigZSvalues = cms.int32(1),
+    use1ts = cms.bool(False)
 )
 
 

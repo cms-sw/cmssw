@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -15,10 +17,10 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include <memory>
 
@@ -44,6 +46,7 @@ private:
 
 XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer(const edm::ParameterSet& iConfig)
     : rootDDName_(iConfig.getParameter<std::string>("rootDDName")), label_(iConfig.getParameter<std::string>("label")) {
+  usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
   setWhatProduced(this);
 }
 

@@ -11,6 +11,10 @@ namespace track_associator {
   /// basic method where chi2 is computed
   double trackAssociationChi2(const reco::TrackBase::ParameterVector &rParameters,
                               const reco::TrackBase::CovarianceMatrix &recoTrackCovMatrix,
+                              const reco::TrackBase::ParameterVector &sParameters);
+
+  double trackAssociationChi2(const reco::TrackBase::ParameterVector &rParameters,
+                              const reco::TrackBase::CovarianceMatrix &recoTrackCovMatrix,
                               const Basic3DVector<double> &momAtVtx,
                               const Basic3DVector<double> &vert,
                               int charge,

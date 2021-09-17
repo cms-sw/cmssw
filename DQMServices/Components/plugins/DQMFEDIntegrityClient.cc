@@ -159,8 +159,6 @@ void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock& lumiB
 void DQMFEDIntegrityClient::fillHistograms() {
   // FED Entries
 
-  // dbe_->showDirStructure();
-
   std::vector<std::string> entries;
   entries.push_back("CSC/" + fedFolderName + "/FEDEntries");
   entries.push_back("DT/" + fedFolderName + "/FEDEntries");
@@ -182,12 +180,9 @@ void DQMFEDIntegrityClient::fillHistograms() {
     MonitorElement* me = dbe_->get(*ent);
 
     if (TH1F* rootHisto = me->getTH1F()) {
-      int xmin = 0;
       int Nbins = me->getNbinsX();
-
       float entry = 0.;
-
-      xmin = (int)rootHisto->GetXaxis()->GetXmin();
+      int xmin = (int)rootHisto->GetXaxis()->GetXmin();
       if (*ent == "L1T/" + fedFolderName + "/FEDEntries")
         xmin = xmin + 800;
 
@@ -235,25 +230,19 @@ void DQMFEDIntegrityClient::fillHistograms() {
     MonitorElement* meNorm = dbe_->get(*ent);
     //      cout << "Path : " << me->getFullname() << endl;
 
-    int Nbins = me->getNbinsX();
-
     float entry = 0.;
     float norm = 0.;
 
     if (TH1F* rootHisto = me->getTH1F()) {
       if (TH1F* rootHistoNorm = meNorm->getTH1F()) {
-        int xmin = 0;
-        int xmax = 0;
-
-        xmin = (int)rootHisto->GetXaxis()->GetXmin();
+        int Nbins = me->getNbinsX();
+        int xmin = (int)rootHisto->GetXaxis()->GetXmin();
         if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
           xmin = xmin + 800;
-
-        xmax = (int)rootHisto->GetXaxis()->GetXmax();
-        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
-          xmax = xmax + 800;
-
-        //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
+        //        int xmax = (int)rootHisto->GetXaxis()->GetXmax();
+        //        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
+        //          xmax = xmax + 800;
+        //        cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
         float binentry = 0.;
         for (int bin = 1; bin <= Nbins; ++bin) {
@@ -309,12 +298,9 @@ void DQMFEDIntegrityClient::fillHistograms() {
     MonitorElement* me = dbe_->get(*non);
 
     if (TH1F* rootHisto = me->getTH1F()) {
-      int xmin = 0;
       int Nbins = me->getNbinsX();
-
       float entry = 0.;
-
-      xmin = (int)rootHisto->GetXaxis()->GetXmin();
+      int xmin = (int)rootHisto->GetXaxis()->GetXmin();
       if (*non == "L1T/" + fedFolderName + "/FEDNonFatal")
         xmin = xmin + 800;
 

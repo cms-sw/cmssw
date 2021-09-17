@@ -57,7 +57,7 @@ void FWLiteEnabler::enable() {
 
   //Make it easy to load our headers
   TInterpreter* intrp = gROOT->GetInterpreter();
-  char const* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
+  char const* env = std::getenv("CMSSW_FWLITE_INCLUDE_PATH");
   if (nullptr != env) {
     //this is a comma separated list
     char const* start = env;
@@ -73,7 +73,7 @@ void FWLiteEnabler::enable() {
   }
 
   bool foundCMSIncludes = false;
-  env = getenv("CMSSW_BASE");
+  env = std::getenv("CMSSW_BASE");
   if (nullptr != env) {
     foundCMSIncludes = true;
     std::string dir(env);
@@ -81,7 +81,7 @@ void FWLiteEnabler::enable() {
     intrp->AddIncludePath(dir.c_str());
   }
 
-  env = getenv("CMSSW_RELEASE_BASE");
+  env = std::getenv("CMSSW_RELEASE_BASE");
   if (nullptr != env) {
     foundCMSIncludes = true;
     std::string dir(env);

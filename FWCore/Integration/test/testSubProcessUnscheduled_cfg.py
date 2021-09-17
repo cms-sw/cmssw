@@ -17,15 +17,16 @@ process.two = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(2), itera
 
 # producer
 process.four = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(4), iterations=cms.uint32(10*1000))
+process.fourConsumer = cms.EDAnalyzer("MultipleIntsAnalyzer", getFromModules=cms.untracked.VInputTag("four"))
 
 # producer
 process.ten = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(10), iterations=cms.uint32(2*1000))
 
-process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two','ten'))
+process.adder = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag('two','ten'))
 
 process.task = cms.Task(process.two, process.four, process.ten, process.adder)
 
-process.path = cms.Path(process.task)
+process.path = cms.Path(process.fourConsumer, process.task)
 
 subprocess = cms.Process("SUB")
 process.addSubProcess( cms.SubProcess(
@@ -36,7 +37,7 @@ process.addSubProcess( cms.SubProcess(
 
 subprocess.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # module, reads products from 'adder' in the parent process
-subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.vstring('adder'))
+subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag('adder'))
 
 subprocess.subpath = cms.Path( subprocess.final )
 

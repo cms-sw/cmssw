@@ -1,5 +1,5 @@
 #include "FWCore/PythonParameterSet/interface/Python11ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 Python11ParameterSet::Python11ParameterSet() : theParameterSet() {}
 

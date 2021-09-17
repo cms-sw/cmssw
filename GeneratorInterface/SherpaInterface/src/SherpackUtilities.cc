@@ -103,7 +103,8 @@ namespace spu {
         assert(ret != Z_STREAM_ERROR); /* state not clobbered */
         switch (ret) {
           case Z_NEED_DICT:
-            ret = Z_DATA_ERROR; /* and fall through */
+            ret = Z_DATA_ERROR;
+            [[fallthrough]];
           case Z_DATA_ERROR:
           case Z_MEM_ERROR:
             (void)inflateEnd(&strm);
@@ -153,7 +154,7 @@ namespace spu {
     /////////////////////////////////////////////
     /////////////// BUG FIX FOR MPI /////////////
     /////////////////////////////////////////////
-    const char *tmpdir = getenv("TMPDIR");
+    const char *tmpdir = std::getenv("TMPDIR");
     if (tmpdir && (strlen(tmpdir) > 50)) {
       setenv("TMPDIR", "/tmp", true);
     }

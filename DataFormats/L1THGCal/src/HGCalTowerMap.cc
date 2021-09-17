@@ -18,7 +18,7 @@ const HGCalTowerMap& HGCalTowerMap::operator+=(const HGCalTowerMap& map) {
         << endl;
   }
 
-  for (auto tower : map.towers()) {
+  for (const auto& tower : map.towers()) {
     auto this_tower = towerMap_.find(tower.first);
     if (this_tower == towerMap_.end()) {
       throw edm::Exception(edm::errors::StdException, "StdException")

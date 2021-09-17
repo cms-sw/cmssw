@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 

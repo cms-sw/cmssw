@@ -1,10 +1,10 @@
 #ifndef DQM_SiStripMonitorHardware_SiStripFEDSpyBuffer_H
 #define DQM_SiStripMonitorHardware_SiStripFEDSpyBuffer_H
 
-#include "boost/cstdint.hpp"
 #include <string>
 #include <ostream>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include <cstdint>
 
 namespace sistrip {
 
@@ -32,8 +32,16 @@ namespace sistrip {
   //class representing spy channel buffers
   class FEDSpyBuffer : public FEDBufferBase {
   public:
+    /**
+     * constructor from a FEDRawData buffer
+     *
+     * The sistrip::preconstructCheckFEDSpyBuffer() method should be used
+     * to check the validity of fedBuffer before constructing a sistrip::FEDBuffer.
+     *
+     * @see sistrip::preconstructCheckFEDSpyBuffer()
+     */
     //construct from buffer
-    FEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize);
+    explicit FEDSpyBuffer(const FEDRawData& fedBuffer);
     ~FEDSpyBuffer() override;
     void print(std::ostream& os) const override;
 
@@ -84,6 +92,28 @@ namespace sistrip {
   //
   // Inline function definitions
   //
+
+  /**
+   * Check if a FEDRawData object satisfies the requirements for constructing a sistrip::FEDSpyBuffer
+   *
+   * These are:
+   *   - those from sistrip::preconstructCheckFEDBufferBase() (with checkRecognizedFormat equal to true)
+   *   - the readout mode should be equal to sistrip::READOUT_MODE_SPY
+   *
+   * In case any check fails, a value different from sistrip::FEDBufferStatusCode::SUCCESS
+   * is returned, and detailed information printed to LogDebug("FEDBuffer"), if relevant.
+   *
+   * @see sistrip::preconstructCheckFEDBufferBase()
+   */
+  inline FEDBufferStatusCode preconstructCheckFEDSpyBuffer(const FEDRawData& fedBuffer) {
+    const auto st_base = preconstructCheckFEDBufferBase(fedBuffer, true);
+    if (FEDBufferStatusCode::SUCCESS != st_base)
+      return st_base;
+    const TrackerSpecialHeader hdr{fedBuffer.data() + 8};
+    if (READOUT_MODE_SPY != hdr.readoutMode())
+      return FEDBufferStatusCode::EXPECT_SPY;
+    return FEDBufferStatusCode::SUCCESS;
+  }
 
   //FEDSpyChannelUnpacker
 

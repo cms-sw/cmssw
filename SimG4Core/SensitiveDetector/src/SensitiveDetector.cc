@@ -15,11 +15,7 @@
 
 #include <sstream>
 
-SensitiveDetector::SensitiveDetector(const std::string& iname,
-                                     const DDCompactView& cpv,
-                                     const SensitiveDetectorCatalog& clg,
-                                     edm::ParameterSet const& p,
-                                     bool calo)
+SensitiveDetector::SensitiveDetector(const std::string& iname, const SensitiveDetectorCatalog& clg, bool calo)
     : G4VSensitiveDetector(iname), m_isCalo(calo) {
   // for CMS hits
   m_namesOfSD.push_back(iname);
@@ -31,10 +27,10 @@ SensitiveDetector::SensitiveDetector(const std::string& iname,
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->AddNewDetector(this);
 
-  const std::vector<std::string>& lvNames = clg.logicalNames(iname);
+  const std::vector<std::string_view>& lvNames = clg.logicalNames(iname);
   std::stringstream ss;
   for (auto& lvname : lvNames) {
-    this->AssignSD(lvname);
+    this->AssignSD({lvname.data(), lvname.size()});
     ss << " " << lvname;
   }
   edm::LogVerbatim("SensitiveDetector") << " <" << iname << "> : Assigns SD to LVs " << ss.str();

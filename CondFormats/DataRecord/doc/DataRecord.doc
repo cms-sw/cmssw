@@ -274,12 +274,11 @@
 - SiPixelPerformanceSummaryRcd
 - SiPixelQualityFromDbRcd
 - SiPixelQualityRcd
-- SiPixelTemplateDBObject0TRcd
-- SiPixelTemplateDBObject38TRcd
-- SiPixelTemplateDBObject4TRcd
 - SiPixelTemplateDBObjectRcd
 - SiPixel2DTemplateDBObjectRcd
 - SiPixelGenErrorDBObjectRcd
+- SiPixelVCalRcd
+- SiPixelVCalSimRcd
 - SiStripApvGainRcd
 - SiStripBadChannelRcd
 - SiStripBadFiberRcd

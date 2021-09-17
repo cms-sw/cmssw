@@ -32,6 +32,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <iostream>
 #include <algorithm>
@@ -46,6 +47,37 @@ namespace {
 
 using namespace PixelRecoUtilities;
 using namespace std;
+
+void RectangularEtaPhiTrackingRegion::checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const {
+  const math::XYZPoint regOrigin(origin().x(), origin().y(), origin().z());
+  auto phi0 = phiDirection() + 0.5 * (phiMargin().right() - phiMargin().left());
+  auto dphi = 0.5 * (phiMargin().right() + phiMargin().left());
+
+  assert(mask.size() == tracks.size());
+  int i = -1;
+  for (auto const& track : tracks) {
+    i++;
+    if (mask[i])
+      continue;
+
+    if (track.pt() < ptMin()) {
+      continue;
+    }
+    if (!etaRange().inside(track.eta())) {
+      continue;
+    }
+    if (std::abs(proxim(track.phi(), phi0) - phi0) > dphi) {
+      continue;
+    }
+    if (std::abs(track.dxy(regOrigin)) > originRBound()) {
+      continue;
+    }
+    if (std::abs(track.dz(regOrigin)) > originZBound()) {
+      continue;
+    }
+    mask[i] = true;
+  }
+}
 
 RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(
     const std::string& name) {
@@ -68,10 +100,10 @@ void RectangularEtaPhiTrackingRegion::initEtaRange(const GlobalVector& dir, cons
   theMeanLambda = std::sinh(theEtaRange.mean());
 }
 
-HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
-                                                                const Hit& outerHit,
-                                                                const edm::EventSetup& iSetup,
-                                                                const DetLayer* outerlayer) const {
+std::unique_ptr<HitRZCompatibility> RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* layer,
+                                                                                const Hit& outerHit,
+                                                                                const edm::EventSetup& iSetup,
+                                                                                const DetLayer* outerlayer) const {
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
   GlobalPoint ohit = outerHit->globalPosition();
   float outerred_r = std::sqrt(sqr(ohit.x() - origin().x()) + sqr(ohit.y() - origin().y()));
@@ -87,7 +119,7 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
                                              : (outer.z() - zMinOrigin) / (outer.r() + originRBound());
     float cotRight = std::max(vcotMin, theLambdaRange.min());
     float cotLeft = std::min(vcotMax, theLambdaRange.max());
-    return new HitEtaCheck(isBarrel, outer, cotLeft, cotRight);
+    return std::make_unique<HitEtaCheck>(isBarrel, outer, cotLeft, cotRight);
   }
 
   float outerZscatt = 0;
@@ -129,11 +161,11 @@ HitRZCompatibility* RectangularEtaPhiTrackingRegion::checkRZOld(const DetLayer* 
   if (isBarrel) {
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
     auto corr = innerScatt * sinThetaInv;
-    return new HitZCheck(rzConstraint, HitZCheck::Margin(corr, corr));
+    return std::make_unique<HitZCheck>(rzConstraint, HitZCheck::Margin(corr, corr));
   } else {
     auto cosThetaInv = std::sqrt(1.f + sqr(1.f / cotTheta));
     auto corr = innerScatt * cosThetaInv;
-    return new HitRCheck(rzConstraint, HitRCheck::Margin(corr, corr));
+    return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
   }
 }
 
@@ -158,7 +190,10 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+  OuterHitPhiPrediction phiPrediction = phiWindow(field);
 
   //
   // optional corrections for tolerance (mult.scatt, error, bending)
@@ -170,7 +205,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     auto sinThetaInv = std::sqrt(1.f + sqr(cotTheta));
     MultipleScatteringParametrisation msSigma(layer, iSetup);
     auto scatt = 3.f * msSigma(ptMin(), cotTheta);
-    auto bendR = longitudinalBendingCorrection(radius, ptMin(), iSetup);
+    auto bendR = longitudinalBendingCorrection(radius, ptMin(), field);
 
     float hitErrRPhi = 0.;
     float hitErrZ = 0.;
@@ -214,7 +249,10 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     return nullptr;
 
   // phi prediction
-  OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  const auto& field = *hfield;
+  OuterHitPhiPrediction phiPrediction = phiWindow(field);
   OuterHitPhiPrediction::Range phiRange = phiPrediction(detRWindow.max());
 
   //
@@ -225,7 +263,7 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
     float cosThetaInv = std::sqrt(1 + sqr(cotTheta)) / cotTheta;
     MultipleScatteringParametrisation msSigma(layer, iSetup);
     float scatt = 3.f * msSigma(ptMin(), cotTheta);
-    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), iSetup);
+    float bendR = longitudinalBendingCorrection(hitRWindow.max(), ptMin(), field);
     float hitErrRPhi = 0.;
     float hitErrR = 0.;
     float corrPhi = (scatt + hitErrRPhi) / detRWindow.min();
@@ -253,11 +291,11 @@ std::unique_ptr<MeasurementEstimator> RectangularEtaPhiTrackingRegion::estimator
                                                 iSetup);
 }
 
-OuterHitPhiPrediction RectangularEtaPhiTrackingRegion::phiWindow(const edm::EventSetup& iSetup) const {
+OuterHitPhiPrediction RectangularEtaPhiTrackingRegion::phiWindow(const MagneticField& field) const {
   auto phi0 = phiDirection();
   return OuterHitPhiPrediction(
       OuterHitPhiPrediction::Range(phi0 - thePhiMargin.left(), phi0 + thePhiMargin.right()),
-      OuterHitPhiPrediction::Range(curvature(invPtRange().min(), iSetup), curvature(invPtRange().max(), iSetup)),
+      OuterHitPhiPrediction::Range(curvature(invPtRange().min(), field), curvature(invPtRange().max(), field)),
       originRBound());
 }
 
@@ -342,18 +380,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
 
     LayerMeasurements lm(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
 
-    LayerMeasurements::SimpleHitContainer hits;
-    lm.recHits(hits, *detLayer, tsos, prop, *findDetAndHits);
-    /*
-    {  // old code
-      vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
-      auto n=0UL;
-      for (auto const & im : meas) 
-	if(im.recHit()->isValid()) ++n;
-      assert(n==hits.size());
-      // std::cout << "old/new " << n <<'/'<<hits.size() << std::endl;      
-    }
-    */
+    auto hits = lm.recHits(*detLayer, tsos, prop, *findDetAndHits);
 
     result.reserve(hits.size());
     for (auto h : hits) {
@@ -380,7 +407,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
 
     } else {
@@ -394,7 +421,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(const edm::EventSetup
       result.reserve(layerHits.size());
       for (auto&& ih : layerHits) {
         if (hitComp(*ih))
-          result.emplace_back(std::move(ih));
+          result.emplace_back(ih);
       }
     }
   }

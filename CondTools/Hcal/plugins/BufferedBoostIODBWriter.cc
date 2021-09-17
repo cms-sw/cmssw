@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -24,11 +25,11 @@ public:
   explicit BufferedBoostIODBWriter(const edm::ParameterSet&);
   ~BufferedBoostIODBWriter() override {}
 
-private:
   BufferedBoostIODBWriter() = delete;
   BufferedBoostIODBWriter(const BufferedBoostIODBWriter&) = delete;
   BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&) = delete;
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string inputFile;
@@ -51,7 +52,7 @@ void BufferedBoostIODBWriter::analyze(const edm::Event& iEvent, const edm::Event
       throw cms::Exception("SystemError") << "Failed to stat file \"" << inputFile << '"' << std::endl;
 
     const std::size_t len = st.st_size;
-    fcp = std::unique_ptr<OOTPileupCorrectionBuffer>(new OOTPileupCorrectionBuffer(len));
+    fcp = std::make_unique<OOTPileupCorrectionBuffer>(len);
     assert(fcp->length() == len);
     if (len)
       input.read(fcp->getBuffer(), len);

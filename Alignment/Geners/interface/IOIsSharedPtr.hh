@@ -1,7 +1,7 @@
 #ifndef GENERS_IOISSHAREDPTR_HH_
 #define GENERS_IOISSHAREDPTR_HH_
 
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
+#include <memory>
 
 namespace gs {
   template <class T>
@@ -10,22 +10,22 @@ namespace gs {
   };
 
   template <class T>
-  struct IOIsSharedPtr<CPP11_shared_ptr<T>> {
+  struct IOIsSharedPtr<std::shared_ptr<T>> {
     enum { value = 1 };
   };
 
   template <class T>
-  struct IOIsSharedPtr<const CPP11_shared_ptr<T>> {
+  struct IOIsSharedPtr<const std::shared_ptr<T>> {
     enum { value = 1 };
   };
 
   template <class T>
-  struct IOIsSharedPtr<volatile CPP11_shared_ptr<T>> {
+  struct IOIsSharedPtr<volatile std::shared_ptr<T>> {
     enum { value = 1 };
   };
 
   template <class T>
-  struct IOIsSharedPtr<const volatile CPP11_shared_ptr<T>> {
+  struct IOIsSharedPtr<const volatile std::shared_ptr<T>> {
     enum { value = 1 };
   };
 }  // namespace gs

@@ -220,7 +220,7 @@ namespace edm {
   void ParameterSetDescription::writeNode(
       SetDescriptionEntry const& entry, std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) {
     if (entry.writeToCfi()) {
-      entry.node()->writeCfi(os, startWithComma, indentation, wroteSomething);
+      entry.node()->writeCfi(os, entry.optional(), startWithComma, indentation, wroteSomething);
     }
   }
 

@@ -32,6 +32,7 @@ namespace edm {
   class RunIndex {
   public:
     ~RunIndex() = default;
+    RunIndex() = delete;
     RunIndex(const RunIndex&) = default;
     RunIndex& operator=(const RunIndex&) = default;
 
@@ -49,8 +50,6 @@ namespace edm {
     ///Only the RunPrincipal is allowed to make one of these
     friend class RunPrincipal;
     explicit RunIndex(unsigned int iIndex) : value_(iIndex) {}
-
-    RunIndex() = delete;
 
     // ---------- member data --------------------------------
     unsigned int value_;

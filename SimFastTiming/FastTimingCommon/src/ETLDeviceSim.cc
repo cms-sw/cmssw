@@ -1,28 +1,32 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimFastTiming/FastTimingCommon/interface/ETLDeviceSim.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset)
-    : geom_(nullptr),
+ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : geomToken_(iC.esConsumes()),
+      geom_(nullptr),
       MIPPerMeV_(1.0 / pset.getParameter<double>("meVPerMIP")),
       bxTime_(pset.getParameter<double>("bxTime")),
       tofDelay_(pset.getParameter<double>("tofDelay")) {}
 
-void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
-  edm::ESHandle<MTDGeometry> geom;
-  evs.get<MTDDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
-}
+void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs.getData(geomToken_); }
 
 void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
                                    const edm::Handle<edm::PSimHitContainer>& hits,
                                    mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
                                    CLHEP::HepRandomEngine* hre) {
+  using namespace geant_units::operators;
+
   //loop over sorted hits
   const int nchits = hitRefs.size();
   for (int i = 0; i < nchits; ++i) {
@@ -40,23 +44,29 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       continue;  // to be ignored at RECO level
 
     ETLDetId etlid(detId);
-    DetId geoId = ETLDetId(etlid.mtdSide(), etlid.mtdRR(), etlid.module(), 0);
+    DetId geoId = ETLDetId(etlid.mtdSide(), etlid.mtdRR(), etlid.module(), etlid.modType());
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
     if (thedet == nullptr) {
       throw cms::Exception("ETLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()
                                            << ") is invalid!" << std::dec << std::endl;
     }
-    const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
     const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
     const PSimHit& hit = hits->at(hitidx);
-    const float charge = 1000.f * hit.energyLoss() * MIPPerMeV_;
+    const float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
     // ETL is already in module-local coordinates so just scale to cm from mm
-    Local3DPoint simscaled(0.1 * pentry.x(), 0.1 * pentry.y(), 0.1 * pentry.z());
-    const auto& thepixel = topo.pixel(simscaled);  // mm -> cm here is the switch
+    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
+    //The following lines check whether the pixel point is actually out of the active area.
+    //If that is the case it simply ignores the point but in the future some more sophisticated function could be applied.
+    if (!topo.isInPixel(simscaled)) {
+      continue;
+    }
+    const auto& thepixel = topo.pixel(simscaled);
     const uint8_t row(thepixel.first), col(thepixel.second);
 
     auto simHitIt =

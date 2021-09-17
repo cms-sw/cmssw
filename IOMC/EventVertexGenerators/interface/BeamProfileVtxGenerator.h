@@ -19,6 +19,10 @@ namespace CLHEP {
 class BeamProfileVtxGenerator : public BaseEvtVtxGenerator {
 public:
   BeamProfileVtxGenerator(const edm::ParameterSet& p);
+  /** Copy constructor */
+  BeamProfileVtxGenerator(const BeamProfileVtxGenerator& p) = delete;
+  /** Copy assignment operator */
+  BeamProfileVtxGenerator& operator=(const BeamProfileVtxGenerator& rhs) = delete;
   ~BeamProfileVtxGenerator() override;
 
   /// return a new event vertex
@@ -47,12 +51,6 @@ public:
   void psi(double m = 999) { fPsi = m; }
   /// set type
   void setType(bool m = true);
-
-private:
-  /** Copy constructor */
-  BeamProfileVtxGenerator(const BeamProfileVtxGenerator& p) = delete;
-  /** Copy assignment operator */
-  BeamProfileVtxGenerator& operator=(const BeamProfileVtxGenerator& rhs) = delete;
 
 private:
   double fSigmaX, fSigmaY;

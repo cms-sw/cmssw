@@ -24,7 +24,7 @@
 //#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
@@ -174,7 +174,6 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   std::vector<bool> firstSeed(2, static_cast<bool>(false));
   std::vector<bool> secondSeed(2, static_cast<bool>(false));
-  std::vector<TrajectorySeed::range> theRecHitRange(2);
 
   for (unsigned ievt = 0; ievt < 2; ++ievt) {
     edm::Handle<reco::TrackCollection> tkRef0;

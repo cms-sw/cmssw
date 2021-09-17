@@ -592,19 +592,27 @@ bool testMultiAssociation::tryBadFill(int i) {
       filler.setValues(Ref<CKey2>(handleK2, 0), coll1);
     }; break;
     case 2: {  // fill again with different id
-      { MultiRef::FastFiller filler = m.fastFiller(handleK1); }
+      {
+        MultiRef::FastFiller filler = m.fastFiller(handleK1);
+      }
       { MultiRef::FastFiller filler = m.fastFiller(handleK2); }
     }; break;
     case 3: {  // fill again with the same id
-      { MultiRef::FastFiller filler = m.fastFiller(handleK1); }
+      {
+        MultiRef::FastFiller filler = m.fastFiller(handleK1);
+      }
       { MultiRef::FastFiller filler = m.fastFiller(handleK1); }
     }; break;
     case 4: {  // Check lazyFiller doesn't fill if not requested
-      { MultiRef::LazyFiller filler = m.lazyFiller(handleK1); }
+      {
+        MultiRef::LazyFiller filler = m.lazyFiller(handleK1);
+      }
       { MultiRef::LazyFiller filler = m.lazyFiller(handleK1); }
     }; break;
     case 5: {  // Check lazyFiller can't fill twice the same key if requested
-      { MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true); }
+      {
+        MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true);
+      }
       { MultiRef::LazyFiller filler = m.lazyFiller(handleK1, true); }
     }; break;
     case 6: {  // Check lazyFiller doesn't fill twice by mistake
@@ -615,7 +623,9 @@ bool testMultiAssociation::tryBadFill(int i) {
       filler.fill();
     }; break;
     case 8: {  // Check lazyFiller doesn't fill if not requested
-      { MultiRef::LazyFiller filler = m.lazyFiller(handleK1, false); }
+      {
+        MultiRef::LazyFiller filler = m.lazyFiller(handleK1, false);
+      }
       CPPUNIT_ASSERT(m.empty());
     } break;
     case 9: {  // Check index out of bounds

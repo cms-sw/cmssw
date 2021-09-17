@@ -13,18 +13,12 @@
 #include "TrackingTools/KalmanUpdators/interface/KFStrip1DUpdator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 class KFSwitching1DUpdator final : public TrajectoryStateUpdator {
 private:
   typedef TrajectoryStateOnSurface TSOS;
 
 public:
-  KFSwitching1DUpdator(const edm::ParameterSet* pset = nullptr) : theDoEndCap(false) {
-    if (pset) {
-      theDoEndCap = pset->getParameter<bool>("doEndCap");
-    }
-  }
+  explicit KFSwitching1DUpdator(bool doEndCap = false) : theDoEndCap(doEndCap) {}
   ~KFSwitching1DUpdator() override {}
 
   /// update with a hit

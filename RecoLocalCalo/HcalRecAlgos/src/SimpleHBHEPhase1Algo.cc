@@ -5,17 +5,19 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-// Maximum fractional error for calculating Method 0
-// pulse containment correction
-constexpr float PulseContainmentFractionalError = 0.002f;
+namespace {
+  // Maximum fractional error for calculating Method 0
+  // pulse containment correction
+  constexpr float PulseContainmentFractionalError = 0.002f;
+}  // namespace
 
 SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            const int samplesToAdd,
@@ -25,8 +27,10 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            const bool applyLegacyHBMCorrection,
                                            std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                                            std::unique_ptr<HcalDeterministicFit> detFit,
-                                           std::unique_ptr<MahiFit> mahi)
-    : pulseCorr_(PulseContainmentFractionalError),
+                                           std::unique_ptr<MahiFit> mahi,
+                                           edm::ConsumesCollector iC)
+    : delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))),
+      pulseCorr_(PulseContainmentFractionalError, false, iC),
       firstSampleShift_(firstSampleShift),
       samplesToAdd_(samplesToAdd),
       phaseNS_(phaseNS),
@@ -41,9 +45,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
 }
 
 void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r, const edm::EventSetup& es) {
-  edm::ESHandle<HcalTimeSlew> delay;
-  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &es.getData(delayToken_);
 
   runnum_ = r.run();
   pulseCorr_.beginRun(es);
@@ -55,8 +57,6 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
                                              const HcalRecoParam* params,
                                              const HcalCalibrations& calibs,
                                              const bool isData) {
-  HBHERecHit rh;
-
   const HcalDetId channelId(info.id());
 
   // Calculate "Method 0" quantities
@@ -71,7 +71,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const float phasens = params ? params->correctionPhaseNS() : phaseNS_;
     m0E = m0Energy(info, fc_ampl, applyContainment, phasens, nSamplesToAdd);
     m0E *= hbminusCorrectionFactor(channelId, m0E, isData);
-    m0t = m0Time(info, fc_ampl, calibs, nSamplesToAdd);
+    m0t = m0Time(info, fc_ampl, nSamplesToAdd);
   }
 
   // Run "Method 2"
@@ -104,12 +104,15 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   const MahiFit* mahi = mahiOOTpuCorr_.get();
 
   if (mahi) {
-    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()), hcalTimeSlew_delay_);
+    mahiOOTpuCorr_->setPulseShapeTemplate(
+        info.recoShape(), theHcalPulseShapes_, info.hasTimeInfo(), hcalTimeSlew_delay_, info.nSamples());
     mahi->phase1Apply(info, m4E, m4T, m4UseTriple, m4chi2);
     m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
   }
 
   // Finally, construct the rechit
+  HBHERecHit rh;
+
   float rhE = m0E;
   float rht = m0t;
   float rhX = -1.f;
@@ -179,7 +182,6 @@ float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
 
 float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
                                    const double fc_ampl,
-                                   const HcalCalibrations& calibs,
                                    const int nSamplesToExamine) const {
   float time = -9999.f;  // historic value
 

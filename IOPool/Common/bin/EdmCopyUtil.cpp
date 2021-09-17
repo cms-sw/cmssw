@@ -1,12 +1,12 @@
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <exception>
+#include <filesystem>
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 #include "TFile.h"
 #include "TError.h"
@@ -14,18 +14,13 @@
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWCore/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 
 static int copy_files(const boost::program_options::variables_map& vm) {
-  std::unique_ptr<edm::SiteLocalConfig> slcptr =
-      std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
-  auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
-  edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-  edm::ServiceRegistry::Operate operate(slcToken);
+  auto operate = edm::setupSiteLocalConfig();
 
   auto in = (vm.count("file") ? vm["file"].as<std::vector<std::string> >() : std::vector<std::string>());
 
@@ -35,23 +30,23 @@ static int copy_files(const boost::program_options::variables_map& vm) {
     return 1;
   }
 
-  boost::filesystem::path destdir(in.back());
+  std::filesystem::path destdir(in.back());
   in.pop_back();
 
-  if (!boost::filesystem::is_directory(destdir)) {
+  if (!std::filesystem::is_directory(destdir)) {
     std::cerr << "Last argument must be destination directory; " << destdir << " is not a directory!" << std::endl;
     return 1;
   }
 
   std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
   edm::InputFileCatalog catalog(in, catalogIn, true);
-  std::vector<std::string> const& filesIn = catalog.fileNames();
+  std::vector<std::string> const& filesIn = catalog.fileNames(0);
 
   for (unsigned int j = 0; j < in.size(); ++j) {
-    boost::filesystem::path pathOut = destdir;
-    pathOut /= boost::filesystem::path(in[j]).filename();
+    std::filesystem::path pathOut = destdir;
+    pathOut /= std::filesystem::path(in[j]).filename();
 
-    boost::filesystem::ofstream ofs;
+    std::ofstream ofs;
     ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
     ofs.open(pathOut);
 

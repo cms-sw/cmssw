@@ -14,7 +14,7 @@ class AnotherDummy {};
 using NodeName = TagName;
 using AttName = TagName;
 using AttValue = TagName;
-using AttList = std::map<AttName,AttValue>;
+using AttList = std::map<AttName, AttValue>;
 using TinyDom = math::Graph<NodeName, AttList>;
 using TinyDomWalker = math::GraphWalker<NodeName, AttList>;
 

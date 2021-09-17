@@ -5,13 +5,14 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <vector>
 #include <string>
 #include <map>
 
 class DQMMessageLoggerClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   // Constructor
   DQMMessageLoggerClient(const edm::ParameterSet &);
   // Destructor
@@ -28,7 +29,6 @@ protected:
 
   // Save the histos
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  void endJob() override;
 
 private:
   void fillHistograms();

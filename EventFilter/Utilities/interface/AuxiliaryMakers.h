@@ -9,9 +9,11 @@ namespace evf {
     edm::EventAuxiliary makeEventAuxiliary(const tcds::Raw_v1*,
                                            unsigned int runNumber,
                                            unsigned int lumiSection,
+                                           bool isRealData,
                                            const edm::EventAuxiliary::ExperimentType&,
                                            const std::string& processGUID,
-                                           bool verifyLumiSection);
+                                           bool verifyLumiSection,
+                                           bool suppressWarning);
   }
 }  // namespace evf
 #endif

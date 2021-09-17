@@ -4,6 +4,7 @@
 #include "TString.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 using namespace std;
 

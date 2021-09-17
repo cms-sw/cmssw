@@ -29,7 +29,7 @@ namespace reco {
     virtual ~BasicGhostTrackState() {}
 
     template <typename T, typename... Args>
-    static std::shared_ptr<BGTS> build(Args &&... args) {
+    static std::shared_ptr<BGTS> build(Args &&...args) {
       return std::make_shared<T>(std::forward<Args>(args)...);
     }
 

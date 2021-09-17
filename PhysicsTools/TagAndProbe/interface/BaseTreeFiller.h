@@ -28,9 +28,11 @@
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 #include <TTree.h>
-#include <boost/utility.hpp>
 
 /** Class that makes a TTree with:
      - variables from a Probe
@@ -133,9 +135,11 @@ namespace tnp {
     mutable std::vector<reco::CandidateBaseRef> passingProbes_;
   };
 
-  // This class inherits from boost::noncopyable, as copying it would break the addresses in the TTree
-  class BaseTreeFiller : boost::noncopyable {
+  // This class is noncopyable, as copying it would break the addresses in the TTree
+  class BaseTreeFiller {
   public:
+    BaseTreeFiller(const BaseTreeFiller &) = delete;
+    BaseTreeFiller &operator=(const BaseTreeFiller &) = delete;
     /// specify the name of the TTree, and the configuration for it
     BaseTreeFiller(const char *name, const edm::ParameterSet &config, edm::ConsumesCollector &&iC)
         : BaseTreeFiller(name, config, iC){};
@@ -173,7 +177,12 @@ namespace tnp {
     /// How event weights are defined: 'None' = no weights, 'Fixed' = one value specified in cfg file, 'External' = read weight from the event (as double)
     enum WeightMode { None, Fixed, External };
     WeightMode weightMode_;
+    bool LHEinfo_;
     edm::EDGetTokenT<GenEventInfoProduct> weightSrcToken_;
+    edm::EDGetTokenT<LHEEventProduct> _LHECollection;
+    edm::EDGetTokenT<GenLumiInfoHeader> _genLumiInfoToken;
+    edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfoToken;
+    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<double> PUweightSrcToken_;
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<reco::VertexCollection> recVtxsToken_;
@@ -203,13 +212,16 @@ namespace tnp {
     //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
     mutable TTree *tree_;
     mutable float weight_, PUweight_, totWeight_;
+    mutable float lheWeight_[9];
+    mutable float psWeight_[5];
     mutable uint32_t run_, lumi_, mNPV_;
     mutable uint64_t event_;
     mutable int truePU_;
 
     mutable float mPVx_, mPVy_, mPVz_, mBSx_, mBSy_, mBSz_;
     mutable float rho_;
-    mutable float mMET_, mSumET_, mMETSign_, mtcMET_, mtcSumET_, mtcMETSign_, mpfMET_, mpfSumET_, mpfMETSign_, mpfPhi_;
+    mutable float mMET_, mSumET_, mMETSign_, mtcMET_, mtcSumET_, mtcMETSign_, mpfMET_, mpfSumET_, mpfMETSign_, mpfPhi_,
+        lhe_ht_;
   };
 
 }  // namespace tnp

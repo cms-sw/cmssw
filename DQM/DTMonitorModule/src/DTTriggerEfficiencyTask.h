@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,8 +22,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
@@ -32,7 +31,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
 #include <string>
@@ -69,8 +69,8 @@ protected:
   bool hasRPCTriggers(const edm::Event& e);
 
   /// return the top folder
-  std::string topFolder(std::string source) {
-    return source == "TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/";
+  std::string topFolder() {
+    return "DT/03-LocalTrigger-TM/";  //DDU no longer existing, leaving folder here for past references
   }
 
   /// Analyze
@@ -83,21 +83,20 @@ private:
 
   std::string SegmArbitration;
 
-  bool processTM, processDDU, detailedPlots, checkRPCtriggers;
+  bool processTM, detailedPlots, checkRPCtriggers;
   std::vector<std::string> processTags;
-  int minBXDDU, maxBXDDU;
 
   float phiAccRange;
   int nMinHitsPhi;
 
   edm::EDGetTokenT<reco::MuonCollection> muons_Token_;
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
-  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::InputTag inputTagSEG;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
   edm::ParameterSet parameters;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;

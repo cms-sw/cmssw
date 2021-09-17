@@ -21,10 +21,10 @@
 // system include files
 #include <vector>
 #include <memory>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 
 // forward declarations
 namespace fireworks {
@@ -46,11 +46,11 @@ public:
   // ---------- member functions ---------------------------
   void setType(const edm::TypeWithDict&);
 
-private:
   FWExpressionValidator(const FWExpressionValidator&) = delete;  // stop default
 
   const FWExpressionValidator& operator=(const FWExpressionValidator&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   edm::TypeWithDict m_type;
   std::vector<std::shared_ptr<fireworks::OptionNode> > m_options;

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Main Script to run all SiStrip DAQ O2Os at the same time.
 @author: Huilin Qu

@@ -7,39 +7,24 @@
  * Created:     12 Mar 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmCondition_hh
 #define tmEventSetup_L1TUtmCondition_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
-#include <string>
-#include <vector>
-#include "CondFormats/Serialization/interface/Serializable.h"
-
 #include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
+#include <string>
+#include <vector>
 
 /**
  *  This class implements data structure for Condition
  */
 class L1TUtmCondition {
 public:
-  // ctor
   L1TUtmCondition() : name_(), type_(-9999), objects_(), cuts_(), version(0){};
 
-  // dtor
-  virtual ~L1TUtmCondition(){};
+  virtual ~L1TUtmCondition() = default;
 
   /** set condition name */
   void setName(const std::string& x) { name_ = x; };
@@ -69,4 +54,3 @@ protected:
 };
 
 #endif  // tmEventSetup_L1TUtmCondition_hh
-/* eof */

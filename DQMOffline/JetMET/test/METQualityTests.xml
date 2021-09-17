@@ -44,38 +44,24 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<QTEST name="KolmogorovTest">
-        <TYPE>Comp2RefKolmogorov</TYPE> 
-        <PARAM name="testparam">0</PARAM>
-        <PARAM name="error">0.000000000001</PARAM>
-        <PARAM name="warning">0.0000000001</PARAM>
-</QTEST>
-
-
-
 <LINK name="JetMET/MET/*/*/METPhi">              
    <TestName activate="true">phiQTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MEx">              
    <TestName activate="true">meanMExyTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MEy">              
    <TestName activate="true">meanMExyTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MET">              
    <TestName activate="true">meanMETTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/SumET">              
    <TestName activate="true">meanSumETTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 

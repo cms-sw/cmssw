@@ -3,7 +3,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include <boost/cstdint.hpp>  //for uint16_t
 #include <vector>
 
 /*! \class L1GctTdrJetFinder

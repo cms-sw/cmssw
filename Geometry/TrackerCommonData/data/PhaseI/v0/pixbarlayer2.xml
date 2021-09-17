@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="pixbarlayer2.xml" eval="true">
+ <Constant name="Ladders"           value="44"/>
+ <Constant name="CoolDist"          value="10.9*cm"/>
+ <Constant name="CoolRadius"        value="0.0900*cm"/>
+ <Constant name="LadderOffset"        value="0.270*cm"/>
+ <Constant name="Cool1Offset"        value="0.9*cm"/>
+ <Constant name="Cool2Offset"        value="-0.1*cm"/>
+ <Constant name="OuterFirst"        value="1"/>
+ <Constant name="PitchFineTune"     value="0.118*deg"/>
+ <Constant name="OuterOffsetFineTune"    value="-0.0413*cm+[pixbarladder:SensorThick]/2"/>
+ <Constant name="InnerOffsetFineTune"    value="0.0413*cm-[pixbarladder:SensorThick]/2"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDPixBarLayerUpgradeAlgo">
+  <rParent name="pixbarlayer2:PixelBarrelLayer2"/>
+  <String name="GeneralMaterial"   value="materials:Air"/>
+  <Numeric name="Ladders"          value="[pixbarlayer2:Ladders]"/>
+  <Numeric name="LayerDz"          value="[pixbarlayer:LayerDz]"/>
+  <Numeric name="CoolDz"           value="[pixbarlayer:CoolDz]"/>
+  <Numeric name="CoolThick"        value="[pixbarlayer:CoolThick]"/>
+  <Numeric name="CoolRadius"       value="[pixbarlayer2:CoolRadius]"/>
+  <Numeric name="CoolDist"         value="[pixbarlayer2:CoolDist]"/>
+  <Numeric name="Cool1Offset"      value="[pixbarlayer2:Cool1Offset]"/>
+  <Numeric name="Cool2Offset"      value="[pixbarlayer2:Cool2Offset]"/>
+  <String name="CoolMaterial"      value="pixbarmaterial:Bpix_CO2_-20C"/>
+  <String name="CoolTubeMaterial"  value="pixbarmaterial:Bpix_Pipe_Steel"/>
+  <String name="CoolMaterialHalf"  value="pixbarmaterial:Bpix_CO2_-20C_Half"/>
+  <String name="CoolTubeMaterialHalf"  value="pixbarmaterial:Bpix_Pipe_Steel_Half"/>
+  <String name="LadderName"        value="pixbarladderfull2:PixelBarrelLadderFull2"/>
+  <Numeric name="LadderWidth"      value="[pixbarladderfull2:LadderWidth]"/>
+  <Numeric name="LadderThick"      value="[pixbarladderfull2:LadderThick]"/>
+  <Numeric name="LadderOffset"      value="[pixbarlayer2:LadderOffset]"/>
+  <Numeric name="OuterFirst"       value="[pixbarlayer2:OuterFirst]"/>
+  <Numeric name="PitchFineTune"       value="[pixbarlayer2:PitchFineTune]"/>
+  <Numeric name="OuterOffsetFineTune"       value="[pixbarlayer2:OuterOffsetFineTune]"/>
+  <Numeric name="InnerOffsetFineTune"       value="[pixbarlayer2:InnerOffsetFineTune]"/>
+</Algorithm>
+
+</DDDefinition>

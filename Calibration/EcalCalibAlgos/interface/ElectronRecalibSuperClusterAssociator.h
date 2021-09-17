@@ -2,7 +2,7 @@
 #define ElectronRecalibSuperClusterAssociator_h
 
 //
-// Package:         RecoEgamma/EgammaElectronProducers
+// Package:         Calibration/EcalCalibAlgos
 // Class:           ElectronRecalibSuperClusterAssociator
 //
 // Description:

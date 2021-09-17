@@ -14,13 +14,14 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -65,7 +66,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TStage1Layer2Producer : public EDProducer {
+class L1TStage1Layer2Producer : public stream::EDProducer<> {
 public:
   explicit L1TStage1Layer2Producer(const ParameterSet&);
   ~L1TStage1Layer2Producer() override;
@@ -74,10 +75,7 @@ public:
 
 private:
   void produce(Event&, EventSetup const&) override;
-  void beginJob() override;
-  void endJob() override;
   void beginRun(Run const& iR, EventSetup const& iE) override;
-  void endRun(Run const& iR, EventSetup const& iE) override;
 
   // ----------member data ---------------------------
   unsigned long long m_paramsCacheId;  // Cache-ID from current parameters, to check if needs to be updated.
@@ -92,8 +90,14 @@ private:
   std::string m_conditionsLabel;
 
   // to be extended with other "consumes" stuff
-  EDGetToken regionToken;
-  EDGetToken candsToken;
+  EDGetTokenT<BXVector<CaloRegion>> regionToken;
+  EDGetTokenT<BXVector<CaloEmCand>> candsToken;
+  edm::ESGetToken<CaloParams, L1TCaloParamsRcd> paramsToken;
+  edm::ESGetToken<CaloConfig, L1TCaloConfigRcd> configToken;
+  edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> emScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> jetScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> htMissScaleToken;
+  edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> hfRingScaleToken;
 };
 
 //
@@ -118,6 +122,19 @@ L1TStage1Layer2Producer::L1TStage1Layer2Producer(const ParameterSet& iConfig) {
   m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
   m_params = new CaloParamsHelper;
+
+  paramsToken =
+      esConsumes<CaloParams, L1TCaloParamsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
+  configToken =
+      esConsumes<CaloConfig, L1TCaloConfigRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
+  emScaleToken =
+      esConsumes<L1CaloEtScale, L1EmEtScaleRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
+  jetScaleToken =
+      esConsumes<L1CaloEtScale, L1JetEtScaleRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
+  htMissScaleToken =
+      esConsumes<L1CaloEtScale, L1HtMissScaleRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
+  hfRingScaleToken =
+      esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd, edm::Transition::BeginRun>(edm::ESInputTag("", m_conditionsLabel));
 
   // set cache id to zero, will be set at first beginRun:
   m_paramsCacheId = 0;
@@ -242,12 +259,6 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(hfCounts), "HFBitCounts");
 }
 
-// ------------ method called once each job just before starting event loop ------------
-void L1TStage1Layer2Producer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop ------------
-void L1TStage1Layer2Producer::endJob() {}
-
 // ------------ method called when starting to processes a run ------------
 
 void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
@@ -257,9 +268,7 @@ void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
   if (id != m_paramsCacheId) {
     m_paramsCacheId = id;
 
-    edm::ESHandle<CaloParams> paramsHandle;
-
-    iE.get<L1TCaloParamsRcd>().get(m_conditionsLabel, paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle = iE.getHandle(paramsToken);
 
     // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsHelper();
@@ -276,9 +285,7 @@ void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
   if (id != m_configCacheId) {
     m_configCacheId = id;
 
-    edm::ESHandle<CaloConfig> configHandle;
-
-    iE.get<L1TCaloConfigRcd>().get(m_conditionsLabel, configHandle);
+    edm::ESHandle<CaloConfig> configHandle = iE.getHandle(configToken);
 
     if (!configHandle.product()) {
       edm::LogError("l1t|caloStage1") << "Could not retrieve config from Event Setup" << std::endl;
@@ -292,21 +299,17 @@ void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
   LogDebug("l1t|stage 1 jets") << "L1TStage1Layer2Producer::beginRun function called...\n";
 
   //get the proper scales for conversion to physical et AND gt scales
-  edm::ESHandle<L1CaloEtScale> emScale;
-  iE.get<L1EmEtScaleRcd>().get(m_conditionsLabel, emScale);
+  edm::ESHandle<L1CaloEtScale> emScale = iE.getHandle(emScaleToken);
   m_params->setEmScale(*emScale);
 
-  edm::ESHandle<L1CaloEtScale> jetScale;
-  iE.get<L1JetEtScaleRcd>().get(m_conditionsLabel, jetScale);
+  edm::ESHandle<L1CaloEtScale> jetScale = iE.getHandle(jetScaleToken);
   m_params->setJetScale(*jetScale);
 
-  edm::ESHandle<L1CaloEtScale> HtMissScale;
-  iE.get<L1HtMissScaleRcd>().get(m_conditionsLabel, HtMissScale);
+  edm::ESHandle<L1CaloEtScale> HtMissScale = iE.getHandle(jetScaleToken);
   m_params->setHtMissScale(*HtMissScale);
 
   //not sure if I need this one
-  edm::ESHandle<L1CaloEtScale> HfRingScale;
-  iE.get<L1HfRingEtScaleRcd>().get(m_conditionsLabel, HfRingScale);
+  edm::ESHandle<L1CaloEtScale> HfRingScale = iE.getHandle(hfRingScaleToken);
   m_params->setHfRingScale(*HfRingScale);
 
   //unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
@@ -369,15 +372,15 @@ void L1TStage1Layer2Producer::beginRun(Run const& iR, EventSetup const& iE) {
   }
 }
 
-// ------------ method called when ending the processing of a run ------------
-void L1TStage1Layer2Producer::endRun(Run const& iR, EventSetup const& iE) {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void L1TStage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<InputTag>("CaloRegions");
+  desc.add<InputTag>("CaloEmCands");
+  desc.add<std::string>("conditionsLabel");
+
   descriptions.addDefault(desc);
 }
 

@@ -23,10 +23,13 @@ public:
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) : TrackingRecHit(id, (unsigned int)(rt)), qualWord_(0) {}
+  BaseTrackerRecHit(const GeomDet& idet, trackerHitRTTI::RTTI rt)
+      : TrackingRecHit(idet, (unsigned int)(rt)), qualWord_(0) {}
 
   BaseTrackerRecHit(const LocalPoint& p, const LocalError& e, GeomDet const& idet, trackerHitRTTI::RTTI rt)
       : TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0) {
-    LocalError lape = static_cast<TrackerGeomDet const*>(det())->localAlignmentError();
+    auto trackerDet = static_cast<TrackerGeomDet const*>(det());
+    LocalError lape = trackerDet->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx() + lape.xx(), err_.xy() + lape.xy(), err_.yy() + lape.yy());
   }
@@ -48,18 +51,17 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const& hit) const;
 
-  bool hasPositionAndError() const final;
+  bool hasPositionAndError() const override;
 
-  LocalPoint localPosition() const final {
+  LocalPoint localPosition() const override {
     check();
     return pos_;
   }
 
-  LocalError localPositionError() const final {
+  LocalError localPositionError() const override {
     check();
     return err_;
   }
-
   const LocalPoint& localPositionFast() const {
     check();
     return pos_;

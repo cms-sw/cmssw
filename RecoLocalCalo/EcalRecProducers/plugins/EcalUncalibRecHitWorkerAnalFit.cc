@@ -27,28 +27,25 @@
 //#include "CLHEP/Matrix/SymMatrix.h"
 #include <vector>
 
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
-    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c) {}
+    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c),
+      ratiosToken_(c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>()),
+      pedestalsToken_(c.esConsumes<EcalPedestals, EcalPedestalsRcd>()) {}
 
 void EcalUncalibRecHitWorkerAnalFit::set(const edm::EventSetup& es) {
   // Gain Ratios
   LogDebug("EcalUncalibRecHitDebug") << "fetching gainRatios....";
-  es.get<EcalGainRatiosRcd>().get(pRatio);
+  pRatio = es.getHandle(ratiosToken_);
   LogDebug("EcalUncalibRecHitDebug") << "done.";
 
   // fetch the pedestals from the cond DB via EventSetup
   LogDebug("EcalUncalibRecHitDebug") << "fetching pedestals....";
-  es.get<EcalPedestalsRcd>().get(pedHandle);
+  pedHandle = es.getHandle(pedestalsToken_);
   LogDebug("EcalUncalibRecHitDebug") << "done.";
 }
 

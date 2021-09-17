@@ -117,7 +117,7 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore& dqm_store) {
 void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore& dqm_store) {
   std::map<std::string, MonitorElement*> MEMap;
   std::string currDir = dqm_store.pwd();
-  std::string dir_name = currDir.substr(currDir.find_last_of("/") + 1);
+  std::string dir_name = currDir.substr(currDir.find_last_of('/') + 1);
   if ((dir_name.find("SiStrip") == 0) || (dir_name.find("Collector") == 0) || (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU") == 0))
     return;
@@ -169,14 +169,16 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore& dqm_store) {
   }
 }
 
-MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store, std::string& name, std::string htype) {
+SiStripSummaryCreator::MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store,
+                                                                           std::string& name,
+                                                                           std::string htype) {
   MonitorElement* me = nullptr;
   std::string currDir = dqm_store.pwd();
   std::string sum_name, tag_name;
 
-  std::string dname = currDir.substr(currDir.find_last_of("/") + 1);
-  if (dname.find("_") != std::string::npos)
-    dname.insert(dname.find("_"), "_");
+  std::string dname = currDir.substr(currDir.find_last_of('/') + 1);
+  if (dname.find('_') != std::string::npos)
+    dname.insert(dname.find('_'), "_");
   if (htype == "sum" && htype == "Sum") {
     sum_name = "Summary" + name + "__" + dname;
     tag_name = "Summary" + name;
@@ -192,8 +194,8 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store, std::st
       continue;
     std::string me_name = me->getName();
     if (me_name.find(sum_name) == 0) {
-      if (me->kind() == MonitorElement::DQM_KIND_TH1F || me->kind() == MonitorElement::DQM_KIND_TH2F ||
-          me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+      if (me->kind() == MonitorElement::Kind::TH1F || me->kind() == MonitorElement::Kind::TH2F ||
+          me->kind() == MonitorElement::Kind::TPROFILE) {
         TH1* hist1 = me->getTH1();
         if (hist1) {
           hist1->Reset();
@@ -212,14 +214,14 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store, std::st
       me = dqm_store.book1D(sum_name, sum_name, nBins, 0.5, nBins + 0.5);
       int ibin = 0;
       for (auto const& subdir : subdirs) {
-        std::string subdir_name = subdir.substr(subdir.find_last_of("/") + 1);
+        std::string subdir_name = subdir.substr(subdir.find_last_of('/') + 1);
         ++ibin;
         tags.emplace(ibin, subdir_name);
       }
     } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
       for (auto const& subdir : subdirs) {
         dqm_store.cd(subdir);
-        std::string subdir_name = subdir.substr(subdir.find_last_of("/") + 1);
+        std::string subdir_name = subdir.substr(subdir.find_last_of('/') + 1);
         auto const& s_contents = dqm_store.getContents(dqm_store.pwd());
         for (auto const* s_me : s_contents) {
           if (!s_me)
@@ -246,7 +248,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store, std::st
           std::string s_me_name = s_me->getName();
           if (s_me_name.find(name) == std::string::npos)
             continue;
-          if (s_me->kind() == MonitorElement::DQM_KIND_TH1F) {
+          if (s_me->kind() == MonitorElement::Kind::TH1F) {
             TH1F* hist1 = s_me->getTH1F();
             if (hist1) {
               nBins = s_me->getNbinsX();
@@ -260,7 +262,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store, std::st
     }
   }
   // Set the axis title
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F && (htype != "sum" || htype != "Sum")) {
+  if (me && me->kind() == MonitorElement::Kind::TH1F && (htype != "sum" || htype != "Sum")) {
     TH1F* hist = me->getTH1F();
     if (hist) {
       if (name.find("NoisyStrips") != std::string::npos)
@@ -282,9 +284,9 @@ void SiStripSummaryCreator::fillHistos(
   if (me->getTH1()) {
     TH1F* hist1 = nullptr;
     TH2F* hist2 = nullptr;
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F)
+    if (me->kind() == MonitorElement::Kind::TH1F)
       hist1 = me->getTH1F();
-    if (me->kind() == MonitorElement::DQM_KIND_TH2F)
+    if (me->kind() == MonitorElement::Kind::TH2F)
       hist2 = me->getTH2F();
 
     int nbins = me_src->getNbinsX();

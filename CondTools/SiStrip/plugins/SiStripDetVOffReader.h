@@ -17,7 +17,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
+class SiStripDetVOff;
 //
 //
 // class decleration
@@ -31,6 +33,7 @@ public:
 
 private:
   bool printdebug_;
+  edm::ESGetToken<SiStripDetVOff, SiStripDetVOffRcd> detVOffToken_;
   std::vector<uint32_t> detids;
 };
 #endif

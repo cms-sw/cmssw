@@ -8,7 +8,6 @@
 // DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // Electron
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -55,7 +54,6 @@ protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
-  void endRun(const edm::Run &run, const edm::EventSetup &eSetup) override;
 
 private:
   // variables from config file

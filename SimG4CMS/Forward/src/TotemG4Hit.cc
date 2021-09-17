@@ -13,6 +13,7 @@
 // system include files
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Forward/interface/TotemG4Hit.h"
 
 //
@@ -109,7 +110,7 @@ void TotemG4Hit::addEnergyDeposit(const TotemG4Hit& aHit) {
   hadr += aHit.getHadr();
 }
 
-void TotemG4Hit::Print() { std::cout << (*this); }
+void TotemG4Hit::Print() { edm::LogVerbatim("ForwardSim") << (*this); }
 
 math::XYZPoint TotemG4Hit::getEntry() const { return entry; }
 

@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 """
 Script converting DQM I/O format input file into folder structured ROOT file.

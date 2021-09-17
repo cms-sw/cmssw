@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -48,6 +48,6 @@ private:
   AlignmentMuonSelector theSelector;
 };
 
-typedef ObjectSelector<MuonConfigSelector> AlignmentMuonSelectorModule;
+typedef ObjectSelectorStream<MuonConfigSelector> AlignmentMuonSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentMuonSelectorModule);

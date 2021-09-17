@@ -86,7 +86,7 @@ void TestPluginManager::test() {
 
   unsigned int nTimesGoingToLoad = 0;
   edmplugin::PluginManager::get()->goingToLoad_.connect(
-      [&nTimesGoingToLoad](const boost::filesystem::path&) { ++nTimesGoingToLoad; });
+      [&nTimesGoingToLoad](const std::filesystem::path&) { ++nTimesGoingToLoad; });
 
   unsigned int nTimesLoaded = 0;
   edmplugin::PluginManager::get()->justLoaded_.connect(

@@ -1,9 +1,7 @@
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/Records"/>
-<library   file="*.cc" name="testHcalTowerAlgoTester">
- <flags   EDM_PLUGIN="1"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/Records"/>
+<library file="*.cc" name="testHcalTowerAlgoTester">
+  <flags EDM_PLUGIN="1"/>
 </library>

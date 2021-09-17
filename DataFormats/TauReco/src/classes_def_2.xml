@@ -409,30 +409,4 @@ isolationTauChargedHadronCandidates_.reset();
   </ioread>
 
 
-  <class name="reco::CaloTauDiscriminatorByIsolationBase">
-    <field name="transientVector_" transient="true"/>
-  </class>
-  <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="11">
-   <version ClassVersion="11" checksum="2337069537"/>
-   <version ClassVersion="10" checksum="2968502385"/>
-    <!-- <field name="transientVector_" transient="true"/> -->
-  </class>
-  <class name="reco::CaloTauDiscriminatorByIsolationRef"/>
-  <class name="reco::CaloTauDiscriminatorByIsolationRefProd"/>
-  <class name="reco::CaloTauDiscriminatorByIsolationRefVector"/>
-  <class name="edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>"/>
-
-  <class name="reco::CaloTauDiscriminatorBase">
-    <field name="transientVector_" transient="true"/>
-  </class>
-  <class name="reco::CaloTauDiscriminator" ClassVersion="11">
-   <version ClassVersion="11" checksum="3173873463"/>
-   <version ClassVersion="10" checksum="1989330711"/>
-    <!-- <field name="transientVector_" transient="true"/> -->
-  </class>
-  <class name="reco::CaloTauDiscriminatorRef"/>
-  <class name="reco::CaloTauDiscriminatorRefProd"/>
-  <class name="reco::CaloTauDiscriminatorRefVector"/>
-  <class name="edm::Wrapper<reco::CaloTauDiscriminator>"/>
-
 </lcgdict>

@@ -11,7 +11,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <sstream>
 #include <cstdlib>
 
@@ -30,11 +29,11 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset,
   }
 }
 
-void CSCTFTrackBuilder::initialize(const edm::EventSetup& c) {
+void CSCTFTrackBuilder::initialize(const edm::EventSetup& c, const Tokens& tokens) {
   //my_dtrc->initialize(c);
   for (int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e) {
     for (int s = CSCTriggerNumbering::minTriggerSectorId(); s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s) {
-      my_SPs[e - 1][s - 1]->initialize(c);
+      my_SPs[e - 1][s - 1]->initialize(c, tokens);
     }
   }
 }

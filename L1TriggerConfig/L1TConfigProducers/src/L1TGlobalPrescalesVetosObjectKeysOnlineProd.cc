@@ -18,7 +18,7 @@ L1TGlobalPrescalesVetosObjectKeysOnlineProd::L1TGlobalPrescalesVetosObjectKeysOn
 void L1TGlobalPrescalesVetosObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1TriggerKey) {
   std::string uGTKey = pL1TriggerKey->subsystemKey(L1TriggerKeyExt::kuGT);
 
-  pL1TriggerKey->add("L1TGlobalPrescalesVetosO2ORcd", "L1TGlobalPrescalesVetos", uGTKey);
+  pL1TriggerKey->add("L1TGlobalPrescalesVetosFractO2ORcd", "L1TGlobalPrescalesVetosFract", uGTKey);
 }
 
 //define this as a plug-in

@@ -19,6 +19,13 @@ public:
 
   L1aInfo(const tcds::L1aInfo_v1&);
 
+  L1aInfo(int16_t index, uint64_t orbitNr, uint16_t bxid, uint8_t eventtype) {
+    index_ = index;
+    orbitNr_ = orbitNr;
+    bxid_ = bxid;
+    eventType_ = eventtype;
+  };
+
   // The history index, where -1 means the previous L1 accept, -2 the one before that, etc.
   int16_t getIndex() const { return index_; }
 

@@ -1,4 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader2013.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <iostream>
 
 CSCDMBHeader2013::CSCDMBHeader2013() {
@@ -56,12 +57,12 @@ unsigned CSCDMBHeader2013::sizeInWords() const { return 8; }
 
 /// counts from zero
 bool CSCDMBHeader2013::cfebAvailable(unsigned icfeb) {
-  assert(icfeb < 7);
+  assert(icfeb < CSCConstants::MAX_CFEBS_RUN2);
   return (cfebAvailable() >> icfeb) & 1;
 }
 
 void CSCDMBHeader2013::addCFEB(int icfeb) {
-  assert(icfeb < 7);
+  assert(icfeb < CSCConstants::MAX_CFEBS_RUN2);
   bits.cfeb_dav |= (1 << icfeb);
   bits.cfeb_clct_sent |= (1 << icfeb);
 }

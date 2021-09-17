@@ -30,10 +30,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-
 // constructor(s)
 L1GlobalTriggerRecordProducer::L1GlobalTriggerRecordProducer(const edm::ParameterSet& parSet) {
   produces<L1GlobalTriggerRecord>();
@@ -45,6 +41,11 @@ L1GlobalTriggerRecordProducer::L1GlobalTriggerRecordProducer(const edm::Paramete
   LogDebug("L1GlobalTriggerRecordProducer").log([&parSet](auto& l) {
     l << "\nInput tag for L1 GT DAQ record:             " << parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag");
   });
+  /// EventSetup Token for l1GtTriggerMaskAlgo
+  m_l1GtTmAlgoToken = esConsumes<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd>();
+
+  ///  EventSetupToken for L1GtTriggerMaskTech
+  m_l1GtTmTechToken = esConsumes<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd>();
 
   // initialize cached IDs
 
@@ -94,8 +95,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
   unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo = evSetup.getHandle(m_l1GtTmAlgoToken);
     m_l1GtTmAlgo = l1GtTmAlgo.product();
 
     m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
@@ -106,8 +106,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
   unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
+    edm::ESHandle<L1GtTriggerMask> l1GtTmTech = evSetup.getHandle(m_l1GtTmTechToken);
     m_l1GtTmTech = l1GtTmTech.product();
 
     m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();

@@ -20,7 +20,7 @@ class ElectronMVAID:
         self._init = False
         self._debug = debug
 
-    def __call__(self, ele, convs, beam_spot, rho, debug=False):
+    def __call__(self, ele, rho, debug=False):
         '''returns a tuple mva_value, category 
         ele: a reco::GsfElectron
         convs: conversions
@@ -30,17 +30,13 @@ class ElectronMVAID:
 
         example: 
         
-            event.getByLabel(('slimmedElectrons'),                 ele_handle)
-            event.getByLabel(('fixedGridRhoFastjetAll'),           rho_handle)
-            event.getByLabel(('reducedEgamma:reducedConversions'), conv_handle)
-            event.getByLabel(('offlineBeamSpot'),                  bs_handle)
+            event.getByLabel(('slimmedElectrons'),       ele_handle)
+            event.getByLabel(('fixedGridRhoFastjetAll'), rho_handle)
             
             electrons = ele_handle.product()
-            convs     = conv_handle.product()
-            beam_spot = bs_handle.product()
             rho       = rho_handle.product()
 
-            mva, category = electron_mva_id(electron[0], convs, beam_spot, rho)
+            mva, category = electron_mva_id(electron[0], rho)
         '''
         if not self._init:
             print('Initializing ' + self.name + self.tag)
@@ -52,9 +48,8 @@ class ElectronMVAID:
                 self.tag, self.name, len(self.xmls), 
                 self.variablesFile, categoryCutStrings, self.xmls, self._debug)
             self._init = True
-        extra_vars = self.estimator.getExtraVars(ele, convs, beam_spot, rho[0])
         category = ctypes.c_int(0)
-        mva = self.estimator.mvaValue(ele, extra_vars, category)
+        mva = self.estimator.mvaValue(ele, rho[0], category)
         return mva, category.value
 
 

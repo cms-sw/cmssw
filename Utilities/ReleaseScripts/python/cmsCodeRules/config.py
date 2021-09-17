@@ -33,7 +33,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPaths'] = []
+Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
 Configuration[ruleName]['skip']  = [comment, function]
 Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []

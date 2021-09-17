@@ -21,7 +21,6 @@ using namespace std;
 PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset) {
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
   parameters_ = pset;
 
   analyzerName_ = pset.getParameter<std::string>("analyzerName");
@@ -58,14 +57,14 @@ PhotonPostprocessing::~PhotonPostprocessing() {}
 
 void PhotonPostprocessing::beginJob() {}
 
-void PhotonPostprocessing::analyze(const edm::Event& e, const edm::EventSetup& esup) {}
+void PhotonPostprocessing::analyze(const edm::Event& e, const edm::EventSetup&) {}
 
 void PhotonPostprocessing::endJob() {
   if (standAlone_)
     runPostprocessing();
 }
 
-void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup& setup) {
+void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup&) {
   if (!standAlone_)
     runPostprocessing();
 }

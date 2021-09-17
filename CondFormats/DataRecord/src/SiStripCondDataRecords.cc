@@ -38,4 +38,6 @@ EVENTSETUP_RECORD_REG(SiStripClusterThresholdRcd);
 
 EVENTSETUP_RECORD_REG(SiStripConfObjectRcd);
 
+EVENTSETUP_RECORD_REG(SiStripApvSimulationParametersRcd);
+
 EVENTSETUP_RECORD_REG(Phase2TrackerCablingRcd);

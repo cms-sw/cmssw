@@ -24,7 +24,7 @@
 #include <ctime>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <cstdio>
@@ -137,6 +137,8 @@ public:
     return instance;
   }
 
+  XMLProcessor(const XMLProcessor&) = delete;  // stop default
+
   // returns XML std::string if target == "string" otherwise NULL
   XMLCh* serializeDOM(XERCES_CPP_NAMESPACE::DOMNode* node, std::string target = "stdout");
 
@@ -160,8 +162,6 @@ public:
 
 private:
   XMLProcessor();
-
-  XMLProcessor(const XMLProcessor&) = delete;  // stop default
 
   //const XMLProcessor& operator=(const XMLProcessor&); // stop default
 

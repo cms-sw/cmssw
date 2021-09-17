@@ -10,12 +10,9 @@
 #include "G4NeutronTrackingCut.hh"
 #include "G4HadronicProcessStore.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTF_BIC.hh"
 
 FTFCMS_BIC::FTFCMS_BIC(const edm::ParameterSet& p) : PhysicsList(p) {
-  G4DataQuestionaire it(photon);
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

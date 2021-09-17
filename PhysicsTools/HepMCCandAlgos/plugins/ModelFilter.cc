@@ -29,7 +29,7 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (comment = product->comments_begin(); comment != product->comments_end(); comment++) {
     if (comment->find(modelTag_) != string::npos) {
       tempString = comment->substr(comment->find(modelTag_), comment->size());
-      tempString = tempString.substr(0, tempString.find(" "));
+      tempString = tempString.substr(0, tempString.find(' '));
       parameters = split(tempString, "_");
 
       if (parameters.size() - 1 != parameterMins_.size()) {

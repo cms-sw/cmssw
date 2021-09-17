@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelDetInfoFileWriter
 // Class:      SiPixelDetInfoFileWriter
-// 
+//
 /**\class SiPixelDetInfoFileWriter SiPixelDetInfoFileWriter.cc CalibTracker/SiPixelCommon/src/SiPixelDetInfoFileWriter.cc
 
  Description: <one line class summary>
@@ -19,29 +19,25 @@
 //
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include <string>
 #include <iostream>
 #include <fstream>
 
 class SiPixelDetInfoFileWriter : public edm::EDAnalyzer {
-
 public:
-
-  explicit SiPixelDetInfoFileWriter(const edm::ParameterSet&);
+  explicit SiPixelDetInfoFileWriter(const edm::ParameterSet &);
   ~SiPixelDetInfoFileWriter() override;
 
 private:
-
   void beginJob() override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-
-
-  std::ofstream outputFile_; 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
+  std::ofstream outputFile_;
   std::string filePath_;
-
-
 };
 #endif

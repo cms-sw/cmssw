@@ -11,7 +11,8 @@ template <class O>
 class ConfFitterBuilder {
 public:
   ConfFitterBuilder<O>(const std::string& name, const std::string& description) {
-    VertexFitterManager::Instance().registerFitter(name, []() -> AbstractConfFitter* { return new O(); }, description);
+    VertexFitterManager::Instance().registerFitter(
+        name, []() -> AbstractConfFitter* { return new O(); }, description);
   }
 };
 

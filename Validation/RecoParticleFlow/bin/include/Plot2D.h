@@ -18,7 +18,7 @@
 #include <string>
 
 template <>
-bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
+inline bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
   // get the reference and comparison histograms
   TH2F *href2d = (TH2F *)HD->getRefHisto();
   TH2F *hnew2d = (TH2F *)HD->getNewHisto();
@@ -143,7 +143,7 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
 }
 
 template <>
-void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
+inline void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
   // do not make any new plot if empty
   if (HD->getIsEmpty()) {
     HD->setResultImage("NoData_Results.gif");
@@ -337,7 +337,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
 }
 
 template <>
-void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
+inline void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
   /* at present, makeHTML<Plot1D> does nothing, so don't waste the CPU cycles
   // loop over projections and produce HTML
   std::vector<HistoData>::iterator hd;

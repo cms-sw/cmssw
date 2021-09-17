@@ -7,20 +7,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "Geometry/HcalTestBeamData/interface/HcalTB06BeamParameters.h"
 #include "G4String.hh"
 
 #include <string>
 
-class DDCompactView;
-class DDFilteredView;
 class G4Step;
 class G4Material;
 
 class HcalTB06BeamSD : public CaloSD {
 public:
   HcalTB06BeamSD(const std::string &,
-                 const DDCompactView &,
+                 const HcalTB06BeamParameters *,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);
@@ -31,13 +31,11 @@ protected:
   double getEnergyDeposit(const G4Step *) override;
 
 private:
-  std::vector<G4String> getNames(DDFilteredView &);
-  bool isItWireChamber(const G4String &);
+  bool isItWireChamber(const std::string &);
 
-  bool useBirk;
-  double birk1, birk2, birk3;
-  std::vector<G4String> wcNames;
-  G4String matName;
+  bool useBirk_;
+  double birk1_, birk2_, birk3_;
+  const HcalTB06BeamParameters *hcalBeamPar_;
 };
 
 #endif  // HcalTB06BeamSD_h

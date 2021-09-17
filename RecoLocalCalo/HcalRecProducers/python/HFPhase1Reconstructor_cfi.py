@@ -201,16 +201,15 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     ),
 
     # Parameters for HFStripFilter.
-    # Please add some descriptions of their meaning.
     HFStripFilter = cms.PSet(
-        stripThreshold = cms.double(40.0),
-        maxThreshold = cms.double(100.0),
-        timeMax = cms.double(6.0),
-        maxStripTime = cms.double(10.0),
-        wedgeCut = cms.double(0.05),
-        seedHitIetaMax = cms.int32(35),
-        gap = cms.int32(2),
-        lstrips = cms.int32(2),
-        verboseLevel = cms.untracked.int32(10)
+        stripThreshold = cms.double(40.0),     # threshold to include hits into strips
+        maxThreshold = cms.double(100.0),      # threshold for seed hits in the strips (depth1 and depth2)
+        timeMax = cms.double(6.0),             # seed hits should have time < timeMax
+        maxStripTime = cms.double(10.0),       # maximum time for hits in the strips
+        wedgeCut = cms.double(0.05),           # the possible level of energy leak into adjacent wedges
+        seedHitIetaMax = cms.int32(35),        # maximum possible Ieta value for seed hit
+        gap = cms.int32(2),                    # maximum distance between hits in the strip (along Ieta direction)
+        lstrips = cms.int32(2),                # at least one of strips in depth1 or depth2 is not less than lstrips
+        verboseLevel = cms.untracked.int32(10) # verboseLevel for debugging printouts, should be > 20 to get output
     )
 )

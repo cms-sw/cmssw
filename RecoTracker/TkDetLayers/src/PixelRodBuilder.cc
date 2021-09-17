@@ -8,7 +8,7 @@ PixelRod* PixelRodBuilder::build(const GeometricDet* aRod, const TrackerGeometry
 
   vector<const GeomDet*> theGeomDets;
   for (vector<const GeometricDet*>::iterator it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalId());
     theGeomDets.push_back(theGeomDet);
   }
 

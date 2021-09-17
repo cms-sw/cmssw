@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
@@ -25,6 +26,9 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 class EcalDetIdToBeRecoveredProducer : public edm::stream::EDProducer<> {
 public:
@@ -41,7 +45,9 @@ private:
   const EcalChannelStatusMap* chStatus_;
   const EcalElectronicsMapping* ecalMapping_;
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
-
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+  edm::ESGetToken<EcalChannelStatusMap, EcalChannelStatusRcd> channelStatusToken_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> ttMapToken_;
   /*
                  * InputTag for collections
                  */

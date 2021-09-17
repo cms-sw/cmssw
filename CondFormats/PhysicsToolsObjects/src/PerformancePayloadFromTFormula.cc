@@ -1,23 +1,16 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 const int PerformancePayloadFromTFormula::InvalidPos = -1;
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 using namespace std;
 
 void PerformancePayloadFromTFormula::initialize() {
-  boost::uuids::random_generator gen;
-
   for (std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end();
        ++formula) {
-    boost::uuids::uuid uniqueFormulaId = gen();
-    const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
+    const auto formulaUniqueName = edm::createGlobalIdentifier();
     //be sure not to add TFormula to ROOT's global list
     auto temp = std::make_shared<TFormula>(formulaUniqueName.c_str(), formula->c_str(), false);
     temp->Compile();

@@ -5,7 +5,9 @@
 
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCategoryData.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+
 #include <vector>
+#include <atomic>
 
 struct ElectronLikelihoodCalibration {
   struct Entry {

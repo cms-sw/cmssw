@@ -1,7 +1,9 @@
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <algorithm>
+#include <memory>
+
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
@@ -66,7 +68,7 @@ long long timeDiffMS(const timespec &a, const timespec &b) {
  * We do not care about the response of sending the monitoring information;
  * this handler class simply frees any returned buffer to prevent memory leaks.
  */
-class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHandler {
+class SendMonitoringInfoHandler : public XrdCl::ResponseHandler {
   void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
     if (response) {
       XrdCl::Buffer *buffer = nullptr;
@@ -78,6 +80,11 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
     delete response;
     delete status;
   }
+
+public:
+  SendMonitoringInfoHandler(const SendMonitoringInfoHandler &) = delete;
+  SendMonitoringInfoHandler &operator=(const SendMonitoringInfoHandler &) = delete;
+  SendMonitoringInfoHandler() = default;
 };
 
 CMS_THREAD_SAFE SendMonitoringInfoHandler nullHandler;
@@ -124,7 +131,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
   }
 
   std::string orig_site;
-  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find(".") == std::string::npos)) {
+  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find('.') == std::string::npos)) {
     std::string hostname;
     if (Source::getHostname(orig_site, hostname)) {
       Source::getDomain(hostname, orig_site);
@@ -137,10 +144,10 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
   const int retries = 5;
   std::string excludeString;
   for (int idx = 0; idx < retries; idx++) {
-    file.reset(new XrdCl::File());
+    file = std::make_unique<XrdCl::File>();
     auto opaque = prepareOpaqueString();
     std::string new_filename =
-        m_name + (!opaque.empty() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
+        m_name + (!opaque.empty() ? ((m_name.find('?') == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
     XrdCl::XRootDStatus openStatus = file->Open(new_filename, m_flags, m_perms, &handler);
     if (!openStatus
@@ -401,7 +408,7 @@ void RequestManager::checkSourcesImpl(timespec &now,
             inactiveSources.erase(it);
             break;
           }
-        inactiveSources.emplace_back(std::move(*worstActiveSource));
+        inactiveSources.emplace_back(*worstActiveSource);
         auto oldSources = activeSources;
         activeSources.erase(worstActiveSource);
         activeSources.emplace_back(std::move(*bestInactiveSource));
@@ -553,16 +560,16 @@ std::string RequestManager::prepareOpaqueString() const {
 
     for (const auto &it : m_activeSources) {
       count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      ss << it->ExcludeID().substr(0, it->ExcludeID().find(':')) << ",";
     }
     for (const auto &it : m_inactiveSources) {
       count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      ss << it->ExcludeID().substr(0, it->ExcludeID().find(':')) << ",";
     }
   }
   for (const auto &it : m_disabledExcludeStrings) {
     count++;
-    ss << it.substr(0, it.find(":")) << ",";
+    ss << it.substr(0, it.find(':')) << ",";
   }
   if (count) {
     std::string tmp_str = ss.str();
@@ -676,26 +683,26 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
     future2 = c_ptr2->get_future();
   }
   if (!req1->empty() && !req2->empty()) {
-    std::future<IOSize> task =
-        std::async(std::launch::deferred,
-                   [](std::future<IOSize> a, std::future<IOSize> b) {
-                     // Wait until *both* results are available.  This is essential
-                     // as the callback may try referencing the RequestManager.  If one
-                     // throws an exception (causing the RequestManager to be destroyed by
-                     // XrdFile) and the other has a failure, then the recovery code will
-                     // reference the destroyed RequestManager.
-                     //
-                     // Unlike other places where we use shared/weak ptrs to maintain object
-                     // lifetime and destruction asynchronously, we *cannot* destroy the request
-                     // asynchronously as it is associated with a ROOT buffer.  We must wait until we
-                     // are guaranteed that XrdCl will not write into the ROOT buffer before we
-                     // can return.
-                     b.wait();
-                     a.wait();
-                     return b.get() + a.get();
-                   },
-                   std::move(future1),
-                   std::move(future2));
+    std::future<IOSize> task = std::async(
+        std::launch::deferred,
+        [](std::future<IOSize> a, std::future<IOSize> b) {
+          // Wait until *both* results are available.  This is essential
+          // as the callback may try referencing the RequestManager.  If one
+          // throws an exception (causing the RequestManager to be destroyed by
+          // XrdFile) and the other has a failure, then the recovery code will
+          // reference the destroyed RequestManager.
+          //
+          // Unlike other places where we use shared/weak ptrs to maintain object
+          // lifetime and destruction asynchronously, we *cannot* destroy the request
+          // asynchronously as it is associated with a ROOT buffer.  We must wait until we
+          // are guaranteed that XrdCl will not write into the ROOT buffer before we
+          // can return.
+          b.wait();
+          a.wait();
+          return b.get() + a.get();
+        },
+        std::move(future1),
+        std::move(future2));
     timer.stop();
     //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
     return task;
@@ -1071,9 +1078,9 @@ std::shared_future<std::shared_ptr<Source>> XrdAdaptor::RequestManager::OpenHand
   m_shared_future = m_promise.get_future().share();
 
   auto opaque = manager.prepareOpaqueString();
-  std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
+  std::string new_name = manager.m_name + ((manager.m_name.find('?') == manager.m_name.npos) ? "?" : "&") + opaque;
   edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
-  m_file.reset(new XrdCl::File());
+  m_file = std::make_unique<XrdCl::File>();
   m_outstanding_open = true;
 
   // Always make sure we release m_file and set m_outstanding_open to false on error.

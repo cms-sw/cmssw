@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from builtins import range
@@ -542,7 +542,7 @@ class EventPlotter(object):
 	    if hit.isValid(): 
 		point = ROOT.TPolyMarker3D(1, array('f', [hit.x(), hit.y(), hit.z()]), 2)
 		point.Draw()
-		raw_input("continue")
+		input("continue")
 	#axis.SetAxisRange(-278,278,"Z")
 	
 	axis.ToggleZoom()
@@ -633,7 +633,7 @@ class EventPlotter(object):
 	#hist.SetLabelSize(0.05)
 	hist.Draw()
 
-	raw_input("Press any key to continue")
+	input("Press any key to continue")
 
 
     def Draw(self):
@@ -664,6 +664,6 @@ class EventPlotter(object):
 
 	    for plot in self.plots_2D: plot.Draw("A") 
 
-	raw_input("Press any key to continue")
+	input("Press any key to continue")
 
 

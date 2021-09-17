@@ -3,7 +3,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 
 class CombinedSeedComparitor : public SeedComparitor {
 public:
@@ -17,7 +18,7 @@ public:
                   const FastHelix &helix) const override;
 
 private:
-  boost::ptr_vector<SeedComparitor> comparitors_;
+  std::vector<std::unique_ptr<SeedComparitor>> comparitors_;
   bool isAnd_;
 };
 
@@ -34,22 +35,20 @@ CombinedSeedComparitor::CombinedSeedComparitor(const edm::ParameterSet &cfg, edm
   VPSet psets = cfg.getParameter<VPSet>("comparitors");
   for (VPSet::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it) {
     std::string name = it->getParameter<std::string>("ComponentName");
-    comparitors_.push_back(SeedComparitorFactory::get()->create(name, *it, iC));
+    comparitors_.emplace_back(SeedComparitorFactory::get()->create(name, *it, iC));
   }
 }
 
 CombinedSeedComparitor::~CombinedSeedComparitor() {}
 
 void CombinedSeedComparitor::init(const edm::Event &ev, const edm::EventSetup &es) {
-  typedef boost::ptr_vector<SeedComparitor>::iterator ITC;
-  for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
+  for (const auto &it : comparitors_) {
     it->init(ev, es);
   }
 }
 
 bool CombinedSeedComparitor::compatible(const SeedingHitSet &hits) const {
-  typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
-  for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
+  for (const auto &it : comparitors_) {
     bool pass = it->compatible(hits);
     if (isAnd_ != pass)
       return pass;  // break on failures if doing an AND, and on successes if doing an OR
@@ -59,8 +58,7 @@ bool CombinedSeedComparitor::compatible(const SeedingHitSet &hits) const {
 
 bool CombinedSeedComparitor::compatible(const TrajectoryStateOnSurface &tsos,
                                         SeedingHitSet::ConstRecHitPointer hit) const {
-  typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
-  for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
+  for (const auto &it : comparitors_) {
     bool pass = it->compatible(tsos, hit);
     if (isAnd_ != pass)
       return pass;  // break on failures if doing an AND, and on successes if doing an OR
@@ -71,8 +69,7 @@ bool CombinedSeedComparitor::compatible(const TrajectoryStateOnSurface &tsos,
 bool CombinedSeedComparitor::compatible(const SeedingHitSet &hits,
                                         const GlobalTrajectoryParameters &helixStateAtVertex,
                                         const FastHelix &helix) const {
-  typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
-  for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
+  for (const auto &it : comparitors_) {
     bool pass = it->compatible(hits, helixStateAtVertex, helix);
     if (isAnd_ != pass)
       return pass;  // break on failures if doing an AND, and on successes if doing an OR

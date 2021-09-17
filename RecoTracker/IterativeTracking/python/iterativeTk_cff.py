@@ -9,6 +9,7 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
+from RecoTracker.IterativeTracking.DisplacedGeneralStep_cff import *
 from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import *
 
 # Phase1 specific iterations
@@ -23,7 +24,10 @@ from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 
+
+trackdnn_source = cms.ESSource("EmptyESSource", recordName = cms.string("TfGraphRecord"), firstValid = cms.vuint32(1), iovIsRunNotTime = cms.bool(True) )
 iterTrackingEarlyTask = _cfg.createEarlyTask("", "", globals())
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(iterTrackingEarlyTask, _cfg.createEarlyTask(_eraName, _postfix, globals()))
@@ -39,4 +43,8 @@ iterTrackingTask = cms.Task(InitialStepPreSplittingTask,
                             ConvStepTask,
                             conversionStepTracks
                             )
+
+_iterTrackingTask_trackdnn = iterTrackingTask.copy()
+_iterTrackingTask_trackdnn.add(trackdnn_source)                       
+trackdnn.toReplaceWith(iterTrackingTask, _iterTrackingTask_trackdnn)
 iterTracking = cms.Sequence(iterTrackingTask)

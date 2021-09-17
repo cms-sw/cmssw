@@ -8,9 +8,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
@@ -18,12 +16,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdint>
 
-class MonitorElement;
 class CommissioningAnalysis;
 
 class CommissioningHistograms {
 public:
+  // not used here but some uses in derived classes
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
   // ---------- con(de)structors ----------
 
   CommissioningHistograms(const edm::ParameterSet& pset, DQMStore* const, const sistrip::RunType&);
@@ -155,7 +156,7 @@ private:
 // ---------- inline methods ----------
 
 const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
-DQMStore* const CommissioningHistograms::bei() const { return bei_; }
+CommissioningHistograms::DQMStore* const CommissioningHistograms::bei() const { return bei_; }
 CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }
 const CommissioningHistograms::HistosMap& CommissioningHistograms::histos() const { return histos_; }
 const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }

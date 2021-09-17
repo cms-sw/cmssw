@@ -36,10 +36,10 @@ public:
   //Make sure the element is known (for n/p-decision)
   ReactionProduct GetFinalState(const G4Track& aTrack, G4ParticleDefinition*& aTarget);
 
-private:
   G4ProcessHelper(const G4ProcessHelper&) = delete;
   G4ProcessHelper& operator=(const G4ProcessHelper&) = delete;
 
+private:
   G4double Regge(const double boost);
   G4double Pom(const double boost);
 

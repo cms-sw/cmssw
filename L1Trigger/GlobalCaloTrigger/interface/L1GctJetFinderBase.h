@@ -9,10 +9,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCount.h"
 
-#include <boost/cstdint.hpp>  //for uint16_t
 #include <vector>
 
 class L1GctInternJetData;

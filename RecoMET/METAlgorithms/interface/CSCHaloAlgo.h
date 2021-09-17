@@ -89,7 +89,7 @@ namespace edm {
 
 class CSCHaloAlgo {
 public:
-  CSCHaloAlgo();
+  CSCHaloAlgo(edm::ConsumesCollector iC);
   ~CSCHaloAlgo() {}
   reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,
                               edm::Handle<reco::MuonCollection>& TheCosmicMuons,
@@ -170,6 +170,7 @@ private:
   float et_thresh_rh_ee, dphi_thresh_segvsrh_ee, dr_lowthresh_segvsrh_ee, dr_highthresh_segvsrh_ee,
       dt_lowthresh_segvsrh_ee, dt_highthresh_segvsrh_ee;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
   const CaloGeometry* geo_;
   const HcalGeometry* hgeo_;
   math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);

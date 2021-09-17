@@ -659,9 +659,18 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
       }
     }
 
+    int jel = 0;
+    int jmu = 0;
+    int jmutrk = 0;
+
+    // jel, jmu and jmutrk are being used as a dedicated counters to avoid getting
+    // non-existent elements inside trkObjs[11], trkObjs[13] and trkObjs[130], respectively
+    // more information in the issue https://github.com/cms-sw/cmssw/issues/32550
+
     for (size_t j = 0; (j != matchesReco.size()) && isPassedLeadingCut; ++j) {
       const unsigned int objType = matchesReco[j].pdgId();
-      // std::cout << "(4) Gonna call with " << objType << std::endl;
+      //std::cout << "(4) Gonna call with " << objType << std::endl;
+
       const std::string objTypeStr = EVTColContainer::getTypeString(objType);
 
       float pt = matchesReco[j].pt();
@@ -703,10 +712,25 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
         this->fillHist("rec", objTypeStr, "SumEt", theSumEt[objType]);
       }
 
-      if (trkObjs[objType].size() >= j + 1) {
-        float dxyRec = trkObjs[objType].at(j)->dxy(cols->bs->position());
+      if (objType == 11) {
+        float dxyRec = trkObjs[objType].at(jel)->dxy(cols->bs->position());
         this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
         dxys.push_back(dxyRec);
+        ++jel;
+      }
+
+      if (objType == 13) {
+        float dxyRec = trkObjs[objType].at(jmu)->dxy(cols->bs->position());
+        this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
+        dxys.push_back(dxyRec);
+        ++jmu;
+      }
+
+      if (objType == 130) {
+        float dxyRec = trkObjs[objType].at(jmutrk)->dxy(cols->bs->position());
+        this->fillHist("rec", objTypeStr, "Dxy", dxyRec);
+        dxys.push_back(dxyRec);
+        ++jmutrk;
       }
 
     }  // Closes loop in reco

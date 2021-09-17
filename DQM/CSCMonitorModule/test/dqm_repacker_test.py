@@ -39,7 +39,6 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-#process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/csc_reference.root'
 
 #----------------------------
 # DQM Playback Environment
@@ -198,7 +197,7 @@ process.cscpacker = cms.EDProducer("CSCDigiToRawModule",
 )
 
 process.cscpacker.usePreTriggers = cms.untracked.bool(False)
-process.cscpacker.useFormatVersion = cms.untracked.uint32(2013)
+process.cscpacker.formatVersion = cms.untracked.uint32(2013)
 
 #----------------------------
 # Event Source

@@ -31,9 +31,9 @@ namespace L1Analysis {
     unsigned long long event;
     unsigned lumi;
     unsigned bx;
-    //boost::uint64_t orbit;
+    //uint64_t orbit;
     ULong64_t orbit;
-    //boost::uint64_t time;
+    //uint64_t time;
     ULong64_t time;
     int nPV;
     int nPV_True;

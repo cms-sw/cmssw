@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 #include "TGPicture.h"
-
+#include "TVirtualX.h"
 // user include files
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 

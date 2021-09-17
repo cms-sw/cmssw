@@ -37,10 +37,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <boost/cstdint.hpp>
-
 class SiPixelPhase1Summary : public DQMEDHarvester {
 public:
   explicit SiPixelPhase1Summary(const edm::ParameterSet& conf);

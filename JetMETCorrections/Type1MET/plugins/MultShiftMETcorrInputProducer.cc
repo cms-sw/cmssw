@@ -6,8 +6,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/View.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TString.h>
+
+#include <memory>
 
 int MultShiftMETcorrInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::ParticleType type) {
   switch (type) {
@@ -33,10 +36,14 @@ int MultShiftMETcorrInputProducer::translateTypeToAbsPdgId(reco::PFCandidate::Pa
 
 MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
-  pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcPFlow"));
-  vertices_ = consumes<edm::View<reco::Vertex> >(cfg.getParameter<edm::InputTag>("vertexCollection"));
+  pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
+  vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
 
-  cfgCorrParameters_ = cfg.getParameter<std::vector<edm::ParameterSet> >("parameters");
+  edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
+  if (!srcWeights.label().empty())
+    weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
+
+  cfgCorrParameters_ = cfg.getParameter<std::vector<edm::ParameterSet>>("parameters");
   etaMin_.clear();
   etaMax_.clear();
   type_.clear();
@@ -48,15 +55,15 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
        v++) {
     TString corrPxFormula = v->getParameter<std::string>("fx");
     TString corrPyFormula = v->getParameter<std::string>("fy");
-    std::vector<double> corrPxParams = v->getParameter<std::vector<double> >("px");
-    std::vector<double> corrPyParams = v->getParameter<std::vector<double> >("py");
+    std::vector<double> corrPxParams = v->getParameter<std::vector<double>>("px");
+    std::vector<double> corrPyParams = v->getParameter<std::vector<double>>("py");
 
-    formula_x_.push_back(std::unique_ptr<TF1>(new TF1(
+    formula_x_.push_back(std::make_unique<TF1>(
         std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(),
-        v->getParameter<std::string>("fx").c_str())));
-    formula_y_.push_back(std::unique_ptr<TF1>(new TF1(
+        v->getParameter<std::string>("fx").c_str()));
+    formula_y_.push_back(std::make_unique<TF1>(
         std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(),
-        v->getParameter<std::string>("fy").c_str())));
+        v->getParameter<std::string>("fy").c_str()));
 
     for (unsigned i = 0; i < corrPxParams.size(); i++)
       formula_x_.back()->SetParameter(i, corrPxParams[i]);
@@ -76,7 +83,7 @@ MultShiftMETcorrInputProducer::~MultShiftMETcorrInputProducer() {}
 
 void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   //get primary vertices
-  edm::Handle<edm::View<reco::Vertex> > hpv;
+  edm::Handle<edm::View<reco::Vertex>> hpv;
   evt.getByToken(vertices_, hpv);
   if (!hpv.isValid()) {
     edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
@@ -93,15 +100,20 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   for (unsigned i = 0; i < sumPt_.size(); i++)
     sumPt_[i] = 0.;
 
-  edm::Handle<edm::View<reco::Candidate> > particleFlow;
+  edm::Handle<edm::View<reco::Candidate>> particleFlow;
   evt.getByToken(pflow_, particleFlow);
+
+  edm::Handle<edm::ValueMap<float>> weights;
+  if (!weightsToken_.isUninitialized())
+    evt.getByToken(weightsToken_, weights);
   for (unsigned i = 0; i < particleFlow->size(); ++i) {
     const reco::Candidate& c = particleFlow->at(i);
     for (unsigned j = 0; j < type_.size(); j++) {
       if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
         if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
-          counts_[j] += 1;
-          sumPt_[j] += c.pt();
+          float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+          counts_[j] += (weight > 0);
+          sumPt_[j] += c.pt() * weight;
           continue;
         }
       }

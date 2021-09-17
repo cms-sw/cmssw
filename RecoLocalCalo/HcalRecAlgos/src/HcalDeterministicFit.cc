@@ -93,9 +93,14 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo &channelData,
   unsigned int soi = channelData.soi();
 
   std::vector<double> corrCharge;
+  corrCharge.reserve(channelData.nSamples());
   std::vector<double> inputCharge;
+  inputCharge.reserve(channelData.nSamples());
   std::vector<double> inputPedestal;
+  inputPedestal.reserve(channelData.nSamples());
   std::vector<double> inputNoise;
+  inputNoise.reserve(channelData.nSamples());
+
   double gainCorr = 0;
   double respCorr = 0;
 

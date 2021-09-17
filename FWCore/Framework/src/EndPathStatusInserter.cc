@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace edm {
-  EndPathStatusInserter::EndPathStatusInserter(unsigned int) : token_{produces<EndPathStatus>()} {}
+  EndPathStatusInserter::EndPathStatusInserter(unsigned int) : token_{produces()} {}
 
   void EndPathStatusInserter::produce(StreamID, edm::Event& event, edm::EventSetup const&) const {
     //Puts a default constructed EndPathStatus

@@ -1,14 +1,12 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/TrackerCommon"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="RecoTracker/Record"/>
-<use   name="TrackingTools/DetLayers"/>
-<library   file="*.cc" name="RecoTrackerTkNavigationTest">
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/Records"/>
+<use name="FWCore/MessageLogger"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/TkNavigation" source_only="1"/>
+<use name="TrackingTools/DetLayers"/>
+<library file="*.cc" name="RecoTrackerTkNavigationTest">
+  <flags EDM_PLUGIN="1"/>
 </library>

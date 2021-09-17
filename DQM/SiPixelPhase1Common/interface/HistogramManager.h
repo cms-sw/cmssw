@@ -30,6 +30,9 @@
 
 class HistogramManager {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
 
   void addSpec(SummationSpecification spec);
@@ -100,6 +103,7 @@ public:  // these are available in config as is, and may be used in harvesting.
   int range_y_nbins;
   double range_y_min;
   double range_y_max;
+  bool statsOverflows;
 
   // can be used in "custom" harvesting in online.
   edm::LuminosityBlock const* lumisection = nullptr;

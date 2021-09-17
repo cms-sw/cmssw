@@ -4,8 +4,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include <memory>
 
 class TrajectorySeed;
@@ -59,7 +57,7 @@ public:
 private:
   static std::vector<Trajectory> makeVect(Trajectory&& outTraj) {
     if (outTraj.isValid())
-      return std::vector<Trajectory>(1, std::move(outTraj));
+      return std::vector<Trajectory>(1, outTraj);
     return std::vector<Trajectory>();
   }
 };

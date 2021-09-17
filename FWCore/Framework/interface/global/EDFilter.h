@@ -38,6 +38,9 @@ namespace edm {
                          T>::Type... {
     public:
       EDFilter() = default;
+      EDFilter(const EDFilter&) = delete;
+      const EDFilter& operator=(const EDFilter&) = delete;
+
 // We do this only in the case of the intel compiler as this might
 // end up creating a lot of code bloat due to inline symbols being generated
 // in each DSO which uses this header.
@@ -45,25 +48,32 @@ namespace edm {
       virtual ~EDFilter() = default;
 #endif
       // ---------- const member functions ---------------------
+      bool wantsProcessBlocks() const final { return WantsProcessBlockTransitions<T...>::value; }
+      bool wantsInputProcessBlocks() const final { return WantsInputProcessBlockTransitions<T...>::value; }
       bool wantsGlobalRuns() const final { return WantsGlobalRunTransitions<T...>::value; }
       bool wantsGlobalLuminosityBlocks() const final { return WantsGlobalLuminosityBlockTransitions<T...>::value; }
 
       bool wantsStreamRuns() const final { return WantsStreamRunTransitions<T...>::value; }
       bool wantsStreamLuminosityBlocks() const final { return WantsStreamLuminosityBlockTransitions<T...>::value; }
 
-      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
+      bool hasAbilityToProduceInBeginProcessBlocks() const final {
+        return HasAbilityToProduceInBeginProcessBlocks<T...>::value;
+      }
+      bool hasAbilityToProduceInEndProcessBlocks() const final {
+        return HasAbilityToProduceInEndProcessBlocks<T...>::value;
+      }
 
-      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
+      bool hasAbilityToProduceInBeginRuns() const final { return HasAbilityToProduceInBeginRuns<T...>::value; }
+      bool hasAbilityToProduceInEndRuns() const final { return HasAbilityToProduceInEndRuns<T...>::value; }
+
+      bool hasAbilityToProduceInBeginLumis() const final { return HasAbilityToProduceInBeginLumis<T...>::value; }
+      bool hasAbilityToProduceInEndLumis() const final { return HasAbilityToProduceInEndLumis<T...>::value; }
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
     private:
-      EDFilter(const EDFilter&) = delete;
-
-      const EDFilter& operator=(const EDFilter&) = delete;
-
       // ---------- member data --------------------------------
     };
 

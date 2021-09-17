@@ -28,6 +28,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -38,7 +39,6 @@ namespace reco {
 class MuonServiceProxy;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
-class DQMStore;
 //
 // class decleration
 //
@@ -69,9 +69,6 @@ private:
     alias.erase(alias.size() - 1, alias.size());
     theAlias = alias;
   }
-
-  /// compute the TrajectorySeed's degree of freedom
-  double computeNDOF(const TrajectorySeed&) const;
 
   /// Build a track at the PCA WITHOUT any vertex constriant
   std::pair<bool, reco::Track> buildTrackAtPCA(const TrajectorySeed&) const;

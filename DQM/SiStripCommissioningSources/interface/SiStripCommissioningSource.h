@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -13,12 +14,16 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/cstdint.hpp>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdint>
 
-class DQMStore;
 class CommissioningTask;
 class FedChannelConnection;
 class SiStripEventSummary;
@@ -32,8 +37,14 @@ public:  // ---------- Public interface ----------
   typedef std::map<unsigned int, CommissioningTask*> TaskMap;
   typedef std::vector<CommissioningTask*> VecOfTasks;
   typedef std::vector<VecOfTasks> VecOfVecOfTasks;
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
   SiStripCommissioningSource(const edm::ParameterSet&);
+
+  /** Private default constructor. */
+  SiStripCommissioningSource() = delete;
+
   ~SiStripCommissioningSource() override;
 
   void beginRun(edm::Run const&, const edm::EventSetup&) override;
@@ -41,9 +52,6 @@ public:  // ---------- Public interface ----------
   void endJob() override;
 
 private:  // ---------- Private methods ----------
-  /** Private default constructor. */
-  SiStripCommissioningSource() = delete;
-
   /** */
   DQMStore* const dqm(std::string method = "") const;
 
@@ -89,6 +97,7 @@ private:  // ---------- Private methods ----------
   DQMStore* dqm_;
 
   /** */
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   SiStripFedCabling* fedCabling_;
 
   /** */
@@ -154,6 +163,9 @@ private:  // ---------- Private methods ----------
 
   /** parameters to pass to the tasks */
   edm::ParameterSet parameters_;
+
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
 };
 
 #endif  // DQM_SiStripCommissioningSources_SiStripCommissioningSource_H

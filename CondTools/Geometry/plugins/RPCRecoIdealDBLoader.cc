@@ -12,17 +12,33 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "Geometry/RPCGeometryBuilder/interface/RPCGeometryParsFromDD.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class RPCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  RPCRecoIdealDBLoader(const edm::ParameterSet&) {}
+  RPCRecoIdealDBLoader(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+
+private:
+  bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
+
+RPCRecoIdealDBLoader::RPCRecoIdealDBLoader(const edm::ParameterSet& iC) {
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
+}
 
 void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   RecoIdealGeometry* rig = new RecoIdealGeometry;
@@ -32,16 +48,18 @@ void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     return;
   }
 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  edm::ESHandle<MuonDDDConstants> pMNDC;
-  es.get<IdealGeometryRecord>().get(pDD);
-  es.get<MuonNumberingRecord>().get(pMNDC);
-
-  const DDCompactView& cpv = *pDD;
+  auto pMNDC = es.getHandle(muonGeomConstantsToken_);
   RPCGeometryParsFromDD rpcpd;
 
-  rpcpd.build(&cpv, *pMNDC, *rig);
-
+  if (fromDD4Hep_) {
+    auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
+    const cms::DDCompactView& cpv = *pDD;
+    rpcpd.build(&cpv, *pMNDC, *rig);
+  } else {
+    auto pDD = es.getTransientHandle(compactViewToken_);
+    const DDCompactView& cpv = *pDD;
+    rpcpd.build(&cpv, *pMNDC, *rig);
+  }
   if (mydbservice->isNewTagRequest("RPCRecoGeometryRcd")) {
     mydbservice->createNewIOV<RecoIdealGeometry>(
         rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "RPCRecoGeometryRcd");

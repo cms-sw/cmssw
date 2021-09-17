@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
@@ -19,7 +19,9 @@ process.source = cms.Source("EmptySource")
 
 process.out = cms.OutputModule("AsciiOutputModule")
 
-process.prod = cms.EDAnalyzer("DTGeometryAnalyzer")
+process.prod = cms.EDAnalyzer("DTGeometryAnalyzer",
+                              tolerance = cms.untracked.double(1.0e-23)
+                             )
 
 process.p1 = cms.Path(process.prod)
 

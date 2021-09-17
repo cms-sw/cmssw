@@ -2,7 +2,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-//#include "boost/intrusive_ptr.hpp"
+//
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 

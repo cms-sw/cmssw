@@ -1,7 +1,6 @@
 #ifndef DigiSimLinks_DTDigiSimLink_h
 #define DigiSimLinks_DTDigiSimLink_h
 
-#include "boost/cstdint.hpp"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 class DTDigiSimLink {
@@ -10,12 +9,14 @@ public:
 
   // Construct from the wire number and the digi number (this identifies
   // uniquely multiple digis on the same wire), the TDC counts, the SimTrack Id and the EncodedEvent Id.
-  explicit DTDigiSimLink(int wireNr, int digiNr, int nTDC, unsigned int trackId, EncodedEventId evId);
+  // Base is related to the tdc unit (32 = Phase 1; 30 = Phase 2)
+  explicit DTDigiSimLink(int wireNr, int digiNr, int nTDC, unsigned int trackId, EncodedEventId evId, int base = 32);
 
   // Construct from the wire number and the digi number (this identifies
   // uniquely multiple digis on the same wire), the time (ns), the SimTrack Id and the EncodedEvent Id.
   // time is converted in TDC counts (1 TDC = 25./32. ns)
-  explicit DTDigiSimLink(int wireNr, int digiNr, double tdrift, unsigned int trackId, EncodedEventId evId);
+  explicit DTDigiSimLink(
+      int wireNr, int digiNr, double tdrift, unsigned int trackId, EncodedEventId evId, int base = 32);
 
   // Default constructor.
   DTDigiSimLink();
@@ -53,13 +54,15 @@ private:
 
 private:
   uint16_t theWire;        // wire number
-  uint16_t theDigiNumber;  // digi number on the wire
-  uint32_t theCounts;      // TDC count, up to 20 bits actually used
+  uint8_t theDigiNumber;   // counter for digis in the same cell
+  uint8_t theTDCBase;      // TDC base (counts per BX; 32 in Ph1 or 30 in Ph2)
+  int32_t theCounts;       // TDC count, in units given by 1/theTDCBase
   uint32_t theSimTrackId;  // identifier of the SimTrack that produced the digi
   EncodedEventId theEventId;
 };
 
 #include <iostream>
+#include <cstdint>
 inline std::ostream& operator<<(std::ostream& o, const DTDigiSimLink& digisimlink) {
   return o << "wire:" << digisimlink.wire() << " digi:" << digisimlink.number() << " time:" << digisimlink.time()
            << " SimTrack:" << digisimlink.SimTrackId() << " eventId:" << digisimlink.eventId().rawId();

@@ -9,7 +9,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,8 +17,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <TString.h>
 #include <TMath.h>
@@ -46,7 +45,9 @@ bool compareTracklets(const QcdLowPtDQM::Tracklet &a, const QcdLowPtDQM::Trackle
 
 //--------------------------------------------------------------------------------------------------
 QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
-    : hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults", "TriggerResults")),
+    : tkGeomToken_(esConsumes()),
+      tTopoToken_(esConsumes()),
+      hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults", "TriggerResults")),
       pixelName_(parameters.getUntrackedParameter<string>("pixelRecHits", "siPixelRecHits")),
       clusterVtxName_(parameters.getUntrackedParameter<string>("clusterVertices", "")),
       ZVCut_(parameters.getUntrackedParameter<double>("ZVertexCut", 10)),
@@ -91,7 +92,7 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
   }
 
   // This used to be at the end of the beginJob,
-  // hence before any of the beginRun operations
+  // hence before any of the dqmBeginRun operations
   // So this now is placed at the end of the constructor
   yieldAlphaHistogram(pixLayers_);
 }
@@ -691,9 +692,7 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // Analyze the given event.
 
   // get tracker geometry
-  ESHandle<TrackerGeometry> trackerHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  tgeo_ = trackerHandle.product();
+  tgeo_ = &iSetup.getData(tkGeomToken_);
   if (!tgeo_) {
     print(3,
           "QcdLowPtDQM::analyze -- Could not obtain pointer to "
@@ -947,7 +946,7 @@ void QcdLowPtDQM::globalEndLuminosityBlock(const LuminosityBlock &l, const Event
              hdNdEtaTrklets23_);
 }
 
-void QcdLowPtDQM::endRun(const Run &, const EventSetup &) {
+void QcdLowPtDQM::dqmEndRun(const Run &, const EventSetup &) {
   // End run, cleanup.
   for (size_t i = 0; i < NsigTracklets12_.size(); ++i) {
     NsigTracklets12_.at(i)->Reset();
@@ -1059,9 +1058,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup &iSetup)
   }
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &iSetup.getData(tTopoToken_);
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();

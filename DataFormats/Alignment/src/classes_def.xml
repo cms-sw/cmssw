@@ -26,4 +26,8 @@
    <version ClassVersion="10" checksum="3955968420"/>
   </class>
   <class name="std::vector<AlignmentClusterFlag>"/>
+
+  <!-- for SiPixelAli PCL !--> 
+  <class name="AlignmentToken" ClassVersion="0"/>
+  <class name="edm::Wrapper<AlignmentToken>" persistent="false"/>
 </lcgdict>

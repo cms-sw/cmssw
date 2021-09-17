@@ -299,7 +299,7 @@ void TEcnaRun::SetEcalSubDetector(const TString& SubDet) {
 //
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-TEcnaRun::TEcnaRun(const TEcnaRun& dcop) {
+TEcnaRun::TEcnaRun(const TEcnaRun& dcop) : TObject::TObject(dcop) {
   std::cout << "*TEcnaRun::TEcnaRun(const TEcnaRun& dcop)> "
             << " Now is the time to write a copy constructor" << std::endl;
 

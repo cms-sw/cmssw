@@ -5,19 +5,18 @@
 
 #include <algorithm>
 #include <cmath>
-
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 namespace {
-  long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt, xml_h e, SensitiveDetector & /* sens */) {
+  long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
 
@@ -108,7 +107,7 @@ namespace {
 
       std::string name = childName + std::to_string(k);
 
-      Solid solid = ns.addSolid(name, Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
+      Solid solid = ns.addSolid(ns.prepend(name), Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
 
       LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Polycone made of " << matIn
                              << " from " << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width)
@@ -143,7 +142,7 @@ namespace {
 
     std::string name = childName + std::to_string(zposWheel.size());
 
-    Solid solid = ns.addSolid(name, Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
+    Solid solid = ns.addSolid(ns.prepend(name), Polycone(-0.5 * width, width, pconRmin, pconRmax, pconZ));
 
     LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Polycone made of " << matIn << " from "
                            << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width) << " and with "
@@ -158,7 +157,7 @@ namespace {
     // Cable in the outer part
     name = childName + std::to_string(zposWheel.size() + 1);
     r = rTop - r;
-    solid = ns.addSolid(name, Tube(r, rTop, 0.5 * (zEnd - zBend), -0.5 * width, width));
+    solid = ns.addSolid(ns.prepend(name), Tube(r, rTop, 0.5 * (zEnd - zBend), -0.5 * width, width));
 
     LogVerbatim("TIDGeom") << "DDTIDAxialCableAlgo test: " << solid.name() << " Tubs made of " << matOut << " from "
                            << convertRadToDeg(-0.5 * width) << " to " << convertRadToDeg(0.5 * width) << " with Rin "

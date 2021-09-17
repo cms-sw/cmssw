@@ -10,13 +10,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
-bool distanceSorter(pair<edm::Ptr<l1t::HGCalTriggerCell>, float> i, pair<edm::Ptr<l1t::HGCalTriggerCell>, float> j) {
+inline bool distanceSorter(pair<edm::Ptr<l1t::HGCalTriggerCell>, float> i,
+                           pair<edm::Ptr<l1t::HGCalTriggerCell>, float> j) {
   return (i.second < j.second);
 }
 
 class HGCalClusteringImpl {
 private:
-  static const unsigned kNSides_ = 2;
+  static constexpr unsigned kNSides_ = 2;
 
 public:
   HGCalClusteringImpl(const edm::ParameterSet& conf);

@@ -52,16 +52,16 @@ TH1* DQMCorrelationClient::getTH1(MonitorElement* me, bool profileX = true) {
 
   MonitorElement::Kind kind = me->kind();
   switch (kind) {
-    case (MonitorElement::DQM_KIND_TH2D):
+    case (MonitorElement::Kind::TH2D):
       th1 = (profileX ? me->getTH2D()->ProfileX() : me->getTH2D()->ProfileY());
       break;
-    case (MonitorElement::DQM_KIND_TH2F):
+    case (MonitorElement::Kind::TH2F):
       th1 = (profileX ? me->getTH2F()->ProfileX() : me->getTH2F()->ProfileY());
       break;
-    case (MonitorElement::DQM_KIND_TH2S):
+    case (MonitorElement::Kind::TH2S):
       th1 = (profileX ? me->getTH2S()->ProfileX() : me->getTH2S()->ProfileY());
       break;
-    case (MonitorElement::DQM_KIND_TPROFILE):
+    case (MonitorElement::Kind::TPROFILE):
       th1 = me->getTH1();
       break;
     default:

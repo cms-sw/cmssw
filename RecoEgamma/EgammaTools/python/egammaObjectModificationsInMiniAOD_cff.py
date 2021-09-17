@@ -136,6 +136,15 @@ egamma8XLegacyEtScaleSysModifier = cms.PSet(
         )
     )
 
+# modifier for photon isolation used in heavy ions
+egammaHIPhotonIsolationModifier = cms.PSet(
+    modifierName = cms.string('EGExtraInfoModifierFromHIPhotonIsolationValueMaps'),
+    electron_config = cms.PSet(),
+    photon_config = cms.PSet(
+        photonIsolationHI = cms.InputTag("reducedEgamma:photonIsolationHIProducerppGED")
+        )
+    )
+
 def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
 
@@ -146,11 +155,18 @@ def appendEgamma8XLegacyAppendableModifiers (modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
     modifiers.append(egamma8XLegacyEtScaleSysModifier)
 
+def appendEgammaHIPhotonIsolationModifier(modifiers):
+    modifiers.append(egammaHIPhotonIsolationModifier)
+
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+(run2_miniAOD_94XFall17 | run2_miniAOD_UL).toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 #80X doesnt have the bug which prevents GsfTracks used to match conversions so set true
 run2_miniAOD_80XLegacy.toModify(egamma9X105XUpdateModifier,allowGsfTrackForConvs = True)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppendableModifiers)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)

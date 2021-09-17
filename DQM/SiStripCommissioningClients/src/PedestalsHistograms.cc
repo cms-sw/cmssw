@@ -2,10 +2,12 @@
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/PedestalsSummaryFactory.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 PedestalsHistograms::PedestalsHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("PedestalsParameters"), bei, sistrip::PEDESTALS) {
-  factory_ = unique_ptr<PedestalsSummaryFactory>(new PedestalsSummaryFactory);
+  factory_ = std::make_unique<PedestalsSummaryFactory>();
   LogTrace(mlDqmClient_) << "[PedestalsHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

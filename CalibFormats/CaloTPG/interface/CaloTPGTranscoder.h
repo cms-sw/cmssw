@@ -1,11 +1,11 @@
 #ifndef CALIBFORMATS_CALOTPG_CALOTPGTRANSCODER_H
 #define CALIBFORMATS_CALOTPG_CALOTPGTRANSCODER_H 1
 
-#include <boost/shared_ptr.hpp>
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
+#include <memory>
 
 class HcalTPGCompressor;
 class EcalTPGCompressor;
@@ -52,12 +52,12 @@ public:
 
   virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const = 0;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const = 0;
-  boost::shared_ptr<const HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
-  boost::shared_ptr<const EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }
+  std::shared_ptr<const HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
+  std::shared_ptr<const EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }
 
 private:
-  boost::shared_ptr<const HcalTPGCompressor> hccompress_;
-  boost::shared_ptr<const EcalTPGCompressor> eccompress_;
+  std::shared_ptr<const HcalTPGCompressor> hccompress_;
+  std::shared_ptr<const EcalTPGCompressor> eccompress_;
 };
 
 #endif

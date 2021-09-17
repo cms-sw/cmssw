@@ -1,20 +1,101 @@
-#include "DQMOffline/Trigger/plugins/METplusTrackMonitor.h"
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  METplusTrackMonitor(const edm::ParameterSet&);
+  ~METplusTrackMonitor() noexcept(true) override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary,
+                 const edm::InputTag& filterTag,
+                 trigger::TriggerObject& obj) const;
+
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
+
+  edm::InputTag hltMetTag_;
+  edm::InputTag hltMetCleanTag_;
+  edm::InputTag trackLegFilterTag_;
+
+  std::vector<double> met_variable_binning_;
+  std::vector<double> muonPt_variable_binning_;
+
+  MEbinning met_binning_;
+  MEbinning ls_binning_;
+  MEbinning pt_binning_;
+  MEbinning eta_binning_;
+  MEbinning phi_binning_;
+
+  ObjME metME_variableBinning_;
+  ObjME metVsLS_;
+  ObjME metPhiME_;
+  ObjME deltaphimetj1ME_;
+  ObjME metVsHltMet_;
+  ObjME metVsHltMetClean_;
+
+  ObjME muonPtME_variableBinning_;
+  ObjME muonPtVsLS_;
+  ObjME muonEtaME_;
+  ObjME deltaphimetmuonME_;
+  ObjME muonEtaVsPhi_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::CaloMET, true> metSelection_;
+  StringCutObjectSelector<reco::Muon, true> muonSelection_;
+  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::Vertex, true> vtxSelection_;
+
+  unsigned nmuons_;
+  unsigned njets_;
+
+  double leadJetEtaCut_;
+
+  bool requireLeadMatched_;
+  double maxMatchDeltaR_;
+};
 
 METplusTrackMonitor::METplusTrackMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::CaloMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       jetToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -49,38 +130,36 @@ METplusTrackMonitor::METplusTrackMonitor(const edm::ParameterSet& iConfig)
       njets_(iConfig.getParameter<unsigned>("njets")),
       leadJetEtaCut_(iConfig.getParameter<double>("leadJetEtaCut")),
       requireLeadMatched_(iConfig.getParameter<bool>("requireLeadMatched")),
-      maxMatchDeltaR_(iConfig.getParameter<double>("maxMatchDeltaR")) {
-  metME_variableBinning_.numerator = nullptr;
-  metME_variableBinning_.denominator = nullptr;
-  metVsLS_.numerator = nullptr;
-  metVsLS_.denominator = nullptr;
-  metPhiME_.numerator = nullptr;
-  metPhiME_.denominator = nullptr;
-  deltaphimetj1ME_.numerator = nullptr;
-  deltaphimetj1ME_.denominator = nullptr;
-  metVsHltMet_.numerator = nullptr;       // numerator only, only available from passed filter
-  metVsHltMetClean_.numerator = nullptr;  // numerator only, only available from passed filter
-
-  muonPtME_variableBinning_.numerator = nullptr;
-  muonPtME_variableBinning_.denominator = nullptr;
-  muonPtVsLS_.numerator = nullptr;
-  muonPtVsLS_.denominator = nullptr;
-  deltaphimetmuonME_.numerator = nullptr;
-  deltaphimetmuonME_.denominator = nullptr;
-  muonEtaVsPhi_.numerator = nullptr;
-  muonEtaVsPhi_.denominator = nullptr;
-}
+      maxMatchDeltaR_(iConfig.getParameter<double>("maxMatchDeltaR")) {}
 
 void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
                                          edm::Run const& iRun,
                                          edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
   // MET leg histograms
-
   histname = "met_variable";
   histtitle = "CaloMET";
   bookME(ibooker, metME_variableBinning_, histname, histtitle, met_variable_binning_);
@@ -180,15 +259,15 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
          pt_binning_.xmin,
          pt_binning_.xmax);
   setMETitle(muonPtVsLS_, "LS", "Muon p_{T} [GeV]");
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
@@ -315,9 +394,32 @@ void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup cons
   muonEtaVsPhi_.numerator->Fill(leadMuonPhi, leadMuonEta);
 }
 
+bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary,
+                                    const edm::InputTag& filterTag,
+                                    trigger::TriggerObject& obj) const {
+  double leadingPt = -1.0;
+
+  size_t filterIndex = trigSummary->filterIndex(filterTag);
+  trigger::TriggerObjectCollection triggerObjects = trigSummary->getObjects();
+
+  if (!(filterIndex >= trigSummary->sizeFilters())) {
+    const trigger::Keys& keys = trigSummary->filterKeys(filterIndex);
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
+      if (foundObject.pt() > leadingPt) {
+        obj = foundObject;
+        leadingPt = obj.pt();
+      }
+    }
+  }
+
+  return (leadingPt > 0.0);
+}
+
 void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/MET");
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("caloMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
@@ -387,28 +489,4 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("metPlusTrackMonitoring", desc);
 }
 
-bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary,
-                                    const edm::InputTag& filterTag,
-                                    trigger::TriggerObject& obj) const {
-  double leadingPt = -1.0;
-
-  size_t filterIndex = trigSummary->filterIndex(filterTag);
-  trigger::TriggerObjectCollection triggerObjects = trigSummary->getObjects();
-
-  if (!(filterIndex >= trigSummary->sizeFilters())) {
-    const trigger::Keys& keys = trigSummary->filterKeys(filterIndex);
-    for (unsigned short key : keys) {
-      trigger::TriggerObject foundObject = triggerObjects[key];
-      if (foundObject.pt() > leadingPt) {
-        obj = foundObject;
-        leadingPt = obj.pt();
-      }
-    }
-  }
-
-  return (leadingPt > 0.0);
-}
-
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(METplusTrackMonitor);

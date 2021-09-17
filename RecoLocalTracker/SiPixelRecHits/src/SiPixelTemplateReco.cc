@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 10.00)
+//  SiPixelTemplateReco.cc (Version 10.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -43,6 +43,7 @@
 //  V8.26 - Fix centering problem for small signals
 //  V9.00 - Set QProb = Q/Q_avg when calcultion is turned off, use fbin definitions of Qbin
 //  V10.00 - Use new template object to reco Phase 1 FPix hits
+//  V10.01 - Fix memory overwriting bug
 //
 //
 //  Created by Morris Swartz on 10/27/06.
@@ -64,19 +65,18 @@
 // Use current version of gsl instead of ROOT::Math
 //#include <gsl/gsl_cdf.h>
 
+static const int theVerboseLevel = 2;
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/VVIObjF.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static const int theVerboseLevel = 2;
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else
 #include "SiPixelTemplateReco.h"
 #include "VVIObjF.h"
-//static int theVerboseLevel = {2};
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGDEBUG(x) std::cout << x << ": "
 #define ENDL std::endl
@@ -174,19 +174,26 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
 
-  const double mean1pix = {0.100}, chi21min = {0.160};
+  const double mean1pix = {0.100};
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
+  const double chi21min = {0.};
+#else
+  const double chi21min = {0.160};
+#endif
 
   // First, interpolate the template needed to analyze this cluster
   // check to see of the track direction is in the physical range of the loaded template
 
-  if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
-    if (theVerboseLevel > 2) {
-      LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
-                                      << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz
-                                      << ", local B_x = " << locBx << ", template ID = " << id
-                                      << ", no reconstruction performed" << ENDL;
+  if (id >= 0) {  //if id < 0 bypass interpolation (used in calibration)
+    if (!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
+      if (theVerboseLevel > 2) {
+        LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha
+                                        << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz
+                                        << ", local B_x = " << locBx << ", template ID = " << id
+                                        << ", no reconstruction performed" << ENDL;
+      }
+      return 20;
     }
-    return 20;
   }
 
   // Check to see if Q probability is selected
@@ -457,6 +464,23 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   midpix = (fypix + lypix) / 2;
   shifty = templ.cytemp() - midpix;
+
+  // calculate new cluster boundaries
+
+  int lytmp = lypix + shifty;
+  int fytmp = fypix + shifty;
+
+  // Check the boundaries
+
+  if (fytmp <= 1) {
+    return 8;
+  }
+  if (lytmp >= BYM2) {
+    return 8;
+  }
+
+  //  If OK, shift everything
+
   if (shifty > 0) {
     for (i = lypix; i >= fypix; --i) {
       ysum[i + shifty] = ysum[i];
@@ -472,23 +496,16 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
       yd[i] = false;
     }
   }
-  lypix += shifty;
-  fypix += shifty;
 
-  // If the cluster boundaries are OK, add pesudopixels, otherwise quit
+  lypix = lytmp;
+  fypix = fytmp;
 
-  if (fypix > 1 && fypix < BYM2) {
-    ysum[fypix - 1] = pseudopix;
-    ysum[fypix - 2] = pseudopix;
-  } else {
-    return 8;
-  }
-  if (lypix > 1 && lypix < BYM2) {
-    ysum[lypix + 1] = pseudopix;
-    ysum[lypix + 2] = pseudopix;
-  } else {
-    return 8;
-  }
+  // add pseudopixels
+
+  ysum[fypix - 1] = pseudopix;
+  ysum[fypix - 2] = pseudopix;
+  ysum[lypix + 1] = pseudopix;
+  ysum[lypix + 2] = pseudopix;
 
   // finally, determine if pixel[0] is a double pixel and make an origin correction if it is
 
@@ -560,6 +577,23 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   midpix = (fxpix + lxpix) / 2;
   shiftx = templ.cxtemp() - midpix;
+
+  // calculate new cluster boundaries
+
+  int lxtmp = lxpix + shiftx;
+  int fxtmp = fxpix + shiftx;
+
+  // Check the boundaries
+
+  if (fxtmp <= 1) {
+    return 9;
+  }
+  if (lxtmp >= BXM2) {
+    return 9;
+  }
+
+  //  If OK, shift everything
+
   if (shiftx > 0) {
     for (i = lxpix; i >= fxpix; --i) {
       xsum[i + shiftx] = xsum[i];
@@ -575,23 +609,14 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
       xd[i] = false;
     }
   }
-  lxpix += shiftx;
-  fxpix += shiftx;
 
-  // If the cluster boundaries are OK, add pesudopixels, otherwise quit
+  lxpix = lxtmp;
+  fxpix = fxtmp;
 
-  if (fxpix > 1 && fxpix < BXM2) {
-    xsum[fxpix - 1] = pseudopix;
-    xsum[fxpix - 2] = pseudopix;
-  } else {
-    return 9;
-  }
-  if (lxpix > 1 && lxpix < BXM2) {
-    xsum[lxpix + 1] = pseudopix;
-    xsum[lxpix + 2] = pseudopix;
-  } else {
-    return 9;
-  }
+  xsum[fxpix - 1] = pseudopix;
+  xsum[fxpix - 2] = pseudopix;
+  xsum[lxpix + 1] = pseudopix;
+  xsum[lxpix + 2] = pseudopix;
 
   // finally, determine if pixel[0] is a double pixel and make an origin correction if it is
 

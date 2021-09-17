@@ -25,7 +25,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //#include
 //"HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsElectronAssociationMap.h"
@@ -570,18 +569,6 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
   if ((nMu + nEle) >= 10)
     LogDebug("HiggsDQM") << "WARNING: " << nMu + nEle << " leptons in this event: run=" << e.id().run()
                          << ", event=" << e.id().event() << "\n";
-}
-//
-// -- End Run
-//
-void HiggsDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  //  cout<<"Entering HiggsDQM::endRun: "<<endl;
-
-  // edm::LogVerbatim ("HiggsDQM") <<"[HiggsDQM]: End of Run, saving  DQM output
-  // ";
-  // int iRun = run.run();
-
-  //  cout<<"...leaving HiggsDQM::endRun. "<<endl;
 }
 
 // Local Variables:

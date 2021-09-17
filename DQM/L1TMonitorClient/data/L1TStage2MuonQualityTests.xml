@@ -17,38 +17,12 @@
     <PARAM name="minEntries">200</PARAM>
   </QTEST>
 
-   <QTEST name="muon_etaSpectrum">
-    <TYPE>Comp2RefChi2</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.0000001</PARAM>
-    <PARAM name="warning">0.000003</PARAM>
-  </QTEST>
-
   <LINK name="*/L1TStage2uGMT/ugmtMuonEta">
       <TestName activate="true">muon_etaMeanAt0</TestName>
-      <TestName activate="false">muon_etaSpectrum</TestName>
   </LINK>
 
   <LINK name="*/L1TStage2uGMT/ugmtMuonEtaAtVtx">
       <TestName activate="true">muon_etaMeanAt0</TestName>
-      <TestName activate="false">muon_etaSpectrum</TestName>
-  </LINK>
-
-  <!-- phi and phi at vertex-->
-
-   <QTEST name="muon_phiSpectrum">
-    <TYPE>Comp2RefChi2</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.0000001</PARAM>
-    <PARAM name="warning">0.000003</PARAM>
-  </QTEST>
-
-  <LINK name="*/L1TStage2uGMT/ugmtMuonPhi">
-      <TestName activate="true">muon_phiSpectrum</TestName>
-  </LINK>
-
-  <LINK name="*/L1TStage2uGMT/ugmtMuonPhiAtVtx">
-      <TestName activate="true">muon_phiSpectrum</TestName>
   </LINK>
 
   <!-- pT -->
@@ -61,16 +35,8 @@
     <PARAM name="warning">0.99</PARAM>
   </QTEST>
 
-   <QTEST name="muon_PtSpectrum">
-    <TYPE>Comp2RefChi2</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.0000001</PARAM>
-    <PARAM name="warning">0.000003</PARAM>
-  </QTEST>
-
   <LINK name="*/L1TStage2uGMT/ugmtMuonPt">
       <TestName activate="true">muon_PtRange</TestName>
-      <TestName activate="false">muon_PtSpectrum</TestName>
   </LINK>
 
 

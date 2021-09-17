@@ -5,7 +5,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
-#include "boost/cstdint.hpp"
 #include "boost/range/iterator_range.hpp"
 #include <ostream>
 #include <sstream>

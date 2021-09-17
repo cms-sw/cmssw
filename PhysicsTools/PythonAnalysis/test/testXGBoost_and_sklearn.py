@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # from https://gist.github.com/IevaZarina/ef63197e089169a9ea9f3109058a9679
 
 from __future__ import print_function
@@ -7,7 +7,7 @@ import xgboost as xgb
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import dump_svmlight_file
-from sklearn.externals import joblib
+import joblib
 from sklearn.metrics import precision_score
 
 iris = datasets.load_iris()

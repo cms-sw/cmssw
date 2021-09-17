@@ -1,4 +1,3 @@
-#include <boost/cstdint.hpp>
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"

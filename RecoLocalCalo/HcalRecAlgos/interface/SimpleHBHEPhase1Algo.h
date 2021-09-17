@@ -47,7 +47,8 @@ public:
                        bool applyLegacyHBMCorrection,
                        std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                        std::unique_ptr<HcalDeterministicFit> detFit,
-                       std::unique_ptr<MahiFit> mahi);
+                       std::unique_ptr<MahiFit> mahi,
+                       edm::ConsumesCollector iC);
 
   inline ~SimpleHBHEPhase1Algo() override {}
 
@@ -69,6 +70,7 @@ public:
   inline bool isCorrectingForPhaseContainment() const { return corrFPC_; }
   inline int getRunNumber() const { return runnum_; }
 
+  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   const HcalTimeSlew* hcalTimeSlew_delay_;
 
 protected:
@@ -85,10 +87,7 @@ protected:
                  int nSamplesToAdd);
 
   // "Method 0" rechit timing (original low-pileup QIE8 algorithm)
-  float m0Time(const HBHEChannelInfo& info,
-               double reconstructedCharge,
-               const HcalCalibrations& calibs,
-               int nSamplesToExamine) const;
+  float m0Time(const HBHEChannelInfo& info, double reconstructedCharge, int nSamplesToExamine) const;
 
 private:
   HcalPulseContainmentManager pulseCorr_;

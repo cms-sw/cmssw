@@ -1,9 +1,7 @@
 #ifndef _HFVALUESTRUCT_H
 #define _HFVALUESTRUCT_H
 
-#include <iostream>
 #include <vector>
-#include <Rtypes.h>
 
 namespace reco {
 

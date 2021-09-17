@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include <memory>
+#include <boost/serialization/shared_ptr.hpp>
 
 class L1RPCConeBuilder {
 public:

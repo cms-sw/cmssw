@@ -23,11 +23,7 @@ DQM class to compute the tracking efficiency
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
-//#include <map>
 
 class TrackEfficiencyClient : public DQMEDHarvester {
 public:

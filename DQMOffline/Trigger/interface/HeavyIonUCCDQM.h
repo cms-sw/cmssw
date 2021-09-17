@@ -7,7 +7,6 @@
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //CaloMET
 #include "DataFormats/METReco/interface/CaloMET.h"

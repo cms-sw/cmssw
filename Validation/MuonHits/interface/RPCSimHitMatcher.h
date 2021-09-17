@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -44,7 +46,7 @@ public:
 private:
   void matchSimHitsToSimTrack();
 
-  edm::ESHandle<RPCGeometry> rpc_geom_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

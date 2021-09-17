@@ -8,19 +8,32 @@ from sys import argv
 process = cms.Process("TESTRECO")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(int(argv[2]))
-)
+process.maxEvents.input = int(argv[2])
+
+runToLumi = [111,222,333,444,555]
 
 process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.source = cms.Source("PoolSource",
-    setRunNumberForEachLumi = cms.untracked.vuint32(111,222,333,444,555),
-    fileNames = cms.untracked.vstring('file:RunPerLumiTest.root')
+                            setRunNumberForEachLumi = cms.untracked.vuint32(*runToLumi),
+                            fileNames = cms.untracked.vstring('file:RunPerLumiTest.root')
 )
+
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('OutputRunPerLumiTest.root')
+)
+
+numberOfEventsInLumi = 5
+ids = cms.VEventID()
+for l,r in enumerate(runToLumi):
+    for e in range(numberOfEventsInLumi):
+        ids.append(cms.EventID(r, l+1,l*5+e+1))
+
+process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(ids))
+
 
 process.p = cms.Path(process.OtherThing*process.Analysis)
 
-
+process.e = cms.EndPath(process.check+process.output)

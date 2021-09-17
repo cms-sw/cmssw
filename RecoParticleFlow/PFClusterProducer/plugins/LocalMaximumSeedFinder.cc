@@ -1,10 +1,39 @@
-#include "LocalMaximumSeedFinder.h"
+#include "CommonTools/Utils/interface/DynArray.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
 #include <algorithm>
-#include <queue>
 #include <cfloat>
-#include "CommonTools/Utils/interface/DynArray.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <tuple>
+#include <unordered_map>
+#include <queue>
+
+class LocalMaximumSeedFinder final : public SeedFinderBase {
+public:
+  LocalMaximumSeedFinder(const edm::ParameterSet& conf);
+  LocalMaximumSeedFinder(const LocalMaximumSeedFinder&) = delete;
+  LocalMaximumSeedFinder& operator=(const LocalMaximumSeedFinder&) = delete;
+
+  void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
+                 const std::vector<bool>& mask,
+                 std::vector<bool>& seedable) override;
+
+private:
+  const int _nNeighbours;
+
+  const std::unordered_map<std::string, int> _layerMap;
+
+  typedef std::tuple<std::vector<int>, std::vector<double>, std::vector<double> > I3tuple;
+
+  std::array<I3tuple, 35> _thresholds;
+  static constexpr int layerOffset = 15;
+
+  static constexpr double detacut = 0.01;
+  static constexpr double dphicut = 0.01;
+};
+
+DEFINE_EDM_PLUGIN(SeedFinderFactory, LocalMaximumSeedFinder, "LocalMaximumSeedFinder");
 
 namespace {
   const reco::PFRecHit::Neighbours _noNeighbours(nullptr, 0);
@@ -140,8 +169,30 @@ void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollectio
     }
     if (seedable[idx]) {
       for (auto neighbour : myNeighbours) {
+        //
+        // For HCAL,
+        // even if channel a is a neighbor of channel b, channel b may not be a neighbor of channel a.
+        // So, perform additional checks to ensure making a hit unusable for seeding is safe.
+        int seedlayer = (int)maybeseed.layer();
+        switch (seedlayer) {
+          case PFLayer::HCAL_BARREL1:
+          case PFLayer::HCAL_ENDCAP:
+          case PFLayer::HF_EM:   // with the current HF setting, we won't see this case
+                                 // but this can come in if we change _nNeighbours for HF.
+          case PFLayer::HF_HAD:  // same as above
+            // HO has only one depth and eta-phi segmentation is regular, so no need to make this check
+            auto const& nei = (*input)[neighbour];
+            if (maybeseed.depth() != nei.depth())
+              continue;  // masking is done only if the neighbor is on the same depth layer as the seed
+            if (std::abs(deltaPhi(maybeseed.positionREP().phi(), nei.positionREP().phi())) > dphicut &&
+                std::abs(maybeseed.positionREP().eta() - nei.positionREP().eta()) > detacut)
+              continue;  // masking is done only if the neighbor is on the swiss-cross w.r.t. the seed
+            break;
+        }
+
         usable[neighbour] = false;
-      }
+
+      }  // for-loop
     }
   }
 

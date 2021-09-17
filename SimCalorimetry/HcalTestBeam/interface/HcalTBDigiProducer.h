@@ -1,10 +1,14 @@
 #ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 #define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
@@ -17,16 +21,12 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 
 #include <string>
 #include <vector>
 
 class PEcalTBInfo;
-
-namespace edm {
-  class StreamID;
-  class ConsumesCollector;
-}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -34,7 +34,7 @@ namespace CLHEP {
 
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
-  explicit HcalTBDigiProducer(const edm::ParameterSet &ps, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  explicit HcalTBDigiProducer(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &iC);
   ~HcalTBDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;
@@ -62,6 +62,7 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
 
   HcalTBSimParameterMap *theParameterMap;
+  HcalSimParameterMap *paraMap;
   CaloVShape *theHcalShape;
   CaloVShape *theHcalIntegratedShape;
 
@@ -80,6 +81,10 @@ private:
   HBHEDigitizer *theHBHEDigitizer;
   HODigitizer *theHODigitizer;
 
+  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESWatcher<CaloGeometryRecord> geometryWatcher_;
   const CaloGeometry *theGeometry;
   std::vector<DetId> hbheCells;
   std::vector<DetId> hoCells;

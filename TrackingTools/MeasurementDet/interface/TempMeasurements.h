@@ -1,7 +1,6 @@
 #ifndef Tracking_TempMeasurements_H
 #define Tracking_TempMeasurements_H
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <vector>
 #include <algorithm>

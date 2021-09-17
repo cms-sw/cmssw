@@ -10,11 +10,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
-
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -28,6 +29,7 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  edm::ESGetToken<CaloTowerTopology, HcalRecNumberingRecord> const hcalRecNumberingRecordToken_;
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
   // parameters

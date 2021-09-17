@@ -17,37 +17,32 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
     return;
 
   /// Get the PixelDigiSimLink
-  iEvent.getByToken(digisimLinkToken, thePixelDigiSimLinkHandle);
+  iEvent.getByToken(digisimLinkToken_, thePixelDigiSimLinkHandle_);
 
   /// Get the TrackingParticles
 
-  iEvent.getByToken(tpToken, TrackingParticleHandle);
+  iEvent.getByToken(tpToken_, trackingParticleHandle_);
 
-  //  const TrackerTopology* const tTopo = theTrackerTopology.product();
-  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry.product();
+  //  const TrackerTopology* const tTopo = theTrackerTopology_.product();
+  const TrackerGeometry* const theTrackerGeom = theTrackerGeometry_.product();
 
   /// Preliminary task: map SimTracks by TrackingParticle
   /// Prepare the map
-  std::map<std::pair<unsigned int, EncodedEventId>, edm::Ptr<TrackingParticle>> simTrackUniqueToTPMap;
-  simTrackUniqueToTPMap.clear();
+  std::map<std::pair<unsigned int, EncodedEventId>, TrackingParticlePtr> simTrackUniqueToTPMap;
 
-  if (!TrackingParticleHandle->empty()) {
+  if (not trackingParticleHandle_->empty()) {
     /// Loop over TrackingParticles
-    unsigned int tpCnt = 0;
-    std::vector<TrackingParticle>::const_iterator iterTPart;
-    for (iterTPart = TrackingParticleHandle->begin(); iterTPart != TrackingParticleHandle->end(); ++iterTPart) {
+    for (unsigned int tpCnt = 0; tpCnt < trackingParticleHandle_->size(); tpCnt++) {
       /// Make the pointer to the TrackingParticle
-      edm::Ptr<TrackingParticle> tempTPPtr(TrackingParticleHandle, tpCnt++);
+      TrackingParticlePtr tempTPPtr(trackingParticleHandle_, tpCnt);
 
       /// Get the EncodedEventId
       EncodedEventId eventId = EncodedEventId(tempTPPtr->eventId());
 
       /// Loop over SimTracks inside TrackingParticle
-      std::vector<SimTrack>::const_iterator iterSimTrack;
-      for (iterSimTrack = tempTPPtr->g4Tracks().begin(); iterSimTrack != tempTPPtr->g4Tracks().end(); ++iterSimTrack) {
-        /// Build the unique SimTrack Id (which is SimTrack ID + EncodedEventId)
-        std::pair<unsigned int, EncodedEventId> simTrackUniqueId(iterSimTrack->trackId(), eventId);
-        simTrackUniqueToTPMap.insert(std::make_pair(simTrackUniqueId, tempTPPtr));
+      for (const auto& simTrack : tempTPPtr->g4Tracks()) {
+        /// Use the unique SimTrack Id (which is SimTrack ID + EncodedEventId)
+        simTrackUniqueToTPMap.emplace(std::make_pair(simTrack.trackId(), eventId), tempTPPtr);
       }
     }  /// End of loop over TrackingParticles
   }
@@ -56,29 +51,22 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
   int ncont1 = 0;
 
-  for (auto iTag = TTClustersTokens.begin(); iTag != TTClustersTokens.end(); iTag++) {
+  for (const auto& iTag : ttClustersTokens_) {
     /// Prepare output
     auto associationMapForOutput = std::make_unique<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Clusters already stored away
-    edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> TTClusterHandle;
+    edm::Handle<TTClusterDetSetVec> TTClusterHandle;
 
-    iEvent.getByToken(*iTag, TTClusterHandle);
+    iEvent.getByToken(iTag, TTClusterHandle);
 
     /// Prepare the necessary maps
-    std::map<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>,
-             std::vector<edm::Ptr<TrackingParticle>>>
-        clusterToTrackingParticleVectorMap;
-    std::map<edm::Ptr<TrackingParticle>,
-             std::vector<
-                 edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>>
-        trackingParticleToClusterVectorMap;
-    clusterToTrackingParticleVectorMap.clear();
-    trackingParticleToClusterVectorMap.clear();
+    std::map<TTClusterRef, std::vector<TrackingParticlePtr>> clusterToTrackingParticleVectorMap;
+    std::map<TrackingParticlePtr, std::vector<TTClusterRef>> trackingParticleToClusterVectorMap;
 
     /// Loop over the input Clusters
-    for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
-      DetId detid = (*gd)->geographicalId();
+    for (const auto& gd : theTrackerGeom->dets()) {
+      DetId detid = gd->geographicalId();
       if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
         continue;  // only run on OT
 
@@ -90,19 +78,17 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
       for (auto contentIter = clusters.begin(); contentIter != clusters.end(); ++contentIter) {
         /// Make the reference to be put in the map
-        edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>> tempCluRef =
-            edmNew::makeRefTo(TTClusterHandle, contentIter);
+        TTClusterRef tempCluRef = edmNew::makeRefTo(TTClusterHandle, contentIter);
 
         /// Prepare the maps wrt TTCluster
         if (clusterToTrackingParticleVectorMap.find(tempCluRef) == clusterToTrackingParticleVectorMap.end()) {
-          std::vector<edm::Ptr<TrackingParticle>> tpVector;
-          tpVector.clear();
-          clusterToTrackingParticleVectorMap.insert(std::make_pair(tempCluRef, tpVector));
+          std::vector<TrackingParticlePtr> tpVector;
+          clusterToTrackingParticleVectorMap.emplace(tempCluRef, tpVector);
         }
 
         /// Get the PixelDigiSimLink
         /// Safety check added after new digitizer (Oct 2014)
-        if (thePixelDigiSimLinkHandle->find(detid) == thePixelDigiSimLinkHandle->end()) {
+        if (thePixelDigiSimLinkHandle_->find(detid) == thePixelDigiSimLinkHandle_->end()) {
           /// Sensor is not found in DigiSimLink.
           /// Set MC truth to NULL for all hits in this sensor. Period.
 
@@ -111,7 +97,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
           for (unsigned int i = 0; i < theseHits.size(); i++) {
             /// No SimLink is found by definition
             /// Then store NULL MC truth for all the digis
-            edm::Ptr<TrackingParticle> tempTPPtr;  // = new edm::Ptr< TrackingParticle >();
+            TrackingParticlePtr tempTPPtr;
             clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
           }
 
@@ -119,7 +105,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
           continue;
         }
 
-        edm::DetSet<PixelDigiSimLink> thisDigiSimLink = (*(thePixelDigiSimLinkHandle))[detid];
+        edm::DetSet<PixelDigiSimLink> thisDigiSimLink = (*(thePixelDigiSimLinkHandle_))[detid];
         edm::DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
 
         /// Get the Digis and loop over them
@@ -140,7 +126,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
             /// Get the corresponding TrackingParticle
             if (simTrackUniqueToTPMap.find(thisUniqueId) != simTrackUniqueToTPMap.end()) {
-              edm::Ptr<TrackingParticle> thisTrackingParticle = simTrackUniqueToTPMap.find(thisUniqueId)->second;
+              TrackingParticlePtr thisTrackingParticle = simTrackUniqueToTPMap.find(thisUniqueId)->second;
 
               /// Store the TrackingParticle
               clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(thisTrackingParticle);
@@ -148,25 +134,22 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
               /// Prepare the maps wrt TrackingParticle
               if (trackingParticleToClusterVectorMap.find(thisTrackingParticle) ==
                   trackingParticleToClusterVectorMap.end()) {
-                std::vector<
-                    edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
-                    clusterVector;
-                clusterVector.clear();
-                trackingParticleToClusterVectorMap.insert(std::make_pair(thisTrackingParticle, clusterVector));
+                std::vector<TTClusterRef> clusterVector;
+                trackingParticleToClusterVectorMap.emplace(thisTrackingParticle, clusterVector);
               }
               trackingParticleToClusterVectorMap.find(thisTrackingParticle)
                   ->second.push_back(tempCluRef);  /// Fill the auxiliary map
             } else {
               /// In case no TrackingParticle is found, store a NULL pointer
 
-              edm::Ptr<TrackingParticle> tempTPPtr;  // = new edm::Ptr< TrackingParticle >();
+              TrackingParticlePtr tempTPPtr;
               clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
             }
           }  /// End of loop over PixelDigiSimLink
         }    /// End of loop over all the hits composing the Cluster
 
         /// Check that the cluster has a non-NULL TP pointer
-        std::vector<edm::Ptr<TrackingParticle>> theseClusterTrackingParticlePtrs =
+        const std::vector<TrackingParticlePtr>& theseClusterTrackingParticlePtrs =
             clusterToTrackingParticleVectorMap.find(tempCluRef)->second;
         bool allOfThemAreNull = true;
         for (unsigned int tpi = 0; tpi < theseClusterTrackingParticlePtrs.size() && allOfThemAreNull; tpi++) {
@@ -183,20 +166,13 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
 
     /// Clean the maps that need cleaning
     /// Prepare the output map wrt TrackingParticle
-    std::map<edm::Ptr<TrackingParticle>,
-             std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>,
-                                  TTCluster<Ref_Phase2TrackerDigi_>>>>::iterator iterMapToClean;
-    for (iterMapToClean = trackingParticleToClusterVectorMap.begin();
-         iterMapToClean != trackingParticleToClusterVectorMap.end();
-         ++iterMapToClean) {
+    for (auto& p : trackingParticleToClusterVectorMap) {
       /// Get the vector of references to TTCluster
-      std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
-          tempVector = iterMapToClean->second;
+      std::vector<TTClusterRef>& tempVector = p.second;
 
       /// Sort and remove duplicates
       std::sort(tempVector.begin(), tempVector.end());
       tempVector.erase(std::unique(tempVector.begin(), tempVector.end()), tempVector.end());
-      iterMapToClean->second = tempVector;
     }
 
     /// Put the maps in the association object
@@ -204,8 +180,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
     associationMapForOutput->setTrackingParticleToTTClustersMap(trackingParticleToClusterVectorMap);
 
     /// Put output in the event
-    //   iEvent.put( associationMapForOutput, (*iTag).instance() );
-    iEvent.put(std::move(associationMapForOutput), TTClustersInputTags.at(ncont1).instance());
+    iEvent.put(std::move(associationMapForOutput), ttClustersInputTags_.at(ncont1).instance());
 
     ++ncont1;
 

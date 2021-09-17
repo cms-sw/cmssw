@@ -3,7 +3,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
  * This class builds a TrajectoryStateClosestToPoint given an original 

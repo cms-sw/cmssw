@@ -41,5 +41,5 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     pf_convBremFinderID_mvaWeightFileEndcapsHighPt = cms.FileInPath('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml')
 )
 
-
-
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(pfTrackElec,MinSCEnergy = 1.0)

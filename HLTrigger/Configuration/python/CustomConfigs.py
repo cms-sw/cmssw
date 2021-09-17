@@ -22,10 +22,10 @@ def Base(process):
     process.options.numberOfStreams = cms.untracked.uint32( 0 )
     process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('L1TGlobalSummary')
-    process.MessageLogger.categories.append('HLTrigReport')
+    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
 
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
@@ -122,9 +122,8 @@ def HLTDropPrevious(process):
 
 def L1REPACK(process,sequence="Full"):
 
-
-    from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-    l1repack = cms.Process('L1REPACK',Run2_2018)
+    from Configuration.Eras.Era_Run3_cff import Run3
+    l1repack = cms.Process('L1REPACK',Run3)
     l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
@@ -136,6 +135,8 @@ def L1REPACK(process,sequence="Full"):
 
     for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
         setattr(process,module,getattr(l1repack,module))
+    for task in l1repack.tasks_():
+        setattr(process,task,getattr(l1repack,task))
     for sequence in l1repack.sequences_():
         setattr(process,sequence,getattr(l1repack,sequence))
     process.SimL1Emulator = l1repack.SimL1Emulator
@@ -146,7 +147,41 @@ def L1REPACK(process,sequence="Full"):
         getattr(process,path).insert(0,process.SimL1Emulator)
 
     # special L1T cleanup
-    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi','me0TriggerPseudoDigiTask','hgcalTriggerGeometryESProducer'):
+    cleanupL1T = ('SimL1TCalorimeter'
+                  ,'SimL1TCalorimeterTask'
+                  ,'SimL1TMuonCommon'
+                  ,'SimL1TMuonCommonTask'
+                  ,'SimL1TMuon'
+                  ,'SimL1TMuonTask'
+                  ,'SimL1TechnicalTriggers'
+                  ,'SimL1TechnicalTriggersTask'
+                  ,'SimL1EmulatorCore'
+                  ,'SimL1EmulatorCoreTask'
+                  ,'ecalDigiSequence'
+                  ,'ecalDigiTask'
+                  ,'hcalDigiSequence'
+                  ,'hcalDigiTask'
+                  ,'calDigi'
+                  ,'calDigiTask'
+                  ,'me0TriggerPseudoDigis'
+                  ,'me0TriggerPseudoDigiTask'
+                  ,'simMuonGEMPadTask'
+                  ,'hgcalTriggerPrimitives'
+                  ,'hgcalTriggerPrimitivesTask'
+                  ,'hgcalVFE'
+                  ,'hgcalVFEProducer'
+                  ,'hgcalBackEndLayer2'
+                  ,'hgcalBackEndLayer2Producer'
+                  ,'hgcalTowerMap'
+                  ,'hgcalTowerMapProducer'
+                  ,'hgcalConcentrator'
+                  ,'hgcalConcentratorProducer'
+                  ,'hgcalBackEndLayer1'
+                  ,'hgcalBackEndLayer1Producer'
+                  ,'hgcalTower'
+                  ,'hgcalTowerProducer'
+                  ,'hgcalTriggerGeometryESProducer')
+    for obj in cleanupL1T:
         if hasattr(process,obj):
             delattr(process,obj)
 
@@ -165,3 +200,8 @@ def L1XML(process,xmlFile=None):
     process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","L1TriggerMenu")
 
     return process
+
+def CTPPSRun2Geometry(process):
+    if hasattr(process,'ctppsGeometryESModule'):
+        process.ctppsGeometryESModule.isRun2 = True
+    return(process)

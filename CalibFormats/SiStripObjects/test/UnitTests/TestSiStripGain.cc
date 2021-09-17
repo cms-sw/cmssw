@@ -12,6 +12,8 @@
 #include <iterator>
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #ifndef TestSiStripGain_cc
 #define TestSiStripGain_cc
@@ -69,8 +71,11 @@ public:
     normVector.push_back(norm1);
     normVector.push_back(norm2);
 
-    SiStripGain gain(*apvGain1, norm1, recordLabelPair1);
-    gain.multiply(*apvGain2, norm2, recordLabelPair2);
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+
+    SiStripGain gain(*apvGain1, norm1, recordLabelPair1, detInfo);
+    gain.multiply(*apvGain2, norm2, recordLabelPair2, detInfo);
     SiStripApvGain::Range range = gain.getRange(detId);
 
     // Check multiplication
@@ -83,7 +88,10 @@ public:
   }
 
   void apvGainsTest(const float &norm) {
-    SiStripGain gain(*apvGain1, norm);
+    const auto detInfo =
+        SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+
+    SiStripGain gain(*apvGain1, norm, detInfo);
     SiStripApvGain::Range range = gain.getRange(detId);
     CPPUNIT_ASSERT(float(gain.getApvGain(0, range)) == float(1. / norm));
     CPPUNIT_ASSERT(float(gain.getApvGain(1, range)) == float(0.8 / norm));
@@ -91,7 +99,7 @@ public:
     CPPUNIT_ASSERT(float(gain.getApvGain(3, range)) == float(2. / norm));
     checkTag(gain, norm, "", "");
 
-    SiStripGain gain2(*apvGain2, norm);
+    SiStripGain gain2(*apvGain2, norm, detInfo);
     SiStripApvGain::Range range2 = gain2.getRange(detId);
     CPPUNIT_ASSERT(float(gain2.getApvGain(0, range2)) == float(1. / norm));
     CPPUNIT_ASSERT(float(gain2.getApvGain(1, range2)) == float(1. / (norm * 0.8)));

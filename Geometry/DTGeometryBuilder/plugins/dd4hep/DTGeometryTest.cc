@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -12,6 +13,7 @@
 using namespace std;
 using namespace cms;
 using namespace edm;
+using namespace cms_rounding;
 
 class DTGeometryTest : public one::EDAnalyzer<> {
 public:
@@ -31,58 +33,58 @@ DTGeometryTest::DTGeometryTest(const ParameterSet& iConfig)
       m_token(esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{"", m_label})) {}
 
 void DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup) {
-  LogVerbatim("Geometry") << "DTGeometryTest::analyze: " << m_label;
+  LogVerbatim("DTGeometryTest") << "DTGeometryTest::analyze: " << m_label;
   ESTransientHandle<DTGeometry> pDD = iEventSetup.getTransientHandle(m_token);
 
-  LogVerbatim("Geometry") << " Geometry node for DTGeom is  " << &(*pDD);
-  LogVerbatim("Geometry") << " I have " << pDD->detTypes().size() << " detTypes";
-  LogVerbatim("Geometry") << " I have " << pDD->detUnits().size() << " detUnits";
-  LogVerbatim("Geometry") << " I have " << pDD->dets().size() << " dets";
-  LogVerbatim("Geometry") << " I have " << pDD->layers().size() << " layers";
-  LogVerbatim("Geometry") << " I have " << pDD->superLayers().size() << " superlayers";
-  LogVerbatim("Geometry") << " I have " << pDD->chambers().size() << " chambers";
+  LogVerbatim("DTGeometryTest") << " Geometry node for DTGeom is " << (pDD.isValid() ? "valid" : "not valid");
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->detTypes().size() << " detTypes";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->detUnits().size() << " detUnits";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->dets().size() << " dets";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->layers().size() << " layers";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->superLayers().size() << " superlayers";
+  LogVerbatim("DTGeometryTest") << " I have " << pDD->chambers().size() << " chambers";
 
   // check chamber
-  LogVerbatim("Geometry") << "CHAMBERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "CHAMBERS " << string(120, '-');
 
-  LogVerbatim("Geometry").log([&](auto& log) {
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->chambers()) {
       const BoundPlane& surf = det->surface();
-      log << "Chamber " << det->id() << " Position " << surf.position() << " normVect " << surf.normalVector()
-          << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
-          << surf.bounds().length() << "\n";
-    }
-  });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
-
-  // check superlayers
-  LogVerbatim("Geometry") << "SUPERLAYERS " << string(120, '-');
-  LogVerbatim("Geometry").log([&](auto& log) {
-    for (auto det : pDD->superLayers()) {
-      const BoundPlane& surf = det->surface();
-      log << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
-          << " normVect " << surf.normalVector() << " bounds W/H/L: " << surf.bounds().width() << "/"
+      log << "Chamber " << det->id() << " Position " << surf.position() << " normVect "
+          << roundVecIfNear0(surf.normalVector()) << " bounds W/H/L: " << surf.bounds().width() << "/"
           << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
     }
   });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
+
+  // check superlayers
+  LogVerbatim("DTGeometryTest") << "SUPERLAYERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
+    for (auto det : pDD->superLayers()) {
+      const BoundPlane& surf = det->surface();
+      log << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
+          << " normVect " << roundVecIfNear0(surf.normalVector()) << " bounds W/H/L: " << surf.bounds().width() << "/"
+          << surf.bounds().thickness() << "/" << surf.bounds().length() << "\n";
+    }
+  });
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
 
   // check layers
-  LogVerbatim("Geometry") << "LAYERS " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "LAYERS " << string(120, '-');
 
-  LogVerbatim("Geometry").log([&](auto& log) {
+  LogVerbatim("DTGeometryTest").log([&](auto& log) {
     for (auto det : pDD->layers()) {
       const DTTopology& topo = det->specificTopology();
       const BoundPlane& surf = det->surface();
       log << "Layer " << det->id() << " SL " << det->superLayer()->id() << " chamber " << det->chamber()->id()
           << " Topology W/H/L: " << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght()
           << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
-          << " Position " << surf.position() << " normVect " << surf.normalVector()
+          << " Position " << surf.position() << " normVect " << roundVecIfNear0(surf.normalVector())
           << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
           << surf.bounds().length() << "\n";
     }
   });
-  LogVerbatim("Geometry") << "END " << string(120, '-');
+  LogVerbatim("DTGeometryTest") << "END " << string(120, '-');
 }
 
 DEFINE_FWK_MODULE(DTGeometryTest);

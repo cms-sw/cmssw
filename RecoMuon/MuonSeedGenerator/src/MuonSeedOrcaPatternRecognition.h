@@ -3,7 +3,10 @@
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 class MuonSeedOrcaPatternRecognition : public MuonSeedVPatternRecognition {
 public:
@@ -56,6 +59,7 @@ private:
   double theDeltaPhiWindow;
   double theDeltaEtaWindow;
   double theDeltaCrackWindow;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonLayersToken;
 };
 
 #endif

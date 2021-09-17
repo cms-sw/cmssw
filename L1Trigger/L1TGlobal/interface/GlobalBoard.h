@@ -106,7 +106,7 @@ namespace l1t {
                 const int iBxInEvent,
                 const int totalBxInEvent,
                 const unsigned int numberPhysTriggers,
-                const std::vector<int>& prescaleFactorsAlgoTrig,
+                const std::vector<double>& prescaleFactorsAlgoTrig,
                 const std::vector<unsigned int>& triggerMaskAlgoTrig,
                 const std::vector<int>& triggerMaskVetoAlgoTrig,
                 const bool algorithmTriggersUnprescaled,
@@ -226,7 +226,7 @@ namespace l1t {
     std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
 
     /// prescale counters: NumberPhysTriggers counters per bunch cross in event
-    std::vector<std::vector<int>> m_prescaleCounterAlgoTrig;
+    std::vector<std::vector<double>> m_prescaleCounterAlgoTrig;
 
     bool m_firstEv;
     bool m_firstEvLumiSegment;

@@ -27,6 +27,13 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,12 +41,14 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripDetCabling;
+class RunInfo;
 
 class SiStripCertificationInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripCertificationInfo(const edm::ParameterSet& ps);
 
 private:
@@ -68,10 +77,13 @@ private:
   MonitorElement* SiStripCertificationSummaryMap{nullptr};
 
   bool sistripCertificationBooked_{false};
-  unsigned long long m_cacheID_{};
 
   edm::ESHandle<SiStripDetCabling> detCabling_{};
 
   int nFEDConnected_{};
+
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 };
 #endif

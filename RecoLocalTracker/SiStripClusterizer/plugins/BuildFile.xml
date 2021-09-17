@@ -1,5 +1,6 @@
-<library   name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc">
-  <use   name="RecoLocalTracker/SiStripClusterizer"/>
-  <use   name="RecoLocalTracker/SiStripZeroSuppression"/>
-  <flags   EDM_PLUGIN="1"/>
+<library name="RecoLocalTrackerSiStripClusterizerPlugins" file="*.cc">
+  <use name="EventFilter/SiStripRawToDigi"/>
+  <use name="RecoLocalTracker/SiStripClusterizer"/>
+  <use name="RecoLocalTracker/SiStripZeroSuppression"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

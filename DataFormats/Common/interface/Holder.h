@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
 
 namespace edm {

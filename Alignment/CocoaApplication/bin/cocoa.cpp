@@ -29,9 +29,11 @@ int main(int argc, char** argv) {
     case 4:
       if (ALIstring(argv[3]) != "!")
         Model::setMatricesFName(argv[3]);
+      [[fallthrough]];
     case 3:
       if (ALIstring(argv[2]) != "!")
         Model::setReportFName(argv[2]);
+      [[fallthrough]];
     case 2:
       if (ALIstring(argv[1]) != "!")
         Model::setSDFName(argv[1]);

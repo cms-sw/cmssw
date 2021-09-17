@@ -13,11 +13,9 @@
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 // Root
@@ -40,7 +38,7 @@ void DTLocalTriggerBaseTest::beginRun(edm::Run const& run, edm::EventSetup const
   nLumiSegs = 0;
 
   LogVerbatim(category()) << "[" << testName << "Test]: BeginRun";
-  context.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = &context.getData(muonGeomToken_);
 }
 
 void DTLocalTriggerBaseTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
@@ -107,8 +105,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream sector;
   sector << chambid.sector();
 
-  string folderName =
-      topFolder(hwSource == "TM") + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
+  string folderName = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
   if (!subfolder.empty()) {
     folderName += subfolder + "/";
   }
@@ -123,7 +120,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int 
   stringstream wheel;
   wheel << wh;
 
-  string folderName = topFolder(hwSource == "TM") + "Wheel" + wheel.str() + "/";
+  string folderName = topFolder() + "Wheel" + wheel.str() + "/";
   if (!subfolder.empty()) {
     folderName += subfolder + "/";
   }
@@ -140,8 +137,7 @@ void DTLocalTriggerBaseTest::bookSectorHistos(
   stringstream sc;
   sc << sector;
   int sectorid = (wheel + 3) + (sector - 1) * 5;
-  bool isTM = hwSource == "TM";
-  string basedir = topFolder(isTM) + "Wheel" + wh.str() + "/Sector" + sc.str() + "/";
+  string basedir = topFolder() + "Wheel" + wh.str() + "/Sector" + sc.str() + "/";
   if (!folder.empty()) {
     basedir += folder + "/";
   }
@@ -195,8 +191,7 @@ void DTLocalTriggerBaseTest::bookSectorHistos(
 }
 
 void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker& ibooker, string hTag, string folder, bool isGlb) {
-  bool isTM = hwSource == "TM";
-  string basedir = topFolder(isTM);
+  string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
   }
@@ -216,11 +211,10 @@ void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker& ibooker, int whe
   stringstream wh;
   wh << wheel;
   string basedir;
-  bool isTM = hwSource == "TM";
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(isTM);  //Book summary histo outside wheel directories
+    basedir = topFolder();  //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder(isTM) + "Wheel" + wh.str() + "/";
+    basedir = topFolder() + "Wheel" + wh.str() + "/";
   }
   if (!folder.empty()) {
     basedir += folder + "/";

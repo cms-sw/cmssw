@@ -22,9 +22,7 @@
 #include <memory>
 
 // user include files
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "JetMETCorrections/JetCorrector/interface/JetCorrectorImpl.h"
-#endif
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -35,10 +33,11 @@ namespace reco {
   class JetCorrector {
   public:
     JetCorrector();
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     JetCorrector(std::unique_ptr<JetCorrectorImpl const> fImpl) : impl_(std::move(fImpl)) {}
     JetCorrector(JetCorrector&&) = default;
     JetCorrector& operator=(JetCorrector&&) = default;
+    JetCorrector(const JetCorrector&) = delete;
+    JetCorrector& operator=(const JetCorrector&) = delete;
 
     typedef reco::Particle::LorentzVector LorentzVector;
 
@@ -70,17 +69,8 @@ namespace reco {
     // ---------- member functions ---------------------------
 
   private:
-    JetCorrector(const JetCorrector&) = delete;
-
-    JetCorrector& operator=(const JetCorrector&) = delete;
-
     // ---------- member data --------------------------------
     std::unique_ptr<JetCorrectorImpl const> impl_;
-#else
-  private:
-    JetCorrector(const JetCorrector&);
-    const JetCorrector& operator=(const JetCorrector&);
-#endif
   };
 }  // namespace reco
 

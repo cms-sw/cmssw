@@ -18,10 +18,13 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "EventFilter/CastorRawToDigi/interface/CastorPacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
 class CastorDigiToRaw : public edm::global::EDProducer<> {
 public:
@@ -33,6 +36,7 @@ private:
   const bool usingctdc_;
   const edm::EDGetTokenT<CastorDigiCollection> tok_input_;
   const edm::EDPutTokenT<FEDRawDataCollection> tok_put_;
+  const edm::ESGetToken<CastorDbService, CastorDbRecord> tok_pSetup_;
 };
 
 #endif

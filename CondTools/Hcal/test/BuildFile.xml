@@ -1,26 +1,32 @@
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CondFormats/Serialization"/>
-<use   name="CondTools/Hcal"/>
-<use   name="CondFormats/DataRecord"/>
+<use name="clhep"/>
+<use name="boost"/>
+<use name="root"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondTools/Hcal"/>
+<use name="CondFormats/DataRecord"/>
+<library name="PMTParams" file="make_*cc">
+</library>
 
-<library name="PMTParams" file="make_*cc">   </library>
-<bin     file="write_HFPhase1PMTParams.cc">
+<bin file="write_HFPhase1PMTParams.cc">
   <lib name="PMTParams"/>
 </bin>
 
 <library name="PMTParamsVis" file="visualizeHFPhase1PMTParams.cc">
-  <use  name="rootgpad"/>
+  <use name="rootgpad"/>
 </library>
-<bin     file="makeHFPhase1PMTParamsPlots.cc">
+
+<bin file="makeHFPhase1PMTParamsPlots.cc">
   <lib name="PMTParams"/>
   <lib name="PMTParamsVis"/>
 </bin>
 
-<bin     file="write_HBHENegativeEFilter.cc">
+<bin file="write_HBHENegativeEFilter.cc">
   <lib name="PMTParams"/>
 </bin>
+
+<library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
+ <flags EDM_PLUGIN="1"/>
+</library>

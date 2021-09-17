@@ -15,12 +15,13 @@ HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, in
   int waferUsign = (waferU >= 0) ? 0 : 1;
   int waferVsign = (waferV >= 0) ? 0 : 1;
   int zside = (zp < 0) ? 1 : 0;
+  int lay = std::max(layer - 1, 0);
   id_ |= (((cellU & kHFNoseCellUMask) << kHFNoseCellUOffset) | ((cellV & kHFNoseCellVMask) << kHFNoseCellVOffset) |
           ((waferUabs & kHFNoseWaferUMask) << kHFNoseWaferUOffset) |
           ((waferUsign & kHFNoseWaferUSignMask) << kHFNoseWaferUSignOffset) |
           ((waferVabs & kHFNoseWaferVMask) << kHFNoseWaferVOffset) |
           ((waferVsign & kHFNoseWaferVSignMask) << kHFNoseWaferVSignOffset) |
-          ((layer & kHFNoseLayerMask) << kHFNoseLayerOffset) | ((zside & kHFNoseZsideMask) << kHFNoseZsideOffset) |
+          ((lay & kHFNoseLayerMask) << kHFNoseLayerOffset) | ((zside & kHFNoseZsideMask) << kHFNoseZsideOffset) |
           ((type & kHFNoseTypeMask) << kHFNoseTypeOffset));
 }
 

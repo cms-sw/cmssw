@@ -21,6 +21,8 @@
 
 #include <string>
 
+#include <fmt/format.h>
+
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,7 +33,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TFile.h"
 
 using namespace edm;
@@ -51,57 +52,25 @@ GlobalTest::GlobalTest(const edm::ParameterSet &iConfig)
             << ", maxbunch: " << maxbunch_ << std::endl;
 }
 
-GlobalTest::~GlobalTest() {
-  for (int i = 0; i < 6; i++)
-    delete[] labels[i];
-}
-
 void GlobalTest::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   using namespace std;
 
   ibooker.setCurrentFolder("MixingV/Mixing");
   // book histos
-  std::string NrPileupEvts = "NrPileupEvts";
-  size_t NrPileupEvtsSize = NrPileupEvts.size() + 1;
-  std::string NrVertices = "NrVertices";
-  size_t NrVerticesSize = NrVertices.size() + 1;
-  std::string NrTracks = "NrTracks";
-  size_t NrTracksSize = NrTracks.size() + 1;
-  std::string TrackPartId = "TrackPartId";
-  size_t TrackPartIdSize = TrackPartId.size() + 1;
-  std::string CaloEnergyEB = "CaloEnergyEB";
-  size_t CaloEnergyEBSize = CaloEnergyEB.size() + 1;
-  std::string CaloEnergyEE = "CaloEnergyEE";
-  size_t CaloEnergyEESize = CaloEnergyEE.size() + 1;
 
-  labels[0] = new char[NrPileupEvtsSize];
-  strncpy(labels[0], NrPileupEvts.c_str(), NrPileupEvtsSize);
-  labels[1] = new char[NrVerticesSize];
-  strncpy(labels[1], NrVertices.c_str(), NrVerticesSize);
-  labels[2] = new char[NrTracksSize];
-  strncpy(labels[2], NrTracks.c_str(), NrTracksSize);
-  labels[3] = new char[TrackPartIdSize];
-  strncpy(labels[3], TrackPartId.c_str(), TrackPartIdSize);
-  labels[4] = new char[CaloEnergyEBSize];
-  strncpy(labels[4], CaloEnergyEB.c_str(), CaloEnergyEBSize);
-  labels[5] = new char[CaloEnergyEESize];
-  strncpy(labels[5], CaloEnergyEE.c_str(), CaloEnergyEESize);
-
-  // FIXME: test for max nr of histos
   for (int i = minbunch_; i <= maxbunch_; ++i) {
     int ii = i - minbunch_;
-    char label[50];
-    sprintf(label, "%s_%d", labels[0], i);
+    auto label = fmt::format("NrPileupEvts_{}", i);
     nrPileupsH_[ii] = ibooker.book1D(label, label, 100, 0, 100);
-    sprintf(label, "%s_%d", labels[1], i);
+    label = fmt::format("NrVertices_{}", i);
     nrVerticesH_[ii] = ibooker.book1D(label, label, 100, 0, 5000);
-    sprintf(label, "%s_%d", labels[2], i);
+    label = fmt::format("NrTracks_{}", i);
     nrTracksH_[ii] = ibooker.book1D(label, label, 100, 0, 10000);
-    sprintf(label, "%s_%d", labels[3], i);
+    label = fmt::format("TrackPartId", i);
     trackPartIdH_[ii] = ibooker.book1D(label, label, 100, 0, 100);
-    sprintf(label, "%s_%d", labels[4], i);
+    label = fmt::format("CaloEnergyEB", i);
     caloEnergyEBH_[ii] = ibooker.book1D(label, label, 100, 0., 1000.);
-    sprintf(label, "%s_%d", labels[5], i);
+    label = fmt::format("CaloEnergyEE", i);
     caloEnergyEEH_[ii] = ibooker.book1D(label, label, 100, 0., 1000.);
   }
 }

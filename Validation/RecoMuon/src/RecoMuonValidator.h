@@ -1,8 +1,8 @@
 #ifndef Validation_RecoMuon_RecoMuonValidator_H
 #define Validation_RecoMuon_RecoMuonValidator_H
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -20,24 +20,20 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class DQMStore;
-class MonitorElement;
-class MuonServiceProxy;
 class TrackAssociatorBase;
 
-class RecoMuonValidator : public DQMEDAnalyzer {
+class RecoMuonValidator : public DQMOneEDAnalyzer<> {
 public:
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator() override;
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   virtual int countMuonHits(const reco::Track& track) const;
   virtual int countTrackerHits(const reco::Track& track) const;
@@ -49,6 +45,9 @@ protected:
   edm::InputTag muonLabel_;
   std::string muonSelection_;
   edm::EDGetTokenT<TrackingParticleCollection> simToken_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpRefVectorToken_;
+  bool tpRefVector;
+
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
   edm::InputTag muAssocLabel_;
@@ -64,7 +63,6 @@ protected:
   std::string subsystemname_;
   edm::ParameterSet pset;
 
-  MuonServiceProxy* theMuonService;
   DQMStore* dbe_;
 
   bool doAbsEta_;
@@ -133,4 +131,3 @@ private:
 };
 
 #endif
-/* vim:set ts=2 sts=2 sw=2 expandtab: */

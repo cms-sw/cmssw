@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
@@ -210,13 +209,13 @@ void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,
   }  //end loop over varNames
 }
 
-MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filter,
-                                                         const std::string& name,
-                                                         const std::string& title,
-                                                         const MonitorElement* numer,
-                                                         const MonitorElement* denom,
-                                                         DQMStore::IBooker& ibooker,
-                                                         DQMStore::IGetter& igetter) {
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filter,
+                                                                             const std::string& name,
+                                                                             const std::string& title,
+                                                                             const MonitorElement* numer,
+                                                                             const MonitorElement* denom,
+                                                                             DQMStore::IBooker& ibooker,
+                                                                             DQMStore::IGetter& igetter) {
   TH1F* num = numer->getTH1F();
   if (num->GetSumw2N() == 0)
     num->Sumw2();
@@ -489,13 +488,13 @@ void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&
   }    //end loop over vsVarNames
 }
 //-----Morse-------
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::string& filterName,
-                                                                 const std::string& name,
-                                                                 const std::string& title,
-                                                                 const MonitorElement* pass,
-                                                                 const MonitorElement* all,
-                                                                 DQMStore::IBooker& ibooker,
-                                                                 DQMStore::IGetter& igetter) {
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::string& filterName,
+                                                                                     const std::string& name,
+                                                                                     const std::string& title,
+                                                                                     const MonitorElement* pass,
+                                                                                     const MonitorElement* all,
+                                                                                     DQMStore::IBooker& ibooker,
+                                                                                     DQMStore::IGetter& igetter) {
   TH1F* passHist = pass->getTH1F();
   if (passHist->GetSumw2N() == 0)
     passHist->Sumw2();
@@ -517,14 +516,15 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::stri
   return eff;
 }
 
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,
-                                                                           const std::string& name,
-                                                                           const std::string& title,
-                                                                           const MonitorElement* passNotTag,
-                                                                           const MonitorElement* fail,
-                                                                           const MonitorElement* tagtag,
-                                                                           DQMStore::IBooker& ibooker,
-                                                                           DQMStore::IGetter& igetter) {
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(
+    const std::string& filter,
+    const std::string& name,
+    const std::string& title,
+    const MonitorElement* passNotTag,
+    const MonitorElement* fail,
+    const MonitorElement* tagtag,
+    DQMStore::IBooker& ibooker,
+    DQMStore::IGetter& igetter) {
   TH1F* passHist = passNotTag->getTH1F();
   if (passHist->GetSumw2N() == 0)
     passHist->Sumw2();
@@ -561,14 +561,14 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const
   return eff;
 }
 
-MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter,
-                                                       const std::string& name,
-                                                       const std::string& title,
-                                                       const MonitorElement* Leg1Eff,
-                                                       const MonitorElement* Leg2NotLeg1Source,
-                                                       const MonitorElement* all,
-                                                       DQMStore::IBooker& ibooker,
-                                                       DQMStore::IGetter& igetter) {
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter,
+                                                                           const std::string& name,
+                                                                           const std::string& title,
+                                                                           const MonitorElement* Leg1Eff,
+                                                                           const MonitorElement* Leg2NotLeg1Source,
+                                                                           const MonitorElement* all,
+                                                                           DQMStore::IBooker& ibooker,
+                                                                           DQMStore::IGetter& igetter) {
   TH1F* allHist = all->getTH1F();
   if (allHist->GetSumw2() == nullptr)
     allHist->Sumw2();
@@ -613,13 +613,13 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter
 }
 
 //-----Morse-------
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& filterName,
-                                                                  const std::string& name,
-                                                                  const std::string& title,
-                                                                  const MonitorElement* pass,
-                                                                  const MonitorElement* fail,
-                                                                  DQMStore::IBooker& ibooker,
-                                                                  DQMStore::IGetter& igetter) {
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& filterName,
+                                                                                      const std::string& name,
+                                                                                      const std::string& title,
+                                                                                      const MonitorElement* pass,
+                                                                                      const MonitorElement* fail,
+                                                                                      DQMStore::IBooker& ibooker,
+                                                                                      DQMStore::IGetter& igetter) {
   TH1F* failHist = fail->getTH1F();
   if (failHist->GetSumw2N() == 0)
     failHist->Sumw2();

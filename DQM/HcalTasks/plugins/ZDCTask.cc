@@ -127,8 +127,8 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
     _cShape_EChannel[histoname]->setAxisTitle("fC QIE8", 2);
 
     ib.setCurrentFolder("Hcal/ZDCTask/ADC_perChannel");
-    _cADC_EChannel[histoname] = ib.book1D(histoname, histoname, xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
-    _cADC_EChannel[histoname]->getRootObject()->SetBit(
+    _cADC_EChannel[histoname] = ib.book1DD(histoname, histoname, xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
+    _cADC_EChannel[histoname]->getTH1()->SetBit(
         BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
     _cADC_EChannel[histoname]->setAxisTitle("ADC QIE8", 1);
 
@@ -141,7 +141,7 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
                                                 xAxisADC.nbins(),
                                                 xAxisADC.min(),
                                                 xAxisADC.max());
-    _cADC_vs_TS_EChannel[histoname]->getRootObject()->SetBit(
+    _cADC_vs_TS_EChannel[histoname]->getTH1()->SetBit(
         BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
     _cADC_vs_TS_EChannel[histoname]->setAxisTitle("Timing", 1);
     _cADC_vs_TS_EChannel[histoname]->setAxisTitle("ADC QIE8", 2);
@@ -161,8 +161,8 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
   _cShape->setAxisTitle("Timing", 1);
   _cShape->setAxisTitle("fC QIE8", 2);
 
-  _cADC = ib.book1D("ADC", "ADC", xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
-  _cADC->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
+  _cADC = ib.book1DD("ADC", "ADC", xAxisADC.nbins(), xAxisADC.min(), xAxisADC.max());
+  _cADC->getTH1()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
   _cADC->setAxisTitle("ADC QIE8", 1);
 
   _cADC_vs_TS = ib.book2D("ADC_vs_TS",
@@ -173,7 +173,7 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
                           xAxisADC.nbins(),
                           xAxisADC.min(),
                           xAxisADC.max());
-  _cADC_vs_TS->getRootObject()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
+  _cADC_vs_TS->getTH1()->SetBit(BIT(hcaldqm::constants::BIT_OFFSET + hcaldqm::quantity::AxisType::fYAxis));
   _cADC_vs_TS->setAxisTitle("Timing", 1);
   _cADC_vs_TS->setAxisTitle("ADC QIE8", 2);
 }

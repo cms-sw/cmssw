@@ -35,4 +35,4 @@ hltSoftdropmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24
 hltSoftdropmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltSoftdropmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltSoftdropmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-hltSoftdropmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*","HLT_IsoTkMu27_v*");
+hltSoftdropmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*")

@@ -36,6 +36,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+
+public:
   FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&) = delete;
   const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&) = delete;
 };
@@ -110,10 +112,12 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
-  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+public:
   FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&) = delete;
   const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&) = delete;
+
+private:
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };
 
 void FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {

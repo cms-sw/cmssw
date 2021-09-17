@@ -4,7 +4,7 @@ process = cms.Process("Layer1EmulatorOnSpy")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '74X_dataRun2_Express_v1'
 
 process.load('L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi')

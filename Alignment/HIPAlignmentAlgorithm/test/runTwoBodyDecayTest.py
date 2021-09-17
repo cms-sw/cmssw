@@ -5,7 +5,6 @@ process = cms.Process("TBDtest")
 
 # Messages
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")

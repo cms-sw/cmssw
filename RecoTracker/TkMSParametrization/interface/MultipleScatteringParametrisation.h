@@ -8,7 +8,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class MSLayersKeeper;
 class PixelRecoPointRZ;

@@ -28,6 +28,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/IOVSyncValue.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 class TTree;
@@ -46,6 +47,9 @@ namespace fwlite {
   class Record {
   public:
     Record(const char* iName, TTree*);
+    Record(const Record&) = delete;                   // stop default
+    const Record& operator=(const Record&) = delete;  // stop default
+
     virtual ~Record();
 
     // ---------- const member functions ---------------------
@@ -64,10 +68,6 @@ namespace fwlite {
     void syncTo(const edm::EventID&, const edm::Timestamp&);
 
   private:
-    Record(const Record&) = delete;  // stop default
-
-    const Record& operator=(const Record&) = delete;  // stop default
-
     cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
     void resetCaches();
     // ---------- member data --------------------------------
@@ -78,7 +78,8 @@ namespace fwlite {
     IOVSyncValue m_start;
     IOVSyncValue m_end;
 
-    mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
   };
 
   template <typename HANDLE>

@@ -63,10 +63,10 @@ NTuplingDevice::NTuplingDevice(const edm::ParameterSet& iConfig) {
   //this Ntupler can work with the InputTagDistributor, but should not be configured as such.
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
   std::string ntuplerName = ntPset.getParameter<std::string>("ComponentName");
-  ntupler_ = std::unique_ptr<NTupler>(NTuplerFactory::get()->create(ntuplerName, ntPset));
+  ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
 
   //register the leaves from the ntupler
-  ntupler_->registerleaves(this);
+  ntupler_->registerleaves(producesCollector());
 
   //put a dummy product if the ntupler does not output on edm
   produces<double>("dummy");

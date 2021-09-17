@@ -31,6 +31,8 @@ public:
 
 public:
   CombinedHitQuadrupletGeneratorForPhotonConversion(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion& cb) =
+      delete;
   ~CombinedHitQuadrupletGeneratorForPhotonConversion();
 
   void hitPairs(const TrackingRegion&, OrderedHitPairs&, const edm::Event&, const edm::EventSetup&);
@@ -41,9 +43,6 @@ public:
 
   /*------------------------*/
 private:
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion& cb) =
-      delete;
-
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
   const unsigned int theMaxElement;
   LayerCacheType theLayerCache;

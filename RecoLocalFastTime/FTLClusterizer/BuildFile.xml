@@ -1,11 +1,8 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/MTDGeometryBuilder"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="clhep"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/MTDGeometryBuilder"/>
+<use name="DataFormats/Common"/>
+<use name="TrackingTools/TrajectoryState"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

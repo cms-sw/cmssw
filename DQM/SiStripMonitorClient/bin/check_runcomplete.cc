@@ -91,7 +91,7 @@ int read_runflag(std::string filename) {
       continue;
 
     if (svar.find("runIsComplete") != std::string::npos) {
-      std::string statusflag = svar.substr(svar.rfind("<") - 1, 1);
+      std::string statusflag = svar.substr(svar.rfind('<') - 1, 1);
       isruncomplete = atoi(statusflag.c_str());
     }
   }

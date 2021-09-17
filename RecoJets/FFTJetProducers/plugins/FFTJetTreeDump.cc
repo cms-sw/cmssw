@@ -17,9 +17,11 @@
 //
 
 #include <iostream>
-#include <sstream>
+#include <memory>
+
 #include <fstream>
 #include <functional>
+#include <sstream>
 
 // FFTJet headers
 #include "fftjet/ProximityClusteringTree.hh"
@@ -50,6 +52,9 @@ using namespace fftjetcms;
 class FFTJetTreeDump : public edm::EDAnalyzer {
 public:
   explicit FFTJetTreeDump(const edm::ParameterSet&);
+  FFTJetTreeDump() = delete;
+  FFTJetTreeDump(const FFTJetTreeDump&) = delete;
+  FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
   ~FFTJetTreeDump() override;
 
 private:
@@ -60,10 +65,6 @@ private:
   typedef fftjet::OpenDXPeakTree<long, fftjet::SparseClusteringTree> SparseFormatter;
   typedef fftjet::Functor1<double, fftjet::Peak> PeakProperty;
   typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
-
-  FFTJetTreeDump() = delete;
-  FFTJetTreeDump(const FFTJetTreeDump&) = delete;
-  FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
 
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -147,8 +148,8 @@ FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
   checkConfig(glyphColor, "invalid glyph color parameters");
 
   // Build the tree formatters
-  denseFormatter = std::unique_ptr<DXFormatter>(new DXFormatter(glyphSize.get(), glyphColor.get(), etaMax));
-  sparseFormatter = std::unique_ptr<SparseFormatter>(new SparseFormatter(glyphSize.get(), glyphColor.get(), etaMax));
+  denseFormatter = std::make_unique<DXFormatter>(glyphSize.get(), glyphColor.get(), etaMax);
+  sparseFormatter = std::make_unique<SparseFormatter>(glyphSize.get(), glyphColor.get(), etaMax);
 
   // Build the clustering tree
   clusteringTree = new ClusteringTree(distanceCalc.get());

@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 # This object is used to selectively make changes for different running
 # scenarios. In this case it makes changes for Run 2.
 
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+from EventFilter.SiPixelRawToDigi.siPixelDigis_cff import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 
-import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
-ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
+from EventFilter.EcalRawToDigi.ecalDigis_cff import *
 
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
@@ -24,11 +24,8 @@ muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 import EventFilter.DTRawToDigi.dtunpacker_cfi
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
-import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
-muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-
-import EventFilter.RPCRawToDigi.rpcDigiMerger_cfi
-muonRPCNewDigis = EventFilter.RPCRawToDigi.rpcDigiMerger_cfi.rpcDigiMerger.clone()
+import EventFilter.RPCRawToDigi.RPCRawToDigi_cfi 
+muonRPCDigis = EventFilter.RPCRawToDigi.RPCRawToDigi_cfi.muonRPCDigis.clone()
 
 import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
 muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
@@ -49,9 +46,9 @@ from L1Trigger.Configuration.L1TRawToDigi_cff import *
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 
 RawToDigiTask = cms.Task(L1TRawToDigiTask,
-                         siPixelDigis,
+                         siPixelDigisTask,
                          siStripDigis,
-                         ecalDigis,
+                         ecalDigisTask,
                          ecalPreshowerDigis,
                          hcalDigis,
                          muonCSCDigis,
@@ -64,16 +61,21 @@ RawToDigiTask = cms.Task(L1TRawToDigiTask,
                          )
 RawToDigi = cms.Sequence(RawToDigiTask)
 
-RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigis, siStripDigis])
+RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigisTask, siStripDigis])
 RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 
-RawToDigiTask_pixelOnly = cms.Task(siPixelDigis)
+RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask, scalersRawToDigi)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
+RawToDigiTask_ecalOnly = cms.Task(ecalDigisTask, ecalPreshowerDigis, scalersRawToDigi)
+RawToDigi_ecalOnly = cms.Sequence(RawToDigiTask_ecalOnly)
+
+RawToDigiTask_hcalOnly = cms.Task(hcalDigis)
+RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
+
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.InputLabel = 'rawDataCollector'
-#false by default anyways ecalDigis.DoRegional = False
-ecalDigis.InputLabel = 'rawDataCollector'
+siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+ecalDigis.cpu.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
@@ -85,20 +87,20 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([castorDigis]))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-# Remove siPixelDigis until we have phase1 pixel digis
+# Remove siPixelDigis until we have Phase 2 pixel digis
 phase2_tracker.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([siPixelDigis])) # FIXME
 
 
 # add CTPPS 2016 raw-to-digi modules
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
-_ctpps_2016_RawToDigiTask = RawToDigiTask.copy()
-_ctpps_2016_RawToDigiTask.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask, _ctpps_2016_RawToDigiTask)
+_ctpps_RawToDigiTask = RawToDigiTask.copy()
+_ctpps_RawToDigiTask.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask, _ctpps_RawToDigiTask)
 
-_ctpps_2016_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
-_ctpps_2016_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask_noTk, _ctpps_2016_RawToDigiTask_noTk)
+_ctpps_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
+_ctpps_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask_noTk, _ctpps_RawToDigiTask_noTk)
 
 # GEM settings
 _gem_RawToDigiTask = RawToDigiTask.copy()
@@ -108,26 +110,14 @@ from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
+from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
+(run3_GEM & ~phase2_GEM).toReplaceWith(RawToDigiTask, _gem_RawToDigiTask)
 
 from EventFilter.HGCalRawToDigi.HGCalRawToDigi_cfi import *
 _hgcal_RawToDigiTask = RawToDigiTask.copy()
 _hgcal_RawToDigiTask.add(hgcalDigis)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigiTask,_hgcal_RawToDigiTask)
-
-# RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-_rpc_NewReadoutVal_RawToDigiTask = RawToDigiTask.copy()
-_rpc_NewReadoutVal_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
-_rpc_NewReadoutVal_RawToDigiTask.add(muonRPCNewDigis)
-_rpc_NewReadoutVal_RawToDigiTask_noTk.add(muonRPCNewDigis)
-stage2L1Trigger_2017.toReplaceWith(RawToDigiTask, _rpc_NewReadoutVal_RawToDigiTask)
-stage2L1Trigger_2017.toReplaceWith(RawToDigiTask_noTk, _rpc_NewReadoutVal_RawToDigiTask)
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([muonRPCNewDigis]))
-fastSim.toReplaceWith(RawToDigiTask_noTk, RawToDigiTask_noTk.copyAndExclude([muonRPCNewDigis]))
 
 _hfnose_RawToDigiTask = RawToDigiTask.copy()
 _hfnose_RawToDigiTask.add(hfnoseDigis)

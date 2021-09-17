@@ -1,8 +1,7 @@
 /*  \author Anna Cimmino*/
-//#include <cmath>
-#include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCOccupancyTest.h>
-#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCRollMapHisto.h"
+#include "DQM/RPCMonitorClient/interface/utils.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,8 +22,6 @@ RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps) {
 
   prefixDir_ = subsystemFolder + "/" + recHitTypeFolder;
 }
-
-RPCOccupancyTest::~RPCOccupancyTest() {}
 
 void RPCOccupancyTest::beginJob(std::string& workingFolder) {
   edm::LogVerbatim("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
@@ -70,7 +67,6 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   ibooker.setCurrentFolder(globalFolder_);
 
   std::stringstream histoName;
-  rpcdqm::utils rpcUtils;
 
   histoName.str("");
   histoName << "RPC_Active_Channel_Fractions";
@@ -83,46 +79,13 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   Active_Dead->setBinLabel(1, "Active Strips", 1);
   Active_Dead->setBinLabel(2, "Inactive Strips", 1);
 
-  histoName.str("");
-  histoName << "Barrel_OccupancyByStations_Normalized";
-  Barrel_OccBySt = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 4, 0.5, 4.5);
-  Barrel_OccBySt->setBinLabel(1, "St1", 1);
-  Barrel_OccBySt->setBinLabel(2, "St2", 1);
-  Barrel_OccBySt->setBinLabel(3, "St3", 1);
-  Barrel_OccBySt->setBinLabel(4, "St4", 1);
-
-  histoName.str("");
-  histoName << "EndCap_OccupancyByRings_Normalized";
-  EndCap_OccByRng = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 4, 0.5, 4.5);
-  EndCap_OccByRng->setBinLabel(1, "E+/R3", 1);
-  EndCap_OccByRng->setBinLabel(2, "E+/R2", 1);
-  EndCap_OccByRng->setBinLabel(3, "E-/R2", 1);
-  EndCap_OccByRng->setBinLabel(4, "E-/R3", 1);
-
   for (int w = -2; w <= 2; w++) {  //loop on wheels
 
     histoName.str("");
     histoName << "AsymmetryLeftRight_Roll_vs_Sector_Wheel" << w;
 
-    AsyMeWheel[w + 2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-    rpcUtils.labelXAxisSector(AsyMeWheel[w + 2]);
-    rpcUtils.labelYAxisRoll(AsyMeWheel[w + 2], 0, w, useRollInfo_);
-
-    if (useNormalization_) {
-      histoName.str("");
-      histoName << "OccupancyNormByEvents_Wheel" << w;
-      NormOccupWheel[w + 2] =
-          ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-
-      rpcUtils.labelXAxisSector(NormOccupWheel[w + 2]);
-      rpcUtils.labelYAxisRoll(NormOccupWheel[w + 2], 0, w, useRollInfo_);
-
-      histoName.str("");
-      histoName << "OccupancyNormByEvents_Distribution_Wheel" << w;
-
-      NormOccupDWheel[w + 2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 100, 0.0, 0.205);
-    }
+    auto me = RPCRollMapHisto::bookBarrel(ibooker, w, histoName.str(), histoName.str(), useRollInfo_);
+    AsyMeWheel[w + 2] = dynamic_cast<MonitorElement*>(me);
   }  //end Barrel
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {
@@ -135,37 +98,8 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "AsymmetryLeftRight_Ring_vs_Segment_Disk" << d;
-    AsyMeDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                           histoName.str().c_str(),
-                                           36,
-                                           0.5,
-                                           36.5,
-                                           3 * numberOfRings_,
-                                           0.5,
-                                           3 * numberOfRings_ + 0.5);
-
-    rpcUtils.labelXAxisSegment(AsyMeDisk[d + offset]);
-    rpcUtils.labelYAxisRing(AsyMeDisk[d + offset], numberOfRings_, useRollInfo_);
-
-    if (useNormalization_) {
-      histoName.str("");
-      histoName << "OccupancyNormByEvents_Disk" << d;
-      NormOccupDisk[d + offset] = ibooker.book2D(histoName.str().c_str(),
-                                                 histoName.str().c_str(),
-                                                 36,
-                                                 0.5,
-                                                 36.5,
-                                                 3 * numberOfRings_,
-                                                 0.5,
-                                                 3 * numberOfRings_ + 0.5);
-
-      rpcUtils.labelXAxisSegment(NormOccupDisk[d + offset]);
-      rpcUtils.labelYAxisRing(NormOccupDisk[d + offset], numberOfRings_, useRollInfo_);
-
-      histoName.str("");
-      histoName << "OccupancyNormByEvents_Distribution_Disk" << d;
-      NormOccupDDisk[d + offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 100, 0.0, 0.205);
-    }
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, d, histoName.str(), histoName.str(), useRollInfo_);
+    AsyMeDisk[d + offset] = dynamic_cast<MonitorElement*>(me);
   }  //End loop on Endcap
 }
 
@@ -174,30 +108,16 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
     return;
 
   MonitorElement* AsyMe = nullptr;  //Left Right Asymetry
-  MonitorElement* NormOccup = nullptr;
-  MonitorElement* NormOccupD = nullptr;
 
   if (detId.region() == 0) {
     AsyMe = AsyMeWheel[detId.ring() + 2];
-    if (useNormalization_) {
-      NormOccup = NormOccupWheel[detId.ring() + 2];
-      NormOccupD = NormOccupDWheel[detId.ring() + 2];
-    }
 
   } else {
     if (-detId.station() + numberOfDisks_ >= 0) {
       if (detId.region() < 0) {
         AsyMe = AsyMeDisk[-detId.station() + numberOfDisks_];
-        if (useNormalization_) {
-          NormOccup = NormOccupDisk[-detId.station() + numberOfDisks_];
-          NormOccupD = NormOccupDDisk[-detId.station() + numberOfDisks_];
-        }
       } else {
         AsyMe = AsyMeDisk[detId.station() + numberOfDisks_ - 1];
-        if (useNormalization_) {
-          NormOccup = NormOccupDisk[detId.station() + numberOfDisks_ - 1];
-          NormOccupD = NormOccupDDisk[detId.station() + numberOfDisks_ - 1];
-        }
       }
     }
   }
@@ -239,33 +159,4 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
 
   if (AsyMe)
     AsyMe->setBinContent(xBin, yBin, asym);
-
-  float normoccup = 1;
-  if (rpcevents_ != 0) {
-    normoccup = (totEnt / rpcevents_);
-  }
-
-  if (useNormalization_) {
-    if (NormOccup)
-      NormOccup->setBinContent(xBin, yBin, normoccup);
-    if (NormOccupD)
-      NormOccupD->Fill(normoccup);
-  }
-
-  if (detId.region() == 0) {
-    if (Barrel_OccBySt)
-      Barrel_OccBySt->Fill(detId.station(), normoccup);
-  } else if (detId.region() == 1) {
-    if (detId.ring() == 3) {
-      EndCap_OccByRng->Fill(1, normoccup);
-    } else {
-      EndCap_OccByRng->Fill(2, normoccup);
-    }
-  } else {
-    if (detId.ring() == 3) {
-      EndCap_OccByRng->Fill(4, normoccup);
-    } else {
-      EndCap_OccByRng->Fill(3, normoccup);
-    }
-  }
 }

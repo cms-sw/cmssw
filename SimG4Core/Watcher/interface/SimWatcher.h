@@ -24,29 +24,13 @@ called by the dynamic loading code.
 //         Created:  Tue Nov 22 15:35:11 EST 2005
 //
 
-// system include files
-
-// user include files
-
-// forward declarations
-
 class SimWatcher {
 public:
   SimWatcher() {}
   virtual ~SimWatcher() {}
 
-  // ---------- const member functions ---------------------
-
-  // ---------- static member functions --------------------
-
-  // ---------- member functions ---------------------------
-
-private:
-  SimWatcher(const SimWatcher &) = delete;  // stop default
-
-  const SimWatcher &operator=(const SimWatcher &) = delete;  // stop default
-
-  // ---------- member data --------------------------------
+  SimWatcher(const SimWatcher &) = delete;
+  const SimWatcher &operator=(const SimWatcher &) = delete;
 };
 
 #endif

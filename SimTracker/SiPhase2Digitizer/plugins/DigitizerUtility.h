@@ -7,18 +7,37 @@
 #include <iostream>
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace DigitizerUtility {
+
+  class SimHitInfo {
+  public:
+    SimHitInfo(const PSimHit* hitp, float corrTime, size_t hitIndex, uint32_t tofBin)
+        : eventId_(hitp->eventId()), trackId_(hitp->trackId()), hitIndex_(hitIndex), tofBin_(tofBin), time_(corrTime) {}
+
+    uint32_t hitIndex() const { return hitIndex_; };
+    uint32_t tofBin() const { return tofBin_; };
+    EncodedEventId eventId() const { return eventId_; };
+    uint32_t trackId() const { return trackId_; };
+    float time() const { return time_; };
+
+  private:
+    EncodedEventId eventId_;
+    uint32_t trackId_;
+    uint32_t hitIndex_;
+    uint32_t tofBin_;
+    float time_;
+  };
+
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
-    Amplitude(float amp, const PSimHit* hitp, float frac = 0, size_t hitIndex = 0, unsigned int tofBin = 0)
+    Amplitude(float amp, const PSimHit* hitp, float frac = 0, float tcor = 0, size_t hitIndex = 0, uint32_t tofBin = 0)
         : _amp(amp) {
       if (frac > 0) {
         if (hitp != nullptr)
-          _simInfoList.push_back({frac, std::make_unique<SimHitInfoForLinks>(hitp, hitIndex, tofBin)});
+          _simInfoList.push_back({frac, std::make_unique<SimHitInfo>(hitp, tcor, hitIndex, tofBin)});
         else
           _simInfoList.push_back({frac, nullptr});
       }
@@ -27,29 +46,24 @@ namespace DigitizerUtility {
     // can be used as a float by convers.
     operator float() const { return _amp; }
     float ampl() const { return _amp; }
-    const std::vector<std::pair<float, std::unique_ptr<SimHitInfoForLinks> > >& simInfoList() const {
-      return _simInfoList;
-    }
+    const std::vector<std::pair<float, std::unique_ptr<SimHitInfo> > >& simInfoList() const { return _simInfoList; }
 
     void operator+=(const Amplitude& other) {
       _amp += other._amp;
       // in case of digi from the noise, the MC information need not be there
       for (auto const& ic : other.simInfoList()) {
         if (ic.first > -0.5)
-          _simInfoList.push_back({ic.first, std::make_unique<SimHitInfoForLinks>(*ic.second)});
+          _simInfoList.push_back({ic.first, std::make_unique<SimHitInfo>(*ic.second)});
       }
     }
     void operator+=(const float& amp) { _amp += amp; }
     void set(const float amplitude) {  // Used to reset the amplitude
       _amp = amplitude;
     }
-    // void setind (const float indamplitude) { // Used to reset the amplitude
-    // _frac = idamplitude;
-    // }
 
   private:
     float _amp;
-    std::vector<std::pair<float, std::unique_ptr<SimHitInfoForLinks> > > _simInfoList;
+    std::vector<std::pair<float, std::unique_ptr<SimHitInfo> > > _simInfoList;
   };
 
   //*********************************************************
@@ -64,6 +78,9 @@ namespace DigitizerUtility {
     float y() const { return _position.y(); }
     float z() const { return _position.z(); }
     float energy() const { return _energy; }
+
+    // Allow migration between pixel cells
+    void migrate_position(const Local3DPoint& pos) { _position = pos; }
 
   private:
     float _energy;
@@ -107,7 +124,7 @@ namespace DigitizerUtility {
   struct DigiSimInfo {
     int sig_tot;
     bool ot_bit;
-    std::vector<std::pair<float, SimHitInfoForLinks*> > simInfoList;
+    std::vector<std::pair<float, SimHitInfo*> > simInfoList;
   };
 }  // namespace DigitizerUtility
 #endif

@@ -26,7 +26,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -36,6 +35,7 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
@@ -46,6 +46,7 @@
 
 class MuonShowerDigiFiller {
 public:
+  MuonShowerDigiFiller() {}
   MuonShowerDigiFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
 
   void getES(const edm::EventSetup& iSetup);
@@ -59,6 +60,9 @@ private:
 
   edm::EDGetTokenT<DTDigiCollection> m_dtDigisToken;
   edm::EDGetTokenT<CSCStripDigiCollection> m_cscDigisToken;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_dtGeometryToken;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> m_cscGeometryToken;
 
   edm::ESHandle<DTGeometry> m_dtGeometry;
   edm::ESHandle<CSCGeometry> m_cscGeometry;

@@ -45,15 +45,9 @@ namespace edm {
     std::string const& processName() const { return branchDescription().processName(); }
     std::string const& productInstanceName() const { return branchDescription().productInstanceName(); }
     std::string const& friendlyClassName() const { return branchDescription().friendlyClassName(); }
-    ProcessHistory const& processHistory() const { return *processHistory_; }
-    ProcessHistory const* processHistoryPtr() const { return processHistory_; }
-    bool getProcessConfiguration(ProcessConfiguration& pc) const;
-    ReleaseVersion releaseVersion() const;
     std::set<std::string> const& branchAliases() const { return branchDescription().branchAliases(); }
 
     void write(std::ostream& os) const;
-
-    void setProcessHistory(ProcessHistory const& ph) { processHistory_ = &ph; }
 
     ProductID const& productID() const { return productID_; }
 
@@ -66,7 +60,6 @@ namespace edm {
   private:
     std::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
-    ProcessHistory const* processHistory_;  // We don't own this
   };
 
   inline std::ostream& operator<<(std::ostream& os, StableProvenance const& p) {

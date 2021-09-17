@@ -15,6 +15,8 @@
 #include "TLatex.h"
 
 #include <string>
+#include <array>
+#include <memory>
 
 namespace {
   enum { NTCC = 108, NTower = 28, NStrip = 5, NXtal = 5 };
@@ -138,9 +140,9 @@ namespace {
 
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 2> pad;
       for (int obj = 0; obj < 2; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
 
@@ -161,13 +163,13 @@ namespace {
   /***************************************************************
      2d plot of ECAL TPGStripStatus difference between 2 IOVs
   ****************************************************************/
-  class EcalTPGStripStatusDiff : public cond::payloadInspector::PlotImage<EcalTPGStripStatus> {
+  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class EcalTPGStripStatusDiffBase : public cond::payloadInspector::PlotImage<EcalTPGStripStatus, nIOVs, ntags> {
   public:
-    EcalTPGStripStatusDiff() : cond::payloadInspector::PlotImage<EcalTPGStripStatus>("ECAL TPGStripStatus difference") {
-      setSingleIov(false);
-    }
+    EcalTPGStripStatusDiffBase()
+        : cond::payloadInspector::PlotImage<EcalTPGStripStatus, nIOVs, ntags>("ECAL TPGStripStatus difference") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill() override {
       TH2F* endc_p = new TH2F("EE+", "EE+ TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       TH2F* endc_m = new TH2F("EE-", "EE- TPG Strip Status", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       int EEstat[2][2] = {{0, 0}, {0, 0}};
@@ -203,12 +205,31 @@ namespace {
       }  // read EEMap file
       f.close();
 
-      unsigned int run[2] = {0, 0}, irun = 0;
+      unsigned int run[2] = {0, 0};
       int vEE[100];
       int istat = 0;
-      for (auto const& iov : iovs) {
-        std::shared_ptr<EcalTPGStripStatus> payload = fetchPayload(std::get<1>(iov));
-        run[irun] = std::get<0>(iov);
+      std::string l_tagname[2];
+      auto iovs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      l_tagname[0] = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto firstiov = iovs.front();
+      run[0] = std::get<0>(firstiov);
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      if (ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname[1] = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = iovs.back();
+        l_tagname[1] = l_tagname[0];
+      }
+      run[1] = std::get<0>(lastiov);
+      for (int irun = 0; irun < nIOVs; irun++) {
+        std::shared_ptr<EcalTPGStripStatus> payload;
+        if (irun == 0) {
+          payload = this->fetchPayload(std::get<1>(firstiov));
+        } else {
+          payload = this->fetchPayload(std::get<1>(lastiov));
+        }
         if (payload.get()) {
           const EcalTPGStripStatusMap& stripMap = (*payload).getMap();
           //	  std::cout << " tower map size " << stripMap.size() << std::endl;
@@ -271,7 +292,6 @@ namespace {
         }    // payload
         else
           return false;
-        irun++;
         //	std::cout << " nb of strips " << istat << std::endl;
       }  // loop over IOVs
 
@@ -331,14 +351,25 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal TPGStripStatus, IOV %i - %i", run[1], run[0]));
+      int len = l_tagname[0].length() + l_tagname[1].length();
+      if (ntags == 2) {
+        if (len < 180) {
+          t1.SetTextSize(0.03);
+          t1.DrawLatex(0.5, 0.96, Form("%s %i - %s %i", l_tagname[1].c_str(), run[1], l_tagname[0].c_str(), run[0]));
+        } else {
+          t1.SetTextSize(0.05);
+          t1.DrawLatex(0.5, 0.96, Form("Ecal TPGStripStatus, IOV %i - %i", run[1], run[0]));
+        }
+      } else {
+        t1.SetTextSize(0.05);
+        t1.DrawLatex(0.5, 0.96, Form("%s, IOV %i - %i", l_tagname[0].c_str(), run[1], run[0]));
+      }
 
       float xmi[2] = {0.0, 0.5};
       float xma[2] = {0.5, 1.0};
-      TPad** pad = new TPad*;
+      std::array<std::unique_ptr<TPad>, 2> pad;
       for (int obj = 0; obj < 2; obj++) {
-        pad[obj] = new TPad(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj] = std::make_unique<TPad>(Form("p_%i", obj), Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
         pad[obj]->Draw();
       }
 
@@ -350,11 +381,13 @@ namespace {
       DrawEE(endc_p, -1.0, 1.0);
       t1.DrawLatex(0.15, 0.92, Form("new %i old %i", EEstat[1][0], EEstat[1][1]));
 
-      std::string ImageName(m_imageFileName);
+      std::string ImageName(this->m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };
+  };   // class EcalTPGStripStatusDiffBase
+  using EcalTPGStripStatusDiffOneTag = EcalTPGStripStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
+  using EcalTPGStripStatusDiffTwoTags = EcalTPGStripStatusDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 
   /*****************************************
  2d plot of EcalTPGStripStatus Error Summary of 1 IOV
@@ -411,9 +444,9 @@ namespace {
       t1.SetTextColor(2);
       t1.DrawLatex(0.5, 0.96, Form("Endcap:Number of masked Trigger Strips, IOV %i", run));
 
-      TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
-      pad->Draw();
-      pad->cd();
+      TPad pad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+      pad.Draw();
+      pad.cd();
       align->Draw("TEXT");
 
       drawTable(NbRows, NbColumns);
@@ -434,6 +467,7 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalTPGStripStatus) {
   PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusDiffOneTag);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusDiffTwoTags);
   PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusSummaryPlot);
 }

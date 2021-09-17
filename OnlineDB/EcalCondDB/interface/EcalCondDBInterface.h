@@ -630,11 +630,12 @@ private:
 
   DateHandler* dh;
 
-  EcalCondDBInterface() = delete;
-  EcalCondDBInterface(const EcalCondDBInterface& copy) = delete;
-
   std::map<int, int> _logicId2DetId;
   std::map<int, int> _detId2LogicId;
+
+public:
+  EcalCondDBInterface() = delete;
+  EcalCondDBInterface(const EcalCondDBInterface& copy) = delete;
 };
 
 #endif

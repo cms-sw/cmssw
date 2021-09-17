@@ -61,7 +61,8 @@ void RPCRawDataCounts::addDccRecord(int fed, const rpcrawtodigi::DataRecord& rec
       theBadEvents[make_pair(fed, ErrorRCDM(record).rmb())] += weight;
       break;
     }
-    default: {}
+    default: {
+    }
   }
 
   theRecordTypes[make_pair(fed, type)] += weight;

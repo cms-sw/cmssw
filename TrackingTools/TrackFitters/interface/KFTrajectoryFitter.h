@@ -63,6 +63,8 @@ public:
       theGeometry = &dummyGeometry;
   }
 
+  KFTrajectoryFitter(KFTrajectoryFitter const&) = delete;
+
   ~KFTrajectoryFitter() override {
     if (owner) {
       delete thePropagator;
@@ -94,8 +96,6 @@ public:
   void setHitCloner(TkCloner const* hc) override { theHitCloner = hc; }
 
 private:
-  KFTrajectoryFitter(KFTrajectoryFitter const&) = delete;
-
   static const DetLayerGeometry dummyGeometry;
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;

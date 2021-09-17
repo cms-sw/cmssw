@@ -23,8 +23,9 @@ namespace edm {
   SwitchProducer::SwitchProducer(ParameterSet const& iConfig) {
     auto const& moduleLabel = iConfig.getParameter<std::string>("@module_label");
     auto const& chosenLabel = iConfig.getUntrackedParameter<std::string>("@chosen_case");
+    auto const& processName = iConfig.getUntrackedParameter<std::string>("@process_name");
     callWhenNewProductsRegistered([=](edm::BranchDescription const& iBranch) {
-      if (iBranch.moduleLabel() == chosenLabel) {
+      if (iBranch.moduleLabel() == chosenLabel and iBranch.processName() == processName) {
         if (iBranch.branchType() != InEvent) {
           throw Exception(errors::UnimplementedFeature)
               << "SwitchProducer does not support non-event branches. Got " << iBranch.branchType()
@@ -46,6 +47,7 @@ namespace edm {
     ParameterSetDescription desc;
     desc.add<std::vector<std::string>>("@all_cases");
     desc.addUntracked<std::string>("@chosen_case");
+    desc.addUntracked<std::string>("@process_name");
     descriptions.addDefault(desc);
   }
 }  // namespace edm

@@ -22,12 +22,13 @@ pfSelectedPhotons = cms.EDFilter(
 # pfPileUp.PFCandidates = cms.InputTag("particleFlowTmp")
 # pfNoPileUp.bottomCollection = cms.InputTag("particleFlowTmp") 
 
-pfBasedElectronPhotonIsoSequence = cms.Sequence(
-    pfParticleSelectionSequence +
-    pfSelectedElectrons +
-#    electronPFIsolationDepositsSequence +
-#    electronPFIsolationValuesSequence+
-    pfSelectedPhotons +
-    photonPFIsolationDepositsSequence +
-    photonPFIsolationValuesSequence
-    ) 
+pfBasedElectronPhotonIsoTask = cms.Task(
+    pfParticleSelectionTask,
+    pfSelectedElectrons,
+#    electronPFIsolationDepositsTask,
+#    electronPFIsolationValuesTask,
+    pfSelectedPhotons,
+    photonPFIsolationDepositsTask,
+    photonPFIsolationValuesTask
+)
+pfBasedElectronPhotonIsoSequence = cms.Sequence(pfBasedElectronPhotonIsoTask) 

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
@@ -15,6 +17,8 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
 using namespace CLHEP;
 
@@ -33,7 +37,7 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::Paramet
   }
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
-  fParticleFactory.reset(new CustomParticleFactory());
+  fParticleFactory = std::make_unique<CustomParticleFactory>();
   myHelper.reset(nullptr);
 
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomPhysicsList: Path for custom particle definition file: \n"
@@ -55,6 +59,17 @@ void CustomPhysicsList::ConstructProcess() {
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
+    if (particle->GetParticleType() == "simp") {
+      G4ProcessManager* pmanager = particle->GetProcessManager();
+      if (pmanager) {
+        CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
+        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
+        theQGSPSIMPB->Build(simpInelPr);
+        pmanager->AddDiscreteProcess(simpInelPr);
+      } else
+        edm::LogVerbatim("CustomPhysics") << "   No pmanager";
+    }
+
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if (cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
@@ -66,14 +81,17 @@ void CustomPhysicsList::ConstructProcess() {
           ph->RegisterProcess(new G4hMultipleScattering, particle);
           ph->RegisterProcess(new G4hIonisation, particle);
         }
-        if (cp->GetCloud() && fHadronicInteraction && CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
+        if (cp->GetCloud() && fHadronicInteraction &&
+            (CustomPDGParser::s_isgluinoHadron(particle->GetPDGEncoding()) ||
+             (CustomPDGParser::s_isstopHadron(particle->GetPDGEncoding())) ||
+             (CustomPDGParser::s_issbottomHadron(particle->GetPDGEncoding())))) {
           edm::LogVerbatim("SimG4CoreCustomPhysics")
               << "CustomPhysicsList: " << particle->GetParticleName()
               << " CloudMass= " << cp->GetCloud()->GetPDGMass() / GeV
               << " GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass() / GeV << " GeV.";
 
           if (!myHelper.get()) {
-            myHelper.reset(new G4ProcessHelper(myConfig, fParticleFactory.get()));
+            myHelper = std::make_unique<G4ProcessHelper>(myConfig, fParticleFactory.get());
           }
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
         }

@@ -32,7 +32,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -73,6 +72,8 @@ private:
   edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
   edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
+
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeomToken_;
 
   // trackerMuon == 0; globalMuon == 1
   MonitorElement* hNumChambers[4];

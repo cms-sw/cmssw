@@ -3,12 +3,12 @@
 
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
 #include <map>
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include <cstdint>
 
 /**
    @class CalibrationScanAnalysis

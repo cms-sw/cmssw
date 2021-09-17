@@ -57,10 +57,10 @@ public:
 
   void quit() override;
 
-private:
   FWFFService(const FWFFService&) = delete;                   // stop default
   const FWFFService& operator=(const FWFFService&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   std::unique_ptr<FWFFNavigator> m_navigator;

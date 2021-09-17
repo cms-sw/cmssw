@@ -50,6 +50,8 @@ namespace edm {
     k_VLuminosityBlockID = 'm',
     k_InputTag = 't',
     k_VInputTag = 'v',
+    k_ESInputTag = 'g',
+    k_VESInputTag = 'G',
     k_FileInPath = 'F',
     k_LuminosityBlockRange = 'A',
     k_VLuminosityBlockRange = 'a',
@@ -111,8 +113,8 @@ namespace edm {
     // ParameterSetDescription where the algorithm fails to write
     // a valid cfi, in some cases the description can be so pathological
     // that it is impossible to write a cfi that will pass validation.
-    void writeCfi(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const {
-      writeCfi_(os, startWithComma, indentation, wroteSomething);
+    void writeCfi(std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+      writeCfi_(os, optional, startWithComma, indentation, wroteSomething);
     }
 
     // Print out the description in human readable format
@@ -217,7 +219,8 @@ namespace edm {
 
     virtual void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const = 0;
 
-    virtual void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const = 0;
+    virtual void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const = 0;
 
     virtual void print_(std::ostream&, bool /*optional*/, bool /*writeToCfi*/, DocFormatHelper&) const {}
 

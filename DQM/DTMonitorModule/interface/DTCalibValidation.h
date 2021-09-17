@@ -12,29 +12,28 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
 // To remove into CMSSW versions before 20X
-class DQMStore;
 // To add into CMSSW versions before 20X
 //class DaqMonitorBEInterface;
 
-class MonitorElement;
 class DTGeometry;
 class DTChamber;
 
@@ -66,7 +65,8 @@ private:
   // the analysis type
   bool detailedAnalysis;
   // the geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeomToken_;
+  const DTGeometry* dtGeom;
 
   // Lable of 1D rechits in the event
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;

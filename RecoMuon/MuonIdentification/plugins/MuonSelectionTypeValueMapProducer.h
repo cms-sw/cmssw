@@ -36,7 +36,7 @@ private:
   muon::SelectionType selectionType_;
 };
 
-void MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+inline void MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // input muon collection
   edm::Handle<reco::MuonCollection> muonsH;
   iEvent.getByToken(muonToken_, muonsH);

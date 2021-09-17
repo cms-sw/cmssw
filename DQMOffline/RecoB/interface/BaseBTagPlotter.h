@@ -8,6 +8,9 @@
 
 class BaseBTagPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   BaseBTagPlotter(const std::string& tagName, const EtaPtBin& etaPtBin)
       : etaPtBin_(etaPtBin), tagName_(tagName), theExtensionString("_" + tagName + etaPtBin.getDescriptionString()){};
 

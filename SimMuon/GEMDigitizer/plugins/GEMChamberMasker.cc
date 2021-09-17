@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,8 +19,6 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
 #include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
@@ -49,6 +48,7 @@ private:
   bool ge21Plus_;
 
   edm::EDGetTokenT<GEMDigiCollection> m_digiTag;
+  edm::ESGetToken<MuonSystemAging, MuonSystemAgingRcd> m_agingObj;
   std::map<unsigned int, float> m_maskedGEMIDs;
 };
 
@@ -70,6 +70,7 @@ GEMChamberMasker::GEMChamberMasker(const edm::ParameterSet& iConfig)
       ge21Minus_(iConfig.getParameter<bool>("ge21Minus")),
       ge21Plus_(iConfig.getParameter<bool>("ge21Plus")) {
   m_digiTag = consumes<GEMDigiCollection>(digiTag_);
+  m_agingObj = esConsumes<MuonSystemAging, MuonSystemAgingRcd, edm::Transition::BeginRun>();
   produces<GEMDigiCollection>();
 }
 
@@ -109,8 +110,7 @@ void GEMChamberMasker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 // ------------ method called when starting to processes a run  ------------
 
 void GEMChamberMasker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  edm::ESHandle<MuonSystemAging> agingObj;
-  iSetup.get<MuonSystemAgingRcd>().get(agingObj);
+  edm::ESHandle<MuonSystemAging> agingObj = iSetup.getHandle(m_agingObj);
 
   m_maskedGEMIDs = agingObj->m_GEMChambEffs;
 }

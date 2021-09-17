@@ -31,6 +31,13 @@ namespace edm {
     static const std::string kHerwig6;
   };
 
+  //ES modules can not share resources with ED modules
+  class ESSharedResourceNames {
+  public:
+    static const std::string kDDGeometry;
+    static const std::string kDD4Hep;
+  };
+
   // Each time the following function is called, it returns a different
   // name.  The purpose is to address the following problem.
   // A few classes that are modules sometimes use shared resources

@@ -2,7 +2,7 @@
 //
 // Package:     EgammaCandidates
 // Class  :     SiStripElectron
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -14,7 +14,7 @@
 
 // user include files
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 using namespace reco;
 
@@ -35,7 +35,7 @@ using namespace reco;
 //    // do actual copying here;
 // }
 
-SiStripElectron::~SiStripElectron() { }
+SiStripElectron::~SiStripElectron() {}
 
 //
 // assignment operators
@@ -49,31 +49,21 @@ SiStripElectron::~SiStripElectron() { }
 //   return *this;
 // }
 
-SiStripElectron * SiStripElectron::clone() const { 
-  return new SiStripElectron( * this ); 
-}
+SiStripElectron *SiStripElectron::clone() const { return new SiStripElectron(*this); }
 
 //
 // member functions
 //
 
-SuperClusterRef SiStripElectron::superCluster() const {
-  return superCluster_;
-}
+SuperClusterRef SiStripElectron::superCluster() const { return superCluster_; }
 
-bool SiStripElectron::overlap( const Candidate & c ) const {
-  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != nullptr && ! 
-	   ( checkOverlap( track(), o->track() ) ||
-	     checkOverlap( superCluster(), o->superCluster() ) ) 
-	   );
+bool SiStripElectron::overlap(const Candidate &c) const {
+  const RecoCandidate *o = dynamic_cast<const RecoCandidate *>(&c);
+  return (o != nullptr && !(checkOverlap(track(), o->track()) || checkOverlap(superCluster(), o->superCluster())));
   return false;
 }
 
-bool SiStripElectron::isElectron() const {
-  return true;
-}
-
+bool SiStripElectron::isElectron() const { return true; }
 
 //
 // const member functions

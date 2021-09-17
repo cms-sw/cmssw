@@ -11,7 +11,6 @@
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
@@ -42,7 +41,6 @@ private:
   std::string m_endTime;
   // Specify output text file name. Leave empty if do not want to dump HV/LV counts in a file.
   std::string m_output;
-  edm::Service<SiStripDetInfoFileReader> detidReader;
 
   //          IOV                 DETIDs
   std::map<cond::Time_t, std::set<uint32_t> > iovMap_HVOff;
@@ -62,12 +60,9 @@ SiStripDetVOffPrinter::SiStripDetVOffPrinter(const edm::ParameterSet& iConfig)
   m_connectionPool.configure();
 }
 
-SiStripDetVOffPrinter::~SiStripDetVOffPrinter() {}
+SiStripDetVOffPrinter::~SiStripDetVOffPrinter() = default;
 
 void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-  // get total number of modules
-  //auto num_modules = detidReader->getAllDetIds().size();
-
   // use start and end time from config file
   boost::posix_time::ptime p_start, p_end;
   p_start = boost::posix_time::time_from_string(m_startTime);
@@ -95,11 +90,12 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
   // query the database
   edm::LogInfo("SiStripDetVOffPrinter") << "[SiStripDetVOffPrinter::" << __func__ << "] "
                                         << "Reading IOVs from tag " << m_tagName;
-  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_tagName, true);  // load all?
-  auto iiov = iovProxy.find(startIov);
-  auto eiov = iovProxy.find(endIov);
+  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_tagName);  // load all?
+  auto iovs = iovProxy.selectAll();
+  auto iiov = iovs.find(startIov);
+  auto eiov = iovs.find(endIov);
   int niov = 0;
-  while (iiov != iovProxy.end() && (*iiov).since <= (*eiov).since) {
+  while (iiov != iovs.end() && (*iiov).since <= (*eiov).since) {
     // convert cond::Time_t to seconds since epoch
     if ((*iiov).since < startIov) {
       vTime.push_back(startIov);

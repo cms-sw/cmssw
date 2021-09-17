@@ -19,14 +19,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include <utility>
 
 #include <sstream>
-
+#include <memory>
 #include <vector>
 #include <string>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class HitRZCompatibility;
@@ -86,30 +87,40 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-  virtual HitRZCompatibility* checkRZ(const DetLayer* layer,
-                                      const Hit& outerHit,
-                                      const edm::EventSetup& iSetup,
-                                      const DetLayer* outerlayer = nullptr,
-                                      float lr = 0,
-                                      float gz = 0,
-                                      float dr = 0,
-                                      float dz = 0) const = 0;
+  virtual std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
+                                                      const Hit& outerHit,
+                                                      const edm::EventSetup& iSetup,
+                                                      const DetLayer* outerlayer = nullptr,
+                                                      float lr = 0,
+                                                      float gz = 0,
+                                                      float dr = 0,
+                                                      float dz = 0) const = 0;
 
   /// get hits from layer compatible with region constraints
   virtual Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
 
+  /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
+  /// Does not reset the elements corresponding to the tracks that are not compatible.
+  virtual void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const = 0;
+
+  /// return a boolean mask over the TrackCollection reflecting the compatibility of each track with the region constraints
+  std::vector<bool> checkTracks(reco::TrackCollection const& tracks) const {
+    std::vector<bool> region_mask(tracks.size(), false);
+    checkTracks(tracks, region_mask);
+    return region_mask;
+  }
   /// clone region with new vertex position
-  TrackingRegion* restrictedRegion(const GlobalPoint& originPos,
-                                   const float& originRBound,
-                                   const float& originZBound) const {
-    TrackingRegion* restr = clone();
+  std::unique_ptr<TrackingRegion> restrictedRegion(const GlobalPoint& originPos,
+                                                   const float& originRBound,
+                                                   const float& originZBound) const {
+    auto restr = clone();
     restr->theVertexPos = originPos;
     restr->theVertexRBound = originRBound;
     restr->theVertexZBound = originZBound;
     return restr;
   }
 
-  virtual TrackingRegion* clone() const = 0;
+  virtual std::unique_ptr<TrackingRegion> clone() const = 0;
 
   virtual std::string name() const { return "TrackingRegion"; }
   virtual std::string print() const {

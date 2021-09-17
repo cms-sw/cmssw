@@ -8,18 +8,18 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class TkStripCPERecord
     : public edm::eventsetup::DependentRecordImplementation<TkStripCPERecord,
-                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
-                                                                               IdealMagneticFieldRecord,
-                                                                               SiStripLorentzAngleDepRcd,
-                                                                               SiStripBackPlaneCorrectionDepRcd,
-                                                                               SiStripConfObjectRcd,
-                                                                               SiStripLatencyRcd,
-                                                                               SiStripNoisesRcd,
-                                                                               SiStripApvGainRcd,
-                                                                               SiStripBadChannelRcd> > {};
+                                                            edm::mpl::Vector<TrackerDigiGeometryRecord,
+                                                                             IdealMagneticFieldRecord,
+                                                                             SiStripLorentzAngleDepRcd,
+                                                                             SiStripBackPlaneCorrectionDepRcd,
+                                                                             SiStripConfObjectRcd,
+                                                                             SiStripLatencyRcd,
+                                                                             SiStripNoisesRcd,
+                                                                             SiStripApvGainRcd,
+                                                                             SiStripBadChannelRcd> > {};
 
 #endif

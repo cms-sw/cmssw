@@ -67,8 +67,7 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
 
   for (uint16_t ifed = 0; ifed <= sistrip::CMS_FED_ID_MAX; ++ifed) {
     const FEDRawData& fed = buffers->FEDData(static_cast<int>(ifed));
-    uint8_t* data = const_cast<uint8_t*>(fed.data());  // look for trigger fed
-    FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>(data + fed.size() - sizeof(FEDTrailer));
+    const FEDTrailer* fed_trailer = reinterpret_cast<const FEDTrailer*>(fed.data() + fed.size() - sizeof(FEDTrailer));
     if (fed.size() && fed_trailer->check()) {
       trg_feds.push_back(Fed(ifed, fed.size()));
     } else {
@@ -193,11 +192,14 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
     const FEDRawData& fed = buffers->FEDData(static_cast<int>(ifed));
 
     // construct buffer
-    sistrip::FEDBuffer* buffer = 0;
-    try {
-      buffer = new sistrip::FEDBuffer(fed.data(), fed.size());
-    } catch (const cms::Exception& e) {
+    std::unique_ptr<FEDBuffer> buffer;
+    if (FEDBufferStatusCode::SUCCESS != preconstructCheckFEDBuffer(fed)) {
       construct[ifed].push_back(0);
+    } else {
+      buffer = std::make_unique<FEDBuffer>(fed);
+      if (FEDBufferStatusCode::SUCCESS != buffer->findChannels()) {
+        construct[ifed].push_back(0);
+      }
     }
 
     // readout mode
@@ -214,24 +216,19 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
 
       // find channel data
 
-      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED &&
-          sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(ichan)).hasData())
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED && buffer->channel(ichan).length() > 7)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
-               sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 && buffer->channel(ichan).length() > 2)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW &&
-               sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_PROC_RAW &&
-               sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_PROC_RAW && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
-      else if (mode == sistrip::READOUT_MODE_SCOPE &&
-               sistrip::FEDRawChannelUnpacker::scopeModeUnpacker(buffer->channel(ichan)).hasData())
+      else if (mode == sistrip::READOUT_MODE_SCOPE && buffer->channel(ichan).length() > 3)
         channels_with_data[ifed].push_back(ichan);
 
       else
@@ -255,8 +252,6 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
       }
       chan++;
     }
-    if (buffer)
-      delete buffer;
   }  // fed loop
 
   // constructing SiStripFEDBuffers

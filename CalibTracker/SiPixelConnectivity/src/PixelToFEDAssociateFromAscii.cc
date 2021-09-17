@@ -1,7 +1,7 @@
 #include "CalibTracker/SiPixelConnectivity/interface/PixelToFEDAssociateFromAscii.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <ostream>
@@ -61,7 +61,7 @@ void PixelToFEDAssociateFromAscii::init(const string& cfg_name) {
       //
       // treat # lines
       //
-      string::size_type pos = line.find("#");
+      string::size_type pos = line.find('#');
       if (pos != string::npos)
         line = line.erase(pos);
 

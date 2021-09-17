@@ -17,8 +17,7 @@
 
 using namespace lat;
 
-MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
-    : fName(""), verbosity(0), frequency(0), deleteAfterCopy(false) {
+MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), verbosity(0), frequency(0) {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
   // get information from parameter set
@@ -26,8 +25,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity", 0);
   frequency = iPSet.getUntrackedParameter<int>("Frequency", 50);
   path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");
-  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy", false);
-  enableMultiThread_ = false;
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -84,13 +81,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
 
 MEtoEDMConverter::~MEtoEDMConverter() = default;
 
-void MEtoEDMConverter::beginJob() {
-  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
-  DQMStore* dbe = edm::Service<DQMStore>().operator->();
-  enableMultiThread_ = dbe->enableMultiThread_;
-}
-
-void MEtoEDMConverter::endJob() {}
+void MEtoEDMConverter::beginJob() {}
 
 std::shared_ptr<meedm::Void> MEtoEDMConverter::globalBeginRun(edm::Run const& iRun,
                                                               const edm::EventSetup& iSetup) const {
@@ -101,10 +92,7 @@ void MEtoEDMConverter::globalEndRun(edm::Run const& iRun, const edm::EventSetup&
 
 void MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
   DQMStore* store = edm::Service<DQMStore>().operator->();
-  store->meBookerGetter([&](DQMStore::IBooker& b, DQMStore::IGetter& g) {
-    store->scaleElements();
-    putData(g, iRun, false, iRun.run(), 0);
-  });
+  store->meBookerGetter([&](DQMStore::IBooker& b, DQMStore::IGetter& g) { putData(g, iRun, false, iRun.run(), 0); });
 }
 
 std::shared_ptr<meedm::Void> MEtoEDMConverter::globalBeginLuminosityBlock(edm::LuminosityBlock const&,
@@ -128,8 +116,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
   // extract ME information into vectors
   std::vector<MonitorElement*>::iterator mmi, mme;
-  std::vector<MonitorElement*> items(
-      iGetter.getAllContents(path, enableMultiThread_ ? run : 0, enableMultiThread_ ? lumi : 0));
+  std::vector<MonitorElement*> items(iGetter.getAllContents(path, run, lumi));
 
   unsigned int n1F = 0;
   unsigned int n1S = 0;
@@ -155,51 +142,51 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
       continue;
 
     switch (me->kind()) {
-      case MonitorElement::DQM_KIND_INT:
+      case MonitorElement::Kind::INT:
         ++nInt64;
         break;
 
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         ++nDouble;
         break;
 
-      case MonitorElement::DQM_KIND_STRING:
+      case MonitorElement::Kind::STRING:
         ++nString;
         break;
 
-      case MonitorElement::DQM_KIND_TH1F:
+      case MonitorElement::Kind::TH1F:
         ++n1F;
         break;
 
-      case MonitorElement::DQM_KIND_TH1S:
+      case MonitorElement::Kind::TH1S:
         ++n1S;
         break;
 
-      case MonitorElement::DQM_KIND_TH1D:
+      case MonitorElement::Kind::TH1D:
         ++n1D;
         break;
 
-      case MonitorElement::DQM_KIND_TH2F:
+      case MonitorElement::Kind::TH2F:
         ++n2F;
         break;
 
-      case MonitorElement::DQM_KIND_TH2S:
+      case MonitorElement::Kind::TH2S:
         ++n2S;
         break;
 
-      case MonitorElement::DQM_KIND_TH2D:
+      case MonitorElement::Kind::TH2D:
         ++n2D;
         break;
 
-      case MonitorElement::DQM_KIND_TH3F:
+      case MonitorElement::Kind::TH3F:
         ++n3F;
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TPROFILE:
         ++nProf;
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TPROFILE2D:
         ++nProf2;
         break;
 
@@ -229,59 +216,57 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
     // store only flagged ME at endLumi transition, and Run-based
     // histo at endRun transition
-    if (iLumiOnly && !me->getLumiFlag())
-      continue;
-    if (!iLumiOnly && me->getLumiFlag())
-      continue;
+    // DQMStore should only hand out matching MEs
+    assert(iLumiOnly == me->getLumiFlag());
 
     // get monitor elements
     switch (me->kind()) {
-      case MonitorElement::DQM_KIND_INT:
-        pOutInt->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getIntValue());
+      case MonitorElement::Kind::INT:
+        pOutInt->putMEtoEdmObject(me->getFullname(), me->getIntValue());
         break;
 
-      case MonitorElement::DQM_KIND_REAL:
-        pOutDouble->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getFloatValue());
+      case MonitorElement::Kind::REAL:
+        pOutDouble->putMEtoEdmObject(me->getFullname(), me->getFloatValue());
         break;
 
-      case MonitorElement::DQM_KIND_STRING:
-        pOutString->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getStringValue());
+      case MonitorElement::Kind::STRING:
+        pOutString->putMEtoEdmObject(me->getFullname(), me->getStringValue());
         break;
 
-      case MonitorElement::DQM_KIND_TH1F:
-        pOut1->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1F());
+      case MonitorElement::Kind::TH1F:
+        pOut1->putMEtoEdmObject(me->getFullname(), *me->getTH1F());
         break;
 
-      case MonitorElement::DQM_KIND_TH1S:
-        pOut1s->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1S());
+      case MonitorElement::Kind::TH1S:
+        pOut1s->putMEtoEdmObject(me->getFullname(), *me->getTH1S());
         break;
 
-      case MonitorElement::DQM_KIND_TH1D:
-        pOut1d->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1D());
+      case MonitorElement::Kind::TH1D:
+        pOut1d->putMEtoEdmObject(me->getFullname(), *me->getTH1D());
         break;
 
-      case MonitorElement::DQM_KIND_TH2F:
-        pOut2->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2F());
+      case MonitorElement::Kind::TH2F:
+        pOut2->putMEtoEdmObject(me->getFullname(), *me->getTH2F());
         break;
 
-      case MonitorElement::DQM_KIND_TH2S:
-        pOut2s->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2S());
+      case MonitorElement::Kind::TH2S:
+        pOut2s->putMEtoEdmObject(me->getFullname(), *me->getTH2S());
         break;
 
-      case MonitorElement::DQM_KIND_TH2D:
-        pOut2d->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2D());
+      case MonitorElement::Kind::TH2D:
+        pOut2d->putMEtoEdmObject(me->getFullname(), *me->getTH2D());
         break;
 
-      case MonitorElement::DQM_KIND_TH3F:
-        pOut3->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH3F());
+      case MonitorElement::Kind::TH3F:
+        pOut3->putMEtoEdmObject(me->getFullname(), *me->getTH3F());
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE:
-        pOutProf->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTProfile());
+      case MonitorElement::Kind::TPROFILE:
+        pOutProf->putMEtoEdmObject(me->getFullname(), *me->getTProfile());
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE2D:
-        pOutProf2->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTProfile2D());
+      case MonitorElement::Kind::TPROFILE2D:
+        pOutProf2->putMEtoEdmObject(me->getFullname(), *me->getTProfile2D());
         break;
 
       default:
@@ -291,12 +276,6 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         continue;
     }
 
-    if (!iLumiOnly) {
-      // remove ME after copy to EDM is done.
-      if (deleteAfterCopy) {
-        iGetter.removeElement(me->getPathname(), me->getName());
-      }
-    }
   }  // end loop through monitor elements
 
   std::string sName;

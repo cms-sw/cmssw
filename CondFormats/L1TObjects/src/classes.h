@@ -53,6 +53,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelKalmanParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
 
@@ -67,6 +68,7 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
@@ -102,6 +104,8 @@ namespace CondFormats_L1TObjects {
 
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
+    L1TMuonBarrelKalmanParams dummy18b;
+    std::vector<L1TMuonBarrelKalmanParams::Node> dummy18c;
 
     L1TMuonEndCapParams dummy19;
 
@@ -121,6 +125,7 @@ namespace CondFormats_L1TObjects {
     L1TUtmTriggerMenu dummy21h;
 
     L1TGlobalPrescalesVetos dummy22;
+    L1TGlobalPrescalesVetosFract dummy22a;
 
     L1TGlobalParameters dummy23;
   };
