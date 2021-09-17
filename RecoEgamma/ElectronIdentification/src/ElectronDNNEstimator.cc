@@ -139,7 +139,7 @@ std::pair<uint, std::vector<float>> ElectronDNNEstimator::getScaledInputs(const 
     return std::make_pair(modelIndex, inputs);
 }
 
-std::vector<std::array<float,5>> ElectronDNNEstimator::evaluate(const reco::GsfElectronCollection& electrons, const std::vector<tensorflow::Session*> sessions) const {
+std::vector<std::array<float,ElectronDNNEstimator::nOutputs>> ElectronDNNEstimator::evaluate(const reco::GsfElectronCollection& electrons, const std::vector<tensorflow::Session*> sessions) const {
     /*
       Evaluate the Electron PFID DNN for all the electrons. 
       3 models are defined depending on the pt and eta --> we need to build 3 input tensors to evaluate
@@ -192,19 +192,19 @@ std::vector<std::array<float,5>> ElectronDNNEstimator::evaluate(const reco::GsfE
     }
 
     // Define the output and run
-    std::vector< std::pair< int, std::array<float,5>>> outputs;
+    std::vector< std::pair< int, std::array<float,ElectronDNNEstimator::nOutputs>>> outputs;
     // Run all the models
     for (uint i=0; i< N_models_; i++) {
       if (counts[i] ==0) continue; //Skip model witout inputs
       std::vector<tensorflow::Tensor> output;
       LogDebug("EleDNNPFid") << "Run model: " << i << " with " << counts[i] << " electrons";
       tensorflow::run(sessions[i], {{cfg_.inputTensorName, input_tensors[i]}}, {cfg_.outputTensorName}, &output);
-      // Get the output and save the 5 numbers along with the ele index
+      // Get the output and save the ElectronDNNEstimator::nOutputs numbers along with the ele index
       auto r = output[0].tensor<float,2>();
       // Iterate on the list of elements in the batch --> many electrons
       for (int b =0; b< counts[i]; b++){
-          std::array<float,5> result;
-          for (int k=0; k<5; k++) 
+          std::array<float,ElectronDNNEstimator::nOutputs> result;
+          for (uint k=0; k<ElectronDNNEstimator::nOutputs; k++) 
               result[k] = r(b, k);
           // Get the original index of the electorn in the original order
           int ele_index = ele_index_map[i][b];
@@ -216,7 +216,7 @@ std::vector<std::array<float,5>> ElectronDNNEstimator::evaluate(const reco::GsfE
 
     // Now we have just to re-order the outputs
     std::sort(outputs.begin(), outputs.end());
-    std::vector<std::array<float,5>> final_outputs (outputs.size());
+    std::vector<std::array<float,ElectronDNNEstimator::nOutputs>> final_outputs (outputs.size());
     std::transform(outputs.begin(), outputs.end(), final_outputs.begin(), [](auto a){return a.second;});
 
     return final_outputs;

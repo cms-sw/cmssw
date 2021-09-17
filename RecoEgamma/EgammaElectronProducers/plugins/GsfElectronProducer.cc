@@ -301,9 +301,8 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
   }
 
-  descriptions.add("gsfElectronProducerDefault", desc);
 
- 
+  descriptions.add("gsfElectronProducerDefault", desc);
 
 }
 

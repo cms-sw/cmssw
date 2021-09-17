@@ -81,7 +81,17 @@ std::vector<tensorflow::Session*> PhotonDNNEstimator::getSessions() const{
 std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photon& photon) const{
     // Prepare a map with all the defined variables
     std::map<std::string, float> variables;
-    
+    variables["hadTowOverEm"] = photon.hadTowOverEmValid();
+    variables["phoTrkSumPtHollow"] = photon.trkSumPtHollowConeDR03();
+    variables["phoEcalRecHit"] = photon.ecalRecHitSumEtConeDR03();
+    variables["phoSigmaIetaIeta"] = photon.sigmaIetaIeta();
+    variables["phoSigmaIEtaIEtaFull5x5"] = photon.full5x5_sigmaIetaIeta();
+    variables["phoSigmaIEtaIPhiFull5x5"] = photon.full5x5_showerShapeVariables().sigmaIetaIphi;
+    variables["phoEcalPFClusterIso"] = photon.ecalPFClusterIso();
+    variables["phoHcalPFClusterIso"] = photon.hcalPFClusterIso();
+    variables["phoHasPixelSeed"] = (Int_t)photon.hasPixelSeed();
+    variables["phoR9Full5x5"] = photon.full5x5_r9();
+    variables["phohcalTower"] = photon.hcalTowerSumEtConeDR03();
     // Define more variables here and use them directly in the model config!
     return variables;
 }
@@ -111,7 +121,7 @@ std::pair<uint, std::vector<float>> PhotonDNNEstimator::getScaledInputs(const re
     return std::make_pair(modelIndex, inputs);
 }
 
-std::vector<std::array<float,5>> PhotonDNNEstimator::evaluate(const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*> sessions) const {
+std::vector<std::array<float,PhotonDNNEstimator::nOutputs>> PhotonDNNEstimator::evaluate(const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*> sessions) const {
     /*
       Evaluate the Photon PFID DNN for all the Photons. 
       3 models are defined depending on the pt and eta --> we need to build 3 input tensors to evaluate
@@ -164,19 +174,19 @@ std::vector<std::array<float,5>> PhotonDNNEstimator::evaluate(const reco::Photon
     }
 
     // Define the output and run
-    std::vector< std::pair< int, std::array<float,5>>> outputs;
+    std::vector< std::pair< int, std::array<float,PhotonDNNEstimator::nOutputs>>> outputs;
     // Run all the models
     for (uint i=0; i< N_models_; i++) {
       if (counts[i] ==0) continue; //Skip model witout inputs
       std::vector<tensorflow::Tensor> output;
       LogDebug("PhotonDNNPFid") << "Run model: " << i << " with " << counts[i] << " photons";
       tensorflow::run(sessions[i], {{cfg_.inputTensorName, input_tensors[i]}}, {cfg_.outputTensorName}, &output);
-      // Get the output and save the 5 numbers along with the photon index
+      // Get the output and save the PhotonDNNEstimator::nOutputs numbers along with the photon index
       auto r = output[0].tensor<float,2>();
       // Iterate on the list of elements in the batch --> many Photons
       for (int b =0; b< counts[i]; b++){
-          std::array<float,5> result;
-          for (int k=0; k<5; k++) 
+          std::array<float,PhotonDNNEstimator::nOutputs> result;
+          for (uint k=0; k< PhotonDNNEstimator::nOutputs ; k++) 
               result[k] = r(b, k);
           // Get the original index of the electorn in the original order
           int photon_index = photon_index_map[i][b];
@@ -188,7 +198,7 @@ std::vector<std::array<float,5>> PhotonDNNEstimator::evaluate(const reco::Photon
 
     // Now we have just to re-order the outputs
     std::sort(outputs.begin(), outputs.end());
-    std::vector<std::array<float,5>> final_outputs (outputs.size());
+    std::vector<std::array<float,PhotonDNNEstimator::nOutputs>> final_outputs (outputs.size());
     std::transform(outputs.begin(), outputs.end(), final_outputs.begin(), [](auto a){return a.second;});
 
     return final_outputs;
