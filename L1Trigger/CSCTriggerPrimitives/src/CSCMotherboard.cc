@@ -282,13 +282,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   // debugging messages when early_tbin or late_tbin has a suspicious value
   if (early_tbin < 0) {
     edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-      << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+        << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
     early_tbin = 0;
   }
   if (late_tbin > max_late_tbin) {
     edm::LogWarning("CSCMotherboard|SuspiciousParameters")
-      << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
-      << ". set early_tbin to max allowed";
+        << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+        << ". set early_tbin to max allowed";
     late_tbin = CSCConstants::MAX_LCT_TBINS - 1;
   }
 
