@@ -49,12 +49,15 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
   // Here we will have to load the DNN PFID if present in the config
   ElectronDNNEstimator::Configuration dconfig;
   auto pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
-  dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
-  dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
-  dconfig.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
-  dconfig.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-  dconfig.log_level = pset_dnn.getParameter<std::string>("logLevel");
-  iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig);
+  bool  dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+  if(dnnEnabled){
+    dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
+    dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
+    dconfig.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+    dconfig.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+    dconfig.log_level = pset_dnn.getParameter<std::string>("logLevel");
+    iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig);
+  }
 }
 
 //===================================================================
