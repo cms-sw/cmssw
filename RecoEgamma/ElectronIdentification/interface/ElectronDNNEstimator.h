@@ -18,6 +18,8 @@ public:
     std::vector<std::string> scalers_files;
     std::string log_level="2";
   };
+  static constexpr uint  nOutputs = 5;
+  
   ElectronDNNEstimator();
   ElectronDNNEstimator(std::vector<std::string>& models_files, std::vector<std::string>& scalers_files,
                        std::string inputTensorName, std::string outputTensorName);
@@ -35,9 +37,9 @@ public:
   uint getModelIndex(const reco::GsfElectron& ele) const;
 
   // Evaluate the DNN on all the electrons with the correct model
-  std::vector<std::array<float,5>> evaluate(const reco::GsfElectronCollection& ele, const std::vector<tensorflow::Session*> session) const;
+  std::vector<std::array<float,ElectronDNNEstimator::nOutputs>> evaluate(const reco::GsfElectronCollection& ele, const std::vector<tensorflow::Session*> session) const;
 
-
+  
 private:
 
   void initTensorFlowGraphs() ;

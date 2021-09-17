@@ -44,7 +44,8 @@ private:
   float pho_sumPtTrackIsoSlope_;
 
   // Electron selections
-  const bool use_ele_id_DNN_;
+  const bool useElePFidDNN_;
+  const bool usePhotonPFidDNN_;
   const float ele_iso_pt_;
   const float ele_iso_mva_eb_;
   const float ele_iso_mva_ee_;
@@ -55,6 +56,9 @@ private:
   float ele_dnn_lowpt_;
   float ele_dnn_highpt_barrel_;
   float ele_dnn_highpt_endcap_;
+  // Threshold for DNN photon pfid
+  float photon_dnn_barrel_;
+  float photon_dnn_endcap_;
 
   const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
