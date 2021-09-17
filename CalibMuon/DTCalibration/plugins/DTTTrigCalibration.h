@@ -9,7 +9,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
@@ -30,7 +30,7 @@ class DTTtrig;
 class DTStatusFlag;
 class DTStatusFlagRcd;
 
-class DTTTrigCalibration : public edm::EDAnalyzer {
+class DTTTrigCalibration : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTTrigCalibration(const edm::ParameterSet& pset);
