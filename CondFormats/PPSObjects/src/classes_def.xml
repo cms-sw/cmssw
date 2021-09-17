@@ -81,4 +81,16 @@
     <class name="std::pair<unsigned int, SelectionRange>"/>
     <class name="PPSAlignmentConfig" class_version="0"/>
 
-  </lcgdict> 
+    <class name="PPSAlignmentConfiguration::PointErrors"/>
+    <class name="PPSAlignmentConfiguration::SelectionRange"/>
+    <class name="PPSAlignmentConfiguration::RPConfig"/>
+    <class name="PPSAlignmentConfiguration::SectorConfig"/>
+    <class name="PPSAlignmentConfiguration::Binning"/>
+    <class name="std::vector<PPSAlignmentConfiguration::PointErrors>"/>
+    <class name="std::map<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::pair<unsigned int, std::vector<PPSAlignmentConfiguration::PointErrors>>"/>
+    <class name="std::map<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="std::pair<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
+    <class name="PPSAlignmentConfiguration" class_version="0"/>
+
+</lcgdict>
