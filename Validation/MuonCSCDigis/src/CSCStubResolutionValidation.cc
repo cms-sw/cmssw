@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/MuonCSCDigis/interface/CSCStubResolutionValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCStubMatcher.h"
 
@@ -9,7 +11,7 @@ CSCStubResolutionValidation::CSCStubResolutionValidation(const edm::ParameterSet
   simTrackInput_ = iC.consumes<edm::SimTrackContainer>(simTrack.getParameter<edm::InputTag>("inputTag"));
 
   // Initialize stub matcher
-  cscStubMatcher_.reset(new CSCStubMatcher(pset, std::move(iC)));
+  cscStubMatcher_ = std::make_unique<CSCStubMatcher>(pset, std::move(iC));
 }
 
 CSCStubResolutionValidation::~CSCStubResolutionValidation() {}
