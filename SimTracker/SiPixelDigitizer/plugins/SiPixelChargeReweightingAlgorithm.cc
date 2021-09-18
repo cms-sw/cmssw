@@ -230,8 +230,11 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   for (int row = 0; row < TXSIZE; ++row) {
     for (int col = 0; col < TYSIZE; ++col) {
       //Fill charges into 21x13 Pixel Array with hitPixel in centre
-      pixrewgt[row][col] =
-          hitSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)];
+      if ((hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() &&
+          (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns()) {
+        pixrewgt[row][col] =
+            hitSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)];
+      }
     }
   }
 
