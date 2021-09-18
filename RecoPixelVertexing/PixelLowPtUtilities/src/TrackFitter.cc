@@ -39,8 +39,7 @@ namespace {
 
 /*****************************************************************************/
 std::unique_ptr<reco::Track> TrackFitter::run(const std::vector<const TrackingRecHit*>& hits,
-                                              const TrackingRegion& region,
-                                              const edm::EventSetup& setup) const {
+                                              const TrackingRegion& region) const {
   std::unique_ptr<reco::Track> ret;
 
   int nhits = hits.size();

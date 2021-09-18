@@ -1,8 +1,5 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterByConformalMappingAndLine.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
@@ -45,8 +42,7 @@ PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(
       theUseFixImpactParameter(useFixImpactParameter) {}
 
 std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(const std::vector<const TrackingRecHit *> &hits,
-                                                                       const TrackingRegion &region,
-                                                                       const edm::EventSetup &setup) const {
+                                                                       const TrackingRegion &region) const {
   int nhits = hits.size();
 
   vector<GlobalPoint> points;
