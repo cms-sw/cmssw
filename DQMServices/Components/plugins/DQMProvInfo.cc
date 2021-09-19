@@ -174,8 +174,8 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummaryMap_->setBinLabel(VBIN_TE_M, "TECm", 2);
   reportSummaryMap_->setBinLabel(VBIN_CASTOR, "CASTOR", 2);
   reportSummaryMap_->setBinLabel(VBIN_ZDC, "ZDC", 2);
-  reportSummaryMap_->setBinLabel(VBIN_GEM_P, "GEM+", 2);
-  reportSummaryMap_->setBinLabel(VBIN_GEM_M, "GEM-", 2);
+  reportSummaryMap_->setBinLabel(VBIN_GEM_P, "GEMp", 2);
+  reportSummaryMap_->setBinLabel(VBIN_GEM_M, "GEMm", 2);
   reportSummaryMap_->setBinLabel(VBIN_PHYSICS_DECLARED, "PhysDecl", 2);
   reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13 TeV", 2);
   reportSummaryMap_->setBinLabel(VBIN_STABLE_BEAM, "Stable B", 2);
