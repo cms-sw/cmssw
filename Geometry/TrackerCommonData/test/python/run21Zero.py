@@ -14,6 +14,7 @@ process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021ZeroMaterialXML_
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HcalCommonData.hcalDDDRecConstants_cfi')
 process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
