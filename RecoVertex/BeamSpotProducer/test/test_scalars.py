@@ -5,8 +5,8 @@ process = cms.Process("DumpDTRaw",Run3)
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    "file:/eos/cms/store/data/Commissioning2021/Cosmics/RAW/v1/000/342/218/00000/fdaf9009-dfd8-4774-9246-556088e65e9b.root",
-    "file:/eos/cms/store/data/Commissioning2021/Cosmics/RAW/v1/000/342/094/00000/7e88d2e8-6632-40f0-a1ca-4350adf60182.root"
+    "file:/eos/cms/store/data/Commissioning2021/Cosmics/RAW/v1/000/344/518/00000/00130ffc-3e69-4106-8151-c69dd735ee2e.root",
+    "file:/eos/cms/store/data/Commissioning2021/Cosmics/RAW/v1/000/344/518/00000/001d10b6-a19e-4889-ba07-88f8f6b17bc7.root"
     ),
                             skipEvents = cms.untracked.uint32(0) )
 
@@ -17,31 +17,23 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
-)        
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+)
+process.load("CondCore.CondDB.CondDB_cfi")
 
 from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
 process.GlobalTag = customiseGlobalTag(globaltag = "auto:run3_hlt_GRun")
- 
-process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-                                        process.CondDBSetup,
-                                        toGet = cms.VPSet(
-                                            cms.PSet(
-                                                record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-                                                tag = cms.string("BeamSpotOnlineTestLegacy"),
-                                                refreshTime = cms.uint64(1)
 
-                                            ),
-                                            cms.PSet(
-                                                record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-                                                tag = cms.string('BeamSpotOnlineTestHLT'),
-                                                refreshTime = cms.uint64(1)
-                                               )
-
-                                ),
-                                        #connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS')
-                                        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  ),
+  cms.PSet(
+    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
+    refreshTime = cms.uint64(1)
+  )
 )
+
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
         enable = cms.untracked.bool(False)
