@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 #include <vector>
@@ -74,8 +76,11 @@ private:
 
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+
   // tTrig map
   edm::ESHandle<DTTtrig> tTrigMap_;
+  const edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
 
   TFile* rootFile_;
   // TDC digi distribution
