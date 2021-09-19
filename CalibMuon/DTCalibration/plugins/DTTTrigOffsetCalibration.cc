@@ -38,7 +38,7 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset)
     : theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
       doTTrigCorrection_(pset.getUntrackedParameter<bool>("doT0SegCorrection", false)),
       theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
-      dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")), 
+      dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
       ttrigToken_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("dbLabel")))),
       dtGeomToken_(esConsumes()) {
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Constructor called!";

@@ -51,7 +51,7 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
       dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
       //fastAnalysis_( pset.getParameter<bool>("fastAnalysis", true) ),
       wireIdWithHisto_(std::vector<DTWireId>()),
-      lumiMax_(3000), 
+      lumiMax_(3000),
       dtGeomToken_(esConsumes()),
       ttrigToken_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("dbLabel")))) {
   // Get the debug parameter for verbose output

@@ -22,9 +22,8 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0ChamberReferenceCorrection::DTT0ChamberReferenceCorrection(const ParameterSet& pset,edm::ConsumesCollector cc)
-    : calibChamber_(pset.getParameter<string>("calibChamber")),
-      t0Token_(cc.esConsumes()) {
+  DTT0ChamberReferenceCorrection::DTT0ChamberReferenceCorrection(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : calibChamber_(pset.getParameter<string>("calibChamber")), t0Token_(cc.esConsumes()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;

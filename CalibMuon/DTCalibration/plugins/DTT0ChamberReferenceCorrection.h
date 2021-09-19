@@ -44,7 +44,7 @@ namespace dtCalibration {
 
     DTChamberId chosenChamberId_;
     const DTT0* t0Map_;
-    edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;  
+    edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
   };
 
 }  // namespace dtCalibration

@@ -61,7 +61,6 @@ std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord) {
 }
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord) {
-
   edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
   const auto& mdc = iRecord.get(mdcToken_);
 

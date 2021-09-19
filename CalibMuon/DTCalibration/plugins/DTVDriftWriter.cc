@@ -32,8 +32,8 @@
 using namespace std;
 using namespace edm;
 
-DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) :  
-      mTimeMapToken_(esConsumes()),
+DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
+    : mTimeMapToken_(esConsumes()),
       vDriftMapToken_(esConsumes()),
       dtGeomToken_(esConsumes()),
       granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),

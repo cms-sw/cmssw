@@ -38,8 +38,7 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet &ps) :
-  dtGeomToken_(esConsumes()) {
+DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet &ps) : dtGeomToken_(esConsumes()) {
   cout << "[DTNoiseComputation]: Constructor" << endl;
 
   // Get the debug parameter for verbose output
