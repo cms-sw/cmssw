@@ -33,11 +33,10 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-DTTPDeadWriter::DTTPDeadWriter(const ParameterSet& pset) : 
-  dtGeomToken_(esConsumes()) {
+DTTPDeadWriter::DTTPDeadWriter(const ParameterSet& pset) : dtGeomToken_(esConsumes()) {
   // get selected debug option
   debug = pset.getUntrackedParameter<bool>("debug", false);
-  t0Token_ = esConsumes(edm::ESInputTag("", pset.getParameter<string>("debug"))); 
+  t0Token_ = esConsumes(edm::ESInputTag("", pset.getParameter<string>("debug")));
 
   // Create the object to be written to DB
   tpDeadList = new DTDeadFlag();

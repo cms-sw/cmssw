@@ -39,7 +39,7 @@ private:
   const edm::ESGetToken<DTMtime, DTMtimeRcd> mTimeMapToken_;
   const edm::ESGetToken<DTRecoConditions, DTRecoConditionsVdriftRcd> vDriftMapToken_;
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
-  std::string granularity_;  // enforced by SL
+  std::string granularity_;            // enforced by SL
   const DTMtime* mTimeMap_;            // legacy DB object
   const DTRecoConditions* vDriftMap_;  // DB object in new format
   bool readLegacyVDriftDB;             // which format to use to read old values

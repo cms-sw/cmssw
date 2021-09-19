@@ -33,8 +33,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) : 
-  dtGeomToken_(esConsumes()) {
+DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) : dtGeomToken_(esConsumes()) {
   // get selected debug option
   debug = pset.getUntrackedParameter<bool>("debug", false);
 

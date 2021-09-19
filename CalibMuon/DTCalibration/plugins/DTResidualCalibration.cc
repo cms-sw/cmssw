@@ -64,8 +64,8 @@ void DTResidualCalibration::beginJob() { TH1::SetDefaultSumw2(true); }
 void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // get the geometry
   edm::ESHandle<DTGeometry> dtGeomH;
-   dtGeomH = setup.getHandle(dtGeomToken_);
-   dtGeom_ = dtGeomH.product();
+  dtGeomH = setup.getHandle(dtGeomToken_);
+  dtGeom_ = dtGeomH.product();
 
   // Loop over all the chambers
   if (histoMapTH1F_.empty()) {

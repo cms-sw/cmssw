@@ -30,8 +30,8 @@ using namespace std;
 DTT0Correction::DTT0Correction(const ParameterSet& pset)
     : correctionAlgo_{DTT0CorrectionFactory::get()->create(pset.getParameter<string>("correctionAlgo"),
                                                            pset.getParameter<ParameterSet>("correctionAlgoConfig"))},
-  dtGeomToken_(esConsumes()), 
-  t0Token_(esConsumes()) {
+      dtGeomToken_(esConsumes()),
+      t0Token_(esConsumes()) {
   LogVerbatim("Calibration") << "[DTT0Correction] Constructor called" << endl;
 }
 

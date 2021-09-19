@@ -57,6 +57,5 @@ private:
 
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
-
 };
 #endif

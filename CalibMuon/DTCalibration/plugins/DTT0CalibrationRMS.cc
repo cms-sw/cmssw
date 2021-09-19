@@ -24,8 +24,7 @@ using namespace edm;
 // using namespace cond;
 
 // Constructor
-DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : 
-  dtGeomToken_(esConsumes()) {
+DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) : dtGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   if (debug)

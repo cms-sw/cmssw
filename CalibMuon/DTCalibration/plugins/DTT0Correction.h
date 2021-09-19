@@ -44,6 +44,5 @@ private:
 
   const DTT0* t0Map_;
   edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
-
 };
 #endif

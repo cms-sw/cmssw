@@ -43,8 +43,7 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset)
       rejectDigiFromPeak(pset.getParameter<unsigned int>("rejectDigiFromPeak")),
       hLayerPeaks("hLayerPeaks", "", 3000, 0, 3000),
       spectrum(20),
-      dtGeomToken_(esConsumes())
-{
+      dtGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   if (debug)
     cout << "[DTT0Calibration]Constructor called!" << endl;

@@ -67,6 +67,5 @@ private:
   //geom
   edm::ESHandle<DTGeometry> dtGeom;
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
-
 };
 #endif
