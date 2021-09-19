@@ -129,10 +129,20 @@ def customiseFor2018Input(process):
     return process
 
 
+def customiseFor35315(process):
+    """Update the HLT configuration for the changes in #35315"""
+    for module in filters_by_type(process, "HLTHcalCalibTypeFilter"):
+        if hasattr(module, "FilterSummary"):
+            delattr(module, "FilterSummary")
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor35315(process)
 
     return process
