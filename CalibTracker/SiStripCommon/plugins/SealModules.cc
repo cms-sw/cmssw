@@ -24,3 +24,7 @@ DEFINE_FWK_MODULE(ShallowSimhitClustersProducer);
 DEFINE_FWK_MODULE(ShallowTracksProducer);
 DEFINE_FWK_MODULE(ShallowSimTracksProducer);
 DEFINE_FWK_MODULE(ShallowGainCalibration);
+
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
+typedef SimpleFlatTableProducer<reco::Track> SimpleTrackFlatTableProducer;
+DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
