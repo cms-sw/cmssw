@@ -10,7 +10,9 @@ from DQMServices.Core.DQMStore_cfi import *
 
 # load CUDA services when the "gpu" or "pixelNtupletFit" modifiers are enabled
 def _addCUDAServices(process):
-     process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+    process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+    process.load("FWCore.MessageService.MessageLogger_cfi")
+    process.MessageLogger.CUDAService = cms.untracked.PSet()
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
