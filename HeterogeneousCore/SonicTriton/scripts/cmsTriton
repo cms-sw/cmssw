@@ -20,6 +20,7 @@ AUTOPORT=""
 NPORTS=3
 IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
 SANDBOX=""
+COMPAT_USR=""
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -35,6 +36,7 @@ usage() {
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
+	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
 	$ECHO "-d          \t use Docker instead of Singularity"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
@@ -55,7 +57,7 @@ usage() {
 	$ECHO "Operations:"
 	$ECHO "start       \t start server"
 	$ECHO "stop        \t stop server"
-	$ECHO "info        \t print server info"
+	$ECHO "check       \t check if server can run on this system"
 	exit $1
 }
 
@@ -65,9 +67,11 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
+		;;
+		C) COMPAT_USR="$OPTARG"
 		;;
 		D) DRYRUN=echo
 		;;
@@ -107,7 +111,7 @@ done
 shift $(($OPTIND - 1))
 OP=$1
 
-if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != info ]; then
+if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != check ]; then
 	usage 1
 fi
 
@@ -185,9 +189,17 @@ start_docker(){
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
 
+	# compatibility driver environment
+	ENVARGS=""
+	if [ -n "$COMPAT" ]; then
+		ENVARGS="--env _CUDA_COMPAT_PATH=$COMPAT"
+		# make sure drivers are available inside container
+		MOUNTARGS="$MOUNTARGS -v$COMPAT:$COMPAT"
+	fi
+
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
-		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $ENVARGS $MOUNTARGS \
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
@@ -207,6 +219,14 @@ start_singularity(){
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
 
+	# compatibility driver environment
+	ENVARGS=""
+	if [ -n "$COMPAT" ]; then
+		ENVARGS="--env _CUDA_COMPAT_PATH=$COMPAT"
+		# make sure drivers are available inside container
+		MOUNTARGS="$MOUNTARGS -B $COMPAT"
+	fi
+
 	# workaround for nvidia libs w/ singularity-in-singularity
 	# from https://github.com/hpcng/singularity/issues/5759#issuecomment-919523970
 	if [ -d /.singularity.d/libs ]; then
@@ -221,7 +241,7 @@ start_singularity(){
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
 	$DRYRUN singularity instance start \
-		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
+		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $ENVARGS $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
 	START_EXIT=$?
@@ -372,6 +392,42 @@ make_tmp(){
 	$DRYRUN cd "$TMPDIR"
 }
 
+check_drivers(){
+	# get sandbox env vars in subshell
+	CUDA_DRIVER_VERSION=$(source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION)
+	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
+	DRIVER_VERSION=$(sed -n 's/^NVRM.*Kernel Module *\([0-9.]*\).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
+	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
+		return 0
+	fi
+
+	export COMPAT=""
+
+	# 1. check for user-specified compatibility drivers
+	if [ -n "$COMPAT_USR" ] && [ -d "$COMPAT_USR" ]; then
+		COMPAT="$COMPAT_USR"
+	fi
+
+	# 2. check for compatibility drivers from CMSSW if available
+	if [ -z "$COMPAT" ] && [ -n "$CMSSW_BASE" ]; then
+		# stubs are not useful here
+		COMPAT=$($CMSSW_BASE/config/SCRAM/hooks/runtime/00-nvidia-drivers | grep -v "/lib64/stubs")
+	fi
+
+	# 3. finally, check expected system location
+	COMPAT_SYS=/usr/local/cuda/compat
+	if [ -z "$COMPAT" ] && [ -d "$COMPAT_SYS" ]; then
+		COMPAT="$COMPAT_SYS"
+	fi
+
+	if [ -n "$COMPAT" ]; then
+		export COMPAT
+		return 0
+	else
+		return 1
+	fi
+}
+
 if [ -n "$USEDOCKER" ]; then
 	if [ -n "$GPU" ]; then
 		EXTRA="--gpus all"
@@ -390,8 +446,9 @@ else
 	PROG_NAME=Singularity
 fi
 
-if [ "$OP" == info ]; then
-	echo $SANDBOX
+if [ "$OP" == check ]; then
+	check_drivers
+	exit $?
 elif [ "$OP" == start ]; then
 	# handle cleaning up
 	if [ -n "$FORCE" ]; then
@@ -400,6 +457,10 @@ elif [ "$OP" == start ]; then
 		echo "Error: this container may already exist (override with -f)"
 		exit 1
 	fi
+
+	check_drivers
+	DRIVER_EXIT=$?
+	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
 
 	handle_ports
 	PORT_EXIT=$?
