@@ -190,16 +190,13 @@ start_docker(){
 	done
 
 	# compatibility driver environment
-	ENVARGS=""
 	if [ -n "$COMPAT" ]; then
-		ENVARGS="--env _CUDA_COMPAT_PATH=$COMPAT"
-		# make sure drivers are available inside container
-		MOUNTARGS="$MOUNTARGS -v$COMPAT:$COMPAT"
+		MOUNTARGS="$MOUNTARGS -v$COMPAT"
 	fi
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
-		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $ENVARGS $MOUNTARGS \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
@@ -220,10 +217,7 @@ start_singularity(){
 	done
 
 	# compatibility driver environment
-	ENVARGS=""
 	if [ -n "$COMPAT" ]; then
-		ENVARGS="--env _CUDA_COMPAT_PATH=$COMPAT"
-		# make sure drivers are available inside container
 		MOUNTARGS="$MOUNTARGS -B $COMPAT"
 	fi
 
@@ -241,7 +235,7 @@ start_singularity(){
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
 	$DRYRUN singularity instance start \
-		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $ENVARGS $MOUNTARGS $EXTRA \
+		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
 	START_EXIT=$?
@@ -392,6 +386,12 @@ make_tmp(){
 	$DRYRUN cd "$TMPDIR"
 }
 
+scram_tag(){
+	TOOL="$1"
+	TAG="$2"
+	scram tool tag $TOOL $TAG 2> /dev/null || true
+}
+
 check_drivers(){
 	# get sandbox env vars in subshell
 	CUDA_DRIVER_VERSION=$(source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION)
@@ -409,9 +409,15 @@ check_drivers(){
 	fi
 
 	# 2. check for compatibility drivers from CMSSW if available
+	# based on $CMSSW_BASE/config/SCRAM/hooks/runtime/00-nvidia-drivers
+	# but need to check drivers, not runtime
 	if [ -z "$COMPAT" ] && [ -n "$CMSSW_BASE" ]; then
-		# stubs are not useful here
-		COMPAT=$($CMSSW_BASE/config/SCRAM/hooks/runtime/00-nvidia-drivers | grep -v "/lib64/stubs")
+		CUDA_BASE=$(scram_tag cuda CUDA_BASE)
+		COMPAT_CMSSW=${CUDA_BASE}/drivers
+
+		if [ -n "$CUDA_BASE" ] && [ -d "$COMPAT_CMSSW" ]; then
+			COMPAT="$COMPAT_CMSSW"
+		fi
 	fi
 
 	# 3. finally, check expected system location
@@ -421,7 +427,8 @@ check_drivers(){
 	fi
 
 	if [ -n "$COMPAT" ]; then
-		export COMPAT
+		# in order to mount drivers where Triton expects them
+		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib"
 		return 0
 	else
 		return 1
