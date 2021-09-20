@@ -1,4 +1,5 @@
-#include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
+#include "CaloTowersCreationAlgo.h"
+
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
@@ -7,6 +8,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/Interpolator.h"
+
 #include <cmath>
 
 //#define EDM_ML_DEBUG
