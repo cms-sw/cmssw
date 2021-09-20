@@ -38,7 +38,7 @@
 using namespace edm;
 using namespace std;
 
-DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet &ps) {
+DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet &ps) : dtGeomToken_(esConsumes()) {
   cout << "[DTNoiseComputation]: Constructor" << endl;
 
   // Get the debug parameter for verbose output
@@ -61,7 +61,7 @@ DTNoiseComputation::DTNoiseComputation(const edm::ParameterSet &ps) {
 
 void DTNoiseComputation::beginRun(const edm::Run &, const EventSetup &setup) {
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = setup.getHandle(dtGeomToken_);
 
   static int count = 0;
 

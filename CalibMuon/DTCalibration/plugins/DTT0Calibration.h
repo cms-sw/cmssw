@@ -17,6 +17,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <vector>
@@ -122,5 +123,6 @@ private:
 
   //DTGeometry used to loop on the SL in the endJob
   edm::ESHandle<DTGeometry> dtGeom;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif
