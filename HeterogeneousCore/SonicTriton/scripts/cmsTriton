@@ -135,6 +135,7 @@ LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
+COMPAT_SCRIPT=/etc/shinit_v2
 
 compute_ports(){
 	# compute derived port numbers
@@ -192,6 +193,9 @@ start_docker(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -v$COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -v$COMPAT_SCRIPT_MOUNT"
+		fi
 	fi
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
@@ -219,6 +223,9 @@ start_singularity(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -B $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -B $COMPAT_SCRIPT_MOUNT"
+		fi
 	fi
 
 	# workaround for nvidia libs w/ singularity-in-singularity
@@ -392,9 +399,25 @@ scram_tag(){
 	scram tool tag $TOOL $TAG 2> /dev/null || true
 }
 
+driver_docker(){
+	docker run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
+driver_singularity(){
+	source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION
+}
+
+compat_docker(){
+	docker cp $(docker create --rm ${IMAGE}):${COMPAT_SCRIPT} .
+}
+
+compat_singularity(){
+	cp ${SANDBOX}/${COMPAT_SCRIPT} .
+}
+
 check_drivers(){
 	# get sandbox env vars in subshell
-	CUDA_DRIVER_VERSION=$(source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION)
+	CUDA_DRIVER_VERSION=$($DRIVER_FN)
 	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
 	DRIVER_VERSION=$(sed -n 's/^NVRM.*Kernel Module *\([0-9.]*\).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
 	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
@@ -428,7 +451,14 @@ check_drivers(){
 
 	if [ -n "$COMPAT" ]; then
 		# in order to mount drivers where Triton expects them
-		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib"
+		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib.real"
+		# workaround for bug in Triton/Nvidia compatibility check
+		if [ "$PWD" == "$TMPDIR" ]; then
+			$DRYRUN $COMPAT_FN
+			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
+			$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
+			COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_BASE:$COMPAT_SCRIPT"
+		fi
 		return 0
 	else
 		return 1
@@ -442,6 +472,8 @@ if [ -n "$USEDOCKER" ]; then
 	START_FN=start_docker
 	TEST_FN=test_docker
 	STOP_FN=stop_docker
+	DRIVER_FN=driver_docker
+	COMPAT_FN=compat_docker
 	PROG_NAME=Docker
 else
 	if [ -n "$GPU" ]; then
@@ -450,6 +482,8 @@ else
 	START_FN=start_singularity
 	TEST_FN=test_singularity
 	STOP_FN=stop_singularity
+	DRIVER_FN=driver_singularity
+	COMPAT_FN=compat_singularity
 	PROG_NAME=Singularity
 fi
 
@@ -465,10 +499,6 @@ elif [ "$OP" == start ]; then
 		exit 1
 	fi
 
-	check_drivers
-	DRIVER_EXIT=$?
-	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
-
 	handle_ports
 	PORT_EXIT=$?
 	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
@@ -476,6 +506,11 @@ elif [ "$OP" == start ]; then
 	list_models
 
 	make_tmp
+
+	# after make_tmp because this may create file in tmp dir
+	check_drivers
+	DRIVER_EXIT=$?
+	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
 
 	# if parent PID is provided, automatically stop server when finished
 	# do this before actually trying to start the server in case of ctrl+c
