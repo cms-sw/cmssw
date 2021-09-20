@@ -33,7 +33,10 @@ using namespace std;
 using namespace edm;
 
 DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
-    : granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),
+    : mTimeMapToken_(esConsumes()),
+      vDriftMapToken_(esConsumes()),
+      dtGeomToken_(esConsumes()),
+      granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),
       mTimeMap_(nullptr),
       vDriftMap_(nullptr),
       vDriftAlgo_{DTVDriftPluginFactory::get()->create(pset.getParameter<string>("vDriftAlgo"),
@@ -53,13 +56,9 @@ DTVDriftWriter::~DTVDriftWriter() { LogVerbatim("Calibration") << "[DTVDriftWrit
 void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get the map of vdrift from the Setup
   if (readLegacyVDriftDB) {
-    ESHandle<DTMtime> mTime;
-    setup.get<DTMtimeRcd>().get(mTime);
-    mTimeMap_ = &*mTime;
+    mTimeMap_ = &setup.getData(mTimeMapToken_);
   } else {
-    ESHandle<DTRecoConditions> hVdrift;
-    setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
-    vDriftMap_ = &*hVdrift;
+    vDriftMap_ = &setup.getData(vDriftMapToken_);
     // Consistency check: no parametrization is implemented for the time being
     int version = vDriftMap_->version();
     if (version != 1) {
@@ -68,7 +67,8 @@ void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup)
   }
 
   // Get geometry from Event Setup
-  setup.get<MuonGeometryRecord>().get(dtGeom_);
+  dtGeom_ = setup.getHandle(dtGeomToken_);
+
   // Pass EventSetup to concrete implementation
   vDriftAlgo_->setES(setup);
 }
