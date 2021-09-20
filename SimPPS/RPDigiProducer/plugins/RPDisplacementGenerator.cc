@@ -17,8 +17,8 @@ using namespace edm;
 
 RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
                                                  RPDetId _detId,
-						 CTPPSRPAlignmentCorrectionsData alignments,
-						 CTPPSGeometry geom
+						 const CTPPSRPAlignmentCorrectionsData &  alignments,
+						 const CTPPSGeometry &  geom
 						 )  
   : detId_(_detId)
 {

@@ -33,8 +33,8 @@ public:
 
   RPDisplacementGenerator(const edm::ParameterSet &, 
 			  RPDetId,
-			  CTPPSRPAlignmentCorrectionsData alignments,
-			  CTPPSGeometry geom
+			  const CTPPSRPAlignmentCorrectionsData & alignments,
+			  const CTPPSGeometry &  geom
 			  );
 
   /// returns displaced PSimHit
