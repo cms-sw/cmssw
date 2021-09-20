@@ -194,6 +194,10 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   auto const& sipmCharacteristicsProduct = setup.getData(sipmCharacteristicsToken_).getProduct(ctx.stream());
 
+  edm::ESHandle<HcalChannelQualityGPU> qualHandle;
+  setup.get<HcalChannelQualityRcd>().get(qualHandle);
+  auto const& chQualProduct = qualHandle->getProduct(ctx.stream());
+
   auto const& pulseOffsets = setup.getData(pulseOffsetsToken_);
   auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
 
@@ -205,6 +209,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       effectivePedestalWidthsProduct,
                                                       pedestalsProduct,
                                                       qieCodersProduct,
+                                                      chQualProduct,
                                                       recoParamsProduct,
                                                       respCorrsProduct,
                                                       timeCorrsProduct,
