@@ -34,6 +34,7 @@ public:
 private:
 
   edm::EDGetTokenT<CSCRecHit2DCollection> cscRechitInputToken_;
+  typedef std::vector<reco::CSCJetCandidate> CSCJetCandidateCollection;
 };
 
 #endif

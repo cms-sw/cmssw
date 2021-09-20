@@ -11,6 +11,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 CSCJetCandidateProducer::CSCJetCandidateProducer(const edm::ParameterSet& ps)
 {
@@ -26,8 +27,10 @@ CSCJetCandidateProducer::~CSCJetCandidateProducer() {
 void CSCJetCandidateProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   LogTrace("CSCRecHit") << "[CSCJetCandidateProducer] starting event ";
 
+  edm::ESHandle<CSCGeometry> cscG;
   edm::Handle<CSCRecHit2DCollection> cscRechits;
 
+  setup.get<MuonGeometryRecord>().get(cscG);
   ev.getByToken(cscRechitInputToken_,cscRechits);
 
   // Create empty collection of rechits
@@ -39,7 +42,6 @@ void CSCJetCandidateProducer::produce(edm::Event& ev, const edm::EventSetup& set
   for (const CSCRecHit2D cscRechit : *cscRechits) {
     LocalPoint  cscRecHitLocalPosition       = cscRechit.localPosition();
     CSCDetId cscdetid = cscRechit.cscDetId();
-    cscRechitsDetId[ncscRechits] = CSCDetId::rawIdMaker(CSCDetId::endcap(cscdetid), CSCDetId::station(cscdetid), CSCDetId::ring(cscdetid), CSCDetId::chamber(cscdetid), CSCDetId::layer(cscdetid));
     int endcap = CSCDetId::endcap(cscdetid) == 1 ? 1 : -1;
     const CSCChamber* cscchamber = cscG->chamber(cscdetid);
     if (cscchamber) {
@@ -53,8 +55,8 @@ void CSCJetCandidateProducer::produce(edm::Event& ev, const edm::EventSetup& set
         double tpeak    = cscRechit.tpeak();
         double wireTime = cscRechit.wireTime();
 
-        CSCJetCandidate rh = (phi, eta, x ,y,z,tpeak,wireTime);
-        oc.push_back(rh)
+        reco::CSCJetCandidate rh(phi, eta, x ,y,z,tpeak,wireTime);
+        oc->push_back(rh);
     }
   }
   ev.put(std::move(oc));
