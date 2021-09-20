@@ -17,9 +17,11 @@
   <class name="edm::ClonePolicy<CSCRecHit2D>"/> <!-- Root6 -->
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
-  <class name="CSCJetCandidate"/>
-  <class name="std::vector<CSCJetCandidate>"/>
-  <class name="std::vector<CSCSegment>"/>
+  <class name="reco::CSCJetCandidate" ClassVersion="3">
+    <version ClassVersion="3" checksum="1185432696"/>
+  </class>
+  <class name="std::vector<reco::CSCJetCandidate>"/>
+  <class name="edm::Wrapper<std::vector<reco::CSCJetCandidate>>"/>
   <class name="std::vector<CSCSegment*>"/>
   <class name="CSCSegment" ClassVersion="11">
    <version ClassVersion="11" checksum="160361831"/>
