@@ -2,7 +2,6 @@
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/TrackingRecHit"/>
-
 <export>
   <lib name="1"/>
 </export>
