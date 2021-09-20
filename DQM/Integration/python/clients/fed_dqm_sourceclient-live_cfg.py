@@ -156,4 +156,5 @@ process.schedule = cms.Schedule(
 
 # Finaly: DQM process customizations
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)
