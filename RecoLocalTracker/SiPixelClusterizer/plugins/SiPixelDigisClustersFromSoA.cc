@@ -81,8 +81,14 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   uint32_t detId = 0;
   for (uint32_t i = 0; i < nDigis; i++) {
-    if (digis.pdigi(i) == 0)
+    // check for uninitialized digis
+    // this is set in RawToDigi_kernel in SiPixelRawToClusterGPUKernel.cu
+    if (digis.rawIdArr(i) == 0)
       continue;
+    // check for noisy/dead pixels (electrons set to 0)
+    if (digis.adc(i) == 0)
+      continue;
+
     detId = digis.rawIdArr(i);
     if (storeDigis_) {
       detDigis = &collection->find_or_insert(detId);
@@ -134,7 +140,11 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   };
 
   for (uint32_t i = 0; i < nDigis; i++) {
-    if (digis.pdigi(i) == 0)
+    // check for uninitialized digis
+    if (digis.rawIdArr(i) == 0)
+      continue;
+    // check for noisy/dead pixels (electrons set to 0)
+    if (digis.adc(i) == 0)
       continue;
     if (digis.clus(i) > 9000)
       continue;  // not in cluster; TODO add an assert for the size
