@@ -84,7 +84,7 @@ const std::array<std::string, PhotonDNNEstimator::nInputs > PhotonDNNEstimator::
     "hadTowOverEm","phoTrkSumPtHollow","phoEcalRecHit",
     "phoSigmaIetaIeta","phoSigmaIEtaIEtaFull5x5","phoSigmaIEtaIPhiFull5x5",
     "phoEcalPFClusterIso","phoHcalPFClusterIso","phoHasPixelSeed",
-    "phoR9Full5x5","phohcalTower"
+    "phoR9Full5x5","phohcalTower","ecalPFClusterIso","hcalPFClusterIso"
   }};
 
 std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photon& photon) const{
@@ -101,6 +101,9 @@ std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photo
     variables["phoHasPixelSeed"] = (Int_t)photon.hasPixelSeed();
     variables["phoR9Full5x5"] = photon.full5x5_r9();
     variables["phohcalTower"] = photon.hcalTowerSumEtConeDR03();
+    variables["phoR9Full5x5"] = photon.full5x5_r9();
+    variables["ecalPFClusterIso"] = photon.ecalPFClusterIso();
+    variables["hcalPFClusterIso"] = photon.hcalPFClusterIso();
     // Define more variables here and use them directly in the model config!
     return variables;
 }

@@ -18,7 +18,7 @@ public:
     std::vector<std::string> scalers_files;
     std::string log_level="2";
   };
-  static constexpr uint  nInputs = 24;
+  static constexpr uint  nInputs = 26;
   static constexpr uint  nOutputs = 5;
   
   ElectronDNNEstimator();

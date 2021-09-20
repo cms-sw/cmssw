@@ -9,6 +9,10 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 
 from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
+
+from RecoEgamma.EgammaIsolationAlgos.egammaEcalPFClusterIsolationProducerRecoPhoton_cfi import egammaEcalPFClusterIsolationProducerRecoPhoton
+from RecoEgamma.EgammaIsolationAlgos.egammaHcalPFClusterIsolationProducerRecoPhoton_cfi import egammaHcalPFClusterIsolationProducerRecoPhoton
+
 #
 # producer for photons
 #
@@ -107,7 +111,36 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt'
         ),
         logLevel = cms.string("0")
+    ),
+
+    pfECALClusIsolCfg = cms.PSet( 
+        pfClusterProducer = egammaEcalPFClusterIsolationProducerRecoPhoton.pfClusterProducer,
+        drMax = egammaEcalPFClusterIsolationProducerRecoPhoton.drMax,
+        drVetoBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.drVetoBarrel,
+        drVetoEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.drVetoEndcap,
+        etaStripBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.etaStripBarrel,
+        etaStripEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.etaStripEndcap,
+        energyBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.energyBarrel,
+        energyEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.energyEndcap
+    ),
+
+    pfHCALClusIsolCfg = cms.PSet(
+
+        pfClusterProducerHCAL = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHCAL,
+        useHF = egammaHcalPFClusterIsolationProducerRecoPhoton.useHF,
+        pfClusterProducerHFEM = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHFEM,
+        pfClusterProducerHFHAD = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHFHAD,
+        drMax = egammaHcalPFClusterIsolationProducerRecoPhoton.drMax,
+        drVetoBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.drVetoBarrel,
+        drVetoEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.drVetoEndcap,
+        etaStripBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.etaStripBarrel,
+        etaStripEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.etaStripEndcap,
+        energyBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.energyBarrel,
+        energyEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.energyEndcap,
+        useEt = egammaHcalPFClusterIsolationProducerRecoPhoton.useEt,
+
     )
+
 )
 
 

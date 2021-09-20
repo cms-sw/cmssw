@@ -22,6 +22,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
 
 #include <array>
 
@@ -152,6 +154,35 @@ private:
 
   bool dnnPFidEnabled_;
   std::vector<tensorflow::Session*> elePFid_tfSessions;
+
+  double ecaldrMax_;
+  double ecaldrVetoBarrel_;
+  double ecaldrVetoEndcap_;
+  double ecaletaStripBarrel_;
+  double ecaletaStripEndcap_;
+  double ecalenergyBarrel_;
+  double ecalenergyEndcap_;
+  typedef EcalPFClusterIsolation<reco::GsfElectron> ElectronEcalPFClusterIsolation;
+  std::unique_ptr<ElectronEcalPFClusterIsolation> ecalisoAlgo = nullptr;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
+
+  bool useHF_;
+  double hcaldrMax_;
+  double hcaldrVetoBarrel_;
+  double hcaldrVetoEndcap_;
+  double hcaletaStripBarrel_;
+  double hcaletaStripEndcap_;
+  double hcalenergyBarrel_;
+  double hcalenergyEndcap_;
+  double hcaluseEt_;
+
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
+
+  typedef HcalPFClusterIsolation<reco::GsfElectron> ElectronHcalPFClusterIsolation;
+  std::unique_ptr<ElectronHcalPFClusterIsolation> hcalisoAlgo = nullptr;
+
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -309,6 +340,39 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
   }
 
+   ///For PF cluster isolations
+  ///ECAL
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("pfClusterProducer", edm::InputTag("particleFlowClusterECAL"));
+    psd0.add<double>("drMax", 0.3);
+    psd0.add<double>("drVetoBarrel", 0.0);
+    psd0.add<double>("drVetoEndcap", 0.0);
+    psd0.add<double>("etaStripBarrel", 0.0);
+    psd0.add<double>("etaStripEndcap", 0.0);
+    psd0.add<double>("energyBarrel", 0.0);
+    psd0.add<double>("energyEndcap", 0.0);
+    desc.add<edm::ParameterSetDescription>("pfECALClusIsolCfg", psd0);
+  }
+
+  ///HCAL
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("pfClusterProducerHCAL", edm::InputTag("particleFlowClusterHCAL"));
+    psd0.add<edm::InputTag>("pfClusterProducerHFEM", edm::InputTag(""));
+    psd0.add<edm::InputTag>("pfClusterProducerHFHAD", edm::InputTag(""));
+    psd0.add<bool>("useHF", false);
+    psd0.add<double>("drMax", 0.3);
+    psd0.add<double>("drVetoBarrel", 0.0);
+    psd0.add<double>("drVetoEndcap", 0.0);
+    psd0.add<double>("etaStripBarrel", 0.0);
+    psd0.add<double>("etaStripEndcap", 0.0);
+    psd0.add<double>("energyBarrel", 0.0);
+    psd0.add<double>("energyEndcap", 0.0);
+    psd0.add<bool>("useEt", true);
+    desc.add<edm::ParameterSetDescription>("pfHCALClusIsolCfg", psd0);
+  }
+
 
   descriptions.add("gsfElectronProducerDefault", desc);
 
@@ -459,6 +523,31 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       .combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB"),
       .combinationRegressionWeightFiles =
           cfg.getParameter<std::vector<std::string>>("combinationRegressionWeightFile")};
+
+  ///Get the set for PF cluster isolation calculator
+  const edm::ParameterSet& pfECALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfECALClusIsolCfg");
+  pfClusterProducer_ = consumes<reco::PFClusterCollection>(pfECALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducer"));
+  ecaldrMax_ = pfECALClusIsolCfg.getParameter<double>("drMax");
+  ecaldrVetoBarrel_ = pfECALClusIsolCfg.getParameter<double>("drVetoBarrel");
+  ecaldrVetoEndcap_ = pfECALClusIsolCfg.getParameter<double>("drVetoEndcap");
+  ecaletaStripBarrel_ = pfECALClusIsolCfg.getParameter<double>("etaStripBarrel");
+  ecaletaStripEndcap_ = pfECALClusIsolCfg.getParameter<double>("etaStripEndcap");
+  ecalenergyBarrel_ = pfECALClusIsolCfg.getParameter<double>("energyBarrel");
+  ecalenergyEndcap_ = pfECALClusIsolCfg.getParameter<double>("energyEndcap");
+
+  const edm::ParameterSet& pfHCALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfHCALClusIsolCfg");
+  pfClusterProducerHCAL_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
+  pfClusterProducerHFEM_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
+  pfClusterProducerHFHAD_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
+  useHF_ = pfHCALClusIsolCfg.getParameter<bool>("useHF");
+  hcaldrMax_ = pfHCALClusIsolCfg.getParameter<double>("drMax");
+  hcaldrVetoBarrel_ = pfHCALClusIsolCfg.getParameter<double>("drVetoBarrel");
+  hcaldrVetoEndcap_ = pfHCALClusIsolCfg.getParameter<double>("drVetoEndcap");
+  hcaletaStripBarrel_ = pfHCALClusIsolCfg.getParameter<double>("etaStripBarrel");
+  hcaletaStripEndcap_ = pfHCALClusIsolCfg.getParameter<double>("etaStripEndcap");
+  hcalenergyBarrel_ = pfHCALClusIsolCfg.getParameter<double>("energyBarrel");
+  hcalenergyEndcap_ = pfHCALClusIsolCfg.getParameter<double>("energyEndcap");
+  hcaluseEt_ = pfHCALClusIsolCfg.getParameter<bool>("useEt");
 
   // create algo
   algo_ = std::make_unique<GsfElectronAlgo>(
@@ -652,12 +741,37 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
+  ///PF ECAL cluster based isolations
+  ecalisoAlgo = std::make_unique<ElectronEcalPFClusterIsolation>(ecaldrMax_, ecaldrVetoBarrel_, ecaldrVetoEndcap_, ecaletaStripBarrel_, ecaletaStripEndcap_, ecalenergyBarrel_, ecalenergyEndcap_);
+  
+  hcalisoAlgo = std::make_unique<ElectronHcalPFClusterIsolation>(hcaldrMax_, hcaldrVetoBarrel_, hcaldrVetoEndcap_, hcaletaStripBarrel_, hcaletaStripEndcap_, hcalenergyBarrel_, hcalenergyEndcap_, hcaluseEt_);
+
+
+  auto clusterHandle = event.getHandle(pfClusterProducer_);
+  
+  std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles{event.getHandle(pfClusterProducerHCAL_)};
+  if (useHF_) {
+    clusterHandles.push_back(event.getHandle(pfClusterProducerHFEM_));
+    clusterHandles.push_back(event.getHandle(pfClusterProducerHFHAD_));
+  }
+
+
   auto electrons = algo_->completeElectrons(event, setup, globalCache());
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
+    for (auto& el : electrons){
+      el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
+
+      ///SJ - the ecal pf cluster isolations are available at this point. 
+      // Added in CMSSW_12_0_1 at this stage to be able to use them in PF ID DNN
+      // They are computed with the same inputs and algo as the final Pfiso, computed in the finalizer.
+      reco::GsfElectron::PflowIsolationVariables isoVariables;
+      isoVariables.sumEcalClusterEt = ecalisoAlgo->getSum(el, clusterHandle);
+      isoVariables.sumHcalClusterEt = hcalisoAlgo->getSum(el,clusterHandles);
+      // Other Pfiso variables are initialized at 0 and not used
+      el.setPfIsolationVariables(isoVariables);
+    }
     setMVAOutputs(electrons, globalCache(), elePFid_tfSessions,  event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_);
-    for (auto& el : electrons)
-      el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set MVA inputs
   }
 
   // all electrons
