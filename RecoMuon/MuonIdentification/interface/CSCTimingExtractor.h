@@ -50,6 +50,8 @@ namespace edm {
 }  // namespace edm
 
 class MuonServiceProxy;
+class Propagator;
+class TrackingComponentsRecord;
 
 class CSCTimingExtractor {
 public:
@@ -92,6 +94,7 @@ private:
 
   std::unique_ptr<MuonServiceProxy> theService;
   MuonSegmentMatcher *theMatcher;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 };
 
 #endif
