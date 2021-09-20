@@ -158,18 +158,18 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       // Extract Track
       const reco::Track* trk = nullptr;
       if (useGsfToTrack_) {
-	using PackedPtr = edm::Ptr<pat::PackedCandidate>;
-	const PackedPtr* ptr1 = ele->userData<PackedPtr>("ele2packed");
-	const PackedPtr* ptr2 = ele->userData<PackedPtr>("ele2lost");
-	auto hasBestTrack = [](const PackedPtr* ptr) {
-	  return ptr != nullptr && ptr->isNonnull() && ptr->isAvailable() && ptr->get() != nullptr &&
-	  ptr->get()->bestTrack() != nullptr;
-	};
-	if (hasBestTrack(ptr1)) {
-	  trk = ptr1->get()->bestTrack();
-	} else if (hasBestTrack(ptr2)) {
-	  trk = ptr2->get()->bestTrack();
-	}
+        using PackedPtr = edm::Ptr<pat::PackedCandidate>;
+        const PackedPtr* ptr1 = ele->userData<PackedPtr>("ele2packed");
+        const PackedPtr* ptr2 = ele->userData<PackedPtr>("ele2lost");
+        auto hasBestTrack = [](const PackedPtr* ptr) {
+          return ptr != nullptr && ptr->isNonnull() && ptr->isAvailable() && ptr->get() != nullptr &&
+                 ptr->get()->bestTrack() != nullptr;
+        };
+        if (hasBestTrack(ptr1)) {
+          trk = ptr1->get()->bestTrack();
+        } else if (hasBestTrack(ptr2)) {
+          trk = ptr2->get()->bestTrack();
+        }
       } else {
         reco::TrackRef ref = ele->closestCtfTrackRef();
         if (ref.isNonnull() && ref.isAvailable()) {
