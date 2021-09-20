@@ -2,6 +2,7 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 void SeedGeneratorForCRack::init(const SiStripRecHit2DCollection& collstereo,
                                  const SiStripRecHit2DCollection& collrphi,
                                  const SiStripMatchedRecHit2DCollection& collmatched,
@@ -18,11 +19,14 @@ void SeedGeneratorForCRack::init(const SiStripRecHit2DCollection& collstereo,
 
   iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
   TTTRHBuilder = theBuilder.product();
-  CosmicLayerPairs cosmiclayers(geometry);
-  cosmiclayers.init(collstereo, collrphi, collmatched, iSetup);
-  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, iSetup);
+  edm::ESHandle<GeometricSearchTracker> track;
+  iSetup.get<TrackerRecoGeometryRecord>().get(track);
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  CosmicLayerPairs cosmiclayers(geometry, collrphi, collmatched, *track, *httopo);
+  thePairGenerator = new CosmicHitPairGenerator(cosmiclayers, *tracker);
   HitPairs.clear();
-  thePairGenerator->hitPairs(region, HitPairs, iSetup);
+  thePairGenerator->hitPairs(region, HitPairs);
   LogDebug("CosmicSeedFinder") << "Initialized with " << HitPairs.size() << " hit pairs" << std::endl;
 }
 
