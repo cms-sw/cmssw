@@ -27,12 +27,6 @@ def customiseFor35309(process):
                 if not hasattr(pset, 'minHitsAtHighEta'):
                     pset.minHitsAtHighEta = cms.int32(5)
 
-    for esp in esproducers_by_type(process, 'KFFittingSmootherESProducer'):
-        if not hasattr(esp, 'HighEtaSwitch'):
-            esp.HighEtaSwitch = cms.double(5.0)
-        if not hasattr(esp, 'MinNumberOfHitsHighEta'):
-            esp.MinNumberOfHitsHighEta = cms.int32(5)
-
     return process
 
 def customiseHCALFor2018Input(process):
