@@ -5,7 +5,7 @@ DEVICE=$2
 
 # the test is not possible if:
 # 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
-# 1b. Nvidia driver version too low
+# 1b. Nvidia drivers not available
 # 2. wrong architecture (not amd64)
 # 3. singularity not found or not usable
 # 4. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
@@ -19,15 +19,10 @@ if [ "$DEVICE" = "GPU" ]; then
 		exit 0
 	fi
 
-	SANDBOX=$(cmsTriton info)
-	# get sandbox env vars in subshell
-	CUDA_DRIVER_VERSION=$(source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION)
-	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
-	DRIVER_VERSION=$(sed -n 's/^NVRM.*Kernel Module *\([0-9.]*\).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
-	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
+	if cmsTriton check; then
 		echo "has NVIDIA driver"
 	else
-		echo "missing (or too old) NVIDIA driver"
+		echo "missing current or compatible NVIDIA driver"
 		exit 0
 	fi
 else
