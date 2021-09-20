@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "SeedFromConsecutiveHitsCreator.h"
 
 #include <string>
@@ -27,5 +28,6 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
   const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
   SeedFromConsecutiveHitsCreator seedCreator_;
+  const SeedFromProtoTrack::Config config_;
 };
 #endif
