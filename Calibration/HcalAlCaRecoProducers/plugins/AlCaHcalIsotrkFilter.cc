@@ -122,7 +122,11 @@ bool AlCaHcalIsotrkFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
   if (accept)
     ++(runCache(iEvent.getRun().index())->nGood_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Accept flag " << accept << " All " << runCache(iEvent.getRun().index())->nAll_ << " Good " << runCache(iEvent.getRun().index())->nGood_ << " Low " << runCache(iEvent.getRun().index())->nLow_ << " High " << runCache(iEvent.getRun().index())->nHigh_;
+  edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Accept flag " << accept << " All "
+                                   << runCache(iEvent.getRun().index())->nAll_ << " Good "
+                                   << runCache(iEvent.getRun().index())->nGood_ << " Low "
+                                   << runCache(iEvent.getRun().index())->nLow_ << " High "
+                                   << runCache(iEvent.getRun().index())->nHigh_;
 #endif
   return accept;
 
