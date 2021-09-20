@@ -50,6 +50,10 @@ namespace edm {
 }  // namespace edm
 
 class MuonServiceProxy;
+class DTGeometry;
+class MuonGeometryRecord;
+class Propagator;
+class TrackingComponentsRecord;
 
 class DTTimingExtractor {
 public:
@@ -102,6 +106,8 @@ private:
 
   std::unique_ptr<MuonServiceProxy> theService;
   MuonSegmentMatcher* theMatcher;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDTGeomToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 };
 
 #endif
