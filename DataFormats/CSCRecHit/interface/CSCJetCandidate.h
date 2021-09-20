@@ -1,5 +1,5 @@
-#ifndef DataFormats_CSCJetCandidate_H
-#define DataFormats_CSCJetCandidate_H
+#ifndef DataFormats_CSCJetCandidate_h
+#define DataFormats_CSCJetCandidate_h
 
 #include <vector>
 #include <memory>
