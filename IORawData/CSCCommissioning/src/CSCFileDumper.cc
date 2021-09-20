@@ -20,7 +20,7 @@
 #include <iostream>
 #include <sstream>
 
-CSCFileDumper::CSCFileDumper(const edm::ParameterSet &pset) {
+CSCFileDumper::CSCFileDumper(edm::ParameterSet const &pset) {
   i_token = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("source"));
   // source_ = pset.getUntrackedParameter<std::string>("source","rawDataCollector");
   output = pset.getUntrackedParameter<std::string>("output");
