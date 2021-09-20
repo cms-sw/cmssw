@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <map>
 
@@ -45,5 +47,7 @@ private:
   TFile* rootFile_;
   ChamberHistosMapTH1F theVDriftHistoMapTH1F_;
   ChamberHistosMapTH2F theVDriftHistoMapTH2F_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 #include <string>
 
@@ -34,9 +37,12 @@ public:
 
 protected:
 private:
-  const DTT0* t0Map_;
-  edm::ESHandle<DTGeometry> muonGeom_;
-
   std::unique_ptr<dtCalibration::DTT0BaseCorrection> correctionAlgo_;
+
+  edm::ESHandle<DTGeometry> muonGeom_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+
+  const DTT0* t0Map_;
+  edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
 };
 #endif
