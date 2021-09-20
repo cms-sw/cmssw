@@ -27,12 +27,15 @@ gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone(
     pfECALClusIsolation    = cms.InputTag("photonEcalPFClusterIsolationProducer"),
     pfHCALClusIsolation    = cms.InputTag("photonHcalPFClusterIsolationProducer"),
     pfIsolCfg = cms.PSet(
-	chargedHadronIso = cms.InputTag("photonIDValueMaps","phoChargedIsolation"),
-	neutralHadronIso = cms.InputTag("photonIDValueMaps","phoNeutralHadronIsolation"),
-	photonIso        = cms.InputTag("photonIDValueMaps","phoPhotonIsolation"),
-	chargedHadronWorstVtxIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolation"),
-	chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
-	chargedHadronPFPVIso     = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
+        chargedHadronIso = cms.InputTag("photonIDValueMaps","phoChargedIsolation"),
+        neutralHadronIso = cms.InputTag("photonIDValueMaps","phoNeutralHadronIsolation"),
+        photonIso        = cms.InputTag("photonIDValueMaps","phoPhotonIsolation"),
+        chargedHadronWorstVtxIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolation"),
+        chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
+        chargedHadronPFPVIso     = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
+        ),
+    PhotonDNNPFid = cms.PSet(
+        enabled = cms.bool(False)
     )
 )
 gedPhotonTask    = cms.Task(gedPhotons)

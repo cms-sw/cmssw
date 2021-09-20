@@ -100,6 +100,63 @@ bool EcalPFClusterIsolation<reco::RecoChargedCandidate>::computedRVeto(T1Ref can
     return true;
 }
 
+template <typename T1>
+double EcalPFClusterIsolation<T1>::getSum(const T1 cand, edm::Handle<reco::PFClusterCollection> clusterHandle) {
+  drVeto2_ = -1.;
+  float etaStrip = -1;
+
+  if (fabs(cand.eta()) < 1.479) {
+    drVeto2_ = drVetoBarrel_ * drVetoBarrel_;
+    etaStrip = etaStripBarrel_;
+  } else {
+    drVeto2_ = drVetoEndcap_ * drVetoEndcap_;
+    etaStrip = etaStripEndcap_;
+  }
+
+  float etSum = 0;
+  for (size_t i = 0; i < clusterHandle->size(); i++) {
+    reco::PFClusterRef pfclu(clusterHandle, i);
+
+    if (fabs(cand.eta()) < 1.479) {
+      if (fabs(pfclu->pt()) < energyBarrel_)
+        continue;
+    } else {
+      if (fabs(pfclu->energy()) < energyEndcap_)
+        continue;
+    }
+
+    float dEta = fabs(cand.eta() - pfclu->eta());
+    if (dEta < etaStrip)
+      continue;
+    if (not computedRVeto(cand, pfclu))
+      continue;
+
+    etSum += pfclu->pt();
+  }
+
+  return etSum;
+}
+
+template <typename T1>
+bool EcalPFClusterIsolation<T1>::computedRVeto(T1 cand, reco::PFClusterRef pfclu) {
+  float dR2 = deltaR2(cand.eta(), cand.phi(), pfclu->eta(), pfclu->phi());
+  if (dR2 > (drMax_ * drMax_))
+    return false;
+
+  if (cand.superCluster().isNonnull()) {
+    // Exclude clusters that are part of the candidate
+    for (reco::CaloCluster_iterator it = cand.superCluster()->clustersBegin();
+         it != cand.superCluster()->clustersEnd();
+         ++it) {
+      if ((*it)->seed() == pfclu->seed()) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 template class EcalPFClusterIsolation<reco::RecoEcalCandidate>;
 template class EcalPFClusterIsolation<reco::RecoChargedCandidate>;
 template class EcalPFClusterIsolation<reco::Photon>;

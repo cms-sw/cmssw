@@ -89,7 +89,8 @@ const std::array<std::string, ElectronDNNEstimator::nInputs>  ElectronDNNEstimat
     "dr03EcalRecHitSumEt", "dr03HcalTowerSumEt", "gsfTrack.normalizedChi2",
      "superCluster.eta", "pt",  "ecalPFClusterIso", 
      "hcalPFClusterIso", "numberOfBrems", "abs(deltaEtaSeedClusterTrackAtCalo)",
-    "hadronicOverEm", "full5x5_e2x5Max", "full5x5_e5x5"
+    "hadronicOverEm", "full5x5_e2x5Max", "full5x5_e5x5",
+    "ecalPFClusterIso", "hcalPFClusterIso"
   }};
 
 
@@ -122,6 +123,8 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
     variables["hadronicOverEm"] = ele.hadronicOverEm();
     variables["full5x5_e2x5Max"] = ele.full5x5_e2x5Max();
     variables["full5x5_e5x5 "] = ele.full5x5_e5x5();
+    variables["ecalPFClusterIso"] = ele.ecalPFClusterIso();
+    variables["hcalPFClusterIso"] = ele.hcalPFClusterIso();
     // Define more variables here and use them directly in the model config!
     return variables;
 }

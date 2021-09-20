@@ -19,7 +19,7 @@ public:
     std::vector<std::string> scalers_files;
     std::string log_level="2";
   };
-  static constexpr uint nInputs = 11;
+  static constexpr uint nInputs = 13;
   static constexpr uint nOutputs = 1;
 
   PhotonDNNEstimator();
