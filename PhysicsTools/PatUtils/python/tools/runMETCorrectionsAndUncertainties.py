@@ -510,10 +510,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 #====================================================================================================
     def produceMET(self, process,  metType, metModuleSequence, postfix):
 
+        # get the patAlgosToolsTask
         task = getPatAlgosToolsTask(process)
-
+        # create a subtask that will hold all the necessary modules
         produceMET_task = cms.Task()
 
+        # if PF MET is requested and not already part of the process object, then load the necessary configs and add them to the subtask
         if metType == "PF" and not hasattr(process, 'pat'+metType+'Met'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
             produceMET_task.add(process.producePatPFMETCorrectionsTask)
@@ -521,15 +523,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             produceMET_task.add(process.patPFMetTxyCorrTask)
             produceMET_task.add(process.jetCorrectorsTask)
 
+        # account for a possible postfix
         _myPatMet = 'pat'+metType+'Met'+postfix
+        # if a postfix is requested, the MET type is PF MET, and there is not already an associated object in the process object, then add the needed modules
         if postfix != "" and metType == "PF" and not hasattr(process, _myPatMet):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
-            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
+            # clone the PF MET correction task, add it to the process with a postfix, and add it to the patAlgosToolsTask but exclude the modules above
+            # QUESTION: is it possible to add this directly to the subtask?
+            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrectionsTask"), postfix, noClones = noClonesTmp, addToTask = True)
+            # add a clone of the patPFMet producer to the process and the subtask
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, produceMET_task)
+            # adapt some inputs of the patPFMet producer to account e.g. for the postfix
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
+            # account for possibility of Puppi
             if self.getvalue("Puppi"):
                 getattr(process, _myPatMet).srcWeights = "puppiNoLep"
+        # set considered electrons, muons, and photons depending on data tier
         if metType == "PF":
             getattr(process, _myPatMet).srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
@@ -537,12 +547,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","photons"))
-
+        # if running on data, remove generator quantities
         if self.getvalue("runOnData"):
             getattr(process, _myPatMet).addGenMET  = False
 
 
-        #MM: FIXME MVA
+        ############### MM: FIXME MVA ################# -> QUESTION: Still needed???
         if metType == "MVA": # and not hasattr(process, 'pat'+metType+'Met'):
            # process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
             mvaMetProducer = self.createMVAMETModule(process)
@@ -551,7 +561,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                 getattr(process,'patPFMet' ).clone(metSource = cms.InputTag('pfMVAMet')),
                                 process, produceMET_task)
 
+        # add PAT MET producer to subtask
         produceMET_task.add(getattr(process, _myPatMet ))
+        # add subtask to patToolsAlgosTask
         task.add(produceMET_task)
         #metModuleSequence += cms.Sequence(produceMET_task)
 
