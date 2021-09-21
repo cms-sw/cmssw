@@ -34,5 +34,4 @@ private:
 #endif  // __CUDACC__
 };
 
-
 #endif  // RecoLocalCalo_HcalRecAlgos_interface_HcalChannelQualityGPU_h
