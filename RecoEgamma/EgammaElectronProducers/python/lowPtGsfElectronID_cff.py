@@ -30,7 +30,9 @@ run2_miniAOD_devel.toModify(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from PhysicsTools.NanoAOD.nano_eras_cff import *
+(fastSim & (run2_miniAOD_UL | run2_nanoAOD_106Xv2)).toModify(
     lowPtGsfElectronID,
     useGsfToTrack = True,
 )
