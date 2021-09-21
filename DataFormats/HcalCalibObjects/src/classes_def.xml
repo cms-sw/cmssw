@@ -9,8 +9,9 @@
   </class>
   <class name="std::vector<HcalHBHEMuonVariables>"/>
   <class name="edm::Wrapper<std::vector<HcalHBHEMuonVariables> >"/>
-  <class name="HcalIsoTrkCalibVariables" ClassVersion="17">
-   <version ClassVersion="17" checksum="662580897"/>
+  <class name="HcalIsoTrkCalibVariables" ClassVersion="18">
+   <version ClassVersion="17" checksum="3540801245"/>
+   <version ClassVersion="18" checksum="3377355045"/>
   </class>
   <class name="std::vector<HcalIsoTrkCalibVariables>"/>
   <class name="edm::Wrapper<std::vector<HcalIsoTrkCalibVariables> >"/>
