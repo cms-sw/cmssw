@@ -18,6 +18,7 @@ from .Modules import _Module
 from .SequenceTypes import *
 from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
 from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from .MessageLogger import MessageLogger
 from . import DictTypes
 
 from .ExceptionHandling import *
@@ -137,6 +138,11 @@ class Process(object):
         self.options = Process.defaultOptions_()
         self.maxEvents = Process.defaultMaxEvents_()
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
+        # intentionally not cloned to ensure that everyone taking
+        # MessageLogger still via
+        # FWCore.Message(Logger|Service).MessageLogger_cfi
+        # use the very same MessageLogger object.
+        self.MessageLogger = MessageLogger
         for m in self.__modifiers:
             m._setChosen()
 
@@ -1479,6 +1485,14 @@ class SubProcess(_Unlabelable):
         self.__process = process
         self.__SelectEvents = SelectEvents
         self.__outputCommands = outputCommands
+        # Need to remove MessageLogger from the subprocess now that MessageLogger is always present
+        if self.__process.MessageLogger is not MessageLogger:
+            print("""Warning: You have reconfigured service
+'edm::MessageLogger' in a subprocess.
+This service has already been configured.
+This particular service may not be reconfigured in a subprocess.
+The reconfiguration will be ignored.""")
+        del self.__process.MessageLogger
     def dumpPython(self, options=PrintOptions()):
         out = "parentProcess"+str(hash(self))+" = process\n"
         out += self.__process.dumpPython()
@@ -1885,9 +1899,9 @@ if __name__=="__main__":
             p.a = EDAnalyzer("MyAnalyzer")
             self.assertTrue( 'a' in p.analyzers_() )
             self.assertTrue( 'a' in p.analyzers)
-            p.add_(Service("MessageLogger"))
-            self.assertTrue('MessageLogger' in p.services_())
-            self.assertEqual(p.MessageLogger.type_(), "MessageLogger")
+            p.add_(Service("SomeService"))
+            self.assertTrue('SomeService' in p.services_())
+            self.assertEqual(p.SomeService.type_(), "SomeService")
             p.Tracer = Service("Tracer")
             self.assertTrue('Tracer' in p.services_())
             self.assertRaises(TypeError, setattr, *(p,'b',"this should fail"))
@@ -2035,6 +2049,101 @@ process.options = cms.untracked.PSet(
     throwIfIllegalParameter = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(False)
 )
+
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        FwkSummary = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+            reportEvery = cms.untracked.int32(1)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        Root_NoDictionary = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        lineLength = cms.optional.untracked.int32,
+        noLineBreaks = cms.optional.untracked.bool,
+        noTimeStamps = cms.untracked.bool(False),
+        resetStatistics = cms.untracked.bool(False),
+        statisticsThreshold = cms.untracked.string('WARNING'),
+        threshold = cms.untracked.string('INFO'),
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(False),
+        enableStatistics = cms.untracked.bool(False),
+        lineLength = cms.optional.untracked.int32,
+        noLineBreaks = cms.optional.untracked.bool,
+        noTimeStamps = cms.optional.untracked.bool,
+        resetStatistics = cms.untracked.bool(False),
+        statisticsThreshold = cms.optional.untracked.string,
+        threshold = cms.optional.untracked.string,
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    debugModules = cms.untracked.vstring(),
+    default = cms.untracked.PSet(
+        limit = cms.optional.untracked.int32,
+        lineLength = cms.untracked.int32(80),
+        noLineBreaks = cms.untracked.bool(False),
+        noTimeStamps = cms.untracked.bool(False),
+        reportEvery = cms.untracked.int32(1),
+        statisticsThreshold = cms.untracked.string('INFO'),
+        threshold = cms.untracked.string('INFO'),
+        timespan = cms.optional.untracked.int32,
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            limit = cms.optional.untracked.int32,
+            reportEvery = cms.untracked.int32(1),
+            timespan = cms.optional.untracked.int32
+        )
+    ),
+    files = cms.untracked.PSet(
+        allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+            enableStatistics = cms.untracked.bool(False),
+            extension = cms.optional.untracked.string,
+            filename = cms.optional.untracked.string,
+            lineLength = cms.optional.untracked.int32,
+            noLineBreaks = cms.optional.untracked.bool,
+            noTimeStamps = cms.optional.untracked.bool,
+            output = cms.optional.untracked.string,
+            resetStatistics = cms.untracked.bool(False),
+            statisticsThreshold = cms.optional.untracked.string,
+            threshold = cms.optional.untracked.string,
+            allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+                limit = cms.optional.untracked.int32,
+                reportEvery = cms.untracked.int32(1),
+                timespan = cms.optional.untracked.int32
+            )
+        )
+    ),
+    suppressDebug = cms.untracked.vstring(),
+    suppressFwkInfo = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring(),
+    allowAnyLabel_=cms.optional.untracked.PSetTemplate(
+        limit = cms.optional.untracked.int32,
+        reportEvery = cms.untracked.int32(1),
+        timespan = cms.optional.untracked.int32
+    )
+)
+
 
 """)
             p = Process("test")
@@ -2842,7 +2951,19 @@ process = parentProcess
 process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
 ), outputCommands = cms.untracked.vstring()))"""
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            self.assertEqual(_lineDiff(d,Process('Parent').dumpPython()+Process('Child').dumpPython()),equalD)
+            # SubProcesses are dumped before Services, so in order to
+            # craft the dump of the Parent and Child manually the dump
+            # of the Parent needs to be split at the MessageLogger
+            # boundary (now when it is part of Process by default),
+            # and insert the dump of the Child between the top part of
+            # the Parent (before MessageLogger) and the bottom part of
+            # the Parent (after and including MessageLogger)
+            messageLoggerSplit = 'process.MessageLogger = cms.Service'
+            parentDumpSplit = Process('Parent').dumpPython().split(messageLoggerSplit)
+            childProcess = Process('Child')
+            del childProcess.MessageLogger
+            combinedDump = parentDumpSplit[0] + childProcess.dumpPython() + messageLoggerSplit + parentDumpSplit[1]
+            self.assertEqual(_lineDiff(d, combinedDump), equalD)
             p = TestMakePSet()
             process.fillProcessDesc(p)
             self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
