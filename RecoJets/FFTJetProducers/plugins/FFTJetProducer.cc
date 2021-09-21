@@ -161,6 +161,11 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   const std::string alias(ps.getUntrackedParameter<std::string>("alias", outputLabel));
   jet_type_switch(makeProduces, alias, outputLabel);
 
+  if (jetType == CALOJET) {
+    geometry_token_ = esConsumes();
+    topology_token_ = esConsumes();
+  }
+
   // Build the set of pattern recognition scales.
   // This is needed in order to read the clustering tree
   // from the event record.
@@ -568,11 +573,9 @@ void FFTJetProducer::writeJets(edm::Event& iEvent, const edm::EventSetup& iSetup
     // call the appropriate specific code.
     T jet;
     if constexpr (std::is_same_v<T, reco::CaloJet>) {
-      edm::ESHandle<CaloGeometry> geometry;
-      iSetup.get<CaloGeometryRecord>().get(geometry);
-      edm::ESHandle<HcalTopology> topology;
-      iSetup.get<HcalRecNumberingRecord>().get(topology);
-      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], *geometry, *topology);
+      const CaloGeometry& geometry = iSetup.getData(geometry_token_);
+      const HcalTopology& topology = iSetup.getData(topology_token_);
+      writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1], geometry, topology);
     } else {
       writeSpecific(jet, jet4vec, vertexUsed(), constituents[ijet + 1]);
     }
