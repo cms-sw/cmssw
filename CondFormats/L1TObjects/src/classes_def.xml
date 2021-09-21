@@ -11,6 +11,9 @@
     <field name="uparams_" mapping="blob"/>  
   </class>
 
+  <class name="L1TMuonOverlapFwVersion">
+  </class>
+
   <class name="L1TMuonEndCapParams">
   </class>
 

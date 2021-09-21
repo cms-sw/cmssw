@@ -192,6 +192,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(L1TMuonEndCapParams);
   PAYLOAD_2XML_CLASS(L1TMuonGlobalParams);
   PAYLOAD_2XML_CLASS(L1TMuonOverlapParams);
+  PAYLOAD_2XML_CLASS(L1TMuonOverlapFwVersion);
   PAYLOAD_2XML_CLASS(L1TUtmAlgorithm);
   PAYLOAD_2XML_CLASS(L1TUtmBin);
   PAYLOAD_2XML_CLASS(L1TUtmCondition);

@@ -248,6 +248,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmCondition.h"
