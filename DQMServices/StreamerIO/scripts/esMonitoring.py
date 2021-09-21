@@ -219,13 +219,14 @@ class AsyncLineReaderMixin(object):
 
     def handle_read(self):
         rbuf = self.recv(1024*16)
+        rbuf = rbuf.decode('utf-8')
         ## not needed, since asyncore automatically handles close
         #if len(rbuf) == 0:
         #    self.handle_close()
         #    return
 
         self.line_buf.append(rbuf)
-        if b"\n" in rbuf:
+        if "\n" in rbuf:
             # split whatever we have
             spl = "".join(self.line_buf).split("\n")
 
