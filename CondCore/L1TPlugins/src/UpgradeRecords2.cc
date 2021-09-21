@@ -14,6 +14,9 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndCapForestO2ORcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionO2ORcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
@@ -32,6 +35,7 @@ REGISTER_PLUGIN(L1TMuonEndcapParamsRcd, L1TMuonEndCapParams);  // Temporary copy
 
 REGISTER_PLUGIN(L1TMuonEndCapParamsRcd, L1TMuonEndCapParams);
 REGISTER_PLUGIN(L1TMuonEndCapForestRcd, L1TMuonEndCapForest);
+REGISTER_PLUGIN(L1TMuonOverlapFwVersionRcd, L1TMuonOverlapFwVersion);
 REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsRcd, L1TMuonBarrelParams);
 REGISTER_PLUGIN(L1TMuonBarrelKalmanParamsRcd, L1TMuonBarrelKalmanParams);
@@ -39,6 +43,7 @@ REGISTER_PLUGIN(L1TMuonGlobalParamsRcd, L1TMuonGlobalParams);
 
 REGISTER_PLUGIN(L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams);
 REGISTER_PLUGIN(L1TMuonEndCapForestO2ORcd, L1TMuonEndCapForest);
+REGISTER_PLUGIN(L1TMuonOverlapFwVersionO2ORcd, L1TMuonOverlapFwVersion);
 REGISTER_PLUGIN(L1TMuonOverlapParamsO2ORcd, L1TMuonOverlapParams);
 REGISTER_PLUGIN(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
 REGISTER_PLUGIN(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);

@@ -61,6 +61,11 @@ REGISTER_L1_WRITER(L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams);
 
 REGISTER_L1_WRITER(L1TMuonEndCapForestO2ORcd, L1TMuonEndCapForest);
 
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapFwVersion.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TMuonOverlapFwVersionO2ORcd, L1TMuonOverlapFwVersion);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 
