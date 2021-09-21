@@ -73,7 +73,7 @@ class CacheData {
 class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
 public:
   GEDPhotonProducer(const edm::ParameterSet& ps, const CacheData* gcache);
-
+  
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
@@ -465,11 +465,6 @@ std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::P
   return std::unique_ptr<CacheData>(cacheData);
 }
 
-void GEDPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& eventSetup) {
-  if (!recoStep_.isFinal()) {
-    photonEnergyCorrector_->init(eventSetup);
-  }
-}
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
   using namespace edm;

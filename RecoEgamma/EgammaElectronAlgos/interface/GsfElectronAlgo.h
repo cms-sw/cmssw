@@ -48,6 +48,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
 
 class GsfElectronAlgo {
 public:
@@ -71,6 +73,11 @@ public:
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
     edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
     edm::EDGetTokenT<reco::ConversionCollection> conversions;
+
+    edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer;
+    edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL;
+    edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM;
+    edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD;
   };
 
   struct StrategyConfiguration {
@@ -177,12 +184,33 @@ public:
     bool useNumCrystals;
   };
 
+  struct PFClusterIsolationConfiguration{
+    double ecaldrMax;
+    double ecaldrVetoBarrel;
+    double ecaldrVetoEndcap;
+    double ecaletaStripBarrel;
+    double ecaletaStripEndcap;
+    double ecalenergyBarrel;
+    double ecalenergyEndcap;
+
+    bool useHF;
+    double hcaldrMax;
+    double hcaldrVetoBarrel;
+    double hcaldrVetoEndcap;
+    double hcaletaStripBarrel;
+    double hcaletaStripEndcap;
+    double hcalenergyBarrel;
+    double hcalenergyEndcap;
+    bool hcaluseEt;
+  };
+
   GsfElectronAlgo(const Tokens&,
                   const StrategyConfiguration&,
                   const CutsConfiguration& cutsCfg,
                   const ElectronHcalHelper::Configuration& hcalCone,
                   const ElectronHcalHelper::Configuration& hcalBc,
                   const IsolationConfiguration&,
+                  const PFClusterIsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                   const RegressionHelper::Configuration& regCfg,
@@ -206,6 +234,7 @@ private:
     const StrategyConfiguration strategy;
     const CutsConfiguration cuts;
     const IsolationConfiguration iso;
+    const PFClusterIsolationConfiguration pfiso;
     const EcalRecHitsConfiguration recHits;
   };
 
@@ -265,6 +294,12 @@ private:
   ElectronHcalHelper hcalHelperBc_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
+
+  // Algos for PfCluster Isolation 
+  typedef EcalPFClusterIsolation<reco::GsfElectron> ElectronEcalPFClusterIsolation;
+  std::unique_ptr<ElectronEcalPFClusterIsolation> ecalisoAlgo_;
+  typedef HcalPFClusterIsolation<reco::GsfElectron> ElectronHcalPFClusterIsolation;
+  std::unique_ptr<ElectronHcalPFClusterIsolation> hcalisoAlgo_;
 };
 
 #endif  // GsfElectronAlgo_H
