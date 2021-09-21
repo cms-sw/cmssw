@@ -97,6 +97,11 @@ struct GsfElectronAlgo::EventData {
 
   bool originalCtfTrackCollectionRetreived = false;
   bool originalGsfTrackCollectionRetreived = false;
+
+  //PFCluster Isolation handles
+  edm::Handle<reco::PFClusterCollection> ecalClustersHandle;
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClustersHandle;
+  
 };
 
 //===================================================================
@@ -394,6 +399,7 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const ElectronHcalHelper::Configuration& hcalCone,
                                  const ElectronHcalHelper::Configuration& hcalBc,
                                  const IsolationConfiguration& iso,
+                                 const PFClusterIsolationConfiguration& pfiso,
                                  const EcalRecHitsConfiguration& recHits,
                                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                                  const RegressionHelper::Configuration& reg,
@@ -402,7 +408,7 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const edm::ParameterSet& tkIsolHEEP03,
                                  const edm::ParameterSet& tkIsolHEEP04,
                                  edm::ConsumesCollector&& cc)
-    : cfg_{input, strategy, cuts, iso, recHits},
+    : cfg_{input, strategy, cuts, iso, pfiso, recHits},
       tkIsol03CalcCfg_(tkIsol03),
       tkIsol04CalcCfg_(tkIsol04),
       tkIsolHEEP03CalcCfg_(tkIsolHEEP03),
@@ -418,7 +424,11 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
       crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
       regHelper_{reg, cfg_.strategy.useEcalRegression, cfg_.strategy.useCombinationRegression, cc}
 
-{}
+{
+  ///PF ECAL cluster based isolations
+  ecalisoAlgo_ = std::make_unique<ElectronEcalPFClusterIsolation>(pfiso.ecaldrMax, pfiso.ecaldrVetoBarrel, pfiso.ecaldrVetoEndcap, pfiso.ecaletaStripBarrel, pfiso.ecaletaStripEndcap, pfiso.ecalenergyBarrel, pfiso.ecalenergyEndcap);
+  hcalisoAlgo_ = std::make_unique<ElectronHcalPFClusterIsolation>(pfiso.hcaldrMax, pfiso.hcaldrVetoBarrel, pfiso.hcaldrVetoEndcap, pfiso.hcaletaStripBarrel, pfiso.hcaletaStripEndcap, pfiso.hcalenergyBarrel, pfiso.hcalenergyEndcap, pfiso.hcaluseEt);
+}
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
   if (cfg_.strategy.useEcalRegression || cfg_.strategy.useCombinationRegression)
@@ -446,6 +456,13 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 
   auto barrelRecHits = event.getHandle(cfg_.tokens.barrelRecHitCollection);
   auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
+
+  auto ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClusters  {event.getHandle(cfg_.tokens.pfClusterProducerHCAL)};
+  if (cfg_.pfiso.useHF) {
+    hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
+    hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
+  }
 
   auto ctfTracks = event.getHandle(cfg_.tokens.ctfTracks);
 
@@ -595,7 +612,12 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .tkIsolHEEP03Calc = EleTkIsolFromCands(tkIsolHEEP03CalcCfg_, *ctfTracks),
       .tkIsolHEEP04Calc = EleTkIsolFromCands(tkIsolHEEP04CalcCfg_, *ctfTracks),
       .originalCtfTracks = {},
-      .originalGsfTracks = {}};
+      .originalGsfTracks = {},
+      
+      .ecalClustersHandle = ecalPFClusters,
+      .hcalClustersHandle = hcalClusters
+
+      };
 
   eventData.ecalBarrelIsol03.setUseNumCrystals(cfg_.iso.useNumCrystals);
   eventData.ecalBarrelIsol03.setVetoClustered(cfg_.iso.vetoClustered);
@@ -1134,6 +1156,16 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   ele.setIsolation03(dr03);
   ele.setIsolation04(dr04);
+
+  //====================================================
+  // PFclusters based ISO !
+  // Added in CMSSW_12_0_1 at this stage to be able to use them in PF ID DNN
+  //====================================================
+  reco::GsfElectron::PflowIsolationVariables isoVariables;
+  isoVariables.sumEcalClusterEt = ecalisoAlgo_->getSum(ele, eventData.ecalClustersHandle);
+  isoVariables.sumHcalClusterEt = hcalisoAlgo_->getSum(ele, eventData.hcalClustersHandle);
+  // Other Pfiso variables are initialized at 0 and not used
+  ele.setPfIsolationVariables(isoVariables);
 
   //====================================================
   // preselection flag

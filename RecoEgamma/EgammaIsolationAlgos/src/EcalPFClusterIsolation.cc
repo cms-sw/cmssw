@@ -34,42 +34,6 @@ EcalPFClusterIsolation<T1>::EcalPFClusterIsolation(double drMax,
 template <typename T1>
 EcalPFClusterIsolation<T1>::~EcalPFClusterIsolation() {}
 
-template <typename T1>
-double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco::PFClusterCollection> clusterHandle) {
-  drVeto2_ = -1.;
-  float etaStrip = -1;
-
-  if (fabs(candRef->eta()) < 1.479) {
-    drVeto2_ = drVetoBarrel_ * drVetoBarrel_;
-    etaStrip = etaStripBarrel_;
-  } else {
-    drVeto2_ = drVetoEndcap_ * drVetoEndcap_;
-    etaStrip = etaStripEndcap_;
-  }
-
-  float etSum = 0;
-  for (size_t i = 0; i < clusterHandle->size(); i++) {
-    reco::PFClusterRef pfclu(clusterHandle, i);
-
-    if (fabs(candRef->eta()) < 1.479) {
-      if (fabs(pfclu->pt()) < energyBarrel_)
-        continue;
-    } else {
-      if (fabs(pfclu->energy()) < energyEndcap_)
-        continue;
-    }
-
-    float dEta = fabs(candRef->eta() - pfclu->eta());
-    if (dEta < etaStrip)
-      continue;
-    if (not computedRVeto(candRef, pfclu))
-      continue;
-
-    etSum += pfclu->pt();
-  }
-
-  return etSum;
-}
 
 template <typename T1>
 bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
@@ -105,7 +69,7 @@ double EcalPFClusterIsolation<T1>::getSum(const T1 cand, edm::Handle<reco::PFClu
   drVeto2_ = -1.;
   float etaStrip = -1;
 
-  if (fabs(cand.eta()) < 1.479) {
+  if (std::abs(cand.eta()) < 1.479) {
     drVeto2_ = drVetoBarrel_ * drVetoBarrel_;
     etaStrip = etaStripBarrel_;
   } else {
@@ -117,15 +81,15 @@ double EcalPFClusterIsolation<T1>::getSum(const T1 cand, edm::Handle<reco::PFClu
   for (size_t i = 0; i < clusterHandle->size(); i++) {
     reco::PFClusterRef pfclu(clusterHandle, i);
 
-    if (fabs(cand.eta()) < 1.479) {
-      if (fabs(pfclu->pt()) < energyBarrel_)
+    if (std::abs(cand.eta()) < 1.479) {
+      if (std::abs(pfclu->pt()) < energyBarrel_)
         continue;
     } else {
-      if (fabs(pfclu->energy()) < energyEndcap_)
+      if (std::abs(pfclu->energy()) < energyEndcap_)
         continue;
     }
 
-    float dEta = fabs(cand.eta() - pfclu->eta());
+    float dEta = std::abs(cand.eta() - pfclu->eta());
     if (dEta < etaStrip)
       continue;
     if (not computedRVeto(cand, pfclu))
@@ -135,6 +99,11 @@ double EcalPFClusterIsolation<T1>::getSum(const T1 cand, edm::Handle<reco::PFClu
   }
 
   return etSum;
+}
+
+template <typename T1>
+double EcalPFClusterIsolation<T1>::getSum(T1Ref ref, edm::Handle<std::vector<reco::PFCluster> > clusts){
+  return getSum(*ref,clusts);
 }
 
 template <typename T1>
