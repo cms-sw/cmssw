@@ -122,10 +122,7 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
   std::string key;
   if (getObjectKey(iRecord, key) || m_forceGeneration) {
     if (m_copyFromCondDB) {
-      // Get L1TriggerKeyList from EventSetup
-      const L1TriggerKeyListRcd& keyListRcd = iRecord.template getRecord<L1TriggerKeyListRcd>();
-
-      const auto keyList = iRecord.getHandle(l1TriggerKeyListToken_);
+      auto keyList = iRecord.getHandle(l1TriggerKeyListToken_);
 
       // Find payload token
       std::string recordName = edm::typelookup::className<TRcd>();
@@ -163,19 +160,16 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
 }
 
 template <class TRcd, class TData>
-bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& record, std::string& objectKey) {
-  // Get L1TriggerKey
-  const L1TriggerKeyRcd& keyRcd = record.template getRecord<L1TriggerKeyRcd>();
-
+bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& iRecord, std::string& objectKey) {
   // Explanation of funny syntax: since record is dependent, we are not
   // expecting getRecord to be a template so the compiler parses it
   // as a non-template. http://gcc.gnu.org/ml/gcc-bugs/2005-11/msg03685.html
 
   // If L1TriggerKey is invalid, then all configuration objects are
   // already in ORCON.
-  const edm::ESHandle<L1TriggerKey> key;
+  edm::ESHandle<L1TriggerKey> key;
   try {
-    key = record.getHandle(l1TriggerKeyToken_);
+    key = iRecord.getHandle(l1TriggerKeyToken_);
   } catch (l1t::DataAlreadyPresentException& ex) {
     objectKey = std::string();
     return false;
