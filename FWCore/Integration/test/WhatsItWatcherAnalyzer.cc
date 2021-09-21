@@ -53,6 +53,8 @@ namespace edmtest {
     edm::ESWatcher<GadgetRcd> watch1_;
     edm::ESWatcher<GadgetRcd> watch2_;
     edm::ESWatcher<GadgetRcd> watchBool_;
+
+    edm::ESGetToken<edmtest::WhatsIt, GadgetRcd> token_;
   };
 
   //
@@ -69,7 +71,8 @@ namespace edmtest {
   WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const edm::ParameterSet& /*iConfig*/)
       : watch1_(this, &WhatsItWatcherAnalyzer::watch1),
         watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2, this, std::placeholders::_1)),
-        watchBool_() {
+        watchBool_(),
+        token_(esConsumes()) {
     //now do what ever initialization is needed
   }
 
@@ -92,15 +95,13 @@ namespace edmtest {
   }
 
   void WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd) {
-    edm::ESHandle<edmtest::WhatsIt> pSetup;
-    iRcd.get(pSetup);
+    edm::ESHandle<edmtest::WhatsIt> pSetup = iRcd.getHandle(token_);
 
     std::cout << "watch1: WhatsIt " << pSetup->a << " changed" << std::endl;
   }
 
   void WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd) {
-    edm::ESHandle<WhatsIt> pSetup;
-    iRcd.get(pSetup);
+    edm::ESHandle<WhatsIt> pSetup = iRcd.getHandle(token_);
 
     std::cout << "watch2: WhatsIt " << pSetup->a << " changed" << std::endl;
   }
