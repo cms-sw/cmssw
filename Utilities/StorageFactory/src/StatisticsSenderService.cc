@@ -77,9 +77,9 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
     double single_sum = read_single_bytes - m_read_single_bytes;
     double single_average = single_sum / static_cast<double>(single_op_count);
     os << "\"read_single_sigma\":"
-       << sqrt((static_cast<double>(read_single_square - m_read_single_square) -
-                single_average * single_average * single_op_count) /
-               static_cast<double>(single_op_count))
+       << sqrt(std::abs((static_cast<double>(read_single_square - m_read_single_square) -
+                         single_average * single_average * single_op_count) /
+                        static_cast<double>(single_op_count)))
        << ", ";
     os << "\"read_single_average\":" << single_average << ", ";
   }
@@ -90,17 +90,17 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
         static_cast<double>(read_vector_bytes - m_read_vector_bytes) / static_cast<double>(vector_op_count);
     os << "\"read_vector_average\":" << vector_average << ", ";
     os << "\"read_vector_sigma\":"
-       << sqrt((static_cast<double>(read_vector_square - m_read_vector_square) -
-                vector_average * vector_average * vector_op_count) /
-               static_cast<double>(vector_op_count))
+       << sqrt(std::abs((static_cast<double>(read_vector_square - m_read_vector_square) -
+                         vector_average * vector_average * vector_op_count) /
+                        static_cast<double>(vector_op_count)))
        << ", ";
     double vector_count_average =
         static_cast<double>(read_vector_count_sum - m_read_vector_count_sum) / static_cast<double>(vector_op_count);
     os << "\"read_vector_count_average\":" << vector_count_average << ", ";
     os << "\"read_vector_count_sigma\":"
-       << sqrt((static_cast<double>(read_vector_count_square - m_read_vector_count_square) -
-                vector_count_average * vector_count_average * vector_op_count) /
-               static_cast<double>(vector_op_count))
+       << sqrt(std::abs((static_cast<double>(read_vector_count_square - m_read_vector_count_square) -
+                         vector_count_average * vector_count_average * vector_op_count) /
+                        static_cast<double>(vector_op_count)))
        << ", ";
   }
   m_read_vector_square = read_vector_square;
