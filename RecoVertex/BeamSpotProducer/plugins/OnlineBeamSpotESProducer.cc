@@ -37,15 +37,14 @@ private:
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
 
   BeamSpotObjects fakeBS_;
-  int timeThreshold_;
-  double sigmaZThreshold_;
+  const int timeThreshold_;
+  const double sigmaZThreshold_;
 };
 
-OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
-  // get parameters
-  timeThreshold_ = p.getParameter<int>("timeThreshold");
-  sigmaZThreshold_ = p.getParameter<double>("sigmaZThreshold");
-
+OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p)
+    // get parameters
+    : timeThreshold_(p.getParameter<int>("timeThreshold")),
+      sigmaZThreshold_(p.getParameter<double>("sigmaZThreshold")) {
   auto cc = setWhatProduced(this);
 
   fakeBS_.SetBeamWidthX(0.1);
@@ -60,8 +59,8 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p) {
 
 void OnlineBeamSpotESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription dsc;
-  dsc.add<int>("timeThreshold", 48);       // hours
-  dsc.add<double>("sigmaZThreshold", 2.);  // cm
+  dsc.add<int>("timeThreshold", 48)->setComment("hours");
+  dsc.add<double>("sigmaZThreshold", 2.)->setComment("cm");
   desc.addWithDefaultLabel(dsc);
 }
 
