@@ -37,7 +37,6 @@ private:
              const SimTrack& theSimTrack);
 
 private:
-  edm::ParameterSet theConfig;
   edm::InputTag theSimTrackCollectionLabel;
   edm::InputTag theL2CollectionLabel;
   std::vector<edm::InputTag> theSeedCollectionLabels;
@@ -46,7 +45,7 @@ private:
 
   MuonServiceProxy* theService;
   double thePtCut;
-  MuonTrackingRegionBuilder* theRegionBuilder;
+  std::unique_ptr<MuonTrackingRegionBuilder> theRegionBuilder;
 
   // TH1F* h_nSeedPerTrack;
   // TH1F* h_nGoodSeedPerTrack;
