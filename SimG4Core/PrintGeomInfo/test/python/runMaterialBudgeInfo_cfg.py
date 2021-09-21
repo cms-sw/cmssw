@@ -1,21 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PrintGeometry',Run3)
+process = cms.Process("PrintMaterialBudget",Run3)
 process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 #from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-#process = cms.Process('PrintGeometry',Run3_dd4hep)
+#process = cms.Process('PrintMaterialBudget',Run3_dd4hep)
 #process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('PrintGeometry',Phase2C11)
+#process = cms.Process('PrintMaterialBudget',Phase2C11)
 #process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.files.SensDet = dict(extension="txt")
+process.MessageLogger.files.MatBudget = dict(extension = "txt")
 process.MessageLogger.G4cout=dict()
 
 process.maxEvents = cms.untracked.PSet(
@@ -62,9 +62,11 @@ process.load('SimG4Core.Application.g4SimHits_cfi')
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 
+process.g4SimHits.Physics.type            = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.UseMagneticField        = False
+process.g4SimHits.Physics.DummyEMPhysics  = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.string('*'),
-	type           = cms.string('PrintSensitive')
+	Name           = cms.untracked.string('TIDF'),
+	type           = cms.string('PrintMaterialBudgetInfo')
 ))
