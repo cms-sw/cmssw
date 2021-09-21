@@ -58,14 +58,16 @@ if [ -n "$SINGULARITY_CONTAINER" ]; then
 	fi
 fi
 
+fallbackName=triton_server_instance_${DEVICE}
 tmpFile=$(mktemp -p ${LOCALTOP} SonicTritonTestXXXXXXXX.log)
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 >& $tmpFile
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 fallbackName=${fallbackName} >& $tmpFile
 CMSEXIT=$?
 
 cat $tmpFile
+sleep 15
 
 STOP_COUNTER=0
-while ! LOGFILE="$(ls -rt ${LOCALTOP}/log_triton_server_instance*.log 2>/dev/null | tail -n 1)" && [ "$STOP_COUNTER" -lt 5 ]; do
+while ! LOGFILE="$(ls -rt ${LOCALTOP}/log_${fallbackName}_*.log 2>/dev/null | tail -n 1)" && [ "$STOP_COUNTER" -lt 5 ]; do
 	STOP_COUNTER=$((STOP_COUNTER+1))
 	sleep 5
 done
@@ -73,6 +75,7 @@ done
 if [ -n "$LOGFILE" ]; then
 	echo -e '\n=====\nContents of '$LOGFILE':\n=====\n'
 	cat "$LOGFILE"
+	rm $LOGFILE
 fi
 
 if grep -q "Socket closed" $tmpFile; then
