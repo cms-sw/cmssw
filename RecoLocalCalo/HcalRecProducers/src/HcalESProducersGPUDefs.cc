@@ -68,7 +68,8 @@ using HcalGainWidthsGPUESProducer = ConvertingESProducerT<HcalGainWidthsRcd, Hca
 
 using HcalQIECodersGPUESProducer = ConvertingESProducerT<HcalQIEDataRcd, HcalQIECodersGPU, HcalQIEData>;
 
-using HcalChannelQualityGPUESProducer = ConvertingESProducerT<HcalChannelQualityRcd, HcalChannelQualityGPU, HcalChannelQuality>;
+using HcalChannelQualityGPUESProducer =
+    ConvertingESProducerT<HcalChannelQualityRcd, HcalChannelQualityGPU, HcalChannelQuality>;
 
 using HcalQIETypesGPUESProducer = ConvertingESProducerT<HcalQIETypesRcd, HcalQIETypesGPU, HcalQIETypes>;
 

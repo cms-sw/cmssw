@@ -31,7 +31,6 @@ HcalChannelQualityGPU::Product const& HcalChannelQualityGPU::getProduct(cudaStre
 
         // transfer
         cms::cuda::copyAsync(product.status, status_, stream);
-
       });
 
   return product;
