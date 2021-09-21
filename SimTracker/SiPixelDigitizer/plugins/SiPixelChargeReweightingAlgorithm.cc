@@ -275,8 +275,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
 
   for (int row = rowmin; row < rowmax; ++row) {
     for (int col = colmin; col < colmax; ++col) {
-      float charge = 0;
-      charge = pixrewgt[row][col];
+      float charge = pixrewgt[row][col];
       if (charge > 0) {
         chargeAfter += charge;
         theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
