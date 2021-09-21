@@ -61,7 +61,7 @@ if unitTest:
 process.source = source
 
 if not unitTest:
-    process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
+    process.source.inputFileTransitionsEachEvent = True
     process.source.skipFirstLumis                = True
     process.source.minEventsPerLumi              = 0
     process.source.nextLumiTimeoutMillis         = 10000
