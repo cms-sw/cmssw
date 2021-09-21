@@ -174,6 +174,8 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummaryMap_->setBinLabel(VBIN_TE_M, "TECm", 2);
   reportSummaryMap_->setBinLabel(VBIN_CASTOR, "CASTOR", 2);
   reportSummaryMap_->setBinLabel(VBIN_ZDC, "ZDC", 2);
+  reportSummaryMap_->setBinLabel(VBIN_GEM_P, "GEMp", 2);
+  reportSummaryMap_->setBinLabel(VBIN_GEM_M, "GEMm", 2);
   reportSummaryMap_->setBinLabel(VBIN_PHYSICS_DECLARED, "PhysDecl", 2);
   reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13 TeV", 2);
   reportSummaryMap_->setBinLabel(VBIN_STABLE_BEAM, "Stable B", 2);
@@ -361,6 +363,8 @@ void DQMProvInfo::fillDcsBitsFromDCSRecord(const DCSRecord& dcsRecord, bool* dcs
   dcsBits[VBIN_TE_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::TECm);
   dcsBits[VBIN_CASTOR] = dcsRecord.highVoltageReady(DCSRecord::Partition::CASTOR);
   dcsBits[VBIN_ZDC] = dcsRecord.highVoltageReady(DCSRecord::Partition::ZDC);
+  dcsBits[VBIN_GEM_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::GEMp);
+  dcsBits[VBIN_GEM_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::GEMm);
 }
 
 void DQMProvInfo::fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>& dcsStatusCollection,
@@ -402,6 +406,8 @@ void DQMProvInfo::fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatus
     dcsBits[VBIN_TE_M] &= dcsStatusItr.ready(DcsStatus::TECm);
     dcsBits[VBIN_CASTOR] &= dcsStatusItr.ready(DcsStatus::CASTOR);
     dcsBits[VBIN_ZDC] &= dcsStatusItr.ready(DcsStatus::ZDC);
+    //dcsBits[VBIN_GEM_P] &= dcsStatusItr.ready(DcsStatus::GEMp);  // GEMp and GEMm are not implemented
+    //dcsBits[VBIN_GEM_M] &= dcsStatusItr.ready(DcsStatus::GEMm);
 
     // Some info-level logging
     edm::LogInfo("DQMProvInfo") << "DCS status: 0x" << std::hex << dcsStatusItr.ready() << std::dec << std::endl;
@@ -420,7 +426,7 @@ bool DQMProvInfo::isPhysicsDeclared(bool* dcsBits) {
          (dcsBits[VBIN_BPIX] && dcsBits[VBIN_FPIX] && dcsBits[VBIN_TIBTID] && dcsBits[VBIN_TOB] &&
           dcsBits[VBIN_TEC_P] && dcsBits[VBIN_TE_M]) &&
          (dcsBits[VBIN_CSC_P] || dcsBits[VBIN_CSC_M] || dcsBits[VBIN_DT_0] || dcsBits[VBIN_DT_P] ||
-          dcsBits[VBIN_DT_M] || dcsBits[VBIN_RPC]);
+          dcsBits[VBIN_DT_M] || dcsBits[VBIN_RPC] || dcsBits[VBIN_GEM_P] || dcsBits[VBIN_GEM_M]);
 }
 
 void DQMProvInfo::blankAllLumiSections() {
