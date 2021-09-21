@@ -50,6 +50,7 @@ private:
   const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> recConstantsToken_;
   const edm::ESGetToken<HcalSiPMParametersGPU, HcalSiPMParametersRcd> sipmParametersToken_;
   const edm::ESGetToken<HcalSiPMCharacteristicsGPU, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
+  const edm::ESGetToken<HcalChannelQualityGPU, HcalChannelQualityRcd> chQualProductToken_;
   const edm::ESGetToken<HcalMahiPulseOffsetsGPU, JobConfigurationGPURecord> pulseOffsetsToken_;
 
   hcal::reconstruction::ConfigParameters configParameters_;
@@ -77,6 +78,7 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
       recConstantsToken_{esConsumes()},
       sipmParametersToken_{esConsumes()},
       sipmCharacteristicsToken_{esConsumes()},
+      chQualProductToken_{esConsumes()},
       pulseOffsetsToken_{esConsumes()} {
   configParameters_.maxChannels = ps.getParameter<uint32_t>("maxChannels");
   configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
@@ -194,9 +196,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   auto const& sipmCharacteristicsProduct = setup.getData(sipmCharacteristicsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalChannelQualityGPU> qualHandle;
-  setup.get<HcalChannelQualityRcd>().get(qualHandle);
-  auto const& chQualProduct = qualHandle->getProduct(ctx.stream());
+  auto const& chQualProduct = setup.getData(chQualProductToken_).getProduct(ctx.stream());
 
   auto const& pulseOffsets = setup.getData(pulseOffsetsToken_);
   auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
