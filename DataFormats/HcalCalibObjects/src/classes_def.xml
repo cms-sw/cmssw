@@ -4,8 +4,10 @@
   </class>
   <class name="std::vector<HOCalibVariables>"/>
   <class name="edm::Wrapper<std::vector<HOCalibVariables> >"/>
-  <class name="HcalHBHEMuonVariables" ClassVersion="17">
+  <class name="HcalHBHEMuonVariables" ClassVersion="19">
    <version ClassVersion="17" checksum="1863216916"/>
+   <version ClassVersion="18" checksum="3196858362"/>
+   <version ClassVersion="19" checksum="1430281869"/>
   </class>
   <class name="std::vector<HcalHBHEMuonVariables>"/>
   <class name="edm::Wrapper<std::vector<HcalHBHEMuonVariables> >"/>

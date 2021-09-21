@@ -22,7 +22,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
@@ -48,11 +48,11 @@ process.ALCARECOStreamHcalCalIsoTrkProducerFilter = cms.OutputModule("PoolOutput
         filterName = cms.untracked.string('ALCARECOHcalCalIsoTrkProducerFilter')
         ),
                                                              eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-                                                             #                                                            outputCommands = process.OutALCARECOHcalCalIsoTrkProducerFilter.outputCommands,
-                                                             outputCommands = cms.untracked.vstring(
-        'keep *',
-        ),
-                                                             fileName = cms.untracked.string('PoolOutput.root'),
+                                                             outputCommands = process.OutALCARECOHcalCalIsoTrkProducerFilter.outputCommands,
+#                                                             outputCommands = cms.untracked.vstring(
+#        'keep *',
+#        ),
+                                                             fileName = cms.untracked.string('newPoolOutput.root'),
                                       )
 
 process.alcaHcalIsotrkProducer.ignoreTriggers = True
