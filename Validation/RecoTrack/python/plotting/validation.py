@@ -978,6 +978,7 @@ class Validation:
             refValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
@@ -1044,6 +1045,7 @@ class Validation:
         fastValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
@@ -1111,6 +1113,7 @@ class Validation:
         pu140ValFile.Close()
 
         if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
             return []
 
         dups = _findDuplicates(fileList)
@@ -1294,12 +1297,11 @@ class SimpleValidation:
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
+        if len(fileList) == 0:
+            print("No object found in %s" % plotterFolder.getName())
+
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
-
-
-        if len(fileList) == 0:
-            return fileList
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
@@ -1365,7 +1367,7 @@ class SeparateValidation:
 
         # check if plots are produced
         if len(fileList) == 0:
-            return fileList
+            print("No object found in %s" % plotterFolder.getName())
 
         # check if there are duplicated plot
         dups = _findDuplicates(fileList)
