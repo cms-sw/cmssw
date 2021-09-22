@@ -530,7 +530,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             # clone the PF MET correction task, add it to the process with a postfix, and add it to the patAlgosToolsTask but exclude the modules above
             # QUESTION: is it possible to add this directly to the subtask?
-            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrectionsTask"), postfix, noClones = noClonesTmp, addToTask = True)
+            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrectionsTask"), postfix, noClones = noClonesTmp, addToTask = False)
+            produceMET_task.add("producePatPFMETCorrectionsTask"+postfix)
             # add a clone of the patPFMet producer to the process and the subtask
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, produceMET_task)
             # adapt some inputs of the patPFMet producer to account e.g. for the postfix
@@ -563,9 +564,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         # add PAT MET producer to subtask
         produceMET_task.add(getattr(process, _myPatMet ))
-        setattr(process, "produceMET_task", produceMET_task)
+        # add the subtask to the process with a possible postfix
+        setattr(process, "produceMET_task"+postfix, produceMET_task)
         # add subtask to patToolsAlgosTask
-        task.add(produceMET_task)
+        task.add(getattr(process, "produceMET_task"+postfix))
         #metModuleSequence += cms.Sequence(produceMET_task)
 
 #====================================================================================================
