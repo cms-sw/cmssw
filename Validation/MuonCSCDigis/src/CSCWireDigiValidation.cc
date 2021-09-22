@@ -28,7 +28,7 @@ void CSCWireDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
         t2, "Number of Wire Digis " + CSCDetId::chamberName(i) + ";Number of Wire Digis; Entries", 100, 0, 20);
   }
 
-  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTassk/Wire/Resolution/");
+  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Wire/Resolution/");
   for (int i = 1; i <= 10; ++i) {
     const std::string t3("CSCWireDigiResolution_" + CSCDetId::chamberName(i));
     theResolutionPlots[i - 1] = iBooker.book1D(
