@@ -17,6 +17,7 @@
           bit 5 - ignores the scaling of the noise with the fluence (=constant noise scenario)
           bit 6 - ignores noise
           bit 7 - ignore tile type (fallback on CAST)
+          bit 8 - ignore pedestal subtraction
 */
 
 class HGCalSciNoiseMap : public HGCalRadiationMap {
@@ -30,7 +31,8 @@ public:
     IGNORE_DOSESCALE,
     IGNORE_FLUENCESCALE,
     IGNORE_NOISE,
-    IGNORE_TILETYPE
+    IGNORE_TILETYPE,
+    IGNORE_AUTO_PEDESTALSUB
   };
 
   struct SiPMonTileCharacteristics {
@@ -61,6 +63,7 @@ public:
   std::vector<double> &getMaxADCPerGain() { return fscADCPerGain_; }
   std::vector<double> &getNpePerMIP() { return nPEperMIP_; }
   float getNPeInSiPM() { return maxSiPMPE_; }
+  bool ignoreAutoPedestalSubtraction() { return ignoreAutoPedestalSub_; }
 
 private:
   /**
@@ -79,7 +82,7 @@ private:
 
   //flags used to disable/override specific SiPM-on-tile operation parameters
   bool ignoreSiPMarea_, overrideSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_,
-      ignoreTileType_;
+    ignoreTileType_,ignoreAutoPedestalSub_;
 
   //reference dark current for the noise (mA)
   double refDarkCurrent_;
