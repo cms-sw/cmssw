@@ -86,6 +86,19 @@ In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo
 (This requires that your personal cern web page cern.ch/username is enabled)
 
 
+# Running via condor
+
+Make sure datasets.py is already parsed above and there are input file lists under ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache.
+
+~~~
+cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test
+voms-proxy-init -voms cms
+cmsenv
+mkdir -p log
+condor_submit QCD.jdl
+~~~
+
+
 
 # Running via crab
 
@@ -111,12 +124,12 @@ Note that the datasets to run over are defined in the below script.
 Modify the "samples" -list there for changing datasets to process.
 
 ~~~
-python multicrab.py
+python3 multicrab.py
 ~~~
 
 Once the jobs are done, move the step3_inMINIAODSIM root files
 from your GRID destination directory to test/tmp/QCD (etc) directory and proceed
-with QCD_dqm etc. 
+with QCD_dqm etc.
 Please note that any file matching 'step3\*MINIAODSIM\*.root' will
 be included in the DQM step, so delete files you don't want to study.
 
@@ -131,8 +144,8 @@ Take note that the CMSSW python3 configuration for running the RECO sequence is 
 ~~~
 # For example (default for 2021):
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 # for 2018 scenarios
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 # for run 3 
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 # for phase2 
+CONDITIONS=auto:phase1_2021_realistic ERA=Run3 # for run 3
+#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 # for phase2
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2 TMPDIR=tmp
 
@@ -161,4 +174,3 @@ cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nTh
 ~~~
 cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root >& step6.log &
 ~~~
-
