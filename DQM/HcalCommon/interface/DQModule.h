@@ -29,7 +29,7 @@ namespace hcaldqm {
 
   class DQModule {
   public:
-    DQModule(edm::ParameterSet const &);
+    DQModule(edm::ParameterSet const&);
     virtual ~DQModule() noexcept(false) {}
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
