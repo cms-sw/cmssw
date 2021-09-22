@@ -1645,7 +1645,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                     process, ak4JetReclustering_task)
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 ak4JetReclustering_task.add(process.pfNoPileUpJMETask)
-                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
+                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = False )
+                ak4JetReclustering_task.add(getattr(process,"pfNoPileUpJMESequence"+postfix))
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
                 pfCandColl = "pfNoPileUpJME"+postfix
@@ -1698,6 +1699,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #patMetModuleSequence += getattr(process, "patJetCorrFactors"+postfix)
             #patMetModuleSequence += getattr(process, "patJets"+postfix)
         task.add(ak4JetReclustering_task)
+        if not hasattr(process, "ak4JetReclustering_task"+postfix):
+            setattr(process, "ak4JetReclustering_task"+postfix, ak4JetReclustering_task)
+        else:
+            getattr(process, "ak4JetReclustering_task"+postfix).add(ak4JetReclustering_task)
+        task.add(getattr(process, "ak4JetReclustering_task"+postfix))
 
         return cms.InputTag("patJets"+postfix)
 
