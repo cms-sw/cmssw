@@ -17,3 +17,7 @@
 <bin file="testSerializationPPSAlignmentConfiguration.cc">
   <use name="CondFormats/PPSObjects"/>
 </bin>
+
+<bin file="testSerializationPPSAssociationCuts.cc">
+  <use name="CondFormats/PPSObjects"/>
+</bin>

@@ -23,6 +23,8 @@
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
+#include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
+#include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 
 REGISTER_PLUGIN(CTPPSBeamParametersRcd, CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
@@ -37,3 +39,4 @@ REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
 REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
 REGISTER_PLUGIN(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
+REGISTER_PLUGIN(PPSAssociationCutsRcd, PPSAssociationCuts);

@@ -21,6 +21,7 @@
 
 #include "TFile.h"
 #include "TH2D.h"
+#include "TH1D.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TGraph.h"
@@ -102,6 +103,7 @@ private:
 
     std::unique_ptr<TH1D> h_de_x, h_de_y;
     std::unique_ptr<TProfile> p_de_x_vs_x, p_de_y_vs_x;
+    std::unique_ptr<TProfile> p_de_x_vs_y, p_de_y_vs_y;
     std::unique_ptr<TProfile2D> p2_de_x_vs_x_y, p2_de_y_vs_x_y;
     std::unique_ptr<TH2D> h2_de_x_vs_x, h2_de_y_vs_x;
     std::unique_ptr<TH2D> h2_de_y_vs_de_x;
@@ -115,10 +117,16 @@ private:
     ArmPlots()
         : h_de_x(new TH1D("", ";x^{F} - x^{N}", 100, -1., +1.)),
           h_de_y(new TH1D("", ";y^{F} - y^{N}", 100, -1., +1.)),
-          p_de_x_vs_x(new TProfile("", ";x^{N};x^{F} - x^{N}", 40, 0., 40.)),
-          p_de_y_vs_x(new TProfile("", ";x^{N};y^{F} - y^{N}", 40, 0., 40.)),
-          p2_de_x_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
-          p2_de_y_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
+
+          p_de_x_vs_x(new TProfile("", ";x^{N};x^{F} - x^{N}", 80, 0., 40., "s")),
+          p_de_y_vs_x(new TProfile("", ";x^{N};y^{F} - y^{N}", 80, 0., 40., "s")),
+
+          p_de_x_vs_y(new TProfile("", ";y^{N};x^{F} - x^{N}", 80, -20., +20., "s")),
+          p_de_y_vs_y(new TProfile("", ";y^{N};y^{F} - y^{N}", 80, -20., +20., "s")),
+
+          p2_de_x_vs_x_y(new TProfile2D("", ";x;y;x^{F} - x^{N}", 80, 0., 40., 80, -20., +20., "s")),
+          p2_de_y_vs_x_y(new TProfile2D("", ";x;y;y^{F} - y^{N}", 80, 0., 40., 80, -20., +20., "s")),
+
           h2_de_x_vs_x(new TH2D("", ";x^{N};x^{F} - x^{N}", 80, 0., 40., 100, -1., +1.)),
           h2_de_y_vs_x(new TH2D("", ";x^{N};y^{F} - y^{N}", 80, 0., 40., 100, -1., +1.)),
           h2_de_y_vs_de_x(new TH2D("", ";x^{F} - x^{N};y^{F} - y^{N}", 100, -1., +1., 100, -1., +1.)) {}
@@ -129,6 +137,9 @@ private:
 
       p_de_x_vs_x->Fill(x_N, x_F - x_N);
       p_de_y_vs_x->Fill(x_N, y_F - y_N);
+
+      p_de_x_vs_y->Fill(y_N, x_F - x_N);
+      p_de_y_vs_y->Fill(y_N, y_F - y_N);
 
       p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);
       p2_de_y_vs_x_y->Fill(x_N, y_N, y_F - y_N);
@@ -144,10 +155,19 @@ private:
       h_de_y->Write("h_de_y");
 
       p_de_x_vs_x->Write("p_de_x_vs_x");
+      buildRMSHistogram(p_de_x_vs_x)->Write("h_rms_de_x_vs_x");
       p_de_y_vs_x->Write("p_de_y_vs_x");
+      buildRMSHistogram(p_de_y_vs_x)->Write("h_rms_de_y_vs_x");
+
+      p_de_x_vs_y->Write("p_de_x_vs_y");
+      buildRMSHistogram(p_de_x_vs_y)->Write("h_rms_de_x_vs_y");
+      p_de_y_vs_y->Write("p_de_y_vs_y");
+      buildRMSHistogram(p_de_y_vs_y)->Write("h_rms_de_y_vs_y");
 
       p2_de_x_vs_x_y->Write("p2_de_x_vs_x_y");
+      buildRMSHistogram(p2_de_x_vs_x_y)->Write("h2_rms_de_x_vs_x_y");
       p2_de_y_vs_x_y->Write("p2_de_y_vs_x_y");
+      buildRMSHistogram(p2_de_y_vs_x_y)->Write("h2_rms_de_y_vs_x_y");
 
       h2_de_x_vs_x->Write("h2_de_x_vs_x");
       h2_de_y_vs_x->Write("h2_de_y_vs_x");
@@ -169,6 +189,33 @@ private:
 
         g->Write();
       }
+    }
+
+    static std::unique_ptr<TH1D> buildRMSHistogram(const std::unique_ptr<TProfile>& p) {
+      std::unique_ptr<TH1D> output =
+          std::make_unique<TH1D>("", p->GetTitle(), p->GetNbinsX(), p->GetXaxis()->GetXmin(), p->GetXaxis()->GetXmax());
+
+      for (int bi = 1; bi <= output->GetNbinsX(); ++bi)
+        output->SetBinContent(bi, p->GetBinError(bi));
+
+      return output;
+    }
+
+    static std::unique_ptr<TH2D> buildRMSHistogram(const std::unique_ptr<TProfile2D>& p) {
+      std::unique_ptr<TH2D> output = std::make_unique<TH2D>("",
+                                                            p->GetTitle(),
+                                                            p->GetNbinsX(),
+                                                            p->GetXaxis()->GetXmin(),
+                                                            p->GetXaxis()->GetXmax(),
+                                                            p->GetNbinsY(),
+                                                            p->GetYaxis()->GetXmin(),
+                                                            p->GetYaxis()->GetXmax());
+
+      for (int bi_x = 1; bi_x <= output->GetNbinsX(); ++bi_x)
+        for (int bi_y = 1; bi_y <= output->GetNbinsY(); ++bi_y)
+          output->SetBinContent(bi_x, bi_y, p->GetBinError(bi_x, bi_y));
+
+      return output;
     }
   };
 
