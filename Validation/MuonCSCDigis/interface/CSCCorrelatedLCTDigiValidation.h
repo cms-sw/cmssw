@@ -1,21 +1,21 @@
-#ifndef Validation_MuonCSCDigis_CSCCLCTDigiValidation_H
-#define Validation_MuonCSCDigis_CSCCLCTDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCCorrelatedLCTDigiValidation_H
+#define Validation_MuonCSCDigis_CSCCorrelatedLCTDigiValidation_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 
-class CSCCLCTDigiValidation : public CSCBaseValidation {
+class CSCCorrelatedLCTDigiValidation : public CSCBaseValidation {
 public:
-  CSCCLCTDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
-  ~CSCCLCTDigiValidation() override;
+  CSCCorrelatedLCTDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
+  ~CSCCorrelatedLCTDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_Token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_Token_;
   edm::InputTag inputTag_;
   MonitorElement *theNDigisPerChamberPlots[10];
   MonitorElement *theNDigisPerEventPlot;
@@ -24,10 +24,10 @@ private:
   std::vector<std::string> chambers_;
   std::vector<unsigned> chambersRun3_;
 
-  std::vector<std::string> clctVars_;
-  std::vector<unsigned> clctNBin_;
-  std::vector<double> clctMinBin_;
-  std::vector<double> clctMaxBin_;
+  std::vector<std::string> lctVars_;
+  std::vector<unsigned> lctNBin_;
+  std::vector<double> lctMinBin_;
+  std::vector<double> lctMaxBin_;
 
   bool isRun3_;
 

@@ -18,6 +18,8 @@ class CSCWireDigiValidation;
 class CSCComparatorDigiValidation;
 class CSCALCTDigiValidation;
 class CSCCLCTDigiValidation;
+class CSCCLCTPreTriggerDigiValidation;
+class CSCCorrelatedLCTDigiValidation;
 class CSCStubEfficiencyValidation;
 class CSCStubResolutionValidation;
 
@@ -39,6 +41,8 @@ private:
   std::unique_ptr<CSCComparatorDigiValidation> theComparatorDigiValidation;
   std::unique_ptr<CSCALCTDigiValidation> theALCTDigiValidation;
   std::unique_ptr<CSCCLCTDigiValidation> theCLCTDigiValidation;
+  std::unique_ptr<CSCCLCTPreTriggerDigiValidation> theCLCTPreTriggerDigiValidation;
+  std::unique_ptr<CSCCorrelatedLCTDigiValidation> theCorrelatedLCTDigiValidation;
   std::unique_ptr<CSCStubEfficiencyValidation> theStubEfficiencyValidation;
   std::unique_ptr<CSCStubResolutionValidation> theStubResolutionValidation;
 

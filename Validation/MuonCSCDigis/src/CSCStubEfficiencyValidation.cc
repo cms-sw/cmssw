@@ -21,8 +21,6 @@ CSCStubEfficiencyValidation::CSCStubEfficiencyValidation(const edm::ParameterSet
 CSCStubEfficiencyValidation::~CSCStubEfficiencyValidation() {}
 
 void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
-  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Stub/Occupancy/");
-
   for (int i = 1; i <= 10; ++i) {
     int j = i - 1;
     const std::string cn(CSCDetId::chamberName(i));
@@ -31,24 +29,25 @@ void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
     std::string t2 = "CLCTEtaDenom_" + cn;
     std::string t3 = "LCTEtaDenom_" + cn;
 
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/ALCT/Occupancy/");
     etaALCTDenom[j] = iBooker.book1D(t1, t1 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaCLCTDenom[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaLCTDenom[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-
     etaALCTDenom[j]->getTH1()->SetMinimum(0);
-    etaCLCTDenom[j]->getTH1()->SetMinimum(0);
-    etaLCTDenom[j]->getTH1()->SetMinimum(0);
-
     t1 = "ALCTEtaNum_" + cn;
-    t2 = "CLCTEtaNum_" + cn;
-    t3 = "LCTEtaNum_" + cn;
-
     etaALCTNum[j] = iBooker.book1D(t1, t1 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaCLCTNum[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaLCTNum[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-
     etaALCTNum[j]->getTH1()->SetMinimum(0);
+
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/CLCT/Occupancy/");
+    etaCLCTDenom[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaCLCTDenom[j]->getTH1()->SetMinimum(0);
+    t2 = "CLCTEtaNum_" + cn;
+    etaCLCTNum[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
     etaCLCTNum[j]->getTH1()->SetMinimum(0);
+
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/LCT/Occupancy/");
+    etaLCTDenom[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaLCTDenom[j]->getTH1()->SetMinimum(0);
+    t3 = "LCTEtaNum_" + cn;
+    etaLCTNum[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
     etaLCTNum[j]->getTH1()->SetMinimum(0);
   }
 }
