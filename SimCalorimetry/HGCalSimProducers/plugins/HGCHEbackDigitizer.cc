@@ -211,7 +211,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       //realistic behavior: subtract the pedestal
       //Note: for now the saturation effects are ignored...
       if (scaleByDose_) {
-        chargeColl[i] = std::max(nPixel - meanN, 0.f);
+        float pedestal(meanN);
+        if( scal_.ignoreAutoPedestalSubtraction() ) pedestal=0.f;
+        chargeColl[i] = std::max(nPixel - pedestal, 0.f);
       }
       //vanilla simulation: scale back to MIP units... and to calibrated response depending on the thresholdFollowsMIP_ flag
       else {

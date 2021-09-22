@@ -264,7 +264,7 @@ def HGCal_setRealisticStartupNoise(process):
     process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=2+8+16,referenceIdark=0.125,referenceXtalk=0.01)
     return process
 
-def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,referenceXtalk=-1):
+def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,referenceXtalk=-1,ignorePedestal=False):
     """ 
     similar to HGCal_setRealisticStartupNoise but tile and SiPM areas are fixed
     as 4mm2 assumed use Idark=0.25 so that S/N ~ 7
@@ -276,7 +276,7 @@ def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,re
     idark=0.25/(targetSN/6.97)**2
     print('[HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN] for a target S/N={:3.2f} setting idark={:3.3f}nA'.format(targetSN,idark))
     process=HGCal_setRealisticNoiseSci(process,byDose=True,
-                                       byDoseAlgo=2+4+8+16+64,
+                                       byDoseAlgo=2+4+8+16+64+128*ignorePedestal,
                                        byDoseSipmMap=cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt"),
                                        referenceIdark=idark,
                                        referenceXtalk=referenceXtalk)
