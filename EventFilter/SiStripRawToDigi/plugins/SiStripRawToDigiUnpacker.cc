@@ -151,7 +151,7 @@ namespace sistrip {
       // get the cabling connections for this FED
       auto conns = cabling.fedConnections(*ifed);
       // check FEDRawData pointer, size, and more
-      const auto st_buffer = preconstructCheckFEDBuffer(input);
+      const FEDBufferStatusCode st_buffer = preconstructCheckFEDBuffer(input);
       // construct FEDBuffer
       if (FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
@@ -160,17 +160,17 @@ namespace sistrip {
           warnings_.add("FEDRawData has zero size for FED", fmt::format("id {0}", *ifed));
         } else {
           warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                        fmt::format("id {0}: {1}", *ifed, st_buffer));
+                        fmt::format("id {0}: {1}", *ifed, static_cast<int>(st_buffer)));
         }
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad.
         maskFED(detids, conns);
         continue;
       }
       FEDBuffer buffer{input};
-      const auto st_chan = buffer.findChannels();
+      const FEDBufferStatusCode st_chan = buffer.findChannels();
       if (FEDBufferStatusCode::SUCCESS != st_chan) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      fmt::format("id {0}: {1}", *ifed, st_chan));
+                      fmt::format("id {0}: {1}", *ifed, static_cast<int>(st_chan)));
         maskFED(detids, conns);
         continue;
       }
@@ -1071,8 +1071,8 @@ namespace sistrip {
 }  // namespace sistrip
 
 /*
-  
-Some info on FED buffer 32-bit word swapping. 
+
+Some info on FED buffer 32-bit word swapping.
 
 Table below indicates if data are swapped relative to the "old"
 VME format (as originally expected by the Fed9UEvent class).
@@ -1106,7 +1106,7 @@ TRK header,  8 bits, in field  |Hdr format| with value 0xED or 0xC5
 -------------------------------------------------------------------------------------------
 | DAQ HEADER  | ........5....... | 5............... | 5............... | 5............... |
 | TRK HEADER  | ........ED...... | ED.............. | ........C5...... | ........C5...... |
-| PAYLOAD     | ..........EA.... | ..EA............ | ..EA............ | ............EA.. | 
+| PAYLOAD     | ..........EA.... | ..EA............ | ..EA............ | ............EA.. |
 | DAQ TRAILER | ........A....... | A............... | A............... | A............... |
 -------------------------------------------------------------------------------------------
 
