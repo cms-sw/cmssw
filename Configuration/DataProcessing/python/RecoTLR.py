@@ -5,6 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # common utilities
 ##############################################################################
 def _swapOfflineBSwithOnline(process):
+    import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+    process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
     from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     return process
