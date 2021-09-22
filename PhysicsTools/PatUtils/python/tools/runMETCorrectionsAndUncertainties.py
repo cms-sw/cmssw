@@ -573,11 +573,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         # default outputs
         patMetCorrectionSequence = cms.Sequence()
+        patMetCorrectionTask = cms.Task()
         metModName = "pat"+metType+"Met"+postfix
 
+        # QUESTION: Still needed?
         if metType == "MVA": #corrections are irrelevant for the MVA MET (except jet smearing?)
             return patMetCorrectionSequence, metModName
 
+        # correction level names
         corNames = { #not really needed but in case we have changes in the future....
             "T0":"T0pc",
             "T1":"T1",
@@ -594,41 +597,39 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     print("ERROR : ",cor," is not a proper MET correction name! aborting the MET correction production")
                 return patMetCorrectionSequence, metModName
 
+        # names of the tasks implementing a corretion level, see PatUtils/python/patPFMETCorrections_cff.py
         corModNames = {
-            "T0": "patPFMetT0CorrSequence"+postfix,
-            "T1": "patPFMetT1T2CorrSequence"+postfix,
-            "T2": "patPFMetT2CorrSequence"+postfix,
-            "Txy": "patPFMetTxyCorrSequence"+postfix,
-            "Smear": "patPFMetSmearCorrSequence"+postfix,
-            "T2Smear": "patPFMetT2SmearCorrSequence"+postfix
+            "T0": "patPFMetT0CorrTask"+postfix,
+            "T1": "patPFMetT1T2CorrTask"+postfix,
+            "T2": "patPFMetT2CorrTask"+postfix,
+            "Txy": "patPFMetTxyCorrTask"+postfix,
+            "Smear": "patPFMetSmearCorrTask"+postfix,
+            "T2Smear": "patPFMetT2SmearCorrTask"+postfix
             }
 
+        # if a postfix is requested, clone the needed correction task to the configs and a add a postfix
         if postfix != "":
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
-            if not hasattr(process, "patPFMetT0CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrTask"), postfix, noClones = noClonesTmp, addToTask = True)
-            if not hasattr(process, "patPFMetT1T2CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrTask"), postfix, addToTask = True)
-            if not hasattr(process, "patPFMetT2CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrTask"), postfix, addToTask = True)
-            if not hasattr(process, "patPFMetTxyCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrTask"), postfix, addToTask = True)
-            if not hasattr(process, "patPFMetSmearCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrTask"), postfix, addToTask = True)
-            if not hasattr(process, "patPFMetT2SmearCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrTask"), postfix, addToTask = True)
+            if not hasattr(process, "patPFMetT0CorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrTask"), postfix, noClones = noClonesTmp, addToTask = False)
+            if not hasattr(process, "patPFMetT1T2CorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrTask"), postfix, addToTask = False)
+            if not hasattr(process, "patPFMetT2CorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrTask"), postfix, addToTask = False)
+            if not hasattr(process, "patPFMetTxyCorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrTask"), postfix, addToTask = False)
+            if not hasattr(process, "patPFMetSmearCorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrTask"), postfix, addToTask = False)
+            if not hasattr(process, "patPFMetT2SmearCorrTask"+postfix):
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrTask"), postfix, addToTask = False)
 
+        # collect the MET correction tasks which have been added to the process in a dict
         corModules = {}
-        #for mod in corModNames.keys():
-            #corModules[mod] = getattr(process, corModNames[mod] )
+        for mod in corModNames.keys():
+            corModules[mod] = getattr(process, corModNames[mod] )
 
+        # the names of the products which are created by the MET correction tasks
         corTags = {
-            #"T0":cms.InputTag('patPFMetT0Corr'+postfix),
-            #"T1":cms.InputTag('patPFMetT1T2Corr'+postfix, 'type1'),
-            #"T2":cms.InputTag('patPFMetT2Corr'+postfix,   'type2'),
-            #"Txy": cms.InputTag('patPFMetTxyCorr'+postfix),
-            #"Smear":cms.InputTag('patPFMetT1T2SmearCorr'+postfix, 'type1'),
-            #"T2Smear":cms.InputTag('patPFMetT2SmearCorr'+postfix, 'type2')
             "T0":['patPFMetT0Corr'+postfix,''],
             "T1":['patPFMetT1T2Corr'+postfix, 'type1'],
             "T2":['patPFMetT2Corr'+postfix,   'type2'],
@@ -637,18 +638,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             "T2Smear":['patPFMetT2SmearCorr'+postfix, 'type2']
             }
 
+        # build the correction string, collect the corresponding corrections and tasks
         corScheme=""
         corrections = []
-        correctionSequence = []
+        correctionTask = []
         for cor in correctionLevel:
             corScheme += corNames[cor]
             corrections.append(cms.InputTag(corTags[cor][0],corTags[cor][1]))
-            #correctionSequence.append(corModules[cor])
+            correctionTask.append(corModules[cor])
 
         #T2 and smearing corModuleTag switch, specific case
         if "T2" in correctionLevel and "Smear" in correctionLevel:
             corrections.append(cms.InputTag(corTags["T2Smear"][0],corTags["T2Smear"][1]))
-            #correctionSequence.append(corModules["T2Smear"])
+            correctionTask.append(corModules["T2Smear"])
 
         #if both are here, consider smeared corJets for the full T1+Smear correction
         if "T1" in correctionLevel and "Smear" in correctionLevel:
@@ -703,12 +705,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
 
-        task = getPatAlgosToolsTask(process)
-        getCorrectedMET_task = cms.Task()
-
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
+            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, patMetCorrectionTask)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector")
@@ -716,7 +715,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
 
         if "T1" in correctionLevel and self._parameters["Puppi"].value:
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
+            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, patMetCorrectionTask)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
@@ -729,51 +728,48 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #create the main MET producer
         metModName = "pat"+metType+"Met"+corScheme+postfix
 
-        sequenceName=""
+        taskName=""
         corMetProducer=None
         if metType == "PF":
             corMetProducer = cms.EDProducer("CorrectedPATMETProducer",
                        src = cms.InputTag('pat'+metType+'Met' + postfix),
                        srcCorrections = cms.VInputTag(corrections)
                      )
-            sequenceName="patMetCorrectionSequence"
+            taskName="patMetCorrectionTask"
 
-        #MM: FIXME MVA
+        #MM: FIXME MVA QUESTION: Still needed?
         #if metType == "MVA":
         #    return patMetCorrectionSequence, metModName #FIXME
         #    corMetProducer = self.createMVAMETModule(process)
         #    sequenceName="pfMVAMEtSequence"
 
-        addToProcessAndTask(metModName, corMetProducer, process, getCorrectedMET_task)
+        addToProcessAndTask(metModName, corMetProducer, process, patMetCorrectionTask)
 
         # adding the full sequence only if it does not exist
-        if not hasattr(process, sequenceName+postfix):
-
-            #for corModule in correctionSequence:
-                #patMetCorrectionSequence += corModule
-
-            setattr(process, sequenceName+postfix, patMetCorrectionSequence)
-
+        if not hasattr(process, taskName+postfix):
+            for corModule in correctionTask:
+                patMetCorrectionTask.add(corModule)
+            setattr(process, taskName+postfix, patMetCorrectionTask)
         else: #if it exists, only add the missing correction modules, no need to redo everything
-            patMetCorrectionSequence = getattr(process, "patMetCorrectionSequence"+postfix)#cms.Sequence()
-
-            #setattr(process, sequenceName+postfix,patMetCorrectionSequence)
-            #for cor in corModNames.keys():
-                #if not configtools.contains(patMetCorrectionSequence, corTags[cor][0]) and cor in correctionLevel:
-                    #patMetCorrectionSequence += corModules[cor]
+            patMetCorrectionTask = getattr(process, "patMetCorrectionTask"+postfix)#cms.Sequence()
+            #setattr(process, taskName+postfix,patMetCorrectionTask)
+            for cor in corModNames.keys():
+                if not configtools.contains(patMetCorrectionTask, corTags[cor][0]) and cor in correctionLevel:
+                    patMetCorrectionTask.add(corModules[cor])
 
         #plug the main patMetproducer
-        #patMetCorrectionSequence += getattr(process, metModName)
+        patMetCorrectionTask.add(getattr(process, metModName))
 
         #create the intermediate MET steps
         #and finally add the met producers in the sequence for scheduled mode
         if produceIntermediateCorrections:
             interMets = self.addIntermediateMETs(process, metType, correctionLevel, corScheme, corTags,corNames, postfix)
             for met in interMets.keys():
-                addToProcessAndTask(met, interMets[met], process, getCorrectedMET_task)
+                addToProcessAndTask(met, interMets[met], process, patMetCorrectionTask)
                 #patMetCorrectionSequence += getattr(process, met)
         
-        task.add(getCorrectedMET_task)
+        task = getPatAlgosToolsTask(process)
+        task.add(patMetCorrectionTask)
 
         return patMetCorrectionSequence, metModName
 
