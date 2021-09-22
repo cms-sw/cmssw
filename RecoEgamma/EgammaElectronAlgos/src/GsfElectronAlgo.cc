@@ -49,8 +49,8 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
   // Here we will have to load the DNN PFID if present in the config
   ElectronDNNEstimator::Configuration dconfig;
   auto pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
-  bool  dnnEnabled = pset_dnn.getParameter<bool>("enabled");
-  if(dnnEnabled){
+  bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+  if (dnnEnabled) {
     dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
     dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
     dconfig.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
@@ -101,7 +101,6 @@ struct GsfElectronAlgo::EventData {
   //PFCluster Isolation handles
   edm::Handle<reco::PFClusterCollection> ecalClustersHandle;
   std::vector<edm::Handle<reco::PFClusterCollection>> hcalClustersHandle;
-  
 };
 
 //===================================================================
@@ -426,8 +425,21 @@ GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
 
 {
   ///PF ECAL cluster based isolations
-  ecalisoAlgo_ = std::make_unique<ElectronEcalPFClusterIsolation>(pfiso.ecaldrMax, pfiso.ecaldrVetoBarrel, pfiso.ecaldrVetoEndcap, pfiso.ecaletaStripBarrel, pfiso.ecaletaStripEndcap, pfiso.ecalenergyBarrel, pfiso.ecalenergyEndcap);
-  hcalisoAlgo_ = std::make_unique<ElectronHcalPFClusterIsolation>(pfiso.hcaldrMax, pfiso.hcaldrVetoBarrel, pfiso.hcaldrVetoEndcap, pfiso.hcaletaStripBarrel, pfiso.hcaletaStripEndcap, pfiso.hcalenergyBarrel, pfiso.hcalenergyEndcap, pfiso.hcaluseEt);
+  ecalisoAlgo_ = std::make_unique<ElectronEcalPFClusterIsolation>(pfiso.ecaldrMax,
+                                                                  pfiso.ecaldrVetoBarrel,
+                                                                  pfiso.ecaldrVetoEndcap,
+                                                                  pfiso.ecaletaStripBarrel,
+                                                                  pfiso.ecaletaStripEndcap,
+                                                                  pfiso.ecalenergyBarrel,
+                                                                  pfiso.ecalenergyEndcap);
+  hcalisoAlgo_ = std::make_unique<ElectronHcalPFClusterIsolation>(pfiso.hcaldrMax,
+                                                                  pfiso.hcaldrVetoBarrel,
+                                                                  pfiso.hcaldrVetoEndcap,
+                                                                  pfiso.hcaletaStripBarrel,
+                                                                  pfiso.hcaletaStripEndcap,
+                                                                  pfiso.hcalenergyBarrel,
+                                                                  pfiso.hcalenergyEndcap,
+                                                                  pfiso.hcaluseEt);
 }
 
 void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
@@ -458,7 +470,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
 
   auto ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
-  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClusters  {event.getHandle(cfg_.tokens.pfClusterProducerHCAL)};
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClusters{event.getHandle(cfg_.tokens.pfClusterProducerHCAL)};
   if (cfg_.pfiso.useHF) {
     hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
     hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
@@ -613,11 +625,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .tkIsolHEEP04Calc = EleTkIsolFromCands(tkIsolHEEP04CalcCfg_, *ctfTracks),
       .originalCtfTracks = {},
       .originalGsfTracks = {},
-      
+
       .ecalClustersHandle = ecalPFClusters,
       .hcalClustersHandle = hcalClusters
 
-      };
+  };
 
   eventData.ecalBarrelIsol03.setUseNumCrystals(cfg_.iso.useNumCrystals);
   eventData.ecalBarrelIsol03.setVetoClustered(cfg_.iso.vetoClustered);

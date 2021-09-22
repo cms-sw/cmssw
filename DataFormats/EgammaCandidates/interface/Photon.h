@@ -561,13 +561,14 @@ namespace reco {
       float etOutsideMustache;
       float mva;
       float dnn;
-      
+
       PflowIDVariables()
           :
 
             nClusterOutsideMustache(-1),
             etOutsideMustache(-999999999.),
-            mva(-999999999.), dnn(-999999999.)
+            mva(-999999999.),
+            dnn(-999999999.)
 
       {}
     };

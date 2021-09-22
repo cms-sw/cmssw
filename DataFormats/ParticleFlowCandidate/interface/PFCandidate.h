@@ -497,13 +497,13 @@ namespace reco {
 
     /// DNN for electron PFid: non-isolated signal
     float dnn_e_sigNonIsolated;
-    
+
     /// DNN for electron PFid: non-isolated bkg
     float dnn_e_bkgNonIsolated;
-    
+
     /// DNN for electron PFid: tau bkg
     float dnn_e_bkgTau;
-    
+
     /// DNN for electron PFid: photon bkg
     float dnn_e_bkgPhoton;
 
