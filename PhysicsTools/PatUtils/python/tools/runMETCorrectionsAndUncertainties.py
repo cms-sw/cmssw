@@ -1772,7 +1772,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         process.patTrkMet.computeMETSignificant = cms.bool(False)
         process.patTrkMet.addGenMET = cms.bool(False)
 
-        task.add(miniAODConfigurationPre_task)
+        if not hasattr(process, "miniAODConfigurationPre_task"+postfix):
+            setattr(process, "miniAODConfigurationPre_task"+postfix, miniAODConfigurationPre_task)
+        else:
+            getattr(process, "miniAODConfigurationPre_task"+postfix).add(miniAODConfigurationPre_task)
+        task.add(getattr(process, "miniAODConfigurationPre_task"+postfix))
         #patMetModuleSequence += getattr(process, "pfTrk")
         #patMetModuleSequence += getattr(process, "pfMetTrk")
         #patMetModuleSequence += getattr(process, "patTrkMet")
