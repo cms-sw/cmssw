@@ -18,8 +18,8 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps)
   _laserType = ps.getUntrackedParameter<int32_t>("laserType", -1);
   _eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
-  //statis
-  void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+//statis
+void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   //from class inheritance
@@ -37,7 +37,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps)
   descriptions.add("qie11Task", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
-  }   
+}
 
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
   if (_ptype == fLocal)
