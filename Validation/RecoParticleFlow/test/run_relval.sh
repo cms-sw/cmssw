@@ -69,13 +69,13 @@ elif [ "$1" == "QCDPU" ]; then
     NAME=QCDPU
 elif [ "$1" == "ZEEPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZEE_PU.txt
-    NAME=ZEE
+    NAME=ZEEPU
 elif [ "$1" == "ZMMPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM_PU.txt
-    NAME=ZMM
+    NAME=ZMMPU
 elif [ "$1" == "TenTauPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/TenTau_PU.txt
-    NAME=TenTau
+    NAME=TenTauPU
 elif [ "$1" == "NuGunPU" ]; then
     INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
