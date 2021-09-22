@@ -34,8 +34,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
       theMaxBunch(10),
       thePhaseShift_(1.),
       storePrecise(HighFidelity),
-      PreMixDigis(PreMix1),
-      HighFidelityPreMix(HighFidelity),
+      preMixDigis(PreMix1),
+      highFidelityPreMix(HighFidelity),
       ignoreTime(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
@@ -54,8 +54,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
       theMaxBunch(10),
       thePhaseShift_(1.),
       storePrecise(HighFidelity),
-      PreMixDigis(PreMix1),
-      HighFidelityPreMix(HighFidelity),
+      preMixDigis(PreMix1),
+      highFidelityPreMix(HighFidelity),
       ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {}
@@ -67,7 +67,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 
 void CaloHitResponse::finalizeHits(CLHEP::HepRandomEngine *) {
   // Convert any remaining HighFidelityPreMix DIGIs
-  if (!(PreMixDigis and HighFidelityPreMix)) {
+  if (!(preMixDigis and highFidelityPreMix)) {
     for (AnalogSignalMap::iterator itr = theAnalogSignalMap.begin(); itr != theAnalogSignalMap.end(); ++itr) {
       CaloSamples result(makeBlankSignal(itr->first));
       result += itr->second;
@@ -150,7 +150,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRan
     int sampleBin(0);
     // use 0.5ns binning for precise sample
     for (int bin = 0; bin < result.preciseSize(); bin++) {
-      sampleBin = (PreMixDigis and HighFidelityPreMix) ? bin : bin / (BUNCHSPACE * invdt);
+      sampleBin = (preMixDigis and highFidelityPreMix) ? bin : bin / (BUNCHSPACE * invdt);
       double pulseBit = (*shape)(binTime)*signal * dt;
       result[sampleBin] += pulseBit;
       result.preciseAtMod(bin) += pulseBit;
@@ -196,7 +196,7 @@ CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
 int CaloHitResponse::getReadoutFrameSize(const DetId &id) const {
   const CaloSimParameters &parameters = theParameterMap->simParameters(id);
   int readoutFrameSize = parameters.readoutFrameSize();
-  if (PreMixDigis and HighFidelityPreMix) {
+  if (preMixDigis and highFidelityPreMix) {
     //preserve fidelity of time info
     readoutFrameSize *= BUNCHSPACE * invdt;
   }
