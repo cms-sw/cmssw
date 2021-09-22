@@ -1576,8 +1576,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #patMetModuleSequence += getattr(process,"patJetCorrFactorsReapplyJEC"+postfix)
         #patMetModuleSequence += getattr(process,"patJetsReapplyJEC"+postfix)
-
-        task.add(updateJECs_task)
+        if not hasattr(process, "updateJECs_task"+postfix):
+            setattr(process, "updateJECs_task"+postfix, updateJECs_task)
+        else:
+            getattr(process, "updateJECs_task"+postfix).add(updateJECs_task)
+        task.add(getattr(process, "updateJECs_task"+postfix))
 
         return  cms.InputTag("patJetsReapplyJEC"+postfix)
 
