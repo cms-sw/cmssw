@@ -2,8 +2,6 @@
 #include <memory>
 #include <string>
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -31,6 +29,9 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   edm::ParameterSet toolsPSet = conf_.getParameter<edm::ParameterSet>("ToolsPSet");
   thePropagatorName_ = toolsPSet.getParameter<std::string>("thePropagatorName");
   regionBase_ = toolsPSet.getParameter<std::string>("regionBase");
+
+  trackerToken_ = iC.esConsumes();
+  propagatorToken_ = iC.esConsumes(edm::ESInputTag("", thePropagatorName_));
 
   edm::ParameterSet collectionsPSet = conf_.getParameter<edm::ParameterSet>("CollectionsPSet");
   recoMuonsCollection_ = collectionsPSet.getParameter<edm::InputTag>("recoMuonsCollection");
@@ -90,14 +91,10 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     event.getByToken(recoCaloJetsToken_, caloJetsHandle);
 
     //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
+    edm::ESHandle<Propagator> thePropagator = es.getHandle(propagatorToken_);
 
     //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-    //const TrackerGeometry& theTracker(*theTrackerGeometry);
+    edm::ESHandle<TrackerGeometry> theTrackerGeometry = es.getHandle(trackerToken_);
 
     //definition of the region
     //+++++++++++++++++++++++++
@@ -242,13 +239,10 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     event.getByToken(recoCaloJetsToken_, caloJetsHandle);
 
     //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
+    edm::ESHandle<Propagator> thePropagator = es.getHandle(propagatorToken_);
 
     //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+    edm::ESHandle<TrackerGeometry> theTrackerGeometry = es.getHandle(trackerToken_);
 
     //definition of the region
     //+++++++++++++++++++++++++
@@ -378,13 +372,10 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     LogDebug("CosmicRegionalSeedGenerator") << "L2 muons collection size = " << L2MuonsHandle->size();
 
     //get the propagator
-    edm::ESHandle<Propagator> thePropagator;
-    // thePropagatorName = "AnalyticalPropagator"
-    es.get<TrackingComponentsRecord>().get(thePropagatorName_, thePropagator);
+    edm::ESHandle<Propagator> thePropagator = es.getHandle(propagatorToken_);
 
     //get tracker geometry
-    edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-    es.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+    edm::ESHandle<TrackerGeometry> theTrackerGeometry = es.getHandle(trackerToken_);
 
     //definition of the region
     //+++++++++++++++++++++++++
