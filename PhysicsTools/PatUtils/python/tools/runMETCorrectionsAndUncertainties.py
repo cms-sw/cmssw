@@ -2005,7 +2005,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, runFixEE2017_task)
         #patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
 
-        task.add(runFixEE2017_task)
+        if not hasattr(process, "runFixEE2017_task"+postfix):
+            setattr(process, "runFixEE2017_task"+postfix, runFixEE2017_task)
+        else:
+            getattr(process, "runFixEE2017_task"+postfix).add(runFixEE2017_task)
+        task.add(getattr(process, "runFixEE2017_task"+postfix))
         # return good cands and jets
         return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("pfCandidateJetsWithEEnoise"+postfix,"good"))
 
