@@ -95,7 +95,7 @@ cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test
 voms-proxy-init -voms cms
 cmsenv
 mkdir -p log
-condor_submit QCD.jdl
+condor_submit condor_QCD.jdl
 ~~~
 
 The output files will appear /eos/cms/store/group/phys_pf/PFVal/QCD. You will want to make sure you are subscribed to cms-eos-phys-pf so that you have eos write access. There are jdl files for other datasets also.
