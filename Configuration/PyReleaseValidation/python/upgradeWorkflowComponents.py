@@ -1267,8 +1267,9 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D87', # N.B.: Geometry with bricked pixels in the Inner Tracker (+others)
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T27',
+        'ProcessModifier': 'PixelCPEGenericForBricked',   # This swaps template reco CPE for generic reco CPE specialized for bricked
         'Era' : 'Phase2C11I13T27M9', # customized for bricked pixels and Muon M9
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoLocal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
 
