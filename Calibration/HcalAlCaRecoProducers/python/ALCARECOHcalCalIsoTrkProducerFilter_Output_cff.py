@@ -9,8 +9,8 @@ OutALCARECOHcalCalIsoTrkProducerFilter_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkProducerFilter')
         ),
     outputCommands = cms.untracked.vstring( 
-        'keep *_HcalIsoTrack_*_*',
-        'keep *_HcalIsoTrackEvent_*_*',
+        'keep *_alcaHcalIsotrkProducer_HcalIsoTrack_*',
+        'keep *_alcaHcalIsotrkProducer_HcalIsoTrackEvent_*',
         )
 )
 
