@@ -752,7 +752,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, taskName+postfix):
             for corModule in correctionTask:
                 getCorrectedMET_task.add(corModule)
-            setattr(process, taskName+postfix, getCorrectedMET_task)
         else: #if it exists, only add the missing correction modules, no need to redo everything
             getCorrectedMET_task = getattr(process, "getCorrectedMET_task"+postfix)#cms.Sequence()
             #setattr(process, taskName+postfix,getCorrectedMET_task)
@@ -771,8 +770,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 addToProcessAndTask(met, interMets[met], process, getCorrectedMET_task)
                 #patMetCorrectionSequence += getattr(process, met)
         
+        setattr(process, taskName+postfix, getCorrectedMET_task)
         task = getPatAlgosToolsTask(process)
-        task.add(getCorrectedMET_task)
+        task.add(getattr(process, taskName+postfix))
 
         return patMetCorrectionSequence, metModName
 
