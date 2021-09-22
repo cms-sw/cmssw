@@ -26,4 +26,12 @@ namespace hcaldqm {
 
     _logger.debug("Calling Constructor");
   }
+
+ void DQModule::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.addUntracked<std::string>("subsystem", "Hcal");
+  desc.addUntracked("mtype", true); 
+  desc.addUntracked<int>("ptype", 0);
+  desc.addUntracked<int>("maxLS", 4000);
+ }
 }  // namespace hcaldqm
+
