@@ -243,7 +243,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.SiStripAnalyserCosmic.TkMapCreationFrequency  = -1
     process.SiStripAnalyserCosmic.ShiftReportFrequency = -1
     process.SiStripAnalyserCosmic.StaticUpdateFrequency = 5
-    process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
@@ -334,7 +334,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = "rawDataCollector"
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = 25
@@ -439,7 +439,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = "rawDataCollector"
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
@@ -561,7 +561,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = "rawDataRepacker"
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = 25
