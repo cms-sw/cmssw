@@ -54,10 +54,14 @@ cscDigiValidation = DQMEDAnalyzer(
     isRun3 = cms.bool(False),
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(cscDigiValidation,
+                     isRun3 = True
+)
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify(cscDigiValidation,
-                  useGEMs = True,
-                  isRun3 = True
+                  useGEMs = True
 )
 
 ## do not run GEMs in fastsim sequences
