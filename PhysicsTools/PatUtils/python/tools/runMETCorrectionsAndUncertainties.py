@@ -1945,7 +1945,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         addToProcessAndTask("cleanedPatJets"+postfix, cleanPatJetProducer, process, jetCleaning_task)
         #jetProductionSequence += getattr(process, "cleanedPatJets"+postfix)
-        task.add(jetCleaning_task)
+
+        if not hasattr(process, "jetCleaning_task"+postfix):
+            setattr(process, "jetCleaning_task"+postfix, jetCleaning_task)
+        else:
+            getattr(process, "jetCleaning_task"+postfix).add(jetCleaning_task)
+        task.add(getattr(process, "jetCleaning_task"+postfix))
         return cms.InputTag("cleanedPatJets"+postfix)
 
     # function to implement the 2017 EE fix
