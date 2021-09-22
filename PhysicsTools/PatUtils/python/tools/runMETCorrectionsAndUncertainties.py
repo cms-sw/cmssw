@@ -1842,7 +1842,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             del getattr(process,"slimmedMETs"+postfix).tXYUncForT01Smear
             #del getattr(process,"slimmedMETs"+postfix).caloMET
 
-            task.add(miniAODConfiguration_task)
+            if not hasattr(process, "miniAODConfiguration_task"+postfix):
+                setattr(process, "miniAODConfiguration_task"+postfix, miniAODConfiguration_task)
+            else:
+                getattr(process, "miniAODConfiguration_task"+postfix).add(miniAODConfiguration_task)
+            task.add(getattr(process, "miniAODConfiguration_task"+postfix))
 
     def jetConfiguration(self):
 
