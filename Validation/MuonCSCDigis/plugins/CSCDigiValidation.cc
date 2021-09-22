@@ -2,6 +2,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Validation/MuonCSCDigis/interface/CSCALCTDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCCLCTDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCCLCTPreTriggerDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCCorrelatedLCTDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCComparatorDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCStripDigiValidation.h"
 #include "Validation/MuonCSCDigis/interface/CSCWireDigiValidation.h"
@@ -19,6 +21,8 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
       theComparatorDigiValidation(nullptr),
       theALCTDigiValidation(nullptr),
       theCLCTDigiValidation(nullptr),
+      theCLCTPreTriggerDigiValidation(nullptr),
+      theCorrelatedLCTDigiValidation(nullptr),
       theStubEfficiencyValidation(nullptr),
       theStubResolutionValidation(nullptr) {
   // instantiatethe validation modules
@@ -27,6 +31,8 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
   theComparatorDigiValidation = std::make_unique<CSCComparatorDigiValidation>(ps, consumesCollector());
   theALCTDigiValidation = std::make_unique<CSCALCTDigiValidation>(ps, consumesCollector());
   theCLCTDigiValidation = std::make_unique<CSCCLCTDigiValidation>(ps, consumesCollector());
+  theCLCTPreTriggerDigiValidation = std::make_unique<CSCCLCTPreTriggerDigiValidation>(ps, consumesCollector());
+  theCorrelatedLCTDigiValidation = std::make_unique<CSCCorrelatedLCTDigiValidation>(ps, consumesCollector());
   theStubEfficiencyValidation = std::make_unique<CSCStubEfficiencyValidation>(ps, consumesCollector());
   theStubResolutionValidation = std::make_unique<CSCStubResolutionValidation>(ps, consumesCollector());
 
@@ -44,12 +50,15 @@ CSCDigiValidation::~CSCDigiValidation() {}
 void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                        edm::Run const &iRun,
                                        edm::EventSetup const & /* iSetup */) {
-  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
+  // plot directory is set for each submodule
   theStripDigiValidation->bookHistograms(iBooker);
   theWireDigiValidation->bookHistograms(iBooker);
   theComparatorDigiValidation->bookHistograms(iBooker);
   theALCTDigiValidation->bookHistograms(iBooker);
   theCLCTDigiValidation->bookHistograms(iBooker);
+  theCLCTPreTriggerDigiValidation->bookHistograms(iBooker);
+  theCorrelatedLCTDigiValidation->bookHistograms(iBooker);
+  // these plots are split over ALCT, CLCT and LCT
   theStubEfficiencyValidation->bookHistograms(iBooker);
   theStubResolutionValidation->bookHistograms(iBooker);
 }
@@ -65,6 +74,8 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theComparatorDigiValidation->setGeometry(pGeom);
   theALCTDigiValidation->setGeometry(pGeom);
   theCLCTDigiValidation->setGeometry(pGeom);
+  theCLCTPreTriggerDigiValidation->setGeometry(pGeom);
+  theCorrelatedLCTDigiValidation->setGeometry(pGeom);
   theStubEfficiencyValidation->setGeometry(pGeom);
   theStubResolutionValidation->setGeometry(pGeom);
 
@@ -73,6 +84,8 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theComparatorDigiValidation->analyze(e, eventSetup);
   theALCTDigiValidation->analyze(e, eventSetup);
   theCLCTDigiValidation->analyze(e, eventSetup);
+  theCLCTPreTriggerDigiValidation->analyze(e, eventSetup);
+  theCorrelatedLCTDigiValidation->analyze(e, eventSetup);
   theStubEfficiencyValidation->analyze(e, eventSetup);
   theStubResolutionValidation->analyze(e, eventSetup);
 }

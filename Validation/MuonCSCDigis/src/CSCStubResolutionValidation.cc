@@ -18,8 +18,6 @@ CSCStubResolutionValidation::~CSCStubResolutionValidation() {}
 
 //create folder for resolution histograms and book them
 void CSCStubResolutionValidation::bookHistograms(DQMStore::IBooker& iBooker) {
-  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Stub/Resolution/");
-
   for (int i = 1; i <= 10; ++i) {
     int j = i - 1;
     const std::string cn(CSCDetId::chamberName(i));
@@ -29,6 +27,7 @@ void CSCStubResolutionValidation::bookHistograms(DQMStore::IBooker& iBooker) {
     std::string t2 = "CLCTPosRes_qs_" + cn;
     std::string t3 = "CLCTPosRes_es_" + cn;
 
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/CLCT/Resolution/");
     posresCLCT_hs[j] = iBooker.book1D(
         t1, cn + " CLCT Position Resolution (1/2-strip prec.); Strip_{L1T} - Strip_{SIM}; Entries", 50, -1, 1);
     posresCLCT_qs[j] = iBooker.book1D(
