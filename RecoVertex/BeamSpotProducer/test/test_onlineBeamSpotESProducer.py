@@ -44,8 +44,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.scalersRawToDigi = cms.EDProducer('ScalersRawToDigi')
-
 process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cff")
 #process.onlineBeamSpotProducer.useTransientRecord = cms.bool(False)
 
@@ -56,7 +54,6 @@ process.out = cms.OutputModule( "PoolOutputModule",
     )
                                 )
 
-process.dtRawDump = cms.Path(process.scalersRawToDigi + process.onlineBeamSpot )
-#process.dtRawDump = cms.Path( process.onlineBeamSpot )
+process.dtRawDump = cms.Path( process.onlineBeamSpot )
 
 process.e = cms.EndPath( process.out )
