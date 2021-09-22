@@ -176,9 +176,6 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
           trk = ref.get();
         }
       }
-      if (trk == nullptr) {
-        continue;
-      }
 
       for (unsigned int iname = 0; iname < names_.size(); ++iname) {
         output[iname][iele] = eval(names_[iname], ele, *rho, ele->electronID("unbiased"), zfield.z(), trk);
@@ -204,9 +201,6 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
         if (ref.isNonnull() && ref.isAvailable()) {
           trk = ref.get();
         }
-      }
-      if (trk == nullptr) {
-        continue;
       }
 
       float unbiased = (*unbiasedH)[gsf];
