@@ -1491,7 +1491,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
             recomputeRawMetFromPfcs_task.add(process.makePatMETsTask)
-            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = True)
+            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = False)
+            recomputeRawMetFromPfcs_task.add(getattr(process,"patMETCorrections"+postfix))
 
             #T1 pfMet for AOD to mAOD only
             if not onMiniAOD: #or self._parameters["Puppi"].value:
@@ -1518,7 +1519,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     getattr(process, _myPatMet).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, _myPatMet).srcJetResPt = cms.string('AK4PFPuppi_pt')
                     getattr(process, _myPatMet).srcJetResPhi = cms.string('AK4PFPuppi_phi')
-        task.add(recomputeRawMetFromPfcs_task)
+        
+        if not hasattr(process, "recomputeRawMetFromPfcs_task"+postfix):
+            setattr(process, "recomputeRawMetFromPfcs_task"+postfix, recomputeRawMetFromPfcs_task)
+        else:
+            getattr(process, "recomputeRawMetFromPfcs_task"+postfix).add(recomputeRawMetFromPfcs_task)
+        task.add(getattr(process, "recomputeRawMetFromPfcs_task"+postfix))
 
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
