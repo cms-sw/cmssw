@@ -26,6 +26,7 @@ public:
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
   void _process(edm::Event const&, edm::EventSetup const&) override;

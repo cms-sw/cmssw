@@ -183,7 +183,7 @@ process.qie11Task_laser = process.qie11Task.clone(
    runkeyVal = runType,
    runkeyName = runTypeName,
    tagQIE11 = "hcalDigis",
-   subsystem = cms.untracked.string("HcalCalib"),
+   subsystem = "HcalCalib",
    laserType = 12
 )
 
@@ -192,7 +192,7 @@ process.qie11Task_pedestal = process.qie11Task.clone(
    runkeyVal = runType,
    runkeyName = runTypeName,
    tagQIE11 = "hcalDigis",
-   subsystem = cms.untracked.string("HcalCalib"),
+   subsystem = "HcalCalib",
    eventType = 1
 )
 
