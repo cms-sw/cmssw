@@ -512,7 +512,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         # get the patAlgosToolsTask
         task = getPatAlgosToolsTask(process)
-        # create a subtask that will hold all the necessary modules
+        # create a subtask for this function that will hold all the necessary modules
         produceMET_task = cms.Task()
 
         # if PF MET is requested and not already part of the process object, then load the necessary configs and add them to the subtask
