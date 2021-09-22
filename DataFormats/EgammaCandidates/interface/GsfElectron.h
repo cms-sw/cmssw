@@ -711,10 +711,16 @@ namespace reco {
       float dnn_e_bkgNonIsolated;
       float dnn_e_bkgTau;
       float dnn_e_bkgPhoton;
-      MvaOutput() : status(-1), mva_Isolated(-999999999.), mva_e_pi(-999999999.), mvaByPassForIsolated(-999999999.),
-          dnn_e_sigIsolated(-999999999.), dnn_e_sigNonIsolated(-999999999.), dnn_e_bkgNonIsolated(-999999999.),
-          dnn_e_bkgTau(-999999999.), dnn_e_bkgPhoton(-999999999.)
-       {}
+      MvaOutput()
+          : status(-1),
+            mva_Isolated(-999999999.),
+            mva_e_pi(-999999999.),
+            mvaByPassForIsolated(-999999999.),
+            dnn_e_sigIsolated(-999999999.),
+            dnn_e_sigNonIsolated(-999999999.),
+            dnn_e_bkgNonIsolated(-999999999.),
+            dnn_e_bkgTau(-999999999.),
+            dnn_e_bkgPhoton(-999999999.) {}
     };
 
     // accessors
@@ -734,11 +740,11 @@ namespace reco {
     // for backward compatibility
     float mva_Isolated() const { return mvaOutput_.mva_Isolated; }
     float mva_e_pi() const { return mvaOutput_.mva_e_pi; }
-    float dnn_signal_Isolated() const {return mvaOutput_.dnn_e_sigIsolated;}
-    float dnn_signal_nonIsolated() const {return mvaOutput_.dnn_e_sigNonIsolated;}
-    float dnn_bkg_nonIsolated() const {return mvaOutput_.dnn_e_bkgNonIsolated;}
-    float dnn_bkg_Tau() const {return mvaOutput_.dnn_e_bkgTau;}
-    float dnn_bkg_Photon() const {return mvaOutput_.dnn_e_bkgPhoton;}
+    float dnn_signal_Isolated() const { return mvaOutput_.dnn_e_sigIsolated; }
+    float dnn_signal_nonIsolated() const { return mvaOutput_.dnn_e_sigNonIsolated; }
+    float dnn_bkg_nonIsolated() const { return mvaOutput_.dnn_e_bkgNonIsolated; }
+    float dnn_bkg_Tau() const { return mvaOutput_.dnn_e_bkgTau; }
+    float dnn_bkg_Photon() const { return mvaOutput_.dnn_e_bkgPhoton; }
 
   private:
     PflowIsolationVariables pfIso_;

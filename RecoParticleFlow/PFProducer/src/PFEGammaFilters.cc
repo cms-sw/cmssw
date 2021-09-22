@@ -102,16 +102,16 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon& photon) const {
                       : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_ * photon.pt())
               << ")" << std::endl;
 
-  if(usePhotonPFidDNN_){
+  if (usePhotonPFidDNN_) {
     // Run3 DNN based PFID
     float dnn = photon.pfDNN();
     double photEta = fabs(photon.eta());
-    if (photEta <= 1.485){
-      return dnn > photon_dnn_barrel_; 
-    } else if (photEta > 1.485){
-      return dnn > photon_dnn_endcap_; 
-    }   
-  }else{ 
+    if (photEta <= 1.566) {
+      return dnn > photon_dnn_barrel_;
+    } else if (photEta > 1.566) {
+      return dnn > photon_dnn_endcap_;
+    }
+  } else {
     // Run2 cut based PFID
     if (photon.hadTowOverEm() > ph_loose_hoe_)
       return false;
@@ -134,7 +134,7 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon& photon) const {
       if (photon.sigmaIetaIeta() > ph_sietaieta_ee_)
         return false;
     }
-  } 
+  }
 
   return true;
 }
@@ -161,21 +161,21 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
   float electronPt = electron.pt();
   double eleEta = fabs(electron.eta());
 
-  if(useElePFidDNN_){ // Use DNN for ele pfID >=CMSSW12_1
+  if (useElePFidDNN_) {  // Use DNN for ele pfID >=CMSSW12_1
     float dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     if (electronPt > ele_iso_pt_) {
-      if (eleEta <= 1.485){
-        passEleSelection = dnn_sig > ele_dnn_highpt_barrel_; 
-      } else if (eleEta > 1.485){
-        passEleSelection = dnn_sig > ele_dnn_highpt_endcap_; 
-      }   
-    } else {// pt < ele_iso_pt_
-      passEleSelection = dnn_sig > ele_dnn_lowpt_; 
+      if (eleEta <= 1.566) {
+        passEleSelection = dnn_sig > ele_dnn_highpt_barrel_;
+      } else if (eleEta > 1.566) {
+        passEleSelection = dnn_sig > ele_dnn_highpt_endcap_;
+      }
+    } else {  // pt < ele_iso_pt_
+      passEleSelection = dnn_sig > ele_dnn_lowpt_;
     }
     // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
     // To be understood if they are needed
 
-  }else{ // Use legacy MVA for ele pfID < CMSSW_12_1
+  } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
     if (electronPt > ele_iso_pt_) {
       double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
       if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
@@ -186,7 +186,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
           passEleSelection = true;
       }
     }
-    
+
     if (electron.mva_e_pi() > ele_noniso_mva_) {
       if (validHoverE || !badHcal_eleEnable_) {
         passEleSelection = true;
@@ -194,7 +194,8 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
         bool EE = (std::abs(electron.eta()) > 1.485);  // for prefer consistency with above than with E/gamma for now
         if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
             (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
-            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) < badHcal_dEta_[EE]) &&  // looser in case of misalignment
+            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) <
+             badHcal_dEta_[EE]) &&  // looser in case of misalignment
             (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
           passEleSelection = true;
         }

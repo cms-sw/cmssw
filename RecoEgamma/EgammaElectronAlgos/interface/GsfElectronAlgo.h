@@ -184,7 +184,7 @@ public:
     bool useNumCrystals;
   };
 
-  struct PFClusterIsolationConfiguration{
+  struct PFClusterIsolationConfiguration {
     double ecaldrMax;
     double ecaldrVetoBarrel;
     double ecaldrVetoEndcap;
@@ -295,7 +295,7 @@ private:
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
 
-  // Algos for PfCluster Isolation 
+  // Algos for PfCluster Isolation
   typedef EcalPFClusterIsolation<reco::GsfElectron> ElectronEcalPFClusterIsolation;
   std::unique_ptr<ElectronEcalPFClusterIsolation> ecalisoAlgo_;
   typedef HcalPFClusterIsolation<reco::GsfElectron> ElectronHcalPFClusterIsolation;

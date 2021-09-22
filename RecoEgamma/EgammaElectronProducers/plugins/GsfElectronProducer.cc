@@ -36,7 +36,6 @@ namespace {
                      std::vector<tensorflow::Session*> tf_sessions,
                      reco::VertexCollection const& vertices,
                      bool dnnPFidEnabled) {
-
     std::vector<GsfElectron::MvaOutput> mva_outputs;
     for (auto& el : electrons) {
       GsfElectron::MvaOutput mvaOutput;
@@ -44,16 +43,15 @@ namespace {
       mvaOutput.mva_Isolated = hoc->iElectronMVAEstimator->mva(el, vertices.size());
       if (dnnPFidEnabled)
         mva_outputs.push_back(mvaOutput);
-      else 
+      else
         el.setMvaOutput(mvaOutput);
-      std::cout << el.full5x5_e5x5() << ", ";
     }
     std::cout << std::endl;
-    if (dnnPFidEnabled){
+    if (dnnPFidEnabled) {
       // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go
-      LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele"; 
-      std::vector<std::array<float,5>> dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tf_sessions);
-      int iele=-1;
+      LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele";
+      std::vector<std::array<float, 5>> dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tf_sessions);
+      int iele = -1;
       for (auto& el : electrons) {
         iele++;
         auto values = dnn_ele_pfid[iele];
@@ -62,12 +60,11 @@ namespace {
         mvaOutput.dnn_e_sigIsolated = values[0];
         mvaOutput.dnn_e_sigNonIsolated = values[1];
         mvaOutput.dnn_e_bkgNonIsolated = values[2];
-        mvaOutput.dnn_e_bkgTau =  values[3];
+        mvaOutput.dnn_e_bkgTau = values[3];
         mvaOutput.dnn_e_bkgPhoton = values[4];
         el.setMvaOutput(mvaOutput);
       }
     }
-
   }
 
   // Something more clever has to be found. The collections are small, so the timing is not
@@ -118,10 +115,13 @@ public:
 
   static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
 
-  void endJob(){ 
+  void endJob() {
     // Close all the tensorflow sessions
-    std::for_each(elePFid_tfSessions.begin(), elePFid_tfSessions.end(), [](auto s){if (s!=nullptr) tensorflow::closeSession(s);});
-   }
+    std::for_each(elePFid_tfSessions.begin(), elePFid_tfSessions.end(), [](auto s) {
+      if (s != nullptr)
+        tensorflow::closeSession(s);
+    });
+  }
 
   // ------------ method called to produce the data  ------------
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
@@ -156,7 +156,6 @@ private:
 
   bool dnnPFidEnabled_;
   std::vector<tensorflow::Session*> elePFid_tfSessions;
-
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -290,31 +289,25 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
           "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
       });
 
-   {
+  {
     edm::ParameterSetDescription psd1;
     psd1.add<bool>("enabled", false);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<std::string>("logLevel", "2"); //0 debug, 1 info, 2 warning
-    psd1.add<std::vector<std::string>>(
-      "modelsFiles",
-      { 
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_lowpt.pb",
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_barrel.pb",
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_endcap.pb"
-      });
-    psd1.add<std::vector<std::string>>(
-      "scalersFiles",
-      { 
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
-        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt"
-      });
+    psd1.add<std::string>("logLevel", "2");  //0 debug, 1 info, 2 warning
+    psd1.add<std::vector<std::string>>("modelsFiles",
+                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_lowpt.pb",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_barrel.pb",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_endcap.pb"});
+    psd1.add<std::vector<std::string>>("scalersFiles",
+                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt"});
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
   }
 
-   ///For PF cluster isolations
+  ///For PF cluster isolations
   ///ECAL
   {
     edm::ParameterSetDescription psd0;
@@ -347,9 +340,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     desc.add<edm::ParameterSetDescription>("pfHCALClusIsolCfg", psd0);
   }
 
-
   descriptions.add("gsfElectronProducerDefault", desc);
-
 }
 
 namespace {
@@ -399,7 +390,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
     egmPFCandidateCollection_ = consumes(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
   }
 
-
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
   inputCfg_.hbheRecHitsTag = consumes(cfg.getParameter<edm::InputTag>("hbheRecHits"));
   inputCfg_.barrelRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
@@ -415,11 +405,11 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   // inputs for PFCluster isolation
   const edm::ParameterSet& pfECALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfECALClusIsolCfg");
   const edm::ParameterSet& pfHCALClusIsolCfg = cfg.getParameter<edm::ParameterSet>("pfHCALClusIsolCfg");
-  inputCfg_.pfClusterProducer = consumes<reco::PFClusterCollection>(pfECALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducer"));
+  inputCfg_.pfClusterProducer =
+      consumes<reco::PFClusterCollection>(pfECALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducer"));
   inputCfg_.pfClusterProducerHCAL = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
   inputCfg_.pfClusterProducerHFEM = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
   inputCfg_.pfClusterProducerHFHAD = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
-
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
@@ -515,8 +505,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       .hcaletaStripEndcap = pfHCALClusIsolCfg.getParameter<double>("etaStripEndcap"),
       .hcalenergyBarrel = pfHCALClusIsolCfg.getParameter<double>("energyBarrel"),
       .hcalenergyEndcap = pfHCALClusIsolCfg.getParameter<double>("energyEndcap"),
-      .hcaluseEt = pfHCALClusIsolCfg.getParameter<bool>("useEt")
-  };
+      .hcaluseEt = pfHCALClusIsolCfg.getParameter<bool>("useEt")};
 
   const RegressionHelper::Configuration regressionCfg{
       .ecalRegressionWeightLabels = cfg.getParameter<std::vector<std::string>>("ecalRefinedRegressionWeightLabels"),
@@ -528,7 +517,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       .combinationRegressionWeightFiles =
           cfg.getParameter<std::vector<std::string>>("combinationRegressionWeightFile")};
 
-    // create algo
+  // create algo
   algo_ = std::make_unique<GsfElectronAlgo>(
       inputCfg_,
       strategyCfg_,
@@ -551,7 +540,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   auto pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
   // Open the tensorflow sessions
-  if (dnnPFidEnabled_) 
+  if (dnnPFidEnabled_)
     elePFid_tfSessions = gcache->iElectronDNNEstimator->getSessions();
 }
 
@@ -724,10 +713,10 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   auto electrons = algo_->completeElectrons(event, setup, globalCache());
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
-    for (auto& el : electrons){
+    for (auto& el : electrons) {
       el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
     }
-    setMVAOutputs(electrons, globalCache(), elePFid_tfSessions,  event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_);
+    setMVAOutputs(electrons, globalCache(), elePFid_tfSessions, event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_);
   }
 
   // all electrons

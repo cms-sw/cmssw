@@ -34,7 +34,6 @@ EcalPFClusterIsolation<T1>::EcalPFClusterIsolation(double drMax,
 template <typename T1>
 EcalPFClusterIsolation<T1>::~EcalPFClusterIsolation() {}
 
-
 template <typename T1>
 bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
@@ -102,8 +101,8 @@ double EcalPFClusterIsolation<T1>::getSum(const T1 cand, edm::Handle<reco::PFClu
 }
 
 template <typename T1>
-double EcalPFClusterIsolation<T1>::getSum(T1Ref ref, edm::Handle<std::vector<reco::PFCluster> > clusts){
-  return getSum(*ref,clusts);
+double EcalPFClusterIsolation<T1>::getSum(T1Ref ref, edm::Handle<std::vector<reco::PFCluster> > clusts) {
+  return getSum(*ref, clusts);
 }
 
 template <typename T1>
@@ -114,8 +113,7 @@ bool EcalPFClusterIsolation<T1>::computedRVeto(T1 cand, reco::PFClusterRef pfclu
 
   if (cand.superCluster().isNonnull()) {
     // Exclude clusters that are part of the candidate
-    for (reco::CaloCluster_iterator it = cand.superCluster()->clustersBegin();
-         it != cand.superCluster()->clustersEnd();
+    for (reco::CaloCluster_iterator it = cand.superCluster()->clustersBegin(); it != cand.superCluster()->clustersEnd();
          ++it) {
       if ((*it)->seed() == pfclu->seed()) {
         return false;

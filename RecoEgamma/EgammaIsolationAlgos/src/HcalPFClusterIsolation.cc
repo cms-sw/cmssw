@@ -60,7 +60,7 @@ double HcalPFClusterIsolation<T1>::getSum(const T1 cand,
         continue;
 
       float dR2 = deltaR2(cand.eta(), cand.phi(), pfclu->eta(), pfclu->phi());
-      if ( dR2 > (drMax_*drMax_) || dR2 < (dRVeto*dRVeto))
+      if (dR2 > (drMax_ * drMax_) || dR2 < (dRVeto * dRVeto))
         continue;
 
       if (useEt_)
@@ -74,7 +74,10 @@ double HcalPFClusterIsolation<T1>::getSum(const T1 cand,
 }
 
 template <typename T1>
-double HcalPFClusterIsolation<T1>::getSum(T1Ref ref, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles){return getSum(*ref,clusterHandles);}
+double HcalPFClusterIsolation<T1>::getSum(T1Ref ref,
+                                          const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles) {
+  return getSum(*ref, clusterHandles);
+}
 
 template class HcalPFClusterIsolation<reco::RecoEcalCandidate>;
 template class HcalPFClusterIsolation<reco::RecoChargedCandidate>;
