@@ -573,7 +573,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         # default outputs
         patMetCorrectionSequence = cms.Sequence()
-        patMetCorrectionTask = cms.Task()
+        getCorrectedMET_task = cms.Task()
         metModName = "pat"+metType+"Met"+postfix
 
         # QUESTION: Still needed?
@@ -707,7 +707,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, patMetCorrectionTask)
+            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector")
@@ -715,7 +715,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
 
         if "T1" in correctionLevel and self._parameters["Puppi"].value:
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, patMetCorrectionTask)
+            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
@@ -735,7 +735,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                        src = cms.InputTag('pat'+metType+'Met' + postfix),
                        srcCorrections = cms.VInputTag(corrections)
                      )
-            taskName="patMetCorrectionTask"
+            taskName="getCorrectedMET_task"
 
         #MM: FIXME MVA QUESTION: Still needed?
         #if metType == "MVA":
@@ -743,33 +743,33 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #    corMetProducer = self.createMVAMETModule(process)
         #    sequenceName="pfMVAMEtSequence"
 
-        addToProcessAndTask(metModName, corMetProducer, process, patMetCorrectionTask)
+        addToProcessAndTask(metModName, corMetProducer, process, getCorrectedMET_task)
 
         # adding the full sequence only if it does not exist
         if not hasattr(process, taskName+postfix):
             for corModule in correctionTask:
-                patMetCorrectionTask.add(corModule)
-            setattr(process, taskName+postfix, patMetCorrectionTask)
+                getCorrectedMET_task.add(corModule)
+            setattr(process, taskName+postfix, getCorrectedMET_task)
         else: #if it exists, only add the missing correction modules, no need to redo everything
-            patMetCorrectionTask = getattr(process, "patMetCorrectionTask"+postfix)#cms.Sequence()
-            #setattr(process, taskName+postfix,patMetCorrectionTask)
+            getCorrectedMET_task = getattr(process, "getCorrectedMET_task"+postfix)#cms.Sequence()
+            #setattr(process, taskName+postfix,getCorrectedMET_task)
             for cor in corModNames.keys():
-                if not configtools.contains(patMetCorrectionTask, corTags[cor][0]) and cor in correctionLevel:
-                    patMetCorrectionTask.add(corModules[cor])
+                if not configtools.contains(getCorrectedMET_task, corTags[cor][0]) and cor in correctionLevel:
+                    getCorrectedMET_task.add(corModules[cor])
 
         #plug the main patMetproducer
-        patMetCorrectionTask.add(getattr(process, metModName))
+        getCorrectedMET_task.add(getattr(process, metModName))
 
         #create the intermediate MET steps
         #and finally add the met producers in the sequence for scheduled mode
         if produceIntermediateCorrections:
             interMets = self.addIntermediateMETs(process, metType, correctionLevel, corScheme, corTags,corNames, postfix)
             for met in interMets.keys():
-                addToProcessAndTask(met, interMets[met], process, patMetCorrectionTask)
+                addToProcessAndTask(met, interMets[met], process, getCorrectedMET_task)
                 #patMetCorrectionSequence += getattr(process, met)
         
         task = getPatAlgosToolsTask(process)
-        task.add(patMetCorrectionTask)
+        task.add(getCorrectedMET_task)
 
         return patMetCorrectionSequence, metModName
 
