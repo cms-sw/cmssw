@@ -25,32 +25,32 @@ cscDigiValidation = DQMEDAnalyzer(
     ## ME1/3 and MEX/2 not configured with Run-3 algorithm from start of data taking
     chambersRun3 = cms.vuint32(0, 3, 5, 7),
     alctVars = cms.vstring("quality", "wiregroup", "bx"),
-    alctNBin = cms.vuint32(6, 116, 20),
+    alctNBin = cms.vuint32(6, 116, 16),
     alctMinBin = cms.vdouble(0, 0, 0),
-    alctMaxBin = cms.vdouble(6, 116, 20),
+    alctMaxBin = cms.vdouble(6, 116, 16),
     clctVars = cms.vstring(
         # For Run-2 eras
         "quality", "halfstrip", "pattern", "bend", "bx",
         # Added in Run-3 eras
         "quartstrip", "eighthstrip", "run3pattern",
         "slope", "compcode", "quartstripbit", "eighthstripbit"),
-    clctNBin = cms.vuint32(6, 224, 16, 2, 20, 448, 896, 5, 16, 410, 2, 2),
+    clctNBin = cms.vuint32(6, 224, 16, 2, 16, 448, 896, 5, 16, 410, 2, 2),
     clctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    clctMaxBin = cms.vdouble(6, 224, 16, 2, 20, 448, 896, 5, 16, 410, 2, 2),
+    clctMaxBin = cms.vdouble(6, 224, 16, 2, 16, 448, 896, 5, 16, 410, 2, 2),
     preclctVars = cms.vstring(
         "quality", "halfstrip", "pattern", "bend", "bx"),
-    preclctNBin = cms.vuint32(16, 224, 16, 2, 20, 5),
+    preclctNBin = cms.vuint32(16, 224, 16, 2, 16, 5),
     preclctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0),
-    preclctMaxBin = cms.vdouble(16, 224, 16, 2, 20, 5),
+    preclctMaxBin = cms.vdouble(16, 224, 16, 2, 16, 5),
     lctVars = cms.vstring(
         # For Run-2 eras
         "quality", "wiregroup", "halfstrip", "pattern", "bend", "bx",
         # Added in Run-3 eras
         "quartstrip", "eighthstrip", "run3pattern",
         "slope", "quartstripbit", "eighthstripbit"),
-    lctNBin = cms.vuint32(16, 116, 224, 16, 2, 20, 448, 896, 5, 16, 2, 2),
+    lctNBin = cms.vuint32(16, 116, 224, 16, 2, 16, 448, 896, 5, 16, 2, 2),
     lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 20, 448, 896, 5, 16, 2, 2),
+    lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 16, 448, 896, 5, 16, 2, 2),
     isRun3 = cms.bool(False),
 )
 
