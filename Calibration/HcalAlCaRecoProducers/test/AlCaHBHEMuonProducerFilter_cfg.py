@@ -18,7 +18,7 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HBHEMuon=dict()
 
-process.maxEvents = cms.untracked.PSet(
+process.maxEvents = cms.untracked.PSet( 
     input = cms.untracked.int32(-1)
 )
 
@@ -31,22 +31,22 @@ process.source = cms.Source("PoolSource",
 
 process.ALCARECOStreamHcalCalHBHEMuon = cms.OutputModule("PoolOutputModule",
                                                          SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalCalHBHEMuonFilter')
+        SelectEvents = cms.vstring('pathALCARECOHcalCalHBHEMuonProducerFilter')
         ),
                                                          dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('ALCARECO'),
-        filterName = cms.untracked.string('ALCARECOHcalCalHBHEMuon')
+        filterName = cms.untracked.string('ALCARECOHcalCalHBHEMuonProducerFilter')
         ),
                                                          eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-                                                         outputCommands = process.OutALCARECOHcalCalHBHEMuonFilter.outputCommands,
-                                                         fileName = cms.untracked.string('OutputHBHEMuon.root'),
+                                                         outputCommands = process.OutALCARECOHcalCalHBHEMuonProducerFilter.outputCommands,
+                                                         fileName = cms.untracked.string('OutputBHEMuonProducerFilter.root'),
                                       )
 
-process.AlcaHBHEMuonFilter.Triggers = []
+process.alcaHcalHBHEMuonProducer.triggers = []
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.ALCARECOStreamHcalCalHBHEMuonOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHBHEMuon)
+process.ALCARECOStreamHcalCalHBHEMuonProducerFilterOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHBHEMuon)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathALCARECOHcalCalHBHEMuonFilter,process.endjob_step,process.ALCARECOStreamHcalCalHBHEMuonOutPath)
+process.schedule = cms.Schedule(process.pathALCARECOHcalCalHBHEMuonProducerFilter,process.endjob_step,process.ALCARECOStreamHcalCalHBHEMuonProducerFilterOutPath)

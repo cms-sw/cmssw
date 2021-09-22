@@ -8,13 +8,14 @@ public:
   HcalHBHEMuonVariables() { clear(); }
 
   void clear() {
+    runNumber_ = eventNumber_ = lumiNumber_ = bxNumber_ = goodVertex_ = 0;
     muonGood_ = muonGlobal_ = muonTracker_ = muonTight_ = muonMedium_ = false;
     ptGlob_ = etaGlob_ = phiGlob_ = energyMuon_ = pMuon_ = 0;
     muonTrkKink_ = muonChi2LocalPosition_ = muonSegComp_ = 0;
-    trackerLayer_ = numPixelLayers_ = tightPixelHits_;
+    trackerLayer_ = numPixelLayers_ = tightPixelHits_ = 0;
     innerTrack_ = outerTrack_ = globalTrack_ = false;
     chiTracker_ = dxyTracker_ = dzTracker_ = 0;
-    innerTrackPt_ = innerTrackEta_ = innerTrackEhi_ = 0;
+    innerTrackPt_ = innerTrackEta_ = innerTrackPhi_ = 0;
     outerTrackHits_ = outerTrackRHits_ = 0;
     outerTrackPt_ = outerTrackEta_ = outerTrackPhi_ = outerTrackChi_ = 0;
     globalMuonHits_ = matchedStat_ = 0;
@@ -42,13 +43,14 @@ public:
     hltResults_.clear();
   }
 
+  unsigned int runNumber_, eventNumber_, lumiNumber_, bxNumber_, goodVertex_;
   bool muonGood_, muonGlobal_, muonTracker_, muonTight_, muonMedium_;
   float ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
   float muonTrkKink_, muonChi2LocalPosition_, muonSegComp_;
   int trackerLayer_, numPixelLayers_, tightPixelHits_;
   bool innerTrack_, outerTrack_, globalTrack_;
   float chiTracker_, dxyTracker_, dzTracker_;
-  float innerTrackPt_, innerTrackEta_, innerTrackEhi_;
+  float innerTrackPt_, innerTrackEta_, innerTrackPhi_;
   int outerTrackHits_, outerTrackRHits_;
   float outerTrackPt_, outerTrackEta_, outerTrackPhi_, outerTrackChi_;
   int globalMuonHits_, matchedStat_;
