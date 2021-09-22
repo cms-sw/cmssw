@@ -1615,8 +1615,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #patMetModuleSequence += getattr(process, "jetSelectorForMet"+postfix)
 
         jetCollection = self.jetCleaning(process, "jetSelectorForMet"+postfix, autoJetCleaning, patMetModuleSequence, postfix)
-
-        task.add(getJetCollectionForCorsAndUncs_task)
+        if not hasattr(process, "getJetCollectionForCorsAndUncs_task"+postfix):
+            setattr(process, "getJetCollectionForCorsAndUncs_task"+postfix, getJetCollectionForCorsAndUncs_task)
+        else:
+            getattr(process, "getJetCollectionForCorsAndUncs_task"+postfix).add(getJetCollectionForCorsAndUncs_task)
+        task.add(getattr(process, "getJetCollectionForCorsAndUncs_task"+postfix))
 
         return jetCollection
 
