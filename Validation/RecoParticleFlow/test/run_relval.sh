@@ -48,6 +48,11 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd $CMSSW_BASE
 eval `scram runtime -sh`
 
+#define HOME if not defined.
+if [ -z "$HOME" ]; then
+    export HOME=/tmp
+fi
+
 #if the _CONDOR_SCRATCH_DIR is not defined, we are not inside a condor batch job
 if [ -z "$_CONDOR_SCRATCH_DIR" ]; then
     cd $LAUNCHDIR
