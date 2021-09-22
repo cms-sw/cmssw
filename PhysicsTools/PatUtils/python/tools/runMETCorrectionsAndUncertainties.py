@@ -563,6 +563,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         # add PAT MET producer to subtask
         produceMET_task.add(getattr(process, _myPatMet ))
+        setattr(process, "produceMET_task", produceMET_task)
         # add subtask to patToolsAlgosTask
         task.add(produceMET_task)
         #metModuleSequence += cms.Sequence(produceMET_task)
