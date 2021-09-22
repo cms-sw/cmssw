@@ -88,7 +88,7 @@ In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo
 
 # Running via condor
 
-Make sure datasets.py is already parsed above and there are input file lists under ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache.
+Make sure datasets.py is already parsed above and there are input file lists under ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache. This is written assuming that you are running condor jobs on CERN lxplus, although with some modifications, the setup can be used with condor of other clusters.
 
 ~~~
 cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test
@@ -98,6 +98,7 @@ mkdir -p log
 condor_submit QCD.jdl
 ~~~
 
+The output files will appear /eos/cms/store/group/phys_pf/PFVal/QCD. You will want to make sure you are subscribed to cms-eos-phys-pf so that you have eos write access. There are jdl files for other datasets also.
 
 
 # Running via crab
