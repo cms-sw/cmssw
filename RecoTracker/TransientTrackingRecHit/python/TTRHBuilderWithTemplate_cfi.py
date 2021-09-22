@@ -18,3 +18,7 @@ phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEClusterRep
 # Turn off template reco for phase 2 (when not supported)
 from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGeneric')
+
+from Configuration.ProcessModifiers.PixelCPEGenericForBricked_cff import PixelCPEGenericForBricked
+PixelCPEGenericForBricked.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGenericForBricked')
+
