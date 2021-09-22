@@ -13,6 +13,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/Records"/>
+<use name="TrackingTools/PatternTools"/>
 <export>
   <lib name="1"/>
 </export>
