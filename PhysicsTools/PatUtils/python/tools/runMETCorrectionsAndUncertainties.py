@@ -1543,7 +1543,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                              )
             addToProcessAndTask("genMetExtractor"+postfix, genMetExtractor, process, extractMET_task)
             #patMetModuleSequence += getattr(process, "genMetExtractor"+postfix)
-        task.add(extractMET_task)
+        if not hasattr(process, "extractMET_task"+postfix):
+            setattr(process, "extractMET_task"+postfix, extractMET_task)
+        else:
+            getattr(process, "extractMET_task"+postfix).add(extractMET_task)
+        task.add(getattr(process, "extractMET_task"+postfix))
 
 
     def updateJECs(self,process,jetCollection, patMetModuleSequence, postfix):
