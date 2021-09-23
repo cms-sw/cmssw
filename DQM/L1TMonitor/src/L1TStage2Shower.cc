@@ -166,8 +166,8 @@ void L1TStage2Shower::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (not Shower.isValid())
       continue;
     if (Shower.isOneNominalInTime() or Shower.isTwoLooseInTime() or Shower.isOneTightInTime()) {
-      int endcap = Shower.endcap();
-      int sector = Shower.sector();
+      int endcap = Shower.trackFinderType() == l1t::tftype::emtf_pos ? 1 : -1;
+      int sector = Shower.processor() + 1;
       if (Shower.isOneTightInTime())
         emtfShowerTypeOccupancy->Fill(sector, (endcap == 1) ? 7.5 : 0.5);
       if (Shower.isTwoLooseInTime())
