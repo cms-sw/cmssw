@@ -33,7 +33,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             'Charmonium:qg2ccbar(3PJ)[3S1(8)]q = on,on',
             'Charmonium:qqbar2ccbar(3PJ)[3S1(8)]g = on,on',
 #
-            'PhaseSpace:pTHatMin = 2.'                   # be aware of this ckin(3) equivalent
+            'PhaseSpace:pTHatMin = 10.'                   # (filter efficiency 4.671e-02) be aware of this ckin(3) equivalent
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CP5Settings',
