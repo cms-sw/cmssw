@@ -10,7 +10,10 @@
 #include "CombinedHitTripletGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include <utility>
 #include <vector>
@@ -64,6 +67,8 @@ public:
                    std::vector<int>* tripletLastLayerIndex);
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerToken_;
   const bool useFixedPreFiltering;
   const float extraHitRZtolerance;
   const float extraHitRPhitolerance;
