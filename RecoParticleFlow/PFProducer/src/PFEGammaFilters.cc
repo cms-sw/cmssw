@@ -165,16 +165,14 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     }
   }
 
-  //TEMPORARY hack.
-  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EEEs are in place.
-  if (!allowEEEinPF_) {
-    int nHitGsf = electron.gsfTrack()->numberOfValidHits();
-    double absEleEta = fabs(electron.eta());
-    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
-      passEleSelection = false;
-    }
-  }
-
+  //TEMPORARY hack for 12_1.
+  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EtaExtendedEle are in place.
+  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
+  //this is to be taken care of by EGM POG  
+  //https://github.com/cms-sw/cmssw/issues/35374
+  if ( thisEleIsNotAllowedInPF(electron,allowEEEinPF_) )  
+    passEleSelection = false;
+  
   return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
 
@@ -334,15 +332,13 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
     isSafeForJetMET = false;
   }
 
-  //TEMPORARY hack.
-  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EEEs are in place.
-  if (!allowEEEinPF_) {
-    int nHitGsf = electron.gsfTrack()->numberOfValidHits();
-    double absEleEta = fabs(electron.eta());
-    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
-      isSafeForJetMET = false;
-    }
-  }
+  //TEMPORARY hack for 12_1.
+  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EtaExtendedEle are in place.
+  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
+  //this is to be taken care of by EGM POG 
+  //https://github.com/cms-sw/cmssw/issues/35374 
+  if ( thisEleIsNotAllowedInPF(electron,allowEEEinPF_) )  
+    isSafeForJetMET = false;
 
   return isSafeForJetMET;
 }
@@ -419,6 +415,18 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
       return passMVA;
   } else
     return passCutBased || passMVA;
+}
+
+bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
+  bool returnVal=false;
+  if (!allowEtaExtEleinPF) {
+    const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
+    const auto absEleEta = std::abs(electron.eta());
+    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
+      returnVal = true;
+    }
+  }
+  return returnVal;
 }
 
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
