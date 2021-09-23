@@ -11,6 +11,9 @@ AlcaBeamMonitor.PVFitter.VertexCollection  = 'hiSelectedVertex'
 from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(AlcaBeamMonitor, perLSsaving=True)
 
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 scalerBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 alcaBeamMonitor = cms.Sequence( scalerBeamSpot*AlcaBeamMonitor )
