@@ -19,11 +19,11 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps)
   _eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
 //statis
-void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions& _desc) {
   edm::ParameterSetDescription desc;
 
   //from class inheritance
-  hcaldqm::DQModule::fillPSetDescription(desc);
+  hcaldqm::DQTask::fillPSetDescription(desc);
 
   desc.addUntracked<std::string>("name", "QIE11Task");
   desc.addUntracked<int>("debug", 0);
@@ -34,9 +34,8 @@ void QIE11Task::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<int>("ped", 4);
   desc.addUntracked<int>("laserType", -1);
   desc.addUntracked<int>("eventType", -1);
-  descriptions.add("qie11Task", desc);
-  // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
+
+  _desc.addDefault(desc);
 }
 
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
