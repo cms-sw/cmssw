@@ -14,7 +14,7 @@ class HGCalClusteringDummyImpl {
 public:
   HGCalClusteringDummyImpl(const edm::ParameterSet& conf);
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   void clusterizeDummy(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& triggerCellsPtrs,
                        l1t::HGCalClusterBxCollection& clusters);

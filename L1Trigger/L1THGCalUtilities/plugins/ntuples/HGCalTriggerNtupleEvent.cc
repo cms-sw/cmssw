@@ -5,7 +5,7 @@ public:
   HGCalTriggerNtupleEvent(const edm::ParameterSet&);
 
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event&, const edm::EventSetup&) final;
+  void fill(const edm::Event&, const HGCalTriggerNtupleEventSetup&) final;
 
 private:
   void clear() final;
@@ -26,7 +26,7 @@ void HGCalTriggerNtupleEvent::initialize(TTree& tree, const edm::ParameterSet&, 
   tree.Branch("lumi", &lumi_, "lumi/I");
 }
 
-void HGCalTriggerNtupleEvent::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleEvent::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   run_ = e.id().run();
   lumi_ = e.luminosityBlock();
   event_ = e.id().event();
