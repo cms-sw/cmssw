@@ -46,7 +46,6 @@ namespace {
       else
         el.setMvaOutput(mvaOutput);
     }
-    std::cout << std::endl;
     if (dnnPFidEnabled) {
       // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go
       LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele";
@@ -296,13 +295,13 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
     psd1.add<std::string>("logLevel", "2");  //0 debug, 1 info, 2 warning
     psd1.add<std::vector<std::string>>("modelsFiles",
-                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_lowpt.pb",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_barrel.pb",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/model_highpt_endcap.pb"});
+                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"});
     psd1.add<std::vector<std::string>>("scalersFiles",
-                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/ElectronDNNScaler.txt"});
+                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
+                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"});
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
   }
