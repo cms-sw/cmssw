@@ -4,8 +4,8 @@
 namespace SiPixelUtils {
 
   float generic_position_formula(int size,                    //!< Size of this projection.
-                                 int Q_f,                     //!< Charge in the first pixel.
-                                 int Q_l,                     //!< Charge in the last pixel.
+                                 int q_f,                     //!< Charge in the first pixel.
+                                 int q_l,                     //!< Charge in the last pixel.
                                  float upper_edge_first_pix,  //!< As the name says.
                                  float lower_edge_last_pix,   //!< As the name says.
                                  float lorentz_shift,         //!< L-width
@@ -19,12 +19,12 @@ namespace SiPixelUtils {
                                  float size_cut               //!< Use edge when size == cuts
   );
 
-  float bricked_y_position_formula(
+  float generic_position_formula_y_bricked(
       int size,                    //!< Size of this projection.
-      int Q_f,                     //!< Charge in the first pixel.
-      int Q_l,                     //!< Charge in the last pixel.
-      int Q_f_b,                   //!< Charge in pixels that are "dented" compared to the lowest pixel of the cluster.
-      int Q_l_b,                   //!< Charge in pixels that are "dented" compared to the highest pixel of the cluster.
+      int q_f,                     //!< Charge in the first pixel.
+      int q_l,                     //!< Charge in the last pixel.
+      int q_f_b,                   //!< Charge in pixels that are "dented" compared to the lowest pixel of the cluster.
+      int q_l_b,                   //!< Charge in pixels that are "dented" compared to the highest pixel of the cluster.
       float upper_edge_first_pix,  //!< As the name says.
       float lower_edge_last_pix,   //!< As the name says.
       float lorentz_shift,         //!< L-width
