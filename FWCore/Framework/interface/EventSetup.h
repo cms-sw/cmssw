@@ -38,6 +38,7 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 // forward declarations
 
@@ -124,18 +125,19 @@ namespace edm {
 
     /** can directly access data if data_default_record_trait<> is defined for this data type **/
     template <typename T>
-    bool getData(T& iHolder) const {
-      return getData(std::string{}, iHolder);
+    CMS_DEPRECATED bool getData(T& iHolder) const {
+      auto const& rec = this->get<eventsetup::default_record_t<T>>();
+      return rec.get(std::string{}, iHolder);
     }
 
     template <typename T>
-    bool getData(const std::string& iLabel, T& iHolder) const {
+    CMS_DEPRECATED bool getData(const std::string& iLabel, T& iHolder) const {
       auto const& rec = this->get<eventsetup::default_record_t<T>>();
       return rec.get(iLabel, iHolder);
     }
 
     template <typename T>
-    bool getData(const ESInputTag& iTag, T& iHolder) const {
+    CMS_DEPRECATED bool getData(const ESInputTag& iTag, T& iHolder) const {
       auto const& rec = this->get<eventsetup::default_record_t<T>>();
       return rec.get(iTag, iHolder);
     }
