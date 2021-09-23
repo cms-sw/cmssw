@@ -19,6 +19,12 @@ namespace l1t {
       event_.put(std::move(imdMuonsEMTFPos_), "imdMuonsEMTFPos");
       event_.put(std::move(imdMuonsOMTFNeg_), "imdMuonsOMTFNeg");
       event_.put(std::move(imdMuonsOMTFPos_), "imdMuonsOMTFPos");
+
+      event_.put(std::move(regionalMuonShowersEMTF_), "EMTF");
+      event_.put(std::move(muonShowers_[0]), "MuonShower");
+      for (int i = 1; i < 6; ++i) {
+        event_.put(std::move(muonShowers_[i]), "MuonShowerCopy" + std::to_string(i));
+      }
     }
   }  // namespace stage2
 }  // namespace l1t
