@@ -71,6 +71,11 @@ namespace fftjetcms {
   class DiscretizedEnergyFlow;
 }
 
+class CaloGeometry;
+class CaloGeometryRecord;
+class HcalTopology;
+class HcalRecNumberingRecord;
+
 //
 // class declaration
 //
@@ -398,6 +403,9 @@ private:
   edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
   edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
   edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topology_token_;
 };
 
 #endif  // RecoJets_FFTJetProducers_FFTJetProducer_h
