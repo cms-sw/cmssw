@@ -102,13 +102,13 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     PhotonDNNPFid = cms.PSet(
         enabled = cms.bool(False),
         inputTensorName = cms.string("FirstLayer_input"),
-        outputTensorName = cms.string("sequential/LastLayer/Softmax"),
+        outputTensorName = cms.string("sequential/FinalLayer/Sigmoid"),
         modelsFiles = cms.vstring(
-                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_barrel.pb',
-                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_endcap.pb'),
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_modelDNN.pb',
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_modelDNN.pb'),
         scalersFiles = cms.vstring(
-                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt',
-                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt'
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_scaler.txt',
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_scaler.txt'
         ),
         logLevel = cms.string("0")
     ),

@@ -53,12 +53,12 @@ private:
   const float ele_iso_combIso_ee_;
   const float ele_noniso_mva_;
   // Threshold for DNN ele pfid
-  float ele_dnn_lowpt_;
-  float ele_dnn_highpt_barrel_;
-  float ele_dnn_highpt_endcap_;
+  float ele_dnnLowPtThr_;
+  float ele_dnnHighPtBarrelThr_;
+  float ele_dnnHighPtEndcapThr_;
   // Threshold for DNN photon pfid
-  float photon_dnn_barrel_;
-  float photon_dnn_endcap_;
+  float photon_dnnBarrelThr_;
+  float photon_dnnEndcapThr_;
 
   const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
