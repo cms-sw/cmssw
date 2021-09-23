@@ -204,4 +204,4 @@ if(options.unitTest):
 #Setup FWK for multithreaded
 process.options.numberOfThreads=cms.untracked.uint32(4)
 process.options.numberOfStreams=cms.untracked.uint32(0)
-#process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(2)  ## not yet
+process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(1)  ## not yet ready for 2, because of HitEff being legacy module
