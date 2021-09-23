@@ -49,6 +49,14 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   */
 }
 
+void CkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
+  iDesc.add<int>("maxCand");
+  iDesc.add<double>("lostHitPenalty");
+  iDesc.add<bool>("intermediateCleaning");
+  iDesc.add<bool>("alwaysUseInvalidHits");
+}
+
 /*
   void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
   {

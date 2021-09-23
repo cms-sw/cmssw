@@ -1,6 +1,7 @@
 #ifndef CompositeTrajectoryFilter_H
 #define CompositeTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -25,6 +26,10 @@ public:
   }
 
   ~CompositeTrajectoryFilter() override {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    // !!! MISSING
+  }
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     for (auto& f : filters) {

@@ -43,6 +43,15 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
 
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder() {}
 
+void BaseCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<bool>("seedAs5DHit");
+  iDesc.add<std::string>("updator");
+  iDesc.add<std::string>("propagatorAlong");
+  iDesc.add<std::string>("propagatorOpposite");
+  iDesc.add<std::string>("estimator");
+  iDesc.add<std::string>("TTRHBuilder");
+}
+
 std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset,
                                                                                    edm::ConsumesCollector& iC) {
   return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);

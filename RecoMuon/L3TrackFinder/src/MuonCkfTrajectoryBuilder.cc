@@ -30,6 +30,15 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf
 
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder() {}
 
+void MuonCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  CkfTrajectoryBuilder::fillPSetDescription(iDesc);
+  iDesc.add<double>("deltaEta");
+  iDesc.add<double>("deltaPhi");
+  iDesc.add<std::string>("propagatorProximity");
+  iDesc.add<bool>("useSeedLayer");
+  iDesc.add<double>("rescaleErrorIfFail");
+}
+
 void MuonCkfTrajectoryBuilder::setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CkfTrajectoryBuilder::setEvent_(iEvent, iSetup);
 

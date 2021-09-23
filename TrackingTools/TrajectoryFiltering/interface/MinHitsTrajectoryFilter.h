@@ -27,6 +27,13 @@ public:
         theMinHitsAtHighEta(pset.getParameter<int>("minHitsAtHighEta")),
         theSeedPairPenalty(pset.getParameter<int>("seedPairPenalty")) {}
 
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<int>("minimumNumberOfHits", 5);
+    iDesc.add<double>("highEtaSwitch", 5.0);
+    iDesc.add<int>("minHitsAtHighEta", 5);
+    iDesc.add<int>("seedPairPenalty", 0);
+  }
+
   bool qualityFilter(const Trajectory& traj) const override { return QF<Trajectory>(traj); }
   bool qualityFilter(const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj); }
 

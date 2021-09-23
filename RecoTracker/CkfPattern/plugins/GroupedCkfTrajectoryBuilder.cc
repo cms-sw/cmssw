@@ -12,6 +12,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "GroupedTrajCandLess.h"
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -29,6 +30,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
@@ -150,6 +152,30 @@ GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet
 
   theConfigurableCondition = createAlgo<TrajectoryFilter>(componentConfig("StopCondition"));
   ===================================== */
+}
+
+void GroupedCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<bool>("useSameTrajFilter");
+  iDesc.add<int>("maxCand");
+  iDesc.add<double>("lostHitPenalty");
+  iDesc.add<double>("foundHitBonus");
+  iDesc.add<bool>("intermediateCleaning");
+  iDesc.add<bool>("alwaysUseInvalidHits");
+  iDesc.add<bool>("lockHits");
+  iDesc.add<bool>("bestHitOnly");
+  iDesc.add<bool>("requireSeedHitsInRebuild");
+  iDesc.add<bool>("keepOriginalIfRebuildFails");
+  iDesc.add<int>("minNrOfHitsForRebuild");
+  iDesc.add<double>("maxPtForLooperReconstruction", 0.);
+  iDesc.add<double>("maxDPhiForLooperReconstruction", 2.0);
+
+  edm::ParameterSetDescription psdTJ1;
+  psdTJ1.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("trajectoryFilter", psdTJ1);
+
+  edm::ParameterSetDescription psdTJ2;
+  psdTJ2.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("inOutTrajectoryFilter", psdTJ2);
 }
 
 /*

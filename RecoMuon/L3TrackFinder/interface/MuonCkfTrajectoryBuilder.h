@@ -1,14 +1,18 @@
 #ifndef RecoMuon_L3TrackFinder_MuonCkfTrajectoryBuilder_H
 #define RecoMuon_L3TrackFinder_MuonCkfTrajectoryBuilder_H
 
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 
 class TrackingComponentsRecord;
+
 class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
 public:
   MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
   ~MuonCkfTrajectoryBuilder() override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
   void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;

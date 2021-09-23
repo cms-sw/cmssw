@@ -1,8 +1,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -551,8 +552,9 @@ namespace cms {
     desc.add<edm::InputTag>("phase2clustersToSkip", edm::InputTag(""));
     desc.add<edm::InputTag>("src", edm::InputTag("globalMixedSeeds"));
 
-    edm::ParameterSetDescription psd0;
-    desc.add<edm::ParameterSetDescription>("TrajectoryBuilderPSet", psd0);
+    edm::ParameterSetDescription psdTB;
+    psdTB.addNode(edm::PluginDescription<BaseCkfTrajectoryBuilderFactory>("ComponentType", true));
+    desc.add<edm::ParameterSetDescription>("TrajectoryBuilderPSet", psdTB);
 
     edm::ParameterSetDescription psd1;
     psd1.add<std::string>("propagatorAlongTISE", "PropagatorWithMaterial");
