@@ -28,6 +28,8 @@
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,6 +126,13 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
   vector<CompoundPseudoJet>::const_iterator itEnd(fjCompoundJets_.end());
   vector<CompoundPseudoJet>::const_iterator it(itBegin);
 
+  [[maybe_unused]] const CaloGeometry* pGeometry = nullptr;
+  [[maybe_unused]] const HcalTopology* pTopology = nullptr;
+  if constexpr (std::is_same_v<T, reco::CaloJet>) {
+    pGeometry = &getGeometry(iSetup);
+    pTopology = &getTopology(iSetup);
+  }
+
   for (; it != itEnd; ++it) {
     int jetIndex = it - itBegin;
     fastjet::PseudoJet fatJet = it->hardJet();
@@ -150,7 +159,11 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
           subJetConstituents.push_back(inputs_[*itIndex]);
 
       T subJet;
-      reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents, iSetup);
+      if constexpr (std::is_same_v<T, reco::CaloJet>) {
+        reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents, *pGeometry, *pTopology);
+      } else {
+        reco::writeSpecific(subJet, p4SubJet, point, subJetConstituents);
+      }
       subJet.setJetArea(itSub->subjetArea());
 
       if (subJetIndex < 2) {
