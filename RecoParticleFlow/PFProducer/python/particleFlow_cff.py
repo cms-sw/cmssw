@@ -14,6 +14,17 @@ particleFlowTmp = particleFlow.clone()
 ## In 12_2, we expect to have EEE's ID/regression, then this switch can flip to True
 particleFlowTmp.PFEGammaFiltersParameters.allowEEEinPF = cms.bool(False)
 
+# Thresholds for e/gamma PFID DNN 
+particleFlowTmp.PFEGammaFiltersParameters.electronDnnThresholds = cms.PSet(
+            electronDnnHighPtBarrelThr = cms.double(0.122),
+            electronDnnHighPtEndcapThr = cms.double(0.072),
+            electronDnnLowPtThr = cms.double(0.081)
+        )
+particleFlowTmp.PFEGammaFiltersParameters.photonDnnThresholds = cms.PSet(
+            photonDnnBarrelThr = cms.double(0.70),
+            photonDnnEndcapThr = cms.double(0.79)
+)
+
 from Configuration.Eras.Modifier_pf_badHcalMitigationOff_cff import pf_badHcalMitigationOff
 pf_badHcalMitigationOff.toModify(particleFlowTmp.PFEGammaFiltersParameters,
                                  electron_protectionsForBadHcal = dict(enableProtections = False),
