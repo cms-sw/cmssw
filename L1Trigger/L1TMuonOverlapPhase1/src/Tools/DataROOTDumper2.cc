@@ -33,22 +33,6 @@ DataROOTDumper2::DataROOTDumper2(const edm::ParameterSet& edmCfg,
                                         << " event.omtfGpResultsPdfSum.num_elements() " << endl;
   initializeTTree(rootFileName);
 
-  /*  if (false) {                                           //TODO!!!!!!!!!!!!
-    gpResultsToPt = new GpResultsToPt(gps, omtfConfig);  //TODO move to processor
-
-    std::string fileName = edmCfg.getParameter<std::string>("gpResultsToPtFile");
-    std::ifstream ifs(fileName);
-
-    boost::archive::text_iarchive inArch(ifs);
-    //boost::archive::text_oarchive txtOutArch(ofs);
-
-    //const PdfModule* pdfModuleImpl = dynamic_cast<const PdfModule*>(pdfModule);
-    // write class instance to archive
-    edm::LogImportant("l1tOmtfEventPrint")
-        << __FUNCTION__ << ": " << __LINE__ << " writing gpResultsToPt to file " << fileName << std::endl;
-    inArch >> *gpResultsToPt;
-  }*/
-
   edm::LogVerbatim("l1tOmtfEventPrint") << " DataROOTDumper2 created" << std::endl;
 }
 
@@ -105,20 +89,19 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
   if (simMuon == nullptr || !omtfCand->isValid())  //no sim muon or empty candidate
     return;
 
-  //PatternOptimizerBase::observeEventEnd(iEvent, finalCandidates); not needed
-
   omtfEvent.muonPt = simMuon->momentum().pt();
   omtfEvent.muonEta = simMuon->momentum().eta();
 
+  //TODO add cut on ete if needed
   /*  if(abs(event.muonEta) < 0.8 || abs(event.muonEta) > 1.24)
     return;*/
 
   omtfEvent.muonPhi = simMuon->momentum().phi();
   omtfEvent.muonCharge = muonCharge;  //TODO
 
-  if (omtfCand->getPt() > 0) {                         //&& omtfCand->getFiredLayerCnt() > 3
-    omtfEvent.omtfPt = (omtfCand->getPt() - 1) / 2.0;  //TODO check
-    omtfEvent.omtfEta = omtfCand->getEtaHw() / 240. * 2.61;
+  if (omtfCand->getPt() > 0) {  //&& omtfCand->getFiredLayerCnt() > 3 TODO add to the if needed
+    omtfEvent.omtfPt = omtfConfig->hwPtToGev(omtfCand->getPt());
+    omtfEvent.omtfEta = omtfConfig->hwEtaToEta(omtfCand->getEtaHw());
     omtfEvent.omtfPhi = omtfCand->getPhi();
     omtfEvent.omtfCharge = std::pow(-1, regionalMuonCand.hwSign());
     omtfEvent.omtfScore = omtfCand->getPdfSum();
@@ -129,10 +112,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
 
     omtfEvent.hits.clear();
 
-    //unsigned int iRefHit = omtfCand->getRefHitNumber();
-
     auto& gpResult = omtfCand->getGpResult();
-    //int pdfMiddle = 1<<(omtfConfig->nPdfAddrBits()-1);
 
     /*
     edm::LogVerbatim("l1tOmtfEventPrint")<<"DataROOTDumper2:;observeEventEnd muonPt "<<event.muonPt<<" muonCharge "<<event.muonCharge
@@ -149,26 +129,19 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
         hit.eta = stubResult.getMuonStub()->etaHw;  //in which scale?
         hit.valid = stubResult.getValid();
 
-        /*int phiDist = stubResult.getPdfBin() - pdfMiddle;
-
-        phiDist = (phiDist << omtfCand->getGoldenPatern()->getDistPhiBitShift(iLogicLayer, omtfCand->getRefLayer()) );
-        phiDist += (omtfCand->getGoldenPatern()->meanDistPhiValue(iLogicLayer, omtfCand->getRefLayer()) ); //removing the shift applied in the GoldenPatternBase::process1Layer1RefLayer
-        //TODO include the phiDist = phiDist >> this->getDistPhiBitShift(iLayer, iRefLayer); applied in the GoldenPatternBase::process1Layer1RefLaye
-        hit.phiDist = phiDist;*/
-
         int hitPhi = stubResult.getMuonStub()->phiHw;
         unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[omtfCand->getRefLayer()];
         int phiRefHit = gpResult.getStubResults()[refLayerLogicNum].getMuonStub()->phiHw;
 
         if (omtfConfig->isBendingLayer(iLogicLayer)) {
           hitPhi = stubResult.getMuonStub()->phiBHw;
-          phiRefHit = 0;  //phi ref hit for the banding layer set to 0, since it should not be included in the phiDist
+          phiRefHit = 0;  //phi ref hit for the bending layer set to 0, since it should not be included in the phiDist
         }
 
         //phiDist = hitPhi - phiRefHit;
         hit.phiDist = hitPhi - phiRefHit;
 
-        /* edm::LogVerbatim("l1tOmtfEventPrint")<<" muonPt "<<event.muonPt<<" omtfPt "<<event.omtfPt<<" RefLayer "<<event.omtfRefLayer
+        /* LogTrace("l1tOmtfEventPrint")<<" muonPt "<<event.muonPt<<" omtfPt "<<event.omtfPt<<" RefLayer "<<event.omtfRefLayer
             <<" layer "<<int(hit.layer)<<" PdfBin "<<stubResult.getPdfBin()<<" hit.phiDist "<<hit.phiDist<<" valid "<<stubResult.getValid()<<" " //<<" phiDist "<<phiDist
             <<" getDistPhiBitShift "<<omtfCand->getGoldenPatern()->getDistPhiBitShift(iLogicLayer, omtfCand->getRefLayer())
             <<" meanDistPhiValue   "<<omtfCand->getGoldenPatern()->meanDistPhiValue(iLogicLayer, omtfCand->getRefLayer())//<<(phiDist != hit.phiDist? "!!!!!!!<<<<<" : "")
@@ -191,8 +164,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
       }
     }
 
+    //debug
     /*if( (int)event.hits.size() != omtfCand->getQ()) {
-      edm::LogVerbatim("l1tOmtfEventPrint")<<" muonPt "<<event.muonPt<<" omtfPt "<<event.omtfPt<<" RefLayer "<<event.omtfRefLayer
+      LogTrace("l1tOmtfEventPrint")<<" muonPt "<<event.muonPt<<" omtfPt "<<event.omtfPt<<" RefLayer "<<event.omtfRefLayer
                     <<" hits.size "<<event.hits.size()<<" omtfCand->getQ "<<omtfCand->getQ()<<" !!!!!!!!!!!!!!!!!!aaa!!!!!!"<<endl;
     }*/
 

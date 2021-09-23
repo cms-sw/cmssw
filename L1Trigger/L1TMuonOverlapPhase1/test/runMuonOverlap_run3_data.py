@@ -28,7 +28,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         #                ), 
         
         omtfEventPrint = cms.untracked.PSet(    
-                         filename  = cms.untracked.string('log_MuonOverlap_oldPats_1'),
+                         filename  = cms.untracked.string('log_MuonOverlap_run3_data'),
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('INFO'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -52,9 +52,13 @@ process.source = cms.Source('PoolSource',
  #fileNames = cms.untracked.vstring('file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root')
 # fileNames = cms.untracked.vstring("file:///eos/user/k/kbunkow/cms_data/mc/PhaseIITDRSpring19DR/PhaseIITDRSpring19DR_Mu_FlatPt2to100_noPU_v31_E0D5C6A5-B855-D14F-9124-0B2C9B28D0EA_dump4000Ev.root")
  fileNames = cms.untracked.vstring(
-     '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root',
-     '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'),
-                     
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root',
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root',
+     
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root', # only DT, fw 0x0008
+     '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'   
+     ),             
  )
 	                    
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
@@ -72,15 +76,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_v3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_v3', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v16', '')
  
 
 
 ####Event Setup Producer
-#process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-#process.omtfParams.configXMLFile =  cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0006.xml")
+process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
+#process.omtfParams.configXMLFile =  cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
 
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
@@ -91,9 +95,19 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 )
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1.root'), closeFileFast = cms.untracked.bool(True) )
-								
+						
+                        
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load('EventFilter.L1TRawToDigi.omtfStage2Digis_cfi') #unpacker
+
+		
 ####OMTF Emulator
 process.load('L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_cfi')
+
+process.simOmtfDigis.srcDTPh = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcDTTh = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcCSC = cms.InputTag('omtfStage2Digis')
+process.simOmtfDigis.srcRPC = cms.InputTag('omtfStage2Digis')
 
 process.simOmtfDigis.bxMin = cms.int32(0)
 process.simOmtfDigis.bxMax = cms.int32(0)
@@ -129,7 +143,7 @@ process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.L1TMuonSeq = cms.Sequence(  process.esProd    +      
-                                    process.simOmtfDigis 
+                                    process.omtfStage2Digis + process.simOmtfDigis 
                                    #+ process.dumpED
                                    #+ process.dumpES
 )

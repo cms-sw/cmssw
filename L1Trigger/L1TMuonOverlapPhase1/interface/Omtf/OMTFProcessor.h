@@ -10,7 +10,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinputMaker.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/ProcessorBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/SorterBase.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/SorterBase.h"
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/PtAssignmentBase.h"
 
@@ -101,8 +100,8 @@ private:
 
   std::unique_ptr<IGhostBuster> ghostBuster;
 
+  //ptAssignment should be destroyed where it is created, i.e. by OmtfEmulation or OMTFReconstruction
   PtAssignmentBase* ptAssignment = nullptr;
-  //should be destroyed where it is created, i.e. by OmtfEmulation or OMTFReconstruction
 };
 
 #endif

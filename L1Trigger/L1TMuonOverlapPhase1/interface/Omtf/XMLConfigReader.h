@@ -39,7 +39,7 @@ public:
   void setEventsFile(const std::string& fName) { eventsFile = fName; }
 
   /*
-   * if buildEmptyPatterns == true - the patterns with the thePt = 0 are added to the to t the output vector of the goledePatterns
+   * if buildEmptyPatterns == true - the patterns with the thePt = 0 are added to the to the output vector of the goledePatterns
    * it is needed in the readLUTs, as only with the empty patterns it is possible to obtain the patterns grouping from the LUTs in the L1TMuonOverlapParams
    */
   template <class GoldenPatternType>
@@ -74,12 +74,6 @@ private:
                                              unsigned int patternGroup,
                                              unsigned int index = 0,
                                              unsigned int aGPNumber = 999);
-
-  //  xercesc::XercesDOMParser *parser;
-  //  xercesc::DOMDocument* doc;
-
-  ///Cache with GPs read.
-  //std::vector<std::shared_ptr<GoldenPattern>> aGPs;
 
   unsigned int iGPNumber = 0;
   unsigned int iPatternGroup = 0;

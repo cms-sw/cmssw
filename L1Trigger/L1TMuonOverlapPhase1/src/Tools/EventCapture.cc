@@ -100,6 +100,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
 
     //candidateSimMuonMatcher should use the  trackingParticles, because the simTracks are not stored for the pile-up events
     for (auto& matchingResult : matchingResults) {
+      //TODO choose a condition, to print the desired candidates
       if (matchingResult.muonCand && matchingResult.muonCand->hwQual() >= 12 &&
           matchingResult.muonCand->hwPt() > 38) {  //&& matchingResult.genPt < 20
         dump = true;
@@ -132,6 +133,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     bool wasSimMuInOmtfPos = false;
     bool wasSimMuInOmtfNeg = false;
     for (auto& simMuon : simMuons) {
+      //TODO choose a condition, to print the desired events
       if (simMuon->eventId().event() == 0 && abs(simMuon->momentum().eta()) > 0.82 &&
           abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 3.) {
         ostr << "SimMuon: eventId " << simMuon->eventId().event() << " pdgId " << std::setw(3) << simMuon->type()
@@ -150,6 +152,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     bool wasCandInPos = false;
 
     for (auto& finalCandidate : *finalCandidates) {
+      //TODO choose a condition, to print the desired candidates
       if (finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 &&
           finalCandidate.hwPt() > 20)
         wasCandInNeg = true;
@@ -164,21 +167,18 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
 
     if ((wasSimMuInOmtfPos && wasCandInPos))  //TODO
       dump = true;
+  } else {
+    //TODO choose a condition, to print the desired candidates
+    // an example of a simple cut, only on the canidate pt
+    /*
+    for (auto& finalCandidate : *finalCandidates) {
+      if (finalCandidate.hwPt() < 41) {  //  finalCandidate.hwQual() >= 1  41
+        dump = true;
+      }
+    } */
+    //!!!!!!!!!!!!!!!!!!!!!!!! TODO dumps all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    dump = true;  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   }
-
-  /*  dump = true; ///TODO if present then dumps all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if(!dump)
-    return;
-
-  bool dump = false;
-  for (auto& finalCandidate : *finalCandidates) {
-    if (finalCandidate.hwPt() < 41) {  //  finalCandidate.hwQual() >= 1  41
-      dump = true;
-    }
-  }*/
-
-  dump = true;  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  //!!!!!!!!!!!!!!!!!!!!!!!! TODO if present then dumps all events!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   if (!dump)
     return;

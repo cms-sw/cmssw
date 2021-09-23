@@ -1,7 +1,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/MuonStubMakerBase.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/ProcConfigurationBase.h"
 
-#include "DataFormats/Common/interface/HandleBase.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
@@ -43,9 +42,7 @@ void DtDigiToStubsConverter::makeStubs(
       }
     }
   }
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
-  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);std::endl;
-  //angleConverter->AngleConverterBase::getGlobalEta(dtThDigis, 0, 0);
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" iProcessor "<<iProcessor<<std::endl;
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -85,8 +82,8 @@ void RpcDigiToStubsConverter::makeStubs(
   const RPCDigiCollection& rpcDigiCollection = *rpcDigis;
   for (auto rollDigis : rpcDigiCollection) {
     RPCDetId roll = rollDigis.first;
-    //unsigned int rawid = roll.rawId();
 
+    //debug
     //if(roll.region() != 0  &&  abs(roll.station()) >= 3 && roll.ring() == 1 )
     /*    {
       //iRPC
@@ -134,9 +131,6 @@ void MuonStubMakerBase::initialize(const edm::ParameterSet& edmCfg,
                                    const MuonGeometryTokens& muonGeometryTokens) {
   rpcClusterization.configure(
       config->getRpcMaxClusterSize(), config->getRpcMaxClusterCnt(), config->getRpcDropAllClustersIfMoreThanMax());
-
-  //  for(auto& digiToStubsConverter: digiToStubsConverters)
-  //    digiToStubsConverter->initialize(edmCfg, es, config); //TODO is it needed at all??
 }
 ///////////////////////////////////////
 ///////////////////////////////////////

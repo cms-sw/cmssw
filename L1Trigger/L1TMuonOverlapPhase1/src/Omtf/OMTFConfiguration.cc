@@ -145,7 +145,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
         unsigned int nInputsInRegion = layerInputMap->at(tmpIndex).nInputs;
         connections[iProcessor][iLogicRegion][iLayer] =
             std::pair<unsigned int, unsigned int>(iFirstInput, nInputsInRegion);
-        ///Symetrize connections. Use th same connections for all processors
+        ///Symetrize connections. Use the same connections for all processors
         if (iProcessor != 0)
           connections[iProcessor][iLogicRegion][iLayer] = connections[0][iLogicRegion][iLayer];
       }
@@ -159,6 +159,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
 
   //configuration based on the firmware version parameter
   //TODO add next entries for the new firmware
+  //the default values of the parameters are used, if not set here, so don't mess them!
   if (fwVersion() <= 4) {
     setMinDtPhiQuality(4);
   } else if (fwVersion() == 5) {
@@ -183,9 +184,6 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams) {
 
     setGhostBusterType("GhostBusterPreferRefDt");
   }
-
-  //if (fwVersion() <= 6) {
-  //setGoldenPatternResultFinalizeFunction(0); //TODO add other if in the new algorithm it is changed
 }
 
 void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &edmParameterSet) {
@@ -325,11 +323,12 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
 
   return hwNumber;
 }
+
 ///////////////////////////////////////////////
-// phiRad [-pi,pi]
+// phiRad should be in the range [-pi,pi]
 int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) const {
   double phi15deg =
-      M_PI / 3. * (iProcessor) + M_PI / 12.;  // "0" is 15degree moved cyclicaly to each processor, note [0,2pi]
+      M_PI / 3. * (iProcessor) + M_PI / 12.;  // "0" is 15degree moved cyclically to each processor, note [0,2pi]
 
   const double phiUnit = 2 * M_PI / nPhiBins();  //rad/unit
 
@@ -352,20 +351,13 @@ int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) c
   return lround((phiRad - phi15deg) / phiUnit);  //FIXME lround or floor ???
 }
 
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 double OMTFConfiguration::procHwPhiToGlobalPhi(int procHwPhi, int procHwPhi0) const {
   int globalHwPhi = foldPhi(procHwPhi + procHwPhi0);
   const double phiUnit = 2 * M_PI / nPhiBins();  //rad/unit
   return globalHwPhi * phiUnit;
 }
-/*int OMTFConfiguration::foldPhi(int phi) const {
-  int phiBins = nPhiBins();
-  if(phi > phiBins/2)
-    return (phi - phiBins );
-  else if(phi < -phiBins /2)
-    return (phi + phiBins );
-
-  return phi;
-}*/
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////

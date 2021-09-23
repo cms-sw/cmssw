@@ -27,7 +27,6 @@ ProcessorBase<GoldenPatternType>::ProcessorBase(OMTFConfiguration* omtfConfig,
 
   initPatternPtRange(true);
 
-  //initPatternPtRange(true); is called in the setGPs
   omtfConfig->setPatternPtRange(getPatternPtRange());
 };
 
@@ -75,15 +74,13 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
     indexInGroup = iGP % myOmtfConfig->patternsInGroup + 1;
     Key aKey(iEta, iPt, iCharge, theGPs.size(), group, indexInGroup);
     if (iPt == 0) {
-      LogTrace("OMTFReconstruction")
-          << "skipping empty pattern " << aKey << " "
-          << std::endl;  //<<myOmtfConfig->getPatternPtRange(iGP).ptFrom<<" - "<<myOmtfConfig->getPatternPtRange(iGP).ptTo<<" GeV"<<std::endl; PatternPtRange is not initialized here yet!!!!
+      LogTrace("OMTFReconstruction") << "skipping empty pattern " << aKey << " " << std::endl;
+      //<<myOmtfConfig->getPatternPtRange(iGP).ptFrom<<" - "<<myOmtfConfig->getPatternPtRange(iGP).ptTo<<" GeV"<<std::endl; PatternPtRange is not initialized here yet, so do not use it!!!!
       continue;
     }
 
-    LogTrace("OMTFReconstruction")
-        << "adding pattern " << aKey << " "
-        << std::endl;  //<<myOmtfConfig->getPatternPtRange(iGP).ptFrom<<" - "<<myOmtfConfig->getPatternPtRange(iGP).ptTo<<" GeV"<<std::endl; PatternPtRange is not initialized here yet!!!!
+    LogTrace("OMTFReconstruction") << "adding pattern " << aKey << " " << std::endl;
+    //<<myOmtfConfig->getPatternPtRange(iGP).ptFrom<<" - "<<myOmtfConfig->getPatternPtRange(iGP).ptTo<<" GeV"<<std::endl; PatternPtRange is not initialized here yet, so do not use it!!!!
 
     GoldenPatternType* aGP = new GoldenPatternType(aKey, myOmtfConfig);
 
@@ -120,7 +117,7 @@ bool ProcessorBase<GoldenPatternType>::configure(OMTFConfiguration* omtfConfig,
           int value = pdfLUT->data(address);  //here only int is possible
           aGP->setPdfValue(value, iLayer, iRefLayer, iPdf);
 
-          //edm::LogVerbatim("OMTFReconstruction")<<" iLayer "<<iLayer<<" iRefLayer "<<iRefLayer<<" iPdf "<<iPdf << " address "<<address<<" value "<<value<<std::endl;
+          //LogTrace("OMTFReconstruction") <<" iLayer "<<iLayer<<" iRefLayer "<<iRefLayer<<" iPdf "<<iPdf << " address "<<address<<" value "<<value<<std::endl;
         }
       }
     }
@@ -162,7 +159,7 @@ MuonStubPtrs1D ProcessorBase<GoldenPatternType>::restrictInput(unsigned int iPro
         layerStubs.push_back(input.getMuonStub(iLayer, iInput));  //input.getHitPhi(iLayer, iInput)
     }
   }
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" layerHits.size() "<<layerHits.size()<<std::endl;
+  //LogTrace("OMTFReconstruction") <<__FUNCTION__<<":"<<__LINE__<<" layerHits.size() "<<layerHits.size()<<std::endl;
   return layerStubs;
 }
 
@@ -210,8 +207,9 @@ void ProcessorBase<GoldenPatternType>::initPatternPtRange(bool firstPatFrom0) {
     patternPts.push_back(patternPt);
   }
 
+  //debug
   /*  for(unsigned int iPat = 0; iPat < theGPs.size(); iPat++) {
-    std::cout<<theGPs[iPat]->key()<<" ptFrom "<<patternPts[iPat].ptFrom<<" ptFrom "<<patternPts[iPat].ptTo<<std::endl;
+    LogTrace("OMTFReconstruction") <<theGPs[iPat]->key()<<" ptFrom "<<patternPts[iPat].ptFrom<<" ptFrom "<<patternPts[iPat].ptTo<<std::endl;
   }*/
 
   edm::LogTrace_("OMTFReconstruction") << __FUNCTION__ << ":" << __LINE__ << " patternPts.size() " << patternPts.size()

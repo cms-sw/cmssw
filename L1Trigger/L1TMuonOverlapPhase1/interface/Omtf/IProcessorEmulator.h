@@ -21,13 +21,7 @@ class IProcessorEmulator {
 public:
   virtual ~IProcessorEmulator() {}
 
-  ///Fill GP vec with patterns from CondFormats object
-  //virtual bool configure(const OMTFConfiguration * omtfParams, const L1TMuonOverlapParams* omtfPatterns) = 0;
-
   virtual void processInput(unsigned int iProcessor, l1t::tftype mtfType, const OMTFinput& aInput) = 0;
-
-  ///allows to use other sorter implementation than the default one
-  //virtual void setSorter(SorterBase<GoldenPatternType>* sorter);
 
   ///allows to use other IGhostBuster implementation than the default one
   virtual void setGhostBuster(IGhostBuster* ghostBuster) = 0;

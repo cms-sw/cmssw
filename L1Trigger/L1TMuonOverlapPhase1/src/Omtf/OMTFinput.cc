@@ -8,12 +8,8 @@
 const int inputsPerLayer = 14;
 OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig) : MuonStubsInput(omtfConfig) {
   myOmtfConfig = omtfConfig;
-  //muonStubsInLayers.assign(omtfConfig->nLayers(), std::vector<MuonStub>(inputsPerLayer, MuonStub(myOmtfConfig->nPhiBins(), myOmtfConfig->nPhiBins())) );
-  muonStubsInLayers.assign(
-      omtfConfig->nLayers(),
-      std::vector<MuonStubPtr>(
-          inputsPerLayer));  //, MuonStub(myOmtfConfig->nPhiBins(), myOmtfConfig->nPhiBins()) TODO do we want to create the MuonStubs for every input???
-  //clear();
+  muonStubsInLayers.assign(omtfConfig->nLayers(), std::vector<MuonStubPtr>(inputsPerLayer));
+  //nullptrs are assigned here for every input
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
@@ -67,91 +63,6 @@ std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const {
 
   return refHits;
 }
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
-/*bool OMTFinput::addLayerHit(unsigned int iLayer,
-			    unsigned int iInput,
-			    int iPhi, int iEta, bool allowOverwrite){
-
-  bool overwrite = false;
-  assert(iLayer<myOmtfConfig->nLayers());
-  assert(iInput<14); //FIXME define parameters for this 14
-
-  if(iPhi>=(int)myOmtfConfig->nPhiBins())
-    return true;
-
-  if(allowOverwrite && muonStubsInLayers[iLayer][iInput].phiHw == iPhi && muonStubsInLayers[iLayer][iInput].etaHw == iEta)
-    return true;
-
-  if(muonStubsInLayers[iLayer][iInput].phiHw != (int)myOmtfConfig->nPhiBins()) ++iInput;
-  if(muonStubsInLayers[iLayer][iInput].phiHw != (int)myOmtfConfig->nPhiBins()) overwrite = true;
-  
-  if(iInput >= 14)
-    return true;
-  
-  muonStubsInLayers[iLayer][iInput].phiHw = iPhi;
-  muonStubsInLayers[iLayer][iInput].etaHw = iEta;
-
-  return overwrite;				      
-}*/
-
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
-/*void OMTFinput::readData(XMLConfigReader *aReader,
-			 unsigned int iEvent,
-			 unsigned int iProcessor){
-
-  measurementsPhi = aReader->readEvent(iEvent, iProcessor);
-  measurementsEta = aReader->readEvent(iEvent, iProcessor, true);
-  
-}*/
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
-/*void OMTFinput::mergeData(const OMTFinput *aInput){
-
-  for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
-    const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
-    const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
-    if(aPhiVec.empty()) continue;
-
-    OMTFinput::vector1D layerData = getLayerData(iLayer, false);
-    for(unsigned int iInput=0;iInput<14;++iInput){      
-      addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
-    }
-  }
-}*/
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
-/*void OMTFinput::clear() {
-  for(auto& muonStubsInLayer : muonStubsInLayers) {
-    for(auto& muonStub : muonStubsInLayer) {
-      muonStub = MuonStub();
-      muonStub.phiHw = myOmtfConfig->nPhiBins();
-      muonStub.phiBHw = myOmtfConfig->nPhiBins();
-    }
-  }
-}*/
-///////////////////////////////////////////////////
-///////////////////////////////////////////////////
-/*void  OMTFinput::shiftMyPhi(int phiShift){
-
-  int lowScaleEnd = std::pow(2,myOmtfConfig->nPhiBits()-1);
-  int highScaleEnd = lowScaleEnd-1;
-
-for(unsigned int iLogicLayer=0;iLogicLayer<measurementsPhi.size();++iLogicLayer){
-    for(unsigned int iHit=0;iHit<measurementsPhi[iLogicLayer].size();++iHit){
-      if(!myOmtfConfig->getBendingLayers().count(iLogicLayer) &&
-	 measurementsPhi[iLogicLayer][iHit]<(int)myOmtfConfig->nPhiBins()){
-	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=myOmtfConfig->nPhiBins();
-	measurementsPhi[iLogicLayer][iHit]-=phiShift;
-	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=myOmtfConfig->nPhiBins();
-	measurementsPhi[iLogicLayer][iHit]+=-lowScaleEnd;
-	if(measurementsPhi[iLogicLayer][iHit]<-lowScaleEnd ||
-	   measurementsPhi[iLogicLayer][iHit]>highScaleEnd) measurementsPhi[iLogicLayer][iHit] = (int)myOmtfConfig->nPhiBins();	   
-      }
-    }
-  }
-}*/
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const OMTFinput& aInput) {

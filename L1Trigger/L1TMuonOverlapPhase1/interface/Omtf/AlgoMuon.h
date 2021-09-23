@@ -62,18 +62,6 @@ public:
   void setQ(int q) { m_q = q; }
   void setEta(int eta) { gpResult.setEta(eta); }
 
-  /*  void setDisc(omtfPdfValueType disc) { m_disc = disc; }
-  void setPhi(int phi)   { m_phi = phi; }
-
-  void setRefLayer(int refLayer) { m_refLayer = refLayer; }
-  void setHits(int hits) { m_firedLayerBits = hits; }
-
-  void setBx(int bx)  { m_bx = bx; }
-  void setPt(int pt)  { m_pt = pt; }
-  void setCharge(int charge)   { m_charge = charge; }
-  void setPhiRHit(int phiRHit) { m_phiRHit = phiRHit; }
-  void setPatternNumber(unsigned int aPatNum) { m_patNumb = aPatNum;}*/
-
   void setRefHitNumber(unsigned int aRefHitNum) { m_rhitNumb = aRefHitNum; }
 
   bool isValid() const override;
@@ -88,26 +76,14 @@ public:
 
   const bool isKilled() const { return killed; }
 
-  /*  unsigned int getTrackIndex() const {
-    return index;
-  }
-
-  void setTrackIndex(unsigned int index) {
-    this->index = index;
-  }*/
-
-  void kill() {
-    killed = true;
-    //FIXME maybe also valid = false???
-  }
+  void kill() { killed = true; }
 
   bool operator<(const AlgoMuon& o) const;
 
   friend std::ostream& operator<<(std::ostream& out, const AlgoMuon& o);
 
 private:
-  ///gpResult stored in the goldenPatern can be updated more then once in one event (many ttTracks in one event in one processor!),
-  ///so gpResult cannot be a reference or pointer but a copy
+  ///FIXME maybe the gpResult cannot be a reference or pointer, ad not a copy
   GoldenPatternResult gpResult;
 
   GoldenPatternBase* goldenPatern = nullptr;
@@ -115,19 +91,6 @@ private:
   int m_q = -1;
   int m_bx = 0;
 
-  /*  omtfPdfValueType m_disc;
-  int m_phi;
-  int m_eta;
-  int m_refLayer;
-  int m_firedLayerBits;
-
-
-  int m_pt;
-  int m_charge;
-  int m_phiRHit;
-  // to add 
-  // int m_pdf; 
-  unsigned int m_patNumb;*/
   unsigned int m_rhitNumb = 0;
 
   bool killed = false;

@@ -36,8 +36,6 @@ StubsSimHitsMatcher::StubsSimHitsMatcher(const edm::ParameterSet& edmCfg,
                                          const OMTFConfiguration* omtfConfig,
                                          const MuonGeometryTokens& muonGeometryTokens)
     : omtfConfig(omtfConfig), muonGeometryTokens(muonGeometryTokens) {
-  //rpcSimHitsInputTag = edmCfg.getParameter<edm::InputTag>("MuonRPCHits");
-  //rpcSimHitsInputTag = edm::InputTag("g4SimHits", "MuonRPCHits");
   rpcSimHitsInputTag = edmCfg.getParameter<edm::InputTag>("rpcSimHitsInputTag");
   cscSimHitsInputTag = edmCfg.getParameter<edm::InputTag>("cscSimHitsInputTag");
   dtSimHitsInputTag = edmCfg.getParameter<edm::InputTag>("dtSimHitsInputTag");
@@ -83,9 +81,7 @@ StubsSimHitsMatcher::StubsSimHitsMatcher(const edm::ParameterSet& edmCfg,
   rhoByPdgId->SetCanExtend(TH1::kAllAxes);
 }
 
-StubsSimHitsMatcher::~StubsSimHitsMatcher() {
-  // TODO Auto-generated destructor stub
-}
+StubsSimHitsMatcher::~StubsSimHitsMatcher() {}
 
 void StubsSimHitsMatcher::beginRun(edm::EventSetup const& eventSetup) {
   if (muonGeometryRecordWatcher.check(eventSetup)) {
@@ -247,7 +243,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
 
             auto chamber = _geodt->chamber(DTLayerId(stub->detId));
             for (auto superlayer : chamber->superLayers()) {
-              if (superlayer->id().superLayer() == 2)  //we skip te theta layer
+              if (superlayer->id().superLayer() == 2)  //we skip the theta layer
                 continue;
               for (auto layer : superlayer->layers()) {
                 auto dtDigiSimLinks = dtDigiSimLinkHandle.product()->get(layer->id());
@@ -358,7 +354,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
 
             break;
           }  //end of CSC case
-        }    //end of swithc
+        }    //end of switch
         ostr << "" << std::endl;
       }
     }

@@ -100,16 +100,13 @@ public:
   OMTFinputMaker(const edm::ParameterSet& edmParameterSet,
                  MuStubsInputTokens& muStubsInputTokens,
                  const OMTFConfiguration* config,
-                 OmtfAngleConverter* angleConv);
+                 std::unique_ptr<OmtfAngleConverter> angleConverter);
 
   ~OMTFinputMaker() override;
 
   void initialize(const edm::ParameterSet& edmCfg,
                   const edm::EventSetup& es,
                   const MuonGeometryTokens& muonGeometryTokens) override;
-
-  void setFlag(int aFlag) { flag = aFlag; }
-  int getFlag() const { return flag; }
 
   ///iProcessor - from 0 to 5
   ///returns the global phi in hardware scale (myOmtfConfig->nPhiBins() ) at which the scale starts for give processor
@@ -139,8 +136,6 @@ public:
 protected:
   const OMTFConfiguration* config = nullptr;
   std::unique_ptr<OmtfAngleConverter> angleConverter;
-
-  int flag = 0;
 };
 
 #endif

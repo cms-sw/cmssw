@@ -24,7 +24,7 @@ namespace {
   }
 
   int fixCscOffsetGeom(int offsetLoc) {
-    // fix for CSC feo dependance from GlobalTag
+    // fix for CSC geo dependence from GlobalTag
 
     // dump of CSC offsets for MC global tag
     const std::vector<int> offCSC = {-154, -133, -17, -4,  4,   17,  133, 146, 154, 167, 283, 296, 304, 317,
@@ -47,15 +47,6 @@ AngleConverterBase::~AngleConverterBase() {}
 void AngleConverterBase::checkAndUpdateGeometry(const edm::EventSetup& es,
                                                 const ProcConfigurationBase* config,
                                                 const MuonGeometryTokens& muonGeometryTokens) {
-  /*  const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
-  unsigned long long geomid = geom.cacheIdentifier();
-  if (_geom_cache_id != geomid) {
-    geom.get(_georpc);
-    geom.get(_geocsc);
-    geom.get(_geodt);
-    _geom_cache_id = geomid;
-  }*/
-
   if (muonGeometryRecordWatcher.check(es)) {
     _georpc = es.getHandle(muonGeometryTokens.rpcGeometryEsToken);
     _geocsc = es.getHandle(muonGeometryTokens.cscGeometryEsToken);
@@ -72,14 +63,9 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, int dtScN
   double hsPhiPitch = 2 * M_PI / nPhiBins;  // width of phi Pitch, related to halfStrip at CSC station 2
 
   int sector = dtScNum + 1;  //NOTE: there is a inconsistency in DT sector numb. Thus +1 needed to get detector numb.
-  //int wheel   = digi.whNum();
-  //int station = digi.stNum();
-  //int phiDT   = digi.phi();
 
-  //int offsetLoc = lround( ((ichamber-1)*M_PI/6+M_PI/12.)/hsPhiPitch );
   double scale = 1. / dtPhiBins / hsPhiPitch;
   int scale_coeff = lround(scale * pow(2, 11));
-  //  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
 
   int ichamber = sector - 1;
   if (ichamber > 6)
@@ -89,7 +75,7 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, int dtScN
 
   int phiConverted = floor(dtPhi * scale_coeff / pow(2, 11)) + offsetGlobal - phiZero;
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" phiZero "<<phiZero<<" phiDT "<<phiDT<<" sector "<<sector<<" ichamber "<<ichamber<<" offsetGlobal "<<offsetGlobal<<" phi "<<phi<<" foldPhi(phi) "<<omtfConfig->foldPhi(phi)<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" phiZero "<<phiZero<<" phiDT "<<phiDT<<" sector "<<sector<<" ichamber "<<ichamber<<" offsetGlobal "<<offsetGlobal<<" phi "<<phi<<" foldPhi(phi) "<<omtfConfig->foldPhi(phi)<<std::endl;
   return config->foldPhi(phiConverted);
 }
 ///////////////////////////////////////
@@ -123,8 +109,6 @@ int AngleConverterBase::getProcessorPhi(int phiZero,
   if (fabs(scale - 1.) < 0.0002)
     scale = 1.;
 
-  //double phiHalfStrip0 = layer->centerOfStrip(10).phi() - order*9*stripPhiPitch - order*stripPhiPitch/4.; //KB are the strips enumerated from 1??? - only then this has sense
-
   double phiHalfStrip0 = layer->centerOfStrip(1).phi() - order * stripPhiPitch / 4.;
 
   int offsetLoc = lround((phiHalfStrip0) / hsPhiPitch - phiZero);
@@ -142,16 +126,16 @@ int AngleConverterBase::getProcessorPhi(int phiZero,
 
   int fixOff = offsetLoc;
   // a quick fix for towards geometry changes due to global tag.
-  // in case of MC tag fixOff shold be identical to offsetLoc
+  // in case of MC tag fixOff should be identical to offsetLoc
 
   if (config->getFixCscGeometryOffset())
-    fixOff = fixCscOffsetGeom(offsetLoc);  //TODO does not work in correlator, i.e. when phiZero is always 0. .Fix this
+    fixOff = fixCscOffsetGeom(offsetLoc);  //TODO does not work in when phiZero is always 0. Fix this
 
   int phi = fixOff + order * scale * halfStrip;
   //the phi conversion is done like above - and not simply converting the layer->centerOfStrip(halfStrip/2 +1).phi() - to mimic this what is done by the firmware,
   //where phi of the stub is calculated with use of the offset and scale provided by an register
 
-  /*
+  /*//debug
   auto localPoint = layer->toLocal(layer->centerOfStrip(halfStrip));
   LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << 147 << " csc: " <<csc.rawId()<<" "<< csc<<" layer "<<layer->id()<<" "<<layer->id().rawId()
       << " halfStrip "<<halfStrip<<" phiGlobal " << layer->centerOfStrip(halfStrip).phi()<<" local phi "<<localPoint.phi()<<" x "<<localPoint.x()<<" y "<<localPoint.y() <<std::endl;
@@ -183,7 +167,6 @@ int AngleConverterBase::getProcessorPhi(
 
   double stripPhi1 = (roll->toGlobal(roll->centreOfStrip((int)digi1))).phi();  // note [-pi,pi]
   double stripPhi2 = (roll->toGlobal(roll->centreOfStrip((int)digi2))).phi();  // note [-pi,pi]
-  // stripPhi from geometry is given in [-pi,pi] range.
 
   // the case when the two strips are on different sides of phi = pi
   if (std::signbit(stripPhi1) != std::signbit(stripPhi2) && abs(stripPhi1) > M_PI / 2.) {
@@ -216,8 +199,9 @@ int AngleConverterBase::getProcessorPhi(unsigned int iProcessor,
   if (!roll)
     return dummy;
 
-  double phi15deg =
-      M_PI / 3. * (processor - 1) + M_PI / 12.;  // "0" is 15degree moved cyclicaly to each processor, note [0,2pi]
+  double phi15deg = M_PI / 3. * (processor - 1) + M_PI / 12.;
+  // "0" is 15degree moved cyclically to each processor, note [0,2pi]
+
   double stripPhi = (roll->toGlobal(roll->centreOfStrip((int)digi))).phi();  // note [-pi,pi]
 
   // adjust [0,2pi] and [-pi,pi] to get deltaPhi difference properly
@@ -257,7 +241,7 @@ EtaValue AngleConverterBase::getGlobalEtaDt(const DTChamberId& detId) const {
       0   //timin
   };
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rawid "<<detId.rawId()<<" baseid "<<detId<<" chamberMiddleGP.eta() "<<chamberMiddleGP.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" rawid "<<detId.rawId()<<" baseid "<<detId<<" chamberMiddleGP.eta() "<<chamberMiddleGP.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
   return etaValue;
 }
 
@@ -289,7 +273,7 @@ void AngleConverterBase::getGlobalEta(const L1MuDTChambThDigi& thetaDigi, std::v
       };
       etaSegments.emplace_back(etaValue);
 
-      //std::cout<<__FUNCTION__<<":"<<__LINE__<<" bx "<<thetaDigi.bxNum()<<" baseid "<<baseid<<" btiGroup "<<btiGroup<<" quality "<<thetaDigi.quality(btiGroup)<<" theta_gp.eta() "<<theta_gp.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
+      //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" bx "<<thetaDigi.bxNum()<<" baseid "<<baseid<<" btiGroup "<<btiGroup<<" quality "<<thetaDigi.quality(btiGroup)<<" theta_gp.eta() "<<theta_gp.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
     }
   }
 }
@@ -297,7 +281,7 @@ void AngleConverterBase::getGlobalEta(const L1MuDTChambThDigi& thetaDigi, std::v
 std::vector<EtaValue> AngleConverterBase::getGlobalEta(const L1MuDTChambThContainer* dtThDigis,
                                                        int bxFrom,
                                                        int bxTo) const {
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" dtThDigis size "<<dtThDigis->getContainer()->size()<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" dtThDigis size "<<dtThDigis->getContainer()->size()<<std::endl;
 
   std::vector<EtaValue> etaSegments;
 
@@ -350,63 +334,14 @@ EtaValue AngleConverterBase::getGlobalEta(const CSCDetId& detId, const CSCCorrel
   // this works directly with the geometry
   // rather than using the old phi luts
 
-  // we should change this to weak_ptrs at some point
-  // requires introducing std::shared_ptrs to geometry
-  std::unique_ptr<const CSCChamber> chamb(_geocsc->chamber(detId));
-  std::unique_ptr<const CSCLayerGeometry> layer_geom(chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
-  std::unique_ptr<const CSCLayer> layer(chamb->layer(CSCConstants::KEY_ALCT_LAYER));
+  auto chamb = _geocsc->chamber(detId);
+  auto layer_geom = chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry();
+  auto layer = chamb->layer(CSCConstants::KEY_ALCT_LAYER);
 
   const uint16_t keyWG = aDigi.getKeyWG();
-  /*  const uint16_t halfstrip = aDigi.getStrip();
-  const uint16_t pattern = aDigi.getPattern();
-
-  //const unsigned maxStrips = layer_geom->numberOfStrips();
-
-  // so we can extend this later 
-  // assume TMB2007 half-strips only as baseline
-  double offset = 0.0;
-  switch(1) {
-  case 1:
-    offset = CSCPatternLUT::get2007Position(pattern);
-  }
-  const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
-  const unsigned strip = halfstrip_offs/2 + 1; // geom starts from 1
-
-  // the rough location of the hit at the ALCT key layer
-  // we will refine this using the half strip information
-  const LocalPoint coarse_lp = 
-    layer_geom->stripWireGroupIntersection(strip,keyWG);  
-  const GlobalPoint coarse_gp = layer->surface().toGlobal(coarse_lp);  
-  
-  // the strip width/4.0 gives the offset of the half-strip
-  // center with respect to the strip center
-  const double hs_offset = layer_geom->stripPhiPitch()/4.0;
-  
-  // determine handedness of the chamber
-  const bool ccw = isCSCCounterClockwise(layer);
-  // we need to subtract the offset of even half strips and add the odd ones
-  const double phi_offset = ( ( halfstrip_offs%2 ? 1 : -1)*
-			      ( ccw ? -hs_offset : hs_offset ) );
-  
-  // the global eta calculation uses the middle of the strip
-  // so no need to increment it
-  const GlobalPoint final_gp( GlobalPoint::Polar( coarse_gp.theta(),
-						  (coarse_gp.phi().value() + 
-						   phi_offset),
-						  coarse_gp.mag() ) );*/
 
   const LocalPoint lpWg = layer_geom->localCenterOfWireGroup(keyWG);
   const GlobalPoint gpWg = layer->surface().toGlobal(lpWg);
-
-  // release ownership of the pointers
-  chamb.release();
-  layer_geom.release();
-  layer.release();
-
-  //  std::cout <<id<<" st: " << id.station()<< "ri: "<<id.ring()<<" eta: " <<  final_gp.eta()
-  //           <<" etaCode_simple: " <<  etaVal2Code( final_gp.eta() )<< " KW: "<<keyWG <<" etaKeyWG2Code: "<<etaKeyWG2Code(id,keyWG)<< std::endl;
-  //  int station = (id.endcap()==1) ? id.station() : -id.station();
-  //  std::cout <<"ETA_CSC: " << station <<" "<<id.ring()<<" "<< final_gp.eta()<<" "<<keyWG <<" "<< etaKeyWG2Code(id,keyWG) << std::endl;
 
   EtaValue etaSegment = {
       config->etaToHwEta(gpWg.eta()),
@@ -416,24 +351,17 @@ EtaValue AngleConverterBase::getGlobalEta(const CSCDetId& detId, const CSCCorrel
       0  //tming???
   };
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" csc "<<detId<<" eta "<<gpWg.eta()<<" etaHw "<<etaSegment.eta<<" etaSigma "<<etaSegment.etaSigma<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" csc "<<detId<<" eta "<<gpWg.eta()<<" etaHw "<<etaSegment.eta<<" etaSigma "<<etaSegment.etaSigma<<std::endl;
   return etaSegment;
 }
 
-//TODO the CSC ME1/1 has strips divided int tow part a nad b, so this function in principle ca include that, then it should also receive the roll number as parameter, off course implementation should be different then
+//TODO the CSC ME1/1 has strips divided in two parts: a and b, so this function in principle can include that,
+//then it should also receive the roll number as parameter, off course implementation should be different then
 EtaValue AngleConverterBase::getGlobalEtaCsc(const CSCDetId& detId) const {
-  std::unique_ptr<const CSCChamber> chamb(_geocsc->chamber(detId));
-
-  /*  std::unique_ptr<const CSCLayerGeometry> layer_geom(
-                 chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry()
-                 );
-  std::unique_ptr<const CSCLayer> layer(
-          chamb->layer(CSCConstants::KEY_ALCT_LAYER)
-          );*/
+  auto chamb = _geocsc->chamber(detId);
 
   Local2DPoint chamberMiddleLP(0, 0);
   GlobalPoint chamberMiddleGP = chamb->toGlobal(chamberMiddleLP);
-  chamb.release();
 
   EtaValue etaValue = {
       config->etaToHwEta(chamberMiddleGP.eta()),
@@ -443,7 +371,7 @@ EtaValue AngleConverterBase::getGlobalEtaCsc(const CSCDetId& detId) const {
       0   //timnig
   };
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rawid "<<detId.rawId()<<" detId "<<detId<<" chamberMiddleGP.eta() "<<chamberMiddleGP.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" rawid "<<detId.rawId()<<" detId "<<detId<<" chamberMiddleGP.eta() "<<chamberMiddleGP.eta()<<" eta "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
   return etaValue;
 }
 
@@ -452,7 +380,7 @@ EtaValue AngleConverterBase::getGlobalEtaCsc(const CSCDetId& detId) const {
 EtaValue AngleConverterBase::getGlobalEta(unsigned int rawid, const unsigned int& strip) const {
   const RPCDetId id(rawid);
 
-  std::unique_ptr<const RPCRoll> roll(_georpc->roll(id));
+  auto roll = _georpc->roll(id);
   const LocalPoint lp = roll->centreOfStrip((int)strip);
   const GlobalPoint gp = roll->toGlobal(lp);
 
@@ -471,28 +399,27 @@ EtaValue AngleConverterBase::getGlobalEta(unsigned int rawid, const unsigned int
   } else {  //endcap
     neighbRoll = id.roll() + (id.roll() == 1 ? +1 : -1);
   }
-  roll.release();
 
   const RPCDetId idNeigh =
       RPCDetId(id.region(), id.ring(), id.station(), id.sector(), id.layer(), id.subsector(), neighbRoll);
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<id<<std::endl;
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<idNeigh<<std::endl;
-  std::unique_ptr<const RPCRoll> rollNeigh(_georpc->roll(idNeigh));
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<id<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<idNeigh<<std::endl;
+
+  auto rollNeigh = _georpc->roll(idNeigh);
   const LocalPoint lpNeigh = rollNeigh->centreOfStrip((int)strip);
   const GlobalPoint gpNeigh = rollNeigh->toGlobal(lpNeigh);
-  rollNeigh.release();
 
   EtaValue etaValue = {config->etaToHwEta(gp.eta()),
                        config->etaToHwEta(abs(gp.eta() - gpNeigh.eta())) /
                            2,  //half of the size of the strip in eta - not precise, but OK
                        0};
 
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<id<<" eta "<<gp.eta()<<" etaHw "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
+  //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<id<<" eta "<<gp.eta()<<" etaHw "<<etaValue.eta<<" etaSigma "<<etaValue.etaSigma<<std::endl;
   return etaValue;
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
-bool AngleConverterBase::isCSCCounterClockwise(const std::unique_ptr<const CSCLayer>& layer) const {
+bool AngleConverterBase::isCSCCounterClockwise(const CSCLayer* layer) const {
   const int nStrips = layer->geometry()->numberOfStrips();
   const double phi1 = layer->centerOfStrip(1).phi();
   const double phiN = layer->centerOfStrip(nStrips).phi();
@@ -512,7 +439,7 @@ const int AngleConverterBase::findBTIgroup(const L1MuDTChambPhDigi& aDigi, const
     if (theta_segm->position(i) && bti_group < 0)
       bti_group = i;
     ///If there are more than one theta digi we do not take is
-    ///due to unresolvet ambiguity. In this case we take eta of the
+    ///due to unresolved ambiguity. In this case we take eta of the
     ///middle of the chamber.
     else if (theta_segm->position(i) && bti_group > -1)
       return -1;
