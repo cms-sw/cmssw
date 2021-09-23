@@ -842,6 +842,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         metUncSequence = cms.Sequence()
         shiftedModuleSequence = cms.Sequence()
 
+        getMETUncertainties_task = cms.Task()
         task = getPatAlgosToolsTask(process)
 
         #===================================================================================
@@ -857,8 +858,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             metJERUncModules = self.getVariations(process, metModName, "Jet",preId, jetCollection, "Res", metUncSequence, postfix=postfix )
 
             for mod in metJERUncModules.keys():
-                addToProcessAndTask(mod, metJERUncModules[mod], process, task)
-                shiftedModuleSequence += getattr(process, mod)
+                addToProcessAndTask(mod, metJERUncModules[mod], process, getMETUncertainties_task)
+                #shiftedModuleSequence += getattr(process, mod)
 
         #===================================================================================
         # Unclustered energy candidates
@@ -870,8 +871,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            src = pfCandCollection,
                                            veto = jetCollection,
                                            )
-            addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
-            metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
+            addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, getMETUncertainties_task)
+            #metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
             #electron projection ==
             pfCandsNoJetsNoEle = _mod.candPtrProjector.clone(
@@ -880,24 +881,24 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                 )
             if not self.getvalue("onMiniAOD"):
               pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
-            addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
-            metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
+            addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, getMETUncertainties_task)
+            #metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
 
             #muon projection ==
             pfCandsNoJetsNoEleNoMu = _mod.candPtrProjector.clone(
                                               src = "pfCandsNoJetsNoEle"+postfix,
                                               veto = muonCollection,
                                               )
-            addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
-            metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
+            addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, getMETUncertainties_task)
+            #metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
             #tau projection ==
             pfCandsNoJetsNoEleNoMuNoTau = _mod.candPtrProjector.clone(
                                               src = "pfCandsNoJetsNoEleNoMu"+postfix,
                                               veto = tauCollection,
                                               )
-            addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
-            metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
+            addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, getMETUncertainties_task)
+            #metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
             #photon projection ==
             pfCandsForUnclusteredUnc = _mod.candPtrProjector.clone(
@@ -906,8 +907,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               )
             if not self.getvalue("onMiniAOD"):
               pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
-            addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
-            metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
+            addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, getMETUncertainties_task)
+            #metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
 
         #===================================================================================
         # energy shifts
@@ -922,8 +923,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                    src = electronCollection,
                                    cut = cms.string("pt > 5 && isPF && gsfTrack.isAvailable() && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2")
                                    )
-        addToProcessAndTask("pfElectrons"+postfix, pfElectrons, process, task)
-        metUncSequence += getattr(process, "pfElectrons"+postfix)
+        addToProcessAndTask("pfElectrons"+postfix, pfElectrons, process, getMETUncertainties_task)
+        #metUncSequence += getattr(process, "pfElectrons"+postfix)
         #--------------------------------------------------------------------
         # PFTaus :
         #---------
@@ -931,8 +932,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                               src = tauCollection,
                               cut = cms.string('pt > 18.0 & abs(eta) < 2.6 & tauID("decayModeFinding") > 0.5 & isPFTau')
                               )
-        addToProcessAndTask("pfTaus"+postfix, pfTaus, process, task)
-        metUncSequence += getattr(process, "pfTaus"+postfix)
+        addToProcessAndTask("pfTaus"+postfix, pfTaus, process, getMETUncertainties_task)
+        #metUncSequence += getattr(process, "pfTaus"+postfix)
         #---------------------------------------------------------------------
         # PFMuons :
         #----------
@@ -940,17 +941,29 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                src = muonCollection,
                                cut = cms.string("pt > 5.0 && isPFMuon && abs(eta) < 2.4")
                                )
-        addToProcessAndTask("pfMuons"+postfix, pfMuons, process, task)
-        metUncSequence += getattr(process, "pfMuons"+postfix)
+        addToProcessAndTask("pfMuons"+postfix, pfMuons, process, getMETUncertainties_task)
+        #metUncSequence += getattr(process, "pfMuons"+postfix)
         #---------------------------------------------------------------------
         # PFPhotons :
         #------------
+        if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value:
+            cutforpfNoPileUp = cms.string("")
+        else:
+            cutforpfNoPileUp = cms.string("fromPV > 1")
+
+        pfNoPileUp = cms.EDFilter("CandPtrSelector",
+                                  src = pfCandCollection,
+                                  cut = cutforpfNoPileUp
+                                  )
+        addToProcessAndTask("pfNoPileUp"+postfix, pfNoPileUp, process, getMETUncertainties_task)
+        #metUncSequence += getattr(process, "pfNoPileUp"+postfix)
+
         pfPhotons = cms.EDFilter("CandPtrSelector",
                                  src = pfCandCollection if self._parameters["Puppi"].value or not self._parameters["onMiniAOD"].value else cms.InputTag("pfCHS"),
                                  cut = cms.string("abs(pdgId) = 22")
                                  )
-        addToProcessAndTask("pfPhotons"+postfix, pfPhotons, process, task)
-        metUncSequence += getattr(process, "pfPhotons"+postfix)
+        addToProcessAndTask("pfPhotons"+postfix, pfPhotons, process, getMETUncertainties_task)
+        #metUncSequence += getattr(process, "pfPhotons"+postfix)
         #-------------------------------------------------------------------------
         # Collections which have only PF Objects for calculating MET uncertainties
         #-------------------------------------------------------------------------
@@ -976,8 +989,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
                 #adding the shifted MET produced to the proper patMetModuleSequence
                 for mod in metObjUncModules.keys():
-                    addToProcessAndTask(mod, metObjUncModules[mod], process, task)
-                    shiftedModuleSequence += getattr(process, mod)
+                    addToProcessAndTask(mod, metObjUncModules[mod], process, getMETUncertainties_task)
+                    #shiftedModuleSequence += getattr(process, mod)
+
+        if not hasattr(process, "getMETUncertainties_task"+postfix):
+            setattr(process, "getMETUncertainties_task"+postfix, getMETUncertainties_task)
+        else:
+            getattr(process, "getMETUncertainties_task"+postfix).add(getMETUncertainties_task)
+        task.add(getattr(process, "getMETUncertainties_task"+postfix))
 
         #return the sequence containing the shifted collections producers
         return metUncSequence, shiftedModuleSequence
@@ -1199,6 +1218,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         shiftedMetProducers = {}
 
         task = getPatAlgosToolsTask(process)
+        createShiftedModules_task = cms.Task()
 
         # remove the postfix to put it at the end
         baseName = self.removePostfix(metModName, postfix)
@@ -1206,14 +1226,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #adding the shifted collection producers to the sequence, create the shifted MET correction Modules and add them as well
         for mod in shiftedCollModules.keys():
             modName = "shiftedPat"+preId+identifier+varType+mod+postfix
-            #MM: FIXME MVA
+            #MM: FIXME MVA QUESTION: Still needed?
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
             if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
                 shiftedCollModules[mod].srcWeights = "puppiNoLep"
             if not hasattr(process, modName):
-                addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
-                metUncSequence += getattr(process, modName)
+                addToProcessAndTask(modName, shiftedCollModules[mod], process, createShiftedModules_task)
+                #metUncSequence += getattr(process, modName)
 
             #removing the uncorrected
             modName = "shiftedPat"+preId+identifier+varType+mod+postfix
@@ -1226,8 +1246,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                    shiftedMETCorrModule.srcWeights = "puppiNoLep"
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
-                    addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, task)
-                    metUncSequence += getattr(process, modMETShiftName)
+                    addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, createShiftedModules_task)
+                    #metUncSequence += getattr(process, modMETShiftName)
 
                 #and finally prepare the shifted MET producers
                 modName = baseName+identifier+varType+mod+postfix
@@ -1237,7 +1257,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     )
                 shiftedMetProducers[ modName ] = shiftedMETModule
 
-            #MM: FIXME MVA
+            #MM: FIXME MVA QUESTION: Still needed?
             #MVA MET, duplication of the MVA MET producer ============================================
             #if "MVA" in metModName:
             #    print "name: ",metModName, modName
@@ -1268,6 +1288,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #        shiftedMETModule.srcMVAPileupJetId = cms.InputTag(puJetIdName,"fullDiscriminant")
 
            #==========================================================================================
+
+        if not hasattr(process, "createShiftedModules_task"+postfix):
+            setattr(process, "createShiftedModules_task"+postfix, createShiftedModules_task)
+        else:
+            getattr(process, "createShiftedModules_task"+postfix).add(createShiftedModules_task)
+        task.add(getattr(process, "createShiftedModules_task"+postfix))
 
         return shiftedMetProducers
 
