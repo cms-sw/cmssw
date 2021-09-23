@@ -35,8 +35,8 @@ cscDigiValidation = DQMEDAnalyzer(
         "quartstrip", "eighthstrip", "run3pattern",
         "slope", "compcode", "quartstripbit", "eighthstripbit"),
     clctNBin = cms.vuint32(6, 224, 16, 2, 16, 448, 896, 5, 16, 410, 2, 2),
-    clctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    clctMaxBin = cms.vdouble(6, 224, 16, 2, 16, 448, 896, 5, 16, 410, 2, 2),
+    clctMinBin = cms.vdouble(3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    clctMaxBin = cms.vdouble(9, 224, 16, 2, 16, 448, 896, 5, 16, 410, 2, 2),
     preclctVars = cms.vstring(
         "quality", "halfstrip", "pattern", "bend", "bx"),
     preclctNBin = cms.vuint32(16, 224, 16, 2, 16, 5),
