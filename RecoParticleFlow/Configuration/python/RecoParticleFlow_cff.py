@@ -103,15 +103,6 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(pfPileUp, enable = cms.bool(False))
 
 #
-# for MLPF
-from Configuration.ProcessModifiers.mlpf_cff import mlpf
-from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
-
-_mlpfTask = cms.Task(mlpfProducer, particleFlowRecoTask.copy())
-
-mlpf.toReplaceWith(particleFlowRecoTask, _mlpfTask)
-
-#
 # switch from pfTICL to simPF
 def _findIndicesByModule(process,name):
     ret = []
@@ -144,3 +135,8 @@ def replaceTICLwithSimPF(process):
     )
 
     return process
+
+# for MLPF
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
+mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
