@@ -13,7 +13,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-class SiStripSummaryBuilder : public edm::EDAnalyzer {
+class SiStripSummaryBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripSummaryBuilder(const edm::ParameterSet& iConfig);
 
