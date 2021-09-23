@@ -13,10 +13,7 @@
 #include <memory>
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
-  : doSim_(ps.getParameter<bool>("doSim")),
-    theSimHitMap(nullptr),
-    theCSCGeometry(nullptr)
-{
+    : doSim_(ps.getParameter<bool>("doSim")), theSimHitMap(nullptr), theCSCGeometry(nullptr) {
   // instantiatethe validation modules
   theStripDigiValidation = std::make_unique<CSCStripDigiValidation>(ps, consumesCollector());
   theWireDigiValidation = std::make_unique<CSCWireDigiValidation>(ps, consumesCollector());
