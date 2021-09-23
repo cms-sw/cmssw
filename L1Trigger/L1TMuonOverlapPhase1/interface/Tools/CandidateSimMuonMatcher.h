@@ -20,39 +20,31 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 ///////////////////////
 // DATA FORMATS HEADERS
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 ////////////////////////////
 // DETECTOR GEOMETRY HEADERS
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TH1D.h"
-
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
 ////////////////
 // PHYSICS TOOLS
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
-#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "TH1D.h"
 
 class MatchingResult {
 public:

@@ -48,31 +48,18 @@ double PatternOptimizerBase::vxMuRate(double pt_GeV) {
   ptlog10 = log10(pt_GeV);
   double ex = (ptlog10 - mu) * (ptlog10 - mu) / s2;
   double rate = (a * exp(-ex) * afactor);
-  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
+  //edm::LogError("l1tOmtfEventPrint")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
   return rate;
 }
 
 double PatternOptimizerBase::vxIntegMuRate(double pt_GeV, double dpt, double etaFrom, double etaTo) {
-  //calkowanie metoda trapezow - nie do konca dobre
+  //integration using trapeze method - not exact but good enough
   double rate = 0.5 * (vxMuRate(pt_GeV) + vxMuRate(pt_GeV + dpt)) * dpt;
 
   rate = rate * (etaTo - etaFrom);
-  //edm::LogError("RPCTrigger")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
+  //edm::LogError("l1tOmtfEventPrint")<<ptCode<<" "<<rate;//<<<<<<<<<<<<<<<<<<<<<<<<
   return rate;
 }
-
-/*
-PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig)
-    : edmCfg(edmCfg), omtfConfig(omtfConfig), simMuon(nullptr) {
-  // TODO Auto-generated constructor stub
-
-  simMuPt = new TH1I("simMuPt", "simMuPt", goldenPatterns.size(), -0.5, goldenPatterns.size() - 0.5);
-  simMuFoundByOmtfPt =
-      new TH1I("simMuFoundByOmtfPt", "simMuFoundByOmtfPt", goldenPatterns.size(), -0.5, goldenPatterns.size() - 0.5);
-
-  simMuPtSpectrum = new TH1F("simMuPtSpectrum", "simMuPtSpectrum", 800, 0, 400);
-}
-*/
 
 PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
                                            const OMTFConfiguration* omtfConfig,
@@ -90,9 +77,7 @@ PatternOptimizerBase::PatternOptimizerBase(const edm::ParameterSet& edmCfg,
     edm::LogError("l1tOmtfEventPrint") << "simTracksTag not found !!!" << std::endl;
 }
 
-PatternOptimizerBase::~PatternOptimizerBase() {
-  // TODO Auto-generated destructor stub
-}
+PatternOptimizerBase::~PatternOptimizerBase() {}
 
 void PatternOptimizerBase::printPatterns() {
   edm::LogVerbatim("l1tOmtfEventPrint") << __FUNCTION__ << ": " << __LINE__ << " called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "
@@ -187,7 +172,6 @@ void PatternOptimizerBase::savePatternsInRoot(std::string rootFileName) {
     for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
         canvas->cd(1 + iLayer + iRefLayer * gp->getPdf().size());
-        //unsigned int refLayerLogicNumber = omtfConfig->getRefToLogicNumber()[iRefLayer];
         ostrName.str("");
         ostrName << "PatNum_" << gp->key().theNumber << "_refLayer_" << iRefLayer << "_Layer_" << iLayer;
         ostrTtle.str("");

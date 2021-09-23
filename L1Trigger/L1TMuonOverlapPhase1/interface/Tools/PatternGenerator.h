@@ -38,7 +38,7 @@ protected:
 
   void groupPatterns();
 
-  //[charge][iLayer]
+  //indexing: [charge][iLayer]
   std::vector<std::vector<TH2I*> > ptDeltaPhiHists;
 
   std::vector<unsigned int> eventCntPerGp;

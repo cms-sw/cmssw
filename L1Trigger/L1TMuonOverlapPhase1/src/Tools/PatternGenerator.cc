@@ -47,29 +47,26 @@ void PatternGenerator::initPatternGen() {
   //GoldenPatternResult::setFinalizeFunction(3); TODO why it was this one????
   // edm::LogImportant("l1tOmtfEventPrint") << "reseting golden pattern !!!!!" << std::endl;
 
-  //setting all pdf to 1, this will cause that the when the OmtfProcessor process the input, the result will be based only on the number of fired layers,
+  //setting all pdf to 1, this will cause that  when the OmtfProcessor process the input, the result will be based only on the number of fired layers,
   //and then the omtfCand will come from the processor that has the biggest number of fired layers
   //however, if the GoldenPatternResult::finalise3() is used - which just count the number of muonStubs (but do not check if it is valid, i.e. fired the pdf)
-  // - the below doed not matter
+  // - the below does not matter
   for (auto& gp : goldenPatterns) {
     for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
-        //unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[iRefLayer];
-        //if(refLayerLogicNum == iLayer)
-        {
-          for (unsigned int iBin = 0; iBin < gp->getPdf()[iLayer][iRefLayer].size(); iBin++) {
-            gp->pdfAllRef[iLayer][iRefLayer][iBin] = 1;
-          }
+        for (unsigned int iBin = 0; iBin < gp->getPdf()[iLayer][iRefLayer].size(); iBin++) {
+          gp->pdfAllRef[iLayer][iRefLayer][iBin] = 1;
         }
       }
     }
   }
 
+  //TODO uncomment if filling the ptDeltaPhiHist is needed
   /*  ptDeltaPhiHists.resize(2);
   for(unsigned int iCharge = 0; iCharge <= 1; iCharge++) {
     for(unsigned int iLayer = 0; iLayer < omtfConfig->nLayers(); ++iLayer) { //for the moment filing only ref layer, remove whe
       if(iLayer == 0 || iLayer == 2 || iLayer == 4 || iLayer == 6 || iLayer == 7 || iLayer == 10 || iLayer == 11  || iLayer == 16 || //refLayars
-         iLayer == 1 || iLayer == 3 || iLayer == 5  ) //banding layers
+         iLayer == 1 || iLayer == 3 || iLayer == 5  ) //bending layers
       {
         ostringstream name;
         name<<"ptDeltaPhiHist_ch_"<<iCharge<<"_Layer_"<<iLayer;
@@ -91,7 +88,7 @@ void PatternGenerator::initPatternGen() {
     }
   }*/
 
-  /* cannot be called  here
+  /* cannot be called  here, will cause crash
   edm::LogImportant("OMTFReconstruction")<<" PatternGenerator constructor - patterns after modification "<<std::endl;
   for(auto& gp : goldenPatterns) {
     edm::LogImportant("OMTFReconstruction")<<gp->key()<<" "
@@ -117,23 +114,16 @@ void PatternGenerator::updateStat() {
   eventCntPerGp[exptPatNum]++;
 
   //edm::LogImportant("l1tOmtfEventPrint")<<"\n" <<__FUNCTION__<<": "<<__LINE__<<" exptCandGp "<<exptCandGp->key()<<" candProcIndx "<<candProcIndx<<" ptSim "<<ptSim<<" chargeSim "<<chargeSim<<std::endl;
-  /*
-  unsigned int iCharge = omtfCand->getCharge();
-  if (iCharge != 1)
-    iCharge = 0;*/
 
   int pdfMiddle = 1 << (omtfConfig->nPdfAddrBits() - 1);
 
   //iRefHit is the index of the hit
   for (unsigned int iRefHit = 0; iRefHit < exptCandGp->getResults()[candProcIndx].size(); ++iRefHit) {
     auto& gpResult = exptCandGp->getResults()[candProcIndx][iRefHit];
-    //unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[iRefHit];
 
     unsigned int refLayer = gpResult.getRefLayer();
 
-    //cout<<gpResult;
     if (gpResult.getFiredLayerCnt() >= 3) {
-      //cout<<__FUNCTION__<<":"<<__LINE__<<" updating statistic"<<std::endl;
       for (unsigned int iLayer = 0; iLayer < gpResult.getStubResults().size(); iLayer++) {
         //updating statistic for the gp which should have fired
 
@@ -151,7 +141,9 @@ void PatternGenerator::updateStat() {
           phiDist += exptCandGp->meanDistPhiValue(iLayer, refLayer) - pdfMiddle;
           //removing the shift applied in the GoldenPatternBase::process1Layer1RefLayer
 
+          //TODO uncomment if filling ptDeltaPhiHists is needed
           /*
+          unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[iRefHit];
           if(ptDeltaPhiHists[iCharge][iLayer] != nullptr &&
               (iLayer == refLayerLogicNum || omtfConfig->getLogicToLogic().at(iLayer) == (int)refLayerLogicNum) )
             ptDeltaPhiHists[iCharge][iLayer]->Fill(ttAlgoMuon->getPt(), phiDist); //TODO correct
@@ -199,7 +191,6 @@ void PatternGenerator::endJob() {
     std::string rootFileName = edmCfg.getParameter<edm::FileInPath>("patternsROOTFile").fullPath();
     edm::LogImportant("l1tOmtfEventPrint") << "PatternGenerator::endJob() rootFileName " << rootFileName << std::endl;
     TFile inFile(rootFileName.c_str());
-    //inFile.cd("layerStats");
     TDirectory* curDir = (TDirectory*)inFile.Get("layerStats");
 
     ostringstream ostrName;
@@ -207,7 +198,7 @@ void PatternGenerator::endJob() {
       if (gp->key().thePt == 0)
         continue;
 
-      int statBinsCnt = 1024;  //gp->getPdf()[0][0].size() * 8; //TODO should be big enough to comprise the pdf tails
+      int statBinsCnt = 1024;  //= gp->getPdf()[0][0].size() * 8; //TODO should be big enough to comprise the pdf tails
       gp->iniStatisitics(statBinsCnt, 1);  //TODO
 
       for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
@@ -293,7 +284,8 @@ void PatternGenerator::upadatePdfs() {
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
 
         //watch out: the shift in a given layer must be the same for patterns in one group
-        //todo  make the setting on shift on the group base
+        //todo  make the setting of the shift on the group base
+        //TODO set the DistPhiBitShift
         /*if( (gp->key().thePt <= 10) && (iLayer == 3 || iLayer == 5 ) && (iRefLayer == 0 || iRefLayer == 2 || iRefLayer == 6 || iRefLayer == 7)) {
           gp->setDistPhiBitShift(3, iLayer, iRefLayer);
         }
@@ -323,32 +315,28 @@ void PatternGenerator::upadatePdfs() {
 
     for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
-        //unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[iRefLayer];
-        //if(refLayerLogicNum == iLayer)
-        {
-          //calculate meanDistPhi
-          double meanDistPhi = 0;
-          double count = 0;
-          for (unsigned int iBin = 1; iBin < gp->getStatistics()[iLayer][iRefLayer].size(); iBin++) {
-            //iBin = 0 is reserved for the no hit
-            meanDistPhi += iBin * gp->getStatistics()[iLayer][iRefLayer][iBin][0];
-            count += gp->getStatistics()[iLayer][iRefLayer][iBin][0];
-          }
-
-          if (count != 0) {
-            meanDistPhi /= count;
-
-            meanDistPhi -= (gp->getStatistics()[iLayer][iRefLayer].size() / 2);
-
-            if (count < minHitCnt)
-              meanDistPhi = 0;
-            else
-              edm::LogImportant("l1tOmtfEventPrint")
-                  << __FUNCTION__ << ": " << __LINE__ << " " << gp->key() << " iLayer " << iLayer << " iRefLayer "
-                  << iRefLayer << " count " << count << " meanDistPhi " << meanDistPhi << endl;
-          }
-          gp->setMeanDistPhiValue(round(meanDistPhi), iLayer, iRefLayer);
+        //calculate meanDistPhi
+        double meanDistPhi = 0;
+        double count = 0;
+        for (unsigned int iBin = 1; iBin < gp->getStatistics()[iLayer][iRefLayer].size(); iBin++) {
+          //iBin = 0 is reserved for the no hit
+          meanDistPhi += iBin * gp->getStatistics()[iLayer][iRefLayer][iBin][0];
+          count += gp->getStatistics()[iLayer][iRefLayer][iBin][0];
         }
+
+        if (count != 0) {
+          meanDistPhi /= count;
+
+          meanDistPhi -= (gp->getStatistics()[iLayer][iRefLayer].size() / 2);
+
+          if (count < minHitCnt)
+            meanDistPhi = 0;
+          else
+            edm::LogImportant("l1tOmtfEventPrint")
+                << __FUNCTION__ << ": " << __LINE__ << " " << gp->key() << " iLayer " << iLayer << " iRefLayer "
+                << iRefLayer << " count " << count << " meanDistPhi " << meanDistPhi << endl;
+        }
+        gp->setMeanDistPhiValue(round(meanDistPhi), iLayer, iRefLayer);
       }
     }
   }
@@ -400,13 +388,12 @@ void PatternGenerator::upadatePdfs() {
   for (auto& gp : goldenPatterns) {
     if (gp->key().thePt == 0)
       continue;
-    int minHitCnt =
-        2 * minHitCntThresh * eventCntPerGp[gp->key().number()];  // //TODO tune threshold <<<<<<<<<<<<<<<<<<
+
+    //TODO tune threshold <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    int minHitCnt = 2 * minHitCntThresh * eventCntPerGp[gp->key().number()];
 
     for (unsigned int iLayer = 0; iLayer < gp->getPdf().size(); ++iLayer) {
       for (unsigned int iRefLayer = 0; iRefLayer < gp->getPdf()[iLayer].size(); ++iRefLayer) {
-        //unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[iRefLayer];
-        //if(refLayerLogicNum == iLayer)
         {
           double norm = 0;
           for (unsigned int iBin = 0; iBin < gp->getStatistics()[iLayer][iRefLayer].size();
@@ -471,6 +458,7 @@ void PatternGenerator::upadatePdfs() {
 
 void PatternGenerator::saveHists(TFile& outfile) {
   outfile.mkdir("ptDeltaPhiHists")->cd();
+  //TODO uncomment if ptDeltaPhiHists are needed
   /*  for(unsigned int iCharge = 0; iCharge <= 1; iCharge++) {
     for(unsigned int iLayer = 0; iLayer < omtfConfig->nLayers(); ++iLayer) { //for the moment filing only ref layer, remove whe
       if(ptDeltaPhiHists[iCharge][iLayer]) {
@@ -478,8 +466,6 @@ void PatternGenerator::saveHists(TFile& outfile) {
       }
     }
   }*/
-
-  //TODO rather store the gp->getStatistics(), so the pdf calcualtion can be done without runnign on the data every time
 }
 
 void PatternGenerator::modifyClassProb(double step) {
@@ -519,7 +505,7 @@ void PatternGenerator::modifyClassProb(double step) {
         pdfMaxVal /= 3.;
         minPlog *= 2;
 
-        //last bin of th eptRange goes to 10000, so here we change it to 1000
+        //last bin of the ptRange goes to 10000, so here we change it to 1000
         if (ptRange > 800)
           ptRange = 800;
 
@@ -529,8 +515,6 @@ void PatternGenerator::modifyClassProb(double step) {
         int digitisedVal = rint(pdfMaxVal - log(classProb) / minPlog * pdfMaxVal);
 
         int newPdfVal = digitisedVal;  //gp->getPdf()[refLayerLogicNumber][iRefLayer][iPdf]
-        //if(ptFrom > 60)
-        //  newPdfVal += 1;
 
         if (ptFrom == 0)
           newPdfVal += 15;

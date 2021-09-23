@@ -145,7 +145,7 @@ public:
   ///uGMT pt scale conversion: [0GeV, 0.5GeV) = 1 [0.5GeV, 1 Gev) = 2
   int ptGevToHw(double ptGev) const override { return (ptGev / ptUnit + 1); }
 
-  double etaUnit = 0.010875;  //TODO from the interface note, should be defined somewhere globally
+  double etaUnit = 0.010875;  //=2.61/240 TODO value taken from the interface note, should be defined somewhere globally
   ///center of eta bin
   virtual double hwEtaToEta(int hwEta) const { return (hwEta * etaUnit); }
 

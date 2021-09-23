@@ -14,15 +14,6 @@ L1MuonOverlapPhase1ParamsDBProducer::L1MuonOverlapPhase1ParamsDBProducer(const e
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 void L1MuonOverlapPhase1ParamsDBProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  /*
-  const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
-
-  edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
-
-  omtfParamsRcd.get(omtfParamsHandle);
-
-  omtfParams = std::unique_ptr<L1TMuonOverlapParams>(new L1TMuonOverlapParams(*omtfParamsHandle.product()));*/
-
   omtfParams = std::make_unique<L1TMuonOverlapParams>(iSetup.getData(omtfParamsEsToken));
 
   if (!omtfParams) {

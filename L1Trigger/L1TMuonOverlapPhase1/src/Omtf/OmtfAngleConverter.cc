@@ -140,9 +140,7 @@ namespace {
 
 }  //namespace
 
-OmtfAngleConverter::~OmtfAngleConverter() {
-  // TODO Auto-generated destructor stub
-}
+OmtfAngleConverter::~OmtfAngleConverter() {}
 
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -160,21 +158,6 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
   const int NBTI_theta = ((dTChamberId.station() != 4) ? trig_geom.nCell(2) : trig_geom.nCell(3));
 
-  //  const int bti_group = findBTIgroup(aDigi,dtThDigis);
-  //  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
-  //  DTBtiId thetaBTI;
-  //  if ( baseid.station() != 4 && bti_group != -1) {
-  //    thetaBTI = DTBtiId(baseid,2,bti_actual);
-  //  } else {
-  //    // since this is phi oriented it'll give us theta in the middle
-  //    // of the chamber
-  //    thetaBTI = DTBtiId(baseid,3,1);
-  //  }
-  //  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
-  //  int iEta = theta_gp.eta()/2.61*240;
-  //  return iEta;
-
-  //const L1MuDTChambThDigi *theta_segm = dtThDigis->chThetaSegm(aDigi.whNum(), aDigi.stNum(), aDigi.scNum(), aDigi.bxNum());
   const L1MuDTChambThDigi *theta_segm =
       dtThDigis->chThetaSegm(dTChamberId.wheel(), dTChamberId.station(), dTChamberId.sector() - 1, bxNum);
 
@@ -197,7 +180,6 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
   else if (bti_group == -1 && dTChamberId.station() == 3)
     iEta = 75;
   else if (dTChamberId.station() != 4 && bti_group >= 0) {
-    //    bti_group = 6-bti_group;
     unsigned bti_actual = bti_group * NBTI_theta / 7 + NBTI_theta / 14 + 1;
     DTBtiId thetaBTI = DTBtiId(dTChamberId, 2, bti_actual);
     GlobalPoint theta_gp = trig_geom.CMSPosition(thetaBTI);
@@ -207,6 +189,7 @@ int OmtfAngleConverter::getGlobalEta(const DTChamberId dTChamberId,
   iEta *= signEta;
   return iEta;
 }
+
 ///////////////////////////////////////
 ///////////////////////////////////////
 int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi) const {
@@ -214,16 +197,16 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
   ///Will be replaced by direct CSC phi local to global scale
   ///transformation as used in FPGA implementation
 
-  // alot of this is transcription and consolidation of the CSC
+  // a lot of this is transcription and consolidation of the CSC
   // global phi calculation code
   // this works directly with the geometry
   // rather than using the old phi luts
   const CSCDetId id(rawid);
   // we should change this to weak_ptrs at some point
   // requires introducing std::shared_ptrs to geometry
-  std::unique_ptr<const CSCChamber> chamb(_geocsc->chamber(id));
-  std::unique_ptr<const CSCLayerGeometry> layer_geom(chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
-  std::unique_ptr<const CSCLayer> layer(chamb->layer(CSCConstants::KEY_ALCT_LAYER));
+  auto chamb = _geocsc->chamber(id);
+  auto layer_geom = chamb->layer(CSCConstants::KEY_ALCT_LAYER)->geometry();
+  auto layer = chamb->layer(CSCConstants::KEY_ALCT_LAYER);
 
   const uint16_t halfstrip = aDigi.getStrip();
   //const uint16_t pattern = aDigi.getPattern();
@@ -233,9 +216,9 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
   // so we can extend this later
   // assume TMB2007 half-strips only as baseline
   double offset = 0.0;
-  switch (1) {
-    case 1:;  //offset = CSCPatternLUT::get2007Position(pattern); K.B. CSCPatternLUT is removed from CMSSW_11_2_1, but it looks that this offset is effectively not needed here
-  }
+  //K.B. CSCPatternLUT is removed since CMSSW_11_2_1, but it looks that this offset is effectively not needed here
+  //offset = CSCPatternLUT::get2007Position(pattern);
+
   const unsigned halfstrip_offs = unsigned(0.5 + halfstrip + offset);
   const unsigned strip = halfstrip_offs / 2 + 1;  // geom starts from 1
 
@@ -257,34 +240,23 @@ int OmtfAngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTD
   // so no need to increment it
   const GlobalPoint final_gp(
       GlobalPoint::Polar(coarse_gp.theta(), (coarse_gp.phi().value() + phi_offset), coarse_gp.mag()));
-  // release ownership of the pointers
-  chamb.release();
-  layer_geom.release();
-  layer.release();
 
-  //  std::cout <<id<<" st: " << id.station()<< "ri: "<<id.ring()<<" eta: " <<  final_gp.eta()
+  //  LogTrace("l1tOmtfEventPrint")<<id<<" st: " << id.station()<< "ri: "<<id.ring()<<" eta: " <<  final_gp.eta()
   //           <<" etaCode_simple: " <<  etaVal2Code( final_gp.eta() )<< " KW: "<<keyWG <<" etaKeyWG2Code: "<<etaKeyWG2Code(id,keyWG)<< std::endl;
   //  int station = (id.endcap()==1) ? id.station() : -id.station();
-  //  std::cout <<"ETA_CSC: " << station <<" "<<id.ring()<<" "<< final_gp.eta()<<" "<<keyWG <<" "<< etaKeyWG2Code(id,keyWG) << std::endl;
+  //  LogTrace("l1tOmtfEventPrint")<<"ETA_CSC: " << station <<" "<<id.ring()<<" "<< final_gp.eta()<<" "<<keyWG <<" "<< etaKeyWG2Code(id,keyWG) << std::endl;
 
   return etaKeyWG2Code(id, keyWG);
-
-  // return etaVal2Code( final_gp.eta() );
-  // int iEta =  final_gp.eta()/2.61*240;
-  // return iEta;
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
 int OmtfAngleConverter::getGlobalEtaRpc(unsigned int rawid, const unsigned int &strip) const {
   const RPCDetId id(rawid);
-  std::unique_ptr<const RPCRoll> roll(_georpc->roll(id));
+  auto roll = _georpc->roll(id);
   const LocalPoint lp = roll->centreOfStrip((int)strip);
   const GlobalPoint gp = roll->toGlobal(lp);
-  roll.release();
 
   return etaVal2Code(gp.eta());
-  //  float iEta = gp.eta()/2.61*240;
-  //  return iEta;
 }
 
 ///////////////////////////////////////

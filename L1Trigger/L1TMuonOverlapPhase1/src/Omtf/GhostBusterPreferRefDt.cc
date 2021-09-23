@@ -84,36 +84,41 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
       return true;
   };
 
-  /*
-  auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b)->bool {
-    if(!a->isValid()) {
+  auto customLessByReLayer = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b) -> bool {
+    if (!a->isValid()) {
       return true;
     }
-    if(!b->isValid()) {
+    if (!b->isValid()) {
       return false;
     }
 
     int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a->getRefLayer()];
     int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b->getRefLayer()];
-    // if(a->getQ() > b->getQ())
-    //   return false;
-    if(aRefLayerLogicNum < bRefLayerLogicNum) {
+
+    if (aRefLayerLogicNum < bRefLayerLogicNum) {
       return false;
     }
-    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() > b->getDisc() )
+    //TODO maybe use getQ here?
+    // if(a->getQ() > b->getQ())
+    //   return false;
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() > b->getDisc())
       return false;
-    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() > b->getPatternNumber() )
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() &&
+             a->getPatternNumber() > b->getPatternNumber())
       return false;
-    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() == b->getPatternNumber() && a->getRefHitNumber() < b->getRefHitNumber())
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() &&
+             a->getPatternNumber() == b->getPatternNumber() && a->getRefHitNumber() < b->getRefHitNumber())
       return false;
     else
       return true;
-  };*/
+  };
 
   if (omtfConfig->getGhostBusterType() == "byLLH")
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLessByLLH);
   else if (omtfConfig->getGhostBusterType() == "byFPLLH")
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLessByFPLLH);
+  else if (omtfConfig->getGhostBusterType() == "byReLayer")
+    std::sort(muonsIN.rbegin(), muonsIN.rend(), customLessByReLayer);
   else
     std::sort(muonsIN.rbegin(), muonsIN.rend(), customLess);
 
@@ -123,7 +128,7 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
     if (!muIN->isValid())
       continue;
 
-    //edm::LogVerbatim("OMTFReconstruction") << "GhostBusting "<<*muIN<<" phiGMT "<<omtfConfig->procPhiToGmtPhi(muIN->getPhi())<< std::endl;
+    //LogTrace("l1tOmtfEventPrint")<< "GhostBusting "<<*muIN<<" phiGMT "<<omtfConfig->procPhiToGmtPhi(muIN->getPhi())<< std::endl;
 
     refHitCleanCandsFixedEta.push_back(*muIN);  //FIXME to much copying here...
     auto killIt = refHitCleanCandsFixedEta.end();
@@ -156,21 +161,6 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
 
   while (refHitCleanCands.size() < 3)
     refHitCleanCands.emplace_back(new AlgoMuon());
-
-  /*
-  std::stringstream myStr;
-  bool hasCandidates = false;
-  for(unsigned int iRefHit=0;iRefHit<refHitCleanCands.size();++iRefHit){
-    if(refHitCleanCands[iRefHit].getQ()){
-      hasCandidates=true;
-      break;
-    }
-  }
-  for(unsigned int iRefHit=0;iRefHit<refHitCleanCands.size();++iRefHit){
-    if(refHitCleanCands[iRefHit].getQ()) myStr<<"Ref hit: "<<iRefHit<<" "<<refHitCleanCands[iRefHit]<<std::endl;
-  }
-  if(hasCandidates) edm::LogInfo("OMTF Sorter")<<myStr.str();
-*/
 
   return refHitCleanCands;
 }

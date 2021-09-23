@@ -98,7 +98,7 @@ public:
 
 protected:
   ///Check orientation of strips in given CSC chamber
-  virtual bool isCSCCounterClockwise(const std::unique_ptr<const CSCLayer>& layer) const;
+  virtual bool isCSCCounterClockwise(const CSCLayer* layer) const;
 
   ///Find BTI group
   virtual const int findBTIgroup(const L1MuDTChambPhDigi& aDigi, const L1MuDTChambThContainer* dtThDigis);

@@ -21,13 +21,6 @@ GoldenPatternResult::GoldenPatternResult(const OMTFConfiguration* omtfConfig)
 
 ////////////////////////////////////////////
 ////////////////////////////////////////////
-/*void GoldenPatternResult::configure(const OMTFConfiguration * omtfConfig) {
-  myOmtfConfig = omtfConfig;
-  assert(myOmtfConfig != 0);
-  reset();
-}*/
-////////////////////////////////////////////
-////////////////////////////////////////////
 
 void GoldenPatternResult::set(int refLayer_, int phi, int eta, int refHitPhi) {
   if (isValid() && this->refLayer != refLayer_) {
@@ -44,24 +37,22 @@ void GoldenPatternResult::set(int refLayer_, int phi, int eta, int refHitPhi) {
 
 void GoldenPatternResult::setStubResult(float pdfVal, bool valid, int pdfBin, int layer, MuonStubPtr stub) {
   if (valid) {
-    //pdfSum += pdfVal;
-    //firedLayerBits.set(layer);
+    //pdfSum and firedLayerBits is calculated in finaliseX()
     firedLayerBits |= (1 << layer);
   }
   stubResults[layer] = StubResult(pdfVal, valid, pdfBin, layer, stub);
 
-  //stub result is added evevn thought it is not valid since this might be needed for debugging or optimization
+  //stub result is added even thought it is not valid since this might be needed for debugging or optimization
 }
 
 void GoldenPatternResult::setStubResult(int layer, StubResult& stubResult) {
   if (stubResult.getValid()) {
-    //pdfSum += pdfVal;
-    //firedLayerBits.set(layer);
+    //pdfSum and firedLayerBits is calculated in finaliseX()
     firedLayerBits |= (1 << layer);
   }
   stubResults[layer] = stubResult;
 
-  //stub result is added evevn thought it is not valid since this might be needed for debugging or optimization
+  //stub result is added even thought it is not valid since this might be needed for debugging or optimization
 }
 
 ////////////////////////////////////////////
@@ -165,12 +156,11 @@ void GoldenPatternResult::finalise2() {
     unsigned int connectedLayer = omtfConfig->getLogicToLogic().at(iLogicLayer);
     //here we require that in case of the DT layers, both phi and phiB is fired
     if (firedLayerBits & (1 << connectedLayer)) {
-      if (firedLayerBits &
-          (1
-           << iLogicLayer)) {  //now in the GoldenPattern::process1Layer1RefLayer the pdf bin 0 is returned when the layer is not fired, so this is 'if' is to assured that this pdf val is not added here
+      //now in the GoldenPattern::process1Layer1RefLayer the pdf bin 0 is returned when the layer is not fired, so this is 'if' is to assured that this pdf val is not added here
+      if (firedLayerBits & (1 << iLogicLayer)) {
         pdfSum *= stubResults[iLogicLayer].getPdfVal();
-        if (!omtfConfig->getBendingLayers().count(
-                iLogicLayer))  //in DT case, the phi and phiB layers are threaded as one, so the firedLayerCnt is increased only for the phi layer
+        //in DT case, the phi and phiB layers are threaded as one, so the firedLayerCnt is increased only for the phi layer
+        if (!omtfConfig->getBendingLayers().count(iLogicLayer))
           firedLayerCnt++;
       }
     } else {
@@ -298,16 +288,18 @@ void GoldenPatternResult::finalise9() {
         } else {
           firedLayerBits &= ~(1 << iLogicLayer);
           stubResults[iLogicLayer].setValid(false);
-          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;; //there was hit, but it did not fire to the pdf - this is not possible here, since the banding layer if fired here
+          //there was hit, but it did not fit to the pdf - this is not possible here, since the bending layer is fired here
+          //therefore the below line is has no sense
+          //if(stubResults[iLogicLayer].getPdfVal() == 0) pdfSum -= 64;;
           //so in this case simply:
           //pdfSum += 0;
         }
       } else {
-        //banding layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
+        //bending layer fired, but not fits to the pdf, N.B works only with the patterns having "no hit value" and with noHitValueInPdf = True
         if (stubResults[iLogicLayer].getPdfVal() == 0)
           pdfSum -= 32;
         else
-          pdfSum += stubResults[iLogicLayer].getPdfVal();  //banding layer not fired at all
+          pdfSum += stubResults[iLogicLayer].getPdfVal();  //bending layer not fired at all
       }
     } else {
       if (iLogicLayer < 10 && stubResults[iLogicLayer].getPdfVal() == 0)
@@ -323,23 +315,6 @@ void GoldenPatternResult::finalise9() {
   valid = true;
   //by default result becomes valid here, but can be overwritten later
 }
-
-/*void GoldenPatternResult::finalise2() {
-  pdfSum = 1.;
-  for(unsigned int iLogicLayer=0; iLogicLayer < pdfValues.size(); ++iLogicLayer) {
-    //in this version we do not require that both phi and phiB is fired (non-zero), we thread them just independent
-    //TODO check if it affects performance
-    bool layerFired = ( (firedLayerBits & (1<<iLogicLayer)) != 0 );
-    if(layerFired) {
-      pdfSum *= pdfValues[iLogicLayer];
-      firedLayerCnt++ ;
-    }
-  }
-  if(firedLayerCnt < 3)
-    pdfSum = 0;
-  valid = true;
-  //by default result becomes valid here, but can be overwritten later
-}*/
 
 ////////////////////////////////////////////
 ////////////////////////////////////////////

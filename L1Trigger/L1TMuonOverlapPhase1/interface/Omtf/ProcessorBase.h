@@ -24,6 +24,8 @@ public:
     configure(omtfConfig, omtfPatterns);
   };
 
+  ///omtfConfig is not const, because the omtfConfig->setPatternPtRange is called inside the constructor
+  ///takes the ownership of the gps (uses move)
   ProcessorBase(OMTFConfiguration* omtfConfig, GoldenPatternVec<GoldenPatternType>&& gps);
 
   virtual ~ProcessorBase() {}

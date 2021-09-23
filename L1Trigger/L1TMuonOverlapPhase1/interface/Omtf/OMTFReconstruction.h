@@ -54,7 +54,7 @@ public:
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event&, const edm::EventSetup&);
 
   //takes the ownership of the inputMaker
-  void setInputMaker(OMTFinputMaker* inputMaker) { this->inputMaker.reset(inputMaker); }
+  void setInputMaker(unique_ptr<OMTFinputMaker> inputMaker) { this->inputMaker = std::move(inputMaker); }
 
   void virtual addObservers(const MuonGeometryTokens& muonGeometryTokens,
                             const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,

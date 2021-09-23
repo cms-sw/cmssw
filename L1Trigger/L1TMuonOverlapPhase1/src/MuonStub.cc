@@ -20,7 +20,7 @@ MuonStub::~MuonStub() {}
 std::ostream &operator<<(std::ostream &out, const MuonStub &stub) {
   out << "MuonStub: ";
   out << " logicLayer: " << std::setw(2) << stub.logicLayer << " type: " << std::setw(2) << stub.type
-      << " roll: " << std::setw(1) << stub.roll << " phiHw: " << std::setw(5)
+      << " roll: " << std::setw(1) << 0 << " phiHw: " << std::setw(5)
       << stub.phiHw  //<<" ("<<std::setw(8)<<stub.phi<<")"
       << " phiBHw: " << std::setw(4) << stub.phiBHw << " etaHw: " << std::setw(4)
       << stub.etaHw  //<<" ("<<std::setw(8)<<stub.eta<<")"

@@ -26,15 +26,7 @@ public:
     CSC_ETA,
     CSC_PHI_ETA,
     BARREL_SUPER_SEG,
-    TTTRACK_REF  //for ttTrack correlation algorithm with the reference stub
   };
-
-  /*  enum EtaType {
-    NO_ETA,
-    CORSE,
-    FINE,
-    //add other if needed
-  };*/
 
   MuonStub();
 
@@ -55,27 +47,13 @@ public:
 
   int bx = 0;
   int timing = 0;
-  //example use: 1 if phi segment uniquely assigned to eta segment
-  //EtaType etaType = NO_ETA;
-  //int isPhiFine = 0;
 
   //used to address LUTs
   unsigned int logicLayer = 0;
 
-  //int inputNumHw = -1;
-
-  //layer number in hardware convention
-  //int layerHw = -1;
-  //int subLayerHw = -1;
-
-  //int station = -1;
-
-  int roll = 0;
+  //int roll = 0;  //TODO remove
 
   int detId = 0;
-
-  //float phi = 0; //radians
-  //float eta = 0;
 
   friend std::ostream& operator<<(std::ostream& out, const MuonStub& stub);
 };

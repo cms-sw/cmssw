@@ -33,15 +33,6 @@ public:
 
   ~PatternOptimizerBase() override;
 
-  /*  void observeProcesorEmulation(unsigned int iProcessor,
-                                l1t::tftype mtfType,
-                                const std::shared_ptr<OMTFinput>& input,
-                                const AlgoMuons& algoCandidates,
-                                const AlgoMuons& gbCandidates,
-                                const std::vector<l1t::RegionalMuonCand>& candMuons) override;
-
-  void observeEventBegin(const edm::Event& iEvent) override;*/
-
   void observeEventEnd(const edm::Event& iEvent,
                        std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
 
@@ -57,9 +48,6 @@ protected:
   virtual void saveHists(TFile& outfile){};
 
   GoldenPatternVec<GoldenPatternWithStat>& goldenPatterns;
-
-  //GoldenPatternResult omtfResult;
-  //GoldenPatternResult exptResult;
 
   TH1I* simMuPt;
   TH1I* simMuFoundByOmtfPt;

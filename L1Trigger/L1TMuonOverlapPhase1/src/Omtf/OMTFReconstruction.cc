@@ -32,7 +32,6 @@ OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& parameterSet, Mu
       omtfConfig(new OMTFConfiguration()),
       omtfProc(nullptr),
       m_OMTFConfigMaker(nullptr) {
-  //edmParameterSet.getParameter<std::string>("XMLDumpFileName");
   bxMin = edmParameterSet.exists("bxMin") ? edmParameterSet.getParameter<int>("bxMin") : 0;
   bxMax = edmParameterSet.exists("bxMax") ? edmParameterSet.getParameter<int>("bxMax") : 0;
 
@@ -46,8 +45,8 @@ OMTFReconstruction::~OMTFReconstruction() {}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFReconstruction::beginJob() {
-  inputMaker =
-      std::make_unique<OMTFinputMaker>(edmParameterSet, muStubsInputTokens, omtfConfig.get(), new OmtfAngleConverter());
+  inputMaker = std::make_unique<OMTFinputMaker>(
+      edmParameterSet, muStubsInputTokens, omtfConfig.get(), std::make_unique<OmtfAngleConverter>());
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -130,7 +129,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
       patternType = edmParameterSet.getParameter<std::string>("patternType");
     }
 
-    //std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
     if (patternType == "GoldenPattern") {
       if (processorType == "OMTFProcessor") {
         if (omtfParams) {

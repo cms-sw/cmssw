@@ -19,7 +19,9 @@ public:
   int lastStrip = -1;
 
   int bx = 0;
-  int timing = 0;  //sub-bx timing, should be already in scale common for all muon subsystems
+
+  //sub-bx timing, should be already in scale common for all muon subsystems
+  int timing = 0;
 
   RpcCluster(unsigned int firstStrip, unsigned int lastStrip) : firstStrip(firstStrip), lastStrip(lastStrip){};
 
@@ -50,8 +52,8 @@ private:
   unsigned int maxClusterSize = 3;
   unsigned int maxClusterCnt = 2;
 
-  bool dropAllClustersIfMoreThanMax =
-      true;  // if true no  cluster is return if there is more clusters then maxClusterCnt (counted regardless of the size)
+  // if true no  cluster is return if there is more clusters then maxClusterCnt (counted regardless of the size)
+  bool dropAllClustersIfMoreThanMax = true;
 };
 
 #endif /* L1T_OmtfP1_RPCCLUSTERIZATION_H_ */

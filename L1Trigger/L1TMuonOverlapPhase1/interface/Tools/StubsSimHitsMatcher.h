@@ -58,7 +58,6 @@ public:
     MatchedTrackInfo(uint32_t eventNum, uint32_t trackId) : matchedDigiCnt(18, 0) {
       this->eventNum = eventNum;
       this->trackId = trackId;
-      //eventTrackNum = this->eventNum << 32 | trackId;
     }
 
     bool operator<(const MatchedTrackInfo& b) const { return this->eventTrackNum < b.eventTrackNum; }
@@ -91,8 +90,8 @@ private:
   edm::ESHandle<CSCGeometry> _geocsc;
   edm::ESHandle<DTGeometry> _geodt;
 
-  TH1I* allMatchedTracksPdgIds = nullptr;   //[pdgId] = tracksCnt
-  TH1I* bestMatchedTracksPdgIds = nullptr;  //[pdgId] = tracksCnt
+  TH1I* allMatchedTracksPdgIds = nullptr;   //indexing: [pdgId] = tracksCnt
+  TH1I* bestMatchedTracksPdgIds = nullptr;  //indexing: [pdgId] = tracksCnt
 
   TH2I* stubsInLayersCntByPdgId = nullptr;
   TH2I* firedLayersCntByPdgId = nullptr;

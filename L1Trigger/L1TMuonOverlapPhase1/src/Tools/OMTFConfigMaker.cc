@@ -24,6 +24,7 @@ void OMTFConfigMaker::fillCounts(unsigned int iProcessor, const OMTFinput& aInpu
 ///////////////////////////////////////////////
 void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor, const OMTFinput& aInput) {
   ////Find starting and ending iPhi of each input used for reference hits.
+  //TODO correct if it is needed
   /*  for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
     const OMTFinput::vector1D & refLayerHits = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefLayer]);	
     if(refLayerHits.empty()) continue;
@@ -62,6 +63,7 @@ void OMTFConfigMaker::printPhiMap(std::ostream& out) {
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor, const OMTFinput& aInput) {
+  //TODO correct if it is needed
   /*  fillPhiMaps(iProcessor,aInput);
   
   for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){

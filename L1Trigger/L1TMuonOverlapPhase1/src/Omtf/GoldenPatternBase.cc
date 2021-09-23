@@ -17,15 +17,12 @@ std::ostream& operator<<(std::ostream& out, const Key& o) {
   return out;
 }
 
-GoldenPatternBase::GoldenPatternBase(const Key& aKey) : theKey(aKey), myOmtfConfig(nullptr) {
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
-}
+GoldenPatternBase::GoldenPatternBase(const Key& aKey) : theKey(aKey), myOmtfConfig(nullptr) {}
 
 GoldenPatternBase::GoldenPatternBase(const Key& aKey, const OMTFConfiguration* omtfConfig)
     : theKey(aKey),
       myOmtfConfig(omtfConfig),
       results(boost::extents[myOmtfConfig->processorCnt()][myOmtfConfig->nTestRefHits()]) {
-  //std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
   for (unsigned int iProc = 0; iProc < results.size(); iProc++) {
     for (unsigned int iTestRefHit = 0; iTestRefHit < results[iProc].size(); iTestRefHit++) {
       results[iProc][iTestRefHit].init(omtfConfig);
@@ -49,8 +46,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
                                                      unsigned int iLayer,
                                                      MuonStubPtrs1D layerStubs,
                                                      const MuonStubPtr refStub) {
-  //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) std::cout<<__FUNCTION__<<":"<<__LINE__<<key()<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;
-  //GoldenPatternResult::LayerResult aResult(0, 0, 0, 0); //0, 0
+  //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<key()<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;
 
   int phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw);
   int phiDistMin = myOmtfConfig->nPhiBins();  //1<<(myOmtfConfig->nPdfAddrBits()); //"infinite" value for the beginning
@@ -64,7 +60,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     phiRefHit = refStub->phiHw;
 
   if (this->myOmtfConfig->isBendingLayer(iLayer)) {
-    phiRefHit = 0;  //phi ref hit for the banding layer set to 0, since it should not be included in the phiDist
+    phiRefHit = 0;  //phi ref hit for the bending layer set to 0, since it should not be included in the phiDist
   }
 
   for (auto& stub : layerStubs) {
@@ -73,9 +69,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
     int hitPhi = stub->phiHw;
     if (this->myOmtfConfig->isBendingLayer(iLayer)) {
-      //if (stub->qualityHw < this->myOmtfConfig->getMinDtPhiBQuality()) //moved to OMTFInputMaker
-      //  continue;  //rejecting phiB of the low quality DT stubs
-
+      //rejecting phiB of the low quality DT stubs is done in the OMTFInputMaker
       hitPhi = stub->phiBHw;
     }
 
@@ -85,8 +79,8 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     int phiDist = this->myOmtfConfig->foldPhi(hitPhi - phiMean - phiRefHit);
     //for standard omtf foldPhi is not needed, but if one processor works for full phi then it is
     //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0)
-    /*edm::LogVerbatim("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
-    edm::LogVerbatim("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__
+    /*LogTrace("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
+    LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__
     		<<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer
     		<<" hitPhi "<<hitPhi<<" phiMean "<<phiMean<<" phiRefHit "<<phiRefHit<<" phiDist "<<phiDist<<std::endl;*/
 
@@ -115,7 +109,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
   /*  debug
   if(phiDistMin != 128 && iRefLayer == 0 && iLayer == 1)*/
-  /*edm::LogVerbatim("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__<<" iRefLayer "<<iRefLayer<<" iLayer "<<iLayer<<" selectedStub "<<*selectedStub
+  /*LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" iRefLayer "<<iRefLayer<<" iLayer "<<iLayer<<" selectedStub "<<*selectedStub
 		  <<" phiDistMin "<<phiDistMin<<" phiMean "<<phiMean<<" shift "<<this->getDistPhiBitShift(iLayer, iRefLayer)<<std::endl;*/
 
   ///Check if phiDistMin is within pdf range -63 +63
@@ -130,11 +124,10 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
   ///Shift phidist, so 0 is at the middle of the range
   phiDistMin += pdfMiddle;
-  //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) std::cout<<__FUNCTION__<<":"<<__LINE__<<" phiDistMin "<<phiDistMin<<std::endl;
+  //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" phiDistMin "<<phiDistMin<<std::endl;
   PdfValueType pdfVal = this->pdfValue(iLayer, iRefLayer, phiDistMin);
   if (pdfVal <= 0) {
     return StubResult(0, false, phiDistMin, iLayer, selectedStub);
-    //return GoldenPatternResult::LayerResult(this->pdfValue(iLayer, iRefLayer, 0), false, phiDistMin, selHit); //the pdf[0] needed in some versions of algorithm with threshold
   }
   return StubResult(pdfVal, true, phiDistMin, iLayer, selectedStub);
 }

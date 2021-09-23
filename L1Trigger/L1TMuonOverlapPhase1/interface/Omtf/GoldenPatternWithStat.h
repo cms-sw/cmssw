@@ -4,9 +4,6 @@
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinput.h"
 #include <vector>
-#include <ostream>
-
-#include "TH1I.h"
 
 class OMTFConfiguration;
 
@@ -16,9 +13,8 @@ class OMTFConfiguration;
 
 class GoldenPatternWithStat : public GoldenPatternWithThresh {
 public:
-  static const unsigned int STAT_BINS = 1;  //TODO change to 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  static const unsigned int STAT_BINS = 1;  //TODO change value if needed
   typedef boost::multi_array<float, 4> StatArrayType;
-  //GoldenPatternWithStat(const Key & aKey) : GoldenPattern(aKey) {}
 
   GoldenPatternWithStat(const Key& aKey, unsigned int nLayers, unsigned int nRefLayers, unsigned int nPdfAddrBits);
 
@@ -28,8 +24,6 @@ public:
 
   virtual void updateStat(
       unsigned int iLayer, unsigned int iRefLayer, unsigned int iBin, unsigned int what, double value);
-
-  //virtual void updatePdfs(double learingRate);
 
   friend std::ostream& operator<<(std::ostream& out, const GoldenPatternWithStat& aPattern);
 

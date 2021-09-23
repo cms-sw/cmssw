@@ -35,8 +35,6 @@ class DigiToStubsConverterBase {
 public:
   virtual ~DigiToStubsConverterBase(){};
 
-  //virtual void initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const ProcConfigurationBase* procConf) = 0;
-
   virtual void loadDigis(const edm::Event& event) = 0;
 
   virtual void makeStubs(

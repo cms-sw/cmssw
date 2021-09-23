@@ -26,10 +26,10 @@ private:
   //omtfPdfValueType
   double pdfSum = 0;
 
-  ///Number of fired layers - excluding banding layers
+  ///Number of fired layers - excluding bending layers
   unsigned int firedLayerCnt = 0;
 
-  ///bits representing fired logicLayers (including banding layers),
+  ///bits representing fired logicLayers (including bending layers),
   unsigned int firedLayerBits = 0;
 
   ///phi of the reference hits

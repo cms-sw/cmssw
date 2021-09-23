@@ -220,7 +220,7 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
         quality = 8;
     }  //  if (abs(myCand->getEta()) == 121) quality = 4;
     if (abs(myCand->getEtaHw()) == 121)
-      quality = 0;  // changed on request from HI
+      quality = 0;  // changed from 4 on request from HI
 
     candidate.setHwQual(quality);
 
@@ -233,7 +233,6 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
         auto pts = ptAssignment->getPts(myCand);
         for (unsigned int i = 0; i < pts.size(); i++) {
           trackAddr[10 + i] = this->myOmtfConfig->ptGevToHw(pts[i]);
-          //std::copysign(this->myOmtfConfig->ptGevToHw( abs(pts[i]) ) , pts[i]) ;
         }
       }
 
@@ -308,9 +307,10 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
     return;  // myResults;
 
   for (unsigned int iLayer = 0; iLayer < this->myOmtfConfig->nLayers(); ++iLayer) {
+    //debug
     /*for(auto& h : layerHits) {
       if(h != 5400)
-        std::cout<<__FUNCTION__<<" "<<__LINE__<<" iLayer "<<iLayer<<" layerHit "<<h<<std::endl;
+        LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<" "<<__LINE__<<" iLayer "<<iLayer<<" layerHit "<<h<<std::endl;
     }*/
     ///Number of reference hits to be checked.
     unsigned int nTestedRefHits = this->myOmtfConfig->nTestRefHits();
@@ -330,16 +330,14 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
 
       unsigned int iRegion = aRefHitDef.iRegion;
 
-      if (this->myOmtfConfig->getBendingLayers().count(iLayer))  //this iLayer is a banding layer
+      if (this->myOmtfConfig->getBendingLayers().count(iLayer))  //this iLayer is a bending layer
         phiRef = 0;  //then in the delta_phi in process1Layer1RefLayer one obtains simply the iLayer phi
 
       MuonStubPtrs1D restrictedLayerStubs = this->restrictInput(iProcessor, iRegion, iLayer, aInput);
 
-      //std::cout<<__FUNCTION__<<" "<<__LINE__<<" iLayer "<<iLayer<<" iRefLayer "<<aRefHitDef.iRefLayer<<" hits.size "<<restrictedLayerHits.size()<<std::endl;
-      //std::cout<<"iLayer "<<iLayer<<" refHitNum "<<myOmtfConfig->nTestRefHits()-nTestedRefHits-1<<" iRefHit "<<iRefHit;
-      //std::cout<<" nTestedRefHits "<<nTestedRefHits<<" aRefHitDef "<<aRefHitDef<<std::endl;
-
-      //int refLayerLogicNumber = this->myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer];
+      //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<" "<<__LINE__<<" iLayer "<<iLayer<<" iRefLayer "<<aRefHitDef.iRefLayer<<" hits.size "<<restrictedLayerHits.size()<<std::endl;
+      //LogTrace("l1tOmtfEventPrint")<<"iLayer "<<iLayer<<" refHitNum "<<myOmtfConfig->nTestRefHits()-nTestedRefHits-1<<" iRefHit "<<iRefHit;
+      //LogTrace("l1tOmtfEventPrint")<<" nTestedRefHits "<<nTestedRefHits<<" aRefHitDef "<<aRefHitDef<<std::endl;
 
       unsigned int refHitNumber = this->myOmtfConfig->nTestRefHits() - nTestedRefHits - 1;
       for (auto& itGP : this->theGPs) {
@@ -349,13 +347,13 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
         StubResult stubResult =
             itGP->process1Layer1RefLayer(aRefHitDef.iRefLayer, iLayer, restrictedLayerStubs, refStub);
 
-        int phiRefSt2 = itGP->propagateRefPhi(
-            phiRef, etaRef, aRefHitDef.iRefLayer);  //fixme this unnecessary repeated  for every layer
+        //fixme this unnecessary repeated  for every layer - but in this layout of loops must be like that
+        int phiRefSt2 = itGP->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);
 
-        //std::cout<<__FUNCTION__<<":"<<__LINE__<<" layerResult: valid"<<layerResult.valid<<" pdfVal "<<layerResult.pdfVal<<std::endl;
+        //LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" layerResult: valid"<<layerResult.valid<<" pdfVal "<<layerResult.pdfVal<<std::endl;
         itGP->getResults()[procIndx][refHitNumber].setStubResult(iLayer, stubResult);
-        itGP->getResults()[procIndx][refHitNumber].set(
-            aRefHitDef.iRefLayer, phiRefSt2, etaRef, phiRef);  //fixme this unnecessary repeated  for every layer
+        //fixme this unnecessary repeated  for every layer - but in this layout of loops must be like that
+        itGP->getResults()[procIndx][refHitNumber].set(aRefHitDef.iRefLayer, phiRefSt2, etaRef, phiRef);
       }
     }
   }
@@ -367,17 +365,11 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
       //debug
       /*for(unsigned int iRefHit = 0; iRefHit < itGP->getResults()[procIndx].size(); ++iRefHit) {
         if(itGP->getResults()[procIndx][iRefHit].isValid()) {
-          std::cout<<__FUNCTION__<<":"<<"__LINE__"<<itGP->getResults()[procIndx][iRefHit]<<std::endl;
+          LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<"__LINE__"<<itGP->getResults()[procIndx][iRefHit]<<std::endl;
         }
       }*/
     }
   }
-
-  /*  std::ostringstream myStr;
-  myStr<<"iProcessor: "<<iProcessor<<std::endl;
-  myStr<<"Input: ------------"<<std::endl;
-  myStr<<aInput<<std::endl;
-  edm::LogInfo("OMTF processor")<<myStr.str();*/
 
   return;
 }
@@ -391,31 +383,30 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
     int bx,
     OMTFinputMaker* inputMaker,
     std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
+  //uncomment if you want to check execution time of each method
   //boost::timer::auto_cpu_timer t("%ws wall, %us user in getProcessorCandidates\n");
-  inputMaker->setFlag(0);
 
   std::shared_ptr<OMTFinput> input = std::make_shared<OMTFinput>(this->myOmtfConfig);
   inputMaker->buildInputForProcessor(input->getMuonStubs(), iProcessor, mtfType, bx, bx);
-  int flag = inputMaker->getFlag();
 
-  //cout<<"buildInputForProce "; t.report();
+  //LogTrace("l1tOmtfEventPrint")<<"buildInputForProce "; t.report();
   processInput(iProcessor, mtfType, *(input.get()));
 
-  //cout<<"processInput       "; t.report();
+  //LogTrace("l1tOmtfEventPrint")<<"processInput       "; t.report();
   AlgoMuons algoCandidates = sortResults(iProcessor, mtfType);
 
-  //cout<<"sortResults        "; t.report();
+  //LogTrace("l1tOmtfEventPrint")<<"sortResults        "; t.report();
   // perform GB
   AlgoMuons gbCandidates = ghostBust(algoCandidates);
 
-  //cout<<"ghostBust"; t.report();
+  //LogTrace("l1tOmtfEventPrint")<<"ghostBust"; t.report();
   // fill RegionalMuonCand colleciton
   std::vector<l1t::RegionalMuonCand> candMuons = getFinalcandidates(iProcessor, mtfType, gbCandidates);
 
-  //cout<<"getFinalcandidates "; t.report();
+  //LogTrace("l1tOmtfEventPrint")<<"getFinalcandidates "; t.report();
   //fill outgoing collection
   for (auto& candMuon : candMuons) {
-    candMuon.setHwQual(candMuon.hwQual() | flag);  //FIXME temporary debug fix
+    candMuon.setHwQual(candMuon.hwQual());
   }
 
   for (auto& obs : observers) {

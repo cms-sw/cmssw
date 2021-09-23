@@ -69,10 +69,6 @@ public:
     pdfAllRef[iLayer][iRefLayer][iBin] = value;
   }
 
-  /*  virtual const boost::multi_array<short, 2>& getDistPhiBitShift() const {
-    return distPhiBitShift;
-  }*/
-
   int getDistPhiBitShift(unsigned int iLayer, unsigned int iRefLayer) const override {
     return distPhiBitShift[iLayer][iRefLayer];
   }
@@ -85,15 +81,9 @@ public:
 
   ///Reset contents of all data vectors, keeping the vectors size
   virtual void reset();
-  /*  virtual void reset(unsigned int nLayers, unsigned int nRefLayers, unsigned int nPdfAddrBits);
-
-  virtual void reset(const OMTFConfiguration* omtfConfig) {
-    reset(omtfConfig->nLayers(), omtfConfig->nRefLayers(), omtfConfig->nPdfAddrBits());
-  }*/
 
   ///Propagate phi from given reference layer to MB2 or ME2
-  ///ME2 is used if eta of reference hit is larger than 1.1
-  ///expressed in ingerer MicroGMT scale: 1.1/2.61*240 = 101
+  ///expressed in integer MicroGMT scale: 1.1/2.61*240 = 101
   int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer) override;
 
 protected:

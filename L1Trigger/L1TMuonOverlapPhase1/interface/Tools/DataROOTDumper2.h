@@ -54,8 +54,6 @@ public:
   };
 
   std::vector<unsigned long> hits;
-
-  //OmtfEvent() {}
 };
 
 class DataROOTDumper2 : public EmulationObserverBase {
