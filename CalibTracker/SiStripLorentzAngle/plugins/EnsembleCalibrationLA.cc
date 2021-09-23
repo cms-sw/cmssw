@@ -20,6 +20,8 @@ namespace sistrip {
         vMethods(conf.getParameter<std::vector<int> >("Methods")),
         tTopoToken_(esConsumes<edm::Transition::EndRun>()) {}
 
+  EnsembleCalibrationLA::~EnsembleCalibrationLA(){};
+
   void EnsembleCalibrationLA::endJob() {
     Book book("la_ensemble");
     TChain* const chain = new TChain("la_ensemble");
@@ -40,6 +42,8 @@ namespace sistrip {
     write_samples_plots(book);
     write_calibrations();
   }
+
+  void EnsembleCalibrationLA::beginRun(const edm::Run&, const edm::EventSetup& eSetup) {}
 
   void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetup) {
     tTopo_ = &eSetup.getData(tTopoToken_);
