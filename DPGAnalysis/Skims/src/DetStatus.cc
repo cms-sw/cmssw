@@ -115,17 +115,16 @@ bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord)
     edm::LogInfo("DetStatus") << "Using softFED#1022 for reading DCS bits" << std::endl;
   }
 
-  int count = 0;
   for (unsigned int detlist = 0; detlist < DcsStatus::nPartitions; detlist++) {
     if (verbose_)
       edm::LogInfo("DetStatus") << "testing " << DcsStatus::partitionName[detlist];
     if (requestedPartitions_.test(detlist)) {
-      count++;
       if (verbose_)
         edm::LogInfo("DetStatus") << " " << DcsStatus::partitionName[detlist] << "in the requested list" << std::endl;
       if (AndOr_) {
-        accepted =
-            (count == 1) ? dcsRecord.highVoltageReady(detlist) : (accepted && dcsRecord.highVoltageReady(detlist));
+        accepted = dcsRecord.highVoltageReady(detlist);
+        if (!accepted)
+          break;
       } else {
         accepted = (accepted || dcsRecord.highVoltageReady(detlist));
       }
