@@ -10,10 +10,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-
 namespace {
   template <typename DDD>
   inline void check_ddd(const DDD* ddd) {
@@ -30,11 +26,8 @@ namespace {
   }
 }  // namespace
 
-void HGCalTriggerTools::eventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
-  geom_ = triggerGeometry_.product();
-
+void HGCalTriggerTools::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  geom_ = geom;
   eeLayers_ = geom_->eeTopology().dddConstants().layers(true);
   fhLayers_ = geom_->fhTopology().dddConstants().layers(true);
   if (geom_->isWithNoseGeometry())

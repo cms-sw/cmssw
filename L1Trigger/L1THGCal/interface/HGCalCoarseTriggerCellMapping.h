@@ -14,7 +14,7 @@ public:
   GlobalPoint getCoarseTriggerCellPosition(uint32_t ctcId) const;
   uint32_t getCoarseTriggerCellId(uint32_t detid) const;
   void checkSizeValidity(int ctcSize) const;
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   static constexpr int kCTCsizeCoarse_ = 16;
   static constexpr int kCTCsizeMid_ = 8;

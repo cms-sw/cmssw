@@ -79,13 +79,13 @@ void CaloTruthCellsProducer::produce(edm::Event& event, edm::EventSetup const& s
   event.getByToken(triggerCellsToken_, triggerCellsHandle);
   auto const& triggerCells(*triggerCellsHandle);
 
-  dummyClustering_.eventSetup(setup);
-  showerShape_.eventSetup(setup);
-  triggerTools_.eventSetup(setup);
-
   edm::ESHandle<HGCalTriggerGeometryBase> geometryHandle;
   setup.get<CaloGeometryRecord>().get(geometryHandle);
   auto const& geometry(*geometryHandle);
+
+  dummyClustering_.setGeometry(geometryHandle.product());
+  showerShape_.setGeometry(geometryHandle.product());
+  triggerTools_.setGeometry(geometryHandle.product());
 
   std::unordered_map<uint32_t, CaloParticleRef> tcToCalo;
 
