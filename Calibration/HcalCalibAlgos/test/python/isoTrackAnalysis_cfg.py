@@ -20,14 +20,14 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.load('Calibration.HcalCalibAlgos.hcalIsoTrackAnalyzer_cfi')
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-       'file:PoolOutput.root',
+       'file:newPoolOutput.root',
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string('output.root')
+   fileName = cms.string('outputNew.root')
 )
 
 process.hcalIsoTrackAnalyzer.useRaw = 0   # 2 for Raw
