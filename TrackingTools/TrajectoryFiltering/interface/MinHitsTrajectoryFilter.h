@@ -49,11 +49,11 @@ protected:
   bool QF(const T& traj) const {
     int seedPenalty = (2 == traj.seedNHits()) ? theSeedPairPenalty : 0;  // increase by one if seed-doublet...
     bool passed = false;
-    double pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp() ;
-    double pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z() ;
-    double sinhTrajEta2 = (pz*pz)/(pt*pt);
+    double pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
+    double pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
+    double sinhTrajEta2 = (pz * pz) / (pt * pt);
     double myEtaSwitch = sinh(theHighEtaSwitch);
-    if (sinhTrajEta2 < (myEtaSwitch*myEtaSwitch) ) {
+    if (sinhTrajEta2 < (myEtaSwitch * myEtaSwitch)) {
       if (traj.foundHits() >= theMinHits + seedPenalty)
         passed = true;
     } else {  //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
