@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
-import os
 
 options = VarParsing('analysis')
 options.register("doSim", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("cmssw", "CMSSW_X_Y_Z", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("globalTag", "tag", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("dataSetTag", "sample", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
@@ -43,8 +43,7 @@ if options.doSim:
 process.dqmsave_step = cms.Path(process.DQMSaver)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
-cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
-process.dqmSaver.workflow = '/{}/{}/{}'.format(options.dataSetTag,options.globalTag,cmssw_version)
+process.dqmSaver.workflow = '/{}/{}/{}'.format(options.dataSetTag,options.globalTag,options.cmssw)
 
 # Schedule definition
 process.schedule = cms.Schedule()
