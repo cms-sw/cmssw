@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 
-process.ana = cms.EDAnalyzer('PFAnalysisNtuplizer')
+process.ana = cms.EDAnalyzer('PFAnalysis')
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("pfntuple.root")
