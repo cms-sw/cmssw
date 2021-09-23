@@ -49,8 +49,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       theHOSiPMResponse(std::make_unique<HcalSiPMHitResponse>(
           &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
       theHFResponse(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes)),
-      theHFQIE10Response(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes)),
-      theZDCResponse(std::make_unique<CaloHitResponse>(&theParameterMap, &theShapes)),
+      theHFQIE10Response(std::make_unique<CaloHitResponse>(
+          &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
+      theZDCResponse(std::make_unique<CaloHitResponse>(
+          &theParameterMap, &theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
       theHBHEAmplifier(nullptr),
       theHFAmplifier(nullptr),
       theHOAmplifier(nullptr),
@@ -466,7 +468,7 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
   std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
   std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
   std::unique_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection(
-      !theHFQIE10DetIds.empty() ? theParameterMap.simParameters(theHFQIE10DetIds[0]).readoutFrameSize()
+      !theHFQIE10DetIds.empty() ? theHFQIE10Response.get()->getReadoutFrameSize(theHFQIE10DetIds[0])
                                 : QIE10DigiCollection::MAXSAMPLES));
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(new QIE11DigiCollection(
       !theHBHEQIE11DetIds.empty() ? theHBHESiPMResponse.get()->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :

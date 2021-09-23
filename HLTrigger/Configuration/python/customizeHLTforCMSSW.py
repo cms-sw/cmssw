@@ -140,6 +140,11 @@ def customiseFor35315(process):
 
     return process
 
+# MultipleScatteringParametrisationMakerESProducer
+def customiseFor35269(process):
+    process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
@@ -151,5 +156,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customiseFor35315(process)
+    process = customiseFor35269(process)
 
     return process

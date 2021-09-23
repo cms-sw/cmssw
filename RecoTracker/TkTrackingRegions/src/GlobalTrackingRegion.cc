@@ -6,7 +6,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
@@ -89,7 +91,9 @@ std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer
   HitRZConstraint rzConstraint(leftLine, rightLine);
 
   if UNLIKELY (theUseMS) {
-    MultipleScatteringParametrisation iSigma(layer, iSetup);
+    edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
+    iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
+    MultipleScatteringParametrisation iSigma = hmaker->parametrisation(layer);
     PixelRecoPointRZ vtxMean(0., origin().z());
 
     float innerScatt = 3.f * (outerlayer ? iSigma(ptMin(), vtxMean, outerred, outerlayer->seqNum())

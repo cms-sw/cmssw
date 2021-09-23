@@ -29,6 +29,8 @@ namespace {
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(unsigned int inner,
@@ -115,7 +117,11 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
                                              HitDoublets& result) {
   //  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
   typedef RecHitsSortedInPhi::Hit Hit;
-  InnerDeltaPhi deltaPhi(outerHitDetLayer, innerHitDetLayer, region, iSetup);
+  edm::ESHandle<MagneticField> hfield;
+  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
+  edm::ESHandle<MultipleScatteringParametrisationMaker> hmaker;
+  iSetup.get<TrackerMultipleScatteringRecord>().get(hmaker);
+  InnerDeltaPhi deltaPhi(outerHitDetLayer, innerHitDetLayer, region, *hfield, *hmaker);
 
   // std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << outerLayer.detLayer()->seqNum() << std::endl;
 
