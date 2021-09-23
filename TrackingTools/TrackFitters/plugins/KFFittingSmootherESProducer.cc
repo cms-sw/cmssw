@@ -74,22 +74,25 @@ namespace {
       desc.add<double>("LogPixelProbabilityCut", 0);
     }
 
-    int getNhitCutValue(const Trajectory& t, double theHighEtaSwitch, int theMinNumberOfHitsHighEta, int theMinNumberOfHits) const {
+    int getNhitCutValue(const Trajectory& t,
+                        double theHighEtaSwitch,
+                        int theMinNumberOfHitsHighEta,
+                        int theMinNumberOfHits) const {
       double sinhTrajEta2 = std::numeric_limits<double>::max();
-      if ( !t.empty() && t.isValid() ) {
-	/* in principle we can access eta() and check it w.r.t theHighEtaSwitch.
+      if (!t.empty() && t.isValid()) {
+        /* in principle we can access eta() and check it w.r.t theHighEtaSwitch.
 	   but eta() is expensive, so we are making use of the following relation
 	   sinh(eta) = pz/pt (will square on both side to get rid of sign)
 	 */
-	double pt = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp() ;
-	double pz = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z() ;
-	sinhTrajEta2 = (pz*pz)/(pt*pt);
+        double pt = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
+        double pz = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
+        sinhTrajEta2 = (pz * pz) / (pt * pt);
       }
       double myEtaSwitch = sinh(theHighEtaSwitch);
-      const auto thisHitCut = sinhTrajEta2 > (myEtaSwitch*myEtaSwitch) ? theMinNumberOfHitsHighEta : theMinNumberOfHits;
+      const auto thisHitCut =
+          sinhTrajEta2 > (myEtaSwitch * myEtaSwitch) ? theMinNumberOfHitsHighEta : theMinNumberOfHits;
       return thisHitCut;
     }
-    
 
     Trajectory fitOne(const Trajectory& t, fitType type) const override;
     Trajectory fitOne(const TrajectorySeed& aSeed,
@@ -224,7 +227,8 @@ namespace {
 #endif
 
       bool hasNaN = false;
-      const auto thisHitCut = getNhitCutValue(smoothed, theHighEtaSwitch, theMinNumberOfHitsHighEta, theMinNumberOfHits);
+      const auto thisHitCut =
+          getNhitCutValue(smoothed, theHighEtaSwitch, theMinNumberOfHitsHighEta, theMinNumberOfHits);
 
       if (!smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || (smoothed.foundHits() < thisHitCut)) {
         if (hasNaN)
