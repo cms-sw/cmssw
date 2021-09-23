@@ -74,6 +74,23 @@ namespace {
       desc.add<double>("LogPixelProbabilityCut", 0);
     }
 
+    int getNhitCutValue(const Trajectory& t, double theHighEtaSwitch, int theMinNumberOfHitsHighEta, int theMinNumberOfHits) const {
+      double sinhTrajEta2 = std::numeric_limits<double>::max();
+      if ( !t.empty() && t.isValid() ) {
+	/* in principle we can access eta() and check it w.r.t theHighEtaSwitch.
+	   but eta() is expensive, so we are making use of the following relation
+	   sinh(eta) = pz/pt (will square on both side to get rid of sign)
+	 */
+	double pt = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp() ;
+	double pz = t.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z() ;
+	sinhTrajEta2 = (pz*pz)/(pt*pt);
+      }
+      double myEtaSwitch = sinh(theHighEtaSwitch);
+      const auto thisHitCut = sinhTrajEta2 > (myEtaSwitch*myEtaSwitch) ? theMinNumberOfHitsHighEta : theMinNumberOfHits;
+      return thisHitCut;
+    }
+    
+
     Trajectory fitOne(const Trajectory& t, fitType type) const override;
     Trajectory fitOne(const TrajectorySeed& aSeed,
                       const RecHitContainer& hits,
@@ -99,17 +116,8 @@ namespace {
         : KFFittingSmootherParam(other), theFitter(aFitter.clone()), theSmoother(aSmoother.clone()) {}
 
     Trajectory smoothingStep(Trajectory&& fitted) const {
-      double absTrajEta = 99.0;
-      if (!fitted.empty()) {
-        absTrajEta = fabs(fitted.lastMeasurement()
-                              .updatedState()
-                              .freeTrajectoryState()
-                              ->momentum()
-                              .eta());  //needed for eta-extended electrons
-      }
-      int thisHitCut = theMinNumberOfHits;
-      if (absTrajEta > theHighEtaSwitch)
-        thisHitCut = theMinNumberOfHitsHighEta;
+      const auto thisHitCut = getNhitCutValue(fitted, theHighEtaSwitch, theMinNumberOfHitsHighEta, theMinNumberOfHits);
+
       if (theEstimateCut > 0) {
         // remove "outlier" at the end of Traj
         while (
@@ -216,17 +224,8 @@ namespace {
 #endif
 
       bool hasNaN = false;
-      double absTrajEta = 99.0;
-      if (smoothed.isValid()) {
-        absTrajEta = fabs(smoothed.lastMeasurement()
-                              .updatedState()
-                              .freeTrajectoryState()
-                              ->momentum()
-                              .eta());  //needed for eta-extended electrons
-      }
-      int thisHitCut = theMinNumberOfHits;
-      if (absTrajEta > theHighEtaSwitch)
-        thisHitCut = theMinNumberOfHitsHighEta;
+      const auto thisHitCut = getNhitCutValue(smoothed, theHighEtaSwitch, theMinNumberOfHitsHighEta, theMinNumberOfHits);
+
       if (!smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || (smoothed.foundHits() < thisHitCut)) {
         if (hasNaN)
           edm::LogWarning("TrackNaN") << "Track has NaN or the cov is not pos-definite";

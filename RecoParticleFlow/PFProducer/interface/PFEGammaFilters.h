@@ -32,6 +32,7 @@ public:
 
 private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;
+  bool thisEleIsNotAllowedInPF(const reco::GsfElectron&, bool) const;
 
   // Photon selections
   const float ph_Et_;
