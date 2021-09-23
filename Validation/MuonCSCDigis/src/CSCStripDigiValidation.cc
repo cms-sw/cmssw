@@ -55,7 +55,6 @@ void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
     int detId = (*j).first.rawId();
 
     const CSCLayer *layer = findLayer(detId);
-    int chamberType = layer->chamber()->specs()->chamberType();
     int nDigis = last - digiItr;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlot->Fill(nDigis);
