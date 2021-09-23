@@ -13,18 +13,10 @@
 #include <memory>
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
-    : doSim_(ps.getParameter<bool>("doSim")),
-      theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector()),
-      theCSCGeometry(nullptr),
-      theStripDigiValidation(nullptr),
-      theWireDigiValidation(nullptr),
-      theComparatorDigiValidation(nullptr),
-      theALCTDigiValidation(nullptr),
-      theCLCTDigiValidation(nullptr),
-      theCLCTPreTriggerDigiValidation(nullptr),
-      theCorrelatedLCTDigiValidation(nullptr),
-      theStubEfficiencyValidation(nullptr),
-      theStubResolutionValidation(nullptr) {
+  : doSim_(ps.getParameter<bool>("doSim")),
+    theSimHitMap(nullptr),
+    theCSCGeometry(nullptr)
+{
   // instantiatethe validation modules
   theStripDigiValidation = std::make_unique<CSCStripDigiValidation>(ps, consumesCollector());
   theWireDigiValidation = std::make_unique<CSCWireDigiValidation>(ps, consumesCollector());
@@ -33,14 +25,14 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
   theCLCTDigiValidation = std::make_unique<CSCCLCTDigiValidation>(ps, consumesCollector());
   theCLCTPreTriggerDigiValidation = std::make_unique<CSCCLCTPreTriggerDigiValidation>(ps, consumesCollector());
   theCorrelatedLCTDigiValidation = std::make_unique<CSCCorrelatedLCTDigiValidation>(ps, consumesCollector());
-  theStubEfficiencyValidation = std::make_unique<CSCStubEfficiencyValidation>(ps, consumesCollector());
-  theStubResolutionValidation = std::make_unique<CSCStubResolutionValidation>(ps, consumesCollector());
-
   // set the simhit map for resolution studies
   if (doSim_) {
-    theStripDigiValidation->setSimHitMap(&theSimHitMap);
-    theWireDigiValidation->setSimHitMap(&theSimHitMap);
-    theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
+    theSimHitMap = new PSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector());
+    theStripDigiValidation->setSimHitMap(theSimHitMap);
+    theWireDigiValidation->setSimHitMap(theSimHitMap);
+    theComparatorDigiValidation->setSimHitMap(theSimHitMap);
+    theStubEfficiencyValidation = std::make_unique<CSCStubEfficiencyValidation>(ps, consumesCollector());
+    theStubResolutionValidation = std::make_unique<CSCStubResolutionValidation>(ps, consumesCollector());
   }
   geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
@@ -58,14 +50,14 @@ void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
   theCLCTDigiValidation->bookHistograms(iBooker);
   theCLCTPreTriggerDigiValidation->bookHistograms(iBooker);
   theCorrelatedLCTDigiValidation->bookHistograms(iBooker);
-  // these plots are split over ALCT, CLCT and LCT
-  theStubEfficiencyValidation->bookHistograms(iBooker);
-  theStubResolutionValidation->bookHistograms(iBooker);
+  if (doSim_) {
+    // these plots are split over ALCT, CLCT and LCT
+    theStubEfficiencyValidation->bookHistograms(iBooker);
+    theStubResolutionValidation->bookHistograms(iBooker);
+  }
 }
 
 void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &eventSetup) {
-  theSimHitMap.fill(e);
-
   // find the geometry & conditions for this event
   const CSCGeometry *pGeom = &eventSetup.getData(geomToken_);
 
@@ -76,8 +68,11 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theCLCTDigiValidation->setGeometry(pGeom);
   theCLCTPreTriggerDigiValidation->setGeometry(pGeom);
   theCorrelatedLCTDigiValidation->setGeometry(pGeom);
-  theStubEfficiencyValidation->setGeometry(pGeom);
-  theStubResolutionValidation->setGeometry(pGeom);
+  if (doSim_) {
+    theSimHitMap->fill(e);
+    theStubEfficiencyValidation->setGeometry(pGeom);
+    theStubResolutionValidation->setGeometry(pGeom);
+  }
 
   theStripDigiValidation->analyze(e, eventSetup);
   theWireDigiValidation->analyze(e, eventSetup);
@@ -86,6 +81,8 @@ void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &even
   theCLCTDigiValidation->analyze(e, eventSetup);
   theCLCTPreTriggerDigiValidation->analyze(e, eventSetup);
   theCorrelatedLCTDigiValidation->analyze(e, eventSetup);
-  theStubEfficiencyValidation->analyze(e, eventSetup);
-  theStubResolutionValidation->analyze(e, eventSetup);
+  if (doSim_) {
+    theStubEfficiencyValidation->analyze(e, eventSetup);
+    theStubResolutionValidation->analyze(e, eventSetup);
+  }
 }

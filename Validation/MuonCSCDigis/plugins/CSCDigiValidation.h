@@ -32,8 +32,8 @@ public:
 
 private:
   bool doSim_;
-  PSimHitMap theSimHitMap;
-  CSCGeometry *theCSCGeometry;
+  PSimHitMap *theSimHitMap;
+  const CSCGeometry *theCSCGeometry;
 
   // validation modules
   std::unique_ptr<CSCStripDigiValidation> theStripDigiValidation;
