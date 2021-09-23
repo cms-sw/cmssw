@@ -23,8 +23,7 @@ namespace hcaldqm {
     _tokRaw = consumes<FEDRawDataCollection>(_tagRaw);
   }
 
-  void DQTask::fillPSetDescription(edm::ParameterSetDescription& desc)  {
-
+  void DQTask::fillPSetDescription(edm::ParameterSetDescription &desc) {
     //from class inheritance
     hcaldqm::DQModule::fillPSetDescription(desc);
 
