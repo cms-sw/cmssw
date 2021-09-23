@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
@@ -41,6 +42,8 @@ namespace cms {
     virtual void beginRunBase(edm::Run const&, edm::EventSetup const& es);
 
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   protected:
     bool theTrackCandidateOutput;

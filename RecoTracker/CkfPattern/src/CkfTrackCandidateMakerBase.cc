@@ -540,4 +540,32 @@ namespace cms {
     e.put(std::move(outputSeedStopInfos));
   }
 
+  void CkfTrackCandidateMakerBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<bool>("cleanTrajectoryAfterInOut", true);
+    desc.add<bool>("doSeedingRegionRebuilding", true);
+    desc.add<bool>("onlyPixelHitsForSeedCleaner", false);
+    desc.add<bool>("reverseTrajectories", false);
+    desc.add<bool>("useHitsSplitting", true);
+    desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
+    desc.add<edm::InputTag>("clustersToSkip", edm::InputTag(""));
+    desc.add<edm::InputTag>("phase2clustersToSkip", edm::InputTag(""));
+    desc.add<edm::InputTag>("src", edm::InputTag("globalMixedSeeds"));
+
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("TrajectoryBuilderPSet", psd0);
+
+    edm::ParameterSetDescription psd1;
+    psd1.add<std::string>("propagatorAlongTISE", "PropagatorWithMaterial");
+    psd1.add<std::string>("propagatorOppositeTISE", "PropagatorWithMaterialOpposite");
+    psd1.add<int>("numberMeasurementsForFit", 4);
+    desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters", psd1);
+
+    desc.add<int>("numHitsForSeedCleaner", 4);
+    desc.add<std::string>("NavigationSchool", "SimpleNavigationSchool");
+    desc.add<std::string>("RedundantSeedCleaner", "CachingSeedCleanerBySharedInput");
+    desc.add<std::string>("TrajectoryCleaner", "TrajectoryCleanerBySharedHits");
+    desc.add<unsigned int>("maxNSeeds", 500000);
+    desc.add<unsigned int>("maxSeedsBeforeCleaning", 5000);
+  }
+
 }  // namespace cms
