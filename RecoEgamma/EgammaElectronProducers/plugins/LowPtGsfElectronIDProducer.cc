@@ -195,7 +195,12 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       // Extract Track
       const reco::Track* trk = nullptr;
       if (useGsfToTrack_) {
-        trk = (*gsf2trk)[gsf].get();
+        if (gsf.isAvailable()) {
+          auto const& ref = (*gsf2trk)[gsf];
+          if (ref.isNonnull() && ref.isAvailable()) {
+            trk = ref.get();
+          }
+        }
       } else {
         reco::TrackRef ref = ele->closestCtfTrackRef();
         if (ref.isNonnull() && ref.isAvailable()) {
