@@ -6,6 +6,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
@@ -19,6 +20,7 @@ namespace l1t {
       inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
       inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
       inline const edm::EDGetTokenT<MuonBxCollection>& getMuonToken() const { return muonToken_; };
+      inline const edm::EDGetTokenT<MuonShowerBxCollection>& getMuonShowerToken() const { return muonShowerToken_; };
 
     protected:
       edm::EDGetTokenT<EGammaBxCollection> egammaToken_;
@@ -26,6 +28,7 @@ namespace l1t {
       edm::EDGetTokenT<JetBxCollection> jetToken_;
       edm::EDGetTokenT<TauBxCollection> tauToken_;
       edm::EDGetTokenT<MuonBxCollection> muonToken_;
+      edm::EDGetTokenT<MuonShowerBxCollection> muonShowerToken_;
     };
   }  // namespace stage2
 }  // namespace l1t
