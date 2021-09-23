@@ -148,15 +148,31 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_qltyMissFlag = itr->qltyMissFlag_;
       t_qltyPVFlag = itr->qltyPVFlag_;
       t_trgbits = itr->trgbits_;
-      t_eHcal = itr->eHcal_;
-      t_eHcal10 = itr->eHcal10_;
-      t_eHcal30 = itr->eHcal30_;
       t_DetIds = itr->detIds_;
       t_DetIds1 = itr->detIds1_;
       t_DetIds3 = itr->detIds3_;
-      t_HitEnergies = itr->hitEnergies_;
-      t_HitEnergies1 = itr->hitEnergies1_;
-      t_HitEnergies3 = itr->hitEnergies3_;
+      if (useRaw_ == 1) {
+	t_eHcal = itr->eHcalAux_;
+	t_eHcal10 = itr->eHcal10Aux_;
+	t_eHcal30 = itr->eHcal30Aux_;
+	t_HitEnergies = itr->hitEnergiesAux_;
+	t_HitEnergies1 = itr->hitEnergies1Aux_;
+	t_HitEnergies3 = itr->hitEnergies3Aux_;
+      } else if (useRaw_ == 2) {
+	t_eHcal = itr->eHcalRaw_;
+	t_eHcal10 = itr->eHcal10Raw_;
+	t_eHcal30 = itr->eHcal30Raw_;
+	t_HitEnergies = itr->hitEnergiesRaw_;
+	t_HitEnergies1 = itr->hitEnergies1Raw_;
+	t_HitEnergies3 = itr->hitEnergies3Raw_;
+      } else {
+	t_eHcal = itr->eHcal_;
+	t_eHcal10 = itr->eHcal10_;
+	t_eHcal30 = itr->eHcal30_;
+	t_HitEnergies = itr->hitEnergies_;
+	t_HitEnergies1 = itr->hitEnergies1_;
+	t_HitEnergies3 = itr->hitEnergies3_;
+      }
       tree->Fill();
 
       if (t_p < pTrackLow_) {
