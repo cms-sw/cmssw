@@ -1310,6 +1310,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return shiftedModule
 
 #========================================================================================
+# QUESTION: Stilll needed?
     def createMVAMETModule(self, process, identifier="", shiftedCollection="", isShifted=False, postfix="" ):
 
         task = getPatAlgosToolsTask(process)
@@ -1366,6 +1367,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return mvaMetProducer
 
 #========================================================================================
+# QUESTION: Stilll needed?
     def getUnclusteredVariationsForMVAMET(self, process, var, val,  metUncSequence, postfix ):
 
         if not hasattr(process, "pfCandsNotInJetsForMetCorr"):
@@ -1403,6 +1405,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return shiftedMETModule
 
 #========================================================================================
+# QUESTION: Stilll needed?
     def createShiftedObjectModuleForMVAMET(self, origCollection, shiftedCollection, dr=0.5):
         fullShiftedModule = cms.EDProducer("ShiftedPFCandidateProducerByMatchedObject",
                  srcPFCandidates = origCollection,
@@ -1449,7 +1452,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 genJets = genJetsCollection,
                 )
 
-        #MM: FIXME MVA
+        #MM: FIXME MVA QUESTION: Stilll needed?
         #if "MVA" == self._parameters["metType"].value:
         #    from RecoMET.METProducers.METSigParams_cfi import *
 
