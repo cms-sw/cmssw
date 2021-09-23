@@ -545,6 +545,7 @@ def customiseHcalLocalReconstruction(process):
 
     process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
 
+    process.load("RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")
