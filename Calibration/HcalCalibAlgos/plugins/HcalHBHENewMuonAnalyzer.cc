@@ -81,8 +81,8 @@ private:
 };
 
 HcalHBHENewMuonAnalyzer::HcalHBHENewMuonAnalyzer(const edm::ParameterSet& iConfig)
-  : labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
-    tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
+    : labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
+      tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
@@ -92,7 +92,8 @@ HcalHBHENewMuonAnalyzer::HcalHBHENewMuonAnalyzer(const edm::ParameterSet& iConfi
   else if (maxDepth_ < 1)
     maxDepth_ = 4;
 
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t maxDepth__ " << maxDepth_ << "\n\t Labels " << labelHBHEMuonVar_;
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t maxDepth__ " << maxDepth_ << "\n\t Labels "
+                               << labelHBHEMuonVar_;
 }
 
 //
