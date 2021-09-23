@@ -2,21 +2,7 @@
 //! \class PixelThresholdClusterizerForBricked
 //! \brief A specific threshold-based pixel clustering algorithm
 //!
-//! General logic of PixelThresholdClusterizerForBricked:
-//!
-//! The clusterization is performed on a matrix with size
-//! equal to the size of the pixel detector, each cell containing
-//! the ADC count of the corresponding pixel.
-//! The matrix is reset after each clusterization.
-//!
-//! The search starts from seed pixels, i.e. pixels with sufficiently
-//! large amplitudes, found at the time of filling of the matrix
-//! and stored in a SiPixelArrayBuffer.
-//!
-//! Translate the pixel charge to electrons, we are suppose to
-//! do the calibrations ADC->electrons here.
-//! Modify the thresholds to be in electrons, convert adc to electrons. d.k. 20/3/06
-//! Get rid of the noiseVector. d.k. 28/3/06
+//! Same logic as the base class PixelThresholdClusterizer but specialized for bricked pixels topology
 //----------------------------------------------------------------------------
 
 // Our own includes
@@ -61,11 +47,12 @@ void PixelThresholdClusterizerForBricked::clusterizeDetUnitT(const T& input,
   typename T::const_iterator begin = input.begin();
   typename T::const_iterator end = input.end();
 
+  edm::LogInfo("PixelThresholdClusterizerForBricked::clusterizeDetUnitT()");
+
   // Do not bother for empty detectors
-  //if (begin == end) cout << " PixelThresholdClusterizerForBricked::clusterizeDetUnit - No digis to clusterize";
+  if (begin == end)
+    edm::LogWarning("clusterizeDetUnit()") << "No digis to clusterize";
 
-
-  // cout << " PixelThresholdClusterizerForBricked: " << endl;
   //  Set up the clusterization on this DetId.
   if (!setup(pixDet))
     return;
@@ -85,24 +72,23 @@ void PixelThresholdClusterizerForBricked::clusterizeDetUnitT(const T& input,
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  //  edm::LogError("PixelThresholdClusterizerForBricked") <<  "Starting clusterizing" << endl;
+  //  LogError("PixelThresholdClusterizerForBricked") <<  "Starting clusterizing";
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
     // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
     // so we don't want to call "make_cluster" for these cases
     if (theBuffer(theSeeds[i]) >= theSeedThreshold) {  // Is this seed still valid?
       //  Make a cluster around this seed
-
       SiPixelCluster cluster;
-      if (!(&pixDet->specificTopology())->isBricked()) {
-        cluster = make_cluster(theSeeds[i], output);
-      } else {
+      if ((&pixDet->specificTopology())->isBricked()) {
         cluster = make_cluster_bricked(theSeeds[i], output, isBarrel);
+      } else {
+        cluster = make_cluster(theSeeds[i], output);
       }
 
       //  Check if the cluster is above threshold
       // (TO DO: one is signed, other unsigned, gcc warns...)
       if (cluster.charge() >= clusterThreshold) {
-        // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
+        // LogDebug("clusterizeDetUnit():") << "putting in this cluster" << i << cluster.charge() << cluster.pixelADC().size();
         // sort by row (x)
         output.push_back(std::move(cluster));
         std::push_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
@@ -141,7 +127,6 @@ SiPixelCluster PixelThresholdClusterizerForBricked::make_cluster_bricked(
   //We consider the charge of the pixel to always be zero.
 
   seed_adc = theBuffer(pix.row(), pix.col());
-
   theBuffer.set_adc(pix, 1);
 
   AccretionCluster acluster;
@@ -174,15 +159,16 @@ SiPixelCluster PixelThresholdClusterizerForBricked::make_cluster_bricked(
 
       /*
 	for (auto c = std::max(0, int(acluster.y[curInd]) - 1);
-         c < std::min(int(acluster.y[curInd]) + 2, theBuffer.columns());
-         ++c)*/
-
+	c < std::min(int(acluster.y[curInd]) + 2, theBuffer.columns());
+	++c)
+      */
       for (auto c = LowerAccLimity; c < UpperAccLimity; ++c) {
         if (theBuffer(r, c) >= thePixelThreshold) {
           SiPixelCluster::PixelPos newpix(r, c);
           if (!acluster.add(newpix, theBuffer(r, c)))
             goto endClus;
-          //if (isbarrel) {std::cout<<"add "<<r<<" "<<c<<" "<<theBuffer(r,c)<<endl;}
+          if (isbarrel)
+            edm::LogInfo("make_cluster_bricked()") << "add" << r << c << theBuffer(r, c);
           theBuffer.set_adc(newpix, 1);
           //std::cout<<"col "<<c<<" row "<<r<<std::endl;
         }

@@ -21,7 +21,6 @@ using namespace std;
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
-  const bool MYDEBUG = false;
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -36,16 +35,16 @@ PixelCPEGenericForBricked::PixelCPEGenericForBricked(edm::ParameterSet const& co
                                                      const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
     : PixelCPEGeneric(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth) {
   if (theVerboseLevel > 0)
-    LogDebug("PixelCPEGenericForBricked") << " constructing a generic algorithm for ideal pixel detector.\n"
-                                          << " CPEGenericForBricked:: VerboseLevel = " << theVerboseLevel;
-  if (MYDEBUG) {
-    cout << "From PixelCPEGenericForBricked::PixelCPEGenericForBricked(...)" << endl;
-    cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
-    cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
-    cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
-    cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
-    cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
-  }
+    LogDebug("PixelCPEGenericBricked") << "constructing a generic algorithm for ideal pixel detector.\n"
+                                       << "CPEGenericForBricked::VerboseLevel =" << theVerboseLevel;
+#ifdef EDM_ML_DEBUG
+  cout << "From PixelCPEGenericForBricked::PixelCPEGenericForBricked(...)" << endl;
+  cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
+  cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
+  cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
+  cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -56,8 +55,6 @@ PixelCPEGenericForBricked::PixelCPEGenericForBricked(edm::ParameterSet const& co
 LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
                                                     ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
-
-  //cout<<" in PixelCPEGenericForBricked:localPosition - "<<endl; //dk
 
   float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFractionX);
   float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFractionY);
@@ -119,11 +116,10 @@ LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
     if (useLAWidthFromGenError) {
       chargeWidthX = (-micronsToCm * gtempl.lorxwidth());
       chargeWidthY = (-micronsToCm * gtempl.lorywidth());
-      if (MYDEBUG)
-        cout << " redefine la width (gen-error) " << chargeWidthX << " " << chargeWidthY << endl;
+      edm::LogInfo("PixelCPE bricked localPosition():")
+          << "redefine la width (gen-error)" << chargeWidthX << " " << chargeWidthY;
     }
-    if (MYDEBUG)
-      cout << " GenError: " << gtemplID_ << endl;
+    edm::LogInfo("PixelCPEGeneric bricked localPosition():") << "GenError:" << gtemplID_;
 
     // These numbers come in microns from the qbin(...) call. Transform them to cm.
     theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
@@ -156,8 +152,6 @@ LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
   int lowest_is_bricked = 1;
   int highest_is_bricked = 0;
 
-  std::cout << theDetParam.theDet->geographicalId().rawId() << " " << theDetParam.theTopol->isBricked() << std::endl;
-
   if (theDetParam.theTopol->isBricked()) {
     collect_edge_charges_bricked(theClusterParam,
                                  q_f_X,
@@ -186,6 +180,7 @@ LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
   //--- Lower Left corner of Upper Right pixel -- in measurement frame
   MeasurementPoint meas_LLcorn_URpix(theClusterParam.theCluster->maxPixelRow(),
                                      theClusterParam.theCluster->maxPixelCol());
+
   if (theDetParam.theTopol->isBricked()) {
     if (lowest_is_bricked)
       meas_URcorn_LLpix = MeasurementPoint(theClusterParam.theCluster->minPixelRow() + 1.0,
@@ -260,7 +255,7 @@ LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
   // staggering pf the pixel cells allowed along local-Y direction only
   float yPos;
   if (theDetParam.theTopol->isBricked()) {
-    yPos = SiPixelUtils::bricked_y_position_formula(
+    yPos = SiPixelUtils::generic_position_formula_y_bricked(
         theClusterParam.theCluster->sizeY(),
         q_f_Y,
         q_l_Y,
@@ -344,22 +339,21 @@ LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
 }
 
 void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theClusterParamBase,  //!< input, the cluster
-                                                             int& Q_f_X,  //!< output, Q first  in X
-                                                             int& Q_l_X,  //!< output, Q last   in X
-                                                             int& Q_f_Y,  //!< output, Q first  in Y
-                                                             int& Q_l_Y,  //!< output, Q last   in Y
-                                                             int& Q_f_b,
-                                                             int& Q_l_b,               //Bricked correction
+                                                             int& q_f_X,  //!< output, Q first  in X
+                                                             int& q_l_X,  //!< output, Q last   in X
+                                                             int& q_f_Y,  //!< output, Q first  in Y
+                                                             int& q_l_Y,  //!< output, Q last   in Y
+                                                             int& q_f_b,
+                                                             int& q_l_b,               //Bricked correction
                                                              int& lowest_is_bricked,   //Bricked correction
                                                              int& highest_is_bricked,  //Bricked correction
                                                              bool truncate) {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  // FIXME: the latest version of collect_edge_charges() has a boolean arg based on ErrorsFromTemplates_ && TruncatePixelCharge_
   // Initialize return variables.
-  Q_f_X = Q_l_X = 0.0;
-  Q_f_Y = Q_l_Y = 0.0;
-  Q_f_b = Q_l_b = 0.0;
+  q_f_X = q_l_X = 0.0;
+  q_f_Y = q_l_Y = 0.0;
+  q_f_b = q_l_b = 0.0;
 
   // Obtain boundaries in index units
   int xmin = theClusterParam.theCluster->minPixelRow();
@@ -370,11 +364,10 @@ void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theCl
   //bool lowest_is_bricked = 1; //Tells you if the lowest pixel of the cluster is on a bricked row or not.
   //bool highest_is_bricked = 0;
 
-  int Q_t_b =
-      0;  //Sums up the charge of the non-bricked pixels at the top of the clusters in the event that the highest pixel of the cluster is on a bricked row.
-  int Q_t_nb = 0;
-  int Q_b_b = 0;
-  int Q_b_nb = 0;
+  int q_t_b = 0;  //Sums up the charge of the non-bricked pixels at the top of the clusters in the event that the highest pixel of the cluster is on a bricked row.
+  int q_t_nb = 0;
+  int q_b_b = 0;
+  int q_b_nb = 0;
 
   //This is included in the main loop.
   // Iterate over the pixels to find out if a bricked row is lowest/highest.
@@ -390,56 +383,50 @@ void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theCl
   // Iterate over the pixels.
   int isize = theClusterParam.theCluster->size();
   for (int i = 0; i != isize; ++i) {
-    //std::cout<<i<<"clust i"<<std::endl;
     auto const& pixel = theClusterParam.theCluster->pixel(i);
     // ggiurgiu@fnal.gov: add pixel charge truncation
     int pix_adc = pixel.adc;
     if (truncate)
       pix_adc = std::min(pix_adc, theClusterParam.pixmx);
-    //std::cout<<pix_adc<<"adc i"<<std::endl;
-
     //
     // X projection
     if (pixel.x == xmin)
-      Q_f_X += pix_adc;
+      q_f_X += pix_adc;
     if (pixel.x == xmax)
-      Q_l_X += pix_adc;
+      q_l_X += pix_adc;
     //
     // Y projection
     if (pixel.y == ymin) {
-      Q_f_Y += pix_adc;
+      q_f_Y += pix_adc;
       if (pixel.x % 2)
-        Q_b_nb += pix_adc;
+        q_b_nb += pix_adc;
       else
         lowest_is_bricked = 0;
     }
-
     if (pixel.y == ymin + 1 && !(pixel.x % 2))
-      Q_b_b += pix_adc;
-
+      q_b_b += pix_adc;
     if (pixel.y == ymax) {
-      Q_l_Y += pix_adc;
+      q_l_Y += pix_adc;
       if (!(pixel.x % 2))
-        Q_t_b += pix_adc;
+        q_t_b += pix_adc;
       else
         highest_is_bricked = 1;
     }
-
     if (pixel.y == ymax - 1 && (pixel.x % 2))
-      Q_t_nb += pix_adc;
+      q_t_nb += pix_adc;
   }
 
-  //std::cout<<lowest_is_bricked<<" it  "<<highest_is_bricked<<std::endl;
+  edm::LogInfo("PixelCPE: collect_edge_charges_bricked: l/h") << lowest_is_bricked << "it" << highest_is_bricked;
 
   if (lowest_is_bricked)
-    Q_f_b = Q_b_b;
+    q_f_b = q_b_b;
   else
-    Q_f_b = Q_b_nb;
+    q_f_b = q_b_nb;
 
   if (highest_is_bricked)
-    Q_l_b = -Q_t_b;
+    q_l_b = -q_t_b;
   else
-    Q_l_b = -Q_t_nb;
+    q_l_b = -q_t_nb;
 
   //Need to add the edge pixels that were missed:
   for (int i = 0; i != isize; ++i) {
@@ -449,12 +436,12 @@ void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theCl
       pix_adc = std::min(pix_adc, theClusterParam.pixmx);
 
     if (lowest_is_bricked && pixel.y == ymin + 1 && !(pixel.x % 2))
-      Q_f_Y += pix_adc;
+      q_f_Y += pix_adc;
 
     if (!highest_is_bricked && pixel.y == ymax - 1 && (pixel.x % 2))
-      Q_l_Y += pix_adc;
+      q_l_Y += pix_adc;
 
-    //std::cout<<Q_l_b<<" "<<Q_f_b<<" "<<Q_f_X<<" "<<Q_l_X<<" "<<Q_f_Y<<" "<<Q_l_Y<<" Qlb"<<std::endl;
+    edm::LogInfo("PixelCPE: collect_edge_charges_bricked: Q") << q_l_b << q_f_b << q_f_X << q_l_X << q_f_Y << q_l_Y;
 
     return;
   }
