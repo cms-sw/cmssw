@@ -27,7 +27,7 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapPhase1TrackProducer",
 
   #if commented the default values are 0-0
   #-3 to 4 is the range of the OMTF DAQ readout, so should be used e.g. in the DQM data to emulator comparison
-  #bxMin = cms.int32(-3),
-  #bxMax = cms.int32(4)
+  bxMin = cms.int32(0),
+  bxMax = cms.int32(0)
 )
 
