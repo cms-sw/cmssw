@@ -12,6 +12,7 @@
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,12 +36,19 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  double eval(const std::string& name, const edm::Ptr<reco::GsfElectron>&, double rho, float unbiased, float field_z) const;
+  double eval(const std::string& name,
+              const edm::Ptr<reco::GsfElectron>&,
+              double rho,
+              float unbiased,
+              float field_z,
+              const reco::Track* trk = nullptr) const;
 
+  const bool useGsfToTrack_;
   const bool usePAT_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electrons_;
   edm::EDGetTokenT<pat::ElectronCollection> patElectrons_;
   const edm::EDGetTokenT<double> rho_;
+  edm::EDGetTokenT<edm::Association<reco::TrackCollection> > gsf2trk_;
   edm::EDGetTokenT<edm::ValueMap<float> > unbiased_;
   const std::vector<std::string> names_;
   const bool passThrough_;
@@ -54,10 +62,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 //
 LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& conf)
-    : usePAT_(conf.getParameter<bool>("usePAT")),
+    : useGsfToTrack_(conf.getParameter<bool>("useGsfToTrack")),
+      usePAT_(conf.getParameter<bool>("usePAT")),
       electrons_(),
       patElectrons_(),
       rho_(consumes<double>(conf.getParameter<edm::InputTag>("rho"))),
+      gsf2trk_(),
       unbiased_(),
       names_(conf.getParameter<std::vector<std::string> >("ModelNames")),
       passThrough_(conf.getParameter<bool>("PassThrough")),
@@ -65,6 +75,9 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
       maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")),
       thresholds_(conf.getParameter<std::vector<double> >("ModelThresholds")),
       version_(conf.getParameter<std::string>("Version")) {
+  if (useGsfToTrack_) {
+    gsf2trk_ = consumes<edm::Association<reco::TrackCollection> >(conf.getParameter<edm::InputTag>("gsfToTrack"));
+  }
   if (usePAT_) {
     patElectrons_ = consumes<pat::ElectronCollection>(conf.getParameter<edm::InputTag>("electrons"));
   } else {
@@ -107,6 +120,12 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
     throw cms::Exception("InvalidHandle", os.str());
   }
 
+  // Retrieve GsfToTrack Association from Event
+  edm::Handle<edm::Association<reco::TrackCollection> > gsf2trk;
+  if (useGsfToTrack_) {
+    event.getByToken(gsf2trk_, gsf2trk);
+  }
+
   // Retrieve pat::Electrons or reco::GsfElectrons from Event
   edm::Handle<pat::ElectronCollection> patElectrons;
   edm::Handle<reco::GsfElectronCollection> electrons;
@@ -135,8 +154,31 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       if (!ele->isElectronIDAvailable("unbiased")) {
         continue;
       }
+
+      // Extract Track
+      const reco::Track* trk = nullptr;
+      if (useGsfToTrack_) {
+        using PackedPtr = edm::Ptr<pat::PackedCandidate>;
+        const PackedPtr* ptr1 = ele->userData<PackedPtr>("ele2packed");
+        const PackedPtr* ptr2 = ele->userData<PackedPtr>("ele2lost");
+        auto hasBestTrack = [](const PackedPtr* ptr) {
+          return ptr != nullptr && ptr->isNonnull() && ptr->isAvailable() && ptr->get() != nullptr &&
+                 ptr->get()->bestTrack() != nullptr;
+        };
+        if (hasBestTrack(ptr1)) {
+          trk = ptr1->get()->bestTrack();
+        } else if (hasBestTrack(ptr2)) {
+          trk = ptr2->get()->bestTrack();
+        }
+      } else {
+        reco::TrackRef ref = ele->closestCtfTrackRef();
+        if (ref.isNonnull() && ref.isAvailable()) {
+          trk = ref.get();
+        }
+      }
+
       for (unsigned int iname = 0; iname < names_.size(); ++iname) {
-        output[iname][iele] = eval(names_[iname], ele, *rho, ele->electronID("unbiased"), zfield.z());
+        output[iname][iele] = eval(names_[iname], ele, *rho, ele->electronID("unbiased"), zfield.z(), trk);
       }
     }
   } else {
@@ -149,9 +191,26 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
       if (gsf.isNull()) {
         continue;
       }
+
+      // Extract Track
+      const reco::Track* trk = nullptr;
+      if (useGsfToTrack_) {
+        if (gsf.isAvailable()) {
+          auto const& ref = (*gsf2trk)[gsf];
+          if (ref.isNonnull() && ref.isAvailable()) {
+            trk = ref.get();
+          }
+        }
+      } else {
+        reco::TrackRef ref = ele->closestCtfTrackRef();
+        if (ref.isNonnull() && ref.isAvailable()) {
+          trk = ref.get();
+        }
+      }
+
       float unbiased = (*unbiasedH)[gsf];
       for (unsigned int iname = 0; iname < names_.size(); ++iname) {
-        output[iname][iele] = eval(names_[iname], ele, *rho, unbiased, zfield.z());
+        output[iname][iele] = eval(names_[iname], ele, *rho, unbiased, zfield.z(), trk);
       }
     }
   }
@@ -172,8 +231,12 @@ void LowPtGsfElectronIDProducer::produce(edm::StreamID, edm::Event& event, const
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-double LowPtGsfElectronIDProducer::eval(
-  const std::string& name, const edm::Ptr<reco::GsfElectron>& ele, double rho, float unbiased, float field_z) const {
+double LowPtGsfElectronIDProducer::eval(const std::string& name,
+                                        const edm::Ptr<reco::GsfElectron>& ele,
+                                        double rho,
+                                        float unbiased,
+                                        float field_z,
+                                        const reco::Track* trk) const {
   auto iter = std::find(names_.begin(), names_.end(), name);
   if (iter != names_.end()) {
     int index = std::distance(names_.begin(), iter);
@@ -185,7 +248,7 @@ double LowPtGsfElectronIDProducer::eval(
     } else if (version_ == "V0") {
       inputs = lowptgsfeleid::features_V0(*ele, rho, unbiased);
     } else if (version_ == "V1") {
-      inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z);
+      inputs = lowptgsfeleid::features_V1(*ele, rho, unbiased, field_z, trk);
     }
     return models_.at(index)->GetResponse(inputs.data());
   } else {
@@ -198,8 +261,10 @@ double LowPtGsfElectronIDProducer::eval(
 //
 void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("useGsfToTrack", false);
   desc.add<bool>("usePAT", false);
   desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
+  desc.addOptional<edm::InputTag>("gsfToTrack", edm::InputTag("lowPtGsfToTrackLinks"));
   desc.addOptional<edm::InputTag>("unbiased", edm::InputTag("lowPtGsfElectronSeedValueMaps:unbiased"));
   desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
   desc.add<std::vector<std::string> >("ModelNames", std::vector<std::string>());
