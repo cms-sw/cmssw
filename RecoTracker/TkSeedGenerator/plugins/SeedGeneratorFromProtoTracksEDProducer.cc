@@ -8,7 +8,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -72,7 +71,8 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
       theInputVertexCollectionTag(
           consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))),
-      seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()) {
+      seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()),
+      config_(consumesCollector()) {
   produces<TrajectorySeedCollection>();
 }
 
@@ -122,7 +122,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       continue;
 
     if (useProtoTrackKinematics) {
-      SeedFromProtoTrack seedFromProtoTrack(proto, es);
+      SeedFromProtoTrack seedFromProtoTrack(config_, proto, es);
       if (seedFromProtoTrack.isValid())
         (*result).push_back(seedFromProtoTrack.trajectorySeed());
     } else {
