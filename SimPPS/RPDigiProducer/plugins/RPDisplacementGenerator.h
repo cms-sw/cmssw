@@ -1,6 +1,9 @@
 #ifndef SimPPS_RPDigiProducer_RP_DISPLACEMENT_GENERATOR_H
 #define SimPPS_RPDigiProducer_RP_DISPLACEMENT_GENERATOR_H
 
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include <Math/Rotation3D.h>
@@ -28,7 +31,11 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-  RPDisplacementGenerator(const edm::ParameterSet &, RPDetId, const edm::EventSetup &);
+  RPDisplacementGenerator(const edm::ParameterSet &, 
+			  RPDetId,
+			  const CTPPSRPAlignmentCorrectionsData & alignments,
+			  const CTPPSGeometry &  geom
+			  );
 
   /// returns displaced PSimHit
   PSimHit displace(const PSimHit &);
@@ -48,6 +55,7 @@ private:
 
   /// displaces a point
   Local3DPoint displacePoint(const Local3DPoint &);
+  
 };
 
 #endif
