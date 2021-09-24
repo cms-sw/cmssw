@@ -112,15 +112,13 @@ namespace {
     double distyz = sqrt(zy * zy + zz * zz);
     double ytheta = atan2(-zx, distyz);
     double ztheta = atan2(yx, xx);
-    LogDebug("EcalGeom") << "Original " << rname << " rotation angles: xtheta = " << std::setprecision(18)
-                                << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta
-                                << ", ztheta = " << ztheta;
+    LogDebug("EcalGeom") << "Original " << rname << " rotation angles: xtheta = " << std::setprecision(18) << xtheta
+                         << ", distyz = " << distyz << ", ytheta = " << ytheta << ", ztheta = " << ztheta;
     double increase = 1.01;  // Increase rotation angle by 1%
     xtheta *= increase;
     ytheta *= increase;
     LogDebug("EcalGeom") << "Adjusted (+1%) " << rname << " rotation angles: xtheta = " << std::setprecision(18)
-                                << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta
-                                << ", ztheta = " << ztheta;
+                         << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta << ", ztheta = " << ztheta;
     double xdiag = cos(xtheta), xoff = sin(xtheta);
     double ydiag = cos(ytheta), yoff = sin(ytheta);
     DDRotationMatrix xrot(1., 0., 0., 0., xdiag, -xoff, 0., xoff, xdiag);
