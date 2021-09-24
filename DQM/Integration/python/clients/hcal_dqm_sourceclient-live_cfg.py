@@ -59,8 +59,9 @@ process.dqmSaverPB.tag = subsystem
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
-if not useFileInput and not unitTest:
-	process.source.minEventsPerLumi = 100
+if not unitTest and not useFileInput :
+  if not options.BeamSplashRun :
+    process.source.minEventsPerLumi = 100
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -256,4 +257,5 @@ process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")
+print("Final Source settings:", process.source)
 process = customise(process)

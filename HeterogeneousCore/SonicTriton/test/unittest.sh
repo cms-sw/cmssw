@@ -5,8 +5,10 @@ DEVICE=$2
 
 # the test is not possible if:
 # 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
-# 2. singularity not found or not usable
-# 3. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
+# 1b. Nvidia drivers not available
+# 2. wrong architecture (not amd64)
+# 3. singularity not found or not usable
+# 4. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
 # so just return true in those cases
 
 if [ "$DEVICE" = "GPU" ]; then
@@ -16,6 +18,13 @@ if [ "$DEVICE" = "GPU" ]; then
 		echo "missing GPU"
 		exit 0
 	fi
+
+	if cmsTriton check; then
+		echo "has NVIDIA driver"
+	else
+		echo "missing current or compatible NVIDIA driver"
+		exit 0
+	fi
 else
 	if grep -q avx /proc/cpuinfo; then
 		echo "has avx"
@@ -23,6 +32,14 @@ else
 		echo "missing avx"
 		exit 0
 	fi
+fi
+
+THIS_ARCH=$(echo $SCRAM_ARCH | cut -d'_' -f2)
+if [ "$THIS_ARCH" == "amd64" ]; then
+       echo "has amd64"
+else
+       echo "missing amd64"
+       exit 0
 fi
 
 if type singularity >& /dev/null; then
@@ -41,14 +58,16 @@ if [ -n "$SINGULARITY_CONTAINER" ]; then
 	fi
 fi
 
+fallbackName=triton_server_instance_${DEVICE}
 tmpFile=$(mktemp -p ${LOCALTOP} SonicTritonTestXXXXXXXX.log)
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 >& $tmpFile
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modules=TritonGraphProducer,TritonGraphFilter,TritonGraphAnalyzer maxEvents=2 unittest=1 verbose=1 device=${DEVICE} testother=1 fallbackName=${fallbackName} >& $tmpFile
 CMSEXIT=$?
 
 cat $tmpFile
+sleep 15
 
 STOP_COUNTER=0
-while ! LOGFILE="$(ls -rt ${LOCALTOP}/log_triton_server_instance*.log 2>/dev/null | tail -n 1)" && [ "$STOP_COUNTER" -lt 5 ]; do
+while ! LOGFILE="$(ls -rt ${LOCALTOP}/log_${fallbackName}_*.log 2>/dev/null | tail -n 1)" && [ "$STOP_COUNTER" -lt 5 ]; do
 	STOP_COUNTER=$((STOP_COUNTER+1))
 	sleep 5
 done
@@ -56,6 +75,7 @@ done
 if [ -n "$LOGFILE" ]; then
 	echo -e '\n=====\nContents of '$LOGFILE':\n=====\n'
 	cat "$LOGFILE"
+	rm $LOGFILE
 fi
 
 if grep -q "Socket closed" $tmpFile; then

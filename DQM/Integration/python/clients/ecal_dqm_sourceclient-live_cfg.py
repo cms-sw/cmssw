@@ -171,4 +171,5 @@ elif runTypeName == 'hpu_run':
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

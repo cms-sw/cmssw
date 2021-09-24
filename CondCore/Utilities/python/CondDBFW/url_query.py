@@ -6,19 +6,34 @@ File provides a class that handles pycurl requests.
 Provides methods for performing/closing the request, as well as getting the request response.
 Note: user agent string from current version of cmsDbUpload
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
-import pycurl
-from StringIO import StringIO
-from urllib import urlencode
+#import pycurl
+import requests
+from io import StringIO
+from urllib.parse import urlencode
 import traceback
 import sys
 import json
 from .errors import *
 from time import sleep
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 class url_query():
+
+	def __init__(self, url=None, url_data=None, body=None):
+		self._url = url
+		self._url_data = url_data
+		self._body = body
+
+	def send(self):
+		if self._body:
+			return requests.post(self._url, data=self._body, params=self._url_data, verify=False).text
+		else:
+			return requests.get(self._url, params=self._url_data, verify=False).text
+
+"""class url_query():
 
 	def __init__(self, url=None, url_data=None, body=None, response_stream=None, timeout=60):
 		if not(url):
@@ -38,15 +53,15 @@ class url_query():
 		self._response = StringIO()
 
 		if body:
-			if isinstance(body, dict):
+			if type(body) == dict:
 				body = urlencode(body)
-			elif isinstance(body, list):
+			elif type(body) == list:
 				body = json.dumps(body)
 
 			self._r.setopt(self._r.POSTFIELDS, body)
 
 		if url_data:
-			if isinstance(url_data, dict):
+			if type(url_data) == dict:
 				url_data = urlencode(url_data)
 			else:
 				exit("URL data '%s' for request to URL '%s' was not valid - should be a dictionary." % (str(url_data), url))
@@ -54,7 +69,7 @@ class url_query():
 		# set the URL with url parameters if they were given
 		self._r.setopt(self._r.URL, url + (("?%s" % url_data) if url_data else ""))
 
-		if response_stream and not isinstance(response_stream, StringIO):
+		if response_stream and type(response_stream) != StringIO:
 			response_stream = StringIO()
 			# copy reference to instance variable
 			self._response = response_stream
@@ -79,7 +94,7 @@ class url_query():
 				attempt += 1
 				# this catches exceptions that occur with the actual http request
 				# not exceptions sent back from server side
-				if isinstance(e, pycurl.error) and e[0] in [7, 52]:
+				if type(e) == pycurl.error and e[0] in [7, 52]:
 					# wait two seconds to retry
 					print("Request failed - waiting 3 seconds to retry.")
 					sleep(3)
@@ -89,4 +104,4 @@ class url_query():
 					print("Unforesoon error occurred when sending data to server.")
 					traceback.print_exc()
 		if attempt == max_retries:
-			raise NoMoreRetriesException(max_retries)
+			raise NoMoreRetriesException(max_retries)"""

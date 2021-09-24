@@ -13,7 +13,6 @@ public:
   virtual ~MSLayersKeeper() {}
   virtual MSLayer layer(const DetLayer* dl) const { return MSLayer(dl, DataX0(this)); }
   virtual const MSLayersAtAngle& layers(float cotTheta) const = 0;
-  virtual void init(const edm::EventSetup& iSetup) {}
 
 protected:
   typedef MSLayer::DataX0 DataX0;

@@ -10,10 +10,7 @@
 
 using namespace std;
 
-void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup) {
-  if (isInitialised)
-    return;
-  isInitialised = true;
+MSLayersKeeperX0DetLayer::MSLayersKeeperX0DetLayer() {
   //  vector<MSLayer> allLayers = MSLayersKeeperX0DetLayerGeom().detLayers();
   //MP
   vector<MSLayer> allLayers;

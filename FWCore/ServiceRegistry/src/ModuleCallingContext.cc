@@ -2,6 +2,8 @@
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
@@ -79,6 +81,58 @@ namespace edm {
       mcc = mcc->moduleCallingContext();
     }
     return depth;
+  }
+
+  void exceptionContext(cms::Exception& ex, ModuleCallingContext const& mcc) {
+    ModuleCallingContext const* imcc = &mcc;
+    while ((imcc->type() == ParentContext::Type::kModule) or (imcc->type() == ParentContext::Type::kInternal)) {
+      std::ostringstream iost;
+      if (imcc->state() == ModuleCallingContext::State::kPrefetching) {
+        iost << "Prefetching for module ";
+      } else {
+        iost << "Calling method for module ";
+      }
+      iost << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
+
+      if (imcc->type() == ParentContext::Type::kInternal) {
+        iost << " (probably inside some kind of mixing module)";
+        imcc = imcc->internalContext()->moduleCallingContext();
+      } else {
+        imcc = imcc->moduleCallingContext();
+      }
+      ex.addContext(iost.str());
+    }
+    std::ostringstream ost;
+    if (imcc->state() == ModuleCallingContext::State::kPrefetching) {
+      ost << "Prefetching for module ";
+    } else {
+      ost << "Calling method for module ";
+    }
+    ost << imcc->moduleDescription()->moduleName() << "/'" << imcc->moduleDescription()->moduleLabel() << "'";
+    ex.addContext(ost.str());
+
+    if (imcc->type() == ParentContext::Type::kPlaceInPath) {
+      ost.str("");
+      ost << "Running path '";
+      ost << imcc->placeInPathContext()->pathContext()->pathName() << "'";
+      ex.addContext(ost.str());
+      auto streamContext = imcc->placeInPathContext()->pathContext()->streamContext();
+      if (streamContext) {
+        ost.str("");
+        edm::exceptionContext(ost, *streamContext);
+        ex.addContext(ost.str());
+      }
+    } else {
+      if (imcc->type() == ParentContext::Type::kStream) {
+        ost.str("");
+        edm::exceptionContext(ost, *(imcc->streamContext()));
+        ex.addContext(ost.str());
+      } else if (imcc->type() == ParentContext::Type::kGlobal) {
+        ost.str("");
+        edm::exceptionContext(ost, *(imcc->globalContext()));
+        ex.addContext(ost.str());
+      }
+    }
   }
 
   std::ostream& operator<<(std::ostream& os, ModuleCallingContext const& mcc) {

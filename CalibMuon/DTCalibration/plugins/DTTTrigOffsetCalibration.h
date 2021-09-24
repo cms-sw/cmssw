@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <map>
 
@@ -49,5 +52,8 @@ private:
   TFile* rootFile_;
   const DTTtrig* tTrigMap_;
   ChamberHistosMap theT0SegHistoMap_;
+
+  const edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif
