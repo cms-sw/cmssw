@@ -347,7 +347,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 jetCollectionUnskimmed,
                 pfCandCollection,
                 [electronCollection,muonCollection,tauCollection,photonCollection],
-                patMetModuleSequence,
+                patMetModuleTask,
                 postfix,
             )
 
@@ -1530,8 +1530,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
             recomputeRawMetFromPfcs_task.add(process.makePatMETsTask)
-            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = False)
-            recomputeRawMetFromPfcs_task.add(getattr(process,"patMETCorrections"+postfix))
+            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrectionsTask"), postfix, addToTask = False)
+            recomputeRawMetFromPfcs_task.add(getattr(process,"patMETCorrectionsTask"+postfix))
 
             #T1 pfMet for AOD to mAOD only
             if not onMiniAOD: #or self._parameters["Puppi"].value:
@@ -1999,9 +1999,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return cms.InputTag("cleanedPatJets"+postfix)
 
     # function to implement the 2017 EE fix
-    def runFixEE2017(self,process,params,jets,cands,goodcolls,patMetModuleSequence,postfix):
+    def runFixEE2017(self,process,params,jets,cands,goodcolls,patMetModuleTask,postfix):
 
+        # get the PatAlgosToolsTask
         task = getPatAlgosToolsTask(process)
+        # create a local task to collect all the modules added in this function
         runFixEE2017_task = cms.Task()
 
         pfCandidateJetsWithEEnoise = _modbad.BadPFCandidateJetsEEnoiseProducer.clone(
@@ -2012,29 +2014,29 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             maxEtaThreshold = params["maxEtaThreshold"],
         )
         addToProcessAndTask("pfCandidateJetsWithEEnoise"+postfix, pfCandidateJetsWithEEnoise, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"pfCandidateJetsWithEEnoise"+postfix)
+
         pfcandidateClustered = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(goodcolls+[jets])
         )
         addToProcessAndTask("pfcandidateClustered"+postfix, pfcandidateClustered, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"pfcandidateClustered"+postfix)
+
         pfcandidateForUnclusteredUnc = _mod.candPtrProjector.clone(
             src  = cands,
             veto = "pfcandidateClustered"+postfix,
         )
         addToProcessAndTask("pfcandidateForUnclusteredUnc"+postfix, pfcandidateForUnclusteredUnc, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"pfcandidateForUnclusteredUnc"+postfix)
+
         badUnclustered = cms.EDFilter("CandPtrSelector",
             src = cms.InputTag("pfcandidateForUnclusteredUnc"+postfix),
             cut = cms.string("abs(eta) > "+str(params["minEtaThreshold"])+" && abs(eta) < "+str(params["maxEtaThreshold"])),
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
+
         blobUnclustered = cms.EDProducer("UnclusteredBlobProducer",
             candsrc = cms.InputTag("badUnclustered"+postfix),
         )
         addToProcessAndTask("blobUnclustered"+postfix, blobUnclustered, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"blobUnclustered"+postfix)
+
         superbad = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(
                 cms.InputTag("blobUnclustered"+postfix),
@@ -2042,19 +2044,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             )
         )
         addToProcessAndTask("superbad"+postfix, superbad, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"superbad"+postfix)
+
         pfCandidatesGoodEE2017 = _mod.candPtrProjector.clone(
             src  = cands,
             veto = "superbad"+postfix,
         )
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, runFixEE2017_task)
-        #patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
 
+        # add local task to the process
         if not hasattr(process, "runFixEE2017_task"+postfix):
             setattr(process, "runFixEE2017_task"+postfix, runFixEE2017_task)
         else:
             getattr(process, "runFixEE2017_task"+postfix).add(runFixEE2017_task)
+
+        # add the task to the patAlgosToolsTask
         task.add(getattr(process, "runFixEE2017_task"+postfix))
+        # add the task to the patMetModuleTask of the toolCode function
+        patMetModuleTask.add(getattr(process, "runFixEE2017_task"+postfix))
         # return good cands and jets
         return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("pfCandidateJetsWithEEnoise"+postfix,"good"))
 
