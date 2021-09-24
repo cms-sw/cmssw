@@ -356,7 +356,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.recomputeRawMetFromPfcs(process,
                                          pfCandCollection,
                                          onMiniAOD,
-                                         patMetModuleSequence,
+                                         patMetModuleTask,
                                          postfix)
 
         elif onMiniAOD: #raw MET extraction if running on miniAODs
@@ -1508,7 +1508,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return retVal
 
 
-    def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleSequence,  postfix):
+    def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleTask,  postfix):
 
         task = getPatAlgosToolsTask(process)
         recomputeRawMetFromPfcs_task = cms.Task()
@@ -1524,7 +1524,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if self.getvalue("Puppi"):
                 getattr(process, "pfMet"+postfix).applyWeight = True
                 getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
-            #patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
         #PAT METs
         if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
@@ -1537,7 +1536,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if not onMiniAOD: #or self._parameters["Puppi"].value:
                 #correction duplication needed
                 getattr(process, "pfMetT1"+postfix).src = cms.InputTag("pfMet"+postfix)
-                #patMetModuleSequence += getattr(process, "pfMetT1"+postfix)
                 recomputeRawMetFromPfcs_task.add(getattr(process, "pfMetT1"+postfix))
                 _myPatMet = 'patMETs'+postfix
                 addToProcessAndTask(_myPatMet, getattr(process,'patMETs' ).clone(), process, recomputeRawMetFromPfcs_task)
@@ -1558,12 +1556,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     getattr(process, _myPatMet).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, _myPatMet).srcJetResPt = cms.string('AK4PFPuppi_pt')
                     getattr(process, _myPatMet).srcJetResPhi = cms.string('AK4PFPuppi_phi')
-        
+
+        # add the local task to the process
         if not hasattr(process, "recomputeRawMetFromPfcs_task"+postfix):
             setattr(process, "recomputeRawMetFromPfcs_task"+postfix, recomputeRawMetFromPfcs_task)
         else:
             getattr(process, "recomputeRawMetFromPfcs_task"+postfix).add(recomputeRawMetFromPfcs_task)
+
+        # add the task to the patAlgosToolsTask
         task.add(getattr(process, "recomputeRawMetFromPfcs_task"+postfix))
+        # add the task to the patMetModuleTask of the toolCode function
+        patMetModuleTask.add(getattr(process, "recomputeRawMetFromPfcs_task"+postfix))
 
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
