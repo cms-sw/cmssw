@@ -2,6 +2,7 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 using namespace pixelrecoutilities;
 
@@ -14,15 +15,17 @@ namespace {
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 
-void ThirdHitCorrection::init(const edm::EventSetup &es,
-                              float pt,
+void ThirdHitCorrection::init(float pt,
                               const DetLayer &layer3,
                               bool useMultipleScattering,
-                              bool useBendingCorrection) {
+                              const MultipleScatteringParametrisationMaker *msmaker,
+                              bool useBendingCorrection,
+                              const MagneticField *bfield) {
   theUseMultipleScattering = useMultipleScattering;
   theUseBendingCorrection = useBendingCorrection;
-  if (useBendingCorrection)
-    theBendingCorrection.init(pt, es);
+  if (useBendingCorrection) {
+    theBendingCorrection.init(pt, *bfield);
+  }
 
   theMultScattCorrRPhi = 0;
   theMScoeff = 0;
@@ -31,17 +34,18 @@ void ThirdHitCorrection::init(const edm::EventSetup &es,
   thePt = pt;
 
   if (theUseMultipleScattering)
-    sigmaRPhi.init(&layer3, es);
+    sigmaRPhi = msmaker->parametrisation(&layer3);
 }
 
-void ThirdHitCorrection::init(const edm::EventSetup &es,
-                              float pt,
+void ThirdHitCorrection::init(float pt,
                               const DetLayer &layer1,
                               const DetLayer &layer2,
                               const DetLayer &layer3,
                               bool useMultipleScattering,
-                              bool useBendingCorrection) {
-  init(es, pt, layer3, useMultipleScattering, useBendingCorrection);
+                              const MultipleScatteringParametrisationMaker *msmaker,
+                              bool useBendingCorrection,
+                              const MagneticField *bfield) {
+  init(pt, layer3, useMultipleScattering, msmaker, useBendingCorrection, bfield);
 
   if (!theUseMultipleScattering)
     return;
@@ -74,7 +78,7 @@ void ThirdHitCorrection::init(const edm::EventSetup &es,
     }
   };
 
-  theMultScattCorrRPhi = 3.f * sigmaRPhi(pt, line.cotLine(), point2(), layer2.seqNum());
+  theMultScattCorrRPhi = 3.f * (*sigmaRPhi)(pt, line.cotLine(), point2(), layer2.seqNum());
 }
 
 void ThirdHitCorrection::init(const PixelRecoLineRZ &line, const PixelRecoPointRZ &constraint, int il) {
@@ -83,7 +87,7 @@ void ThirdHitCorrection::init(const PixelRecoLineRZ &line, const PixelRecoPointR
     return;
 
   // auto newCorr = theMultScattCorrRPhi;
-  theMultScattCorrRPhi = 3.f * sigmaRPhi(thePt, line.cotLine(), constraint, il);
+  theMultScattCorrRPhi = 3.f * (*sigmaRPhi)(thePt, line.cotLine(), constraint, il);
   // std::cout << "ThirdHitCorr " << (theBarrel ? "B " : "F " )<< theMultScattCorrRPhi << ' ' << newCorr << ' ' << newCorr/theMultScattCorrRPhi << std::endl;
   float overSinTheta = std::sqrt(1.f + sqr(line.cotLine()));
   if (theBarrel) {

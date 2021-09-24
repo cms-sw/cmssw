@@ -9,7 +9,7 @@ runboundary = .oO[runboundary]Oo.
 isMultipleRuns=False
 if(isinstance(runboundary, (list, tuple))):
      isMultipleRuns=True
-     print "Multiple Runs are selected"
+     print("Multiple Runs are selected")
 
 if(isMultipleRuns):
      process.source.firstRun = cms.untracked.uint32(int(runboundary[0]))

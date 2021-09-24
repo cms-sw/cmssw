@@ -32,10 +32,16 @@ public:
 private:
   void putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev);
   bool fromDD4hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geometricDetToken_;
 };
 
 PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig) {
   fromDD4hep_ = iConfig.getParameter<bool>("fromDD4hep");
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  geometricDetToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -46,15 +52,11 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     return;
   }
   if (!fromDD4hep_) {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
+    auto pDD = es.getTransientHandle(compactViewToken_);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
+    auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
   }
-  edm::ESHandle<GeometricDet> rDD;
-  es.get<IdealGeometryRecord>().get(rDD);
-  const GeometricDet* tracker = &(*rDD);
+  const GeometricDet* tracker = &es.getData(geometricDetToken_);
 
   // so now I have the tracker itself. loop over all its components to store them.
   putOne(tracker, pgd, 0);

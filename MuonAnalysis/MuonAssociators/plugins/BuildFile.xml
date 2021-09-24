@@ -1,7 +1,6 @@
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="FWCore/MessageLogger"/>
-<use name="SimTracker/Records"/>
 <use name="SimDataFormats/Associations"/>
 <use name="MuonAnalysis/MuonAssociators"/>
 <export>

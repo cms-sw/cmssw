@@ -31,23 +31,24 @@ trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo='chargeC
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSeedLayers
-mixedTripletStepSeedLayersA = cms.EDProducer('SeedingLayersEDProducer',
-     layerList = cms.vstring('BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
-#    layerList = cms.vstring('BPix1+BPix2+BPix3', 
+import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
+mixedTripletStepSeedLayersA = _mod.seedingLayersEDProducer.clone(
+     layerList = ['BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'],
+#    layerList = ['BPix1+BPix2+BPix3', 
 #        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
 #        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
-#        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
-    BPix = cms.PSet(
+#        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'],
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     ),
-    TEC = cms.PSet(
+    TEC = dict(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
@@ -160,17 +161,15 @@ _fastSim_mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer
 )
 fastSim.toReplaceWith(mixedTripletStepSeedsA,_fastSim_mixedTripletStepSeedsA)
 
-import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
-
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = _mod.seedingLayersEDProducer.clone(
     layerList = ['BPix2+BPix3+TIB1'],
-    BPix = cms.PSet(
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     ),
-    TIB = cms.PSet(
+    TIB = dict(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
         TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         skipClusters = cms.InputTag('mixedTripletStepClusters')

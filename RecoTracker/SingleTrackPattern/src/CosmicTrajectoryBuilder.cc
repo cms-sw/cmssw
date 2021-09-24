@@ -15,10 +15,12 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 using namespace std;
-CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf) {
+CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : magfieldToken_(iC.esConsumes()),
+      trackerToken_(iC.esConsumes()),
+      builderToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("TTRHBuilder")))) {
   //minimum number of hits per tracks
 
   theMinHits = conf.getParameter<int>("MinHits");
@@ -27,7 +29,6 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet &conf) 
   edm::LogInfo("CosmicTrackFinder") << "Minimum number of hits " << theMinHits << " Cut on Chi2= " << chi2cut;
 
   geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
-  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 }
 
 CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {}
@@ -36,8 +37,8 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup &es, bool seedplus) {
   // FIXME: this is a memory leak generator
 
   //services
-  es.get<IdealMagneticFieldRecord>().get(magfield);
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  magfield = &es.getData(magfieldToken_);
+  tracker = &es.getData(trackerToken_);
 
   if (seedplus) {
     seed_plus = true;
@@ -52,10 +53,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup &es, bool seedplus) {
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(chi2cut);
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  es.get<TransientRecHitRecord>().get(theBuilderName, theBuilder);
-
-  RHBuilder = theBuilder.product();
+  RHBuilder = &es.getData(builderToken_);
   hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(RHBuilder)->cloner();
 
   theFitter = new KFTrajectoryFitter(*thePropagator, *theUpdator, *theEstimator);

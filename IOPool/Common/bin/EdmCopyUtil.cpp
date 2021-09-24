@@ -14,18 +14,13 @@
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
+#include "FWCore/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 
 static int copy_files(const boost::program_options::variables_map& vm) {
-  std::unique_ptr<edm::SiteLocalConfig> slcptr =
-      std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
-  auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
-  edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-  edm::ServiceRegistry::Operate operate(slcToken);
+  auto operate = edm::setupSiteLocalConfig();
 
   auto in = (vm.count("file") ? vm["file"].as<std::vector<std::string> >() : std::vector<std::string>());
 

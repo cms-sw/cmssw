@@ -14,7 +14,7 @@ using namespace edm;
 namespace {
   constexpr float c_cm_per_ns = 29.9792458;
 };
-CSCHaloAlgo::CSCHaloAlgo() : geo_(nullptr), hgeo_(nullptr) {
+CSCHaloAlgo::CSCHaloAlgo(edm::ConsumesCollector iC) : geoToken_(iC.esConsumes()), geo_(nullptr), hgeo_(nullptr) {
   deta_threshold = 0.;
   min_inner_radius = 0.;
   max_inner_radius = 9999.;
@@ -84,9 +84,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   bool ECALEmatched = false;
   bool HCALmatched = false;
 
-  edm::ESHandle<CaloGeometry> pGeo;
-  TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo_ = pGeo.product();
+  geo_ = &TheSetup.getData(geoToken_);
   hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //}

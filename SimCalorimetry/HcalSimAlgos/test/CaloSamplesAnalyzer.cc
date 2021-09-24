@@ -4,7 +4,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -93,6 +92,9 @@ private:
   //tokens
   edm::EDGetTokenT<std::vector<PCaloHit>> tok_sim;
   edm::EDGetTokenT<std::vector<CaloSamples>> tok_calo;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tokRecCns_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
 };
 
 //
@@ -107,7 +109,10 @@ CaloSamplesAnalyzer::CaloSamplesAnalyzer(const edm::ParameterSet& iConfig)
       TestNumbering(iConfig.getParameter<bool>("TestNumbering")),
       tok_sim(consumes<std::vector<PCaloHit>>(
           edm::InputTag(iConfig.getParameter<std::string>("hitsProducer"), "HcalHits"))),
-      tok_calo(consumes<std::vector<CaloSamples>>(iConfig.getParameter<edm::InputTag>("CaloSamplesTag"))) {
+      tok_calo(consumes<std::vector<CaloSamples>>(iConfig.getParameter<edm::InputTag>("CaloSamplesTag"))),
+      tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tokRecCns_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tokDB_(esConsumes<HcalDbService, HcalDbRecord>()) {
   usesResource("TFileService");
 }
 
@@ -143,15 +148,13 @@ void CaloSamplesAnalyzer::beginJob() {
 }
 
 void CaloSamplesAnalyzer::doBeginRun_(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+  auto geometry = &iSetup.getData(tokGeom_);
+  auto pHRNDC = &iSetup.getData(tokRecCns_);
 
   // See if it's been updated
-  if (&*geometry != theGeometry) {
-    theGeometry = &*geometry;
-    theRecNumber = &*pHRNDC;
+  if (geometry != theGeometry) {
+    theGeometry = geometry;
+    theRecNumber = pHRNDC;
     theResponse->setGeometry(theGeometry);
   }
 }
@@ -161,9 +164,8 @@ void CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   treemap.clear();
 
   //conditions
-  edm::ESHandle<HcalDbService> conditions;
-  iSetup.get<HcalDbRecord>().get(conditions);
-  theParameterMap->setDbService(conditions.product());
+  auto conditions = &iSetup.getData(tokDB_);
+  theParameterMap->setDbService(conditions);
 
   // Event information
   const edm::EventAuxiliary& aux = iEvent.eventAuxiliary();

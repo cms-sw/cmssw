@@ -9,6 +9,7 @@ EDProducts into an Event.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
 #include <functional>

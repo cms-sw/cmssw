@@ -3,8 +3,6 @@
 Contains classes for shell part of framework - basically a collection of classes that are designed to be invoked on the command line.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 from . import querying
 import sys

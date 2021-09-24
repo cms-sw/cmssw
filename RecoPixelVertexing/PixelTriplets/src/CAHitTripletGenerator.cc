@@ -11,7 +11,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 #include "CellularAutomaton.h"
 
 namespace {
@@ -25,9 +25,9 @@ using namespace std;
 
 constexpr unsigned int CAHitTripletGenerator::minLayers;
 
-CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
-                                             edm::ConsumesCollector& iC)
-    : extraHitRPhitolerance(cfg.getParameter<double>(
+CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+    : theFieldToken(iC.esConsumes()),
+      extraHitRPhitolerance(cfg.getParameter<double>(
           "extraHitRPhitolerance")),  //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
       maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
@@ -79,6 +79,7 @@ void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc)
 void CAHitTripletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
   if (theComparitor)
     theComparitor->init(ev, es);
+  theField = &es.getData(theFieldToken);
 }
 
 namespace {
@@ -158,7 +159,6 @@ namespace {
 
 void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                                         std::vector<OrderedHitSeeds>& result,
-                                        const edm::EventSetup& es,
                                         const SeedingLayerSetsHits& layers) {
   CAGraph g;
 
@@ -185,7 +185,7 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 
     auto& allCells = ca.getAllCells();
 
-    const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
+    const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(*theField);
 
     // re-used thoughout, need to be vectors because of RZLine interface
     std::array<float, 3> bc_r;
@@ -225,12 +225,12 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
       if (useBendingCorrection) {
         // Following PixelFitterByConformalMappingAndLine
         const float simpleCot = (gps.back().z() - gps.front().z()) / (gps.back().perp() - gps.front().perp());
-        const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
+        const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, *theField);
         for (int i = 0; i < 3; ++i) {
           const GlobalPoint& point = gps[i];
           const GlobalError& error = ges[i];
           bc_r[i] = sqrt(sqr(point.x() - region.origin().x()) + sqr(point.y() - region.origin().y()));
-          bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, es)(bc_r[i]);
+          bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, *theField)(bc_r[i]);
           bc_z[i] = point.z() - region.origin().z();
           bc_errZ2[i] = (barrels[i]) ? error.czz() : error.rerr(point) * sqr(simpleCot);
         }

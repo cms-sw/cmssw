@@ -6,7 +6,7 @@
 
 // include files
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
-#include "GeneratorInterface/CosmicMuonGenerator/src/Point5MaterialMap.cc"
+#include "GeneratorInterface/CosmicMuonGenerator/interface/Point5MaterialMap.h"
 #include <iostream>
 
 class SingleParticleEvent {

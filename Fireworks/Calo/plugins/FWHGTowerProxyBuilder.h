@@ -22,7 +22,7 @@
 
 // user include files
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 // #include "DataFormats/HGCRecHit/interface/HGRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 

@@ -127,7 +127,8 @@ namespace evf {
     void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
-                                bool doCreateBoLS = true);
+                                bool doCreateBoLS,
+                                bool doCreateEoLS);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
                                   int& rawFd,
                                   uint16_t& rawHeaderSize,
@@ -172,6 +173,7 @@ namespace evf {
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
+    unsigned int getStartLumisectionFromEnv() const { return startFromLS_; }
     void setDeleteTracking(std::mutex* fileDeleteLock,
                            std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
       fileDeleteLockPtr_ = fileDeleteLock;

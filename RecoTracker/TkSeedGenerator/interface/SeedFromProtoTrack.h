@@ -5,18 +5,35 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 namespace reco {
   class Track;
 }
 namespace edm {
   class EventSetup;
-}
+  class ConsumesCollector;
+}  // namespace edm
+
+class TrackerGeometry;
+class TrackerDigiGeometryRecord;
+class Propagator;
+class TrackingComponentsRecord;
+class MagneticField;
+class IdealMagneticFieldRecord;
 
 class SeedFromProtoTrack {
 public:
-  SeedFromProtoTrack(const reco::Track& proto, const edm::EventSetup&);
-  SeedFromProtoTrack(const reco::Track& proto, const SeedingHitSet& hits, const edm::EventSetup& es);
+  struct Config {
+    Config(edm::ConsumesCollector);
+
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+    const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  };
+
+  SeedFromProtoTrack(const Config&, const reco::Track& proto, const edm::EventSetup&);
+  SeedFromProtoTrack(const Config&, const reco::Track& proto, const SeedingHitSet& hits, const edm::EventSetup& es);
 
   ~SeedFromProtoTrack() {}
 
@@ -25,7 +42,7 @@ public:
   bool isValid() const { return theValid; }
 
 private:
-  void init(const reco::Track& proto, const edm::EventSetup& es);
+  void init(const Config&, const reco::Track& proto, const edm::EventSetup& es);
 
   PropagationDirection direction() const { return alongMomentum; }
 

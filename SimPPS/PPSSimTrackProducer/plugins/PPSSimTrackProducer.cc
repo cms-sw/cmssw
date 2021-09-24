@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,8 +38,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "TRandom3.h"
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 //
 // class declaration
@@ -49,18 +48,16 @@
 class PPSSimTrackProducer : public edm::stream::EDProducer<> {
 public:
   explicit PPSSimTrackProducer(const edm::ParameterSet&);
-  ~PPSSimTrackProducer() override;
+  ~PPSSimTrackProducer() override = default;
 
   //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   // ----------member data ---------------------------
   bool m_verbosity;
-  ProtonTransport* theTransporter;
+  ProtonTransport theTransporter;
   edm::InputTag m_InTag;
   edm::EDGetTokenT<edm::HepMCProduct> m_InTagToken;
 
@@ -79,11 +76,8 @@ private:
 //
 // constructors and destructor
 //
-PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig) {
-  //now do what ever other initialization is needed
-  // TransportHector
-  theTransporter = new ProtonTransport(iConfig);
-
+PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig)
+    : theTransporter(iConfig, consumesCollector()) {
   m_InTag = iConfig.getParameter<edm::InputTag>("HepMCProductLabel");
   m_InTagToken = consumes<edm::HepMCProduct>(m_InTag);
 
@@ -100,15 +94,6 @@ PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig) {
         << "LHCTransport (ProtonTransport) requires the RandomNumberGeneratorService\n"
            "which is not present in the configuration file.  You must add the service\n"
            "in the configuration file or remove the modules that require it.";
-  }
-}
-
-PPSSimTrackProducer::~PPSSimTrackProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-  if (theTransporter) {
-    delete theTransporter;
-    theTransporter = nullptr;
   }
 }
 
@@ -143,8 +128,8 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   evt = new HepMC::GenEvent(HepMCEvt->GetEvent()->signal_process_id(), HepMCEvt->GetEvent()->event_number());
 
-  theTransporter->process(HepMCEvt->GetEvent(), iSetup, engine);
-  theTransporter->addPartToHepMC(HepMCEvt->GetEvent(), evt);
+  theTransporter.process(HepMCEvt->GetEvent(), iSetup, engine);
+  theTransporter.addPartToHepMC(HepMCEvt->GetEvent(), evt);
 
   if (m_verbosity)
     evt->print();
@@ -155,7 +140,7 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(std::move(newProduct));
 
   unique_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
-  edm::LHCTransportLinkContainer thisLink(theTransporter->getCorrespondenceMap());
+  edm::LHCTransportLinkContainer thisLink(theTransporter.getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
@@ -169,13 +154,6 @@ void PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // in fact, it MUST NOT be delete here, as a protection is missing in above package
   edm::LogVerbatim("ProtonTransportEventProcessing") << "produce end ";
 }
-// The methods below are pure virtual, so it needs to be implemented even if not used
-//
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void PPSSimTrackProducer::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void PPSSimTrackProducer::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 /* to be done */

@@ -3,13 +3,13 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "RecoTracker/TkTrackingRegions/plugins/PointSeededTrackingRegionsProducer.h"
 #include "RecoTracker/TkTrackingRegions/plugins/CandidateSeededTrackingRegionsProducer.h"
 #include "RecoTracker/TkTrackingRegions/plugins/CandidatePointSeededTrackingRegionsProducer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "GlobalTrackingRegionWithVerticesProducer.h"
 #include "GlobalTrackingRegionProducer.h"
-#include "GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "AreaSeededTrackingRegionsProducer.h"
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, GlobalTrackingRegionProducer, "GlobalRegionProducer");

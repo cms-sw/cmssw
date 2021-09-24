@@ -9,7 +9,7 @@
 //      Author    : Markus Frank
 //
 //      ====================================================================
-#include "Guid.h"
+#include "FWCore/Utilities/interface/Guid.h"
 #include <cstring>
 #include <cassert>
 

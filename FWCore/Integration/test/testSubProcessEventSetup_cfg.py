@@ -258,9 +258,9 @@ process4.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
 
 process4.esTestAnalyzerAZ = cms.EDAnalyzer("ESTestAnalyzerAZ",
     runsToGetDataFor = cms.vint32(3,4,5,6,7,8,9,10),
-    #NOTE: This module does NOT do prefetching
-    expectedValuesA=cms.untracked.vint32(1,2,3,4,5,6,7,7),
-    expectedValuesZ=cms.untracked.vint32(1,1,2,2,3,3,4,4)
+    #NOTE: This module does do prefetching
+    expectedValuesA=cms.untracked.vint32(3,4,5,6,7,8,9,9),
+    expectedValuesZ=cms.untracked.vint32(3,3,4,4,5,5,6,6)
 )
 
 process4.path1 = cms.Path(process4.esTestAnalyzerA*process4.esTestAnalyzerAZ)
@@ -311,9 +311,9 @@ process5.esTestAnalyzerA = cms.EDAnalyzer("ESTestAnalyzerA",
 
 process5.esTestAnalyzerAZ = cms.EDAnalyzer("ESTestAnalyzerAZ",
     runsToGetDataFor = cms.vint32(5,6,7,8,9,10),
-    #NOTE: This module does NOT do prefetching
-    expectedValuesA=cms.untracked.vint32(3,4,5,6,7,7),
-    expectedValuesZ=cms.untracked.vint32(2,2,3,3,4,4)
+    #NOTE: This module does do prefetching
+    expectedValuesA=cms.untracked.vint32(5,6,7,8,9,9),
+    expectedValuesZ=cms.untracked.vint32(4,4,5,5,6,6)
 )
 
 process5.path1 = cms.Path(process5.esTestAnalyzerA*process5.esTestAnalyzerAZ)

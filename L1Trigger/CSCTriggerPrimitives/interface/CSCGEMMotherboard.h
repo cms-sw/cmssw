@@ -15,8 +15,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/GEMClusterProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMatcher.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 class CSCGEMMotherboard : public CSCMotherboard {
 public:

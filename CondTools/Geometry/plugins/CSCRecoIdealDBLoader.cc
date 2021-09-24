@@ -28,10 +28,16 @@ public:
 
 private:
   bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 CSCRecoIdealDBLoader::CSCRecoIdealDBLoader(const edm::ParameterSet& iC) {
   fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -45,19 +51,15 @@ void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     return;
   }
 
-  edm::ESHandle<MuonGeometryConstants> pMNDC;
+  auto pMNDC = es.getHandle(muonGeomConstantsToken_);
   CSCGeometryParsFromDD cscgp;
 
   if (fromDD4Hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+    auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
     cscgp.build(&cpv, *pMNDC, *rig, *rdp);
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+    auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
     cscgp.build(&cpv, *pMNDC, *rig, *rdp);
   }

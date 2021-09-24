@@ -32,44 +32,9 @@ namespace popcon {
     typedef T value_type;
     typedef PopConSourceHandler<T> self;
     typedef cond::Time_t Time_t;
-    typedef cond::Summary Summary;
 
-    struct Triplet {
-      value_type* payload;
-      Summary* summary;
-      Time_t time;
-    };
-
-    typedef std::vector<Triplet> Container;
-
-    typedef std::vector<std::pair<T*, cond::Time_t> > OldContainer;
-
-    class Ref {
-    public:
-      Ref() : m_dbsession() {}
-      Ref(cond::persistency::Session& dbsession, const std::string& hash) : m_dbsession(dbsession) {
-        m_d = m_dbsession.fetchPayload<T>(hash);
-      }
-      ~Ref() {}
-
-      Ref(const Ref& ref) : m_dbsession(ref.m_dbsession), m_d(ref.m_d) {}
-
-      Ref& operator=(const Ref& ref) {
-        m_dbsession = ref.m_dbsession;
-        m_d = ref.m_d;
-        return *this;
-      }
-
-      T const* ptr() const { return m_d.get(); }
-
-      T const* operator->() const { return ptr(); }
-      // dereference operator
-      T const& operator*() const { return *ptr(); }
-
-    private:
-      cond::persistency::Session m_dbsession;
-      std::shared_ptr<T> m_d;
-    };
+    typedef std::map<Time_t, std::shared_ptr<T> > Container;
+    typedef std::unique_ptr<T> Ref;
 
     PopConSourceHandler() : m_tagInfo(nullptr), m_logDBEntry(nullptr) {}
 
@@ -78,7 +43,7 @@ namespace popcon {
     cond::TagInfo_t const& tagInfo() const { return *m_tagInfo; }
 
     // return last paylod of the tag
-    Ref lastPayload() const { return Ref(m_session, tagInfo().lastInterval.payloadId); }
+    Ref lastPayload() const { return m_session.fetchPayload<T>(tagInfo().lastInterval.payloadId); }
 
     // return last successful log entry for the tag in question
     cond::LogDBEntry_t const& logDBEntry() const { return *m_logDBEntry; }
@@ -102,10 +67,11 @@ namespace popcon {
 
     Container const& returnData() {
       getNewObjects();
-      if (!m_to_transfer.empty())
-        convertFromOld();
-      sort();
-      return m_triplets;
+      for (auto item : m_to_transfer) {
+        std::shared_ptr<T> payload(item.first);
+        m_iovs.insert(std::make_pair(item.second, payload));
+      }
+      return m_iovs;
     }
 
     std::string const& userTextLog() const { return m_userTextLog; }
@@ -117,37 +83,8 @@ namespace popcon {
     // return a string identifing the source
     virtual std::string id() const = 0;
 
-    void sort() {
-      std::sort(m_triplets.begin(),
-                m_triplets.end(),
-                std::bind(std::less<cond::Time_t>(),
-                          std::bind(&Container::value_type::time, std::placeholders::_1),
-                          std::bind(&Container::value_type::time, std::placeholders::_2)));
-    }
-
-    // make sure to create a new one each time...
-    Summary* dummySummary(typename OldContainer::value_type const&) const {
-      return new cond::GenericSummary("not supplied");
-    }
-
-    void convertFromOld() {
-      std::for_each(m_to_transfer.begin(),
-                    m_to_transfer.end(),
-                    std::bind(&self::add,
-                              this,
-                              std::bind(&OldContainer::value_type::first, std::placeholders::_1),
-                              std::bind(&self::dummySummary, this, std::placeholders::_1),
-                              std::bind(&OldContainer::value_type::second, std::placeholders::_1)));
-    }
-
   protected:
     cond::persistency::Session& dbSession() const { return m_session; }
-
-    int add(value_type* payload, Summary* summary, Time_t time) {
-      Triplet t = {payload, summary, time};
-      m_triplets.push_back(t);
-      return m_triplets.size();
-    }
 
   private:
     mutable cond::persistency::Session m_session;
@@ -159,12 +96,10 @@ namespace popcon {
   protected:
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
-    OldContainer m_to_transfer;
+    std::vector<std::pair<T*, Time_t> > m_to_transfer;
 
-  private:
-    Container m_triplets;
+    Container m_iovs;
 
-  protected:
     std::string m_userTextLog;
   };
 }  // namespace popcon

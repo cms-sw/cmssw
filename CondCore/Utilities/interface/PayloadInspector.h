@@ -9,30 +9,33 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <set>
 #include <type_traits>
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <boost/python/list.hpp>
-#include <boost/python/dict.hpp>
-#include <boost/python/tuple.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
 
 namespace PI {
-  inline boost::python::list mk_input(const std::string& tagName, cond::Time_t start, cond::Time_t end) {
-    boost::python::list ret;
-    ret.append(boost::python::make_tuple(tagName, std::to_string(start), std::to_string(end)));
+  __attribute__((visibility("default"))) inline py::list mk_input(const std::string& tagName,
+                                                                  cond::Time_t start,
+                                                                  cond::Time_t end) {
+    py::list ret;
+    ret.append(py::make_tuple(tagName, std::to_string(start), std::to_string(end)));
     return ret;
   }
-  inline boost::python::list mk_input(const std::string& tagName0,
-                                      cond::Time_t start0,
-                                      cond::Time_t end0,
-                                      const std::string& tagName1,
-                                      cond::Time_t start1,
-                                      cond::Time_t end1) {
-    boost::python::list ret;
-    ret.append(boost::python::make_tuple(tagName0, std::to_string(start0), std::to_string(end0)));
-    ret.append(boost::python::make_tuple(tagName1, std::to_string(start1), std::to_string(end1)));
+  __attribute__((visibility("default"))) inline py::list mk_input(const std::string& tagName0,
+                                                                  cond::Time_t start0,
+                                                                  cond::Time_t end0,
+                                                                  const std::string& tagName1,
+                                                                  cond::Time_t start1,
+                                                                  cond::Time_t end1) {
+    py::list ret;
+    ret.append(py::make_tuple(tagName0, std::to_string(start0), std::to_string(end0)));
+    ret.append(py::make_tuple(tagName1, std::to_string(start1), std::to_string(end1)));
     return ret;
   }
 }  // namespace PI
@@ -228,16 +231,17 @@ namespace cond {
       bool isSingleIov() const;
 
       // required in the browser
-      boost::python::list inputParams() const;
+      __attribute__((visibility("default"))) py::list inputParams() const;
 
       // required in the browser
-      void setInputParamValues(const boost::python::dict& values);
+      __attribute__((visibility("default"))) void setInputParamValues(const py::dict& values);
 
       // returns the json file with the plot data
       std::string data() const;
 
       // triggers the processing producing the plot
-      bool process(const std::string& connectionString, const boost::python::list& tagsWithTimeBoundaries);
+      __attribute__((visibility("default"))) bool process(const std::string& connectionString,
+                                                          const py::list& tagsWithTimeBoundaries);
 
       // called by the above method - to be used in C++ unit tests...
       bool exec_process(const std::string& connectionString,

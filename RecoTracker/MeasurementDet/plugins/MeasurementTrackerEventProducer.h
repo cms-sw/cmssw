@@ -13,6 +13,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
@@ -37,7 +39,7 @@ protected:
 
   void getInactiveStrips(const edm::Event& event, std::vector<uint32_t>& rawInactiveDetIds) const;
 
-  std::string measurementTrackerLabel_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
@@ -48,7 +50,7 @@ protected:
 
   std::vector<edm::EDGetTokenT<DetIdCollection>> theInactivePixelDetectorLabels;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection>> theBadPixelFEDChannelsLabels;
-  std::string pixelCablingMapLabel_;
+  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> pixelCablingMapToken_;
   std::vector<edm::EDGetTokenT<DetIdCollection>> theInactiveStripDetectorLabels;
 
   bool selfUpdateSkipClusters_;

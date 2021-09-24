@@ -1248,7 +1248,7 @@ void CalibMonitor::Loop() {
     fileout_.close();
     std::cout << "Writes " << good << " events in the file " << outFileName_ << std::endl;
   }
-  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " evnts in this file with p>10 Gev"
+  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " events in this file with p>10 Gev"
             << std::endl;
   std::cout << "Number of selected events:" << std::endl;
   for (unsigned int k = 1; k < ps_.size(); ++k)

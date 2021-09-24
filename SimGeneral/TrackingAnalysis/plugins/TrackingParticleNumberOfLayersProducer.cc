@@ -1,9 +1,11 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingParticleNumberOfLayers.h"
 
@@ -23,10 +25,12 @@ public:
 private:
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
   std::vector<edm::EDGetTokenT<std::vector<PSimHit>>> simHitTokens_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 TrackingParticleNumberOfLayersProducer::TrackingParticleNumberOfLayersProducer(const edm::ParameterSet &iConfig)
-    : tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))) {
+    : tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))),
+      tTopoToken_(esConsumes()) {
   for (const auto &tag : iConfig.getParameter<std::vector<edm::InputTag>>("simHits")) {
     simHitTokens_.push_back(consumes<std::vector<PSimHit>>(tag));
   }
@@ -64,7 +68,7 @@ void TrackingParticleNumberOfLayersProducer::produce(edm::StreamID,
   iEvent.getByToken(tpToken_, htps);
 
   TrackingParticleNumberOfLayers algo(iEvent, simHitTokens_);
-  auto ret = algo.calculate(htps, iSetup);
+  auto ret = algo.calculate(htps, iSetup.getData(tTopoToken_));
   iEvent.put(std::move(std::get<TrackingParticleNumberOfLayers::nTrackerLayers>(ret)), "trackerLayers");
   iEvent.put(std::move(std::get<TrackingParticleNumberOfLayers::nPixelLayers>(ret)), "pixelLayers");
   iEvent.put(std::move(std::get<TrackingParticleNumberOfLayers::nStripMonoAndStereoLayers>(ret)), "stripStereoLayers");

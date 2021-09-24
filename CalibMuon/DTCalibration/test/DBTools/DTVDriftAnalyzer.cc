@@ -11,6 +11,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include "TFile.h"
 #include "TH1D.h"
@@ -19,7 +22,8 @@
 using namespace edm;
 using namespace std;
 
-DTVDriftAnalyzer::DTVDriftAnalyzer(const ParameterSet& pset) {
+DTVDriftAnalyzer::DTVDriftAnalyzer(const ParameterSet& pset)
+    : readLegacyVDriftDB(pset.getParameter<bool>("readLegacyVDriftDB")) {
   // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -29,23 +33,57 @@ DTVDriftAnalyzer::DTVDriftAnalyzer(const ParameterSet& pset) {
 DTVDriftAnalyzer::~DTVDriftAnalyzer() { theFile->Close(); }
 
 void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  ESHandle<DTMtime> mTime;
-  eventSetup.get<DTMtimeRcd>().get(mTime);
-  mTimeMap = &*mTime;
-  cout << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
+  if (readLegacyVDriftDB) {
+    ESHandle<DTMtime> mTime;
+    eventSetup.get<DTMtimeRcd>().get(mTime);
+    mTimeMap = &*mTime;
+    vDriftMap_ = nullptr;
+    edm::LogVerbatim("DTVDriftAnalyzer") << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
+  } else {
+    ESHandle<DTRecoConditions> hVdrift;
+    eventSetup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+    vDriftMap_ = &*hVdrift;
+    mTimeMap = nullptr;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap_->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+  }
 }
 
 void DTVDriftAnalyzer::endJob() {
   // Loop over DB entries
-  for (DTMtime::const_iterator mtime = mTimeMap->begin(); mtime != mTimeMap->end(); ++mtime) {
-    DTWireId wireId(
-        (*mtime).first.wheelId, (*mtime).first.stationId, (*mtime).first.sectorId, (*mtime).first.slId, 0, 0);
-    float vdrift;
-    float reso;
-    DetId detId(wireId.rawId());
+
+  map<uint32_t, pair<float, float>> values;
+
+  if (readLegacyVDriftDB) {
+    for (DTMtime::const_iterator mtime = mTimeMap->begin(); mtime != mTimeMap->end(); ++mtime) {
+      DTWireId wireId(
+          (*mtime).first.wheelId, (*mtime).first.stationId, (*mtime).first.sectorId, (*mtime).first.slId, 0, 0);
+      float vdrift;
+      float reso;
+      DetId detId(wireId.rawId());
+      // vdrift is cm/ns , resolution is cm
+      mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
+      values[wireId.rawId()] = make_pair(vdrift, reso);
+    }
+  } else {
+    for (DTRecoConditions::const_iterator vd = vDriftMap_->begin(); vd != vDriftMap_->end(); ++vd) {
+      DTWireId wireId(vd->first);
+      float vdrift = vDriftMap_->get(wireId);
+      values[vd->first] = make_pair(vdrift, 0.f);
+    }
+  }
+
+  for (map<uint32_t, pair<float, float>>::const_iterator it = values.begin(); it != values.end(); ++it) {
+    float vdrift = it->second.first;
+    float reso = it->second.second;
+    DTWireId wireId(it->first);
     // vdrift is cm/ns , resolution is cm
-    mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
-    cout << "Wire: " << wireId << endl << " vdrift (cm/ns): " << vdrift << endl << " reso (cm): " << reso << endl;
+    edm::LogVerbatim("DTVDriftAnalyzer") << "Wire: " << wireId << endl
+                                         << " vdrift (cm/ns): " << vdrift << endl
+                                         << " reso (cm): " << reso << endl;
 
     //Define an histo for each wheel and each superlayer type
     TH1D* hVDriftHisto = theVDriftHistoMap[make_pair(wireId.wheel(), wireId.superlayer())];

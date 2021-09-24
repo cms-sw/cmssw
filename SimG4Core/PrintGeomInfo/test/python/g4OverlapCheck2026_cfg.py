@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process('SIM',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

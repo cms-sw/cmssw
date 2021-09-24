@@ -8,7 +8,7 @@
 
 namespace edm {
   TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, unsigned int iNStreams)
-      : resultsPerStream_(iNStreams), pset_id_(pset.id()), token_{produces<TriggerResults>()} {}
+      : resultsPerStream_(iNStreams), pset_id_(pset.id()), token_{produces()} {}
 
   void TriggerResultInserter::setTrigResultForStream(unsigned int iStreamIndex, const TrigResPtr& trptr) {
     resultsPerStream_[iStreamIndex] = trptr;

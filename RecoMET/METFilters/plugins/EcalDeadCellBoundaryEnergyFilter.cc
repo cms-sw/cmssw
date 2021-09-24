@@ -71,6 +71,9 @@ private:
 
   edm::EDGetTokenT<EcalRecHitCollection> EBRecHitsToken_;
   edm::EDGetTokenT<EcalRecHitCollection> EERecHitsToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> ecalStatusToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   const std::string FilterAlgo_;
   const bool taggingMode_;
@@ -105,9 +108,10 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
       //now do what ever initialization is needed
       ,
       EBRecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEB"))),
-      EERecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE")))
-
-      ,
+      EERecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))),
+      caloTopologyToken_(esConsumes()),
+      ecalStatusToken_(esConsumes()),
+      geometryToken_(esConsumes()),
       FilterAlgo_(iConfig.getUntrackedParameter<std::string>("FilterAlgo", "TuningMode")),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")),
       skimGap_(iConfig.getUntrackedParameter<bool>("skimGap", false)),
@@ -163,19 +167,12 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
   v_boundaryInfoDeadCells_EE.reserve(50);
 
   // Get the Ecal RecHits
-  Handle<EcalRecHitCollection> EBRecHits;
-  iEvent.getByToken(EBRecHitsToken_, EBRecHits);
-  Handle<EcalRecHitCollection> EERecHits;
-  iEvent.getByToken(EERecHitsToken_, EERecHits);
+  auto const& EBRecHits = iEvent.get(EBRecHitsToken_);
+  auto const& EERecHits = iEvent.get(EERecHitsToken_);
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-
-  edm::ESHandle<EcalChannelStatus> ecalStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalStatus);
-
-  edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<CaloGeometryRecord>().get(geometry);
+  auto const& theCaloTopology = iSetup.getData(caloTopologyToken_);
+  auto const& ecalStatus = iSetup.getData(ecalStatusToken_);
+  auto const& geometry = iSetup.getData(geometryToken_);
 
   //   int DeadChannelsCounterEB = 0;
   //   int DeadChannelsCounterEE = 0;
@@ -193,12 +190,12 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
     if (debug_)
       edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "process EB";
 
-    for (EcalRecHitCollection::const_iterator hit = EBRecHits->begin(); hit != EBRecHits->end(); ++hit) {
+    for (EcalRecHitCollection::const_iterator hit = EBRecHits.begin(); hit != EBRecHits.end(); ++hit) {
       bool detIdAlreadyChecked = false;
       DetId currDetId = (DetId)hit->id();
       //add limitation to channel stati
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(currDetId);
-      int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+      EcalChannelStatus::const_iterator chit = ecalStatus.find(currDetId);
+      int status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status != 0)
         continue;
       bool passChannelLimitation = false;
@@ -226,11 +223,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       // RecHit is at EB boundary and should be processed
       if (!detIdAlreadyChecked && deadNeighbourStati.empty() &&
           ebBoundaryCalc.checkRecHitHasInvalidNeighbour(*hit, ecalStatus)) {
-        BoundaryInformation gapinfo = ebBoundaryCalc.gapRecHits((const edm::Handle<EcalRecHitCollection>&)EBRecHits,
-                                                                (const EcalRecHit*)&(*hit),
-                                                                theCaloTopology,
-                                                                ecalStatus,
-                                                                geometry);
+        BoundaryInformation gapinfo =
+            ebBoundaryCalc.gapRecHits(EBRecHits, &(*hit), theCaloTopology, ecalStatus, geometry);
 
         // get rechits along gap cluster
         for (std::vector<DetId>::iterator it = gapinfo.detIds.begin(); it != gapinfo.detIds.end(); it++) {
@@ -251,11 +245,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       if (!detIdAlreadyChecked &&
           (passChannelLimitation || (limitDeadCellToChannelStatusEB_.empty() && !deadNeighbourStati.empty()))) {
         BoundaryInformation boundinfo =
-            ebBoundaryCalc.boundaryRecHits((const edm::Handle<EcalRecHitCollection>&)EBRecHits,
-                                           (const EcalRecHit*)&(*hit),
-                                           theCaloTopology,
-                                           ecalStatus,
-                                           geometry);
+            ebBoundaryCalc.boundaryRecHits(EBRecHits, &(*hit), theCaloTopology, ecalStatus, geometry);
 
         // get boundary of !kDead rechits arround the dead cluster
         for (std::vector<DetId>::iterator it = boundinfo.detIds.begin(); it != boundinfo.detIds.end(); it++) {
@@ -282,12 +272,12 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
     if (debug_)
       edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "process EE";
 
-    for (EcalRecHitCollection::const_iterator hit = EERecHits->begin(); hit != EERecHits->end(); ++hit) {
+    for (EcalRecHitCollection::const_iterator hit = EERecHits.begin(); hit != EERecHits.end(); ++hit) {
       bool detIdAlreadyChecked = false;
       DetId currDetId = (DetId)hit->id();
       //add limitation to channel stati
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(currDetId);
-      int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+      EcalChannelStatus::const_iterator chit = ecalStatus.find(currDetId);
+      int status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status != 0)
         continue;
       bool passChannelLimitation = false;
@@ -313,17 +303,14 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       }
 
       // RecHit is at EE boundary and should be processed
-      const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(currDetId);
+      const CaloSubdetectorGeometry* subGeom = geometry.getSubdetectorGeometry(currDetId);
       auto cellGeom = subGeom->getGeometry(currDetId);
       double eta = cellGeom->getPosition().eta();
 
       if (!detIdAlreadyChecked && deadNeighbourStati.empty() &&
           eeBoundaryCalc.checkRecHitHasInvalidNeighbour(*hit, ecalStatus) && std::abs(eta) < 1.6) {
-        BoundaryInformation gapinfo = eeBoundaryCalc.gapRecHits((const edm::Handle<EcalRecHitCollection>&)EERecHits,
-                                                                (const EcalRecHit*)&(*hit),
-                                                                theCaloTopology,
-                                                                ecalStatus,
-                                                                geometry);
+        BoundaryInformation gapinfo =
+            eeBoundaryCalc.gapRecHits(EERecHits, &(*hit), theCaloTopology, ecalStatus, geometry);
 
         // get rechits along gap cluster
         for (std::vector<DetId>::iterator it = gapinfo.detIds.begin(); it != gapinfo.detIds.end(); it++) {
@@ -344,11 +331,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
       if (!detIdAlreadyChecked &&
           (passChannelLimitation || (limitDeadCellToChannelStatusEE_.empty() && !deadNeighbourStati.empty()))) {
         BoundaryInformation boundinfo =
-            eeBoundaryCalc.boundaryRecHits((const edm::Handle<EcalRecHitCollection>&)EERecHits,
-                                           (const EcalRecHit*)&(*hit),
-                                           theCaloTopology,
-                                           ecalStatus,
-                                           geometry);
+            eeBoundaryCalc.boundaryRecHits(EERecHits, &(*hit), theCaloTopology, ecalStatus, geometry);
 
         // get boundary of !kDead rechits arround the dead cluster
         for (std::vector<DetId>::iterator it = boundinfo.detIds.begin(); it != boundinfo.detIds.end(); it++) {

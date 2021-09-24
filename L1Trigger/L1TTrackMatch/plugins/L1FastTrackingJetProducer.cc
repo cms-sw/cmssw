@@ -33,11 +33,12 @@
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 
 //mc
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+
+#include <fastjet/JetDefinition.hh>
 
 #include <string>
 #include "TMath.h"

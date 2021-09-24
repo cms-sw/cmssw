@@ -36,7 +36,6 @@
 #include <cassert>
 #include <vector>
 #include <string>
-#include <regex>
 
 #include "TH1.h"
 
@@ -179,36 +178,63 @@ struct MonitorElementData {
     // Type of string `path` could be just directory name, or
     // directory name followed by the name of the monitor element
     void set(std::string path, Path::Type type) {
-      std::string in(path);
-      std::vector<std::string> buf;
-      static std::regex const dir("^/*([^/]+)");
-      std::smatch m;
+      //rebuild 'path' to be in canonical form
 
-      while (std::regex_search(in, m, dir)) {
-        if (m[1] == "..") {
-          if (!buf.empty()) {
-            buf.pop_back();
-          }
-        } else {
-          buf.push_back(m[1]);
-        }
-        in = m.suffix().str();
+      //remove any leading '/'
+      while (not path.empty() and path.front() == '/') {
+        path.erase(path.begin());
       }
 
-      // Construct dirname_ and object_name
-      dirname_ = "";
-      objname_ = "";
-      int numberOfItems = buf.size();
-      for (int i = 0; i < numberOfItems; i++) {
-        if (i == numberOfItems - 1) {
-          // Processing last component...
-          if (type == Path::Type::DIR_AND_NAME) {
-            objname_ = buf[i];
-          } else if (type == Path::Type::DIR) {
-            dirname_ += buf[i] + "/";
+      //handle '..' and '//'
+      // the 'dir' tokens are separate by a single '/'
+      std::string::size_type tokenStartPos = 0;
+      while (tokenStartPos < path.size()) {
+        auto tokenEndPos = path.find('/', tokenStartPos);
+        if (tokenEndPos == std::string::npos) {
+          tokenEndPos = path.size();
+        }
+        if (0 == tokenEndPos - tokenStartPos) {
+          //we are sitting on a '/'
+          path.erase(path.begin() + tokenStartPos);
+          continue;
+        } else if (2 == tokenEndPos - tokenStartPos) {
+          if (path[tokenStartPos] == '.' and path[tokenStartPos + 1] == '.') {
+            //need to go backwards and remove previous directory
+            auto endOfLastToken = tokenStartPos;
+            if (tokenStartPos > 1) {
+              endOfLastToken -= 2;
+            }
+            auto startOfLastToken = path.rfind('/', endOfLastToken);
+            if (startOfLastToken == std::string::npos) {
+              //we are at the very beginning of 'path' since no '/' found
+              path.erase(path.begin(), path.begin() + tokenEndPos);
+              tokenStartPos = 0;
+            } else {
+              path.erase(path.begin() + startOfLastToken + 1, path.begin() + tokenEndPos);
+              tokenStartPos = startOfLastToken + 1;
+            }
+            continue;
           }
+        }
+        tokenStartPos = tokenEndPos + 1;
+      }
+
+      //separate into objname_ and dirname_;
+      objname_.clear();
+      if (type == Path::Type::DIR) {
+        if (not path.empty() and path.back() != '/') {
+          path.append(1, '/');
+        }
+        dirname_ = std::move(path);
+      } else {
+        auto lastSlash = path.rfind('/');
+        if (lastSlash == std::string::npos) {
+          objname_ = std::move(path);
+          dirname_.clear();
         } else {
-          dirname_ += buf[i] + "/";
+          objname_ = path.substr(lastSlash + 1);
+          path.erase(path.begin() + lastSlash + 1, path.end());
+          dirname_ = std::move(path);
         }
       }
     }

@@ -1,10 +1,8 @@
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/Math"/>
 <use name="Geometry/EcalCommonData"/>
 <use name="Geometry/HcalTestBeamData"/>
 <use name="SimDataFormats/HcalTestBeam"/>
 <use name="SimG4Core/Notification"/>
-<use name="SimG4Core/Watcher"/>
 <use name="SimG4CMS/Calo"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

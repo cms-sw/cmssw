@@ -56,7 +56,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"

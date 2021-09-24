@@ -41,7 +41,7 @@ using SimHitTPAssociationList = TrackAssociatorByPositionImpl::SimHitTPAssociati
 class TrackAssociatorByPositionProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorByPositionProducer(const edm::ParameterSet&);
-  ~TrackAssociatorByPositionProducer() override;
+  ~TrackAssociatorByPositionProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -50,7 +50,9 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<SimHitTPAssociationList> theSimHitTpMapToken;
-  std::string thePname;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theGeometryToken;
+  edm::EDPutTokenT<reco::TrackToTrackingParticleAssociator> thePutToken;
   double theQminCut;
   double theQCut;
   double thePositionMinimumDistance;
@@ -58,10 +60,6 @@ private:
   bool theMinIfNoMatch;
   bool theConsiderAllSimHits;
 };
-
-//
-// constants, enums and typedefs
-//
 
 //
 // static data member definitions
@@ -85,21 +83,15 @@ static TrackAssociatorByPositionImpl::Method parseMethodName(const std::string& 
 //
 TrackAssociatorByPositionProducer::TrackAssociatorByPositionProducer(const edm::ParameterSet& iConfig)
     : theSimHitTpMapToken{consumes<SimHitTPAssociationList>(iConfig.getParameter<edm::InputTag>("simHitTpMapTag"))},
-      thePname{iConfig.getParameter<std::string>("propagator")},
+      thePropagatorToken{esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))},
+      theGeometryToken{esConsumes()},
+      thePutToken{produces<reco::TrackToTrackingParticleAssociator>()},
       theQminCut{iConfig.getParameter<double>("QminCut")},
       theQCut{iConfig.getParameter<double>("QCut")},
       thePositionMinimumDistance{iConfig.getParameter<double>("positionMinimumDistance")},
       theMethod{parseMethodName(iConfig.getParameter<std::string>("method"))},
       theMinIfNoMatch{iConfig.getParameter<bool>("MinIfNoMatch")},
-      theConsiderAllSimHits{iConfig.getParameter<bool>("ConsiderAllSimHits")} {
-  //register your products
-  produces<reco::TrackToTrackingParticleAssociator>();
-}
-
-TrackAssociatorByPositionProducer::~TrackAssociatorByPositionProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+      theConsiderAllSimHits{iConfig.getParameter<bool>("ConsiderAllSimHits")} {}
 
 //
 // member functions
@@ -109,33 +101,17 @@ TrackAssociatorByPositionProducer::~TrackAssociatorByPositionProducer() {
 void TrackAssociatorByPositionProducer::produce(edm::StreamID,
                                                 edm::Event& iEvent,
                                                 const edm::EventSetup& iSetup) const {
-  using namespace edm;
-
-  Handle<SimHitTPAssociationList> assocList;
-  iEvent.getByToken(theSimHitTpMapToken, assocList);
-
-  edm::ESHandle<Propagator> theP;
-  iSetup.get<TrackingComponentsRecord>().get(thePname, theP);
-
-  edm::ESHandle<GlobalTrackingGeometry> theG;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theG);
-
-  std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl{
-      new TrackAssociatorByPositionImpl(iEvent.productGetter(),
-                                        theG.product(),
-                                        theP.product(),
-                                        assocList.product(),
-                                        theQminCut,
-                                        theQCut,
-                                        thePositionMinimumDistance,
-                                        theMethod,
-                                        theMinIfNoMatch,
-                                        theConsiderAllSimHits)};
-
-  std::unique_ptr<reco::TrackToTrackingParticleAssociator> toPut{
-      new reco::TrackToTrackingParticleAssociator(std::move(impl))};
-
-  iEvent.put(std::move(toPut));
+  iEvent.emplace(thePutToken,
+                 std::make_unique<TrackAssociatorByPositionImpl>(iEvent.productGetter(),
+                                                                 &iSetup.getData(theGeometryToken),
+                                                                 &iSetup.getData(thePropagatorToken),
+                                                                 &iEvent.get(theSimHitTpMapToken),
+                                                                 theQminCut,
+                                                                 theQCut,
+                                                                 thePositionMinimumDistance,
+                                                                 theMethod,
+                                                                 theMinIfNoMatch,
+                                                                 theConsiderAllSimHits));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

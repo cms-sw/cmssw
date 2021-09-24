@@ -24,15 +24,12 @@
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 
 using namespace std;
 using namespace edm;
@@ -61,7 +58,7 @@ void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
   if (cleanBySharedHits)
     theRedundantCleaner->define(seeds);
 
-  theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_, theTTRHBuilder);
+  theTTRHBuilder = theProxyService->eventSetup().getHandle(theTTRHBuilderToken);
 
   LogDebug("TrackerSeedCleaner") << seeds.size() << " trajectory seeds to the events before cleaning" << endl;
 

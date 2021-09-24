@@ -14,7 +14,7 @@ options.register('type',
                  'TTrigDB', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Database to read: 'TZeroDB', 'TTrigDB',  'VDriftDB',  or 'UncertDB'")
+                 "Database to read: 'TZeroDB', 'TTrigDB',  'VDriftDB', 'UncertDB', 'NoiseDB', 'DeadDB', 'ChannelsDB'")
 
 options.register('GT',
                  'auto:run2_data', #default value
@@ -58,7 +58,7 @@ if DBFORMAT not in ['Legacy', 'DTRecoConditions'] :
     print('\nERROR: invalid value for dbformat: ',  DBFORMAT,'\n')
     exit()
     
-if TYPE not in ['TZeroDB', 'TTrigDB',  'VDriftDB', 'UncertDB'] :
+if TYPE not in ['TZeroDB', 'TTrigDB',  'VDriftDB', 'UncertDB', 'NoiseDB', 'DeadDB', 'ChannelsDB'] :
     print('\nERROR: invalid value for type: ',  TYPE,'\n')
     exit()
 
@@ -73,7 +73,10 @@ if INPUTTAG!="" and INPUTFILE!="" :
 ofExt = {'TZeroDB'  : '_t0.txt',
          'TTrigDB'  : '_ttrig.txt',
          'VDriftDB' : '_vdrift.txt',
-         'UncertDB' : '_uncert.txt'}
+         'UncertDB' : '_uncert.txt',
+         'NoiseDB'  : '_noise.txt',
+         'DeadDB'   : '_dead.txt',
+         'ChannelsDB' : '_channels.txt'}
 
 
 if INPUTFILE!="":
@@ -94,13 +97,17 @@ elif DBFORMAT=="Legacy" :
     if TYPE=="TTrigDB" : RECORD = "DTTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTMtimeRcd"
     if TYPE=="UncertDB" :
-        RECORD = "DTRecoUncertaintiesRcd"
-        print('\nWARNING, Legacy RecoUncertDB is deprecated, as it is no longer used in reconstruction code')
+        RECORD = ""
+        print('\nERROR, Legacy RecoUncertDB is no longer supported')
 elif DBFORMAT=="DTRecoConditions" :
     if TYPE=="TTrigDB" : RECORD = "DTRecoConditionsTtrigRcd"
     if TYPE=="VDriftDB" : RECORD = "DTRecoConditionsVdriftRcd"
     if TYPE=="UncertDB" : RECORD = "DTRecoConditionsUncertRcd"
 
+
+if TYPE == 'NoiseDB' : RECORD = 'DTStatusFlagRcd'
+elif TYPE == 'DeadDB' : RECORD = 'DTDeadFlagRcd'
+elif TYPE == 'ChannelsDB' : RECORD = 'DTReadOutMappingRcd'
 
 process = cms.Process("DumpDBToFile")
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -203,10 +210,47 @@ process.dumpUncertToFile = cms.EDAnalyzer("DumpDBToFile",
     outputFileName = cms.untracked.string(OUTPUTFILE)
 )
 
+process.dumpNoiseToFile = cms.EDAnalyzer("DumpDBToFile",
+    dbToDump = cms.untracked.string('NoiseDB'),
+    dbLabel = cms.untracked.string(''),
+    dbFormat = cms.untracked.string(DBFORMAT),
+    calibFileConfig = cms.untracked.PSet(
+        nFields = cms.untracked.int32(8),
+        calibConstGranularity = cms.untracked.string('byWire')
+    ),
+    outputFileName = cms.untracked.string(OUTPUTFILE)
+)
 
-if TYPE=="TZeroDB" :     process.p2 = cms.Path(process.dumpT0ToFile)
-if TYPE=="TTrigDB" :     process.p2 = cms.Path(process.dumpTTrigToFile)
-if TYPE=="VDriftDB" :    process.p2 = cms.Path(process.dumpVdToFile)
-if TYPE=="UncertDB": process.p2 = cms.Path(process.dumpUncertToFile)
+process.dumpDeadToFile = cms.EDAnalyzer("DumpDBToFile",
+    dbToDump = cms.untracked.string('DeadDB'),
+    dbLabel = cms.untracked.string(''),
+    dbFormat = cms.untracked.string(DBFORMAT),
+    calibFileConfig = cms.untracked.PSet(
+        nFields = cms.untracked.int32(8),
+        calibConstGranularity = cms.untracked.string('byWire')
+    ),
+    outputFileName = cms.untracked.string(OUTPUTFILE)
+)
+
+process.dumpChannelsToFile = cms.EDAnalyzer("DumpDBToFile",
+    dbToDump = cms.untracked.string('ChannelsDB'),
+    dbLabel = cms.untracked.string(''),
+    dbFormat = cms.untracked.string(DBFORMAT),
+    calibFileConfig = cms.untracked.PSet(
+        nFields = cms.untracked.int32(8),
+        calibConstGranularity = cms.untracked.string('byWire')
+    ),
+    outputFileName = cms.untracked.string(OUTPUTFILE)
+)
+
+
+
+if   TYPE=="TZeroDB" :     process.p2 = cms.Path(process.dumpT0ToFile)
+elif TYPE=="TTrigDB" :     process.p2 = cms.Path(process.dumpTTrigToFile)
+elif TYPE=="VDriftDB" :    process.p2 = cms.Path(process.dumpVdToFile)
+elif TYPE=="UncertDB":     process.p2 = cms.Path(process.dumpUncertToFile)
+elif TYPE=='NoiseDB' :     process.p2 = cms.Path(process.dumpNoiseToFile)
+elif TYPE=='DeadDB' :      process.p2 = cms.Path(process.dumpDeadToFile)
+elif TYPE=='ChannelsDB' :  process.p2 = cms.Path(process.dumpChannelsToFile)
 
 

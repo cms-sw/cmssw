@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.TrackingParticleSelectionForEfficiency_cfi import *
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.MTVHistoProducerAlgoForTrackerBlock_cfi import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer

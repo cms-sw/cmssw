@@ -34,7 +34,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerWeights() : testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) { ; }
+  EcalUncalibRecHitWorkerWeights() = default;  // for EcalUncalibRecHitFillDescriptionWorkerFactory
   ~EcalUncalibRecHitWorkerWeights() override{};
 
   void set(const edm::EventSetup& es) override;

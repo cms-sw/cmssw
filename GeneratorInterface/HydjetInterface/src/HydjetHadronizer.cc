@@ -7,8 +7,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "boost/lexical_cast.hpp"
-
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"

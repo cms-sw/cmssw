@@ -14,7 +14,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 // associator
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
 
 // DQM

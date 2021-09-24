@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.trackstersFromSimClustersProducer_cfi import trackstersFromSimClustersProducer as _trackstersFromSimClustersProducer
+from RecoHGCal.TICL.simTrackstersProducer_cfi import simTrackstersProducer as _simTrackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 
 
@@ -14,7 +14,7 @@ filteredLayerClustersSimTracksters = _filteredLayerClustersProducer.clone(
     iteration_label = "ticlSimTracksters"
 )
 
-ticlSimTracksters = _trackstersFromSimClustersProducer.clone(
+ticlSimTracksters = _simTrackstersProducer.clone(
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

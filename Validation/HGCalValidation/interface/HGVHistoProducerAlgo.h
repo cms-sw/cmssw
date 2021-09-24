@@ -229,6 +229,7 @@ public:
                                    std::vector<int> thicknesses);
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
+  void bookTracksterCPLinkingHistos(DQMStore::IBooker& ibook, Histograms& histograms);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -253,10 +254,11 @@ public:
                                     unsigned int layers,
                                     const hgcal::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
-  void tracksters_to_CaloParticles(const Histograms& histograms,
+  void tracksters_to_SimTracksters(const Histograms& histograms,
                                    int count,
                                    const ticl::TracksterCollection& Tracksters,
                                    const reco::CaloClusterCollection& layerClusters,
+                                   const ticl::TracksterCollection& simTSFromCP,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
@@ -305,6 +307,7 @@ public:
                              int count,
                              const ticl::TracksterCollection& Tracksters,
                              const reco::CaloClusterCollection& layerClusters,
+                             const ticl::TracksterCollection& simTSFromCP,
                              std::vector<CaloParticle> const& cP,
                              std::vector<size_t> const& cPIndices,
                              std::vector<size_t> const& cPSelectedIndices,

@@ -34,6 +34,7 @@ private:
 
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
   edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopoToken;
   double theTIPMax;
   double theChi2Max, thePtMin;
   bool doVariablePtMin;
@@ -42,6 +43,7 @@ private:
 HIProtoTrackFilterProducer::HIProtoTrackFilterProducer(const edm::ParameterSet& iConfig)
     : theBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       theSiPixelRecHitsToken(consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("siPixelRecHits"))),
+      theTtopoToken(esConsumes()),
       theTIPMax(iConfig.getParameter<double>("tipMax")),
       theChi2Max(iConfig.getParameter<double>("chi2")),
       thePtMin(iConfig.getParameter<double>("ptMin")),
@@ -85,11 +87,10 @@ void HIProtoTrackFilterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   iEvent.getByToken(theSiPixelRecHitsToken, recHitColl);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
+  auto const& ttopo = iSetup.getData(theTtopoToken);
 
   std::vector<const TrackingRecHit*> theChosenHits;
-  edmNew::copyDetSetRange(*recHitColl, theChosenHits, httopo->pxbDetIdLayerComparator(1));
+  edmNew::copyDetSetRange(*recHitColl, theChosenHits, ttopo.pxbDetIdLayerComparator(1));
   float estMult = theChosenHits.size();
 
   double variablePtMin = thePtMin;

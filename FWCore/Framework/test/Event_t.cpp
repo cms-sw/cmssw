@@ -83,7 +83,7 @@ namespace {
   template <typename T>
   class TestProducer : public edm::ProducerBase {
   public:
-    TestProducer(std::string const& productInstanceName) { token_ = produces<T>(productInstanceName); }
+    TestProducer(std::string const& productInstanceName) { token_ = produces(productInstanceName); }
     EDPutTokenT<T> token_;
   };
 }  // namespace

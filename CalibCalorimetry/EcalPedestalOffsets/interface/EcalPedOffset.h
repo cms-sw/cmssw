@@ -1,5 +1,5 @@
-#ifndef EcalPedOffset_H
-#define EcalPedOffset_H
+#ifndef CalibCalorimetry_EcalPedestalOffsets_EcalPedOffset_H
+#define CalibCalorimetry_EcalPedestalOffsets_EcalPedOffset_H
 
 /**
  * \file EcalPedOffset.h
@@ -12,20 +12,20 @@
 #include <map>
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
+#include <Geometry/EcalMapping/interface/EcalMappingRcd.h>
+
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 
-class EBDigiCollection;
-class EEDigiCollection;
-
-class EcalElectronicsMapping;
-
-class EcalPedOffset : public edm::EDAnalyzer {
+class EcalPedOffset : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   //! Constructor
   EcalPedOffset(const edm::ParameterSet &ps);
@@ -38,6 +38,9 @@ public:
 
   //! BeginRun
   void beginRun(edm::Run const &, edm::EventSetup const &eventSetup) override;
+
+  //! EndRun
+  void endRun(edm::Run const &, edm::EventSetup const &) override;
 
   //! EndJob
   void endJob(void) override;
@@ -58,9 +61,14 @@ private:
   void readDACs(const edm::Handle<EBDigiCollection> &pDigis, const std::map<int, int> &DACvalues);
   void readDACs(const edm::Handle<EEDigiCollection> &pDigis, const std::map<int, int> &DACvalues);
 
-  edm::InputTag m_barrelDigiCollection;  //!< secondary name given to collection of digis
-  edm::InputTag m_endcapDigiCollection;  //!< secondary name given to collection of digis
-  edm::InputTag m_headerCollection;      //!< name of module/plugin/producer making headers
+  const edm::InputTag m_barrelDigiCollection;  //!< secondary name given to collection of digis
+  const edm::InputTag m_endcapDigiCollection;  //!< secondary name given to collection of digis
+  const edm::InputTag m_headerCollection;      //!< name of module/plugin/producer making headers
+
+  const edm::EDGetTokenT<EcalRawDataCollection> m_rawDataToken;
+  const edm::EDGetTokenT<EBDigiCollection> m_ebDigiToken;
+  const edm::EDGetTokenT<EEDigiCollection> m_eeDigiToken;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> m_mappingToken;
 
   std::string m_xmlFile;  //!< name of the xml file to be saved
 

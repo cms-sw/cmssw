@@ -16,7 +16,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -29,20 +28,20 @@ public:
   EcalBoundaryInfoCalculator();
   ~EcalBoundaryInfoCalculator();
 
-  BoundaryInformation boundaryRecHits(const edm::Handle<EcalRecHitCollection>&,
+  BoundaryInformation boundaryRecHits(const EcalRecHitCollection&,
                                       const EcalRecHit*,
-                                      const edm::ESHandle<CaloTopology> theCaloTopology,
-                                      const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                      const edm::ESHandle<CaloGeometry> geometry) const;
+                                      const CaloTopology& theCaloTopology,
+                                      const EcalChannelStatus& ecalStatus,
+                                      const CaloGeometry& geometry) const;
 
-  BoundaryInformation gapRecHits(const edm::Handle<EcalRecHitCollection>&,
+  BoundaryInformation gapRecHits(const EcalRecHitCollection&,
                                  const EcalRecHit*,
-                                 const edm::ESHandle<CaloTopology> theCaloTopology,
-                                 const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                 const edm::ESHandle<CaloGeometry> geometry) const;
+                                 const CaloTopology& theCaloTopology,
+                                 const EcalChannelStatus& ecalStatus,
+                                 const CaloGeometry& geometry) const;
 
   bool checkRecHitHasDeadNeighbour(const EcalRecHit& hit,
-                                   const edm::ESHandle<EcalChannelStatus> ecalStatus,
+                                   const EcalChannelStatus& ecalStatus,
                                    std::vector<int>& stati) const {
     stati.clear();
     EcalDetId hitdetid = EcalDetId(hit.id());
@@ -72,8 +71,8 @@ public:
 
           if (EBDetId::validDetId(neighbourIeta, neighbourIphi)) {
             const EBDetId detid = EBDetId(neighbourIeta, neighbourIphi, EBDetId::ETAPHIMODE);
-            EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
-            int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+            EcalChannelStatus::const_iterator chit = ecalStatus.find(detid);
+            int status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
 
             if (status > 0) {
               bool present = false;
@@ -106,8 +105,8 @@ public:
 
           if (EEDetId::validDetId(neighbourIx, neighbourIy, hitIz)) {
             const EEDetId detid = EEDetId(neighbourIx, neighbourIy, hitIz, EEDetId::XYMODE);
-            EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
-            int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+            EcalChannelStatus::const_iterator chit = ecalStatus.find(detid);
+            int status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
 
             if (status > 0) {
               bool present = false;
@@ -133,7 +132,7 @@ public:
     return false;
   }
 
-  bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) const {
+  bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const EcalChannelStatus& ecalStatus) const {
     //// return true, if *direct* neighbour is invalid
 
     EcalDetId hitdetid = EcalDetId(hit.id());
@@ -266,15 +265,15 @@ private:
   }
 
   std::unique_ptr<CaloNavigator<EcalDetId>> initializeEcalNavigator(DetId startE,
-                                                                    const edm::ESHandle<CaloTopology> theCaloTopology,
+                                                                    const CaloTopology& theCaloTopology,
                                                                     EcalSubdetector ecalSubDet) const {
-    std::unique_ptr<CaloNavigator<EcalDetId>> theEcalNav(nullptr);
+    std::unique_ptr<CaloNavigator<EcalDetId>> theEcalNav;
     if (ecalSubDet == EcalBarrel) {
-      theEcalNav.reset(new CaloNavigator<EcalDetId>(
-          (EBDetId)startE, (theCaloTopology->getSubdetectorTopology(DetId::Ecal, ecalSubDet))));
+      theEcalNav = std::make_unique<CaloNavigator<EcalDetId>>(
+          (EBDetId)startE, (theCaloTopology.getSubdetectorTopology(DetId::Ecal, ecalSubDet)));
     } else if (ecalSubDet == EcalEndcap) {
-      theEcalNav.reset(new CaloNavigator<EcalDetId>(
-          (EEDetId)startE, (theCaloTopology->getSubdetectorTopology(DetId::Ecal, ecalSubDet))));
+      theEcalNav = std::make_unique<CaloNavigator<EcalDetId>>(
+          (EEDetId)startE, (theCaloTopology.getSubdetectorTopology(DetId::Ecal, ecalSubDet)));
     } else {
       edm::LogWarning("EcalBoundaryInfoCalculator")
           << "initializeEcalNavigator not implemented for subDet: " << ecalSubDet;
@@ -315,12 +314,11 @@ template <class EcalDetId>
 EcalBoundaryInfoCalculator<EcalDetId>::~EcalBoundaryInfoCalculator() {}
 
 template <class EcalDetId>
-BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
-    const edm::Handle<EcalRecHitCollection>& RecHits,
-    const EcalRecHit* hit,
-    const edm::ESHandle<CaloTopology> theCaloTopology,
-    edm::ESHandle<EcalChannelStatus> ecalStatus,
-    edm::ESHandle<CaloGeometry> geometry) const {
+BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(const EcalRecHitCollection& RecHits,
+                                                                           const EcalRecHit* hit,
+                                                                           const CaloTopology& theCaloTopology,
+                                                                           const EcalChannelStatus& ecalStatus,
+                                                                           const CaloGeometry& geometry) const {
   //initialize boundary information
   std::vector<EcalRecHit> boundaryRecHits;
   std::vector<DetId> boundaryDetIds;
@@ -336,7 +334,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
   boundaryEnergy += hit->energy();
   EcalDetId hitdetid = (EcalDetId)hit->id();
   boundaryDetIds.push_back(hitdetid);
-  const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
+  const CaloSubdetectorGeometry* subGeom = geometry.getSubdetectorGeometry(hitdetid);
   auto cellGeom = subGeom->getGeometry(hitdetid);
   double eta = cellGeom->getPosition().eta();
   boundaryET += hit->energy() / cosh(eta);
@@ -370,8 +368,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     next = makeStepInDirection(currDirection, theEcalNav.get());
     theEcalNav->setHome(current);
     theEcalNav->home();
-    EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
-    int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+    EcalChannelStatus::const_iterator chit = ecalStatus.find(next);
+    int status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
     if (status > 0) {
       stati.push_back(status);
       startAlgo = true;
@@ -400,8 +398,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
       next = makeStepInDirection(currDirection, theEcalNav.get());
       theEcalNav->setHome(current);
       theEcalNav->home();
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
-      status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+      EcalChannelStatus::const_iterator chit = ecalStatus.find(next);
+      status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status > 0) {
         // New dead cell found: update status std::vector of dead channels
         bool present = false;
@@ -449,8 +447,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     // save recHits and add energy if on the boundary (and not inside at border)
     if ((!atBorder || status == 0) && !nextIsStart) {
       boundaryDetIds.push_back(next);
-      if (RecHits->find(next) != RecHits->end() && status == 0) {
-        EcalRecHit nexthit = *RecHits->find(next);
+      if (RecHits.find(next) != RecHits.end() && status == 0) {
+        EcalRecHit nexthit = *RecHits.find(next);
         ++beCellCounter;
         boundaryRecHits.push_back(nexthit);
         boundaryEnergy += nexthit.energy();
@@ -510,11 +508,11 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
 }
 
 template <class EcalDetId>
-BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm::Handle<EcalRecHitCollection>& RecHits,
+BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const EcalRecHitCollection& RecHits,
                                                                       const EcalRecHit* hit,
-                                                                      const edm::ESHandle<CaloTopology> theCaloTopology,
-                                                                      edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                                                      edm::ESHandle<CaloGeometry> geometry) const {
+                                                                      const CaloTopology& theCaloTopology,
+                                                                      const EcalChannelStatus& ecalStatus,
+                                                                      const CaloGeometry& geometry) const {
   //initialize boundary information
   std::vector<EcalRecHit> gapRecHits;
   std::vector<DetId> gapDetIds;
@@ -529,7 +527,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
   gapEnergy += hit->energy();
   EcalDetId hitdetid = (EcalDetId)hit->id();
   gapDetIds.push_back(hitdetid);
-  const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
+  const CaloSubdetectorGeometry* subGeom = geometry.getSubdetectorGeometry(hitdetid);
   auto cellGeom = subGeom->getGeometry(hitdetid);
   double eta = cellGeom->getPosition().eta();
   gapET += hit->energy() / cosh(eta);
@@ -591,8 +589,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
       next = makeStepInDirection(currDirection, theEcalNav.get());
       theEcalNav->setHome(current);
       theEcalNav->home();
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
-      status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+      EcalChannelStatus::const_iterator chit = ecalStatus.find(next);
+      status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status > 0) {
         // Find dead cell along border -> end of cluster
         endIsFound = true;
@@ -601,7 +599,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
         // In case the Ecal border -> go along gap
         currDirection = turnLeft(currDirection, reverseOrientation);
       } else if (status == 0) {
-        if (RecHits->find(next) != RecHits->end()) {
+        if (RecHits.find(next) != RecHits.end()) {
           nextStepFound = true;
         } else {
           endIsFound = true;
@@ -636,8 +634,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
     // save recHits and add energy
     if (!endIsFound) {
       gapDetIds.push_back(next);
-      if (RecHits->find(next) != RecHits->end()) {
-        EcalRecHit nexthit = *RecHits->find(next);
+      if (RecHits.find(next) != RecHits.end()) {
+        EcalRecHit nexthit = *RecHits.find(next);
         ++gapCellCounter;
         gapRecHits.push_back(nexthit);
         gapEnergy += nexthit.energy();
@@ -670,8 +668,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
         next = makeStepInDirection(currDirection, theEcalNav.get());
         theEcalNav->setHome(current);
         theEcalNav->home();
-        EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
-        status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
+        EcalChannelStatus::const_iterator chit = ecalStatus.find(next);
+        status = (chit != ecalStatus.end()) ? chit->getStatusCode() & 0x1F : -1;
         if (status > 0) {
           // Find dead cell along border -> end of cluster
           endIsFound = true;
@@ -680,7 +678,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
           // In case the Ecal border -> go along gap
           currDirection = turnRight(currDirection, reverseOrientation);
         } else if (status == 0) {
-          if (RecHits->find(next) != RecHits->end()) {
+          if (RecHits.find(next) != RecHits.end()) {
             nextStepFound = true;
           } else {
             endIsFound = true;
@@ -708,8 +706,8 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
       // save recHits and add energy
       if (!endIsFound) {
         gapDetIds.push_back(next);
-        if (RecHits->find(next) != RecHits->end()) {
-          EcalRecHit nexthit = *RecHits->find(next);
+        if (RecHits.find(next) != RecHits.end()) {
+          EcalRecHit nexthit = *RecHits.find(next);
           ++gapCellCounter;
           gapRecHits.push_back(nexthit);
           gapEnergy += nexthit.energy();

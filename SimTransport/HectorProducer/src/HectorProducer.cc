@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 
 // SimpleConfigurable replacement
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

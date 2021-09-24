@@ -6,8 +6,8 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTwosComplement.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctUnsignedInt.h"
 
 #include <vector>
 

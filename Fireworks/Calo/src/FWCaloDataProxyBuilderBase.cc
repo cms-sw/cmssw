@@ -25,7 +25,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h"
-#include "Fireworks/Calo/src/FWFromTEveCaloDataSelector.h"
+#include "Fireworks/Calo/interface/FWFromTEveCaloDataSelector.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 

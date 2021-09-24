@@ -7,7 +7,7 @@ VectorInputSourceDescription : the stuff that is needed to configure
 a VectorinputSource that does not come in through the ParameterSet  
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include <memory>
 

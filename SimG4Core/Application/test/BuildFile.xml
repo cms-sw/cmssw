@@ -1,7 +1,5 @@
 <environment>
   <use name="FWCore/Framework"/>
-  <use name="PhysicsTools/UtilAlgos"/>
-  <use name="FWCore/ServiceRegistry"/>
   <library file="SimHitCaloHitDumper.cc" name="SimHitCaloHitDumper">
     <use name="SimDataFormats/TrackingHit"/>
     <use name="SimDataFormats/CaloHit"/>

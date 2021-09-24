@@ -57,6 +57,11 @@ class Dataset:
                 self.sampleType = "MC"
             else:
                 self.sampleType ="data1"
+                
+        if "isCosmics" in dsDict:
+            self.isCosmics = (dsDict["isCosmics"] == "True")
+        else:
+            self.isCosmics = False
         
         self.conditions, dummy, self.validConditions = loadConditions(dsDict)      
         
@@ -205,7 +210,7 @@ class ApeMeasurement:
         
         lastIter = (self.curIteration==self.maxIterations) and not self.alignment.isDesign
         
-        inputCommands = "sample={sample} fileNumber={fileNo} iterNumber={iterNo} lastIter={lastIter} alignRcd={alignRcd} maxEvents={maxEvents} globalTag={globalTag} measurementName={name} conditions={conditions}".format(sample=self.dataset.sampleType,fileNo="$1",iterNo=self.curIteration,lastIter=lastIter,alignRcd=alignmentNameToUse, maxEvents=self.maxEvents, globalTag=self.alignment.globalTag, name=self.name, conditions=rawFileName)
+        inputCommands = "sample={sample} fileNumber={fileNo} iterNumber={iterNo} lastIter={lastIter} alignRcd={alignRcd} maxEvents={maxEvents} globalTag={globalTag} measurementName={name} conditions={conditions} cosmics={cosmics}".format(sample=self.dataset.sampleType,fileNo="$1",iterNo=self.curIteration,lastIter=lastIter,alignRcd=alignmentNameToUse, maxEvents=self.maxEvents, globalTag=self.alignment.globalTag, name=self.name, conditions=rawFileName,cosmics=self.dataset.isCosmics)
         
         from autoSubmitterTemplates import condorJobTemplate
         jobFileContent = condorJobTemplate.format(base=base, inputFile="$2", inputCommands=inputCommands)
@@ -434,9 +439,10 @@ class ApeMeasurement:
                 try:
                     self.submit_jobs()
                     save("measurements", measurements)
-                except:
+                except Exception as e:
                     # this is needed in case the scheduler goes down
                     print("Error submitting jobs for APE measurement {}".format(self.name))
+                    print(e)
                     return
                     
             if self.status == STATE_BJOBS_WAITING:

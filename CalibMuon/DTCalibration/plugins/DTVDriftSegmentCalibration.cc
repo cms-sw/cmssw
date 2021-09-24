@@ -33,7 +33,8 @@ using namespace edm;
 DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset)
     : theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
       //writeVDriftDB_(pset.getUntrackedParameter<bool>("writeVDriftDB", false)),
-      theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")) {
+      theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
+      dtGeomToken_(esConsumes()) {
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Constructor called!";
 
   edm::ConsumesCollector collector(consumesCollector());
@@ -59,7 +60,7 @@ void DTVDriftSegmentCalibration::analyze(const Event& event, const EventSetup& e
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;

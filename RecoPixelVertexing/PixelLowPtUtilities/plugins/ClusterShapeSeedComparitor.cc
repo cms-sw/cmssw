@@ -7,7 +7,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
@@ -15,6 +14,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 #include <cstdio>
@@ -37,7 +38,8 @@ private:
   bool compatibleHit(const TrackingRecHit &hit, const GlobalVector &direction) const;
 
   std::string filterName_;
-  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+  const edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterESToken_;
+  const ClusterShapeHitFilter *clusterShapeHitFilter_;
   edm::EDGetTokenT<SiPixelClusterShapeCache> pixelClusterShapeCacheToken_;
   const SiPixelClusterShapeCache *pixelClusterShapeCache_;
   const bool filterAtHelixStage_;
@@ -47,6 +49,7 @@ private:
 PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg,
                                                                  edm::ConsumesCollector &iC)
     : filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
+      clusterShapeHitFilterESToken_(iC.esConsumes(edm::ESInputTag("", filterName_))),
       pixelClusterShapeCache_(nullptr),
       filterAtHelixStage_(cfg.getParameter<bool>("FilterAtHelixStage")),
       filterPixelHits_(cfg.getParameter<bool>("FilterPixelHits")),
@@ -60,7 +63,7 @@ PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::Para
 PixelClusterShapeSeedComparitor::~PixelClusterShapeSeedComparitor() {}
 
 void PixelClusterShapeSeedComparitor::init(const edm::Event &ev, const edm::EventSetup &es) {
-  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+  clusterShapeHitFilter_ = &es.getData(clusterShapeHitFilterESToken_);
   if (filterPixelHits_) {
     edm::Handle<SiPixelClusterShapeCache> hcache;
     ev.getByToken(pixelClusterShapeCacheToken_, hcache);
@@ -125,7 +128,7 @@ bool PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, c
     if (pixhit == nullptr)
       throw cms::Exception("LogicError", "Found a valid hit on the pixel detector which is not a SiPixelRecHit\n");
     //printf("Cheching hi hit on detid %10d, local direction is x = %9.6f, y = %9.6f, z = %9.6f\n", hit.geographicalId().rawId(), direction.x(), direction.y(), direction.z());
-    return filterHandle_->isCompatible(*pixhit, direction, *pixelClusterShapeCache_);
+    return clusterShapeHitFilter_->isCompatible(*pixhit, direction, *pixelClusterShapeCache_);
   } else {
     if (!filterStripHits_)
       return true;
@@ -133,16 +136,17 @@ bool PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, c
     if (tid == typeid(SiStripMatchedRecHit2D)) {
       const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&hit);
       assert(matchedHit != nullptr);
-      return (filterHandle_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), direction) &&
-              filterHandle_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), direction));
+      return (
+          clusterShapeHitFilter_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), direction) &&
+          clusterShapeHitFilter_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), direction));
     } else if (tid == typeid(SiStripRecHit2D)) {
       const SiStripRecHit2D *recHit = dynamic_cast<const SiStripRecHit2D *>(&hit);
       assert(recHit != nullptr);
-      return filterHandle_->isCompatible(*recHit, direction);
+      return clusterShapeHitFilter_->isCompatible(*recHit, direction);
     } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
       const ProjectedSiStripRecHit2D *precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit);
       assert(precHit != nullptr);
-      return filterHandle_->isCompatible(precHit->originalHit(), direction);
+      return clusterShapeHitFilter_->isCompatible(precHit->originalHit(), direction);
     } else {
       //printf("Questo e' un %s, che ci fo?\n", tid.name());
       return true;

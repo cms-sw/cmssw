@@ -1,9 +1,9 @@
-#include "FWCore/Framework/src/GlobalSchedule.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/interface/GlobalSchedule.h"
+#include "FWCore/Framework/interface/maker/WorkerMaker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"

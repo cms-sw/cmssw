@@ -871,3 +871,6 @@ std::string EcalDumpRaw::tpgTag(int tccType, unsigned iSeq) const {
   }
   return buf.str();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EcalDumpRaw);

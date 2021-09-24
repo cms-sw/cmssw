@@ -82,7 +82,7 @@ L1MuBMSEU::~L1MuBMSEU() {
 //
 // run SEU
 //
-void L1MuBMSEU::run(const edm::EventSetup& c) {
+void L1MuBMSEU::run(const L1TMuonBarrelParams& params) {
   if (L1MuBMTFConfig::Debug(3))
     cout << "Run SEU " << m_ext << " " << m_startTS_Id << endl;
 
@@ -121,7 +121,7 @@ void L1MuBMSEU::run(const edm::EventSetup& c) {
     const L1MuBMTrackSegPhi* target_ts = m_sp.data()->getTSphi(target, reladr);
     if (target_ts && !target_ts->empty()) {
       m_EUXs[reladr]->load(m_startTS, target_ts);
-      m_EUXs[reladr]->run(c);
+      m_EUXs[reladr]->run(params);
       if (m_EUXs[reladr]->result())
         m_EXtable.set(reladr);
     }

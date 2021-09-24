@@ -15,13 +15,7 @@
 #include "DataFormats/GEMDigi/interface/GEMAMCStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
-#include "DataFormats/GEMDigi/interface/AMC13Event.h"
-#include "DataFormats/GEMDigi/interface/GEMAMC13EventCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMGEBdataCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/VFATdata.h"
 #include "EventFilter/GEMRawToDigi/interface/GEMRawToDigi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -59,14 +53,11 @@ private:
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMRawToDigiModule);
 
-using namespace gem;
-
 GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     : fed_token(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("InputLabel"))),
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       keepDAQStatus_(pset.getParameter<bool>("keepDAQStatus")),
       readMultiBX_(pset.getParameter<bool>("readMultiBX")),
-      unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis")),
       gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
   if (keepDAQStatus_) {
@@ -74,13 +65,6 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     produces<GEMAMCStatusCollection>("AMCStatus");
     produces<GEMOHStatusCollection>("OHStatus");
     produces<GEMVFATStatusCollection>("VFATStatus");
-  }
-  if (unPackStatusDigis_) {
-    // to be removed
-    produces<GEMVfatStatusDigiCollection>("vfatStatus");
-    produces<GEMGEBdataCollection>("gebStatus");
-    produces<GEMAMCdataCollection>("AMCdata");
-    produces<GEMAMC13EventCollection>("AMC13Event");
   }
   if (useDBEMap_) {
     gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
@@ -91,7 +75,6 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
-  desc.add<bool>("unPackStatusDigis", false);
   desc.add<bool>("keepDAQStatus", false);
   desc.add<bool>("readMultiBX", false);
   descriptions.add("muonGEMDigisDefault", desc);
@@ -120,12 +103,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   auto outOHStatus = std::make_unique<GEMOHStatusCollection>();
   auto outVFATStatus = std::make_unique<GEMVFATStatusCollection>();
 
-  // to be removed
-  auto outVFATStatusOld = std::make_unique<GEMVfatStatusDigiCollection>();
-  auto outGEBStatus = std::make_unique<GEMGEBdataCollection>();
-  auto outAMCdata = std::make_unique<GEMAMCdataCollection>();
-  auto outAMC13Event = std::make_unique<GEMAMC13EventCollection>();
-
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   iEvent.getByToken(fed_token, fed_buffers);
@@ -147,23 +124,22 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     }
 
     const uint64_t* word = reinterpret_cast<const uint64_t*>(fedData.data());
-    auto amc13Event = gemRawToDigi_->convertWordToAMC13Event(word);
+    auto amc13 = gemRawToDigi_->convertWordToGEMAMC13(word);
     LogDebug("GEMRawToDigiModule") << "Event bx:" << iEvent.bunchCrossing() << " lv1Id:" << iEvent.id().event()
                                    << " orbitNumber:" << iEvent.orbitNumber();
-    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13Event->bunchCrossing()
-                                   << " lv1Id:" << int(amc13Event->lv1Id())
-                                   << " orbitNumber:" << amc13Event->orbitNumber();
+    LogDebug("GEMRawToDigiModule") << "AMC13 bx:" << amc13->bunchCrossing() << " lv1Id:" << int(amc13->lv1Id())
+                                   << " orbitNumber:" << amc13->orbitNumber();
 
     // Read AMC data
-    for (auto amcData : *(amc13Event->getAMCpayloads())) {
-      uint8_t amcNum = amcData.amcNum();
+    for (const auto& amc : *(amc13->getAMCpayloads())) {
+      uint8_t amcNum = amc.amcNum();
       GEMROMapping::sectorEC amcEC{fedId, amcNum};
       if (!gemROMap->isValidAMC(amcEC)) {
         st_amc13.inValidAMC();
         continue;
       }
 
-      GEMAMCStatus st_amc(amc13Event.get(), amcData);
+      GEMAMCStatus st_amc(amc13.get(), amc);
       if (st_amc.isBad()) {
         LogDebug("GEMRawToDigiModule") << st_amc;
         if (keepDAQStatus_) {
@@ -172,13 +148,12 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         continue;
       }
 
-      uint16_t amcBx = amcData.bunchCrossing();
-      LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amcData.amcNum()) << " bx:" << int(amcData.bunchCrossing())
-                                     << " lv1Id:" << int(amcData.lv1Id())
-                                     << " orbitNumber:" << int(amcData.orbitNumber());
+      uint16_t amcBx = amc.bunchCrossing();
+      LogDebug("GEMRawToDigiModule") << "AMC no.:" << int(amc.amcNum()) << " bx:" << int(amc.bunchCrossing())
+                                     << " lv1Id:" << int(amc.lv1Id()) << " orbitNumber:" << int(amc.orbitNumber());
 
       // Read GEB data
-      for (auto optoHybrid : *amcData.gebs()) {
+      for (const auto& optoHybrid : *amc.gebs()) {
         uint8_t gebId = optoHybrid.inputID();
         GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
 
@@ -199,10 +174,10 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         }
 
         //Read vfat data
-        for (auto vfatData : *optoHybrid.vFATs()) {
+        for (auto vfat : *optoHybrid.vFATs()) {
           // set vfat fw version
-          vfatData.setVersion(geb_dc.vfatVer);
-          uint16_t vfatId = vfatData.vfatId();
+          vfat.setVersion(geb_dc.vfatVer);
+          uint16_t vfatId = vfat.vfatId();
           GEMROMapping::vfatEC vfat_ec{vfatId, gemChId};
 
           if (!gemROMap->isValidChipID(vfat_ec)) {
@@ -211,10 +186,10 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           }
 
           GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
-          vfatData.setPhi(vfat_dc.localPhi);
+          vfat.setPhi(vfat_dc.localPhi);
           GEMDetId gemId = vfat_dc.detId;
 
-          GEMVFATStatus st_vfat(amcData, vfatData, vfatData.phi(), readMultiBX_);
+          GEMVFATStatus st_vfat(amc, vfat, vfat.phi(), readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {
@@ -223,14 +198,14 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             continue;
           }
 
-          int bx(vfatData.bc() - amcBx);
+          int bx(vfat.bc() - amcBx);
 
-          for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
+          for (int chan = 0; chan < GEMVFAT::nChannels; ++chan) {
             uint8_t chan0xf = 0;
             if (chan < 64)
-              chan0xf = ((vfatData.lsData() >> chan) & 0x1);
+              chan0xf = ((vfat.lsData() >> chan) & 0x1);
             else
-              chan0xf = ((vfatData.msData() >> (chan - 64)) & 0x1);
+              chan0xf = ((vfat.msData() >> (chan - 64)) & 0x1);
 
             // no hits
             if (chan0xf == 0)
@@ -239,7 +214,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             GEMROMapping::channelNum chMap{vfat_dc.vfatType, chan};
             GEMROMapping::stripNum stMap = gemROMap->hitPos(chMap);
 
-            int stripId = stMap.stNum + vfatData.phi() * GEMeMap::maxChan_;
+            int stripId = stMap.stNum + vfat.phi() * GEMeMap::maxChan_;
 
             GEMDigi digi(stripId, bx);
 
@@ -255,28 +230,17 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
           if (keepDAQStatus_) {
             outVFATStatus.get()->insertDigi(gemId, st_vfat);
           }
-          if (unPackStatusDigis_) {
-            outVFATStatusOld.get()->insertDigi(gemId, GEMVfatStatusDigi(vfatData));
-          }
 
         }  // end of vfat loop
 
         if (keepDAQStatus_) {
           outOHStatus.get()->insertDigi(gemChId, st_oh);
         }
-        if (unPackStatusDigis_) {
-          optoHybrid.clearVFATs();
-          outGEBStatus.get()->insertDigi(gemChId.chamberId(), (optoHybrid));
-        }
 
       }  // end of optohybrid loop
 
       if (keepDAQStatus_) {
         outAMCStatus.get()->insertDigi(fedId, st_amc);
-      }
-      if (unPackStatusDigis_) {
-        amcData.clearGEBs();
-        outAMCdata.get()->insertDigi(amcData.boardId(), (amcData));
       }
 
     }  // end of amc loop
@@ -285,11 +249,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       outAMC13Status.get()->insertDigi(fedId, st_amc13);
     }
 
-    if (unPackStatusDigis_) {
-      amc13Event->clearAMCpayloads();
-    }
-
-  }  // end of amc13Event
+  }  // end of amc13
 
   iEvent.put(std::move(outGEMDigis));
 
@@ -298,12 +258,5 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     iEvent.put(std::move(outAMCStatus), "AMCStatus");
     iEvent.put(std::move(outOHStatus), "OHStatus");
     iEvent.put(std::move(outVFATStatus), "VFATStatus");
-  }
-  if (unPackStatusDigis_) {
-    // to be removed
-    iEvent.put(std::move(outVFATStatusOld), "vfatStatus");
-    iEvent.put(std::move(outGEBStatus), "gebStatus");
-    iEvent.put(std::move(outAMCdata), "AMCdata");
-    iEvent.put(std::move(outAMC13Event), "AMC13Event");
   }
 }

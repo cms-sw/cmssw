@@ -36,9 +36,9 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTERS.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
@@ -52,7 +52,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTExtrapolationUnit::L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor& sp) : m_sp(sp), m_SEUs() {
+L1MuDTExtrapolationUnit::L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor& sp, edm::ConsumesCollector iC)
+    : m_sp(sp), m_SEUs(), m_parsToken(iC.esConsumes()) {
   for (int ext_idx = 0; ext_idx < MAX_EXT; ext_idx++) {
     Extrapolation ext = static_cast<Extrapolation>(ext_idx);
 
@@ -92,7 +93,7 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 // run Extrapolation Unit
 //
 void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
-  c.get<L1MuDTTFParametersRcd>().get(pars);
+  pars = c.getHandle(m_parsToken);
 
   SEUmap::const_iterator iter;
   for (iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++) {

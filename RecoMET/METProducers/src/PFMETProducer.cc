@@ -39,9 +39,9 @@ namespace cms {
         lepTokens_.push_back(mayConsume<edm::View<reco::Candidate>>(*it));
       }
 
-      jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
-      jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
-      jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
+      jetSFToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("srcJetSF")));
+      jetResPtToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("srcJetResPt")));
+      jetResPhiToken_ = esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("srcJetResPhi")));
       rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
     }
 
@@ -106,9 +106,9 @@ namespace cms {
     edm::Handle<edm::View<reco::Jet>> inputJets;
     event.getByToken(jetToken_, inputJets);
 
-    JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
-    JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
-    JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFType_);
+    JME::JetResolution resPtObj(setup.getData(jetResPtToken_));
+    JME::JetResolution resPhiObj(setup.getData(jetResPhiToken_));
+    JME::JetResolutionScaleFactor resSFObj(setup.getData(jetSFToken_));
 
     edm::Handle<double> rho;
     event.getByToken(rhoToken_, rho);

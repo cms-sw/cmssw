@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -48,18 +47,19 @@ using SimHitTPAssociationList = TrackAssociatorByHitsImpl::SimHitTPAssociationLi
 class TrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorByHitsProducer(const edm::ParameterSet&);
-  ~TrackAssociatorByHitsProducer() override;
+  ~TrackAssociatorByHitsProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<SimHitTPAssociationList> simHitTpMapToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::EDPutTokenT<reco::TrackToTrackingParticleAssociator> putToken_;
+
   TrackAssociatorByHitsImpl::SimToRecoDenomType SimToRecoDenominator;
   const double quality_SimToReco;
   const double purity_SimToReco;
@@ -85,6 +85,8 @@ private:
 TrackAssociatorByHitsProducer::TrackAssociatorByHitsProducer(const edm::ParameterSet& iConfig)
     : trackerHitAssociatorConfig_(iConfig, consumesCollector()),
       simHitTpMapToken_(consumes<SimHitTPAssociationList>(iConfig.getParameter<edm::InputTag>("simHitTpMapTag"))),
+      tTopoToken_(esConsumes()),
+      putToken_(produces<reco::TrackToTrackingParticleAssociator>()),
       SimToRecoDenominator(TrackAssociatorByHitsImpl::denomnone),
       quality_SimToReco(iConfig.getParameter<double>("Quality_SimToReco")),
       purity_SimToReco(iConfig.getParameter<double>("Purity_SimToReco")),
@@ -104,14 +106,6 @@ TrackAssociatorByHitsProducer::TrackAssociatorByHitsProducer(const edm::Paramete
   if (SimToRecoDenominator == TrackAssociatorByHitsImpl::denomnone) {
     throw cms::Exception("TrackAssociatorByHitsImpl") << "SimToRecoDenominator not specified as sim or reco";
   }
-
-  //register your products
-  produces<reco::TrackToTrackingParticleAssociator>();
-}
-
-TrackAssociatorByHitsProducer::~TrackAssociatorByHitsProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -122,39 +116,25 @@ TrackAssociatorByHitsProducer::~TrackAssociatorByHitsProducer() {
 void TrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  std::unique_ptr<TrackerHitAssociator> thAssoc(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+  auto thAssoc = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
 
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-
-  edm::Handle<SimHitTPAssociationList> simHitsTPAssoc;
-  //warning: make sure the TP collection used in the map is the same used in the associator!
-  iEvent.getByToken(simHitTpMapToken_, simHitsTPAssoc);
-
-  std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl(
-      new TrackAssociatorByHitsImpl(iEvent.productGetter(),
-                                    std::move(thAssoc),
-                                    &(*tTopoHand),
-                                    &(*simHitsTPAssoc),
-                                    SimToRecoDenominator,
-                                    quality_SimToReco,
-                                    purity_SimToReco,
-                                    cut_RecoToSim,
-                                    UsePixels,
-                                    UseGrouped,
-                                    UseSplitting,
-                                    ThreeHitTracksAreSpecial,
-                                    AbsoluteNumberOfHits));
-  std::unique_ptr<reco::TrackToTrackingParticleAssociator> toPut(
-      new reco::TrackToTrackingParticleAssociator(std::move(impl)));
-  iEvent.put(std::move(toPut));
+  iEvent.emplace(putToken_,
+                 std::make_unique<TrackAssociatorByHitsImpl>(
+                     iEvent.productGetter(),
+                     std::move(thAssoc),
+                     &iSetup.getData(tTopoToken_),
+                     //warning: make sure the TP collection used in the map is the same used in the associator!
+                     &iEvent.get(simHitTpMapToken_),
+                     SimToRecoDenominator,
+                     quality_SimToReco,
+                     purity_SimToReco,
+                     cut_RecoToSim,
+                     UsePixels,
+                     UseGrouped,
+                     UseSplitting,
+                     ThreeHitTracksAreSpecial,
+                     AbsoluteNumberOfHits));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TrackAssociatorByHitsProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TrackAssociatorByHitsProducer::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void TrackAssociatorByHitsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

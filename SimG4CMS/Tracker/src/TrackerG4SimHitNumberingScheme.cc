@@ -72,7 +72,7 @@ void TrackerG4SimHitNumberingScheme::touchToNavStory(const G4VTouchable* v,
     }
   }
 #ifdef EDM_ML_DEBUG
-  LogDebug("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint;
+  LogDebug("TrackerSimDebugNumbering") << " G4 TrackerG4SimHitNumberingScheme " << debugint.size();
   for (u_int32_t jj = 0; jj < debugstring.size(); jj++)
     LogDebug("TrackerSimDebugNumbering") << " " << debugstring[jj];
 #endif

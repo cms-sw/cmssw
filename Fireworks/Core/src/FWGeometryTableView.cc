@@ -27,7 +27,7 @@
 
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 #include "Fireworks/Core/src/FWEveDetectorGeo.h"
 
 #include "KeySymbols.h"

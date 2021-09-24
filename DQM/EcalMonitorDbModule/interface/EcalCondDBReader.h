@@ -5,6 +5,7 @@
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class EcalCondDBReader : public DQMEDHarvester {
 public:
@@ -46,6 +47,7 @@ private:
 
   int verbosity_;
   bool executed_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> elecMapHandle;
 };
 
 #endif

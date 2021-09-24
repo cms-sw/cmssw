@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 

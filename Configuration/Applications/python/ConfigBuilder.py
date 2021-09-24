@@ -1151,9 +1151,9 @@ class ConfigBuilder(object):
         self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
     # for alca, skims, etc
-    def addExtraStream(self,name,stream,workflow='full'):
+    def addExtraStream(self, name, stream, workflow='full', cppType="PoolOutputModule"):
             # define output module and go from there
-        output = cms.OutputModule("PoolOutputModule")
+        output = cms.OutputModule(cppType)
         if stream.selectEvents.parameters_().__len__()!=0:
             output.SelectEvents = stream.selectEvents
         else:
@@ -1187,8 +1187,9 @@ class ConfigBuilder(object):
         if self._options.filtername:
             output.dataset.filterName= cms.untracked.string(self._options.filtername+"_"+stream.name)
 
-        #add an automatic flushing to limit memory consumption
-        output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+        if cppType == "PoolOutputModule":
+            #add an automatic flushing to limit memory consumption
+            output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 
         if workflow in ("producers,full"):
             if isinstance(stream.paths,tuple):
@@ -1275,7 +1276,7 @@ class ConfigBuilder(object):
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         maxLevel=0
-        from Configuration.AlCa.autoAlca import autoAlca
+        from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
         self.expandMapping(alcaList,autoAlca)
         self.AlCaPaths=[]
@@ -1283,10 +1284,16 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
-                output = self.addExtraStream(name,alcastream, workflow = workflow)
+                if shortName in AlCaNoConcurrentLumis:
+                    print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
+                    self._options.nConcurrentLumis = "1"
+                    self._options.nConcurrentIOVs = "1"
+                isNano = (alcastream.dataTier == "NANOAOD")
+                output = self.addExtraStream(name, alcastream, workflow=workflow,
+                        cppType=("NanoAODOutputModule" if isNano else "PoolOutputModule"))
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
-                if 'DQM' in alcaList:
+                if 'DQM' in alcaList and not isNano:
                     if not self._options.inlineEventContent and hasattr(self.process,name):
                         self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
                     else:
@@ -1364,6 +1371,8 @@ class ConfigBuilder(object):
                 raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 
         if not loadFailure:
+            from Configuration.Generator.concurrentLumisDisable import noConcurrentLumiGenerators
+
             generatorModule=sys.modules[loadFragment]
             genModules=generatorModule.__dict__
             #remove lhe producer module since this should have been
@@ -1381,6 +1390,10 @@ class ConfigBuilder(object):
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
                         self._options.inlineObjets=name+','+self._options.inlineObjets
+                        if theObject.type_() in noConcurrentLumiGenerators:
+                            print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
+                            self._options.nConcurrentLumis = "1"
+                            self._options.nConcurrentIOVs = "1"
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjets+=','+name
 

@@ -9,7 +9,7 @@ input source that does not come in through the ParameterSet
 #include <memory>
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 namespace edm {
   class ProductRegistry;

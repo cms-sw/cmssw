@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -35,7 +34,7 @@ private:
 
 void PixelNtupletsFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto const& idealField = iSetup.getData(idealMagneticFieldToken_);
-  float bField = 1 / PixelRecoUtilities::fieldInInvGev(iSetup);
+  float bField = 1 / idealField.inverseBzAtOriginInGeV();
   auto impl = std::make_unique<PixelNtupletsFitter>(bField, &idealField, useRiemannFit_);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));

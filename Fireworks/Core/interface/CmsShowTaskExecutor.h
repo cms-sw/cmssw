@@ -23,7 +23,7 @@
 #include <functional>
 
 // user include files
-#include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutorBase.h"
 
 // forward declarations
 

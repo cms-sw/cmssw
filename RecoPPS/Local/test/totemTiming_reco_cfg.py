@@ -53,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # rechits production
-process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 process.load('RecoPPS.Local.totemTimingLocalReconstruction_cff')
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -65,9 +65,17 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 # execution configuration
+#Diamond Sampic flow
 process.p = cms.Path(
     process.ctppsRawToDigi*
-    process.totemTimingLocalReconstruction
+    process.diamondSampicLocalReconstruction
 )
+
+#Legacy UFSD flow
+#process.totemTimingRecHits.saturationLimit=cms.double(0.85)
+#process.p = cms.Path(
+#    process.ctppsRawToDigi*
+#    process.totemTimingLocalReconstruction
+#)
 
 process.outpath = cms.EndPath(process.output)

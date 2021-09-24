@@ -13,8 +13,7 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/src/SiteLocalConfigService.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <cstring>
@@ -27,11 +26,7 @@ int main(int argc, char* argv[]) {
   }
 
   try {
-    std::unique_ptr<edm::SiteLocalConfig> slcptr =
-        std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
-    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
-    edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
-    edm::ServiceRegistry::Operate operate(slcToken);
+    auto operate = edm::setupSiteLocalConfig();
 
     edm::Service<edm::SiteLocalConfig> localconfservice;
 

@@ -15,9 +15,9 @@ MuonGEMRecHitsHarvestor::MuonGEMRecHitsHarvestor(const edm::ParameterSet& pset)
 MuonGEMRecHitsHarvestor::~MuonGEMRecHitsHarvestor() {}
 
 void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  TString simhit_occ_folder = "MuonGEMHitsV/GEMHitsTask/Occupancy/";
-  TString occ_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Occupancy/";
-  TString eff_folder = "MuonGEMRecHitsV/GEMRecHitsTask/Efficiency/";
+  TString simhit_occ_folder = "GEM/SimHits/";
+  TString occ_folder = "GEM/RecHits/";
+  TString eff_folder = "GEM/RecHits/";
 
   for (const auto& region_id : region_ids_) {
     for (const auto& station_id : station_ids_) {
@@ -26,8 +26,8 @@ void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGe
 
       if (detail_plot_) {
         // NOTE Detector Component
-        TString rechit_det_path = occ_folder + "matched_rechit_occ_det" + name_suf_re_st;
-        TString simhit_det_path = simhit_occ_folder + "muon_simhit_occ_det" + name_suf_re_st;
+        TString rechit_det_path = occ_folder + "sim_matched_occ_det" + name_suf_re_st;
+        TString simhit_det_path = simhit_occ_folder + "sim_muon_occ_det" + name_suf_re_st;
 
         TString eff_det_name = "eff_det" + name_suf_re_st;
         TString eff_det_title = "Detector Component Efficiency :" + title_suf_re_st;
@@ -41,8 +41,8 @@ void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGe
         TString title_suf_re_st_ly = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
 
         // NOTE Eta
-        TString rechit_eta_path = occ_folder + "matched_rechit_occ_eta" + name_suf_re_st_ly;
-        TString simhit_eta_path = simhit_occ_folder + "muon_simhit_occ_eta" + name_suf_re_st_ly;
+        TString rechit_eta_path = occ_folder + "sim_matched_occ_eta" + name_suf_re_st_ly;
+        TString simhit_eta_path = simhit_occ_folder + "sim_muon_occ_eta" + name_suf_re_st_ly;
 
         TString eff_eta_name = "eff_eta" + name_suf_re_st_ly;
         TString eff_eta_title = "Eta Efficiency :" + title_suf_re_st_ly;
@@ -50,8 +50,8 @@ void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGe
         bookEff1D(booker, getter, rechit_eta_path, simhit_eta_path, eff_folder, eff_eta_name, eff_eta_title);
 
         // NOTE Phi
-        TString rechit_phi_path = occ_folder + "matched_rechit_occ_phi" + name_suf_re_st_ly;
-        TString simhit_phi_path = simhit_occ_folder + "muon_simhit_occ_phi" + name_suf_re_st_ly;
+        TString rechit_phi_path = occ_folder + "sim_matched_occ_phi" + name_suf_re_st_ly;
+        TString simhit_phi_path = simhit_occ_folder + "sim_muon_occ_phi" + name_suf_re_st_ly;
 
         TString eff_phi_name = "eff_phi" + name_suf_re_st_ly;
         TString eff_phi_title = "Phi Efficiency :" + title_suf_re_st_ly;

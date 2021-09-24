@@ -21,7 +21,7 @@
 #include "CombinedHitQuadrupletGeneratorForPhotonConversion.h"
 
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-#include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegionProducerFromBeamSpot.h"
 
 #include <sstream>
 

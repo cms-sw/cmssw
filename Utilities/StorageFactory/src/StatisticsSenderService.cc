@@ -4,7 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/src/Guid.h"
+#include "FWCore/Utilities/interface/Guid.h"
 
 #include <string>
 #include <cmath>

@@ -7,7 +7,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include "CACell.h"
-#include "CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 
 class CellularAutomaton {
 public:

@@ -995,10 +995,10 @@ namespace {
         final->SetMarkerSize(2.5);
         t1.SetTextColor(kRed);
         initial->Draw();
-        t1.DrawLatex(x0i, y0i - 0.5, Form("(%.2f,%.2f)", x0i, y0i));
+        t1.DrawLatex(x0i, y0i + (y0i > y0f ? 0.3 : -0.5), Form("(%.2f,%.2f)", x0i, y0i));
         final->Draw("same");
         t1.SetTextColor(kBlue);
-        t1.DrawLatex(x0f, y0f + 0.3, Form("(%.2f,%.2f)", x0f, y0f));
+        t1.DrawLatex(x0f, y0f + (y0i > y0f ? -0.5 : 0.3), Form("(%.2f,%.2f)", x0f, y0f));
       }
 
       // fourth pad is a special case for the z coordinate
@@ -1032,10 +1032,10 @@ namespace {
         final->SetMarkerSize(2.5);
         initial->Draw();
         t1.SetTextColor(kRed);
-        t1.DrawLatex(c - 1, z0i - 1.5, Form("(%.2f)", z0i));
+        t1.DrawLatex(c - 1, z0i + (z0i > z0f ? 1. : -1.5), Form("(%.2f)", z0i));
         final->Draw("same");
         t1.SetTextColor(kBlue);
-        t1.DrawLatex(c - 1, z0f + 1., Form("(%.2f)", z0f));
+        t1.DrawLatex(c - 1, z0f + (z0i > z0f ? -1.5 : 1), Form("(%.2f)", z0f));
       }
 
       std::string fileName(this->m_imageFileName);
