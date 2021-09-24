@@ -13,7 +13,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) {
+CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig) : CSCAlgo(consumesCollector()) {
   //Digi Level
   IT_L1MuGMTReadout = iConfig.getParameter<edm::InputTag>("L1MuGMTReadoutLabel");
 

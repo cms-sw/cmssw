@@ -10,11 +10,12 @@
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTLinearDriftAlgo(const edm::ParameterSet& config);
+  DTLinearDriftAlgo(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTLinearDriftAlgo() override;

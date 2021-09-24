@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"

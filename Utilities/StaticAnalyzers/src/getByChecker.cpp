@@ -101,7 +101,7 @@ namespace clangcms {
 
       //			llvm::errs()<<os.str()<<"\n";
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-      BugType *BT = new BugType(Checker, "edm::getByLabel or edm::getManyByType called", "optional");
+      BugType *BT = new BugType(Checker, "edm::getByLabel or edm::getManyByType called", "Deprecated API");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       R->addRange(CE->getSourceRange());
       BR.emitReport(std::move(R));
@@ -124,7 +124,7 @@ namespace clangcms {
           //				(*I)->printPretty(llvm::errs(),0,Policy);
           //				llvm::errs()<<" "<<qtname<<"\n";
           PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-          BugType *BT = new BugType(Checker, "function call with argument of type edm::Event", "optional");
+          BugType *BT = new BugType(Checker, "function call with argument of type edm::Event", "Deprecated API");
           std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
           R->addRange(CE->getSourceRange());
           BR.emitReport(std::move(R));

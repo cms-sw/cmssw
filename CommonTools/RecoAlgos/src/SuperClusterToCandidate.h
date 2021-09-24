@@ -1,7 +1,7 @@
 #ifndef RecoAlgos_SuperClusterToCandidate_h
 #define RecoAlgos_SuperClusterToCandidate_h
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"

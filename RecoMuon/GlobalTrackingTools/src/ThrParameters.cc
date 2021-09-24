@@ -4,37 +4,28 @@
 using namespace edm;
 using namespace std;
 
-ThrParameters::ThrParameters(const EventSetup* eSetup) {
-  // Read the threshold DB
-  ESHandle<DYTThrObject> dytThresholdsH;
-
-  // This try catch is just temporary and
-  // will be removed as soon as the DYTThrObject
-  // record is included in a GT.
-  // It is necessary here for testing
-  try {
-    eSetup->get<DYTThrObjectRcd>().get(dytThresholdsH);
+ThrParameters::ThrParameters(ESHandle<DYTThrObject> dytThresholdsH,
+                             const AlignmentErrorsExtended& dtAlignmentErrors,
+                             const AlignmentErrorsExtended& cscAlignmentErrors) {
+  if (dytThresholdsH.isValid()) {
     dytThresholds = dytThresholdsH.product();
     isValidThdDB_ = true;
-  } catch (...) {
+  } else {
+    dytThresholds = nullptr;
     isValidThdDB_ = false;
   }
 
   // Ape are always filled even they're null
-  ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
-  eSetup->get<DTAlignmentErrorExtendedRcd>().get(dtAlignmentErrorsExtended);
-  for (std::vector<AlignTransformErrorExtended>::const_iterator it = dtAlignmentErrorsExtended->m_alignError.begin();
-       it != dtAlignmentErrorsExtended->m_alignError.end();
+  for (std::vector<AlignTransformErrorExtended>::const_iterator it = dtAlignmentErrors.m_alignError.begin();
+       it != dtAlignmentErrors.m_alignError.end();
        it++) {
     CLHEP::HepSymMatrix error = (*it).matrix();
     GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);
     DTChamberId DTid((*it).rawId());
     dtApeMap.insert(pair<DTChamberId, GlobalError>(DTid, glbErr));
   }
-  ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
-  eSetup->get<CSCAlignmentErrorExtendedRcd>().get(cscAlignmentErrorsExtended);
-  for (std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrorsExtended->m_alignError.begin();
-       it != cscAlignmentErrorsExtended->m_alignError.end();
+  for (std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrors.m_alignError.begin();
+       it != cscAlignmentErrors.m_alignError.end();
        it++) {
     CLHEP::HepSymMatrix error = (*it).matrix();
     GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);

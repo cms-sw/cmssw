@@ -13,9 +13,16 @@ runType = 'signal'
 maxEvents = 100
 # maxEvents = -1
 
+# Set 'runBoosted' true to run boosted tau reconstuction
+runBoosted = False
+
+# Add postfix to production sequences and modules;
+# In case of boosted tau recostuction actual postfix is 'Boosted'+postfix
+postfix = ''
 
 # If 'reclusterJets' set true a new collection of uncorrected ak4PFJets is
 # built to seed taus (as at RECO), otherwise standard slimmedJets are used
+# Irrelavant in case of boosted tau reco
 reclusterJets = True
 # reclusterJets = False
 
@@ -33,8 +40,11 @@ outMode = 0  # store original MiniAOD and new selectedPatTaus
 print('Running Tau reco&id with MiniAOD inputs:')
 print('\t Run type:', runType)
 print('\t Recluster jets:', reclusterJets)
+print('\t Boosted tau reco:', runBoosted)
 print('\t Use Phase2 settings:', phase2)
 print('\t Output mode:', outMode)
+if not postfix=="":
+        print('\t Postfix:', postfix)
 
 #####
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -80,10 +90,11 @@ else:
     exit(1)
 
 #####
-import RecoTauTag.Configuration.tools.adaptToRunAtMiniAOD as tauAtMiniTools
+from RecoTauTag.Configuration.tools.adaptToRunAtMiniAOD import adaptToRunAtMiniAOD
 
 #####
-tauAtMiniTools.addTauReReco(process)
+tauAtMiniTools = adaptToRunAtMiniAOD(process,runBoosted,postfix=postfix)
+tauAtMiniTools.addTauReReco()
 
 #####
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -115,11 +126,14 @@ else: # data
 process.out = cms.EndPath(process.output)
 
 #####
-tauAtMiniTools.adaptTauToMiniAODReReco(process, reclusterJets)
+tauAtMiniTools.adaptTauToMiniAODReReco(reclusterJets)
+process.p = cms.Path(
+        getattr(process,("miniAODTausSequence"+postfix if not runBoosted else "miniAODTausSequenceBoosted"+postfix))
+)
 
 if runType == 'data':
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
-    runOnData(process, names = ['Taus'], outputModules = [])
+    runOnData(process, names = ['Taus'], outputModules = [], postfix = (postfix if not runBoosted else 'Boosted'+postfix))
 
 #####
 process.load('FWCore.MessageService.MessageLogger_cfi')

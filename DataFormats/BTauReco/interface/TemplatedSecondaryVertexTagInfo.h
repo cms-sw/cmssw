@@ -30,15 +30,15 @@ namespace reco {
     }
 
     struct TrackData {
-      enum Status { trackSelected = 0, trackUsedForVertexFit, trackAssociatedToVertex };
-
-      inline bool usedForVertexFit() const { return (int)svStatus >= (int)trackUsedForVertexFit; }
-      inline bool associatedToVertex() const { return (int)svStatus >= (int)trackAssociatedToVertex; }
+      static constexpr int trackSelected = 0;
+      static constexpr int trackUsedForVertexFit = 1;
+      static constexpr int trackAssociatedToVertex = 2;
+      inline bool usedForVertexFit() const { return svStatus >= trackUsedForVertexFit; }
+      inline bool associatedToVertex() const { return svStatus >= trackAssociatedToVertex; }
       inline bool associatedToVertex(unsigned int index) const {
-        return (int)svStatus == (int)trackAssociatedToVertex + (int)index;
+        return svStatus == trackAssociatedToVertex + (int)index;
       }
-
-      Status svStatus;
+      int svStatus;
     };
     typedef std::pair<unsigned int, TrackData> IndexedTrackData;
 

@@ -20,19 +20,24 @@
 #include <memory>
 #include <vector>
 #include <map>
-#include <set>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
@@ -41,6 +46,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
@@ -65,13 +71,14 @@
 // class declaration
 //
 
-class EcalCosmicsHists : public edm::EDAnalyzer {
+class EcalCosmicsHists : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EcalCosmicsHists(const edm::ParameterSet&);
   ~EcalCosmicsHists() override;
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
   std::string intToString(int num);
@@ -88,21 +95,39 @@ private:
   edm::InputTag l1GTReadoutRecTag_;
   edm::InputTag l1GMTReadoutRecTag_;
 
+  const edm::EDGetTokenT<reco::SuperClusterCollection> barrelClusterToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> endcapClusterToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHitToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<EcalRawDataCollection> ecalRawDataToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksBarrelToken_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitToken_;
+  const edm::EDGetTokenT<HFRecHitCollection> hfRecHitToken_;
+  const edm::EDGetTokenT<HORecHitCollection> hoRecHitToken_;
+  const edm::EDGetTokenT<L1MuGMTReadoutCollection> l1MuGMTToken_;
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GTReadoutToken_;
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtRecordToken_;
+
+  const edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1MenuToken_;
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
+
   int runNum_;
-  double histRangeMax_, histRangeMin_;
-  double minTimingAmpEB_;
-  double minTimingAmpEE_;
-  double minRecHitAmpEB_;
-  double minRecHitAmpEE_;
-  double minHighEnergy_;
+  const double histRangeMax_, histRangeMin_;
+  const double minTimingAmpEB_;
+  const double minTimingAmpEE_;
+  const double minRecHitAmpEB_;
+  const double minRecHitAmpEE_;
+  const double minHighEnergy_;
 
   double* ttEtaBins;
   double* modEtaBins;
   std::string fileName_;
-  bool runInFileName_;
+  const bool runInFileName_;
 
-  double startTime_, runTimeLength_;
-  int numTimingBins_;
+  const double startTime_, runTimeLength_;
+  const int numTimingBins_;
 
   std::map<int, TH1F*> FEDsAndHists_;
   std::map<int, TH1F*> FEDsAndE2Hists_;

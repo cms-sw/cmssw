@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 
-process = cms.Process('gemTester', Phase2C11I13M9)
+process = cms.Process('gemTester')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -11,14 +9,13 @@ process.load('EventFilter.GEMRawToDigi.GEMPackingTester_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents.input = cms.untracked.int32(10)
+process.maxEvents.input = cms.untracked.int32(1000)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun4_realistic_v4', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
-#process.gemPacker.useDBEMap = True
-#process.muonGEMDigis.readMultiBX = True
+process.gemPacker.useDBEMap = False
+process.muonGEMDigis.readMultiBX = True
 
 process.muonGEMDigis.useDBEMap = process.gemPacker.useDBEMap
 process.muonGEMDigis.keepDAQStatus = True
@@ -49,5 +46,5 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 process.p = cms.Path(process.gemPacker+process.rawDataCollector+process.muonGEMDigis+process.GEMPackingTester)
 
-print 'useDBEMap', process.gemPacker.useDBEMap, process.muonGEMDigis.useDBEMap
-print 'readMultiBX', process.muonGEMDigis.readMultiBX
+print('useDBEMap', process.gemPacker.useDBEMap, process.muonGEMDigis.useDBEMap)
+print('readMultiBX', process.muonGEMDigis.readMultiBX)

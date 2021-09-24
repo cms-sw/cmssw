@@ -203,7 +203,7 @@ void HFPMTHitAnalyzer::beginJob() {
 void HFPMTHitAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   ++event_no;
   if (event_no % 500 == 0)
-    std::cout << "Event # " << event_no << " processed.\n";
+    edm::LogVerbatim("HcalSim") << "Event # " << event_no << " processed.";
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;

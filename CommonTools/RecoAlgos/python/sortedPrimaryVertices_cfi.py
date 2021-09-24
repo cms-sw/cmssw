@@ -18,7 +18,15 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     useTiming = cms.bool(False),
+    useVertexFit = cms.bool(True),
     preferHighRanked = cms.bool(False),
+
+    #options used in PUPPI
+    NumOfPUVtxsForCharged = cms.int32(-1),
+    DzCutForChargedFromPUVtxs = cms.double(0.2),
+    PtMaxCharged = cms.double(-1),
+    EtaMinUseDz = cms.double(-1),
+    OnlyUseFirstDz = cms.bool(False),
     ),
   particles = cms.InputTag("trackRefsForJets"),
   trackTimeTag = cms.InputTag(""),

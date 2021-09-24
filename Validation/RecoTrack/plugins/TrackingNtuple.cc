@@ -71,11 +71,10 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
-#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
 #include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
@@ -90,7 +89,7 @@
 
 #include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 
-#include "RecoTracker/FinalTrackSelectors/plugins/getBestVertex.h"
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
 #include <set>
 #include <map>
@@ -637,7 +636,6 @@ private:
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
-  const edm::ESGetToken<ParametersDefinerForTP, TrackAssociatorRecord> paramsDefineToken_;
 
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
   std::vector<edm::EDGetTokenT<std::vector<SeedStopInfo>>> seedStopInfoTokens_;
@@ -669,7 +667,6 @@ private:
   std::vector<std::pair<unsigned int, edm::EDGetTokenT<StripMaskContainer>>> stripUseMaskTokens_;
 
   std::string builderName_;
-  std::string parametersDefinerName_;
   const bool includeSeeds_;
   const bool addSeedCurvCov_;
   const bool includeAllHits_;
@@ -681,6 +678,7 @@ private:
   const bool simHitBySignificance_;
 
   HistoryBase tracer_;
+  ParametersDefinerForTP parametersDefiner_;
 
   TTree* t;
 
@@ -1305,8 +1303,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       ttrhToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("TTRHBuilder")))),
       tTopoToken_(esConsumes()),
       tGeomToken_(esConsumes()),
-      paramsDefineToken_(
-          esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("parametersDefiner")))),
       trackToken_(consumes<edm::View<reco::Track>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
       clusterTPMapToken_(consumes<ClusterTPAssociation>(iConfig.getUntrackedParameter<edm::InputTag>("clusterTPMap"))),
       simHitTPMapToken_(consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(
@@ -1349,7 +1345,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       includeOOT_(iConfig.getUntrackedParameter<bool>("includeOOT")),
       keepEleSimHits_(iConfig.getUntrackedParameter<bool>("keepEleSimHits")),
       saveSimHitsP3_(iConfig.getUntrackedParameter<bool>("saveSimHitsP3")),
-      simHitBySignificance_(iConfig.getUntrackedParameter<bool>("simHitBySignificance")) {
+      simHitBySignificance_(iConfig.getUntrackedParameter<bool>("simHitBySignificance")),
+      parametersDefiner_(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot"), consumesCollector()) {
   if (includeSeeds_) {
     seedTokens_ =
         edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("seedTracks"),
@@ -3694,8 +3691,6 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent,
                                            const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                            const std::vector<TPHitIndex>& tpHitList,
                                            const TrackingParticleRefKeyToCount& tpKeyToClusterCount) {
-  const ParametersDefinerForTP* parametersDefiner = &iSetup.getData(paramsDefineToken_);
-
   // Number of 3D layers for TPs
   edm::Handle<edm::ValueMap<unsigned int>> tpNLayersH;
   iEvent.getByToken(tpNLayersToken_, tpNLayersH);
@@ -3765,8 +3760,8 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent,
     sim_decayVtxIdx.push_back(decayIdx);
 
     //Calcualte the impact parameters w.r.t. PCA
-    TrackingParticle::Vector momentum = parametersDefiner->momentum(iEvent, iSetup, tp);
-    TrackingParticle::Point vertex = parametersDefiner->vertex(iEvent, iSetup, tp);
+    TrackingParticle::Vector momentum = parametersDefiner_.momentum(iEvent, iSetup, tp);
+    TrackingParticle::Point vertex = parametersDefiner_.vertex(iEvent, iSetup, tp);
     auto dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
     auto dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
     const double lambdaSim = M_PI / 2 - momentum.theta();
@@ -4003,7 +3998,6 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<edm::InputTag>("trackingParticleNstripstereolayers",
                                    edm::InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"));
   desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle");
-  desc.addUntracked<std::string>("parametersDefiner", "LhcParametersDefinerForTP");
   desc.addUntracked<bool>("includeSeeds", false);
   desc.addUntracked<bool>("addSeedCurvCov", false);
   desc.addUntracked<bool>("includeAllHits", false);

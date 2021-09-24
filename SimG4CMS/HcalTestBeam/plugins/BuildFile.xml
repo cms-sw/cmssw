@@ -1,6 +1,5 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/Math"/>
-<use name="Geometry/EcalCommonData"/>
 <use name="Geometry/HcalTestBeamData"/>
 <use name="SimDataFormats/HcalTestBeam"/>
 <use name="SimG4Core/Notification"/>
@@ -9,7 +8,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimG4CMS/HcalTestBeam"/>
 <use name="geant4core"/>

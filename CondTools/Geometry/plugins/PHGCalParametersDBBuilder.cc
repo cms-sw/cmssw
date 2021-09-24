@@ -31,6 +31,8 @@ private:
 
   std::string name_, name2_, namew_, namec_, namet_;
   bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
 
 PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC) {
@@ -40,6 +42,9 @@ PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC
   namec_ = iC.getParameter<std::string>("nameC");
   namet_ = iC.getParameter<std::string>("nameT");
   fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
                                 << namec_ << ":" << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
@@ -71,15 +76,13 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access cm::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(dd4HepCompactViewToken_);
     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_, name2_);
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access DDCompactView";
 #endif
-    edm::ESTransientHandle<DDCompactView> cpv;
-    es.get<IdealGeometryRecord>().get(cpv);
+    auto cpv = es.getTransientHandle(compactViewToken_);
     builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
   }
   swapParameters(ptp, phgp);

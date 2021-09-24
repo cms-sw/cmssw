@@ -133,22 +133,6 @@ class O2OJobMgr(object):
             self.logger.error( str(dberror) )
         return session
 
-    def readConfiguration( self, config_filename ):
-        config = ''
-        try:
-            with open( config_filename, 'r' ) as config_file:
-                config = config_file.read()
-                if config == '':
-                    self.logger.error( 'The file %s contains an empty string.', config_filename )
-                else:
-                    json.loads(config)
-        except IOError as e:
-            self.logger.error( 'The file %s cannot be open.', config_filename )
-        except ValueError as e:
-            config = ''
-            self.logger.error( 'The file %s contains an invalid json string.', config_filename )
-        return config
-
     def connect( self, service, args ):
         self.session = self.getSession( service, args.role, args.auth )
         self.verbose = args.verbose
@@ -161,7 +145,9 @@ class O2OJobMgr(object):
     def runManager( self ):
         return O2ORunMgr( self.db_connection, self.session, self.logger )
 
-    def add( self, job_name, config_filename, int_val, freq_flag, en_flag ):
+    def add( self, job_name, configJson, int_val, freq_flag, en_flag ):
+        if configJson == '':
+            return False
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
         enabled = None
         for r in res:
@@ -169,9 +155,6 @@ class O2OJobMgr(object):
         if enabled:
             self.logger.error( "A job called '%s' exists already.", job_name )
             return False
-        configJson = self.readConfiguration( config_filename )
-        if configJson == '':
-            return False       
         freq_val = 0
         if freq_flag:
             freq_val = 1
@@ -208,7 +191,9 @@ class O2OJobMgr(object):
             else:
                 self.logger.info( "Job '%s' unset 'frequent'" %job_name)
 
-    def setConfig( self, job_name, config_filename ):
+    def setConfig( self, job_name, configJson ):
+        if configJson == '':
+            return False
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
         enabled = None
         for r in res:
@@ -216,13 +201,11 @@ class O2OJobMgr(object):
         if enabled is None:
             self.logger.error( "A job called '%s' does not exist.", job_name )
             return
-        configJson = self.readConfiguration( config_filename )
-        if configJson == '':
-            return False   
         config = O2OJobConf( job_name=job_name, insertion_time = datetime.utcnow(), configuration = configJson )     
         self.session.add(config)
         self.session.commit()
         self.logger.info( "New configuration inserted for job '%s'", job_name )
+        return True 
 
     def setInterval( self, job_name, int_val ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -396,15 +379,15 @@ class O2ORunMgr(object):
             self.logger.error( "Unresolved template key %s in the command." %str(exc) )
             return 3
         self.logger.info('Command: "%s"', command )
+        out = ''
         try:
             self.logger.info('Executing command...' )
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-            out = ''
-            for line in iter(pipe.stdout.readline, ''):
+            for line in pipe.stdout:
                 if args.verbose is not None and args.verbose>=1:
-                    sys.stdout.write(line)
+                    sys.stdout.write(line.decode())
                     sys.stdout.flush()
-                out += line
+                out += line.decode()
             pipe.communicate()
             self.logger.info( 'Command returned code: %s' %pipe.returncode )
             ret = pipe.returncode
@@ -417,6 +400,32 @@ class O2ORunMgr(object):
         with open(logFile,'a') as logF:
             logF.write(out)
         return ret
+
+def readConfiguration( config_filename ):
+    config = ''
+    try:
+        with open( config_filename, 'r' ) as config_file:
+            config = config_file.read().strip('\n')
+            if config == '':
+                logging.error( 'The file %s contains an empty string.', config_filename )
+            else:
+                json.loads(config)
+    except IOError as e:
+        logging.error( 'The file %s cannot be open.', config_filename )
+    except ValueError as e:
+        config = ''
+        logging.error( 'The file "%s" contains an invalid json string.', config_filename )
+    return config
+
+def checkConfiguration( config_string ):
+    config = config_string
+    try:
+        json.loads(config)
+    except ValueError as e:
+        config = ''
+        logging.error( 'The string "%s" is an invalid json format.', config_string )
+    return config
+
     
 import optparse
 import argparse
@@ -431,13 +440,15 @@ class O2OTool():
         parser_subparsers = parser.add_subparsers(title='Available subcommands')
         parser_create = parser_subparsers.add_parser('create', description='Create a new O2O job')
         parser_create.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
-        parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
+        parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path')
+        parser_create.add_argument('--configString', '-s', type=str, help='the JSON configuration string')
         parser_create.add_argument('--interval', '-i', type=int, help='the chron job interval',default=0)
-        parser_create.add_argument('--frequent', '-f',action='store_true',help='set the "frequent" flag for this job')
+        parser_create.add_argument('--frequent', '-f',action='store_true',help='set the "frequent" flag for this job ("false" by default)')
         parser_create.set_defaults(func=self.create,role=auth.admin_role)
         parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job. The configuration is expected as a list of entries "param": "value" (dictionary). The "param" labels will be used to inject the values in the command to execute. The dictionary is stored in JSON format.')
         parser_setConfig.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
-        parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
+        parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path')
+        parser_setConfig.add_argument('--configString', '-s', type=str, help='the JSON configuration string')
         parser_setConfig.set_defaults(func=self.setConfig,role=auth.admin_role)
         parser_setFrequent = parser_subparsers.add_parser('setFrequent',description='Set the "frequent" flag for the specified job')
         parser_setFrequent.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
@@ -496,10 +507,36 @@ class O2OTool():
         return self.mgr.connect( db_service, args )
         
     def create(self):
-        self.mgr.add( self.args.name, self.args.configFile, self.args.interval, True )
+        configJson = None
+        if self.args.configFile is not None:
+            if self.args.configString is not None:
+                logging.error('Ambigouous input provided: please specify a configFile OR a configString')
+                return False
+            else:
+                configJson = readConfiguration( self.args.configFile )
+        else:
+            if self.args.configString is None:
+                logging.error('No configuration has been provided: please specify "configFile" or "configString" param.')
+                return False
+            else:
+                configJson = checkConfiguration( self.args.configString )
+        self.mgr.add( self.args.name, configJson, self.args.interval, self.args.frequent, True )
 
     def setConfig(self):
-        self.mgr.setConfig( self.args.name, self.args.configFile )
+        configJson = None
+        if self.args.configFile is not None:
+            if self.args.configString is not None:
+                logging.error('Ambigouous input provided: please specify a configFile OR a configString')
+                return False
+            else:
+                configJson = readConfiguration( self.args.configFile )
+        else:
+            if self.args.configString is None:
+                logging.error('No configuration has been provided: please specify "configFile" or "configString" param.')
+                return False
+            else:
+                configJson = checkConfiguration( self.args.configString )
+        self.mgr.setConfig( self.args.name, configJson )
 
     def setInterval(self):
         self.mgr.setInterval( self.args.name, self.args.interval )

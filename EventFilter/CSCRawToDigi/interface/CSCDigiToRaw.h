@@ -81,6 +81,7 @@ private:
   uint16_t formatVersion_;
   bool packEverything_;
   bool usePreTriggers_;
+  bool packByCFEB_;
 };
 
 #endif

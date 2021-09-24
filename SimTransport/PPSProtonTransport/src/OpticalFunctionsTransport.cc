@@ -1,10 +1,11 @@
 #include "SimTransport/PPSProtonTransport/interface/OpticalFunctionsTransport.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-OpticalFunctionsTransport::OpticalFunctionsTransport(const edm::ParameterSet& iConfig)
+OpticalFunctionsTransport::OpticalFunctionsTransport(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
     : BaseProtonTransport(iConfig),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
-      opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
+      lhcInfoToken_(iC.esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      beamParametersToken_(iC.esConsumes()),
+      opticsToken_(iC.esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
       empiricalAperture45_xi0_int_(iConfig.getParameter<double>("empiricalAperture45_xi0_int")),
       empiricalAperture45_xi0_slp_(iConfig.getParameter<double>("empiricalAperture45_xi0_slp")),
@@ -22,9 +23,9 @@ void OpticalFunctionsTransport::process(const HepMC::GenEvent* evt,
                                         CLHEP::HepRandomEngine* _engine) {
   this->clear();
 
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, lhcInfo_);
-  iSetup.get<CTPPSBeamParametersRcd>().get(beamParameters_);
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, opticalFunctions_);
+  lhcInfo_ = &iSetup.getData(lhcInfoToken_);
+  beamParameters_ = &iSetup.getData(beamParametersToken_);
+  opticalFunctions_ = &iSetup.getData(opticsToken_);
 
   // Choose the optical function corresponding to the first station ono each side (it is in lhc ref. frame)
   optFunctionId45_ = 0;

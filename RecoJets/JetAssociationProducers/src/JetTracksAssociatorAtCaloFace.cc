@@ -16,7 +16,7 @@
 #include "JetTracksAssociatorAtCaloFace.h"
 
 JetTracksAssociatorAtCaloFace::JetTracksAssociatorAtCaloFace(const edm::ParameterSet& fConfig)
-    : firstRun(true), dR_(fConfig.getParameter<double>("coneSize")) {
+    : mGeometry(esConsumes()), dR_(fConfig.getParameter<double>("coneSize")) {
   mJets = consumes<edm::View<reco::Jet> >(fConfig.getParameter<edm::InputTag>("jets"));
   mExtrapolations =
       consumes<std::vector<reco::TrackExtrapolation> >(fConfig.getParameter<edm::InputTag>("extrapolations")),
@@ -26,14 +26,7 @@ JetTracksAssociatorAtCaloFace::JetTracksAssociatorAtCaloFace(const edm::Paramete
 
 void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   // Get geometry
-  if (firstRun) {
-    fSetup.get<CaloGeometryRecord>().get(pGeo);
-    firstRun = false;
-  }
-
-  if (!pGeo.isValid()) {
-    throw cms::Exception("InvalidInput") << "Did not get geometry" << std::endl;
-  }
+  auto const& geo = fSetup.getData(mGeometry);
 
   // get stuff from Event
   edm::Handle<edm::View<reco::Jet> > jets_h;
@@ -61,7 +54,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   allJets.reserve(jets_h->size());
   for (unsigned i = 0; i < jets_h->size(); ++i)
     allJets.push_back(jets_h->refAt(i));
-  mAssociator.produce(&*jetTracks, allJets, *extrapolations_h, *pGeo, dR_);
+  mAssociator.produce(&*jetTracks, allJets, *extrapolations_h, geo, dR_);
 
   // store output
   fEvent.put(std::move(jetTracks));

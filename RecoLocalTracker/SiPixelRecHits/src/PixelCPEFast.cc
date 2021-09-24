@@ -178,11 +178,14 @@ void PixelCPEFast::fillParamsForGpu() {
 
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
+    // average angle
+    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
+    auto gvy = p.theOrigin.y();
+    auto gvz = 1.f / p.theOrigin.z();
+    //--- Note that the normalization is not required as only the ratio used
+
     {
-      // average angle
-      auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
-      auto gvy = p.theOrigin.y();
-      auto gvz = 1.f / p.theOrigin.z();
+      // calculate angles (fed into errorFromTemplates)
       cp.cotalpha = gvx * gvz;
       cp.cotbeta = gvy * gvz;
       errorFromTemplates(p, cp, 20000.);
@@ -204,9 +207,9 @@ void PixelCPEFast::fillParamsForGpu() {
     g.sy2 = std::max(55, toMicron(cp.sy2));  // sometimes sy2 is smaller than others (due to angle?)
 
     // sample xerr as function of position
-    auto const xoff = -81.f * commonParamsGPU_.thePitchX;
+    auto const xoff = float(phase1PixelTopology::xOffset) * commonParamsGPU_.thePitchX;
 
-    for (int ix = 0; ix < 16; ++ix) {
+    for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() - x;
       auto gvy = p.theOrigin.y();
@@ -221,8 +224,8 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
-    auto const yoff = -54.f * 4.f * commonParamsGPU_.thePitchY;
-    for (int ix = 0; ix < 16; ++ix) {
+    auto const yoff = float(phase1PixelTopology::yOffset) * commonParamsGPU_.thePitchY;
+    for (int ix = 0; ix < CPEFastParametrisation::kNumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
       auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchY;
       auto gvy = p.theOrigin.y() - y;
@@ -235,19 +238,13 @@ void PixelCPEFast::fillParamsForGpu() {
     }
 #endif  // EDM_ML_DEBUG
 
-    // average angle
-    auto gvx = p.theOrigin.x() + 40.f * commonParamsGPU_.thePitchX;
-    auto gvy = p.theOrigin.y();
-    auto gvz = 1.f / p.theOrigin.z();
-    //--- Note that the normalization is not required as only the ratio used
-
-    // calculate angles (fed into errorFromTemplates)
+    // calculate angles (repeated)
     cp.cotalpha = gvx * gvz;
     cp.cotbeta = gvy * gvz;
     auto aveCB = cp.cotbeta;
 
     // sample x by charge
-    int qbin = 5;  // low charge
+    int qbin = CPEFastParametrisation::kGenErrorQBins;  // low charge
     int k = 0;
     for (int qclus = 1000; qclus < 200000; qclus += 1000) {
       errorFromTemplates(p, cp, qclus);
@@ -263,25 +260,26 @@ void PixelCPEFast::fillParamsForGpu() {
                                << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
 #endif  // EDM_ML_DEBUG
     }
-    assert(k <= 5);
+    assert(k <= CPEFastParametrisation::kGenErrorQBins);
     // fill the rest  (sometimes bin 4 is missing)
-    for (int kk = k; kk < 5; ++kk) {
+    for (int kk = k; kk < CPEFastParametrisation::kGenErrorQBins; ++kk) {
       g.xfact[kk] = g.xfact[k - 1];
       g.yfact[kk] = g.yfact[k - 1];
       g.minCh[kk] = g.minCh[k - 1];
     }
     auto detx = 1.f / g.xfact[0];
     auto dety = 1.f / g.yfact[0];
-    for (int kk = 0; kk < 5; ++kk) {
+    for (int kk = 0; kk < CPEFastParametrisation::kGenErrorQBins; ++kk) {
       g.xfact[kk] *= detx;
       g.yfact[kk] *= dety;
     }
     // sample y in "angle"  (estimated from cluster size)
     float ys = 8.f - 4.f;  // apperent bias of half pixel (see plot)
+    // plot: https://indico.cern.ch/event/934821/contributions/3974619/attachments/2091853/3515041/DigilessReco.pdf page 25
     // sample yerr as function of "size"
-    for (int iy = 0; iy < 16; ++iy) {
+    for (int iy = 0; iy < CPEFastParametrisation::kNumErrorBins; ++iy) {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
-      if (15 == iy)
+      if (CPEFastParametrisation::kNumErrorBins - 1 == iy)
         ys += 8.f;  // last bin for "overflow"
       // cp.cotalpha = ys*(commonParamsGPU_.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
       cp.cotbeta = std::copysign(ys * (commonParamsGPU_.thePitchY / (8.f * thickness)), aveCB);

@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_12_0_0/HIon --type HIon
+# hltGetConfiguration --cff --data /dev/CMSSW_12_1_0/HIon --type HIon
 
-# /dev/CMSSW_12_0_0/HIon/V5 (CMSSW_12_0_0_pre5)
+# /dev/CMSSW_12_1_0/HIon/V1 (CMSSW_12_1_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_0_0/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_12_1_0/HIon/V1')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -6374,7 +6374,9 @@ fragment.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
       useUncertDB = cms.bool( True ),
       doVdriftCorr = cms.bool( True ),
       minTime = cms.double( -3.0 ),
-      tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+      tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+      readLegacyTTrigDB = cms.bool( True ),
+      readLegacyVDriftDB = cms.bool( True )
     ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     debug = cms.untracked.bool( False ),
@@ -6409,7 +6411,9 @@ fragment.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           useUncertDB = cms.bool( True ),
           doVdriftCorr = cms.bool( True ),
           minTime = cms.double( -3.0 ),
-          tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+          tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+          readLegacyTTrigDB = cms.bool( True ),
+          readLegacyVDriftDB = cms.bool( True )
         ),
         MaxAllowedHits = cms.uint32( 50 ),
         nUnSharedHitsMin = cms.int32( 2 ),
@@ -6442,7 +6446,9 @@ fragment.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         useUncertDB = cms.bool( True ),
         doVdriftCorr = cms.bool( True ),
         minTime = cms.double( -3.0 ),
-        tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+        tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+        readLegacyTTrigDB = cms.bool( True ),
+        readLegacyVDriftDB = cms.bool( True )
       ),
       nUnSharedHitsMin = cms.int32( 2 ),
       nSharedHitsMax = cms.int32( 2 ),

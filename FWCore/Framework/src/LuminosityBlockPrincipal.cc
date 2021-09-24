@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {

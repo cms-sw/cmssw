@@ -112,6 +112,8 @@ namespace {
 
     const TransientTrackBuilder* trackBuilder_;
     const CaloGeometry* caloGeometry_;
+    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trackBuilderToken_;
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
     TauLeadTrackExtractor<TauType> leadTrackExtractor_;
 
@@ -130,7 +132,9 @@ namespace {
   template <class TauType, class TauDiscriminator>
   TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::TauDiscriminationAgainstCaloMuon(
       const edm::ParameterSet& cfg)
-      : TauDiscriminationProducerBase<TauType, TauDiscriminator>(cfg) {
+      : TauDiscriminationProducerBase<TauType, TauDiscriminator>(cfg),
+        trackBuilderToken_(this->esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+        caloGeometryToken_(this->esConsumes()) {
     srcEcalRecHitsBarrel_ = cfg.getParameter<edm::InputTag>("srcEcalRecHitsBarrel");
     srcEcalRecHitsEndcap_ = cfg.getParameter<edm::InputTag>("srcEcalRecHitsEndcap");
     srcHcalRecHits_ = cfg.getParameter<edm::InputTag>("srcHcalRecHits");
@@ -156,16 +160,12 @@ namespace {
     evt.getByLabel(srcEcalRecHitsEndcap_, eeRecHits_);
     evt.getByLabel(srcHcalRecHits_, hbheRecHits_);
 
-    edm::ESHandle<TransientTrackBuilder> trackBuilderHandle;
-    evtSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilderHandle);
-    trackBuilder_ = trackBuilderHandle.product();
+    trackBuilder_ = &evtSetup.getData(trackBuilderToken_);
     if (!trackBuilder_) {
       edm::LogError("TauDiscriminationAgainstCaloMuon::discriminate") << " Failed to access TransientTrackBuilder !!";
     }
 
-    edm::ESHandle<CaloGeometry> caloGeometryHandle;
-    evtSetup.get<CaloGeometryRecord>().get(caloGeometryHandle);
-    caloGeometry_ = caloGeometryHandle.product();
+    caloGeometry_ = &evtSetup.getData(caloGeometryToken_);
     if (!caloGeometry_) {
       edm::LogError("TauDiscriminationAgainstCaloMuon::discriminate") << " Failed to access CaloGeometry !!";
     }

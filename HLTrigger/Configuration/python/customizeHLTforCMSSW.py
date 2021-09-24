@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# modifiers
+from Configuration.ProcessModifiers.gpu_cff import gpu
+
 # helper fuctions
 from HLTrigger.Configuration.common import *
 
@@ -16,7 +19,6 @@ from HLTrigger.Configuration.common import *
 #                 if not hasattr(pset,'minGoodStripCharge'):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
-
 
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
@@ -130,10 +132,30 @@ def customiseFor2018Input(process):
     return process
 
 
+def customiseFor35315(process):
+    """Update the HLT configuration for the changes in #35315"""
+    for module in filters_by_type(process, "HLTHcalCalibTypeFilter"):
+        if hasattr(module, "FilterSummary"):
+            delattr(module, "FilterSummary")
+
+    return process
+
+# MultipleScatteringParametrisationMakerESProducer
+def customiseFor35269(process):
+    process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
+    # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
+    from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
+    gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor35315(process)
+    process = customiseFor35269(process)
 
     return process

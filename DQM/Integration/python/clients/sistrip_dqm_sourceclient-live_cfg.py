@@ -288,6 +288,17 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          )
 
 
+### COMMISSIONING RUN SETTINGS
+if (process.runType.getRunType() == process.runType.commissioning_run):
+    #event selection for commissioning runs
+    if ((process.runType.getRunType() == process.runType.commissioning_run) and live):
+        process.source.SelectEvents = ['HLT_*']
+
+    process.SiStripFedMonitor = cms.Sequence(process.siStripFEDMonitor)
+    process.p = cms.Path(
+        process.siStripFEDCheck *
+        process.SiStripFedMonitor
+    )
 
 #else :
 ### pp COLLISION SETTING
@@ -648,3 +659,4 @@ if (process.runType.getRunType() == process.runType.hi_run):
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Final Source settings:", process.source)

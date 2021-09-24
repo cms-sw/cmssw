@@ -4,7 +4,7 @@ process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

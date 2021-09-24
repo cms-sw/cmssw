@@ -123,8 +123,9 @@ void OutputDD4hepToDDL::beginRun(const edm::Run &, edm::EventSetup const &es) {
     out.element(dynamic_cast<const TGeoMaterial *>(iter), *m_xos);
   }
   // Output composite materials
-  for (const auto &it : parsingContext->allCompMaterials) {
-    out.material(it, *m_xos);
+  for (const auto &it : parsingContext->compMaterialsVec) {
+    const std::string &matName = it.first;
+    out.material(matName, it.second, parsingContext->compMaterialsRefs[matName], *m_xos);
   }
   (*m_xos) << "</MaterialSection>" << std::endl;
   (*m_xos) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;

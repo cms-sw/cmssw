@@ -19,6 +19,7 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const &config, edm::ConsumesC
       tracer_(config, std::move(collector)),
       quality_(config, collector),
       magneticFieldToken_(collector.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      particleDataTableToken_(collector.esConsumes()),
       transientTrackBuilderToken_(collector.esConsumes<TransientTrackBuilder, TransientTrackRecord>()),
       tTopoHandToken_(collector.esConsumes<TrackerTopology, TrackerTopologyRcd>()) {
   collector.consumes<edm::HepMCProduct>(hepMCLabel_);
@@ -58,7 +59,7 @@ void TrackClassifier::newEvent(edm::Event const &event, edm::EventSetup const &s
   magneticField_ = setup.getHandle(magneticFieldToken_);
 
   // Get the partivle data table
-  setup.getData(particleDataTable_);
+  particleDataTable_ = setup.getHandle(particleDataTableToken_);
 
   // get the beam spot
   event.getByLabel(beamSpotLabel_, beamSpot_);

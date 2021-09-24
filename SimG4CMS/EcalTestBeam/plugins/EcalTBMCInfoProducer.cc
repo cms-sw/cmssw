@@ -4,20 +4,61 @@
  *
  */
 
-#include "CLHEP/Random/RandFlat.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/Point3D.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "SimG4CMS/EcalTestBeam/interface/EcalTBMCInfoProducer.h"
 
-#include "DataFormats/Math/interface/Point3D.h"
+#include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
+#include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "Math/GenVector/Rotation3D.h"
+#include <CLHEP/Random/RandFlat.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-using namespace std;
-using namespace cms;
+class EcalTBMCInfoProducer : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit EcalTBMCInfoProducer(const edm::ParameterSet &ps);
+
+  /// Destructor
+  ~EcalTBMCInfoProducer() override;
+
+  /// Produce digis out of raw data
+  void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
+
+private:
+  double beamEta;
+  double beamPhi;
+  double beamTheta;
+
+  int crysNumber;
+
+  double beamXoff;
+  double beamYoff;
+
+  double partXhodo;
+  double partYhodo;
+
+  EcalTBCrystalMap *theTestMap;
+
+  ROOT::Math::Rotation3D *fromCMStoTB;
+
+  edm::EDGetTokenT<edm::HepMCProduct> GenVtxToken;
+};
 
 EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
   produces<PEcalTBInfo>();
@@ -34,7 +75,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
   beamXoff = ps.getParameter<double>("BeamMeanX");
   beamYoff = ps.getParameter<double>("BeamMeanX");
 
-  string fullMapName = CrystalMapFile.fullPath();
+  std::string fullMapName = CrystalMapFile.fullPath();
   theTestMap = new EcalTBCrystalMap(fullMapName);
   crysNumber = 0;
 
@@ -63,13 +104,13 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
     }
   }
 
-  edm::LogInfo("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
-                             << "Crystal map file:  " << CrystalMapFile << "\n"
-                             << "Beam average eta = " << beamEta << "\n"
-                             << "Beam average phi = " << beamPhi << "\n"
-                             << "Corresponding to crystal number = " << crysNumber << "\n"
-                             << "Beam X offset =    " << beamXoff << "\n"
-                             << "Beam Y offset =    " << beamYoff;
+  edm::LogVerbatim("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
+                                 << "Crystal map file:  " << CrystalMapFile << "\n"
+                                 << "Beam average eta = " << beamEta << "\n"
+                                 << "Beam average phi = " << beamPhi << "\n"
+                                 << "Corresponding to crystal number = " << crysNumber << "\n"
+                                 << "Beam X offset =    " << beamXoff << "\n"
+                                 << "Beam Y offset =    " << beamYoff;
 
   // rotation matrix to move from the CMS reference frame to the test beam one
 
@@ -103,7 +144,7 @@ void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eve
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(event.streamID());
 
-  unique_ptr<PEcalTBInfo> product(new PEcalTBInfo());
+  std::unique_ptr<PEcalTBInfo> product(new PEcalTBInfo());
 
   // Fill the run information
 
@@ -148,3 +189,5 @@ void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eve
 
   event.put(std::move(product));
 }
+
+DEFINE_FWK_MODULE(EcalTBMCInfoProducer);

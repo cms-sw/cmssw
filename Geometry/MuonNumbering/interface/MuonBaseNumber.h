@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "Geometry/MuonNumbering/src/LevelBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/LevelBaseNumber.h"
 
 class MuonBaseNumber {
 public:

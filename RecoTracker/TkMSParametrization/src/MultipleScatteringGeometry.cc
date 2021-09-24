@@ -4,11 +4,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace GeomDetEnumerators;
 using namespace std;
@@ -19,14 +14,11 @@ const float MultipleScatteringGeometry::endflangesZ = 30;
 const float MultipleScatteringGeometry::supportR = 19.;
 
 //------------------------------------------------------------------------------
-MultipleScatteringGeometry::MultipleScatteringGeometry(const edm::EventSetup &iSetup) {
-  edm::ESHandle<GeometricSearchTracker> track;
-  iSetup.get<TrackerRecoGeometryRecord>().get(track);
-
-  vector<BarrelDetLayer const *> barrelLayers = track->barrelLayers();
+MultipleScatteringGeometry::MultipleScatteringGeometry(const GeometricSearchTracker &tracker) {
+  vector<BarrelDetLayer const *> barrelLayers = tracker.barrelLayers();
   vector<BarrelDetLayer const *>::const_iterator ib;
-  vector<ForwardDetLayer const *> forwardPosLayers = track->posForwardLayers();
-  vector<ForwardDetLayer const *> forwardNegLayers = track->negForwardLayers();
+  vector<ForwardDetLayer const *> forwardPosLayers = tracker.posForwardLayers();
+  vector<ForwardDetLayer const *> forwardNegLayers = tracker.negForwardLayers();
   vector<ForwardDetLayer const *>::const_iterator ie;
   // barrelLayers = accessor.barrelLayers();
   for (ib = barrelLayers.begin(); ib != barrelLayers.end(); ib++)
@@ -40,7 +32,7 @@ MultipleScatteringGeometry::MultipleScatteringGeometry(const edm::EventSetup &iS
 }
 
 //------------------------------------------------------------------------------
-vector<MSLayer> MultipleScatteringGeometry::detLayers(const edm::EventSetup &iSetup) const {
+vector<MSLayer> MultipleScatteringGeometry::detLayers() const {
   vector<MSLayer> result;
   vector<const DetLayer *>::const_iterator il;
   for (il = theLayers.begin(); il != theLayers.end(); il++)
@@ -49,16 +41,14 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(const edm::EventSetup &iSe
 }
 
 //------------------------------------------------------------------------------
-vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z, const edm::EventSetup &iSetup) const {
+vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z, const MagneticField &bfield) const {
   vector<MSLayer> result;
   GlobalPoint zero(0, 0, z);
   float r = 1;
   float dirZ = r * sinh(eta);
   GlobalVector dir(r, 0., dirZ);
-  edm::ESHandle<MagneticField> pSetup;
-  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-  FreeTrajectoryState fts(GlobalTrajectoryParameters(zero, dir, 1, &(*pSetup)));
-  StraightLinePropagator propagator(&(*pSetup), alongMomentum);
+  FreeTrajectoryState fts(GlobalTrajectoryParameters(zero, dir, 1, &bfield));
+  StraightLinePropagator propagator(&bfield, alongMomentum);
   vector<const DetLayer *>::const_iterator il;
   TrajectoryStateOnSurface tsos;
   for (il = theLayers.begin(); il != theLayers.end(); il++) {
@@ -103,7 +93,7 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z, const 
   return result;
 }
 //------------------------------------------------------------------------------
-vector<MSLayer> MultipleScatteringGeometry::otherLayers(float eta, const edm::EventSetup &iSetup) const {
+vector<MSLayer> MultipleScatteringGeometry::otherLayers(float eta) const {
   vector<MSLayer> result;
   // zero
   //  MSLayer zero(barrel, 0., MSLayer::Range(-15,15));

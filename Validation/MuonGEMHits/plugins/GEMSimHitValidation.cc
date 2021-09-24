@@ -19,7 +19,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Time of flight
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/TimeOfFlight");
+  booker.setCurrentFolder("GEM/SimHits");
 
   TString tof_xtitle = "Time of flight [ns]";
   TString tof_ytitle = "Entries";
@@ -33,11 +33,11 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       const auto [tof_min, tof_max] = getTOFRange(station_id);
       ME2IdsKey key2{region_id, station_id};
 
-      me_tof_mu_[key2] =
-          bookHist1D(booker, key2, "tof_muon", "SimHit TOF (Muon only)", 20, tof_min, tof_max, tof_xtitle, tof_ytitle);
+      me_tof_mu_[key2] = bookHist1D(
+          booker, key2, "sim_tof_muon", "SimHit TOF (Muon only)", 20, tof_min, tof_max, tof_xtitle, tof_ytitle);
 
       me_tof_others_[key2] = bookHist1D(
-          booker, key2, "tof_others", "SimHit TOF (Other Particles)", 20, tof_min, tof_max, tof_xtitle, tof_ytitle);
+          booker, key2, "sim_tof_others", "SimHit TOF (Other Particles)", 20, tof_min, tof_max, tof_xtitle, tof_ytitle);
     }  // station loop
   }    // region loop
 
@@ -61,10 +61,10 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             ME3IdsKey key3{region_id, station_id, layer_id};
 
             me_detail_tof_[key3] = bookHist1D(
-                booker, key3, "tof", "Time of Flight of Muon SimHits", 40, tof_min, tof_max, tof_xtitle, tof_ytitle);
+                booker, key3, "sim_tof", "Time of Flight of Muon SimHits", 40, tof_min, tof_max, tof_xtitle, tof_ytitle);
 
             me_detail_tof_mu_[key3] = bookHist1D(
-                booker, key3, "tof_muon", "SimHit TOF (Muon only)", 40, tof_min, tof_max, tof_xtitle, tof_ytitle);
+                booker, key3, "sim_tof_muon", "SimHit TOF (Muon only)", 40, tof_min, tof_max, tof_xtitle, tof_ytitle);
           }  // chamber loop
         }    // end else
       }      // station loop
@@ -72,22 +72,20 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Energy Loss
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/EnergyLoss");
-
   TString eloss_xtitle = "Energy loss [eV]";
   TString eloss_ytitle = "Entries / 0.5 keV";
 
   for (const auto& station : gem->regions()[0]->stations()) {
     Int_t station_id = station->station();
 
-    auto eloss_mu_name = TString::Format("eloss_muon_st%d", station_id);
-    auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : Station %d", station_id);
+    auto eloss_mu_name = TString::Format("sim_eloss_muon_GE%d1", station_id);
+    auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : GE%d1", station_id);
 
     me_eloss_mu_[station_id] =
         booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
 
-    auto eloss_others_name = TString::Format("eloss_others_st%d", station_id);
-    auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : Station %d", station_id);
+    auto eloss_others_name = TString::Format("sim_eloss_others_GE%d1", station_id);
+    auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : GE%d1", station_id);
 
     me_eloss_others_[station_id] =
         booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
@@ -107,12 +105,12 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             Int_t layer_id = chamber->id().layer();
             ME3IdsKey key3{region_id, station_id, layer_id};
 
-            me_detail_eloss_[key3] =
-                bookHist1D(booker, key3, "eloss", "SimHit Energy Loss", 60, 0.0, 6000.0, eloss_xtitle, eloss_ytitle);
+            me_detail_eloss_[key3] = bookHist1D(
+                booker, key3, "sim_eloss", "SimHit Energy Loss", 60, 0.0, 6000.0, eloss_xtitle, eloss_ytitle);
 
             me_detail_eloss_mu_[key3] = bookHist1D(booker,
                                                    key3,
-                                                   "eloss_muon",
+                                                   "sim_eloss_muon",
                                                    "SimHit Energy Loss (Muon Only)",
                                                    60,
                                                    0.0,
@@ -127,21 +125,19 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   }          // detail plot
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask/Occupancy");
-
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
     if (detail_plot_)
-      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "simhit", "SimHit");
+      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "sim_simhit", "SimHit");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
       if (detail_plot_) {
-        me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "simhit", "SimHit");
-        me_detail_occ_det_mu_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
+        me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "sim_simhit", "SimHit");
+        me_detail_occ_det_mu_[key2] = bookDetectorOccupancy(booker, key2, station, "sim_muon_simhit", "Muon SimHit");
       }
 
       const auto& superChamberVec = station->superChambers();
@@ -156,20 +152,20 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
 
           me_occ_eta_mu_[key3] = bookHist1D(booker,
                                             key3,
-                                            "muon_simhit_occ_eta",
+                                            "sim_muon_occ_eta",
                                             "Muon SimHit Eta Occupancy",
                                             16,
                                             eta_range_[station_id * 2 + 0],
                                             eta_range_[station_id * 2 + 1],
                                             "#eta");
 
-          me_occ_phi_mu_[key3] = bookHist1D(
-              booker, key3, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy", 36, -5, 355, "#phi [degrees]");
+          me_occ_phi_mu_[key3] =
+              bookHist1D(booker, key3, "sim_muon_occ_phi", "Muon SimHit Phi Occupancy", 36, -5, 355, "#phi [degrees]");
 
-          me_occ_pid_[key3] = bookPIDHist(booker, key3, "simhit_occ_pid", "Number of entries for each paritcle");
+          me_occ_pid_[key3] = bookPIDHist(booker, key3, "sim_occ_pid", "Particle population");
 
           if (detail_plot_)
-            me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "simhit", "SimHit");
+            me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "sim_simhit", "SimHit");
         }  // layer loop
       }    // end else
     }      // station loop

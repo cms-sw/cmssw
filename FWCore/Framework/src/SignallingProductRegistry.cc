@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;

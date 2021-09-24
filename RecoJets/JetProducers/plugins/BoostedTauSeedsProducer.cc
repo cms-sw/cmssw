@@ -28,6 +28,8 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -40,41 +42,46 @@
 #include <iostream>
 #include <iomanip>
 
-class BoostedTauSeedsProducer : public edm::stream::EDProducer<> {
+template <class JetType, class CandType>
+class GenericBoostedTauSeedsProducer : public edm::stream::EDProducer<> {
 public:
-  explicit BoostedTauSeedsProducer(const edm::ParameterSet&);
-  ~BoostedTauSeedsProducer() override {}
+  explicit GenericBoostedTauSeedsProducer(const edm::ParameterSet&);
+  ~GenericBoostedTauSeedsProducer() override {}
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> >
+  typedef edm::AssociationMap<edm::OneToMany<std::vector<JetType>, std::vector<CandType>, unsigned int>>
       JetToPFCandidateAssociation;
+  typedef std::vector<JetType> JetTypeCollection;
+  typedef std::vector<CandType> CandTypeCollection;
 
   std::string moduleLabel_;
 
   typedef edm::View<reco::Jet> JetView;
   edm::EDGetTokenT<JetView> srcSubjets_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
+  edm::EDGetTokenT<CandTypeCollection> srcPFCandidates_;
 
   int verbosity_;
 };
 
-BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
+template <class JetType, class CandType>
+GenericBoostedTauSeedsProducer<JetType, CandType>::GenericBoostedTauSeedsProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   srcSubjets_ = consumes<JetView>(cfg.getParameter<edm::InputTag>("subjetSrc"));
-  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidateSrc"));
+  srcPFCandidates_ = consumes<CandTypeCollection>(cfg.getParameter<edm::InputTag>("pfCandidateSrc"));
 
   verbosity_ = (cfg.exists("verbosity")) ? cfg.getParameter<int>("verbosity") : 0;
 
-  produces<reco::PFJetCollection>();
+  produces<JetTypeCollection>();
   produces<JetToPFCandidateAssociation>("pfCandAssocMapForIsolation");
   //produces<JetToPFCandidateAssociation>("pfCandAssocMapForIsoDepositVetos");
 }
 
 namespace {
-  typedef std::vector<std::unordered_set<uint32_t> > JetToConstitMap;
+  typedef std::vector<std::unordered_set<uint32_t>> JetToConstitMap;
 
-  reco::PFJet convertToPFJet(const reco::Jet& jet, const reco::Jet::Constituents& jetConstituents) {
+  template <class JetType, class CandType>
+  JetType convertToPFJet(const reco::Jet& jet, const reco::Jet::Constituents& jetConstituents) {
     // CV: code for filling pfJetSpecific objects taken from
     //        RecoParticleFlow/PFRootEvent/src/JetMaker.cc
     double chargedHadronEnergy = 0.;
@@ -86,37 +93,36 @@ namespace {
     int neutralMultiplicity = 0;
     int muonMultiplicity = 0;
     for (auto const& jetConstituent : jetConstituents) {
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
+      const CandType* pfCandidate = dynamic_cast<const CandType*>(jetConstituent.get());
       if (pfCandidate) {
-        switch (pfCandidate->particleId()) {
-          case reco::PFCandidate::h:  // charged hadron
+        switch (std::abs(pfCandidate->pdgId())) {
+          case 211:  // charged hadron
             chargedHadronEnergy += pfCandidate->energy();
             ++chargedMultiplicity;
             break;
-          case reco::PFCandidate::e:  // electron
+          case 11:  // electron
             chargedEmEnergy += pfCandidate->energy();
             ++chargedMultiplicity;
             break;
-          case reco::PFCandidate::mu:  // muon
+          case 13:  // muon
             chargedMuEnergy += pfCandidate->energy();
             ++chargedMultiplicity;
             ++muonMultiplicity;
             break;
-          case reco::PFCandidate::gamma:      // photon
-          case reco::PFCandidate::egamma_HF:  // electromagnetic in HF
+          case 22:  // photon
+          case 2:   // electromagnetic in HF
             neutralEmEnergy += pfCandidate->energy();
             ++neutralMultiplicity;
             break;
-          case reco::PFCandidate::h0:    // neutral hadron
-          case reco::PFCandidate::h_HF:  // hadron in HF
+          case 130:  // neutral hadron
+          case 1:    // hadron in HF
             neutralHadronEnergy += pfCandidate->energy();
             ++neutralMultiplicity;
             break;
           default:
-            edm::LogWarning("convertToPFJet")
-                << "PFCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta()
-                << ", phi = " << pfCandidate->phi() << " has invalid particleID = " << pfCandidate->particleId()
-                << " !!" << std::endl;
+            edm::LogWarning("convertToPFJet") << "PFCandidate: Pt = " << pfCandidate->pt()
+                                              << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi()
+                                              << " has invalid pdgID = " << pfCandidate->pdgId() << " !!" << std::endl;
             break;
         }
       } else {
@@ -138,7 +144,7 @@ namespace {
     reco::PFJet pfJet(jet.p4(), jet.vertex(), pfJetSpecific, jetConstituents);
     pfJet.setJetArea(jet.jetArea());
 
-    return pfJet;
+    return JetType(pfJet);
   }
 
   void getJetConstituents(const reco::Jet& jet, reco::Jet::Constituents& jet_and_subjetConstituents) {
@@ -153,20 +159,21 @@ namespace {
     }
   }
 
-  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(
+  template <class CandType>
+  std::vector<edm::Ref<std::vector<CandType>>> getPFCandidates_exclJetConstituents(
       const reco::Jet& jet,
-      const edm::Handle<reco::PFCandidateCollection>& pfCandidates,
+      const edm::Handle<std::vector<CandType>>& pfCandidates,
       const JetToConstitMap::value_type& constitmap,
       bool invert) {
     auto const& collection_cand = (*pfCandidates);
-    std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
+    std::vector<edm::Ref<std::vector<CandType>>> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
     for (size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx) {
       if (!(deltaR2(collection_cand[pfCandidateIdx], jet) < 1.0))
         continue;
       bool isJetConstituent = constitmap.count(pfCandidateIdx);
       if (!(isJetConstituent ^ invert)) {
-        reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
+        edm::Ref<std::vector<CandType>> pfCandidate(pfCandidates, pfCandidateIdx);
         pfCandidates_exclJetConstituents.push_back(pfCandidate);
       }
     }
@@ -184,7 +191,8 @@ namespace {
   }
 }  // namespace
 
-void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+template <class JetType, class CandType>
+void GenericBoostedTauSeedsProducer<JetType, CandType>::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (verbosity_ >= 1) {
     std::cout << "<BoostedTauSeedsProducer::produce (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
   }
@@ -196,14 +204,14 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
   }
   assert((subjets->size() % 2) == 0);  // CV: ensure that subjets come in pairs
 
-  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  edm::Handle<CandTypeCollection> pfCandidates;
   evt.getByToken(srcPFCandidates_, pfCandidates);
   if (verbosity_ >= 1) {
     std::cout << "#pfCandidates = " << pfCandidates->size() << std::endl;
   }
 
-  auto selectedSubjets = std::make_unique<reco::PFJetCollection>();
-  edm::RefProd<reco::PFJetCollection> selectedSubjetRefProd = evt.getRefBeforePut<reco::PFJetCollection>();
+  auto selectedSubjets = std::make_unique<JetTypeCollection>();
+  edm::RefProd<JetTypeCollection> selectedSubjetRefProd = evt.getRefBeforePut<JetTypeCollection>();
 
   auto selectedSubjetPFCandidateAssociationForIsolation =
       std::make_unique<JetToPFCandidateAssociation>(&evt.productGetter());
@@ -247,16 +255,16 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
       printJetConstituents("subjetConstituents2", subjetConstituents2);
     }
 
-    selectedSubjets->push_back(convertToPFJet(*subjet1, subjetConstituents1));
-    edm::Ref<reco::PFJetCollection> subjetRef1(selectedSubjetRefProd, selectedSubjets->size() - 1);
-    selectedSubjets->push_back(convertToPFJet(*subjet2, subjetConstituents2));
-    edm::Ref<reco::PFJetCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
+    selectedSubjets->push_back(convertToPFJet<JetType, CandType>(*subjet1, subjetConstituents1));
+    edm::Ref<JetTypeCollection> subjetRef1(selectedSubjetRefProd, selectedSubjets->size() - 1);
+    selectedSubjets->push_back(convertToPFJet<JetType, CandType>(*subjet2, subjetConstituents2));
+    edm::Ref<JetTypeCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
 
     // find all PFCandidates that are not constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 =
-        getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2 * idx + 1], false);
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 =
-        getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2 * idx], false);
+    std::vector<edm::Ref<std::vector<CandType>>> pfCandidatesNotInSubjet1 =
+        getPFCandidates_exclJetConstituents<CandType>(*subjet1, pfCandidates, constitmap[2 * idx + 1], false);
+    std::vector<edm::Ref<std::vector<CandType>>> pfCandidatesNotInSubjet2 =
+        getPFCandidates_exclJetConstituents<CandType>(*subjet2, pfCandidates, constitmap[2 * idx], false);
     if (verbosity_ >= 1) {
       std::cout << "#pfCandidatesNotInSubjet1 = " << pfCandidatesNotInSubjet1.size() << std::endl;
       std::cout << "#pfCandidatesNotInSubjet2 = " << pfCandidatesNotInSubjet2.size() << std::endl;
@@ -276,5 +284,9 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
   evt.put(std::move(selectedSubjetPFCandidateAssociationForIsolation), "pfCandAssocMapForIsolation");
 }
 
+typedef GenericBoostedTauSeedsProducer<reco::PFJet, reco::PFCandidate> BoostedTauSeedsProducer;
+typedef GenericBoostedTauSeedsProducer<pat::Jet, pat::PackedCandidate> PATBoostedTauSeedsProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BoostedTauSeedsProducer);
+DEFINE_FWK_MODULE(PATBoostedTauSeedsProducer);

@@ -19,6 +19,7 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     contain1TSHE = cms.bool(False),
     containPhaseNSHE = cms.double(6.0),
     containPhaseNSHB = cms.double(6.0),
+    applyFixPCC = cms.bool(False),
     overrideDBweightsAndFilterHB = cms.bool(False),
     overrideDBweightsAndFilterHE = cms.bool(False),
     tpScales = tpScales,
@@ -33,5 +34,6 @@ HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProduce
 
 run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=cms.bool(True))
 run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=cms.bool(True))
+run3_common.toModify(HcalTPGCoderULUT, applyFixPCC=cms.bool(True))
 pp_on_AA.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
 pp_on_AA.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))

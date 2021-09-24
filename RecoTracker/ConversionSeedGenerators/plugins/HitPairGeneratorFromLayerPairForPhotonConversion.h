@@ -41,9 +41,12 @@ public:
                    float& Phimax,
                    const DetLayer& layer,
                    const ConversionRegion& convRegion,
-                   const edm::EventSetup& es);
-  bool getPhiRange(
-      float& Phimin, float& Phimax, const float& layerR, const ConversionRegion& convRegion, const edm::EventSetup& es);
+                   const MagneticField& field);
+  bool getPhiRange(float& Phimin,
+                   float& Phimax,
+                   const float& layerR,
+                   const ConversionRegion& convRegion,
+                   const MagneticField& field);
   bool checkRZCompatibilityWithSeedTrack(const RecHitsSortedInPhi::Hit& hit,
                                          const DetLayer& layer,
                                          const ConversionRegion& convRegion);

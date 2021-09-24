@@ -37,25 +37,14 @@
 using namespace edm;
 using namespace sipixelobjects;
 
-namespace {
+namespace ph2tkdigialgo {
   // Mass in MeV
   constexpr double m_pion = 139.571;
   constexpr double m_kaon = 493.677;
   constexpr double m_electron = 0.511;
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
-  float calcQ(float x);
-}  // namespace
-namespace {
-  float calcQ(float x) {
-    constexpr float p1 = 12.5f;
-    constexpr float p2 = 0.2733f;
-    constexpr float p3 = 0.147f;
-
-    auto xx = std::min(0.5f * x * x, p1);
-    return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
-  }
-}  // namespace
+}  // namespace ph2tkdigialgo
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
@@ -279,17 +268,17 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
 //==============================================================================
 std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
     int pid, float particleMomentum, float eloss, float length, int NumberOfSegs) const {
-  double particleMass = ::m_pion;  // Mass in MeV, assume pion
+  double particleMass = ph2tkdigialgo::m_pion;  // Mass in MeV, assume pion
   pid = std::abs(pid);
   if (pid != 211) {  // Mass in MeV
     if (pid == 11)
-      particleMass = ::m_electron;
+      particleMass = ph2tkdigialgo::m_electron;
     else if (pid == 13)
-      particleMass = ::m_muon;
+      particleMass = ph2tkdigialgo::m_muon;
     else if (pid == 321)
-      particleMass = ::m_kaon;
+      particleMass = ph2tkdigialgo::m_kaon;
     else if (pid == 2212)
-      particleMass = ::m_proton;
+      particleMass = ph2tkdigialgo::m_proton;
   }
   // What is the track segment length.
   float segmentLength = length / NumberOfSegs;
@@ -513,7 +502,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix, 0.0);
         xLB = topol->localPosition(mp).x();
-        LowerBound = 1 - ::calcQ((xLB - CloudCenterX) / SigmaX);
+        LowerBound = 1 - calcQ((xLB - CloudCenterX) / SigmaX);
       }
 
       float xUB, UpperBound;
@@ -522,7 +511,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(ix + 1, 0.0);
         xUB = topol->localPosition(mp).x();
-        UpperBound = 1. - ::calcQ((xUB - CloudCenterX) / SigmaX);
+        UpperBound = 1. - calcQ((xUB - CloudCenterX) / SigmaX);
       }
       float TotalIntegrationRange = UpperBound - LowerBound;  // get strip
       x.emplace(ix, TotalIntegrationRange);                   // save strip integral
@@ -537,7 +526,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy);
         yLB = topol->localPosition(mp).y();
-        LowerBound = 1. - ::calcQ((yLB - CloudCenterY) / SigmaY);
+        LowerBound = 1. - calcQ((yLB - CloudCenterY) / SigmaY);
       }
 
       float yUB, UpperBound;
@@ -546,7 +535,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
       } else {
         mp = MeasurementPoint(0.0, iy + 1);
         yUB = topol->localPosition(mp).y();
-        UpperBound = 1. - ::calcQ((yUB - CloudCenterY) / SigmaY);
+        UpperBound = 1. - calcQ((yUB - CloudCenterY) / SigmaY);
       }
 
       float TotalIntegrationRange = UpperBound - LowerBound;
@@ -1040,4 +1029,12 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
         << temp_signal << " signal_in_adc " << signal_in_adc;
   }
   return signal_in_adc;
+}
+float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
+  constexpr float p1 = 12.5f;
+  constexpr float p2 = 0.2733f;
+  constexpr float p3 = 0.147f;
+
+  auto xx = std::min(0.5f * x * x, p1);
+  return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
 }

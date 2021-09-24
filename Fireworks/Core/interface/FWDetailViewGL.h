@@ -29,6 +29,6 @@ protected:
   TEveScene *m_eveScene;
 };
 
-#include "Fireworks/Core/src/FWDetailViewGL.icc"
+#include "Fireworks/Core/interface/FWDetailViewGL.icc"
 
 #endif

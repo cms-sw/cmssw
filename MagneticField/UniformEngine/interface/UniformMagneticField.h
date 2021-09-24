@@ -13,9 +13,9 @@
 class UniformMagneticField final : public MagneticField {
 public:
   ///Construct passing the Z field component in Tesla
-  UniformMagneticField(float value) : theField(0.f, 0.f, value) {}
+  UniformMagneticField(float value) : theField(0.f, 0.f, value) { setNominalValue(); }
 
-  UniformMagneticField(GlobalVector value) : theField(value) {}
+  UniformMagneticField(GlobalVector value) : theField(value) { setNominalValue(); }
 
   void set(GlobalVector value) { theField = value; }
   void set(float value) { set(GlobalVector(0.f, 0.f, value)); }

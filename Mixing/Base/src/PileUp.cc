@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
@@ -64,7 +64,10 @@ static Double_t GetRandom(TH1* th1, CLHEP::HepRandomEngine* rng) {
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config)
+  PileUp::PileUp(ParameterSet const& pset,
+                 const std::shared_ptr<PileUpConfig>& config,
+                 edm::ConsumesCollector iC,
+                 const bool mixingConfigFromDB)
       : type_(pset.getParameter<std::string>("type")),
         Source_type_(config->sourcename_),
         averageNumber_(config->averageNumber_),
@@ -92,6 +95,10 @@ namespace edm {
         randomEngine_(),
         playback_(config->playback_),
         sequential_(pset.getUntrackedParameter<bool>("sequential", false)) {
+    if (mixingConfigFromDB) {
+      configToken_ = iC.esConsumes<edm::Transition::BeginLuminosityBlock>();
+    }
+
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processContext_->setProcessConfiguration(processConfiguration_.get());
@@ -234,10 +241,7 @@ namespace edm {
 
   void PileUp::reload(const edm::EventSetup& setup) {
     //get the required parameters from DB.
-    edm::ESHandle<MixingModuleConfig> configM;
-    setup.get<MixingRcd>().get(configM);
-
-    const MixingInputConfig& config = configM->config(inputType_);
+    const MixingInputConfig& config = setup.getData(configToken_).config(inputType_);
 
     //get the type
     type_ = config.type();

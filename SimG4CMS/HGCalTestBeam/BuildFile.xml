@@ -1,15 +1,8 @@
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/ForwardDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="SimDataFormats/CaloTest"/>
-<use name="SimDataFormats/GeneratorProducts"/>
-<use name="SimDataFormats/HcalTestBeam"/>
-<use name="SimDataFormats/Track"/>
-<use name="SimDataFormats/Vertex"/>
 <use name="SimG4CMS/Calo"/>
 <use name="SimG4Core/Notification"/>
-<use name="SimG4Core/Watcher"/>
 <use name="geant4core"/>
 <use name="clhep"/>
 <use name="rootphysics"/>

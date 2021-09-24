@@ -19,7 +19,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   const GEMGeometry* gem = &setup.getData(geomTokenBeginRun_);
 
   // NOTE Occupancy
-  booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/CoPad/Occupancy");
+  booker.setCurrentFolder("GEM/CoPad");
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
@@ -77,8 +77,6 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
-    booker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask/CoPad/BunchCrossing");
-
     for (const auto& region : gem->regions()) {
       Int_t region_id = region->region();
       for (const auto& station : region->stations()) {

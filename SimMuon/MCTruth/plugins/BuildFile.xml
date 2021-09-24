@@ -6,10 +6,10 @@
   <use name="DataFormats/CSCRecHit"/>
   <use name="DataFormats/MuonReco"/>
   <use name="Geometry/Records"/>
+  <use name="MagneticField/Records"/>
   <use name="SimDataFormats/Track"/>
   <use name="SimDataFormats/TrackingHit"/>
   <use name="SimDataFormats/Associations"/>
-  <use name="SimTracker/Records"/>
   <use name="SimMuon/MCTruth"/>
   <use name="clhep"/>
   <flags EDM_PLUGIN="1"/>

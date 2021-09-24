@@ -5,7 +5,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/test/DummyFinder.h"

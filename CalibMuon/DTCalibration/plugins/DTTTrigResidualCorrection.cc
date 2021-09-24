@@ -15,6 +15,8 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 
@@ -48,6 +50,7 @@ namespace dtCalibration {
     //useConstantvDrift_ = pset.getParameter<bool>("useConstantDriftVelocity");
     dbLabel_ = pset.getUntrackedParameter<string>("dbLabel", "");
     useSlopesCalib_ = pset.getUntrackedParameter<bool>("useSlopesCalib", false);
+    readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
 
     // Load external slopes
     if (useSlopesCalib_) {
@@ -83,9 +86,22 @@ namespace dtCalibration {
     tTrigMap_ = &*tTrig;
 
     // Get vDrift record
-    ESHandle<DTMtime> mTimeHandle;
-    setup.get<DTMtimeRcd>().get(mTimeHandle);
-    mTimeMap_ = &*mTimeHandle;
+    if (readLegacyVDriftDB) {
+      ESHandle<DTMtime> mTimeHandle;
+      setup.get<DTMtimeRcd>().get(mTimeHandle);
+      mTimeMap_ = &*mTimeHandle;
+      vDriftMap_ = nullptr;
+    } else {
+      ESHandle<DTRecoConditions> hVdrift;
+      setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+      vDriftMap_ = &*hVdrift;
+      mTimeMap_ = nullptr;
+      // Consistency check: no parametrization is implemented for the time being
+      int version = vDriftMap_->version();
+      if (version != 1) {
+        throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+      }
+    }
   }
 
   DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
@@ -94,10 +110,15 @@ namespace dtCalibration {
     if (status != 0)
       throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find tTrig entry in DB for" << slId << endl;
 
-    float vDrift, hitResolution;
-    status = mTimeMap_->get(slId, vDrift, hitResolution, DTVelocityUnits::cm_per_ns);
-    if (status != 0)
-      throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for" << slId << endl;
+    float vDrift, hitResolution = 0.;
+    if (readLegacyVDriftDB) {  // Legacy format
+      status = mTimeMap_->get(slId, vDrift, hitResolution, DTVelocityUnits::cm_per_ns);
+      if (status != 0)
+        throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for" << slId << endl;
+    } else {
+      vDrift = vDriftMap_->get(DTWireId(slId.rawId()));
+    }
+
     TH1F residualHisto = *(getHisto(slId));
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
                             << "   Mean, RMS     = " << residualHisto.GetMean() << ", " << residualHisto.GetRMS();

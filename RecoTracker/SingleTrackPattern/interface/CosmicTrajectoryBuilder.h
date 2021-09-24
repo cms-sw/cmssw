@@ -10,6 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -28,6 +29,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
@@ -35,8 +37,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #ifndef TrajectoryBuilder_CompareHitY
 #define TrajectoryBuilder_CompareHitY
@@ -76,7 +76,7 @@ class CosmicTrajectoryBuilder {
   typedef TrajectoryMeasurement TM;
 
 public:
-  CosmicTrajectoryBuilder(const edm::ParameterSet &conf);
+  CosmicTrajectoryBuilder(const edm::ParameterSet &conf, edm::ConsumesCollector iC);
   ~CosmicTrajectoryBuilder();
 
   /// Runs the algorithm
@@ -112,8 +112,11 @@ private:
   bool qualityFilter(const Trajectory &traj);
 
 private:
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> tracker;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> builderToken_;
+  const MagneticField *magfield;
+  const TrackerGeometry *tracker;
 
   PropagatorWithMaterial *thePropagator;
   PropagatorWithMaterial *thePropagatorOp;
@@ -131,7 +134,6 @@ private:
   TransientTrackingRecHit::RecHitContainer hits;
   bool seed_plus;
   std::string geometry;
-  std::string theBuilderName;
 };
 
 #endif

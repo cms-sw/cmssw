@@ -105,6 +105,9 @@ public:
   /// Track phi
   double phi() const;
 
+  /// Local track phi (within the sector)
+  double localPhi() const;
+
   /// Track tanL
   double tanL() const;
 
@@ -314,6 +317,11 @@ double TTTrack<T>::phi() const {
 }
 
 template <typename T>
+double TTTrack<T>::localPhi() const {
+  return TTTrack_TrackWord::localPhi(thePhi_, thePhiSector_);
+}
+
+template <typename T>
 double TTTrack<T>::d0() const {
   return theD0_;
 }
@@ -441,9 +449,17 @@ void TTTrack<T>::setTrackWordBits() {
   // missing conversion of global phi to difference from sector center phi
 
   if (theChi2_Z_ < 0) {
-    setTrackWord(
-        valid, theMomentum_, thePOCA_, theRInv_, chi2Red(), 0, chi2BendRed(), theHitPattern_, mvaQuality, mvaOther);
-
+    setTrackWord(valid,
+                 theMomentum_,
+                 thePOCA_,
+                 theRInv_,
+                 theChi2_,
+                 0,
+                 theStubPtConsistency_,
+                 theHitPattern_,
+                 mvaQuality,
+                 mvaOther,
+                 thePhiSector_);
   } else {
     setTrackWord(valid,
                  theMomentum_,
@@ -454,7 +470,8 @@ void TTTrack<T>::setTrackWordBits() {
                  chi2BendRed(),
                  theHitPattern_,
                  mvaQuality,
-                 mvaOther);
+                 mvaOther,
+                 thePhiSector_);
   }
   return;
 }

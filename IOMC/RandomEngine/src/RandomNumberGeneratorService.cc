@@ -34,7 +34,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineStates.h"
 

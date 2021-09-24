@@ -15,7 +15,8 @@ EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
     : channelStatus_(),
       towerStatus_(),
       firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")),
-      inputFile_(_ps.getUntrackedParameter<std::string>("inputFile")) {
+      inputFile_(_ps.getUntrackedParameter<std::string>("inputFile")),
+      elecMapHandle(esConsumes<edm::Transition::BeginRun>()) {
   if (!inputFile_.is_open())
     throw cms::Exception("Invalid input for EcalDQMStatusWriter");
 }
@@ -41,9 +42,7 @@ void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es
 }
 
 void EcalDQMStatusWriter::setElectronicsMap(edm::EventSetup const &_es) {
-  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-  _es.get<EcalMappingRcd>().get(elecMapHandle);
-  electronicsMap = elecMapHandle.product();
+  electronicsMap = &_es.getData(elecMapHandle);
 }
 
 EcalElectronicsMapping const *EcalDQMStatusWriter::GetElectronicsMap() {

@@ -9,36 +9,22 @@
   *
   */
 #include "RecoTBCalo/EcalTBRecProducers/interface/EcalTBWeightUncalibRecHitProducer.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include <iostream>
-#include <iomanip>
 #include <cmath>
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
-#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -46,20 +32,24 @@
 
 #define DEBUG
 EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : testbeamEEShape(EEShape(
-          false)),  // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(true)//EEShape(true) are used
-      testbeamEBShape(EBShape(
-          false))  // use false as argument if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
-{
-  EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
-  EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
-  tdcRecInfoCollection_ = ps.getParameter<edm::InputTag>("tdcRecInfoCollection");
-  EBhitCollection_ = ps.getParameter<std::string>("EBhitCollection");
-  EEhitCollection_ = ps.getParameter<std::string>("EEhitCollection");
-  nbTimeBin_ = ps.getParameter<int>("nbTimeBin");
-  use2004OffsetConvention_ = ps.getUntrackedParameter<bool>("use2004OffsetConvention", false);
-  produces<EBUncalibratedRecHitCollection>(EBhitCollection_);
-  produces<EEUncalibratedRecHitCollection>(EEhitCollection_);
+    : ebDigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
+      eeDigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection")),
+      tdcRecInfoCollection_(ps.getParameter<edm::InputTag>("tdcRecInfoCollection")),
+      ebHitCollection_(ps.getParameter<std::string>("EBhitCollection")),
+      eeHitCollection_(ps.getParameter<std::string>("EEhitCollection")),
+      ebDigiToken_(consumes<EBDigiCollection>(ebDigiCollection_)),
+      eeDigiToken_(consumes<EEDigiCollection>(eeDigiCollection_)),
+      tbTDCRecInfoToken_(consumes<EcalTBTDCRecInfo>(tdcRecInfoCollection_)),
+      weightXtalGroupsToken_(esConsumes()),
+      gainRatiosToken_(esConsumes()),
+      tbWeightsToken_(esConsumes()),
+      pedestalsToken_(esConsumes()),
+      testbeamEEShape(),  // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(consumesCollector())//EEShape(consumesCollector()) are used
+      testbeamEBShape(),  // use default constructor if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
+      nbTimeBin_(ps.getParameter<int>("nbTimeBin")),
+      use2004OffsetConvention_(ps.getUntrackedParameter<bool>("use2004OffsetConvention", false)) {
+  produces<EBUncalibratedRecHitCollection>(ebHitCollection_);
+  produces<EEUncalibratedRecHitCollection>(eeHitCollection_);
 }
 
 EcalTBWeightUncalibRecHitProducer::~EcalTBWeightUncalibRecHitProducer() {}
@@ -69,11 +59,10 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
 
   Handle<EBDigiCollection> pEBDigis;
   const EBDigiCollection* EBdigis = nullptr;
-  if (!EBdigiCollection_.label().empty() || !EBdigiCollection_.instance().empty()) {
-    //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-    evt.getByLabel(EBdigiCollection_, pEBDigis);
+  if (!ebDigiCollection_.label().empty() || !ebDigiCollection_.instance().empty()) {
+    evt.getByToken(ebDigiToken_, pEBDigis);
     if (!pEBDigis.isValid()) {
-      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_;
+      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << ebDigiCollection_;
     } else {
       EBdigis = pEBDigis.product();  // get a ptr to the produc
 #ifdef DEBUG
@@ -84,17 +73,14 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
 
   Handle<EEDigiCollection> pEEDigis;
   const EEDigiCollection* EEdigis = nullptr;
-
-  if (!EEdigiCollection_.label().empty() || !EEdigiCollection_.instance().empty()) {
-    //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
-    evt.getByLabel(EEdigiCollection_, pEEDigis);
+  if (!eeDigiCollection_.label().empty() || !eeDigiCollection_.instance().empty()) {
+    evt.getByToken(eeDigiToken_, pEEDigis);
     if (!pEEDigis.isValid()) {
-      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_;
+      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << eeDigiCollection_;
     } else {
       EEdigis = pEEDigis.product();  // get a ptr to the produc
 #ifdef DEBUG
       LogDebug("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size();
-      //	 std::cout << "total # EEdigis: " << EEdigis->size() << std::endl;
 #endif
     }
   }
@@ -104,55 +90,36 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
 
   Handle<EcalTBTDCRecInfo> pRecTDC;
   const EcalTBTDCRecInfo* recTDC = nullptr;
-
-  //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
-  evt.getByLabel(tdcRecInfoCollection_, pRecTDC);
+  evt.getByToken(tbTDCRecInfoToken_, pRecTDC);
   if (pRecTDC.isValid()) {
     recTDC = pRecTDC.product();  // get a ptr to the product
   }
 
   // fetch map of groups of xtals
-  edm::ESHandle<EcalWeightXtalGroups> pGrp;
-  es.get<EcalWeightXtalGroupsRcd>().get(pGrp);
-  const EcalWeightXtalGroups* grp = pGrp.product();
-  if (!grp)
-    return;
+  const auto& grp = es.getData(weightXtalGroupsToken_);
 
-  const EcalXtalGroupsMap& grpMap = grp->getMap();
+  const EcalXtalGroupsMap& grpMap = grp.getMap();
 
   // Gain Ratios
-  edm::ESHandle<EcalGainRatios> pRatio;
-  es.get<EcalGainRatiosRcd>().get(pRatio);
-  const EcalGainRatioMap& gainMap = pRatio.product()->getMap();  // map of gain ratios
+  const EcalGainRatioMap& gainMap = es.getData(gainRatiosToken_).getMap();  // map of gain ratios
 
   // fetch TB weights
 #ifdef DEBUG
   LogDebug("EcalUncalibRecHitDebug") << "Fetching EcalTBWeights from DB ";
-  //   std::cout  <<"Fetching EcalTBWeights from DB " ;
 #endif
-  edm::ESHandle<EcalTBWeights> pWgts;
-  es.get<EcalTBWeightsRcd>().get(pWgts);
-  const EcalTBWeights* wgts = pWgts.product();
-
-  if (!wgts)
-    return;
+  const auto& wgts = es.getData(tbWeightsToken_);
 
 #ifdef DEBUG
-  LogDebug("EcalUncalibRecHitDebug") << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size();
-  //   std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() ;
+  LogDebug("EcalUncalibRecHitDebug") << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts.getMap().size();
 #endif
 
   // fetch the pedestals from the cond DB via EventSetup
 #ifdef DEBUG
   LogDebug("EcalUncalibRecHitDebug") << "fetching pedestals....";
-  //   std::cout << "fetching pedestals....";
 #endif
-  edm::ESHandle<EcalPedestals> pedHandle;
-  es.get<EcalPedestalsRcd>().get(pedHandle);
-  const EcalPedestalsMap& pedMap = pedHandle.product()->getMap();  // map of pedestals
+  const EcalPedestalsMap& pedMap = es.getData(pedestalsToken_).getMap();  // map of pedestals
 #ifdef DEBUG
   LogDebug("EcalUncalibRecHitDebug") << "done.";
-  //   std::cout << "done." ;
 #endif
   // collection of reco'ed ampltudes to put in the event
 
@@ -179,8 +146,6 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
   if (EBdigis) {
     for (unsigned int idig = 0; idig < EBdigis->size(); ++idig) {
       EBDataFrame itdg = (*EBdigis)[idig];
-
-      //     counter_++; // verbosity counter
 
       // find pedestals for this channel
 #ifdef DEBUG
@@ -270,8 +235,8 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
       }  //check TDC
 
       // now lookup the correct weights in the map
-      wit = wgts->getMap().find(std::make_pair(gid, tdcid));
-      if (wit == wgts->getMap().end()) {  // no weights found for this group ID
+      wit = wgts.getMap().find(std::make_pair(gid, tdcid));
+      if (wit == wgts.getMap().end()) {  // no weights found for this group ID
         edm::LogError("EcalUncalibRecHitError")
             << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
             << "\n  skipping digi with id: " << EBDetId(itdg.id());
@@ -301,8 +266,7 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
       // chi2mat[0]=&mat3;
       // chi2mat[1]=&mat4;
 
-      EcalUncalibratedRecHit aHit = EBalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape);
-      //EBalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
+      EcalUncalibratedRecHit aHit = ebAlgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape);
       EBuncalibRechits->push_back(aHit);
 #ifdef DEBUG
       if (aHit.amplitude() > 0.) {
@@ -313,18 +277,15 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
     }
   }
   // put the collection of reconstructed hits in the event
-  evt.put(std::move(EBuncalibRechits), EBhitCollection_);
+  evt.put(std::move(EBuncalibRechits), ebHitCollection_);
 
   if (EEdigis) {
     for (unsigned int idig = 0; idig < EEdigis->size(); ++idig) {
       EEDataFrame itdg = (*EEdigis)[idig];
 
-      //     counter_++; // verbosity counter
-
       // find pedestals for this channel
 #ifdef DEBUG
       LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg.id());
-      //	 std::cout << "looking up pedestal for crystal: " << EEDetId(itdg.id()) ;
 #endif
       pedIter = pedMap.find(itdg.id().rawId());
       if (pedIter == pedMap.end()) {
@@ -346,7 +307,6 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
       // find gain ratios
 #ifdef DEBUG
       LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg.id());
-      //	 std::cout << "looking up gainRatios for crystal: " << EEDetId(itdg.id()) ;
 #endif
       gainIter = gainMap.find(itdg.id().rawId());
       if (gainIter == gainMap.end()) {
@@ -411,8 +371,8 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
       }  //check TDC
 
       // now lookup the correct weights in the map
-      wit = wgts->getMap().find(std::make_pair(gid, tdcid));
-      if (wit == wgts->getMap().end()) {  // no weights found for this group ID
+      wit = wgts.getMap().find(std::make_pair(gid, tdcid));
+      if (wit == wgts.getMap().end()) {  // no weights found for this group ID
         edm::LogError("EcalUncalibRecHitError")
             << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
             << "\n  skipping digi with id: " << EEDetId(itdg.id());
@@ -424,7 +384,6 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
 
 #ifdef DEBUG
       LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
-      //	 std::cout << "accessing matrices of weights...";
 #endif
       const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
       const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
@@ -443,24 +402,18 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
       //chi2mat[0]=&mat3;
       //chi2mat[1]=&mat4;
 
-      EcalUncalibratedRecHit aHit = EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
-      //EEalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
+      EcalUncalibratedRecHit aHit = eeAlgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
       EEuncalibRechits->push_back(aHit);
 #ifdef DEBUG
       if (aHit.amplitude() > 0.) {
         LogDebug("EcalUncalibRecHitDebug") << "processed EEDataFrame with id: " << EEDetId(itdg.id()) << "\n"
-                                           << "uncalib rechit amplitude: " << aHit.amplitude()
-
-            // 	   std::cout << "processed EEDataFrame with id: "
-            //                   << EEDetId(itdg.id()) << "\n"
-            //                   << "uncalib rechit amplitude: " << aHit.amplitude() << std::endl;
-            ;
+                                           << "uncalib rechit amplitude: " << aHit.amplitude();
       }
 #endif
     }
   }
   // put the collection of reconstructed hits in the event
-  evt.put(std::move(EEuncalibRechits), EEhitCollection_);
+  evt.put(std::move(EEuncalibRechits), eeHitCollection_);
 }
 
 // HepMatrix

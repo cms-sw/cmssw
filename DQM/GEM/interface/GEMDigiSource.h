@@ -40,6 +40,7 @@ protected:
 
 private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
+  int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
@@ -52,7 +53,7 @@ private:
   MEMap3Inf mapDigiOcc_phi_;
   MEMap3Inf mapTotalDigiPerEvtLayer_;
   MEMap3Inf mapTotalDigiPerEvtIEta_;
-  MEMap3Inf mapBX_iEta_;
+  MEMap2Inf mapBX_;
 
   MEMap4Inf mapDigiOccPerCh_;
 

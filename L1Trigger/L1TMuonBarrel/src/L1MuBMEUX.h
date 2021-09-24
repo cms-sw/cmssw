@@ -28,14 +28,12 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMLUTHandler.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
@@ -49,22 +47,22 @@ class L1MuDTTFParameters;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMEUX : public L1AbstractProcessor {
+class L1MuBMEUX {
 public:
   /// constructor
   L1MuBMEUX(const L1MuBMSectorProcessor& sp, const L1MuBMSEU& seu, int id);
 
   /// destructor
-  ~L1MuBMEUX() override;
+  ~L1MuBMEUX();
 
   /// equal operator
   bool operator==(const L1MuBMEUX&) const;
 
   /// run Extrapolator
-  void run(const edm::EventSetup& c) override;
+  void run(const L1TMuonBarrelParams& c);
 
   /// reset Extrapolator
-  void reset() override;
+  void reset();
 
   /// load data into EUX
   void load(const L1MuBMTrackSegPhi* start_ts, const L1MuBMTrackSegPhi* target_ts);
@@ -118,15 +116,11 @@ private:
   const L1MuBMTrackSegPhi* m_start;   // start track segment
   const L1MuBMTrackSegPhi* m_target;  // target track segment
 
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
-
-  //edm::ESHandle< L1MuDTExtLut > theExtLUTs;  // extrapolation look-up tables
   L1MuBMLUTHandler* theExtLUTs;
   int const theExtFilter = 1;           // extrapolation quality filter
   unsigned short const nbit_phi = 12;   // number of bits used for phi
   unsigned short const nbit_phib = 10;  // number of bits used for phib
 
-  //edm::ESHandle< L1MuDTTFParameters > pars;
   L1MuDTTFParameters pars;
 };
 

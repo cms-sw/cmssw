@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"

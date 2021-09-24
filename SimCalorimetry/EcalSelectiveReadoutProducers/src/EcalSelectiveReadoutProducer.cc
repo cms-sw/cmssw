@@ -17,7 +17,7 @@
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-    : params_(params), firstCallEB_(true), firstCallEE_(true), iEvent_(1) {
+    : suppressor_(params, consumesCollector()), firstCallEB_(true), firstCallEE_(true), iEvent_(1) {
   //settings:
   //  settings which are only in python config files:
   digiProducer_ = params.getParameter<string>("digiProducer");
@@ -122,12 +122,12 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
     eeSrFlags = std::make_unique<EESrFlagCollection>();
   }
 
-  if (suppressor_.get() == nullptr) {
+  if (not suppressorSettingsSet_) {
     //Check the validity of EcalSRSettings
     checkValidity(*settings_);
 
-    //instantiates the selective readout algorithm:
-    suppressor_ = std::make_unique<EcalSelectiveReadoutSuppressor>(params_, settings_);
+    suppressor_.setSettings(settings_);
+    suppressorSettingsSet_ = true;
 
     // check that everything is up-to-date
     checkGeometry(eventSetup);
@@ -135,25 +135,25 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
     checkElecMap(eventSetup);
   }
 
-  suppressor_->run(eventSetup,
-                   *trigPrims,
-                   *ebDigis,
-                   *eeDigis,
-                   selectedEBDigis.get(),
-                   selectedEEDigis.get(),
-                   ebSrFlags.get(),
-                   eeSrFlags.get());
+  suppressor_.run(eventSetup,
+                  *trigPrims,
+                  *ebDigis,
+                  *eeDigis,
+                  selectedEBDigis.get(),
+                  selectedEEDigis.get(),
+                  ebSrFlags.get(),
+                  eeSrFlags.get());
 
   if (dumpFlags_ >= iEvent_) {
     ofstream ttfFile("TTF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
-    suppressor_->printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
+    suppressor_.printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
 
     ofstream srfFile("SRF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
     if (iEvent_ == 1) {
-      suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
+      suppressor_.getEcalSelectiveReadout()->printHeader(srfFile);
     }
     srfFile << "# Event " << iEvent_ << "\n";
-    suppressor_->getEcalSelectiveReadout()->print(srfFile);
+    suppressor_.getEcalSelectiveReadout()->print(srfFile);
     srfFile << "\n";
 
     ofstream afFile("AF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
@@ -215,7 +215,7 @@ void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup& eventSet
   // see if we need to update
   if (pGeometry != theGeometry) {
     theGeometry = pGeometry;
-    suppressor_->setGeometry(theGeometry);
+    suppressor_.setGeometry(theGeometry);
   }
 }
 
@@ -227,7 +227,7 @@ void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup& eventS
   // see if we need to update
   if (pMap != theTriggerTowerMap) {
     theTriggerTowerMap = pMap;
-    suppressor_->setTriggerMap(theTriggerTowerMap);
+    suppressor_.setTriggerMap(theTriggerTowerMap);
   }
 }
 
@@ -239,7 +239,7 @@ void EcalSelectiveReadoutProducer::checkElecMap(const edm::EventSetup& eventSetu
   // see if we need to update
   if (pMap != theElecMap) {
     theElecMap = pMap;
-    suppressor_->setElecMap(theElecMap);
+    suppressor_.setElecMap(theElecMap);
   }
 }
 

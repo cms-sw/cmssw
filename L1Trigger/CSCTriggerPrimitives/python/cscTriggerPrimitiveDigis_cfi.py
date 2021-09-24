@@ -10,7 +10,6 @@ from L1Trigger.CSCTriggerPrimitives.params.alctParams import alctPSets
 from L1Trigger.CSCTriggerPrimitives.params.clctParams import clctPSets
 from L1Trigger.CSCTriggerPrimitives.params.tmbParams import tmbPSets
 from L1Trigger.CSCTriggerPrimitives.params.auxiliaryParams import auxPSets
-from L1Trigger.CSCTriggerPrimitives.params.cclutParams import cclutParams
 from L1Trigger.CSCTriggerPrimitives.params.gemcscParams import gemcscPSets
 from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet
 
@@ -23,9 +22,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     clctPSets,
     tmbPSets,
     gemcscPSets,
-
-    ## lookup tables for Run-3
-    cclutParams.clone(),
 
     # True: use parameters from this config
     # False: read parameters from DB using EventSetup mechanism

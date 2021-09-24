@@ -24,7 +24,7 @@
 class DetId;
 class TEveCaloDataVec;
 
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
+#include "Fireworks/Calo/interface/FWFromSliceSelector.h"
 
 // forward declarations
 

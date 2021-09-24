@@ -12,14 +12,20 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
+      label_simTSFromCP(pset.getParameter<edm::InputTag>("label_simTSFromCP")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
+      label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
+      label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
+      label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
+      label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -49,6 +55,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   for (auto& itag : label_tst) {
     label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
+
+  simTrackstersFromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
   associatorMapStR = consumes<hgcal::SimToRecoCollection>(associator_);
@@ -118,14 +126,14 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with simClusters
   if (doSimClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "simClusters/ClusterLevel");
+    ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_.label() + "/" + label_SimClustersLevel_.label());
     histoProducerAlgo_->bookSimClusterHistos(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       ibook.cd();
       InputTag algo = label_clustersmask[ws];
-      string dirName = dirName_ + "simClusters/";
+      string dirName = dirName_ + label_SimClustersPlots_.label() + "/";
       if (!algo.process().empty())
         dirName += algo.process() + "_";
       LogDebug("HGCalValidator") << dirName << "\n";
@@ -152,19 +160,19 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/ClusterLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/ClusterLevel");
     histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook,
                                                        histograms.histoProducerAlgo,
                                                        totallayers_to_monitor_,
                                                        thicknesses_to_monitor_,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCtoCP_association");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/" + label_LCToCPLinking_.label());
     histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/CellLevel");
+    ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_.label() + "/CellLevel");
     histoProducerAlgo_->bookClusterHistos_CellLevel(
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
@@ -192,9 +200,11 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning for HGCal tracksters
+    //Booking histograms concerning HGCal tracksters
     if (doTrackstersPlots_) {
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_.label());
+      histoProducerAlgo_->bookTracksterCPLinkingHistos(ibook, histograms.histoProducerAlgo);
     }
   }  //end of booking Tracksters loop
 }
@@ -241,6 +251,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<std::vector<CaloParticle>> caloParticleHandle;
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
+
+  edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
+  event.getByToken(simTrackstersFromCPs_, simTracksterFromCPHandle);
+  ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
@@ -386,6 +400,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                 wml,
                                                 tracksters,
                                                 clusters,
+                                                simTrackstersFromCPs,
                                                 caloParticles,
                                                 cPIndices,
                                                 selected_cPeff,
