@@ -48,8 +48,8 @@ valOmtfDigis = simOmtfDigis.clone(
     srcDTTh = "omtfStage2Digis",
     srcCSC = "omtfStage2Digis",
     srcRPC = "omtfStage2Digis",
-    bxMin = cms.int32(-3),
-    bxMax = cms.int32(4)
+	bxMin = -3,
+    bxMax = 4
 )
 
 # GEM TPG
