@@ -112,13 +112,13 @@ namespace {
     double distyz = sqrt(zy * zy + zz * zz);
     double ytheta = atan2(-zx, distyz);
     double ztheta = atan2(yx, xx);
-    edm::LogWarning("EcalGeom") << "Original " << rname << " rotation angles: xtheta = " << std::setprecision(18)
+    LogDebug("EcalGeom") << "Original " << rname << " rotation angles: xtheta = " << std::setprecision(18)
                                 << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta
                                 << ", ztheta = " << ztheta;
     double increase = 1.01;  // Increase rotation angle by 1%
     xtheta *= increase;
     ytheta *= increase;
-    edm::LogWarning("EcalGeom") << "Adjusted (+1%) " << rname << " rotation angles: xtheta = " << std::setprecision(18)
+    LogDebug("EcalGeom") << "Adjusted (+1%) " << rname << " rotation angles: xtheta = " << std::setprecision(18)
                                 << xtheta << ", distyz = " << distyz << ", ytheta = " << ytheta
                                 << ", ztheta = " << ztheta;
     double xdiag = cos(xtheta), xoff = sin(xtheta);
