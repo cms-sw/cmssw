@@ -16,7 +16,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::PhotonConversionTraject
     const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
     : theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(
           conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
-      theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
+      theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"), iC)),
       theRegionProducer(
           new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
       theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
