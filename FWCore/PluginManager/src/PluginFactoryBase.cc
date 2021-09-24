@@ -149,7 +149,12 @@ namespace edmplugin {
 
   void PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
     assert(nullptr != iPMaker);
-    m_plugins[iName].push_back(PluginMakerInfo(iPMaker, PluginManager::loadingFile()));
+    PMakers newMakers;
+    newMakers.emplace_back(iPMaker, PluginManager::loadingFile());
+    if (not m_plugins.emplace(iName, std::move(newMakers)).second) {
+      //the item was already added
+      m_plugins[iName].push_back(PluginMakerInfo(iPMaker, PluginManager::loadingFile()));
+    }
     newPlugin(iName);
   }
 
