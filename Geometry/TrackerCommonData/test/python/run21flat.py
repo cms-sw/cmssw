@@ -1,8 +1,32 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+import os, sys, imp, re
 
 from Configuration.Eras.Era_Run3_cff import Run3
-
 process = cms.Process('SIM',Run3)
+
+############################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "Minus05",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: Minus05, Minus10, Plus05, Plus10")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+############################################################
+# Use the options
+if (options.geometry == "Plus05"):
+    process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021FlatPlus05PercentXML_cfi')
+elif (options.geometry == "Plus10"):
+    process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021FlatPlus10PercentXML_cfi')
+elif (options.geometry == "Minus10"):
+    process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021FlatMinus10PercentXML_cfi')
+else:
+    process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021FlatMinus05PercentXML_cfi')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +34,6 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Geometry.TrackerCommonData.cmsExtendedGeometry2021ZeroMaterialXML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
 process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
@@ -29,8 +52,8 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.SimG4CoreGeometry=dict()
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
