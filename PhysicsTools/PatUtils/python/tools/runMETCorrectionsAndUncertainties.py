@@ -338,6 +338,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
 
         patMetModuleSequence = cms.Sequence()
+        patMetModuleTask = cms.Task()
 
         # 2017 EE fix will modify pf cand and jet collections used downstream
         if fixEE2017:
@@ -387,11 +388,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.miniAODConfigurationPre(process, patMetModuleSequence, pfCandCollection, postfix)
         else:
             from PhysicsTools.PatUtils.pfeGammaToCandidate_cfi import pfeGammaToCandidate
-            task = getPatAlgosToolsTask(process)
+            #task = getPatAlgosToolsTask(process)
             addToProcessAndTask("pfeGammaToCandidate", pfeGammaToCandidate.clone(
                                   electrons = copy.copy(electronCollection),
                                   photons = copy.copy(photonCollection)),
-                                process, task)
+                                process, patMetModuleTask)
             if hasattr(process,"patElectrons") and process.patElectrons.electronSource == cms.InputTag("reducedEgamma","reducedGedGsfElectrons"):
                 process.pfeGammaToCandidate.electron2pf = "reducedEgamma:reducedGsfElectronPfCandMap"
             if hasattr(process,"patPhotons") and process.patPhotons.photonSource == cms.InputTag("reducedEgamma","reducedGedPhotons"):
@@ -412,11 +413,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                       )
 
         # correct the MET
+        patMetCorrectionTask = cms.Task()
         patMetCorrectionSequence, metModName = self.getCorrectedMET(process, metType, correctionLevel,
                                                                     produceIntermediateCorrections,
                                                                     jetCollection,
                                                                     patMetModuleSequence, postfix )
-
+        process.patMetCorrectionSequence = patMetCorrectionSequence
         #fix the default jets for the type1 computation to those used to compute the uncertainties
         #in order to be consistent with what is done in the correction and uncertainty step
         #particularly true for miniAODs
@@ -435,13 +437,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #compute the uncertainty on the MET
         patMetUncertaintySequence = cms.Sequence()
+        patMetUncertaintyTask = cms.Task()
         tmpUncSequence =cms.Sequence()
-        if not hasattr(process, "patMetUncertaintySequence"+postfix):
+        if not hasattr(process, "patMetUncertaintyTask"+postfix):
             if self._parameters["Puppi"].value:
-                patMetUncertaintySequence=cms.Sequence(getattr(process, "ak4PFPuppiL1FastL2L3CorrectorChain")+getattr(process, "ak4PFPuppiL1FastL2L3ResidualCorrectorChain"))
+                patMetUncertaintyTask.add(cms.Task(getattr(process, "ak4PFPuppiL1FastL2L3CorrectorTask"),getattr(process, "ak4PFPuppiL1FastL2L3ResidualCorrectorTask")))
             else:
-                patMetUncertaintySequence=cms.Sequence(getattr(process, "ak4PFCHSL1FastL2L3CorrectorChain")+getattr(process, "ak4PFCHSL1FastL2L3ResidualCorrectorChain"))
+                patMetUncertaintyTask.add(cms.Task(getattr(process, "ak4PFCHSL1FastL2L3CorrectorTask"),getattr(process, "ak4PFCHSL1FastL2L3ResidualCorrectorTask")))
         patShiftedModuleSequence = cms.Sequence()
+        patShiftedModuleTask = cms.Task()
         if computeUncertainties:
             tmpUncSequence,patShiftedModuleSequence =  self.getMETUncertainties(process, metType, metModName,
                                                                   electronCollection,
@@ -453,47 +457,53 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                   jetUncInfos,
                                                                   postfix)
 
-        if not hasattr(process, "patMetCorrectionSequence"+postfix):
-            setattr(process, "patMetCorrectionSequence"+postfix, patMetCorrectionSequence)
-        if not hasattr(process, "patMetUncertaintySequence"+postfix):
-            patMetUncertaintySequence += tmpUncSequence
-            setattr(process, "patMetUncertaintySequence"+postfix, patMetUncertaintySequence)
+        if not hasattr(process, "patMetCorrectionTask"+postfix):
+            setattr(process, "patMetCorrectionTask"+postfix, patMetCorrectionTask)
+        if not hasattr(process, "patMetUncertaintyTask"+postfix):
+            #patMetUncertaintyTask.add(tmpUncSequence)
+            setattr(process, "patMetUncertaintyTask"+postfix, patMetUncertaintyTask)
         else:
             if not len(configtools.listModules(tmpUncSequence))==0:
-                setattr(process, metModName+"patMetUncertaintySequence"+postfix , tmpUncSequence)
-                tmpSeq = getattr(process, "patMetUncertaintySequence"+postfix)
-                tmpSeq += getattr(process, metModName+"patMetUncertaintySequence"+postfix)
+                setattr(process, metModName+"patMetUncertaintyTask"+postfix , tmpUncSequence)
+                tmpTask = getattr(process, "patMetUncertaintyTask"+postfix)
+                tmpTask.add(getattr(process, metModName+"patMetUncertaintyTask"+postfix))
 
-        if not hasattr(process, "patShiftedModuleSequence"+postfix):
-            setattr(process, "patShiftedModuleSequence"+postfix, patShiftedModuleSequence)
+        if not hasattr(process, "patShiftedModuleTask"+postfix):
+            setattr(process, "patShiftedModuleTask"+postfix, patShiftedModuleTask)
         else:
-            if not len(configtools.listModules(patShiftedModuleSequence))==0:
-                setattr(process, metModName+"patShiftedModuleSequence"+postfix , patShiftedModuleSequence)
-                tmpSeq = getattr(process, "patShiftedModuleSequence"+postfix)
-                tmpSeq += getattr(process, metModName+"patShiftedModuleSequence"+postfix)
+            if not len(configtools.listModules(patShiftedModuleTask))==0:
+                setattr(process, metModName+"patShiftedModuleTask"+postfix , patShiftedModuleTask)
+                tmpTask = getattr(process, "patShiftedModuleTask"+postfix)
+                tmpTask.add(getattr(process, metModName+"patShiftedModuleTask"+postfix))
 
-        if not hasattr(process, "patMetModuleSequence"+postfix):
-            setattr(process, "patMetModuleSequence"+postfix, patMetModuleSequence)
+        if not hasattr(process, "patMetModuleTask"+postfix):
+            setattr(process, "patMetModuleTask"+postfix, patMetModuleTask)
 
         #prepare and fill the final sequence containing all the sub-sequence
         fullPatMetSequence = cms.Sequence()
-        fullPatMetSequence += getattr(process, "patMetModuleSequence"+postfix)
-        fullPatMetSequence += getattr(process, "patMetCorrectionSequence"+postfix)
-        fullPatMetSequence += getattr(process, "patMetUncertaintySequence"+postfix)
-        fullPatMetSequence += getattr(process, "patShiftedModuleSequence"+postfix)
+        fullPatMetTask = cms.Task()
+        #fullPatMetSequence += getattr(process, "patMetModuleSequence"+postfix)
+        fullPatMetTask.add(getattr(process, "patMetModuleTask"+postfix))
+        #fullPatMetSequence += getattr(process, "patMetCorrectionSequence"+postfix)
+        fullPatMetTask.add(getattr(process, "patMetCorrectionTask"+postfix))
+        #fullPatMetSequence += getattr(process, "patMetUncertaintySequence"+postfix)
+        fullPatMetTask.add(getattr(process, "patMetUncertaintyTask"+postfix))
+        #fullPatMetSequence += getattr(process, "patShiftedModuleSequence"+postfix)
+        fullPatMetTask.add(getattr(process, "patShiftedModuleTask"+postfix))
 
         #adding the slimmed MET
         if hasattr(process, "patCaloMet"):
-            fullPatMetSequence +=getattr(process, "patCaloMet")
+            fullPatMetTask.add(getattr(process, "patCaloMet"))
         # include deepMETsResolutionTune and deepMETsResponseTune into fullPatMetSequence
         if hasattr(process, "deepMETsResolutionTune"):
-            fullPatMetSequence +=getattr(process, "deepMETsResolutionTune")
+            fullPatMetTask.add(getattr(process, "deepMETsResolutionTune"))
         if hasattr(process, "deepMETsResponseTune"):
-            fullPatMetSequence += getattr(process, "deepMETsResponseTune")
+            fullPatMetTask.add(getattr(process, "deepMETsResponseTune"))
         if hasattr(process, "slimmedMETs"+postfix):
-            fullPatMetSequence +=getattr(process, "slimmedMETs"+postfix)
+            fullPatMetTask.add(getattr(process, "slimmedMETs"+postfix))
 
         setattr(process,"fullPatMetSequence"+postfix,fullPatMetSequence)
+        setattr(process,"fullPatMetTask"+postfix,fullPatMetTask)
 
         #removing the non used jet selectors
         #configtools.removeIfInSequence(process, "selectedPatJetsForMetT1T2Corr", "patPFMetT1T2CorrSequence", postfix )
