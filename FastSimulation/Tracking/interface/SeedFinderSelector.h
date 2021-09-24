@@ -21,6 +21,10 @@ class MultiHitGeneratorFromPairAndLayers;
 class HitTripletGeneratorFromPairAndLayers;
 class CAHitTripletGenerator;
 class CAHitQuadrupletGenerator;
+class IdealMagneticFieldRecord;
+class MagneticField;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 
 class SeedFinderSelector {
 public:
@@ -45,7 +49,11 @@ private:
   const std::string measurementTrackerLabel_;
   const edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTrackerESToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldESToken_;
+  const edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msMakerESToken_;
   const TrackerTopology* trackerTopology_ = nullptr;
+  const MagneticField* field_ = nullptr;
+  const MultipleScatteringParametrisationMaker* msmaker_ = nullptr;
   std::unique_ptr<CAHitTripletGenerator> CAHitTriplGenerator_;
   std::unique_ptr<CAHitQuadrupletGenerator> CAHitQuadGenerator_;
   std::unique_ptr<SeedingLayerSetsBuilder> seedingLayers_;
