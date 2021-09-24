@@ -27,4 +27,3 @@ namespace reco {
 }  // namespace reco
 
 DEFINE_FWK_MODULE(ElectronSqPtTkIsolationProducer);
-
