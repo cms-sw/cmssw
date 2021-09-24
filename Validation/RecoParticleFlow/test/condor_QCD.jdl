@@ -7,30 +7,30 @@ Arguments = "QCD reco $(Process)"
 Log = log/test.$(Cluster).log
 Output = log/test.out.$(Cluster).$(Process)
 Error = log/test.err.$(Cluster).$(Process)
-Environment = "CMSSW_BASE=$ENV(CMSSW_BASE) PERJOB=500"
+Environment = "CMSSW_BASE=$ENV(CMSSW_BASE)"
 
-#Requirements=(TARGET.OpSysAndVer=="CentOS7")
-RequestMemory = 3000
-RequestCpus = 1
-request_disk = 2000MB
+RequestMemory = 20000
+RequestCpus = 8
  
-#6h runtume
-+MaxRuntime = 21600
+#8h runtume
++MaxRuntime = 28800
++JobFlavour = "workday"
 
 #choose job environment using singularity
 +RunAsOwner = True
 +SleepSlot = True
 +InteractiveUser = true
-+SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel6"
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel7"
 +SingularityBindCVMFS = True
 run_as_owner = True
 
+use_x509userproxy = True
 x509userproxy = $ENV(X509_USER_PROXY)
 
 #transfer section
 transfer_output_files = QCD/step3.log,QCD/step3_inMINIAODSIM.root
-transfer_output_remaps = "step3.log=step3.$(Cluster).$(Process).log;step3_inMINIAODSIM.root=step3_inMINIAODSIM.$(Cluster).$(Process).root"
+transfer_output_remaps = "step3.log=/eos/cms/store/group/phys_pf/PFVal/QCD/step3.$(Cluster).$(Process).log;step3_inMINIAODSIM.root=/eos/cms/store/group/phys_pf/PFVal/QCD/step3_inMINIAODSIM.$(Cluster).$(Process).root"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
-Queue 25
+Queue 50
