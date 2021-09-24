@@ -36,11 +36,19 @@
  */
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTSuperLayer.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
-class DTLayer;
-class DTWireId;
-class DTT0;
-class DTTtrig;
+#include <iostream>
 
 namespace edm {
   class ParameterSet;
@@ -49,7 +57,7 @@ namespace edm {
 class DTTTrigSyncFromDB : public DTTTrigBaseSync {
 public:
   /// Constructor
-  DTTTrigSyncFromDB(const edm::ParameterSet& config);
+  DTTTrigSyncFromDB(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTTTrigSyncFromDB() override;
@@ -82,6 +90,8 @@ public:
   double emulatorOffset(const DTWireId& wireId, double& tTrig, double& t0cell) const override;
 
 private:
+  edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
+  const edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
   const DTT0* tZeroMap;
   const DTTtrig* tTrigMap;
   // Set the verbosity level
@@ -98,29 +108,14 @@ private:
   int theWirePropCorrType;
   // spacing of BX in ns
   double theBXspace;
-
-  std::string thetTrigLabel;
-  std::string thet0Label;
 };
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "CondFormats/DTObjects/interface/DTT0.h"
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-#include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
-
-#include <iostream>
 
 using namespace std;
 using namespace edm;
 
-DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
-    : debug(config.getUntrackedParameter<bool>("debug")),
+DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config, edm::ConsumesCollector cc)
+    : ttrigToken_(cc.esConsumes(edm::ESInputTag("", config.getParameter<string>("tTrigLabel")))),
+      debug(config.getUntrackedParameter<bool>("debug")),
       // The velocity of signal propagation along the wire (cm/ns)
       theVPropWire(config.getParameter<double>("vPropWire")),
       // Switch on/off the T0 correction from pulses
@@ -132,27 +127,25 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config)
       doWirePropCorrection(config.getParameter<bool>("doWirePropCorrection")),
       theWirePropCorrType(config.getParameter<int>("wirePropCorrType")),
       // spacing of BX in ns
-      theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)),
-      thetTrigLabel(config.getParameter<string>("tTrigLabel")),
-      thet0Label(config.getParameter<string>("t0Label")) {}
+      theBXspace(config.getUntrackedParameter<double>("bxSpace", 25.)) {
+  if (doT0Correction) {
+    t0Token_ = cc.esConsumes(edm::ESInputTag("", config.getParameter<string>("t0Label")));
+  }
+}
 
 DTTTrigSyncFromDB::~DTTTrigSyncFromDB() {}
 
 void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
   if (doT0Correction) {
     // Get the map of t0 from pulses from the Setup
-    ESHandle<DTT0> t0Handle;
-    setup.get<DTT0Rcd>().get(thet0Label, t0Handle);
-    tZeroMap = &*t0Handle;
+    tZeroMap = &setup.getData(t0Token_);
     if (debug) {
       cout << "[DTTTrigSyncFromDB] t0 version: " << tZeroMap->version() << endl;
     }
   }
 
   // Get the map of ttrig from the Setup
-  ESHandle<DTTtrig> ttrigHandle;
-  setup.get<DTTtrigRcd>().get(thetTrigLabel, ttrigHandle);
-  tTrigMap = &*ttrigHandle;
+  tTrigMap = &setup.getData(ttrigToken_);
   if (debug) {
     cout << "[DTTTrigSyncFromDB] ttrig version: " << tTrigMap->version() << endl;
   }

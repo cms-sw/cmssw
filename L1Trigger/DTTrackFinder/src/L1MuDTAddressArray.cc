@@ -15,7 +15,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 
 //---------------
 // C++ Headers --

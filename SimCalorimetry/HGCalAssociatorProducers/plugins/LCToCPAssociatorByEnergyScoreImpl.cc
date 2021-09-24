@@ -20,19 +20,20 @@ LCToCPAssociatorByEnergyScoreImpl::LCToCPAssociatorByEnergyScoreImpl(
 
 hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  // 1. Extract collections and filter CaloParticles, if required
+  // Get collections
   const auto& clusters = *cCCH.product();
   const auto& caloParticles = *cPCH.product();
   auto nLayerClusters = clusters.size();
-  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
+
+  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution and save the indices.
   std::vector<size_t> cPIndices;
-  //Consider CaloParticles coming from the hard scatterer
-  //excluding the PU contribution and save the indices.
   removeCPFromPU(caloParticles, cPIndices, hardScatterOnly_);
   auto nCaloParticles = cPIndices.size();
 
-  // Initialize cPOnLayer. To be returned outside, since it contains the
-  // information to compute the CaloParticle-To-LayerCluster score.
+  // Initialize cPOnLayer. It contains the caloParticleOnLayer structure for all CaloParticles in each layer and
+  // among other the information to compute the CaloParticle-To-LayerCluster score. It is one of the two objects that
+  // build the output of the makeConnections function.
+  // cPOnLayer[cpId][layerId]
   hgcal::caloParticleToLayerCluster cPOnLayer;
   cPOnLayer.resize(nCaloParticles);
   for (unsigned int i = 0; i < nCaloParticles; ++i) {
@@ -46,6 +47,10 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
   }
 
   // Fill detIdToCaloParticleId_Map and update cPOnLayer
+  // The detIdToCaloParticleId_Map is used to connect a hit Detid (key) with all the CaloParticles that
+  // contributed to that hit by storing the CaloParticle id and the fraction of the hit. Observe here
+  // that all the different contributions of the same CaloParticle to a single hit (coming from their
+  // internal SimClusters) are merged into a single entry with the fractions properly summed.
   std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   for (const auto& cpId : cPIndices) {
     const SimClusterRefVector& simClusterRefVector = caloParticles[cpId].simClusters();
@@ -343,6 +348,7 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     }
 
     // Compute the correct normalization
+    // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
     for (auto const& haf : clusters[lcId].hitsAndFractions()) {
       invLayerClusterEnergyWeight +=
@@ -370,8 +376,8 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
         }
         cpPair.second +=
             (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invLayerClusterEnergyWeight;
-      }
-    }  // End of loop over Hits within a LayerCluster
+      }  //End of loop over CaloParticles related the this LayerCluster.
+    }    // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
     if (cpsInLayerCluster[lcId].empty())
       LogDebug("LCToCPAssociatorByEnergyScoreImpl") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
@@ -410,7 +416,7 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
           << CPNumberOfHits << "\t" << std::setw(18) << lcWithMaxEnergyInCP << "\t" << std::setw(15) << maxEnergyLCinCP
           << "\t" << std::setw(20) << CPEnergyFractionInLC << "\n";
 #endif
-      // Compute the correct normalization
+      // Compute the correct normalization. Observe that this is the sum of the squares.
       float invCPEnergyWeight = 0.f;
       for (auto const& haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
         invCPEnergyWeight += std::pow(haf.second * hitMap_->at(haf.first)->energy(), 2);
@@ -464,8 +470,9 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
             << (lcPair.second.first / CPenergy) << "\n";
       }
 #endif
-    }
-  }
+    }  // End of loop over layers
+  }    // End of loop over CaloParticles
+
   return {cpsInLayerCluster, cPOnLayer};
 }
 

@@ -15,7 +15,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 
 //---------------
 // C++ Headers --
@@ -29,7 +29,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegLoc.h"
 
 using namespace std;
 

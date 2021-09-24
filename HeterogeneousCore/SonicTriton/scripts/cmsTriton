@@ -20,6 +20,7 @@ AUTOPORT=""
 NPORTS=3
 IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
 SANDBOX=""
+COMPAT_USR=""
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -35,6 +36,7 @@ usage() {
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
+	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
 	$ECHO "-d          \t use Docker instead of Singularity"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
@@ -55,6 +57,7 @@ usage() {
 	$ECHO "Operations:"
 	$ECHO "start       \t start server"
 	$ECHO "stop        \t stop server"
+	$ECHO "check       \t check if server can run on this system"
 	exit $1
 }
 
@@ -64,9 +67,11 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
+		;;
+		C) COMPAT_USR="$OPTARG"
 		;;
 		D) DRYRUN=echo
 		;;
@@ -106,7 +111,7 @@ done
 shift $(($OPTIND - 1))
 OP=$1
 
-if [ "$OP" != start ] && [ "$OP" != stop ]; then
+if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != check ]; then
 	usage 1
 fi
 
@@ -130,6 +135,7 @@ LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
+COMPAT_SCRIPT=/etc/shinit_v2
 
 compute_ports(){
 	# compute derived port numbers
@@ -184,6 +190,14 @@ start_docker(){
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
 
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS -v$COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -v$COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
 		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
@@ -194,6 +208,7 @@ start_singularity(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
 	# -> make a writable local directory with the same contents
+	# this is no longer needed as of triton 2.11.0, but kept for compatibility w/ older server versions
 	$DRYRUN mkdir ${LIB}
 	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
 
@@ -204,6 +219,25 @@ start_singularity(){
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS -B $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS -B $COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+	# workaround for nvidia libs w/ singularity-in-singularity
+	# from https://github.com/hpcng/singularity/issues/5759#issuecomment-919523970
+	if [ -d /.singularity.d/libs ]; then
+		TMPD=`mktemp -d`
+		(echo '#!/bin/bash'; echo 'exec /usr/sbin/ldconfig -C '"$TMPD"'/ld.so.cache "$@"') > $TMPD/ldconfig
+		chmod +x $TMPD/ldconfig
+		PATH=$TMPD:$PATH
+		# this does not work with LD_LIBRARY_PATH from cmsenv
+		ldconfig /.singularity.d/libs
+	fi
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
@@ -359,6 +393,79 @@ make_tmp(){
 	$DRYRUN cd "$TMPDIR"
 }
 
+scram_tag(){
+	cd $CMSSW_BASE
+	TOOL="$1"
+	TAG="$2"
+	scram tool tag $TOOL $TAG 2> /dev/null || true
+}
+
+driver_docker(){
+	docker run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
+driver_singularity(){
+	source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION
+}
+
+compat_docker(){
+	docker cp $(docker create --rm ${IMAGE}):${COMPAT_SCRIPT} .
+}
+
+compat_singularity(){
+	cp ${SANDBOX}/${COMPAT_SCRIPT} .
+}
+
+check_drivers(){
+	# get sandbox env vars in subshell
+	CUDA_DRIVER_VERSION=$($DRIVER_FN)
+	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
+	DRIVER_VERSION=$(sed -n 's/^NVRM.*Kernel Module *\([0-9.]*\).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
+	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
+		return 0
+	fi
+
+	export COMPAT=""
+
+	# 1. check for user-specified compatibility drivers
+	if [ -n "$COMPAT_USR" ] && [ -d "$COMPAT_USR" ]; then
+		COMPAT="$COMPAT_USR"
+	fi
+
+	# 2. check for compatibility drivers from CMSSW if available
+	# based on $CMSSW_BASE/config/SCRAM/hooks/runtime/00-nvidia-drivers
+	# but need to check drivers, not runtime
+	if [ -z "$COMPAT" ] && [ -n "$CMSSW_BASE" ]; then
+		CUDA_BASE=$(scram_tag cuda CUDA_BASE)
+		COMPAT_CMSSW=${CUDA_BASE}/drivers
+
+		if [ -n "$CUDA_BASE" ] && [ -d "$COMPAT_CMSSW" ]; then
+			COMPAT="$COMPAT_CMSSW"
+		fi
+	fi
+
+	# 3. finally, check expected system location
+	COMPAT_SYS=/usr/local/cuda/compat
+	if [ -z "$COMPAT" ] && [ -d "$COMPAT_SYS" ]; then
+		COMPAT="$COMPAT_SYS"
+	fi
+
+	if [ -n "$COMPAT" ]; then
+		# in order to mount drivers where Triton expects them
+		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib.real"
+		# workaround for bug in Triton/Nvidia compatibility check
+		if [ "$PWD" == "$TMPDIR" ]; then
+			$DRYRUN $COMPAT_FN
+			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
+			$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
+			COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_BASE:$COMPAT_SCRIPT"
+		fi
+		return 0
+	else
+		return 1
+	fi
+}
+
 if [ -n "$USEDOCKER" ]; then
 	if [ -n "$GPU" ]; then
 		EXTRA="--gpus all"
@@ -366,6 +473,8 @@ if [ -n "$USEDOCKER" ]; then
 	START_FN=start_docker
 	TEST_FN=test_docker
 	STOP_FN=stop_docker
+	DRIVER_FN=driver_docker
+	COMPAT_FN=compat_docker
 	PROG_NAME=Docker
 else
 	if [ -n "$GPU" ]; then
@@ -374,10 +483,15 @@ else
 	START_FN=start_singularity
 	TEST_FN=test_singularity
 	STOP_FN=stop_singularity
+	DRIVER_FN=driver_singularity
+	COMPAT_FN=compat_singularity
 	PROG_NAME=Singularity
 fi
 
-if [ "$OP" == start ]; then
+if [ "$OP" == check ]; then
+	check_drivers
+	exit $?
+elif [ "$OP" == start ]; then
 	# handle cleaning up
 	if [ -n "$FORCE" ]; then
 		auto_stop
@@ -393,6 +507,11 @@ if [ "$OP" == start ]; then
 	list_models
 
 	make_tmp
+
+	# after make_tmp because this may create file in tmp dir
+	check_drivers
+	DRIVER_EXIT=$?
+	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
 
 	# if parent PID is provided, automatically stop server when finished
 	# do this before actually trying to start the server in case of ctrl+c

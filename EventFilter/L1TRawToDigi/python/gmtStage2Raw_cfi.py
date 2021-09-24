@@ -13,7 +13,7 @@ gmtStage2Raw = cms.EDProducer(
     ImdInputLabelOMTFNeg = cms.InputTag("simGmtStage2Digis", "imdMuonsOMTFNeg"),
     ImdInputLabelOMTFPos = cms.InputTag("simGmtStage2Digis", "imdMuonsOMTFPos"),
     FedId = cms.int32(1402),
-    FWId = cms.uint32(0x6000000), # FW version in GMT with displaced muon information
+    FWId = cms.uint32(0x3000000), # First used uGMT firmware version
     lenSlinkHeader = cms.untracked.int32(8),
     lenSlinkTrailer = cms.untracked.int32(8)
 )
@@ -32,4 +32,4 @@ stage2L1Trigger_2018.toModify(gmtStage2Raw, BMTFInputLabel = cms.InputTag("simBm
 
 ### Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(gmtStage2Raw, BMTFInputLabel = cms.InputTag("simKBmtfDigis", "BMTF"), FWId = cms.uint32(0x6000000))
+stage2L1Trigger_2021.toModify(gmtStage2Raw, BMTFInputLabel = cms.InputTag("simKBmtfDigis", "BMTF"), FWId = cms.uint32(0x6010000))

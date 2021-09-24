@@ -34,11 +34,11 @@
 
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackAssParam.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegEta.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 
 //              ---------------------
 //              -- Class Interface --

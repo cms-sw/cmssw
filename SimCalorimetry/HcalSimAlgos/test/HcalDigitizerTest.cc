@@ -31,7 +31,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -61,10 +60,15 @@ private:
   std::vector<DetId> hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
   std::vector<HcalDetId> outerHcalDetIds;
 
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> tok_slew_;
+
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig) {
+HcalDigitizerTest::HcalDigitizerTest(const edm::ParameterSet& iConfig)
+    : tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
+      tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag("", "HBHE"))) {
   //DB helper preparation
   dbHardcode.setHB(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("hb")));
   dbHardcode.setHE(HcalHardcodeParameters(iConfig.getParameter<edm::ParameterSet>("he")));
@@ -130,13 +134,8 @@ void HcalDigitizerTest::beginJob() {
 }
 
 void HcalDigitizerTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  HcalTopology topology = (*htopo);
-
-  edm::ESHandle<HcalTimeSlew> delay;
-  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  auto topology = iSetup.getData(tok_htopo_);
+  hcalTimeSlew_delay_ = &iSetup.getData(tok_slew_);
 
   std::string hitsName = "HcalHits";
   std::vector<std::string> caloDets;

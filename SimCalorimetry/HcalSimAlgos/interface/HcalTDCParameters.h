@@ -12,6 +12,7 @@ public:
   int alreadyTransitionCode() const { return 62; }
   int noTransitionCode() const { return 63; }
   int unlockedCode() const { return 61; }
+  int invalidCode() const { return 60; }
 
 private:
   int nbits_;

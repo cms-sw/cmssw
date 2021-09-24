@@ -20,9 +20,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume child = ns.volume(args.value<string>("ChildName"));
   Volume mother = ns.volume(args.parentName());
 
-  LogDebug("TECGeom") << "Parent " << mother.name() << " Child " << child.name() << " NameSpace " << ns.name();
-  LogDebug("TECGeom") << "Height of the Hybrid " << optoHeight << " and Width " << optoWidth << "Rpos " << rpos
-                      << " Zpos " << zpos << " StartCopyNo " << startCopyNo << " Number " << angles.size();
+  edm::LogVerbatim("TECGeom") << "Parent " << mother.name() << " Child " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("TECGeom") << "Height of the Hybrid " << optoHeight << " and Width " << optoWidth << "Rpos " << rpos
+                              << " Zpos " << zpos << " StartCopyNo " << startCopyNo << " Number " << angles.size();
 
   // given r positions are for the lower left corner
   rpos += optoHeight / 2;
@@ -45,18 +45,18 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
         rotation = ns.rotation(ns.prepend(rotstr));
       } else {
         double theta = 90._deg;
-        LogDebug("TECGeom") << "test: Creating a new "
-                            << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
-                            << convertRadToDeg(phiy) << ", 0, 0";
+        edm::LogVerbatim("TECGeom") << "test: Creating a new "
+                                    << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
+                                    << convertRadToDeg(phiy) << ", 0, 0";
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
     }
     mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
-    LogDebug("TECGeom") << "test " << child.name() << " number " << copyNo << " positioned in " << mother.name()
-                        << " at " << tran << " with " << rotation;
+    edm::LogVerbatim("TECGeom") << "test " << child.name() << " number " << copyNo << " positioned in " << mother.name()
+                                << " at " << tran << " with " << rotation;
     copyNo++;
   }
-  LogDebug("TECGeom") << "<<== End of DDTECOptoHybAlgo construction ...";
+  edm::LogVerbatim("TECGeom") << "<<== End of DDTECOptoHybAlgo construction ...";
   return 1;
 }
 

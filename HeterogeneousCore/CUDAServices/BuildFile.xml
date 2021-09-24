@@ -5,6 +5,7 @@
   <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="cuda"/>
+  <use name="cuda-nvml"/>
   <export>
     <lib name="1"/>
   </export>

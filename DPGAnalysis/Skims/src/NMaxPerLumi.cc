@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,15 +33,13 @@
 // class declaration
 //
 
-class NMaxPerLumi : public edm::EDFilter {
+class NMaxPerLumi : public edm::stream::EDFilter<> {
 public:
   explicit NMaxPerLumi(const edm::ParameterSet&);
   ~NMaxPerLumi() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   std::map<unsigned int, std::map<unsigned int, unsigned int> > counters;
@@ -85,12 +83,6 @@ bool NMaxPerLumi::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     return true;
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void NMaxPerLumi::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void NMaxPerLumi::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NMaxPerLumi);

@@ -8,11 +8,13 @@
  *  \author G. Cerminara - INFN Torino
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 namespace edm {
   class ParameterSet;
 }
 class DTTTrigBaseSync;
 
-typedef edmplugin::PluginFactory<DTTTrigBaseSync *(const edm::ParameterSet &)> DTTTrigSyncFactory;
+typedef edmplugin::PluginFactory<DTTTrigBaseSync *(const edm::ParameterSet &, edm::ConsumesCollector)>
+    DTTTrigSyncFactory;
 #endif

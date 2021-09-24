@@ -31,8 +31,9 @@ puppi = _mod.PuppiProducer.clone(
                        NumOfPUVtxsForCharged = 2,
                        PtMaxCharged   = 20.,
                        PtMaxNeutralsStartSlope = 20.,
-                       #candName      = cms.string('packedPFCandidates'),
-                       #vertexName     = cms.string('offlineSlimmedPrimaryVertices'),
+                       useVertexAssociation = True,
+                       vertexAssociationQuality = 6,
+                       vertexAssociation = ('primaryVertexAssociationJME','original'),
                        clonePackedCands   = False, # should only be set to True for MiniAOD
                        algos          = { 
                         0: dict( 
@@ -96,10 +97,12 @@ phase2_common.toModify(
     )
 )
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(puppi, algos = [])
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toModify(puppi,useVertexAssociation = False) # because the association is only run on cleanedParticleFlow
+
 puppiNoLep = puppi.clone(
     puppiNoLep = True,
     PtMaxPhotons = 20.
     )
-
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(puppi, algos = [])

@@ -7,12 +7,10 @@
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalLaserCondTools.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -36,6 +34,10 @@ EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
       toTime_(ps.getParameter<int>("toTime")),
       minP_(ps.getParameter<double>("transparencyMin")),
       maxP_(ps.getParameter<double>("transparencyMax")) {
+  if (mode_ == "db_to_ascii_file") {
+    laserAPDPNRatiosToken_ = esConsumes();
+  }
+
   ferr_ = fopen("corr_errors.txt", "w");
   fprintf(ferr_, "#t1\tdetid\tp1\tp2\tp3");
 
@@ -618,13 +620,10 @@ std::string EcalLaserCondTools::timeToString(time_t t) {
 }
 
 void EcalLaserCondTools::dbToAscii(const edm::EventSetup& es) {
-  edm::ESHandle<EcalLaserAPDPNRatios> hCorr;
-  es.get<EcalLaserAPDPNRatiosRcd>().get(hCorr);
+  const auto& laserAPDPNRatios = es.getData(laserAPDPNRatiosToken_);
 
-  const EcalLaserAPDPNRatios* corr = hCorr.product();
-
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& p = corr->getLaserMap();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& t = corr->getTimeMap();
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& p = laserAPDPNRatios.getLaserMap();
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& t = laserAPDPNRatios.getTimeMap();
 
   if (t.size() != EcalLaserCondTools::nLmes)
     throw cms::Exception("LasCor") << "Unexpected number time parameter triplets\n";

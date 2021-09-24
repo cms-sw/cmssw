@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -56,7 +55,7 @@ namespace CLHEP {
 class RPDigiProducer : public edm::EDProducer {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
-  ~RPDigiProducer() override;
+  ~RPDigiProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -118,12 +117,11 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf)
           "simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
+  if (simulateDeadChannels) {
+    tokenAnalysisMask = esConsumes();
+  }
 }
 
-RPDigiProducer::~RPDigiProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 //
 // member functions
 //
@@ -222,10 +220,13 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
+
+    //set analysisMask in deadChannelsManager
     /*    edm::ESHandle<TotemAnalysisMask> analysisMask;
 	  es.get<TotemReadoutRcd>().get(analysisMask);*/
     auto analysisMask = es.getHandle(esTotemAM_TokenBeginRun_);
     deadChannelsManager = DeadChannelsManager(analysisMask);  //set analysisMask in deadChannelsManager
+
   }
 }
 

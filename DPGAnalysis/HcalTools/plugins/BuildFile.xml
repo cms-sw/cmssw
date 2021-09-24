@@ -1,0 +1,13 @@
+<use name="root"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="EventFilter/HcalRawToDigi"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CalibCalorimetry/HcalAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<flags EDM_PLUGIN="1"/>

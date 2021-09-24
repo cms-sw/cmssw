@@ -208,7 +208,7 @@ private:
   std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,
                                                   const edm::EventSetup& iSetup) const dso_internal;
 
-  OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
+  OuterHitPhiPrediction phiWindow(const MagneticField& field) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;
 
   void initEtaRange(const GlobalVector& dir, const Margin& margin);

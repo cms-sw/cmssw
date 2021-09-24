@@ -15,7 +15,7 @@
 class DTNoDriftAlgo : public DTRecHitBaseAlgo {
 public:
   /// Constructor
-  DTNoDriftAlgo(const edm::ParameterSet& config);
+  DTNoDriftAlgo(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTNoDriftAlgo() override;

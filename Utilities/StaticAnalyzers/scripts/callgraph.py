@@ -9,14 +9,19 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-topfunc = r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endLuminosityBlock)\("
+topfunc = r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endRunProduce|endLuminosityBlock)\("
 topfuncre = re.compile(topfunc)
 
-baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder))\b"
+baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource|impl::RunWatcher<edm::one::EDProducerBase>|impl::EndRunProducer<edm::one::EDProducerBase>|DQMEDHarvester|AlignmentProducerBase|BMixingModule|TrackProducerBase|cms::CkfTrackCandidateMakerBase)\b"
 baseclassre = re.compile(baseclass)
+assert(baseclassre.match('DQMEDHarvester'))
+assert(baseclassre.match('edm::one::impl::RunWatcher<edm::one::EDProducerBase>'))
 assert(baseclassre.match('edm::global::EDFilter::filter() virtual'))
 assert(topfuncre.search('edm::global::EDFilterBase::filter(&) const virtual'))
-
+assert(not baseclassre.match('edm::BaseFlatGunProducer'))
+assert(not baseclassre.match('edm::FlatRandomEGunProducer'))
+assert(baseclassre.match('edm::ProducerSourceBase'))
+assert(baseclassre.match('edm::one::OutputModuleBase'))
 farg = re.compile(r"\(.*?\)")
 tmpl = re.compile(r'<.*?>')
 toplevelfuncs = set()
@@ -66,6 +71,38 @@ for k,v in p.items():
 for k in module2package.keys():
     module2package[k]=sorted(set(module2package[k]))
 
+
+class2base = dict()
+mbcl = re.compile("(base|data) class")
+with open('classes.txt.dumperall') as f:
+    for line in f:
+        if mbcl.search(line):
+            fields = line.split("'")
+            if fields[2] == ' base class ' and not baseclassre.search(fields[3]):
+                class2base.setdefault(fields[1], []).append(fields[3])
+
+assert(class2base['edm::FlatRandomEGunProducer']==['edm::BaseFlatGunProducer'])
+
+
+bmodules=[]
+for package, modules in module2package.items():
+    for module in modules:
+        for cl in class2base.keys():
+            clname=cl.split('::')[-1]
+            if module == clname:
+                for basecl in class2base[cl]:
+                    if not basecl in set(module2package[package]):
+                        module2package[package].append(basecl)
+                    if not basecl in set(bmodules):
+                        bmodules.append(basecl)
+
+
+bmods='|'.join(bmodules)
+bmods_regex=r'\b(' + bmods+ r'QQQQQQQQ)\b'
+comp_bmods_regex=re.compile(bmods_regex)
+n=comp_bmods_regex.search("function 'edm::BaseFlatGunProducer::beginRun(const edm::Run &, const class edm::EventSetup &)' calls function 'edm::EventSetup::getData<class edm::ESHandle<class HepPDT::ParticleDataTable>>(class edm::ESHandle<class HepPDT::ParticleDataTable> &) const'")
+assert(n)
+
 G = nx.DiGraph()
 with open('function-calls-db.txt') as f:
     for line in f:
@@ -79,7 +116,7 @@ with open('function-calls-db.txt') as f:
         if fields[2] == ' overrides function ':
             if baseclassre.match(fields[3]):
                 G.add_edge(fields[1], fields[3], kind=' overrides function ')
-                if topfuncre.search(fields[1]) and comp_mods_regex.search(fields[1]):
+                if topfuncre.search(fields[1]) and (comp_mods_regex.search(fields[1]) or comp_bmods_regex.search(fields[1])):
                     toplevelfuncs.add(fields[1])
             else:
                 G.add_edge(fields[3], fields[1], kind=' overriden function calls function ')
@@ -107,7 +144,7 @@ for tfunc in toplevelfuncs:
 report = dict()
 for key in sorted(set(module2package.keys())):
     for value in sorted(set(module2package[key])):
-        if comp_mods_regex.match(value):
+        if comp_mods_regex.match(value) or comp_bmods_regex.match(value):
             regex_str = r'\b%s\b'%value
             vre=re.compile(regex_str)
             for callstack in sorted(callstacks):

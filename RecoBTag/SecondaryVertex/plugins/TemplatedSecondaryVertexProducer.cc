@@ -947,8 +947,7 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
                                               << std::endl;
     } else {
       unsigned int index = pos - trackRefs.begin();
-      trackData[index].second.svStatus =
-          (btag::TrackData::Status)((unsigned int)btag::TrackData::trackAssociatedToVertex + idx);
+      trackData[index].second.svStatus = (btag::TrackData::trackAssociatedToVertex + idx);
     }
   }
 }
@@ -962,8 +961,7 @@ void TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCan
 
     if (pos != trackRefs.end()) {
       unsigned int index = pos - trackRefs.begin();
-      trackData[index].second.svStatus =
-          (btag::TrackData::Status)((unsigned int)btag::TrackData::trackAssociatedToVertex + idx);
+      trackData[index].second.svStatus = (btag::TrackData::trackAssociatedToVertex + idx);
     }
   }
 }

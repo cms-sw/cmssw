@@ -33,5 +33,5 @@ run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
 ## Change for the new HFShowerLibrary file to be used for Run 3
 ##
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
-run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v5.root', FileVersion = 1 )
+run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v6.root', FileVersion = 2 )
 run3_HFSL.toModify( HFShowerBlock, EqualizeTimeShift = True )

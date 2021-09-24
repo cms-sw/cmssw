@@ -1,3 +1,18 @@
+# To work on geometry package
+
+### To create or update geometries
+```
+git cms-addpkg Geometry/CMSCommonData
+git cms-addpkg Configuration/Geometry
+scram b -j 8
+cd Configuration/Geometry
+vi python/dict2021Geometry.py
+python3 ./scripts/generate2021Geometry.py -D 2021
+```
+Note:
+* For Phase-2, use [generate2026Geometry.py](./python/dict2026Geometry.py) and [generate2026Geometry.py](./scripts/generate2026Geometry.py) instead.
+* For the list of geometries, see below.
+
 # Run 3 Geometries
 
 The Run 3 geometry is automatically created using the script [generate2021Geometry.py](./scripts/generate2021Geometry.py).
@@ -29,7 +44,7 @@ The script also handles the common and forward elements of the geometry:
 * O3: 2021 baseline
 * O4: as O3, but with zero material
 * O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
-* O6: Replaces O3 as baseline to rmove duplicate material definition
+* O6: Replaces O3 as baseline to remove duplicate material definition
 * F1: 2021 baseline
 
 Several detector combinations have been generated:

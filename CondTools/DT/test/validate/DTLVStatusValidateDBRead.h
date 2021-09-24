@@ -11,6 +11,8 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTLVStatus;
+class DTLVStatusRcd;
 class DTLVStatusValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTLVStatusValidateDBRead(edm::ParameterSet const& p);
@@ -22,4 +24,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  edm::ESGetToken<DTLVStatus, DTLVStatusRcd> dtlvstatusToken_;
 };

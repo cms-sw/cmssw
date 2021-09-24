@@ -44,7 +44,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerGlobal() : testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) { ; }
+  EcalUncalibRecHitWorkerGlobal() = default;  // for EcalUncalibRecHitFillDescriptionWorkerFactory
   ~EcalUncalibRecHitWorkerGlobal() override{};
 
   void set(const edm::EventSetup& es) override;

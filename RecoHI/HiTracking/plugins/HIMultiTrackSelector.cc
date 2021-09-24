@@ -160,6 +160,9 @@ HIMultiTrackSelector::HIMultiTrackSelector(const edm::ParameterSet &cfg)
     }
     mvaType_ = type;
   }
+  if (useForestFromDB_) {
+    forestToken_ = esConsumes(edm::ESInputTag("", forestLabel_));
+  }
   std::vector<edm::ParameterSet> trkSelectors(cfg.getParameter<std::vector<edm::ParameterSet>>("trackSelectors"));
   qualityToSet_.reserve(trkSelectors.size());
   vtxNumber_.reserve(trkSelectors.size());
@@ -730,9 +733,7 @@ void HIMultiTrackSelector::processMVA(edm::Event &evt,
 
     GBRForest const *forest = forest_;
     if (useForestFromDB_) {
-      edm::ESHandle<GBRForest> forestHandle;
-      es.get<GBRWrapperRcd>().get(forestLabel_, forestHandle);
-      forest = forestHandle.product();
+      forest = &es.getData(forestToken_);
     }
 
     auto gbrVal = forest->GetClassifier(&gbrValues[0]);
