@@ -36,7 +36,7 @@ SiStripAnalyser = cms.EDAnalyzer("SiStripAnalyser",
     ),
 
 # Parameters for On Demand Monitoring   
-    MonitorSiStripBackPlaneCorrection = cms.bool(OnDemandMonitoring.MonitorSiStripBackPlaneCorrection),
+    MonitorSiStripBackPlaneCorrection = cms.bool(OnDemandMonitoring.MonitorSiStripBackPlaneCorrection.value()),
     MonitorSiStripPedestal      = OnDemandMonitoring.MonitorSiStripPedestal,
     MonitorSiStripNoise         = OnDemandMonitoring.MonitorSiStripNoise,
     MonitorSiStripQuality       = OnDemandMonitoring.MonitorSiStripQuality,
