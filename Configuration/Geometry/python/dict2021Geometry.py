@@ -91,7 +91,7 @@ commonDict = {
     "O4" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021/v2/materials.xml',
-            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/trackermaterial.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/v3/cmsextent.xml',
             'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
@@ -816,8 +816,8 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixbar.xml',
             'Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml',
             'Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml',
-            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibtidcommonmaterial.xml',
-            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibmaterial.xml',
+            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tibtidcommonmaterial.xml',
+            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tibmaterial.xml',
             'Geometry/TrackerCommonData/data/tibmodpar.xml',
             'Geometry/TrackerCommonData/data/tibmodule0.xml',
             'Geometry/TrackerCommonData/data/tibmodule0a.xml',
@@ -850,7 +850,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/tiblayer2.xml',
             'Geometry/TrackerCommonData/data/tiblayer3.xml',
             'Geometry/TrackerCommonData/data/tib.xml',
-            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tidmaterial.xml',
+            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tidmaterial.xml',
             'Geometry/TrackerCommonData/data/tidmodpar.xml',
             'Geometry/TrackerCommonData/data/tidmodule0.xml',
             'Geometry/TrackerCommonData/data/tidmodule0r.xml',
@@ -873,7 +873,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/tibtidservices.xml',
             'Geometry/TrackerCommonData/data/tibtidservicesf.xml',
             'Geometry/TrackerCommonData/data/tibtidservicesb.xml',
-            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tobmaterial.xml',
+            'Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tobmaterial.xml',
             'Geometry/TrackerCommonData/data/tobmodpar.xml',
             'Geometry/TrackerCommonData/data/tobmodule0.xml',
             'Geometry/TrackerCommonData/data/tobmodule2.xml',
@@ -2690,13 +2690,13 @@ ppsDict = {
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, ppsDict ]
 
 detectorVersionDict = {
-    ("O6","T3","C1","M1","F1","P6") : "2021",
-    ("O4","T4","C1","M1","F1","P6") : "2021ZeroMaterial",
-    ("O5","T5","C1","M1","F1","P6") : "2021FlatMinus05Percent",
-    ("O5","T6","C1","M1","F1","P6") : "2021FlatMinus10Percent",
-    ("O5","T7","C1","M1","F1","P6") : "2021FlatPlus05Percent",
-    ("O5","T8","C1","M1","F1","P6") : "2021FlatPlus10Percent",
+    ("O6","T3","C1","M1","F1","P7") : "2021",
+    ("O4","T4","C1","M1","F1","P7") : "2021ZeroMaterial",
+    ("O5","T5","C1","M1","F1","P7") : "2021FlatMinus05Percent",
+    ("O5","T6","C1","M1","F1","P7") : "2021FlatMinus10Percent",
+    ("O5","T7","C1","M1","F1","P7") : "2021FlatPlus05Percent",
+    ("O5","T8","C1","M1","F1","P7") : "2021FlatPlus10Percent",
  }
 
 deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3", 
-                          "P4", "P5" ])
+                          "P4", "P5", "P6" ])
