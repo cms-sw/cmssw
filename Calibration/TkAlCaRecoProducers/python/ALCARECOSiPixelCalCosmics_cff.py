@@ -9,7 +9,7 @@ import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOSiPixelCalCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
     DetectorType = cms.vstring('BPIX','FPIX'),
     ApplyFilter  = cms.bool(True),
-    AndOr        = cms.bool(True),
+    AndOr        = cms.bool(False),   # if True put partitions in AND, otherwise in OR
     DebugOn      = cms.untracked.bool(False)
 )
 
@@ -38,4 +38,6 @@ ALCARECOSiPixelCalCosmics =  Alignment.CommonAlignmentProducer.AlignmentTrackSel
 ALCARECOSiPixelCalCosmics.minHitsPerSubDet.inPIXEL = 1
 
 # Sequence #
-seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsDCSFilter+ALCARECOSiPixelCalCosmicsHLTFilter*ALCARECOSiPixelCalCosmics)
+seqALCARECOSiPixelCalCosmics = cms.Sequence(ALCARECOSiPixelCalCosmicsDCSFilter*
+                                            ALCARECOSiPixelCalCosmicsHLTFilter*
+                                            ALCARECOSiPixelCalCosmics)
