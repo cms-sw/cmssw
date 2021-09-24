@@ -3504,6 +3504,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
 
+    upgradeStepDict['NanoDQM'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
+                                         '--conditions':gt,
+                                         '--datatier':'NANOAODSIM,DQMIO',
+                                         '-n':'10',
+                                         '--eventcontent':'NANOEDMAODSIM,DQM',
+                                         '--filein':'file:step3_inMINIAODSIM.root',
+                                         '--geometry' : geom
+                                         }
+                                      
     # setup baseline and variations
     for specialType,specialWF in upgradeWFs.items():
         specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])

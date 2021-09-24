@@ -174,6 +174,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'ALCA',
         'Nano',
         'MiniAOD',
+        'NanoDQM',
     ],
     PU =  [
         'DigiTrigger',
@@ -187,6 +188,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'NanoDQM',
     ],
     suffix = '',
     offset = 0.0,
@@ -675,6 +677,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'MiniAOD',
         'ALCA',
         'Nano',
+        'NanoDQM',
     ],
     PU = [
         'GenSimHLBeamSpot14',
@@ -687,6 +690,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
         'MiniAOD',
         'ALCA',
         'Nano',
+        'NanoDQM',
     ],
     suffix = '_ProdLike',
     offset = 0.21,
@@ -1208,7 +1212,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA','NanoDQM'],
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
@@ -1241,7 +1245,7 @@ for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
     upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU'] + \
                                                      (['RecoPU','HARVESTPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
-                                                     (['Nano'] if 'Design' not in key else [])
+                                                     (['NanoDQM'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
     '2026D49' : {
