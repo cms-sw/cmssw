@@ -3,7 +3,6 @@
 
 #include "Calibration/Tools/interface/PhiRangeSelector.h"
 #include "Calibration/Tools/interface/IMASelector.h"
-#include "Calibration/Tools/plugins/SingleEleCalibSelector.h"
 
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
@@ -28,6 +27,3 @@ namespace reco {
 }  // namespace reco
 
 DEFINE_FWK_MODULE(ElectronSqPtTkIsolationProducer);
-
-// typedef SelectorWithEventSetup<SingleEleCalibSelector> SingleElectronCalibrationSelector;
-// DEFINE_FWK_MODULE( SingleElectronCalibrationSelector );
