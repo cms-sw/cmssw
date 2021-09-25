@@ -1,23 +1,13 @@
 #include "SiPixelDQMRocLevelAnalyzer.h"
 
-SiPixelDQMRocLevelAnalyzer::SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet &iConfig) : conf_(iConfig) {}
+SiPixelDQMRocLevelAnalyzer::SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  usesResource(TFileService::kSharedResource);
+}
 
-SiPixelDQMRocLevelAnalyzer::~SiPixelDQMRocLevelAnalyzer() {}
+SiPixelDQMRocLevelAnalyzer::~SiPixelDQMRocLevelAnalyzer() = default;
 
 // ------------ method called to for each event  ------------
-void SiPixelDQMRocLevelAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-}
+void SiPixelDQMRocLevelAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void SiPixelDQMRocLevelAnalyzer::beginJob() {
