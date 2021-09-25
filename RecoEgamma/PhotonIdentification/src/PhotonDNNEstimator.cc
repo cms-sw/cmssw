@@ -1,5 +1,6 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonDNNEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 
 #include <iostream>
 #include <fstream>
@@ -40,7 +41,8 @@ void PhotonDNNEstimator::initTensorFlowGraphs() {
   // load the graph definition
   LogDebug("PhotonDNNPFid") << "Loading " << nModels_ << " graphs";
   for (const auto& model_file : cfg_.models_files) {
-    tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(model_file);  //-->should be atomic but does not compile
+    tensorflow::GraphDef* graphDef =
+        tensorflow::loadGraphDef(edm::FileInPath(model_file).fullPath());  //-->should be atomic but does not compile
     graphDefs_.push_back(graphDef);
   }
   LogDebug("PhotonDNNPFid") << "Graphs loaded";
@@ -50,7 +52,7 @@ void PhotonDNNEstimator::initScalerFiles() {
   for (const auto& scaler_file : cfg_.scalers_files) {
     // Parse scaler configuration
     std::vector<std::tuple<std::string, uint, float, float>> features;
-    std::ifstream inputfile_scaler{scaler_file};
+    std::ifstream inputfile_scaler{edm::FileInPath(scaler_file).fullPath()};
     int ninputs = 0;
     if (inputfile_scaler.fail()) {
       throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
