@@ -15,8 +15,8 @@ public:
   }
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<double>("maxLostHitsFraction");
-    iDesc.add<double>("constantValueForLostHitsFractionFilter");
+    iDesc.add<double>("maxLostHitsFraction", .1);
+    iDesc.add<double>("constantValueForLostHitsFractionFilter", 2.);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }

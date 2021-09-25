@@ -2,6 +2,7 @@
 #define CompositeTrajectoryFilter_H
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -28,7 +29,10 @@ public:
   ~CompositeTrajectoryFilter() override {}
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    // !!! MISSING
+    edm::ParameterSetDescription psdTF;
+    psdTF.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+    std::vector<edm::ParameterSet> vPSetFilters;
+    iDesc.addVPSet("filters", psdTF, vPSetFilters);
   }
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {

@@ -142,18 +142,18 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 #need to also load the refToPSet_ used by GroupedCkfTrajectoryBuilder
 CkfBaseTrajectoryFilter_block = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.CkfBaseTrajectoryFilter_block
 jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryFilter')),
-    #clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
+    trajectoryFilter = dict(refToPSet_ = 'jetCoreRegionalStepTrajectoryFilter'),
+    #skipClusters   = True,
+    #clustersToSkip = 'jetCoreRegionalStepClusters',
     maxCand = 50,
     estimator = 'jetCoreRegionalStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
-    )    
+)
 jetCoreRegionalStepBarrelTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('jetCoreRegionalStepBarrelTrajectoryFilter')),
-    #clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
+    trajectoryFilter = dict(refToPSet_ = 'jetCoreRegionalStepBarrelTrajectoryFilter'),
+    #skipClusters   = True,
+    #clustersToSkip = 'jetCoreRegionalStepClusters',
     maxCand = 50,
     estimator = 'jetCoreRegionalStepChi2Est',
     keepOriginalIfRebuildFails = True,

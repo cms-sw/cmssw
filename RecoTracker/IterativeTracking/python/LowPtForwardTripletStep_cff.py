@@ -60,9 +60,9 @@ lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEst
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryFilter')),
-    clustersToSkip         = cms.InputTag('lowPtForwardTripletStepClusters'),
+    trajectoryFilter       = dict(refToPSet_ = 'lowPtForwardTripletStepTrajectoryFilter'),
+    skipClusters           = True,
+    clustersToSkip         = 'lowPtForwardTripletStepClusters',
     maxCand                = 3,
     estimator              = 'lowPtForwardTripletStepChi2Est'
 )

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
@@ -76,8 +77,8 @@ namespace cms {
     edm::EDGetTokenT<edm::View<TrajectorySeed> > theSeedLabel;
     edm::EDGetTokenT<MeasurementTrackerEvent> theMTELabel;
 
-    bool skipClusters_;
-    bool phase2skipClusters_;
+    bool const skipClusters_;
+    bool const skipPhase2Clusters_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTClusterMask;

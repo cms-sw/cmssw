@@ -157,6 +157,33 @@ def customiseFor35269(process):
     process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
     return process
 
+def customiseFor35385(process):
+    """Update the HLT configuration for the changes in #35385:
+    Introduction of fillDescriptions for CkfTrackCandidateMaker and CkfTrajectoryMaker
+    """
+    for iMod in producers_by_type(process, 'CkfTrackCandidateMaker'):
+        for aPar in ['SimpleMagneticField', 'TrajectoryBuilder']:
+            if hasattr(iMod, aPar): delattr(iMod, aPar)
+
+        if not hasattr(iMod, 'maxSeedsBeforeCleaning'):
+            iMod.maxSeedsBeforeCleaning = cms.uint32(0)
+
+    for iMod in producers_by_type(process, 'CkfTrajectoryMaker'):
+        for aPar in ['TrajectoryBuilder']:
+            if hasattr(iMod, aPar): delattr(iMod, aPar)
+
+    for aPSet in process._Process__psets.values():
+        if hasattr(aPSet, 'ComponentType') and aPSet.ComponentType in ['CkfTrajectoryBuilder', 'GroupedCkfTrajectoryBuilder', 'MuonCkfTrajectoryBuilder']:
+            for aPar in ['MeasurementTrackerName', 'cleanTrajectoryAfterInOut', 'doSeedingRegionRebuilding', 'useHitsSplitting']:
+               if hasattr(aPSet, aPar): delattr(aPSet, aPar)
+
+            if aPSet.ComponentType == 'GroupedCkfTrajectoryBuilder' and aPSet.useSameTrajFilter:
+                if not hasattr(aPSet, 'inOutTrajectoryFilter'): aPSet.inOutTrajectoryFilter = aPSet.trajectoryFilter.clone()
+
+            if aPSet.ComponentType == 'CkfTrajectoryBuilder' and hasattr(aPSet, 'minNrOfHitsForRebuild'): delattr(aPSet, 'minNrOfHitsForRebuild')
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
@@ -170,5 +197,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor35309(process)
     process = customiseFor35315(process)
     process = customiseFor35269(process)
+    process = customiseFor35385(process)
 
     return process

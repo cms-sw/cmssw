@@ -29,9 +29,9 @@ public:
   }
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<double>("minPt");
-    iDesc.add<double>("nSigmaMinPt");
-    iDesc.add<int>("minHitsMinPt");
+    iDesc.add<double>("minPt", 0.9);
+    iDesc.add<double>("nSigmaMinPt", 5.0);
+    iDesc.add<int>("minHitsMinPt", 3);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return test(traj.lastMeasurement(), traj.foundHits()); }

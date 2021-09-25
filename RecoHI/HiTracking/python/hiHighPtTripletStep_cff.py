@@ -122,7 +122,6 @@ hiHighPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimat
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiHighPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiHighPtTripletStepTrajectoryFilter'),
     maxCand = 3,#3 for pp
     estimator = 'hiHighPtTripletStepChi2Est',

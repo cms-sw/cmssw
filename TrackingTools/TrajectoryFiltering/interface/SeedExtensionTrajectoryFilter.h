@@ -14,9 +14,9 @@ public:
         theExtension(pset.getParameter<int>("seedExtension")) {}
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<bool>("strictSeedExtension");
-    iDesc.add<bool>("pixelSeedExtension");
-    iDesc.add<int>("seedExtension");
+    iDesc.add<bool>("strictSeedExtension", false);
+    iDesc.add<bool>("pixelSeedExtension", false);
+    iDesc.add<int>("seedExtension", 0);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return QF(traj); }

@@ -32,11 +32,11 @@ MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder() {}
 
 void MuonCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   CkfTrajectoryBuilder::fillPSetDescription(iDesc);
-  iDesc.add<double>("deltaEta");
-  iDesc.add<double>("deltaPhi");
-  iDesc.add<std::string>("propagatorProximity");
-  iDesc.add<bool>("useSeedLayer");
-  iDesc.add<double>("rescaleErrorIfFail");
+  iDesc.add<double>("deltaEta", .1);
+  iDesc.add<double>("deltaPhi", .1);
+  iDesc.add<std::string>("propagatorProximity", "SteppingHelixPropagatorAny");
+  iDesc.add<bool>("useSeedLayer", false);
+  iDesc.add<double>("rescaleErrorIfFail", 1.);
 }
 
 void MuonCkfTrajectoryBuilder::setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

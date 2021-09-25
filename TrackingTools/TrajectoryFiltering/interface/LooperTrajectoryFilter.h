@@ -20,9 +20,9 @@ public:
   }
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<int>("minNumberOfHitsForLoopers");
-    iDesc.add<int>("minNumberOfHitsPerLoop");
-    iDesc.add<int>("extraNumberOfHitsBeforeTheFirstLoop");
+    iDesc.add<int>("minNumberOfHitsForLoopers", 13);
+    iDesc.add<int>("minNumberOfHitsPerLoop", 4);
+    iDesc.add<int>("extraNumberOfHitsBeforeTheFirstLoop", 4);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return QF<Trajectory>(traj); }

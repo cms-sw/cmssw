@@ -44,12 +44,12 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder() {}
 
 void BaseCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  iDesc.add<bool>("seedAs5DHit");
-  iDesc.add<std::string>("updator");
-  iDesc.add<std::string>("propagatorAlong");
-  iDesc.add<std::string>("propagatorOpposite");
-  iDesc.add<std::string>("estimator");
-  iDesc.add<std::string>("TTRHBuilder");
+  iDesc.add<bool>("seedAs5DHit", false);
+  iDesc.add<std::string>("updator", "KFUpdator");
+  iDesc.add<std::string>("propagatorAlong", "PropagatorWithMaterial");
+  iDesc.add<std::string>("propagatorOpposite", "PropagatorWithMaterialOpposite");
+  iDesc.add<std::string>("estimator", "Chi2");
+  iDesc.add<std::string>("TTRHBuilder", "WithTrackAngle");
 }
 
 std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset,

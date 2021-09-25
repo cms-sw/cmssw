@@ -101,14 +101,13 @@ displacedGeneralStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEs
 #----------------------------------------- TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 displacedGeneralStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryFilter')),
-    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryFilterInOut')),
+    trajectoryFilter = dict(refToPSet_ = 'displacedGeneralStepTrajectoryFilter'),
+    inOutTrajectoryFilter = dict(refToPSet_ = 'displacedGeneralStepTrajectoryFilterInOut'),
     useSameTrajFilter = False,
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
     estimator = 'displacedGeneralStepChi2Est'
-    )
+)
 
 
 

@@ -23,7 +23,6 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
     # Chi2 added to track candidate if no hit found in layer
     lostHitPenalty = cms.double(30.0),
     foundHitBonus = cms.double(10.0),
-    MeasurementTrackerName = cms.string(''),
     lockHits = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     updator = cms.string('KFUpdator'),

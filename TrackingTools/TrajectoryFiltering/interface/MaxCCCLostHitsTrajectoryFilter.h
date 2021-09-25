@@ -16,8 +16,8 @@ public:
         minGoodStripCharge_(clusterChargeCut(pset, "minGoodStripCharge")) {}
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<int>("maxCCCLostHits");
-    fillPSetDescription4CCC(iDesc);
+    iDesc.add<int>("maxCCCLostHits", 9999);
+    iDesc.add<edm::ParameterSetDescription>("minGoodStripCharge", getFilledConfigurationDescription4CCC());
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }

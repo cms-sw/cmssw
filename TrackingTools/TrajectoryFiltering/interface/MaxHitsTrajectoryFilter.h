@@ -14,7 +14,7 @@ public:
       theMaxHits = 10000;
   }
 
-  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<int>("maxNumberOfHits"); }
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<int>("maxNumberOfHits", 100); }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
   bool qualityFilter(const TempTrajectory& traj) const override {

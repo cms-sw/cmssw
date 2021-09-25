@@ -130,7 +130,6 @@ namespace {
 
 }  // namespace
 
-/*****************************************************************************/
 StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::ParameterSet &iCfg,
                                                                edm::ConsumesCollector &iC)
     : topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd>()),
@@ -161,8 +160,8 @@ StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::Parame
       failTooNarrow_(0)
 #endif
 {
-  if (iCfg.exists("layerMask")) {
-    const edm::ParameterSet &iLM = iCfg.getParameter<edm::ParameterSet>("layerMask");
+  const edm::ParameterSet &iLM = iCfg.getParameter<edm::ParameterSet>("layerMask");
+  if (not iLM.empty()) {
     const char *ndets[4] = {"TIB", "TID", "TOB", "TEC"};
     const int idets[4] = {3, 4, 5, 6};
     for (unsigned int i = 0; i < 4; ++i) {
@@ -183,7 +182,6 @@ StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::Parame
   }
 }
 
-/*****************************************************************************/
 StripSubClusterShapeFilterBase::~StripSubClusterShapeFilterBase() {
 #if 0
     std::cout << "StripSubClusterShapeFilterBase " << label_ <<": called        " << called_ << std::endl;
@@ -194,6 +192,25 @@ StripSubClusterShapeFilterBase::~StripSubClusterShapeFilterBase() {
     std::cout << "StripSubClusterShapeFilterBase " << label_ <<": passSC        " << passSC_ << std::endl;
     std::cout << "StripSubClusterShapeFilterBase " << label_ <<": failTooLarge  " << failTooLarge_ << std::endl;
 #endif
+}
+
+void StripSubClusterShapeFilterBase::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
+  iDesc.addUntracked<std::string>("label", "");
+  iDesc.add<uint32_t>("maxNSat", 3);
+  iDesc.add<double>("trimMaxADC", 30.);
+  iDesc.add<double>("trimMaxFracTotal", .15);
+  iDesc.add<double>("trimMaxFracNeigh", .25);
+  iDesc.add<double>("maxTrimmedSizeDiffPos", .7);
+  iDesc.add<double>("maxTrimmedSizeDiffNeg", 1.);
+  iDesc.add<double>("subclusterWindow", .7);
+  iDesc.add<double>("seedCutMIPs", .35);
+  iDesc.add<double>("seedCutSN", 7.);
+  iDesc.add<double>("subclusterCutMIPs", .45);
+  iDesc.add<double>("subclusterCutSN", 12.);
+
+  edm::ParameterSetDescription psdLM;
+  psdLM.setAllowAnything();
+  iDesc.add<edm::ParameterSetDescription>("layerMask", psdLM);
 }
 
 bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,

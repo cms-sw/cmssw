@@ -271,8 +271,7 @@ highBetaStar_2018.toModify(pixelPairStepChi2Est,MaxChi2 = 30)
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'pixelPairStepTrajectoryFilter'),
     maxCand                = 3,
     estimator              = 'pixelPairStepChi2Est',
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -293,12 +292,12 @@ trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
-    clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'pixelPairStepClusters',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True
 )
 
 from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import trackingMkFitPixelPairStep
@@ -325,9 +324,11 @@ trackingMkFitPixelPairStep.toReplaceWith(pixelPairStepTrackCandidates, _mkFitOut
 ))
 
 trackingPhase2PU140.toModify(pixelPairStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('pixelPairStepClusters'),
-    TrajectoryCleaner    = 'pixelPairStepTrajectoryCleanerBySharedHits'
+    skipClusters = False,
+    clustersToSkip = '',
+    skipPhase2Clusters = True,
+    phase2clustersToSkip = 'pixelPairStepClusters',
+    TrajectoryCleaner = 'pixelPairStepTrajectoryCleanerBySharedHits'
 )
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(pixelPairStepTrackCandidates,

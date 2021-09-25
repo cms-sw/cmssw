@@ -26,9 +26,9 @@ public:
         theMinHits(pset.getParameter<int>("minHitsThresholdPt")) {}
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<double>("thresholdPt");
-    iDesc.add<double>("nSigmaThresholdPt");
-    iDesc.add<int>("minHitsThresholdPt");
+    iDesc.add<double>("thresholdPt", 10.);
+    iDesc.add<double>("nSigmaThresholdPt", 5.);
+    iDesc.add<int>("minHitsThresholdPt", 3);
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return !test(traj.lastMeasurement(), traj.foundHits()); }

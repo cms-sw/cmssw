@@ -19,7 +19,7 @@ public:
   explicit ChargeSignificanceTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theChargeSignificance(pset.getParameter<double>("chargeSignificance")) {}
 
-  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<double>("chargeSignificance"); }
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<double>("chargeSignificance", -1.); }
 
   bool qualityFilter(const Trajectory& traj) const override { return traj.isValid(); }
   bool qualityFilter(const TempTrajectory& traj) const override { return traj.isValid(); }

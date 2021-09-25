@@ -144,7 +144,6 @@ hiDetachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstim
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiDetachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiDetachedTripletStepTrajectoryFilter'),
     maxCand = 2,
     estimator = 'hiDetachedTripletStepChi2Est',

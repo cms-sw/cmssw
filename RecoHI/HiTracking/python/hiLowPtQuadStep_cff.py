@@ -126,7 +126,6 @@ hiLowPtQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_c
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiLowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiLowPtQuadStepTrajectoryFilter'),
     maxCand = 4,#4 for pp
     estimator = 'hiLowPtQuadStepChi2Est',

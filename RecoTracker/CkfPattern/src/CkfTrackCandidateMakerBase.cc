@@ -63,8 +63,7 @@ namespace cms {
         useSplitting(conf.getParameter<bool>("useHitsSplitting")),
         doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
         cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
-        reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") &&
-                            conf.getParameter<bool>("reverseTrajectories")),
+        reverseTrajectories(conf.getParameter<bool>("reverseTrajectories")),
         theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
         theTrajectoryBuilder(
             createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
@@ -77,23 +76,18 @@ namespace cms {
             iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("NavigationSchool")))),
         theNavigationSchool(nullptr),
         thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "AnyDirectionAnalyticalPropagator"))),
-        maxSeedsBeforeCleaning_(0),
+        maxSeedsBeforeCleaning_(conf.getParameter<unsigned int>("maxSeedsBeforeCleaning")),
         theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
-        skipClusters_(false),
-        phase2skipClusters_(false) {
+        skipClusters_(conf.getParameter<bool>("skipClusters")),
+        skipPhase2Clusters_(conf.getParameter<bool>("skipPhase2Clusters")) {
     theSeedLabel = iC.consumes<edm::View<TrajectorySeed>>(conf.getParameter<edm::InputTag>("src"));
-#ifndef VI_REPRODUCIBLE
-    if (conf.exists("maxSeedsBeforeCleaning"))
-      maxSeedsBeforeCleaning_ = conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
-#endif
-    if (conf.existsAs<edm::InputTag>("clustersToSkip")) {
-      skipClusters_ = true;
+
+    if (skipClusters_) {
       maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
     }
     //FIXME:: just temporary solution for phase2!
-    if (conf.existsAs<edm::InputTag>("phase2clustersToSkip")) {
-      phase2skipClusters_ = true;
+    if (skipPhase2Clusters_) {
       maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
       maskPhase2OTs_ = iC.consumes<Phase2OTClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
     }
@@ -166,7 +160,7 @@ namespace cms {
       dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *stripMask, *pixelMask);
       //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks " << std::endl;
       theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
-    } else if (phase2skipClusters_) {
+    } else if (skipPhase2Clusters_) {
       //FIXME:just temporary solution for phase2!
       edm::Handle<PixelClusterMask> pixelMask;
       e.getByToken(maskPixels_, pixelMask);
@@ -548,9 +542,12 @@ namespace cms {
     desc.add<bool>("reverseTrajectories", false);
     desc.add<bool>("useHitsSplitting", true);
     desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
-    desc.add<edm::InputTag>("clustersToSkip", edm::InputTag(""));
-    desc.add<edm::InputTag>("phase2clustersToSkip", edm::InputTag(""));
     desc.add<edm::InputTag>("src", edm::InputTag("globalMixedSeeds"));
+
+    desc.add<bool>("skipClusters", false);
+    desc.add<edm::InputTag>("clustersToSkip", edm::InputTag(""));
+    desc.add<bool>("skipPhase2Clusters", false);
+    desc.add<edm::InputTag>("phase2clustersToSkip", edm::InputTag(""));
 
     edm::ParameterSetDescription psdTB;
     psdTB.addNode(edm::PluginDescription<BaseCkfTrajectoryBuilderFactory>("ComponentType", true));
@@ -567,7 +564,6 @@ namespace cms {
     desc.add<std::string>("RedundantSeedCleaner", "CachingSeedCleanerBySharedInput");
     desc.add<std::string>("TrajectoryCleaner", "TrajectoryCleanerBySharedHits");
     desc.add<unsigned int>("maxNSeeds", 500000);
-    desc.add<unsigned int>("maxSeedsBeforeCleaning", 5000);
+    desc.add<unsigned int>("maxSeedsBeforeCleaning", 0);
   }
-
 }  // namespace cms

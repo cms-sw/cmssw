@@ -148,7 +148,6 @@ trackingPhase2PU140.toModify(detachedQuadStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'detachedQuadStepTrajectoryFilter'),
     maxCand = 3,
     alwaysUseInvalidHits = True,
@@ -172,7 +171,8 @@ detachedQuadStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'detachedQuadStepSeeds',
-    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'detachedQuadStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -182,8 +182,10 @@ detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     useHitsSplitting = True
 )
 trackingPhase2PU140.toModify(detachedQuadStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('detachedQuadStepClusters')
+    skipClusters = False,
+    clustersToSkip = '',
+    skipPhase2Clusters = True,
+    phase2clustersToSkip = 'detachedQuadStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitDetachedQuadStep_cff import trackingMkFitDetachedQuadStep

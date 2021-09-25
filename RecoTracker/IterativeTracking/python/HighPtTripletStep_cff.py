@@ -206,10 +206,11 @@ trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi as _CkfTrackCandidates_cfi
 highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'highPtTripletStepSeeds',
-    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'highPtTripletStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'highPtTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -247,8 +248,10 @@ highPtTripletStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.
 )
 trackingPhase2PU140.toModify(highPtTripletStepTrackCandidates, 
     TrajectoryCleaner    = 'highPtTripletStepTrajectoryCleanerBySharedHits', 
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('highPtTripletStepClusters')
+    skipClusters         = False,
+    clustersToSkip       = '',
+    skipPhase2Clusters   = True,
+    phase2clustersToSkip = 'highPtTripletStepClusters'
 )
 
 #For FastSim phase1 tracking 

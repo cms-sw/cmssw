@@ -137,7 +137,6 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.C
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'hiPixelPairTrajectoryFilter'),
     maxCand = 3,
     estimator = 'hiPixelPairChi2Est',

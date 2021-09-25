@@ -57,9 +57,9 @@ lowPtBarrelTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtBarrelTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtBarrelTripletStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('lowPtBarrelTripletStepClusters'),
+    trajectoryFilter = dict(refToPSet_ = 'lowPtBarrelTripletStepTrajectoryFilter'),
+    skipClusters   = True,
+    clustersToSkip = 'lowPtBarrelTripletStepClusters',
     maxCand        = 3,
     #lostHitPenalty = cms.double(10.0), 
     estimator = 'lowPtBarrelTripletStepChi2Est',
@@ -68,7 +68,7 @@ lowPtBarrelTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraje
     maxPtForLooperReconstruction = cms.double(0.63) 
     # set the variable to a negative value to turn-off the looper reconstruction 
     #maxPtForLooperReconstruction = cms.double(-1.) 
-    )
+)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
