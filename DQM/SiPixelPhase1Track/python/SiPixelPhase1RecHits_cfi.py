@@ -221,7 +221,8 @@ SiPixelPhase1RecHitsAnalyzer = DQMEDAnalyzer('SiPixelPhase1RecHits',
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry,
         onlyValidHits = cms.bool(False),
-        triggerflags = trigger.SiPixelPhase1Triggers
+        triggerflags = trigger.SiPixelPhase1Triggers,
+        VertexCut = cms.untracked.bool(True)
 )
 
 SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

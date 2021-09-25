@@ -32,18 +32,18 @@ SiStripMonitorCluster.StripDCSfilter = cms.PSet(
 
 # SiStripMonitorTrack ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrack_hi  = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_hi.TrackProducer = "hiGeneralTracks"
-SiStripMonitorTrack_hi.Mod_On        = False
+SiStripMonitorTrack_hi  = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = "hiGeneralTracks",
+    Mod_On = False
+)
 
 # TrackerMonitorTrack ####
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_hi.Tracks              = 'hiGeneralTracks'
-MonitorTrackResiduals_hi.trajectoryInput     = "hiGeneralTracks"
-MonitorTrackResiduals_hi.Mod_On              = False
-
-
+MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+    Tracks = 'hiGeneralTracks',
+    trajectoryInput = "hiGeneralTracks",
+    Mod_On = False
+)
 
 SiStripDQMTier0_hi = cms.Sequence(APVPhases * consecutiveHEs *
                                   siStripFEDCheck * siStripFEDMonitor *

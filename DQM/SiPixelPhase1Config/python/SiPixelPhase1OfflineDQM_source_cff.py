@@ -49,26 +49,28 @@ siPixelPhase1OfflineDQM_source_cosmics = siPixelPhase1OfflineDQM_source.copyAndE
     SiPixelPhase1TrackEfficiencyAnalyzer 
 ])
 
-SiPixelPhase1TrackResidualsAnalyzer_cosmics = SiPixelPhase1TrackResidualsAnalyzer.clone()
-SiPixelPhase1TrackResidualsAnalyzer_cosmics.Tracks = "ctfWithMaterialTracksP5"
-SiPixelPhase1TrackResidualsAnalyzer_cosmics.trajectoryInput = "ctfWithMaterialTracksP5"
-SiPixelPhase1TrackResidualsAnalyzer_cosmics.VertexCut =cms.untracked.bool(False) # don't cuts based on the primary vertex position for cosmics
-
+SiPixelPhase1TrackResidualsAnalyzer_cosmics = SiPixelPhase1TrackResidualsAnalyzer.clone(
+    Tracks = "ctfWithMaterialTracksP5",
+    trajectoryInput = "ctfWithMaterialTracksP5",
+    VertexCut = False # don't cuts based on the primary vertex position for cosmics
+)
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackResidualsAnalyzer,
                                                SiPixelPhase1TrackResidualsAnalyzer_cosmics)
 
-SiPixelPhase1RecHitsAnalyzer_cosmics = SiPixelPhase1RecHitsAnalyzer.clone()
-SiPixelPhase1RecHitsAnalyzer_cosmics.onlyValidHits = True # In Cosmics the efficiency plugin will not run, so we monitor only valid hits
-SiPixelPhase1RecHitsAnalyzer_cosmics.src = "ctfWithMaterialTracksP5"
-SiPixelPhase1RecHitsAnalyzer_cosmics.VertexCut = cms.untracked.bool(False)
+SiPixelPhase1RecHitsAnalyzer_cosmics = SiPixelPhase1RecHitsAnalyzer.clone(
+    onlyValidHits = True, # In Cosmics the efficiency plugin will not run, so we monitor only valid hits
+    src = "ctfWithMaterialTracksP5",
+    VertexCut = False
+)
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1RecHitsAnalyzer,
                                                SiPixelPhase1RecHitsAnalyzer_cosmics)
 
-SiPixelPhase1TrackClustersAnalyzer_cosmics = SiPixelPhase1TrackClustersAnalyzer.clone()
-SiPixelPhase1TrackClustersAnalyzer_cosmics.tracks = "ctfWithMaterialTracksP5"
-SiPixelPhase1TrackClustersAnalyzer_cosmics.VertexCut = cms.untracked.bool(False)
+SiPixelPhase1TrackClustersAnalyzer_cosmics = SiPixelPhase1TrackClustersAnalyzer.clone(
+    tracks = "ctfWithMaterialTracksP5",
+    VertexCut = False
+)
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyzer,
                                                SiPixelPhase1TrackClustersAnalyzer_cosmics)
@@ -78,30 +80,34 @@ siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyze
 
 siPixelPhase1OfflineDQM_source_hi = siPixelPhase1OfflineDQM_source.copy()
 
-SiPixelPhase1RecHitsAnalyzer_hi = SiPixelPhase1RecHitsAnalyzer.clone()
-SiPixelPhase1RecHitsAnalyzer_hi.src = "hiGeneralTracks"
+SiPixelPhase1RecHitsAnalyzer_hi = SiPixelPhase1RecHitsAnalyzer.clone(
+    src = "hiGeneralTracks"
+)
 
 siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1RecHitsAnalyzer,
                                           SiPixelPhase1RecHitsAnalyzer_hi)
 
-SiPixelPhase1TrackResidualsAnalyzer_hi = SiPixelPhase1TrackResidualsAnalyzer.clone()
-SiPixelPhase1TrackResidualsAnalyzer_hi.Tracks = "hiGeneralTracks"
-SiPixelPhase1TrackResidualsAnalyzer_hi.trajectoryInput = "hiRefittedForPixelDQM"
-SiPixelPhase1TrackResidualsAnalyzer_hi.vertices = "hiSelectedVertex"
+SiPixelPhase1TrackResidualsAnalyzer_hi = SiPixelPhase1TrackResidualsAnalyzer.clone(
+    Tracks = "hiGeneralTracks",
+    trajectoryInput = "hiRefittedForPixelDQM",
+    vertices = "hiSelectedVertex"
+)
 
 siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackResidualsAnalyzer,
                                           SiPixelPhase1TrackResidualsAnalyzer_hi)
 
-SiPixelPhase1TrackClustersAnalyzer_hi = SiPixelPhase1TrackClustersAnalyzer.clone()
-SiPixelPhase1TrackClustersAnalyzer_hi.tracks = "hiGeneralTracks"
-SiPixelPhase1TrackClustersAnalyzer_hi.vertices = "hiSelectedVertex"
+SiPixelPhase1TrackClustersAnalyzer_hi = SiPixelPhase1TrackClustersAnalyzer.clone(
+    tracks = "hiGeneralTracks",
+    vertices = "hiSelectedVertex"
+)
 
 siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackClustersAnalyzer,
                                                SiPixelPhase1TrackClustersAnalyzer_hi)
 
-SiPixelPhase1TrackEfficiencyAnalyzer_hi = SiPixelPhase1TrackEfficiencyAnalyzer.clone()
-SiPixelPhase1TrackEfficiencyAnalyzer_hi.tracks = "hiGeneralTracks"
-SiPixelPhase1TrackEfficiencyAnalyzer_hi.primaryvertices = "hiSelectedVertex"
+SiPixelPhase1TrackEfficiencyAnalyzer_hi = SiPixelPhase1TrackEfficiencyAnalyzer.clone(
+    tracks = "hiGeneralTracks",
+    primaryvertices = "hiSelectedVertex"
+)
 
 siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackEfficiencyAnalyzer,
                                                SiPixelPhase1TrackEfficiencyAnalyzer_hi)

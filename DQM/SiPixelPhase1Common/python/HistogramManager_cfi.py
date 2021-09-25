@@ -100,17 +100,21 @@ DefaultHisto = cms.PSet(
   #)
 )
 
-DefaultHistoDigiCluster=DefaultHisto.clone()
-DefaultHistoDigiCluster.topFolderName= cms.string("PixelPhase1/Phase1_MechanicalView")
+DefaultHistoDigiCluster=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Phase1_MechanicalView"
+)
 
-DefaultHistoSummary=DefaultHisto.clone()
-DefaultHistoSummary.topFolderName= cms.string("PixelPhase1/Summary")
+DefaultHistoSummary=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Summary"
+)
 
-DefaultHistoTrack=DefaultHisto.clone()
-DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
+DefaultHistoTrack=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/Tracks"
+)
 
-DefaultHistoReadout=DefaultHisto.clone()
-DefaultHistoReadout.topFolderName= cms.string("PixelPhase1/FED/Readout")
+DefaultHistoReadout=DefaultHisto.clone(
+    topFolderName = "PixelPhase1/FED/Readout"
+)
 
 # Commonly used specifications.
 StandardSpecifications1D = [
