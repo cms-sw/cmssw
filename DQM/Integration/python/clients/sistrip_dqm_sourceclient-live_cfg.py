@@ -334,7 +334,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = "rawDataCollector"
-    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = False
+    process.SiStripAnalyser.MonitorSiStrip_PSet.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = 25
