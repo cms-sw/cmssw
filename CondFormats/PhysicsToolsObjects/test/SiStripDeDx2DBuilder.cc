@@ -15,7 +15,7 @@
 //#include "CLHEP/Random/RandFlat.h"
 //#include "CLHEP/Random/RandGauss.h"
 
-class SiStripDeDx2DBuilder : public edm::EDAnalyzer {
+class SiStripDeDx2DBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDeDx2DBuilder(const edm::ParameterSet& iConfig);
 
