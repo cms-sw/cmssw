@@ -21,7 +21,12 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf,
           conf.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters"), iC)),
       theTrackerGeom_(nullptr),
       theUpdator_(nullptr),
-      thePropagator_(nullptr) {
+      thePropagator_(nullptr),
+      theMeasurementTrackerToken_(iC.esConsumes(edm::ESInputTag("", theMeasurementTrackerName_))),
+      theTrackerGeomToken_(iC.esConsumes()),
+      thePropagatorToken_(iC.esConsumes(edm::ESInputTag("", "AnyDirectionAnalyticalPropagator")))
+
+{
   //  std::cout << " ConversionTrackFinder base CTOR " << std::endl;
   useSplitHits_ = conf.getParameter<bool>("useHitsSplitting");
   theMeasurementTrackerName_ = conf.getParameter<std::string>("MeasurementTrackerName");
@@ -30,16 +35,11 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf,
 ConversionTrackFinder::~ConversionTrackFinder() {}
 
 void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName_, measurementTrackerHandle);
-  theMeasurementTracker_ = measurementTrackerHandle.product();
+  theMeasurementTracker_ = &es.getData(theMeasurementTrackerToken_);
 
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  theTrackerGeom_ = trackerHandle.product();
+  theTrackerGeom_ = &es.getData(theTrackerGeomToken_);
 
-  es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator", thePropagator_);
-
+  thePropagator_ = es.getHandle(thePropagatorToken_);
   theInitialState_->setEventSetup(
       es, static_cast<TkTransientTrackingRecHitBuilder const*>(theCkfTrajectoryBuilder_->hitBuilder())->cloner());
 }

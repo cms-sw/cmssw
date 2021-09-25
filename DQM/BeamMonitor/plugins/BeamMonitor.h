@@ -55,6 +55,8 @@ private:
   void scrollTH1(TH1*, std::time_t);
   bool testScroll(std::time_t&, std::time_t&);
   void formatFitTime(char*, const std::time_t&);
+  std::string getGMTstring(const std::time_t&);
+
   const int dxBin_;
   const double dxMin_;
   const double dxMax_;
