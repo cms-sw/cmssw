@@ -3495,23 +3495,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['Nano'][k] = {'-s':'NANO',
+    upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
-                                      '--datatier':'NANOAODSIM',
+                                      '--datatier':'NANOAODSIM,DQMIO',
                                       '-n':'10',
-                                      '--eventcontent':'NANOEDMAODSIM',
+                                      '--eventcontent':'NANOEDMAODSIM,DQM',
                                       '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
-
-    upgradeStepDict['NanoDQM'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
-                                         '--conditions':gt,
-                                         '--datatier':'NANOAODSIM,DQMIO',
-                                         '-n':'10',
-                                         '--eventcontent':'NANOEDMAODSIM,DQM',
-                                         '--filein':'file:step3_inMINIAODSIM.root',
-                                         '--geometry' : geom
-                                         }
                                       
     # setup baseline and variations
     for specialType,specialWF in upgradeWFs.items():
