@@ -117,9 +117,9 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf)
           "simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
-  if (simulateDeadChannels) {
-    tokenAnalysisMask = esConsumes();
-  }
+  //  if (simulateDeadChannels) {
+  //    tokenAnalysisMask = esConsumes();
+  //  }
 }
 
 //
@@ -224,8 +224,8 @@ void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& e
     //set analysisMask in deadChannelsManager
     /*    edm::ESHandle<TotemAnalysisMask> analysisMask;
 	  es.get<TotemReadoutRcd>().get(analysisMask);*/
-    auto analysisMask = es.getHandle(esTotemAM_TokenBeginRun_);
-    deadChannelsManager = DeadChannelsManager(analysisMask);  //set analysisMask in deadChannelsManager
+    auto analysisMask = es.getData(esTotemAM_TokenBeginRun_);
+    deadChannelsManager = DeadChannelsManager(&analysisMask);  //set analysisMask in deadChannelsManager
 
   }
 }
