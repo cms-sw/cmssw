@@ -451,7 +451,7 @@ void AlCaIsoTracksFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& 
   if (!trigNames_.empty()) {
     bool changed(false);
     edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-				     << hltConfig_.init(iRun, iSetup, processName_, changed);
+                                     << hltConfig_.init(iRun, iSetup, processName_, changed);
   }
 }
 
