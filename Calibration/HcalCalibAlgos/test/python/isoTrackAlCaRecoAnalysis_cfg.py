@@ -31,13 +31,14 @@ process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.triggers = []
 process.HcalIsoTrkAnalyzer.useRaw = 0   # 2 for Raw
 process.HcalIsoTrkAnalyzer.ignoreTriggers = True
-process.HcalIsoTrkAnalyzer.processName  = 'HLTNew1'
-process.HcalIsoTrkAnalyzer.producerName = 'ALCAISOTRACK'
-process.HcalIsoTrkAnalyzer.moduleName   = 'IsoProd'
+#process.HcalIsoTrkAnalyzer.processName  = 'HLTNew1'
+#process.HcalIsoTrkAnalyzer.producerName = 'ALCAISOTRACK'
+#process.HcalIsoTrkAnalyzer.moduleName   = 'IsoProd'
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/ALCARECO_MC.root'
+        'file:PoolOutput.root'
+#       'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/ALCARECO_MC.root'
     )
 )
 
