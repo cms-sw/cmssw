@@ -2,7 +2,7 @@
 #define SiStripDetVOff_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,7 +13,7 @@
 
 class TrackerGeometry;
 
-class SiStripDetVOffFakeBuilder : public edm::EDAnalyzer {
+class SiStripDetVOffFakeBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig);
 

@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripFecCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -15,15 +15,15 @@ class SiStripFecCabling;
 class SiStripDetCabling;
 class SiStripRegionCabling;
 
-class SiStripFedCablingBuilder : public edm::EDAnalyzer {
+class SiStripFedCablingBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   SiStripFedCablingBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripFedCablingBuilder() override{};
+  ~SiStripFedCablingBuilder() = default;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  void analyze(const edm::Event&, const edm::EventSetup&) override { ; }
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
 
 private:
   bool printFecCabling_;

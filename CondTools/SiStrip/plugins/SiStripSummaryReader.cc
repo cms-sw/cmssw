@@ -11,8 +11,6 @@
 SiStripSummaryReader::SiStripSummaryReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)), summaryToken_(esConsumes()) {}
 
-SiStripSummaryReader::~SiStripSummaryReader() {}
-
 void SiStripSummaryReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& summary = iSetup.getData(summaryToken_);
   edm::LogInfo("SiStripSummaryReader") << "[SiStripSummaryReader::analyze] End Reading SiStripSummary" << std::endl;
