@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -24,10 +24,10 @@
 
 class SiStripGain;
 
-class SiStripApvGainReader : public edm::EDAnalyzer {
+class SiStripApvGainReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SiStripApvGainReader(const edm::ParameterSet&);
-  ~SiStripApvGainReader() override;
+  ~SiStripApvGainReader() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

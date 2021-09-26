@@ -15,6 +15,8 @@ SiStripApvGainReader::SiStripApvGainReader(const edm::ParameterSet& iConfig)
       formatedOutput_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
       gainType_(iConfig.getUntrackedParameter<uint32_t>("gainType", 1)),
       gainToken_(esConsumes()) {
+  usesResource(TFileService::kSharedResource);
+
   if (fs_.isAvailable()) {
     tree_ = fs_->make<TTree>("Gains", "Gains");
 
@@ -24,8 +26,6 @@ SiStripApvGainReader::SiStripApvGainReader(const edm::ParameterSet& iConfig)
     tree_->Branch("Gain", &gain_, "Gain/D");
   }
 }
-
-SiStripApvGainReader::~SiStripApvGainReader() {}
 
 void SiStripApvGainReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& stripApvGain = iSetup.getData(gainToken_);
