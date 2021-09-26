@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
-process = cms.Process('ALCARECO',Run2_2018)
+process = cms.Process('RECO',Run2_2018)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -19,14 +19,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/RECO_MC.root',
-#       'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/UL_1TeV_pion_gun_RAW_0_0.root',
+        'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/UL_1TeV_pion_gun_RAW_0_0.root',
+#        "root://cmseos.fnal.gov//eos/uscms/store/user/lpcrutgers/huiwang/HCAL/UL_DoublePion_E-50_RAW_noPU-2020-12-25/UL_1TeV_pion_gun_RAW_0_0.root"
     ),
     #skipEvents = cms.untracked.uint32(516),
     secondaryFileNames = cms.untracked.vstring()
@@ -70,13 +70,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.ALCARECOStreamHcalCalIsoTrkFilterOutPath = cms.EndPath(process.ALCARECOStreamHcalCalIsoTrkFilter)
 
 # Schedule definition
-process.schedule = cms.Schedule(
-#   process.raw2digi_step,
-#   process.reconstruction_step,
-    process.pathALCARECOHcalCalIsoTrkFilterNoHLT,
-    process.endjob_step,
-    process.ALCARECOStreamHcalCalIsoTrkFilterOutPath
-)
+process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.pathALCARECOHcalCalIsoTrkFilterNoHLT,process.endjob_step,process.ALCARECOStreamHcalCalIsoTrkFilterOutPath)
 
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
