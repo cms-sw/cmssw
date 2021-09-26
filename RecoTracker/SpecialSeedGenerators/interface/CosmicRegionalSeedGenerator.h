@@ -33,18 +33,18 @@
 #include "Math/GenVector/PxPyPzE4D.h"
 
 //Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
 public:
@@ -67,6 +67,9 @@ private:
 
   std::string thePropagatorName_;
   std::string regionBase_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   edm::InputTag recoMuonsCollection_;
   edm::InputTag recoTrackMuonsCollection_;

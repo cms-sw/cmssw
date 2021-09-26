@@ -14,12 +14,11 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 using namespace std;
-CRackSeedGenerator::CRackSeedGenerator(edm::ParameterSet const& conf) : conf_(conf), cosmic_seed(conf) {
+CRackSeedGenerator::CRackSeedGenerator(edm::ParameterSet const& conf) : cosmic_seed(conf, consumesCollector()) {
   edm::LogInfo("CRackSeedGenerator") << "Enter the CRackSeedGenerator";
-  matchedrecHitsToken_ =
-      consumes<SiStripMatchedRecHit2DCollection>(conf_.getParameter<edm::InputTag>("matchedRecHits"));
-  rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf_.getParameter<edm::InputTag>("rphirecHits"));
-  stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf_.getParameter<edm::InputTag>("stereorecHits"));
+  matchedrecHitsToken_ = consumes<SiStripMatchedRecHit2DCollection>(conf.getParameter<edm::InputTag>("matchedRecHits"));
+  rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("rphirecHits"));
+  stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("stereorecHits"));
 
   produces<TrajectorySeedCollection>();
 }
