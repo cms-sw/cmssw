@@ -6,8 +6,6 @@ using namespace cms;
 SiStripPedestalsReader::SiStripPedestalsReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)), pedestalsToken_(esConsumes()) {}
 
-SiStripPedestalsReader::~SiStripPedestalsReader() {}
-
 void SiStripPedestalsReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& pedestals = iSetup.getData(pedestalsToken_);
   edm::LogInfo("SiStripPedestalsReader") << "[SiStripPedestalsReader::analyze] End Reading SiStripPedestals"
