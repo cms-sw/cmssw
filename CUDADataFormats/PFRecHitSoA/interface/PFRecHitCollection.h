@@ -1,6 +1,6 @@
-#ifndef CUDADataFormats_HcalPFRecHitSoA_interface_PFRecHitCollection_h
-#define CUDADataFormats_HcalPFRecHitSoA_interface_PFRecHitCollection_h
-
+#ifndef CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h
+#define CUDADataFormats_PFRecHitSoA_interface_PFRecHitCollection_h
+//CUDADataFormatsPFRecHitSoA                  PFRecHitSoA   
 #include <vector>
 #include "CUDADataFormats/CaloCommon/interface/Common.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
