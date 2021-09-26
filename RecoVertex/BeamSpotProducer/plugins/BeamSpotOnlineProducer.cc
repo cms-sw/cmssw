@@ -10,21 +10,22 @@
 
 ________________________________________________________________**/
 
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
-#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 class BeamSpotOnlineProducer : public edm::stream::EDProducer<> {
@@ -47,6 +48,9 @@ private:
   const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> l1GtEvmReadoutRecordToken_;
   const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamToken_;
   const edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> beamTransientToken_;
+
+  // watch IOV transition to emit warnings
+  edm::ESWatcher<BeamSpotTransientObjectsRcd> beamTransientRcdESWatcher_;
 
   const unsigned int theBeamShoutMode;
 };
@@ -99,7 +103,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   if (useTransientRecord_) {
     auto const& spotDB = iSetup.getData(beamTransientToken_);
     if (spotDB.GetBeamType() != 2) {
-      if (shoutMODE) {
+      if (shoutMODE && beamTransientRcdESWatcher_.check(iSetup)) {
         edm::LogWarning("BeamSpotFromDB")
             << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
       }
