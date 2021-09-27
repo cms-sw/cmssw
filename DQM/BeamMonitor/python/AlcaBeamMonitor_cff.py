@@ -7,7 +7,7 @@ dqmPerLSsaving.toModify(AlcaBeamMonitor, perLSsaving=True)
 
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
-    timeThreshold = cms.int32(999999) # accept even old payloads for MC/Data ReReco. DO NOT CHANGE
+    timeThreshold = 999999 # accept even old payloads for MC/Data ReReco. DO NOT CHANGE
 )
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi

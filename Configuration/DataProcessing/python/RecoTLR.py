@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 def _swapOfflineBSwithOnline(process):
     import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
     process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
-        timeThreshold = cms.int32(999999) # for express allow >48h old payloads for replays. DO NOT CHANGE
+        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
     )
 
     from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
