@@ -18,9 +18,25 @@ namespace l1t {
       inline void setFed(unsigned fedId) { fedId_ = fedId; };
 
     private:
+      struct GMTObjects {
+        std::vector<Muon> mus;
+        MuonShower shower;
+      };
+      typedef std::map<size_t, GMTObjects> GMTOutputObjectMap;  // Map of BX --> objects
       typedef std::map<unsigned int, std::vector<uint32_t>> PayloadMap;
 
-      void packBx(PayloadMap& payloadMap, const edm::Handle<MuonBxCollection>& muons, int bx);
+      std::pair<int, int> getMuonShowers(GMTOutputObjectMap& objMap,
+                                         const edm::Event& event,
+                                         const edm::EDGetTokenT<MuonShowerBxCollection>& showerToken);
+      std::pair<int, int> getMuons(GMTOutputObjectMap& objMap,
+                                   const edm::Event& event,
+                                   const edm::EDGetTokenT<MuonBxCollection>& muonToken);
+      void packBx(const GMTOutputObjectMap& objMap,
+                  int firstMuonBx,
+                  int lastMuonBx,
+                  int firstMuonShowerBx,
+                  int lastMuonShowerBx,
+                  PayloadMap& payloadMap);
 
       unsigned fwId_{0};
       unsigned fedId_{0};
