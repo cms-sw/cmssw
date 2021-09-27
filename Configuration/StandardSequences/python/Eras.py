@@ -76,7 +76,7 @@ class Eras (object):
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']
-        internalUseModChains = ['run2_2017_noTrackingModifier']
+        internalUseModChains = ['run2_2017_noTrackingModifier', 'trackingMkFitProd']
 
         self.pythonCfgLines = {}
 
