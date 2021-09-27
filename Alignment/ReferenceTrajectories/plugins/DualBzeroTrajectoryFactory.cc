@@ -23,14 +23,12 @@ public:
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   DualBzeroTrajectoryFactory *clone() const override { return new DualBzeroTrajectoryFactory(*this); }
 
@@ -66,8 +64,7 @@ DualBzeroTrajectoryFactory::~DualBzeroTrajectoryFactory(void) {}
 const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTrajectoryFactory::trajectories(
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
@@ -97,8 +94,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {

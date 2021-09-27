@@ -26,14 +26,12 @@ public:
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   ReferenceTrajectoryFactory *clone() const override { return new ReferenceTrajectoryFactory(*this); }
 
@@ -44,7 +42,9 @@ protected:
 
   double theMass;
   bool theUseBzeroIfFieldOff;
+  //edm::ParameterSet pset;
   mutable const TrajectoryFactoryBase *theBzeroFactory;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,10 +56,27 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const edm::ParameterSet &
       m_MagFieldToken(iC.esConsumes()),
       theMass(config.getParameter<double>("ParticleMass")),
       theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
-      theBzeroFactory(nullptr) {
+      theBzeroFactory(nullptr){
+    //edm::ParameterSet pset,
+//    pset(config),
+    // next two lines not needed, but may help to better understand log file:
+//    pset.eraseSimpleParameter("TrajectoryFactoryName"),
+//    pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory")),
+//    pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff")),
+//    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC){
   edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
                             << "mass: " << theMass
                             << "\nusing Bzero if |B| = 0: " << (theUseBzeroIfFieldOff ? "yes" : "no");
+    edm::ParameterSet pset;
+    pset.copyForModify(config);
+    // next two lines not needed, but may help to better understand log file:
+    pset.eraseSimpleParameter("TrajectoryFactoryName");
+    pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
+    pset.addParameter("MomentumEstimate", config.getParameter<double>("MomentumEstimateFieldOff"));
+    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
+
+
+
 }
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other)
@@ -74,12 +91,11 @@ ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory(void) { delete theBzeroF
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTrajectoryFactory::trajectories(
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
-    return this->bzeroFactory(iC)->trajectories(setup, tracks, beamSpot, iC);
+    return this->bzeroFactory()->trajectories(setup, tracks, beamSpot);
   }
 
   ReferenceTrajectoryCollection trajectories;
@@ -111,8 +127,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {
@@ -125,7 +140,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {
-    return this->bzeroFactory(iC)->trajectories(setup, tracks, external, beamSpot, iC);
+    return this->bzeroFactory()->trajectories(setup, tracks, external, beamSpot);
   }
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
@@ -166,20 +181,20 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
   return trajectories;
 }
 
-const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory(edm::ConsumesCollector &iC) const {
+const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory() const {
   if (!theBzeroFactory) {
     const edm::ParameterSet &myPset = this->configuration();
     edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
                               << "Using BzeroReferenceTrajectoryFactory for some (all?) events.";
     // We take the config of this factory, copy it, replace its name and add
     // the momentum parameter as expected by BzeroReferenceTrajectoryFactory and create it:
-    edm::ParameterSet pset;
-    pset.copyForModify(myPset);
+    //edm::ParameterSet pset;
+    //pset.copyForModify(myPset);
     // next two lines not needed, but may help to better understand log file:
-    pset.eraseSimpleParameter("TrajectoryFactoryName");
-    pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
-    pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff"));
-    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
+    //pset.eraseSimpleParameter("TrajectoryFactoryName");
+    //pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
+    //pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff"));
+    //theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
   }
   return theBzeroFactory;
 }

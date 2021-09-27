@@ -36,8 +36,7 @@ BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory(void) {}
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroReferenceTrajectoryFactory::trajectories(
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
@@ -69,8 +68,7 @@ const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroRefere
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   if (tracks.size() != external.size()) {

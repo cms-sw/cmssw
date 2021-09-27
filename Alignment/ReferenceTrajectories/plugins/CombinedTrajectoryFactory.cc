@@ -28,14 +28,12 @@ public:
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
                                                    const ConstTrajTrackPairCollection &tracks,
                                                    const ExternalPredictionCollection &external,
-                                                   const reco::BeamSpot &beamSpot,
-                                                   edm::ConsumesCollector &iC) const override;
+                                                   const reco::BeamSpot &beamSpot) const override;
 
   CombinedTrajectoryFactory *clone() const override { return new CombinedTrajectoryFactory(*this); }
 
@@ -79,13 +77,12 @@ CombinedTrajectoryFactory::~CombinedTrajectoryFactory(void) {}
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection CombinedTrajectoryFactory::trajectories(
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories;  // outside loop for efficiency
 
   for (auto const &factory : theFactories) {
-    tmpTrajectories = factory->trajectories(setup, tracks, beamSpot, iC);
+    tmpTrajectories = factory->trajectories(setup, tracks, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty())
@@ -99,13 +96,12 @@ const CombinedTrajectoryFactory::ReferenceTrajectoryCollection CombinedTrajector
     const edm::EventSetup &setup,
     const ConstTrajTrackPairCollection &tracks,
     const ExternalPredictionCollection &external,
-    const reco::BeamSpot &beamSpot,
-    edm::ConsumesCollector &iC) const {
+    const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories;  // outside loop for efficiency
 
   for (auto const &factory : theFactories) {
-    tmpTrajectories = factory->trajectories(setup, tracks, external, beamSpot, iC);
+    tmpTrajectories = factory->trajectories(setup, tracks, external, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty())
