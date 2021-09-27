@@ -650,7 +650,7 @@ ALCARECOStreamHcalCalIsoTrkFilterNoHLT = cms.FilteredStream(
 	responsible = 'Sunanda Banerjee',
 	name = 'HcalCalIsoTrkFilterNoHLT',
 	paths  = (pathALCARECOHcalCalIsoTrkFilterNoHLT),
-	content = OutALCARECOHcalCalIsoTrkFilter.outputCommands,
+	content = OutALCARECOHcalCalIsoTrkFilterNoHLT.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsoTrkFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
