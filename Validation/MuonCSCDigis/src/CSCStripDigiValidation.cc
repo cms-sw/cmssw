@@ -52,7 +52,6 @@ void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
   for (auto j = strips->begin(); j != strips->end(); j++) {
     auto digiItr = (*j).second.first;
     auto last = (*j).second.second;
-    int detId = (*j).first.rawId();
 
     int nDigis = last - digiItr;
     nDigisPerEvent += nDigis;
