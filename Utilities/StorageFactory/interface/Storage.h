@@ -18,7 +18,7 @@
 namespace edm::storage {
   constexpr int PREFETCH_PROBE_LENGTH = 4096;
 
-  class Storage : public virtual IOInput, public virtual IOOutput {
+  class Storage : public IOInput, public IOOutput {
   public:
     enum Relative { SET, CURRENT, END };
 

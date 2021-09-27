@@ -10,7 +10,7 @@
 namespace edm::storage {
 
   /** Basic file-related functions.  Nicked from SEAL.  */
-  class File : public IOChannel, public Storage {
+  class File : public Storage {
   public:
     File(void);
     File(IOFD fd, bool autoclose = true);
@@ -32,6 +32,8 @@ namespace edm::storage {
     using Storage::write;
     using Storage::writev;
 
+    IOFD fd() const { return m_channel.fd(); }
+
     bool prefetch(const IOPosBuffer *what, IOSize n) override;
     IOSize read(void *into, IOSize n) override;
     IOSize read(void *into, IOSize n, IOOffset pos) override;
@@ -46,8 +48,8 @@ namespace edm::storage {
 
     void resize(IOOffset size) override;
 
-    void flush(void) override;
-    void close(void) override;
+    void flush() override;
+    void close() override;
     virtual void abort(void);
 
     virtual void setAutoClose(bool closeit);
@@ -63,6 +65,7 @@ namespace edm::storage {
     static void sysopen(const char *name, int flags, int perms, IOFD &newfd, unsigned &newflags);
     static bool sysclose(IOFD fd, int *error = nullptr);
 
+    IOChannel m_channel;
     unsigned m_flags;
   };
 }  // namespace edm::storage

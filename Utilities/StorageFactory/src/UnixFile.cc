@@ -62,7 +62,7 @@ IOSize File::read(void *into, IOSize n, IOOffset pos) {
 
   ssize_t s;
   do
-    s = ::pread(fd(), into, n, pos);
+    s = ::pread(m_channel.fd(), into, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -76,7 +76,7 @@ IOSize File::write(const void *from, IOSize n, IOOffset pos) {
 
   ssize_t s;
   do
-    s = ::pwrite(fd(), from, n, pos);
+    s = ::pwrite(m_channel.fd(), from, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -90,7 +90,7 @@ IOSize File::write(const void *from, IOSize n, IOOffset pos) {
 }
 
 IOOffset File::size(void) const {
-  IOFD fd = this->fd();
+  IOFD fd = m_channel.fd();
   assert(fd != EDM_IOFD_INVALID);
 
   struct stat info;
@@ -101,7 +101,7 @@ IOOffset File::size(void) const {
 }
 
 IOOffset File::position(IOOffset offset, Relative whence /* = SET */) {
-  IOFD fd = this->fd();
+  IOFD fd = m_channel.fd();
   assert(fd != EDM_IOFD_INVALID);
   assert(whence == CURRENT || whence == SET || whence == END);
 
@@ -114,7 +114,7 @@ IOOffset File::position(IOOffset offset, Relative whence /* = SET */) {
 }
 
 void File::resize(IOOffset size) {
-  IOFD fd = this->fd();
+  IOFD fd = m_channel.fd();
   assert(fd != EDM_IOFD_INVALID);
 
   if (ftruncate(fd, size) == -1)
@@ -122,7 +122,7 @@ void File::resize(IOOffset size) {
 }
 
 void File::flush(void) {
-  IOFD fd = this->fd();
+  IOFD fd = m_channel.fd();
   assert(fd != EDM_IOFD_INVALID);
 
 #if _POSIX_SYNCHRONIZED_IO > 0
