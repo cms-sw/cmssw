@@ -26,12 +26,11 @@ class DipPublication;
 
 class LuminosityBlock;
 
-class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
-{
- public:
+class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<> {
+public:
   explicit BeamSpotDipServer(const edm::ParameterSet&);
 
- protected:
+protected:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup&) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
@@ -39,34 +38,33 @@ class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
   void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup&) override;
   void dqmEndRun(const edm::Run&, const edm::EventSetup& iSetup) override;
 
- private:
-  long   getFileSize(std::string filename);
+private:
+  long getFileSize(std::string filename);
   time_t getLastTime(std::string filename);
 
-  std::vector<std::string> parse(std::string line, const std::string & delimiter);
+  std::vector<std::string> parse(std::string line, const std::string& delimiter);
   std::string tkStatus();
 
-  bool readRcd(const BeamSpotOnlineObjects & bs); // read from database
-  bool readRcd(std::ifstream & file);             // read from NFS
+  bool readRcd(const BeamSpotOnlineObjects& bs);  // read from database
+  bool readRcd(std::ifstream& file);              // read from NFS
 
   void problem();
   void CMS2LHCRF_POS(float x, float y, float z);
 
   void trueRcd();
   void fakeRcd();
-  void publishRcd(std::string qlty, std::string err,
-                  bool pubCMS, bool fitTime);
+  void publishRcd(std::string qlty, std::string err, bool pubCMS, bool fitTime);
 
   std::string getDateTime();
   std::string getDateTime(long epoch);
 
   // constants
-  const char * qualities[3] = {"Uncertain","Bad","Good"};
+  const char* qualities[3] = {"Uncertain", "Bad", "Good"};
   const bool publishStatErrors = true;
   const int rad2urad = 1000000;
   const int cm2um = 10000;
   const int cm2mm = 10;
-  const int intLS = 1; // for CMS scaler
+  const int intLS = 1;  // for CMS scaler
 
   // variables
   long lastFitTime = 0;
@@ -76,13 +74,13 @@ class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
   int currentLS = 0;
 
   // DIP objects
-  DipFactory * dip;
-  DipData * messageCMS;
-  DipData * messageLHC;
-  DipData * messagePV;
-  DipPublication * publicationCMS;
-  DipPublication * publicationLHC;
-  DipPublication * publicationPV;
+  DipFactory* dip;
+  DipData* messageCMS;
+  DipData* messageLHC;
+  DipData* messagePV;
+  DipPublication* publicationCMS;
+  DipPublication* publicationLHC;
+  DipPublication* publicationPV;
 
   // initial values of beamspot object
   int runnum;
@@ -132,8 +130,7 @@ class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
   bool wholeTrackerOn = false;
 
   // online beamspot
-  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>
-    bsLegacyToken_; 
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
 
   // inputs
   bool verbose;
