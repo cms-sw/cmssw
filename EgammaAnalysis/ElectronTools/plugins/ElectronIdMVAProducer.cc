@@ -37,6 +37,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> reducedEBRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttrackbuilderToken_;
 
   double _Rho;
   std::string method_;
@@ -72,6 +73,8 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig)
   std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
   Trig_ = iConfig.getParameter<bool>("Trig");
   NoIP_ = iConfig.getParameter<bool>("NoIP");
+
+  ttrackbuilderToken_ = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
 
   produces<edm::ValueMap<float> >("");
 
@@ -134,10 +137,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
                                  ecalClusterToolsESGetTokens_.get(iSetup),
                                  reducedEBRecHitCollectionToken_,
                                  reducedEERecHitCollectionToken_);
-
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  auto const& thebuilder = iSetup.getData(ttrackbuilderToken_);
 
   edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken_, egCollection);
