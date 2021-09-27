@@ -38,10 +38,6 @@ process.GlobalTag.toGet = cms.VPSet(
     record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
     refreshTime = cms.uint64(1)
   ),
-  cms.PSet(
-    record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
-    refreshTime = cms.uint64(1)
-  )
 )
 
 # module

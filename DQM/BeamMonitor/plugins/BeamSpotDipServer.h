@@ -16,7 +16,7 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 
 #include <string>
 #include <bits/stdc++.h>
@@ -135,8 +135,8 @@ class BeamSpotDipServer : public DQMOneLumiEDAnalyzer<>
   bool wholeTrackerOn = false;
 
   // online beamspot
-  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>
-    bsHLTToken_; 
+  edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>
+    bsLegacyToken_; 
 
   // inputs
   bool verbose;

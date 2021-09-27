@@ -49,7 +49,7 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps)
   timeoutLS = ps.getUntrackedParameter<vector<int>>("timeoutLS");
 
   //
-  bsHLTToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
+  bsLegacyToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
 //  dcsStatus_ = consumes<DcsStatusCollection>(
 //    ps.getUntrackedParameter<string>("DCSStatus", "scalersRawToDigi")); 
@@ -233,8 +233,8 @@ void BeamSpotDipServer::dqmEndLuminosityBlock(
   logFile.close();
   } else {
     edm::ESHandle<BeamSpotOnlineObjects>
-      bsHLTHandle = iSetup.getHandle(bsHLTToken_);
-    auto const & bs = *bsHLTHandle; 
+      bsLegacyHandle = iSetup.getHandle(bsLegacyToken_);
+    auto const & bs = *bsLegacyHandle; 
  
     // from database
     if(readRcd(bs)) {
