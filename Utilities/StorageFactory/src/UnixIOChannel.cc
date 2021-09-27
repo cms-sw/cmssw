@@ -6,6 +6,8 @@
 #include <vector>
 #include <cassert>
 
+using namespace edm::storage;
+
 IOSize IOChannel::read(void *into, IOSize n) {
   ssize_t s;
   do

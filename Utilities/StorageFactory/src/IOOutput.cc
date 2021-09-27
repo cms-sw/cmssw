@@ -2,8 +2,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
 
+using namespace edm::storage;
 /// Destruct the stream.  A no-op.
-IOOutput::~IOOutput(void) {}
+IOOutput::~IOOutput() {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

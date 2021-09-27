@@ -4,6 +4,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
 
+using namespace edm::storage;
+
 using namespace IOFlags;
 
 IOFD File::sysduplicate(IOFD fd) {
