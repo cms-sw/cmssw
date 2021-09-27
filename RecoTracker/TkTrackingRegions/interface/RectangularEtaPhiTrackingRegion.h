@@ -42,6 +42,8 @@ public:
 
   static UseMeasurementTracker stringToUseMeasurementTracker(const std::string& name);
 
+  RectangularEtaPhiTrackingRegion() {}
+
   RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const& rh)
       : TrackingRegion(rh),
         theEtaRange(rh.theEtaRange),
