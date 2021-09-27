@@ -91,6 +91,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilterNoHLT_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkProducerFilter_Output_cff import *
 # HCAL calibration with iterative phi sym
