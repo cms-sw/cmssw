@@ -2,8 +2,10 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
 
+using namespace edm::storage;
+
 /// Destruct the stream.  A no-op.
-IOInput::~IOInput(void) {}
+IOInput::~IOInput() {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -49,7 +51,7 @@ IOInput::~IOInput(void) {}
     includes the situation where the input stream is in non-blocking
     mode and no input is currently available (FIXME: make this
     simpler; clarify which exception).  */
-int IOInput::read(void) {
+int IOInput::read() {
   unsigned char byte;
   IOSize n = read(&byte, 1);
   return n == 0 ? -1 : byte;

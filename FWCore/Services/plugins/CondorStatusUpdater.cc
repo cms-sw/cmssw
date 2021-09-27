@@ -307,6 +307,7 @@ void CondorStatusService::updateImpl(time_t sinceLastUpdate) {
     }
   }
 
+  using namespace edm::storage;
   // Update storage account information
   auto const &stats = StorageAccount::summary();
   uint64_t readOps = 0;

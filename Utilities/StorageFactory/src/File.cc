@@ -3,7 +3,8 @@
 #include "Utilities/StorageFactory/src/Throw.h"
 #include <cassert>
 
-using namespace IOFlags;
+using namespace edm::storage;
+using namespace edm::storage::IOFlags;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -238,7 +239,7 @@ IOSize File::writev(const IOBuffer *from, IOSize length) {
 }
 
 /** Close the file.  */
-void File::close(void) {
+void File::close() {
   IOFD fd = this->fd();
   assert(fd != EDM_IOFD_INVALID);
 
@@ -251,7 +252,7 @@ void File::close(void) {
 }
 
 /** Close the file and ignore all errors.  */
-void File::abort(void) {
+void File::abort() {
   IOFD fd = this->fd();
   if (fd != EDM_IOFD_INVALID) {
     sysclose(fd);

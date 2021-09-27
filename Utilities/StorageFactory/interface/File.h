@@ -7,61 +7,63 @@
 #include "Utilities/StorageFactory/interface/IOChannel.h"
 #include <string>
 
-/** Basic file-related functions.  Nicked from SEAL.  */
-class File : public IOChannel, public Storage {
-public:
-  File(void);
-  File(IOFD fd, bool autoclose = true);
-  File(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
-  File(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~File(void) override;
-  // implicit copy constructor
-  // implicit assignment operator
+namespace edm::storage {
 
-  virtual void create(const char *name, bool exclusive = false, int perms = 0666);
-  virtual void create(const std::string &name, bool exclusive = false, int perms = 0666);
-  virtual void open(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
-  virtual void open(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  virtual void attach(IOFD fd);
+  /** Basic file-related functions.  Nicked from SEAL.  */
+  class File : public IOChannel, public Storage {
+  public:
+    File(void);
+    File(IOFD fd, bool autoclose = true);
+    File(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
+    File(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
+    ~File(void) override;
+    // implicit copy constructor
+    // implicit assignment operator
 
-  using Storage::position;
-  using Storage::read;
-  using Storage::readv;
-  using Storage::write;
-  using Storage::writev;
+    virtual void create(const char *name, bool exclusive = false, int perms = 0666);
+    virtual void create(const std::string &name, bool exclusive = false, int perms = 0666);
+    virtual void open(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
+    virtual void open(const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
+    virtual void attach(IOFD fd);
 
-  bool prefetch(const IOPosBuffer *what, IOSize n) override;
-  IOSize read(void *into, IOSize n) override;
-  IOSize read(void *into, IOSize n, IOOffset pos) override;
-  IOSize readv(IOBuffer *into, IOSize length) override;
+    using Storage::position;
+    using Storage::read;
+    using Storage::readv;
+    using Storage::write;
+    using Storage::writev;
 
-  IOSize write(const void *from, IOSize n) override;
-  IOSize write(const void *from, IOSize n, IOOffset pos) override;
-  IOSize writev(const IOBuffer *from, IOSize length) override;
+    bool prefetch(const IOPosBuffer *what, IOSize n) override;
+    IOSize read(void *into, IOSize n) override;
+    IOSize read(void *into, IOSize n, IOOffset pos) override;
+    IOSize readv(IOBuffer *into, IOSize length) override;
 
-  IOOffset size(void) const override;
-  IOOffset position(IOOffset offset, Relative whence = SET) override;
+    IOSize write(const void *from, IOSize n) override;
+    IOSize write(const void *from, IOSize n, IOOffset pos) override;
+    IOSize writev(const IOBuffer *from, IOSize length) override;
 
-  void resize(IOOffset size) override;
+    IOOffset size(void) const override;
+    IOOffset position(IOOffset offset, Relative whence = SET) override;
 
-  void flush(void) override;
-  void close(void) override;
-  virtual void abort(void);
+    void resize(IOOffset size) override;
 
-  virtual void setAutoClose(bool closeit);
+    void flush(void) override;
+    void close(void) override;
+    virtual void abort(void);
 
-private:
-  enum { InternalAutoClose = 4096 };  //< Close on delete
+    virtual void setAutoClose(bool closeit);
 
-  File(IOFD fd, unsigned flags);
+  private:
+    enum { InternalAutoClose = 4096 };  //< Close on delete
 
-  File *duplicate(bool copy) const;
-  File *duplicate(File *child) const;
-  static IOFD sysduplicate(IOFD fd);
-  static void sysopen(const char *name, int flags, int perms, IOFD &newfd, unsigned &newflags);
-  static bool sysclose(IOFD fd, int *error = nullptr);
+    File(IOFD fd, unsigned flags);
 
-  unsigned m_flags;
-};
+    File *duplicate(bool copy) const;
+    File *duplicate(File *child) const;
+    static IOFD sysduplicate(IOFD fd);
+    static void sysopen(const char *name, int flags, int perms, IOFD &newfd, unsigned &newflags);
+    static bool sysclose(IOFD fd, int *error = nullptr);
 
+    unsigned m_flags;
+  };
+}  // namespace edm::storage
 #endif  // STORAGE_FACTORY_FILE_H

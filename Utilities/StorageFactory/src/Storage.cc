@@ -2,9 +2,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 
-Storage::Storage(void) {}
+using namespace edm::storage;
 
-Storage::~Storage(void) {}
+Storage::Storage() {}
+
+Storage::~Storage() {}
 
 //////////////////////////////////////////////////////////////////////
 IOSize Storage::read(IOBuffer into, IOOffset pos) { return read(into.data(), into.size(), pos); }
@@ -69,12 +71,12 @@ IOSize Storage::writev(const IOPosBuffer *from, IOSize n) {
 }
 
 //////////////////////////////////////////////////////////////////////
-IOOffset Storage::position(void) const {
+IOOffset Storage::position() const {
   Storage *self = const_cast<Storage *>(this);
   return self->position(0, CURRENT);
 }
 
-IOOffset Storage::size(void) const {
+IOOffset Storage::size() const {
   // FIXME: use saveposition object in case exceptions are thrown?
   Storage *self = const_cast<Storage *>(this);
   IOOffset here = position();
@@ -84,15 +86,15 @@ IOOffset Storage::size(void) const {
   return size;
 }
 
-void Storage::rewind(void) { position(0); }
+void Storage::rewind() { position(0); }
 
 //////////////////////////////////////////////////////////////////////
 bool Storage::prefetch(const IOPosBuffer * /* what */, IOSize /* n */) { return false; }
 
 //////////////////////////////////////////////////////////////////////
-void Storage::flush(void) {}
+void Storage::flush() {}
 
-void Storage::close(void) {}
+void Storage::close() {}
 
 //////////////////////////////////////////////////////////////////////
-bool Storage::eof(void) const { return position() == size(); }
+bool Storage::eof() const { return position() == size(); }

@@ -51,7 +51,7 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      StorageFactory::get()->stagein(fileNames()[0]);
+      storage::StorageFactory::get()->stagein(fileNames()[0]);
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
