@@ -46,7 +46,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
   bool useDBEMap_, keepDAQStatus_, readMultiBX_;
-  bool unPackStatusDigis_;
+  unsigned int fedIdStart_, fedIdEnd_;
   std::unique_ptr<GEMRawToDigi> gemRawToDigi_;
 };
 
@@ -58,6 +58,8 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       keepDAQStatus_(pset.getParameter<bool>("keepDAQStatus")),
       readMultiBX_(pset.getParameter<bool>("readMultiBX")),
+      fedIdStart_(pset.getParameter<unsigned int>("fedIdStart")),
+      fedIdEnd_(pset.getParameter<unsigned int>("fedIdEnd")),
       gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
   produces<GEMDigiCollection>();
   if (keepDAQStatus_) {
@@ -77,6 +79,8 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("useDBEMap", false);
   desc.add<bool>("keepDAQStatus", false);
   desc.add<bool>("readMultiBX", false);
+  desc.add<unsigned int>("fedIdStart", FEDNumbering::MINGEMFEDID);
+  desc.add<unsigned int>("fedIdEnd", FEDNumbering::MAXGEMFEDID);
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
@@ -109,7 +113,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
   auto gemROMap = runCache(iEvent.getRun().index());
 
-  for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
+  for (unsigned int fedId = fedIdStart_; fedId <= fedIdEnd_; ++fedId) {
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
 
     int nWords = fedData.size() / sizeof(uint64_t);
