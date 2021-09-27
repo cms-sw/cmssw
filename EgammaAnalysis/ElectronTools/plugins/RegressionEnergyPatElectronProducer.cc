@@ -25,6 +25,8 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const e
   regressionInputFile_ = cfg.getParameter<std::string>("regressionInputFile");
   recHitCollectionEBToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEB"));
   recHitCollectionEEToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEE"));
+  ecalTopoToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
   nameEnergyReg_ = cfg.getParameter<std::string>("nameEnergyReg");
   nameEnergyErrorReg_ = cfg.getParameter<std::string>("nameEnergyErrorReg");
   debug_ = cfg.getUntrackedParameter<bool>("debug");
@@ -87,13 +89,8 @@ RegressionEnergyPatElectronProducer::~RegressionEnergyPatElectronProducer() { de
 void RegressionEnergyPatElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   assert(regressionEvaluator_->isInitialized());
   if (!geomInitialized_) {
-    edm::ESHandle<CaloTopology> theCaloTopology;
-    setup.get<CaloTopologyRecord>().get(theCaloTopology);
-    ecalTopology_ = &(*theCaloTopology);
-
-    edm::ESHandle<CaloGeometry> theCaloGeometry;
-    setup.get<CaloGeometryRecord>().get(theCaloGeometry);
-    caloGeometry_ = &(*theCaloGeometry);
+    ecalTopology_ = &setup.getData(ecalTopoToken_);
+    caloGeometry_ = &setup.getData(caloGeomToken_);
     geomInitialized_ = true;
   }
 

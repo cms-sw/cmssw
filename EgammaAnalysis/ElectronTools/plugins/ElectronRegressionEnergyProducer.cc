@@ -57,6 +57,9 @@ private:
 
   edm::EDGetTokenT<reco::VertexCollection> hVertexToken_;
   edm::EDGetTokenT<double> hRhoKt6PFJetsToken_;
+
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> ecalTopoToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::ParameterSet& iConfig) {
@@ -74,6 +77,9 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
 
   hVertexToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   hRhoKt6PFJetsToken_ = consumes<double>(edm::InputTag("kt6PFJets", "rho"));
+
+  ecalTopoToken_ = esConsumes();
+  caloGeomToken_ = esConsumes();
 
   produces<edm::ValueMap<double> >(nameEnergyReg_);
   produces<edm::ValueMap<double> >(nameEnergyErrorReg_);
@@ -104,13 +110,8 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   assert(regressionEvaluator->isInitialized());
 
   if (!geomInitialized_) {
-    edm::ESHandle<CaloTopology> theCaloTopology;
-    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-    ecalTopology_ = &(*theCaloTopology);
-
-    edm::ESHandle<CaloGeometry> theCaloGeometry;
-    iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
-    caloGeometry_ = &(*theCaloGeometry);
+    ecalTopology_ = &(iSetup.getData(ecalTopoToken_));
+    caloGeometry_ = &(iSetup.getData(caloGeomToken_));
     geomInitialized_ = true;
   }
 
