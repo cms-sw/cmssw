@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2021Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials/2021/v2/materials.xml',
@@ -25,13 +22,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
         'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
         'Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml',
-        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/trackermaterial.xml',
+        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/trackermaterial.xml',
         'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/pixfwdMaterials.xml',
         'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/pixbarmaterial.xml',
-        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tibtidcommonmaterial.xml',
-        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tibmaterial.xml',
-        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tidmaterial.xml',
-        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tobmaterial.xml',
+        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tibtidcommonmaterial.xml',
+        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tibmaterial.xml',
+        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tidmaterial.xml',
+        'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tobmaterial.xml',
         'Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tecmaterial.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
         'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml',
