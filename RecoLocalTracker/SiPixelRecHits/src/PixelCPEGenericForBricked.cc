@@ -364,7 +364,8 @@ void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theCl
   //bool lowest_is_bricked = 1; //Tells you if the lowest pixel of the cluster is on a bricked row or not.
   //bool highest_is_bricked = 0;
 
-  int q_t_b = 0;  //Sums up the charge of the non-bricked pixels at the top of the clusters in the event that the highest pixel of the cluster is on a bricked row.
+  //Sums up the charge of the non-bricked pixels at the top of the clusters in the event that the highest pixel of the cluster is on a bricked row.
+  int q_t_b = 0;
   int q_t_nb = 0;
   int q_b_b = 0;
   int q_b_nb = 0;
