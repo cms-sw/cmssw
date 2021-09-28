@@ -100,6 +100,7 @@ if not options.inputFiles:
         skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
         deleteDatFiles = cms.untracked.bool(False),
         endOfRunKills  = cms.untracked.bool(endOfRunKills),
+        inputFileTransitionsEachEvent = cms.untracked.bool(False)
     )
 else:
     print("The list of input files is provided. Disabling discovery and running on everything.")

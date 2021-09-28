@@ -33,7 +33,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
 # DQM Modules
