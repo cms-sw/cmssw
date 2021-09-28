@@ -365,6 +365,52 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
+      // Use Run3 format digis for TMB firmwareVersion 2020
+      // and revision codes for MEx1 CCLUT, ME11 CCLUT/GEM
+      if (firmwareVersion >= 2020) {
+        bool isGEM_fw = false;
+        bool isCCLUT_HMT_fw = false;
+        bool isOTMB_Run2_fw = false;
+        bool isTMB_Run3_fw = false;
+        bool isTMB_Run2_fw = false;
+        bool isRun2_df = false;
+        unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
+        unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
+        // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
+        switch (df_version) {
+          case 0x3:
+            isGEM_fw = true;
+            break;
+          case 0x2:
+            isCCLUT_HMT_fw = true;
+            break;
+          case 0x1:
+            isOTMB_Run2_fw = true;
+            break;
+          case 0x0:
+            if (major_ver == 1)
+              isTMB_Run2_fw = true;
+            else
+              isTMB_Run3_fw = true;
+            break;
+          default:
+            isGEM_fw = true;
+        }
+        if (major_ver == 1) {
+          isRun2_df = true;
+        }
+        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
+          clct0 = CSCCLCTDigi(
+              1, 6, 6, 1, 0, (120 % 32), (120 / 32), 2, 1, 3, 0xebf, CSCCLCTDigi::Version::Run3, 1, 0, 2, 6);
+          clct1 = CSCCLCTDigi(
+              1, 6, 3, 1, 1, (132 % 32), (132 / 32), 2, 2, 3, 0xe54, CSCCLCTDigi::Version::Run3, 0, 1, 1, 15);
+          lct0 = CSCCorrelatedLCTDigi(
+              1, 1, 3, 85, 120, 6, 0, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, 1, 0, 2, 6);
+          lct1 = CSCCorrelatedLCTDigi(
+              2, 1, 2, 81, 132, 3, 1, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, 0, 1, 0, 15);
+        }
+      }
+
       CSCTMBHeader tmbHeader(firmwareVersion, firmwareRevision);
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
