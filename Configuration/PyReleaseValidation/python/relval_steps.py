@@ -3460,6 +3460,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp',
                                     '--filetype':'DQM',
                                     }
+                                    
+    upgradeStepDict['HARVESTRecNan'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
+                                          '--conditions':gt,
+                                          '--mc':'',
+                                          '--geometry' : geom,
+                                          '--scenario' : 'pp',
+                                          '--filetype':'DQM',
+                                          }
 
     upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
@@ -3501,6 +3509,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '-n':'10',
                                       '--eventcontent':'NANOEDMAODSIM,DQM',
                                       '--filein':'file:step3_inMINIAODSIM.root',
+                                      '--geometry' : geom
+                                      }
+
+    upgradeStepDict['RecNan'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@nanoAODDQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
                                       '--geometry' : geom
                                       }
                                       
