@@ -364,15 +364,21 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       continue;
 
     int aieta = abs(hcalTTDetId.ieta());
-    int tp_version = hcalTTDetId.version();
+
+    // The absence of TT channels in the HcalTPChannelParameters
+    // is intepreted as to not use the new filter
+    int weight = -1.0;
+    auto tpParam = conditions.getHcalTPChannelParameter(hcalTTDetId, false);
+    if (tpParam)
+      weight = tpParam->getauxi1();
 
     if (aieta <= lastHBRing) {
       foundHB = true;
-      if (tp_version > 1)
+      if (weight != -1.0)
         newHBtp = true;
     } else if (aieta > lastHBRing and aieta < lastHERing) {
       foundHE = true;
-      if (tp_version > 1)
+      if (weight != -1.0)
         newHEtp = true;
     }
   }
