@@ -1,9 +1,8 @@
 #ifndef STORAGE_FACTORY_STORAGE_H
 #define STORAGE_FACTORY_STORAGE_H
 
-#include "Utilities/StorageFactory/interface/IOInput.h"
-#include "Utilities/StorageFactory/interface/IOOutput.h"
 #include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "Utilities/StorageFactory/interface/IOBuffer.h"
 
 //
 // ROOT will probe for prefetching support by calling
@@ -18,7 +17,7 @@
 namespace edm::storage {
   constexpr int PREFETCH_PROBE_LENGTH = 4096;
 
-  class Storage : public IOInput, public IOOutput {
+  class Storage {
   public:
     enum Relative { SET, CURRENT, END };
 
@@ -28,12 +27,25 @@ namespace edm::storage {
     Storage(const Storage &) = delete;
     Storage &operator=(const Storage &) = delete;
 
-    ~Storage() override;
+    virtual ~Storage();
 
-    using IOInput::read;
-    using IOInput::readv;
-    using IOOutput::write;
-    using IOOutput::writev;
+    int read();
+    IOSize read(IOBuffer into);
+    virtual IOSize read(void *into, IOSize n) = 0;
+    virtual IOSize readv(IOBuffer *into, IOSize buffers);
+
+    IOSize xread(IOBuffer into);
+    IOSize xread(void *into, IOSize n);
+    IOSize xreadv(IOBuffer *into, IOSize buffers);
+
+    IOSize write(unsigned char byte);
+    IOSize write(IOBuffer from);
+    virtual IOSize write(const void *from, IOSize n) = 0;
+    virtual IOSize writev(const IOBuffer *from, IOSize buffers);
+
+    IOSize xwrite(const void *from, IOSize n);
+    IOSize xwrite(IOBuffer from);
+    IOSize xwritev(const IOBuffer *from, IOSize buffers);
 
     virtual bool prefetch(const IOPosBuffer *what, IOSize n);
     virtual IOSize read(void *into, IOSize n, IOOffset pos);
