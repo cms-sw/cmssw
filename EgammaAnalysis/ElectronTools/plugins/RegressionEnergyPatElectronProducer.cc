@@ -43,9 +43,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const e
   }
 
   if (inputCollectionType_ == 0 && !produceValueMaps_) {
-    std::cout << " You are running on GsfElectrons and the producer is not configured to produce ValueMaps with the "
-                 "results. In that case, it does not nothing !! "
-              << std::endl;
+    edm::LogPrint("RegressionEnergyPatElectronProducer") << " You are running on GsfElectrons and the producer is not configured to produce ValueMaps with the results. In that case, it does not nothing !! ";
   }
 
   if (inputCollectionType_ == 0) {
@@ -54,7 +52,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const e
     produces<pat::ElectronCollection>();
   } else {
     throw cms::Exception("InconsistentParameters")
-        << " inputCollectionType should be either 0 (GsfElectrons) or 1 (pat::Electrons) " << std::endl;
+        << " inputCollectionType should be either 0 (GsfElectrons) or 1 (pat::Electrons) " ;
   }
 
   //set regression type
@@ -81,7 +79,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer(const e
 
   geomInitialized_ = false;
 
-  std::cout << " Finished initialization " << std::endl;
+  edm::LogPrint("RegressionEnergyPatElectronProducer") << " Finished initialization " ;
 }
 
 RegressionEnergyPatElectronProducer::~RegressionEnergyPatElectronProducer() { delete regressionEvaluator_; }
@@ -159,10 +157,10 @@ void RegressionEnergyPatElectronProducer::produce(edm::Event& event, const edm::
   for (unsigned iele = 0; iele < nElectrons_; ++iele) {
     const reco::GsfElectron* ele = (inputCollectionType_ == 0) ? &(*gsfCollectionH)[iele] : &(*patCollectionH)[iele];
     if (debug_) {
-      std::cout << "***********************************************************************\n";
-      std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event()
+      edm::LogPrint("RegressionEnergyPatElectronProducer") << "***********************************************************************\n";
+      edm::LogPrint("RegressionEnergyPatElectronProducer") << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event()
                 << "\n";
-      std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
+      edm::LogPrint("RegressionEnergyPatElectronProducer") << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
     }
 
     pat::Electron* myPatElectron = (inputCollectionType_ == 0) ? nullptr : new pat::Electron((*patCollectionH)[iele]);
@@ -513,7 +511,7 @@ void RegressionEnergyPatElectronProducer::produce(edm::Event& event, const edm::
       energyValues.push_back(RegressionMomentum);
       energyErrorValues.push_back(RegressionMomentumError);
     } else {
-      std::cout << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
+      edm::LogPrint("RegressionEnergyPatElectronProducer") << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
     }
 
     if (inputCollectionType_ == 1) {

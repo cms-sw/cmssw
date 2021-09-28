@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,7 +21,7 @@
 // class declaration
 //
 
-class ElectronIdMVAProducer : public edm::EDFilter {
+class ElectronIdMVAProducer : public edm::stream::EDFilter<> {
 public:
   explicit ElectronIdMVAProducer(const edm::ParameterSet&);
   ~ElectronIdMVAProducer() override;

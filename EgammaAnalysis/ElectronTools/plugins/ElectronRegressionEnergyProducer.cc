@@ -5,13 +5,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class ElectronRegressionEnergyProducer : public edm::EDFilter {
+class ElectronRegressionEnergyProducer : public edm::stream::EDFilter<> {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
   ~ElectronRegressionEnergyProducer() override;
