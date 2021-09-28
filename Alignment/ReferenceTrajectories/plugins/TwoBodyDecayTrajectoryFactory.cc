@@ -93,9 +93,7 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::Paramete
 TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory() {}
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup,
-    const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
