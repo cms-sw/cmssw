@@ -84,7 +84,7 @@ while True:
       time.sleep(WAITTIME)
       continue
       
-    quota=long(diskSize*PRODUCER_DU_BOT/100)
+    quota=int(diskSize*PRODUCER_DU_BOT/100)
     delQuota=diskUsed-quota
     if delQuota > doneSize:
       now = time.time()
