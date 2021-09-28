@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
-//#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -71,7 +70,6 @@ private:
   long lastFitTime = 0;
   long lastModTime = 0;
   std::bitset<8> alive;
-  //  int idleTime = 0;
   int lsCount = 0;
   int currentLS = 0;
 
@@ -125,7 +123,6 @@ private:
   float Tilt[2];
 
   // tracker status
-  //  edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;
   edm::InputTag dcsRecordInputTag_;
   edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
