@@ -28,7 +28,6 @@ namespace SiPixelUtils {
                                  float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
                                  float size_cut               //!< Use edge when size == cuts
   ) {
-
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
     //--- The case of only one pixel in this projection is separate.  Note that
@@ -45,7 +44,6 @@ namespace SiPixelUtils {
     //--- Predicted charge width from geometry
     float w_pred = theThickness * cot_angle  // geometric correction (in cm)
                    - lorentz_shift;          // (in cm) &&& check fpix!
-
 
     //--- Total length of the two edge pixels (first+last)
     float sum_of_edge = 2.0f;
@@ -99,13 +97,11 @@ namespace SiPixelUtils {
       float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
       float size_cut               //!< Use edge when size == cuts
   ) {
-
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
     //--- The case of only one pixel in this projection is separate.  Note that
     //--- here first_pix == last_pix, so the average of the two is still the
     //--- center of the pixel.
-
 
     //--- Width of the clusters minus the edge (first and last) pixels.
     //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
@@ -114,7 +110,6 @@ namespace SiPixelUtils {
     //--- Predicted charge width from geometry
     float w_pred = theThickness * cot_angle  // geometric correction (in cm)
                    - lorentz_shift;          // (in cm) &&& check fpix!
-
 
     //--- Total length of the two edge pixels (first+last)
     float sum_of_edge = 2.0f;
