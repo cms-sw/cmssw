@@ -117,13 +117,10 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     isolator.fGetIsolation(&*aPho, &thePfColl, myVtxRef, vertexCollection);
 
     if (verbose_) {
-      edm::LogPrint("PhotonIsoProducer") << " run " << iEvent.id().run() 
-					 << " lumi " << iEvent.id().luminosityBlock() 
-					 << " event " << iEvent.id().event();
-      edm::LogPrint("PhotonIsoProducer") << " pt " << aPho->pt() 
-					 << " eta " << aPho->eta() 
-					 << " phi " << aPho->phi() 
-					 << " charge " << aPho->charge() << " : ";
+      edm::LogPrint("PhotonIsoProducer") << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock()
+                                         << " event " << iEvent.id().event();
+      edm::LogPrint("PhotonIsoProducer") << " pt " << aPho->pt() << " eta " << aPho->eta() << " phi " << aPho->phi()
+                                         << " charge " << aPho->charge() << " : ";
 
       edm::LogPrint("PhotonIsoProducer") << " ChargedIso " << isolator.getIsolationCharged();
       edm::LogPrint("PhotonIsoProducer") << " PhotonIso " << isolator.getIsolationPhoton();
