@@ -58,7 +58,11 @@ void HGCalTriggerNtupleManager::beginRun(const edm::Run& run, const edm::EventSe
 
 void HGCalTriggerNtupleManager::analyze(const edm::Event& e, const edm::EventSetup& es) {
   for (auto& hgc_ntuple : hgc_ntuples_) {
-    hgc_ntuple->fill(e, ntuple_es_);
+    if (hgc_ntuple->accessEventSetup()) {
+      hgc_ntuple->fill(e, es);
+    } else {
+      hgc_ntuple->fill(e, ntuple_es_);
+    }
   }
 
   tree_->Fill();

@@ -58,7 +58,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleGenTau, "HGCalTriggerNtupleGenTau");
 
-HGCalTriggerNtupleGenTau::HGCalTriggerNtupleGenTau(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleGenTau::HGCalTriggerNtupleGenTau(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleGenTau::initialize(TTree& tree,
                                           const edm::ParameterSet& conf,

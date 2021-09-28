@@ -62,7 +62,9 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCMulticlusters,
 HGCalTriggerNtupleHGCMulticlusters::HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
       fill_layer_info_(conf.getParameter<bool>("FillLayerInfo")),
-      fill_interpretation_info_(conf.getParameter<bool>("FillInterpretationInfo")) {}
+      fill_interpretation_info_(conf.getParameter<bool>("FillInterpretationInfo")) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
                                                     const edm::ParameterSet& conf,

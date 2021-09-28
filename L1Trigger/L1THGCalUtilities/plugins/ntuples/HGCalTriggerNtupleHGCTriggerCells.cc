@@ -83,7 +83,9 @@ HGCalTriggerNtupleHGCTriggerCells::HGCalTriggerNtupleHGCTriggerCells(const edm::
       keV2fC_(conf.getParameter<double>("keV2fC")),
       fcPerMip_(conf.getParameter<std::vector<double>>("fcPerMip")),
       layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
-      thicknessCorrections_(conf.getParameter<std::vector<double>>("thicknessCorrections")) {}
+      thicknessCorrections_(conf.getParameter<std::vector<double>>("thicknessCorrections")) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
                                                    const edm::ParameterSet& conf,

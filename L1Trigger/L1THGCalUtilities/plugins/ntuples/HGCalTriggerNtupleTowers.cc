@@ -26,8 +26,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTowers, "HGCalTriggerNtupleHGCTowers");
 
-HGCalTriggerNtupleHGCTowers::HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleHGCTowers::HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCTowers::initialize(TTree& tree,
                                              const edm::ParameterSet& conf,

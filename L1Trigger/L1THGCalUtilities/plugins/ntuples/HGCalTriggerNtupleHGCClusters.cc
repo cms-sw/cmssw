@@ -39,7 +39,9 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCClusters, "HGC
 
 HGCalTriggerNtupleHGCClusters::HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
-      filter_clusters_in_multiclusters_(conf.getParameter<bool>("FilterClustersInMulticlusters")) {}
+      filter_clusters_in_multiclusters_(conf.getParameter<bool>("FilterClustersInMulticlusters")) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCClusters::initialize(TTree& tree,
                                                const edm::ParameterSet& conf,
