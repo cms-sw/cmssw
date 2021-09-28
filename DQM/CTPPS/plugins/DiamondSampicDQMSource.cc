@@ -75,7 +75,6 @@ private:
   static const double INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
   static const double SAMPIC_ADC_V;
 
-
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> tokenLocalTrack_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingDigi>> tokenDigi_;
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingRecHit>> tokenRecHit_;
@@ -89,7 +88,7 @@ private:
   unsigned int trackCorrelationThreshold_;
   edm::TimeValue_t timeOfPreviousEvent_;
 
-  std::unordered_map<unsigned int,double> horizontalShiftOfDiamond_;
+  std::unordered_map<unsigned int, double> horizontalShiftOfDiamond_;
 
   /// plots related to the whole system
   struct GlobalPlots {
@@ -102,7 +101,7 @@ private:
   GlobalPlots globalPlot_;
 
   struct SectorPlots {
-  // Tracks
+    // Tracks
     MonitorElement *trackCorrelation = nullptr;
     MonitorElement *trackCorrelationLowMultiplicity = nullptr;
     MonitorElement *digiSentPercentage = nullptr;
@@ -204,8 +203,8 @@ const double DiamondSampicDQMSource::SAMPIC_ADC_V = 1. / 256;
 
 DiamondSampicDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker) {
   ibooker.setCurrentFolder("CTPPS/DiamondSampic");
-    digiSentPercentage = ibooker.book2D(
-        "sent digis percentage", "sent digis percentage (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
+  digiSentPercentage = ibooker.book2D(
+      "sent digis percentage", "sent digis percentage (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -217,25 +216,32 @@ DiamondSampicDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker &ibooker, uns
 
   CTPPSDiamondDetId(id).armName(title, CTPPSDiamondDetId::nFull);
 
-  trackCorrelation = ibooker.book2D( "tracks correlation near-far", title+" tracks correlation near-far;x (mm);x (mm)",
-                                             19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                                             -1,
-                                             18,
-                                             19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                                             -1,
-                                             18);
-  trackCorrelationLowMultiplicity= ibooker.book2D( "tracks correlation low multiplicity<3 near-far", title+" tracks correlation low multiplicity<3 near-far;x (mm);x (mm)",
-                                             19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                                             -1,
-                                             18,
-                                             19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                                             -1,
-                                             18);
-  if(plotOnline)
-    digiSentPercentage = ibooker.book2D(
-          "sent digis percentage", title+" sent digis percentage (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
-
-
+  trackCorrelation = ibooker.book2D("tracks correlation near-far",
+                                    title + " tracks correlation near-far;x (mm);x (mm)",
+                                    19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                                    -1,
+                                    18,
+                                    19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                                    -1,
+                                    18);
+  trackCorrelationLowMultiplicity =
+      ibooker.book2D("tracks correlation low multiplicity<3 near-far",
+                     title + " tracks correlation low multiplicity<3 near-far;x (mm);x (mm)",
+                     19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                     -1,
+                     18,
+                     19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                     -1,
+                     18);
+  if (plotOnline)
+    digiSentPercentage = ibooker.book2D("sent digis percentage",
+                                        title + " sent digis percentage (sampic);board + 0.5 sampic;channel",
+                                        14,
+                                        -0.5,
+                                        6.5,
+                                        16,
+                                        0,
+                                        16);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -268,17 +274,19 @@ DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned 
                                              18.5);
 
   recHitTime = ibooker.book1D("recHit time", title + " recHit time; t (ns)", 500, -25, 25);
-  trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)",19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18 );    //TODO needs tracks
+  trackDistribution = ibooker.book1D(
+      "tracks", title + " tracks;x (mm)", 19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -1, 18);  //TODO needs tracks
 
-  if(plotOnline){
-    hitDistribution2d_lumisection = ibooker.book2D("hits in planes lumisection",
-                                                 title + " hits in planes in the last lumisection;plane number;x (mm)",
-                                                 18,
-                                                 -0.5,
-                                                 4,
-                                                 15. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
-                                                 0,
-                                                 15);
+  if (plotOnline) {
+    hitDistribution2d_lumisection =
+        ibooker.book2D("hits in planes lumisection",
+                       title + " hits in planes in the last lumisection;plane number;x (mm)",
+                       18,
+                       -0.5,
+                       4,
+                       15. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+                       0,
+                       15);
     triggerCellTime = ibooker.book1D("trigger cell time", title + " Trigger Cell Time; t (ns)", 390, -25, 25);
     activityPerBX = ibooker.book1D("activity per BX CMS", title + " Activity per BX;Event.BX", 3600, -1.5, 3598. + 0.5);
     amplitude = ibooker.book1D("amplitude", title + " amplitude above baseline; amplitude (V)", 50, 0, 1);
@@ -289,8 +297,11 @@ DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned 
 
     //hitRate = ibooker.book2D("hit rate", title + " hit rate (Hz);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-    planesWithDigis = ibooker.book1D(
-        "active planes digis", title + " active planes with digis sent (per event);number of active planes", 6, -0.5, 5.5);
+    planesWithDigis = ibooker.book1D("active planes digis",
+                                     title + " active planes with digis sent (per event);number of active planes",
+                                     6,
+                                     -0.5,
+                                     5.5);
     planesWithTime = ibooker.book1D(
         "active planes with time", title + " active planes with time (per event);number of active planes", 6, -0.5, 5.5);
 
@@ -299,8 +310,8 @@ DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned 
     baseline = ibooker.book2D("baseline", title + " baseline (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
     noiseRMS = ibooker.book2D("noise RMS", title + " noise RMS (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
 
-    digiSent =
-        ibooker.book2D("digis sent", title + " digi sent (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
+    digiSent = ibooker.book2D(
+        "digis sent", title + " digi sent (sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
     digiAll =
         ibooker.book2D("all digis", title + " all digis(sampic);board + 0.5 sampic;channel", 14, -0.5, 6.5, 16, 0, 16);
     digiSentPercentage = ibooker.book2D("sent digis percentage",
@@ -312,7 +323,6 @@ DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned 
                                         0,
                                         16);
   }
-
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -358,7 +368,6 @@ DiamondSampicDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, u
 
   //hitTime = ibooker.book1D("hit time", title + "hit time;t - t_previous (us)", 100, 0, 10000);
   //hitRate = ibooker.book1D("hit rate", title + "hit rate;rate (Hz)", 100, 0, 10000);
-
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -374,9 +383,7 @@ DiamondSampicDQMSource::DiamondSampicDQMSource(const edm::ParameterSet &ps)
       plotOnline_(ps.getUntrackedParameter<bool>("plotOnline", true)),
       perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       trackCorrelationThreshold_(ps.getUntrackedParameter<unsigned int>("trackCorrelationThreshold", 3)),
-      timeOfPreviousEvent_(0) {
-
-}
+      timeOfPreviousEvent_(0) {}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -389,24 +396,25 @@ void DiamondSampicDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventS
   edm::ESHandle<CTPPSGeometry> geometry_;
   iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
   const CTPPSGeometry *geom = geometry_.product();
-  for(auto it=geom->beginSensor();it!=geom->endSensor();it++){
+  for (auto it = geom->beginSensor(); it != geom->endSensor(); it++) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
 
     const DetGeomDesc *det = geom->sensorNoThrow(detid);
-    if(det)
+    if (det)
       horizontalShiftOfDiamond_[detid.rpId()] = det->translation().x() - det->getDiamondDimensions().xHalfWidth;
     else
-      edm::LogProblem("DiamondSampicCalibrationDQMSource") <<"ERROR: no descriptor for detId";
+      edm::LogProblem("DiamondSampicCalibrationDQMSource") << "ERROR: no descriptor for detId";
   }
   //horizontalShiftOfDiamond_=0;//unlock the shift
-
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &iSetup) {
+void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
+                                            const edm::Run &,
+                                            const edm::EventSetup &iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
@@ -418,17 +426,17 @@ void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker, const ed
       continue;
     const CTPPSDiamondDetId detid(it->first);
 
-    sectorPlots_[detid.armId()]=SectorPlots(ibooker,detid.armId(),plotOnline_);
+    sectorPlots_[detid.armId()] = SectorPlots(ibooker, detid.armId(), plotOnline_);
 
     const CTPPSDiamondDetId rpId(detid.arm(), detid.station(), detid.rp());
-    potPlots_[rpId] = PotPlots(ibooker, rpId,plotOnline_);
+    potPlots_[rpId] = PotPlots(ibooker, rpId, plotOnline_);
 
-    if(plotOnline_){
+    if (plotOnline_) {
       globalPlot_ = GlobalPlots(ibooker);
-      const CTPPSDiamondDetId plId(detid.arm(), detid.station(), detid.rp(),detid.plane());
+      const CTPPSDiamondDetId plId(detid.arm(), detid.station(), detid.rp(), detid.plane());
       planePlots_[plId] = PlanePlots(ibooker, plId);
 
-      const CTPPSDiamondDetId chId(detid.arm(), detid.station(), detid.rp(),detid.plane(),detid.channel());
+      const CTPPSDiamondDetId chId(detid.arm(), detid.station(), detid.rp(), detid.plane(), detid.channel());
       channelPlots_[chId] = ChannelPlots(ibooker, chId);
     }
   }
@@ -437,10 +445,10 @@ void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker, const ed
 //----------------------------------------------------------------------------------------------------
 
 std::shared_ptr<totemds::Cache> DiamondSampicDQMSource::globalBeginLuminosityBlock(const edm::LuminosityBlock &,
-                                                                                 const edm::EventSetup &) const {
+                                                                                   const edm::EventSetup &) const {
   auto d = std::make_shared<totemds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
-  if (!perLSsaving_&&plotOnline_)
+  if (!perLSsaving_ && plotOnline_)
     for (auto &plot : potPlots_)
       d->hitDistribution2dMap[plot.first] =
           std::unique_ptr<TH2F>(static_cast<TH2F *>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
@@ -474,15 +482,16 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
 
   if (!valid) {
     if (verbosity_) {
-      edm::LogProblem("DiamondSampicDQMSource") << "ERROR in DiamondSampicDQMSource::analyze > some of the required inputs "
-                                                 "are not valid. Skipping this event.\n"
-                                              << "    timingDigis.isValid = " << timingDigis.isValid() << "\n"
-                                              << "    fedInfo.isValid = " << fedInfo.isValid();
+      edm::LogProblem("DiamondSampicDQMSource")
+          << "ERROR in DiamondSampicDQMSource::analyze > some of the required inputs "
+             "are not valid. Skipping this event.\n"
+          << "    timingDigis.isValid = " << timingDigis.isValid() << "\n"
+          << "    fedInfo.isValid = " << fedInfo.isValid();
     }
 
     return;
   }
-  
+
   // Using TotemTimingDigi
   std::set<uint8_t> boardSet;
   std::unordered_map<unsigned int, unsigned int> channelsPerPlane;
@@ -497,17 +506,18 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
     detId_pot.setChannel(0);
     CTPPSDiamondDetId detId_plane(digis.detId());
     detId_plane.setChannel(0);
-    
+
     for (const auto &digi : digis) {
       // Pot Plots
       if (potPlots_.find(detId_pot) != potPlots_.end()) {
         potPlots_[detId_pot].digiDistribution->Fill(detId.plane(), detId.channel());
 
-        if(plotOnline_){
+        if (plotOnline_) {
           potPlots_[detId_pot].activityPerBX->Fill(event.bunchCrossing());
 
-          for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it){
-            potPlots_[detId_pot].dataSamplesRaw->Fill(*it);}
+          for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it) {
+            potPlots_[detId_pot].dataSamplesRaw->Fill(*it);
+          }
 
           float boardId = digi.eventInfo().hardwareBoardId() + 0.5 * digi.eventInfo().hardwareSampicId();
           potPlots_[detId_pot].digiSent->Fill(boardId, digi.hardwareChannelId());
@@ -522,12 +532,12 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
               }
             }
           }
-        
+
           potPlots_[detId_pot].planesWithDigisSet.insert(detId.plane());
         }
       }
 
-      if(plotOnline_){
+      if (plotOnline_) {
         // Plane Plots
         if (planePlots_.find(detId_plane) != planePlots_.end()) {
           planePlots_[detId_plane].digiDistribution->Fill(detId.channel());
@@ -555,7 +565,7 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
           //                                      (event.time().value() - timeOfPreviousEvent_));
           ++(lumiCache->hitsCounterMap[detId]);
         }
-      } 
+      }
     }
   }
   // End digis
@@ -570,30 +580,31 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
 
     for (const auto &rechit : rechits) {
       if (potPlots_.find(detId_pot) != potPlots_.end()) {
-
         float UFSDShift = 0.0;
         if (rechit.yWidth() < 3)
-          UFSDShift = 0.5; 
+          UFSDShift = 0.5;
 
-        TH2F* hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
-        TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
+        TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
+        TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
+        int startBin =
+            hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i){ 
-          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
-          if (!perLSsaving_&&plotOnline_)
-            potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
+        for (int i = 0; i < numOfBins; ++i) {
+          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + UFSDShift,
+                                                       hitHistoTmpYAxis->GetBinCenter(startBin + i));
+          if (!perLSsaving_ && plotOnline_)
+            potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(detId.plane() + UFSDShift,
+                                                                     hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
-        
         //All plots with Time
         if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
           for (int i = 0; i < numOfBins; ++i)
             potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + UFSDShift,
-                                                                  hitHistoTmpYAxis->GetBinCenter(startBin + i));
+                                                                 hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
           potPlots_[detId_pot].recHitTime->Fill(rechit.time());
-          if(plotOnline_){
+          if (plotOnline_) {
             potPlots_[detId_pot].amplitude->Fill(rechit.amplitude());
             potPlots_[detId_pot].planesWithTimeSet.insert(detId.plane());
 
@@ -601,11 +612,11 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
             if (planePlots_.find(detId_plane) != planePlots_.end()) {
               TH1F *hitProfileHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
               int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-              int startBin = hitProfileHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
+              int startBin = hitProfileHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] -
+                                                         0.5 * rechit.xWidth());
               numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
               for (int i = 0; i < numOfBins; ++i)
                 hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(startBin + i));
-
 
               if (channelsPerPlaneWithTime.find(detId_plane) != channelsPerPlaneWithTime.end())
                 channelsPerPlaneWithTime[detId_plane]++;
@@ -627,19 +638,19 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
   // End RecHits
 
   // Using CTPPSDiamondLocalTrack
-  for (const auto& tracks : *timingLocalTracks) {
+  for (const auto &tracks : *timingLocalTracks) {
     CTPPSDiamondDetId detId_pot(tracks.detId());
     detId_pot.setPlane(0);
     detId_pot.setChannel(0);
     const CTPPSDiamondDetId detId_near(tracks.detId());
 
-    for (const auto& track : tracks) {
+    for (const auto &track : tracks) {
       if (!track.isValid())
         continue;
       if (potPlots_.find(detId_pot) == potPlots_.end())
         continue;
 
-      TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
+      TH1F *trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
       int startBin = trackHistoInTimeTmp->FindBin(track.x0() - horizontalShiftOfDiamond_[detId_pot] - track.x0Sigma());
       int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
       for (int i = 0; i < numOfBins; ++i) {
@@ -647,34 +658,37 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
       }
 
       //this plot was made with 2 stations per arm in mind
-      for(const auto& tracks_far : *timingLocalTracks){
+      for (const auto &tracks_far : *timingLocalTracks) {
         CTPPSDiamondDetId detId_far(tracks_far.detId());
         detId_far.setPlane(0);
         detId_far.setChannel(0);
-        if(detId_near.arm()!=detId_far.arm()||detId_near.station()==detId_far.station())
+        if (detId_near.arm() != detId_far.arm() || detId_near.station() == detId_far.station())
           continue;
-        for (const auto& track_far : tracks_far) {
+        for (const auto &track_far : tracks_far) {
           if (!track.isValid())
             continue;
           if (sectorPlots_.find(detId_far.armId()) == sectorPlots_.end())
             continue;
-          TH2F* trackHistoTmp = sectorPlots_[detId_far.armId()].trackCorrelation->getTH2F();
-          TAxis* trackHistoTmpXAxis = trackHistoTmp->GetXaxis();
-          TAxis* trackHistoTmpYAxis = trackHistoTmp->GetYaxis();
-          int startBin_far = trackHistoTmpYAxis->FindBin(track_far.x0() - horizontalShiftOfDiamond_[detId_far] - track_far.x0Sigma());
+          TH2F *trackHistoTmp = sectorPlots_[detId_far.armId()].trackCorrelation->getTH2F();
+          TAxis *trackHistoTmpXAxis = trackHistoTmp->GetXaxis();
+          TAxis *trackHistoTmpYAxis = trackHistoTmp->GetYaxis();
+          int startBin_far =
+              trackHistoTmpYAxis->FindBin(track_far.x0() - horizontalShiftOfDiamond_[detId_far] - track_far.x0Sigma());
           int numOfBins_far = 2 * track_far.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i) {
-            for (int y = 0; y < numOfBins_far; ++y){ 
-              trackHistoTmp->Fill(trackHistoTmpXAxis->GetBinCenter(startBin + i),trackHistoTmpYAxis->GetBinCenter(startBin_far+y));
-              if(tracks.size()<3&&tracks_far.size()<trackCorrelationThreshold_)
-                sectorPlots_[detId_far.armId()].trackCorrelationLowMultiplicity->Fill(trackHistoTmpXAxis->GetBinCenter(startBin + i),trackHistoTmpYAxis->GetBinCenter(startBin_far+y));
+            for (int y = 0; y < numOfBins_far; ++y) {
+              trackHistoTmp->Fill(trackHistoTmpXAxis->GetBinCenter(startBin + i),
+                                  trackHistoTmpYAxis->GetBinCenter(startBin_far + y));
+              if (tracks.size() < 3 && tracks_far.size() < trackCorrelationThreshold_)
+                sectorPlots_[detId_far.armId()].trackCorrelationLowMultiplicity->Fill(
+                    trackHistoTmpXAxis->GetBinCenter(startBin + i), trackHistoTmpYAxis->GetBinCenter(startBin_far + y));
             }
           }
         }
       }
     }
   }
-  if(plotOnline_){
+  if (plotOnline_) {
     for (auto &plt : potPlots_) {
       plt.second.planesWithDigis->Fill(plt.second.planesWithDigisSet.size());
       plt.second.planesWithDigisSet.clear();
@@ -682,13 +696,11 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
       plt.second.planesWithTimeSet.clear();
     }
 
-  
-    for (const auto &plt : channelsPerPlane) 
+    for (const auto &plt : channelsPerPlane)
       planePlots_[plt.first].hitMultiplicity->Fill(plt.second);
-    
-    for (const auto &plt : channelsPerPlaneWithTime) 
+
+    for (const auto &plt : channelsPerPlaneWithTime)
       planePlots_[plt.first].hitMultiplicityWithTime->Fill(plt.second);
-    
   }
   timeOfPreviousEvent_ = event.time().value();
 }
@@ -697,11 +709,11 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
 
 void DiamondSampicDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &iLumi, const edm::EventSetup &) {
   auto lumiCache = luminosityBlockCache(iLumi.index());
-  if (!perLSsaving_&&plotOnline_){
+  if (!perLSsaving_ && plotOnline_) {
     for (auto &plot : potPlots_)
       *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
     globalPlot_.digiSentPercentage->Reset();
-    for(auto &plot:sectorPlots_)
+    for (auto &plot : sectorPlots_)
       plot.second.digiSentPercentage->Reset();
     TH2F *hitHistoGlobalTmp = globalPlot_.digiSentPercentage->getTH2F();
     for (auto &plot : potPlots_) {
