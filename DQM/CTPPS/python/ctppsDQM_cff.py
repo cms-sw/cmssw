@@ -57,7 +57,7 @@ dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
-  + ctppsDiamondDQMSource
+  + ctppsDiamondDQMOfflineSource
   + totemTimingDQMSource
   + ctppsCommonDQMSourceOffline
 )
