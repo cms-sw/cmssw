@@ -28,7 +28,6 @@ namespace SiPixelUtils {
                                  float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
                                  float size_cut               //!< Use edge when size == cuts
   ) {
-    //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
 
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
@@ -47,7 +46,6 @@ namespace SiPixelUtils {
     float w_pred = theThickness * cot_angle  // geometric correction (in cm)
                    - lorentz_shift;          // (in cm) &&& check fpix!
 
-    //cout<<" in PixelCPEGeneric:generic_position_formula - "<<w_inner<<" "<<w_pred<<endl; //dk
 
     //--- Total length of the two edge pixels (first+last)
     float sum_of_edge = 2.0f;
@@ -78,7 +76,6 @@ namespace SiPixelUtils {
     if (q_sum == 0)
       q_sum = 1.0f;
 
-    //float hit_pos = geom_center + 0.5f*(q_diff/q_sum) * w_eff + half_lorentz_shift;
     float hit_pos = geom_center + 0.5f * (q_diff / q_sum) * w_eff;
 
     return hit_pos;
@@ -102,7 +99,6 @@ namespace SiPixelUtils {
       float eff_charge_cut_high,   //!< Use edge if < w_eff  &&&
       float size_cut               //!< Use edge when size == cuts
   ) {
-    //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
 
     float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
@@ -110,10 +106,6 @@ namespace SiPixelUtils {
     //--- here first_pix == last_pix, so the average of the two is still the
     //--- center of the pixel.
 
-    //Make use of the bricked geometry, comment this out
-    //if (size == 1) {
-    //return geom_center;
-    //}
 
     //--- Width of the clusters minus the edge (first and last) pixels.
     //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
@@ -123,7 +115,6 @@ namespace SiPixelUtils {
     float w_pred = theThickness * cot_angle  // geometric correction (in cm)
                    - lorentz_shift;          // (in cm) &&& check fpix!
 
-    //cout<<" in PixelCPEGeneric:generic_position_formula - "<<w_inner<<" "<<w_pred<<endl; //dk
 
     //--- Total length of the two edge pixels (first+last)
     float sum_of_edge = 2.0f;
@@ -156,7 +147,6 @@ namespace SiPixelUtils {
     if (q_sum == 0)
       q_sum = 1.0f;
 
-    //float hit_pos = geom_center + 0.5f*(q_diff/q_sum) * w_eff + half_lorentz_shift;
     float hit_pos =
         geom_center + 0.5f * (q_diff / q_sum) * w_eff + 0.5f * (q_b_corr / q_sum) * w_eff;  //bricked correction
 
