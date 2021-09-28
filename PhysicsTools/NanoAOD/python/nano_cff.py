@@ -157,7 +157,7 @@ def nanoAOD_recalibrateMETs(process,isData):
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
     process.deepMETsResolutionTune = process.deepMETProducer.clone()
     process.deepMETsResponseTune = process.deepMETProducer.clone()
-    process.deepMETsResponseTune.graph_path = ResponseTune_Graph.value()
+    process.deepMETsResponseTune.graph_path = nanoAOD_DeepMET_switch.ResponseTune_Graph.value()
 
     runMetCorAndUncFromMiniAOD(process,isData=isData)
     process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetSequence))
