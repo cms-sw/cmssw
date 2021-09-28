@@ -173,7 +173,6 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
 
 const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory() const {
   if (!theBzeroFactory) {
-    const edm::ParameterSet &myPset = this->configuration();
     edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
                               << "Using BzeroReferenceTrajectoryFactory for some (all?) events.";
   }
