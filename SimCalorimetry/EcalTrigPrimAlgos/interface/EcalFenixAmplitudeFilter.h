@@ -24,7 +24,7 @@ private:
   int weights_[5];
   int shift_;
   int setInput(int input, int fgvb);
-  void process();
+  void process(int i);
   bool tpInfoPrintout_;
 
   int processedOutput_;

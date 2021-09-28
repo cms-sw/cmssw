@@ -37,11 +37,8 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    if (i >= 4 && tpInfoPrintout_) {
-      std::cout << i << std::dec;
-    }
     setInput(addout[i]);
-    process();
+    process(i);
     output[i] = processedOutput_;
   }
   // shift the result by 1!
@@ -55,7 +52,7 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
   return;
 }
 
-void EcalFenixOddAmplitudeFilter::process() {
+void EcalFenixOddAmplitudeFilter::process(int i) {
   processedOutput_ = 0;
   if (inputsAlreadyIn_ < 5)
     return;
@@ -72,20 +69,14 @@ void EcalFenixOddAmplitudeFilter::process() {
   processedOutput_ = output;
 
   if (tpInfoPrintout_) {
-    std::cout << " " << stripid_;
-    for (int i = 0; i < 5; i++) {
-      std::cout << " " << weights_[i] << std::dec;
-    }
-    for (int i = 0; i < 5; i++) {
-      std::cout << " " << weights_[i] / 64.0 << std::dec;
-    }
-    for (int i = 0; i < 5; i++) {
-      std::cout << " " << buffer_[i] << std::dec;
-    }  // Digis
-    std::cout << " --> output: " << output;
-    std::cout << " ODD";
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG") << i << " " << stripid_ 
+                                << " " << weights_[0] << " " << weights_[1] << " " << weights_[2] << " " << weights_[3] << " " << weights_[4] << " " 
+                                << " " << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0 << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 << " " 
+                                << " " << buffer_[0] << " " << buffer_[1] << " " << buffer_[2]  << " " << buffer_[3] << " " << buffer_[4]
+                                << " --> output: " << output << " ODD"; 
+    
   }
+
 }
 
 void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
