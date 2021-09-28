@@ -14,6 +14,7 @@
 static std::once_flag davixDebugInit;
 
 using namespace Davix;
+using namespace edm::storage;
 
 DavixFile::DavixFile(void) {}
 
