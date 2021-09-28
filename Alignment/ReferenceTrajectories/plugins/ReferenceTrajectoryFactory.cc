@@ -44,7 +44,6 @@ protected:
   bool theUseBzeroIfFieldOff;
   //edm::ParameterSet pset;
   mutable const TrajectoryFactoryBase *theBzeroFactory;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,23 +55,20 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const edm::ParameterSet &
       m_MagFieldToken(iC.esConsumes()),
       theMass(config.getParameter<double>("ParticleMass")),
       theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
-      theBzeroFactory(nullptr){
+      theBzeroFactory(nullptr) {
   edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
                             << "mass: " << theMass
                             << "\nusing Bzero if |B| = 0: " << (theUseBzeroIfFieldOff ? "yes" : "no");
-    // We take the config of this factory, copy it, replace its name and add 
-    // the momentum parameter as expected by BzeroReferenceTrajectoryFactory and create it: 
-    //
-    edm::ParameterSet pset;
-    pset.copyForModify(config);
-    // next two lines not needed, but may help to better understand log file:
-    pset.eraseSimpleParameter("TrajectoryFactoryName");
-    pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
-    pset.addParameter("MomentumEstimate", config.getParameter<double>("MomentumEstimateFieldOff"));
-    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
-
-
-
+  // We take the config of this factory, copy it, replace its name and add
+  // the momentum parameter as expected by BzeroReferenceTrajectoryFactory and create it:
+  //
+  edm::ParameterSet pset;
+  pset.copyForModify(config);
+  // next two lines not needed, but may help to better understand log file:
+  pset.eraseSimpleParameter("TrajectoryFactoryName");
+  pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
+  pset.addParameter("MomentumEstimate", config.getParameter<double>("MomentumEstimateFieldOff"));
+  theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, iC);
 }
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other)
@@ -85,9 +81,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
 ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory(void) { delete theBzeroFactory; }
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup,
-    const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0., 0., 0.)).mag2() < 1.e-6) {

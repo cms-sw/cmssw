@@ -63,9 +63,7 @@ DualTrajectoryFactory::DualTrajectoryFactory(const edm::ParameterSet &config, ed
 DualTrajectoryFactory::~DualTrajectoryFactory(void) {}
 
 const DualTrajectoryFactory::ReferenceTrajectoryCollection DualTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup,
-    const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
   const MagneticField *magneticField = &setup.getData(m_MagFieldToken);

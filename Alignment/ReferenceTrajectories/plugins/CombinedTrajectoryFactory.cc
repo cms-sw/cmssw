@@ -75,9 +75,7 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory(const edm::ParameterSet &co
 CombinedTrajectoryFactory::~CombinedTrajectoryFactory(void) {}
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection CombinedTrajectoryFactory::trajectories(
-    const edm::EventSetup &setup,
-    const ConstTrajTrackPairCollection &tracks,
-    const reco::BeamSpot &beamSpot) const {
+    const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories;  // outside loop for efficiency
 
