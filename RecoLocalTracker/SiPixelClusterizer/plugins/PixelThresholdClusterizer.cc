@@ -224,7 +224,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
   }
 #endif
 
-  //If called with empty / invalid DetSet, warn the user
+  //If called with empty/invalid DetSet, warn the user
   if (end <= begin) {
     edm::LogWarning("PixelThresholdClusterizer") << " copy_to_buffer called with empty or invalid range" << std::endl;
     return;
