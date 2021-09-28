@@ -209,7 +209,7 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
 
   bits.MPC_Muon0_lct_vpf = digi.isValid();
   bits.MPC_Muon0_alct_key_wire = digi.getKeyWG();
-  bits.MPC_Muon0_clct_key_halfstrip = digi.getStrip(2) & 0x7F;
+  bits.MPC_Muon0_clct_key_halfstrip = digi.getStrip(2) & 0xFF;
   bits.MPC_Muon0_clct_QuarterStrip = digi.getQuartStripBit() & 0x1;
   bits.MPC_Muon0_clct_EighthStrip = digi.getEighthStripBit() & 0x1;
   bits.MPC_Muon0_lct_quality = digi.getQuality() & 0x7;
@@ -234,7 +234,7 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
 
   bits.MPC_Muon1_lct_vpf = digi.isValid();
   bits.MPC_Muon1_alct_key_wire = digi.getKeyWG();
-  bits.MPC_Muon1_clct_key_halfstrip = digi.getStrip(2) & 0x7F;
+  bits.MPC_Muon1_clct_key_halfstrip = digi.getStrip(2) & 0xFF;
   bits.MPC_Muon1_clct_QuarterStrip = digi.getQuartStripBit() & 0x1;
   bits.MPC_Muon1_clct_EighthStrip = digi.getEighthStripBit() & 0x1;
   bits.MPC_Muon1_lct_quality = digi.getQuality() & 0x7;
