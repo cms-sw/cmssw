@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software.
+ * This is a part of CTPPSDQM software.
  * Authors:
  *   Christopher Misan
  *   Nicola Minafra
