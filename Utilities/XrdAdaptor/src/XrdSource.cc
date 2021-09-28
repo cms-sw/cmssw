@@ -90,51 +90,34 @@ class QueryAttrHandler : public XrdCl::ResponseHandler
     friend std::unique_ptr<QueryAttrHandler> std::make_unique<QueryAttrHandler>();
 
 public:
+  QueryAttrHandler() = delete;
+  ~QueryAttrHandler() override = default;
+  QueryAttrHandler(const QueryAttrHandler &) = delete;
+  QueryAttrHandler &operator=(const QueryAttrHandler &) = delete;
 
-    ~QueryAttrHandler() override = default;
-    QueryAttrHandler(const QueryAttrHandler&) = delete;
-    QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
+  QueryAttrHandler(const std::string &url) : m_fs(url) {}
 
+  static XrdCl::XRootDStatus query(const std::string &url,
+                                   const std::string &attr,
+                                   std::chrono::milliseconds timeout,
+                                   std::string &result) {
+    auto handler = std::make_unique<QueryAttrHandler>(url);
+    auto l_state = std::make_shared<QueryAttrState>();
+    handler->m_state = l_state;
+    XrdCl::Buffer arg(attr.size());
+    arg.FromString(attr);
 
-    static XrdCl::XRootDStatus query(XrdCl::FileSystem &fs, const std::string &attr, std::chrono::milliseconds timeout, std::string &result)
-    {
-        auto handler = std::make_unique<QueryAttrHandler>();
-        auto l_state = std::make_shared<QueryAttrState>();
-        handler->m_state = l_state;
-        XrdCl::Buffer arg(attr.size());
-        arg.FromString(attr);
-
-        XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
-        if (!st.IsOK())
-        {
-            return st;
-        }
-
-        // Successfully registered the callback; it will always delete itself, so we shouldn't.
-        handler.release();
-
-        std::unique_lock<std::mutex> guard(l_state->m_mutex);
-        // Wait until some status is available or a timeout.
-        l_state->m_condvar.wait_for(guard, timeout, [&]{return l_state->m_status.get();});
-
-        if (l_state->m_status)
-        {
-            if (l_state->m_status->IsOK())
-            {
-                result = l_state->m_response->ToString();
-            }
-            return *(l_state->m_status);
-        }
-        else
-        {   // We had a timeout; construct a reasonable message.
-            return XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errSocketTimeout, 1, "Timeout when waiting for query callback.");
-        }
+    XrdCl::XRootDStatus st = handler->m_fs.Query(XrdCl::QueryCode::Config, arg, handler.get());
+    if (!st.IsOK()) {
+      return st;
     }
 
 
 private:
-
-    QueryAttrHandler() {}
+  void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override {
+    // NOTE: we own the status and response pointers.
+    std::unique_ptr<XrdCl::AnyObject> response_mgr;
+    response_mgr.reset(response);
 
 
     void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
@@ -169,21 +152,12 @@ private:
     }
 
 
-    // Represents the current state of the callback.  The parent class only manages a weak_ptr
-    // to the state.  If the asynchronous callback cannot lock the weak_ptr, then it assumes the
-    // main thread has given up and doesn't touch any of the state variables.
-    struct QueryAttrState {
-
-        // Synchronize between the callback thread and the main thread; condvar predicate
-        // is having m_status set.  m_mutex protects m_status.
-        std::mutex m_mutex;
-        std::condition_variable m_condvar;
-
-        // Results from the server
-        std::unique_ptr<XrdCl::XRootDStatus> m_status;
-        std::unique_ptr<XrdCl::Buffer> m_response;
-    };
-    std::weak_ptr<QueryAttrState> m_state;
+    // Results from the server
+    std::unique_ptr<XrdCl::XRootDStatus> m_status;
+    std::unique_ptr<XrdCl::Buffer> m_response;
+  };
+  std::weak_ptr<QueryAttrState> m_state;
+  XrdCl::FileSystem m_fs;
 };
 
 
@@ -289,16 +263,18 @@ Source::isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList)
     return false;
 }
 
-bool
-Source::isDCachePool(const std::string &lastUrl)
-{
-    XrdCl::URL url(lastUrl);
-    XrdCl::URL::ParamsMap map = url.GetParams();
-    // dCache pools always utilize this opaque identifier.
-    if (map.find("org.dcache.uuid") != map.end())
-    {
-        return true;
-    }
+bool Source::getXrootdSiteFromURL(std::string url, std::string &site) {
+  const std::string attr = "sitename";
+  XrdCl::Buffer *response = nullptr;
+  XrdCl::Buffer arg(attr.size());
+  arg.FromString(attr);
+
+  std::string rsite;
+  XrdCl::XRootDStatus st = QueryAttrHandler::query(url, "sitename", std::chrono::seconds(1), rsite);
+  if (!st.IsOK()) {
+    XrdCl::URL xurl(url);
+    getDomain(xurl.GetHostName(), site);
+    delete response;
     return false;
 }
 
