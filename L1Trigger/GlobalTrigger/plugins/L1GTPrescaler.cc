@@ -3,14 +3,6 @@
 #include <memory>
 #include <vector>
 
-template <class T, std::size_t N>
-std::array<T, N> make_array(std::vector<T> const &values) {
-  assert(N == values.size());
-  std::array<T, N> ret;
-  std::copy(values.begin(), values.end(), ret.begin());
-  return ret;
-}
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,8 +28,8 @@ private:
 
 L1GTPrescaler::L1GTPrescaler(edm::ParameterSet const &config)
     : m_l1ResultsToken(consumes<L1GlobalTriggerReadoutRecord>(config.getParameter<edm::InputTag>("l1Results"))),
-      m_algoPrescales(make_array<double, 128>(config.getParameter<std::vector<double>>("l1AlgoPrescales"))),
-      m_techPrescales(make_array<double, 64>(config.getParameter<std::vector<double>>("l1TechPrescales"))) {
+      m_algoPrescales(config.getParameter<std::array<double, 128>>("l1AlgoPrescales")),
+      m_techPrescales(config.getParameter<std::array<double, 64>>("l1TechPrescales")) {
   m_algoCounters.fill(0);
   m_techCounters.fill(0);
   produces<L1GlobalTriggerReadoutRecord>();
