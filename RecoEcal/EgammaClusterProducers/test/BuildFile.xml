@@ -8,3 +8,35 @@
   <use name="FWCore/ParameterSet"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="DRNTestNTuplizer" file="DRNTestNTuplizer.cc">
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="Geometry/CaloTopology"/>
+    <use name="Geometry/EcalAlgo"/>
+    <use name="DataFormats/EgammaReco"/>
+    <use name="DataFormats/MuonReco"/>
+    <use name="DataFormats/EgammaCandidates"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/PatCandidates"/>
+    <use name="DataFormats/VertexReco"/>
+    <use name="DataFormats/EcalDetId"/>
+    <use name="DataFormats/EcalRecHit"/>
+    <use name="DataFormats/Candidate"/>
+    <use name="DataFormats/HepMCCandidate"/>
+    <use name="RecoEgamma/PhotonIdentification"/>
+    <use name="RecoEgamma/EgammaIsolationAlgos"/>
+    <use name="RecoEcal/EgammaCoreTools"/>
+    <use name="DataFormats/Math"/>
+    <use name="DataFormats/JetReco"/>
+    <use name="SimDataFormats/PileupSummaryInfo"/>
+    <use name="SimDataFormats/CaloHit"/>
+    <use name="Geometry/CaloGeometry"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/HcalCommonData"/>
+    <use name="Calibration/Tools"/>
+    <flags EDM_PLUGIN="1"/>
+</library>
