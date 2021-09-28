@@ -21,16 +21,17 @@
 
 class QIE11Task : public hcaldqm::DQTask {
 public:
-  QIE11Task(edm::ParameterSet const&);
+  QIE11Task(edm::ParameterSet const &);
   ~QIE11Task() override {}
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
-  void _process(edm::Event const&, edm::EventSetup const&) override;
+  void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
-  bool _isApplicable(edm::Event const&) override;
+  bool _isApplicable(edm::Event const &) override;
 
   //	tags
   edm::InputTag _tagQIE11;
