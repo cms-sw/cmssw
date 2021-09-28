@@ -3,6 +3,7 @@
 #include "Utilities/StorageFactory/src/Throw.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
+#include <vector>
 
 using namespace edm::storage;
 
@@ -57,12 +58,53 @@ void File::sysopen(const char *name, int flags, int perms, IOFD &newfd, unsigned
     throwStorageError(edm::errors::FileOpenError, "Calling File::sysopen()", "open()", errno);
 }
 
+IOSize File::read(void *into, IOSize n) {
+  ssize_t s;
+  do
+    s = ::read(fd(), into, n);
+  while (s == -1 && errno == EINTR);
+
+  if (s == -1)
+    throwStorageError(edm::errors::FileReadError, "Calling File::read()", "read()", errno);
+
+  return s;
+}
+
+IOSize File::readv(IOBuffer *into, IOSize buffers) {
+  assert(!buffers || into);
+
+  // readv may not support zero buffers.
+  if (!buffers)
+    return 0;
+
+  ssize_t n = 0;
+
+  // Convert the buffers to system format.
+  std::vector<iovec> bufs(buffers);
+  for (IOSize i = 0; i < buffers; ++i) {
+    bufs[i].iov_len = into[i].size();
+    bufs[i].iov_base = (caddr_t)into[i].data();
+  }
+
+  // Read as long as signals cancel the read before doing anything.
+  do
+    n = ::readv(fd(), &bufs[0], buffers);
+  while (n == -1 && errno == EINTR);
+
+  // If it was serious error, throw it.
+  if (n == -1)
+    throwStorageError(edm::errors::FileReadError, "Calling File::readv", "readv()", errno);
+
+  // Return the number of bytes actually read.
+  return n;
+}
+
 IOSize File::read(void *into, IOSize n, IOOffset pos) {
   assert(pos >= 0);
 
   ssize_t s;
   do
-    s = ::pread(m_channel.fd(), into, n, pos);
+    s = ::pread(fd(), into, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -71,12 +113,53 @@ IOSize File::read(void *into, IOSize n, IOOffset pos) {
   return s;
 }
 
+IOSize File::syswrite(const void *from, IOSize n) {
+  ssize_t s;
+  do
+    s = ::write(fd(), from, n);
+  while (s == -1 && errno == EINTR);
+
+  if (s == -1 && errno != EWOULDBLOCK)
+    throwStorageError(edm::errors::FileWriteError, "Calling File::syswrite()", "syswrite()", errno);
+
+  return s >= 0 ? s : 0;
+}
+
+IOSize File::syswritev(const IOBuffer *from, IOSize buffers) {
+  assert(!buffers || from);
+
+  // writev may not support zero buffers.
+  if (!buffers)
+    return 0;
+
+  ssize_t n = 0;
+
+  // Convert the buffers to system format.
+  std::vector<iovec> bufs(buffers);
+  for (IOSize i = 0; i < buffers; ++i) {
+    bufs[i].iov_len = from[i].size();
+    bufs[i].iov_base = (caddr_t)from[i].data();
+  }
+
+  // Read as long as signals cancel the read before doing anything.
+  do
+    n = ::writev(fd(), &bufs[0], buffers);
+  while (n == -1 && errno == EINTR);
+
+  // If it was serious error, throw it.
+  if (n == -1)
+    throwStorageError(edm::errors::FileWriteError, "Calling Fike::syswritev()", "syswritev()", errno);
+
+  // Return the number of bytes actually written.
+  return n;
+}
+
 IOSize File::write(const void *from, IOSize n, IOOffset pos) {
   assert(pos >= 0);
 
   ssize_t s;
   do
-    s = ::pwrite(m_channel.fd(), from, n, pos);
+    s = ::pwrite(fd(), from, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -89,8 +172,8 @@ IOSize File::write(const void *from, IOSize n, IOOffset pos) {
   return s;
 }
 
-IOOffset File::size(void) const {
-  IOFD fd = m_channel.fd();
+IOOffset File::size() const {
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
 
   struct stat info;
@@ -101,7 +184,7 @@ IOOffset File::size(void) const {
 }
 
 IOOffset File::position(IOOffset offset, Relative whence /* = SET */) {
-  IOFD fd = m_channel.fd();
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
   assert(whence == CURRENT || whence == SET || whence == END);
 
@@ -114,15 +197,15 @@ IOOffset File::position(IOOffset offset, Relative whence /* = SET */) {
 }
 
 void File::resize(IOOffset size) {
-  IOFD fd = m_channel.fd();
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
 
   if (ftruncate(fd, size) == -1)
     throwStorageError("FileResizeError", "Calling File::resize()", "ftruncate()", errno);
 }
 
-void File::flush(void) {
-  IOFD fd = m_channel.fd();
+void File::flush() {
+  IOFD fd = m_fd;
   assert(fd != EDM_IOFD_INVALID);
 
 #if _POSIX_SYNCHRONIZED_IO > 0
