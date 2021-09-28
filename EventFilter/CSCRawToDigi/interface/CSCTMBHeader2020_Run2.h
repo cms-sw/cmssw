@@ -1,12 +1,12 @@
-#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader2007_rev0x50c3_h
-#define EventFilter_CSCRawToDigi_CSCTMBHeader2007_rev0x50c3_h
+#ifndef EventFilter_CSCRawToDigi_CSCTMBHeader2020_Run2_h
+#define EventFilter_CSCRawToDigi_CSCTMBHeader2020_Run2_h
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
+struct CSCTMBHeader2020_Run2 : public CSCVTMBHeaderFormat {
   enum { NWORDS = 43 };
-  CSCTMBHeader2007_rev0x50c3();
-  CSCTMBHeader2007_rev0x50c3(const unsigned short* buf);
+  CSCTMBHeader2020_Run2();
+  CSCTMBHeader2020_Run2(const unsigned short* buf);
   void setEventInformation(const CSCDMBHeader& dmbHeader) override;
 
   uint16_t BXNCount() const override { return bits.bxnCount; }
@@ -19,14 +19,14 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   uint16_t L1ANumber() const override { return bits.l1aNumber; }
   uint16_t NTBins() const override { return bits.nTBins; }
   uint16_t NCFEBs() const override { return bits.nCFEBs; }
-  void setNCFEBs(uint16_t ncfebs) override { bits.nCFEBs = ncfebs & 0x1F; }
+  void setNCFEBs(uint16_t ncfebs) override { bits.nCFEBs = ncfebs & 0x7F; }
   uint16_t firmwareRevision() const override { return bits.firmRevCode; }
   uint16_t syncError() const override { return bits.syncError; }
   uint16_t syncErrorCLCT() const override { return bits.clct_sync_err; }
   uint16_t syncErrorMPC0() const override { return bits.MPC_Muon0_SyncErr_; }
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
 
-  /// == Run 3 CSC-GEM Trigger Format
+  // == Run 3 CSC-GEM Trigger Format
   uint16_t CLCT0_ComparatorCode() const override { return 0; }
   uint16_t CLCT1_ComparatorCode() const override { return 0; }
   uint16_t CLCT0_xky() const override { return 0; }
@@ -67,7 +67,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   void addALCT1(const CSCALCTDigi& digi) override;
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) override;
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) override;
-  void addShower(const CSCShowerDigi& digi) override {}
+  void addShower(const CSCShowerDigi& digi) override{};
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
@@ -85,7 +85,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
     unsigned bd_status : 15, flag6 : 1;
     unsigned firmRevCode : 15, flag7 : 1;
     // 8
-    unsigned bxnPreTrigger : 12, tmb_clct0_discard : 1, tmb_clct1_discard : 1, lock_lost : 1, flag8 : 1;
+    unsigned bxnPreTrigger : 12, tmb_clct0_discard : 1, tmb_clct1_discard : 1, clock_lock_lost : 1, flag8 : 1;
     unsigned preTrigCounterLow : 15, flag9 : 1;
     unsigned preTrigCounterHigh : 15, flag10 : 1;
     unsigned clctCounterLow : 15, flag11 : 1;
@@ -115,8 +115,8 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
     // 28
     unsigned alct0Valid : 1, alct0Quality : 2, alct0Amu : 1, alct0Key : 7, alct_pretrig_win : 4, flag28 : 1;
     unsigned alct1Valid : 1, alct1Quality : 2, alct1Amu : 1, alct1Key : 7, drift_delay : 2, bcb_read_enable : 1,
-        layerTriggered : 1, flag29 : 1;
-    unsigned alctBXN : 5, alct_ecc_err : 2, cfeb_badbits_found : 5, cfeb_badbits_blocked : 1, alct_cfg_done : 1,
+        hs_layer_trig : 1, flag29 : 1;
+    unsigned alctBXN : 5, alct_ecc_err : 2, cfeb_badbits_found : 5, cfeb_badbits_blocked : 1, alctCfg : 1,
         bx0_match : 1, flag30 : 1;
     unsigned MPC_Muon0_wire_ : 7, MPC_Muon0_clct_pattern_ : 4, MPC_Muon0_quality_ : 4, flag31 : 1;
     // 32
@@ -129,12 +129,14 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
         MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
     // 36
     unsigned RPCList : 2, NRPCs : 2, RPCEnable : 1, fifo_tbins_rpc : 5, fifo_pretrig_rpc : 5, flag36 : 1;
+
     unsigned r_wr_buf_adr : 11, r_wr_buf_ready : 1, wr_buf_ready : 1, buf_q_full : 1, buf_q_empty : 1, flag37 : 1;
     unsigned r_buf_fence_dist : 11, buf_q_ovf_err : 1, buf_q_udf_err : 1, buf_q_adr_err : 1, buf_stalled : 1,
         flag38 : 1;
     unsigned buf_fence_cnt : 12, reverse_hs_csc : 1, reverse_hs_me1a : 1, reverse_hs_me1b : 1, flag39 : 1;
     // 40
-    unsigned buf_fence_cnt_peak : 12, trig_source_vect : 2, tmb_trig_pulse : 1, flag40 : 1;
+    unsigned activeCFEBs_2 : 2, readCFEBs_2 : 2, cfeb_badbits_found_2 : 2, parity_err_cfeb_ram_2 : 2,
+        CFEBsEnabled_2 : 2, buf_fence_cnt_is_peak : 1, mxcfeb : 1, trig_source_vec : 2, tmb_trig_pulse : 1, flag40 : 1;
     unsigned tmb_allow_alct : 1, tmb_allow_clct : 1, tmb_allow_match : 1, tmb_allow_alct_ro : 1, tmb_allow_clct_ro : 1,
         tmb_allow_match_ro : 1, tmb_alct_only_ro : 1, tmb_clct_only_ro : 1, tmb_match_ro : 1, tmb_trig_keep : 1,
         tmb_non_trig_keep : 1, lyr_thresh_pretrig : 3, layer_trig_en : 1, flag41 : 1;
