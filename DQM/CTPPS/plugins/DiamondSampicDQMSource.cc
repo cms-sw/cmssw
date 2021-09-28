@@ -663,7 +663,6 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
           TAxis* trackHistoTmpYAxis = trackHistoTmp->GetYaxis();
           int startBin_far = trackHistoTmpYAxis->FindBin(track_far.x0() - horizontalShiftOfDiamond_[detId_far] - track_far.x0Sigma());
           int numOfBins_far = 2 * track_far.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-          edm::LogProblem("DiamondSampicDQMSource") <<"track_far.x0() "<<track_far.x0()<<" track_far.x0Sigma() "<<track_far.x0Sigma()<<" track.x0() "<<track.x0()<<" track.x0Sigma() "<<track.x0Sigma();
           for (int i = 0; i < numOfBins; ++i) {
             for (int y = 0; y < numOfBins_far; ++y){ 
               trackHistoTmp->Fill(trackHistoTmpXAxis->GetBinCenter(startBin + i),trackHistoTmpYAxis->GetBinCenter(startBin_far+y));
