@@ -54,9 +54,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<ifarchitecture name="_amd64_">
 <library file="BeamSpotDipServer.cc" name="BeamSpotDipServer">
   <use name="DataFormats/OnlineMetaData"/>
   <use name="dip"/>
   <use name="log4cplus"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+</ifarchitecture>
