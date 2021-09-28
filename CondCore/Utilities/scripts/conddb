@@ -726,7 +726,7 @@ def _get_maxtime_for_boost_version( session, timeType, boost_version):
             break
     if timeType=='Run':
         return time[0]
-    elif timeType=='Run':
+    elif timeType=='Lumi':
         return time[1]
     elif timeType=='Time':
         return time[2]
