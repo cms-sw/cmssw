@@ -39,7 +39,9 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
                   "HGCalTriggerNtupleHGCConcentratorData");
 
 HGCalTriggerNtupleHGCConcentratorData::HGCalTriggerNtupleHGCConcentratorData(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf) {}
+    : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCConcentratorData::initialize(TTree& tree,
                                                        const edm::ParameterSet& conf,

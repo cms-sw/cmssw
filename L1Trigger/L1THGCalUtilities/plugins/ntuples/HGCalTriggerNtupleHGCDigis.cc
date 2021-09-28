@@ -68,6 +68,7 @@ private:
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCDigis, "HGCalTriggerNtupleHGCDigis");
 
 HGCalTriggerNtupleHGCDigis::HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
   is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
   digiBXselect_ = conf.getParameter<std::vector<unsigned int>>("digiBXselect");
 

@@ -45,7 +45,9 @@ private:
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTriggerSums, "HGCalTriggerNtupleHGCTriggerSums");
 
 HGCalTriggerNtupleHGCTriggerSums::HGCalTriggerNtupleHGCTriggerSums(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf) {}
+    : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCTriggerSums::initialize(TTree& tree,
                                                   const edm::ParameterSet& conf,

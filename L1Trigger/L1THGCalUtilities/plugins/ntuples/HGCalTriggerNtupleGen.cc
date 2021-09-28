@@ -189,7 +189,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleGen, "HGCalTriggerNtupleGen");
 
-HGCalTriggerNtupleGen::HGCalTriggerNtupleGen(const edm::ParameterSet &conf) : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleGen::HGCalTriggerNtupleGen(const edm::ParameterSet &conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleGen::initialize(TTree &tree, const edm::ParameterSet &conf, edm::ConsumesCollector &&collector) {
   edm::ParameterSet particleFilter_(conf.getParameter<edm::ParameterSet>("particleFilter"));

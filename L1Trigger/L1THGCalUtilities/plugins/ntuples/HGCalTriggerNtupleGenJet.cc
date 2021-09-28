@@ -25,7 +25,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleGenJet, "HGCalTriggerNtupleGenJet");
 
-HGCalTriggerNtupleGenJet::HGCalTriggerNtupleGenJet(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleGenJet::HGCalTriggerNtupleGenJet(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleGenJet::initialize(TTree& tree,
                                           const edm::ParameterSet& conf,
