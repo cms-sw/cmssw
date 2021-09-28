@@ -19,6 +19,17 @@ namespace py = pybind11;
       .def(py::init<>())                                                  \
       .def("write", &Payload2xml<CLASS_NAME>::write);
 
+#include <boost/version.hpp>
+namespace cond {
+  inline std::string boost_version_label() {
+    std::stringstream ss;
+    ss << BOOST_VERSION / 100000 << ".";
+    ss << BOOST_VERSION / 100 % 1000 << ".";
+    ss << BOOST_VERSION % 100;
+    return ss.str();
+  }
+}  // namespace cond
+
 namespace {  // Avoid cluttering the global namespace.
 
   template <typename PayloadType>
