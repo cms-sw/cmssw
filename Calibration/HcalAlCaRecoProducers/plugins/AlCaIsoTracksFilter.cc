@@ -448,11 +448,9 @@ void AlCaIsoTracksFilter::globalEndJob(const AlCaIsoTracks::Counters* count) {
 
 // ------------ method called when starting to processes a run  ------------
 void AlCaIsoTracksFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  if (!trigNames_.empty()) {
-    bool changed(false);
-    edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
-                                     << hltConfig_.init(iRun, iSetup, processName_, changed);
-  }
+  bool changed(false);
+  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
+                                   << hltConfig_.init(iRun, iSetup, processName_, changed);
 }
 
 // ------------ method called when ending the processing of a run  ------------
