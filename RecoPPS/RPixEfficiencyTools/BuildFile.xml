@@ -1,0 +1,18 @@
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/CTPPSReco"/>
+
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+<use name="Geometry/VeryForwardGeometry"/>
+<use name="CondFormats/CTPPSReadoutObjects"/>
+
+<use name="DataFormats/CTPPSDetId"/>
+<use name="CondCore/DBOutputService"/>
+<use name="FWCore/ServiceRegistry"/>
+
+<export>
+  <lib name="1"/>
+</export>

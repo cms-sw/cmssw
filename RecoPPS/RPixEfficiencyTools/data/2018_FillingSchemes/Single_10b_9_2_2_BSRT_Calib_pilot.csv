@@ -1,0 +1,137 @@
+INJECTION SCHEME : Single_10b_9_2_2_BSRT_Calib_pilot
+
+idx,inj Nbr,	Ring,RF Bucket,Bu Spac (ns),bu per PS batch,SPS Batch spac,PSbatch nbr
+1,	1,	ring_1,	51,		0,		1,		0,	1
+2,	1,	ring_2,	51,		0,		1,		0,	1
+3,	2,	ring_1,	501,		0,		1,		0,	1
+4,	2,	ring_2,	501,		0,		1,		0,	1
+5,	3,	ring_2,	8911,		0,		1,		0,	1
+6,	3,	ring_1,	8941,		0,		1,		0,	1
+7,	4,	ring_1,	12001,		0,		1,		0,	1
+8,	4,	ring_2,	12001,		0,		1,		0,	1
+9,	5,	ring_1,	15001,		0,		1,		0,	1
+10,	5,	ring_2,	15001,		0,		1,		0,	1
+11,	6,	ring_1,	17851,		0,		1,		0,	1
+12,	6,	ring_2,	17851,		0,		1,		0,	1
+13,	7,	ring_1,	21001,		0,		1,		0,	1
+14,	7,	ring_2,	21001,		0,		1,		0,	1
+15,	8,	ring_1,	24501,		0,		1,		0,	1
+16,	8,	ring_2,	24501,		0,		1,		0,	1
+17,	9,	ring_1,	28001,		0,		1,		0,	1
+18,	9,	ring_2,	28001,		0,		1,		0,	1
+19,	10,	ring_1,	31171,		0,		1,		0,	1
+20,	10,	ring_2,	31171,		0,		1,		0,	1
+Bu Spac : space in ns between bunches in the same PS train
+SPS Batch Spac : space in ns between 2 first bunches of consecutive PS trains in the SPS
+
+Tot number of B1 bunches(probe/Nominal) : 1/9
+Tot number of B2 bunches(probe/Nominal) : 1/9
+
+Tot number of B1 injections : 10
+Tot number of B2 injections : 10
+
+Collisions at IP1&5: 9
+B1-empty at IP1&5: 1
+B2-empty at IP1&5: 1
+Empty-empty at IP1&5: 3553
+
+Collisions at IP2: 2
+B1-empty at IP2: 8
+B2-empty at IP2: 8
+Empty-empty at IP2: 3546
+
+Collisions at IP8: 2
+B1-empty at IP8: 8
+B2-empty at IP8: 8
+Empty-empty at IP8: 3546
+
+LONG RANGE COLL IN IRIP1
+RFbucketbeam1,RFbucketbeam2,z-pos/m
+8941,8911,-11.23
+51,51,0
+501,501,0
+12001,12001,0
+15001,15001,0
+17851,17851,0
+21001,21001,0
+24501,24501,0
+28001,28001,0
+31171,31171,0
+
+LONG RANGE COLL IN IRIP2
+RFbucketbeam1,RFbucketbeam2,z-pos/m
+51,8911,-18.72
+8941,17851,0
+12001,21001,33.69
+
+LONG RANGE COLL IN IRIP5
+RFbucketbeam1,RFbucketbeam2,z-pos/m
+8941,8911,-11.23
+51,51,0
+501,501,0
+12001,12001,0
+15001,15001,0
+17851,17851,0
+21001,21001,0
+24501,24501,0
+28001,28001,0
+31171,31171,0
+
+LONG RANGE COLL IN IRIP8
+RFbucketbeam1,RFbucketbeam2,z-pos/m
+21001,12001,-22.46
+17851,8911,0
+8941,51,18.72
+
+
+LONG RANGE FOR BEAM 1
+RFbucket,Slot,Head-On IP1,Head-On IP2,Head-On IP5,Head-On IP8,Head-On Tot,LR IP1,LR IP2,LR IP5,LR IP8,LR Tot
+51,5,1,0,1,0,2,0,1,0,0,1
+501,50,1,0,1,0,2,0,0,0,0,0
+8941,894,0,1,0,0,1,1,0,1,1,3
+12001,1200,1,0,1,0,2,0,1,0,0,1
+15001,1500,1,0,1,0,2,0,0,0,0,0
+17851,1785,1,0,1,1,3,0,0,0,0,0
+21001,2100,1,0,1,0,2,0,0,0,1,1
+24501,2450,1,0,1,0,2,0,0,0,0,0
+28001,2800,1,0,1,0,2,0,0,0,0,0
+31171,3117,1,0,1,0,2,0,0,0,0,0
+
+LONG RANGE FOR BEAM 2
+RFbucket,Slot,Head-On IP1,Head-On IP2,Head-On IP5,Head-On IP8,Head-On Tot,LR IP1,LR IP2,LR IP5,LR IP8,LR Tot
+51,5,1,0,1,0,2,0,0,0,1,1
+501,50,1,0,1,0,2,0,0,0,0,0
+8911,891,0,0,0,1,1,1,1,1,0,3
+12001,1200,1,0,1,0,2,0,0,0,1,1
+15001,1500,1,0,1,0,2,0,0,0,0,0
+17851,1785,1,1,1,0,3,0,0,0,0,0
+21001,2100,1,0,1,0,2,0,1,0,0,1
+24501,2450,1,0,1,0,2,0,0,0,0,0
+28001,2800,1,0,1,0,2,0,0,0,0,0
+31171,3117,1,0,1,0,2,0,0,0,0,0
+
+HEAD ON COLLISIONS FOR B1
+B1 bucket number,IP1,IP2,IP5,IP8
+51,51,-,51,-
+501,501,-,501,-
+8941,-,17851,-,-
+12001,12001,-,12001,-
+15001,15001,-,15001,-
+17851,17851,-,17851,8911
+21001,21001,-,21001,-
+24501,24501,-,24501,-
+28001,28001,-,28001,-
+31171,31171,-,31171,-
+
+HEAD ON COLLISIONS FOR B2
+B2 bucket number,IP1,IP2,IP5,IP8
+51,51,-,51,-
+501,501,-,501,-
+8911,-,-,-,17851
+12001,12001,-,12001,-
+15001,15001,-,15001,-
+17851,17851,8941,17851,-
+21001,21001,-,21001,-
+24501,24501,-,24501,-
+28001,28001,-,28001,-
+31171,31171,-,31171,-
