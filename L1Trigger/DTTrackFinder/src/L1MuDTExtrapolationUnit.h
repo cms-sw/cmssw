@@ -45,7 +45,8 @@ class L1MuDTSectorProcessor;
 class L1MuDTSEU;
 class L1MuDTTFParameters;
 class L1MuDTTFParametersRcd;
-
+class L1MuDTExtLut;
+class L1MuDTExtLutRcd;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -94,10 +95,10 @@ public:
 private:
   const L1MuDTSectorProcessor& m_sp;  // reference to Sector Processor
 
-  mutable SEUmap m_SEUs;  // Single Extrapolation Units
+  SEUmap m_SEUs;  // Single Extrapolation Units
 
-  edm::ESGetToken<L1MuDTTFParameters, L1MuDTTFParametersRcd> m_parsToken;
-  edm::ESHandle<L1MuDTTFParameters> pars;
+  const edm::ESGetToken<L1MuDTTFParameters, L1MuDTTFParametersRcd> m_parsToken;
+  const edm::ESGetToken<L1MuDTExtLut, L1MuDTExtLutRcd> m_extLUTsToken;
 };
 
 #endif

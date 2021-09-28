@@ -15,68 +15,79 @@ DqmEventInfoSiStrip = cms.EDAnalyzer( "DQMEventInfo",
 
 # SiStripMonitoDigi
 import DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi
-SiStripMonitorDigiCAF                    = DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi.SiStripMonitorDigi.clone()
-SiStripMonitorDigiCAF.SelectAllDetectors = True
+SiStripMonitorDigiCAF = DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi.SiStripMonitorDigi.clone(
+    SelectAllDetectors = True
+)
 
 # SiStripMonitorCluster
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-SiStripMonitorClusterCAF = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterCAF.SelectAllDetectors  = True
-SiStripMonitorClusterCAF.StripQualityLabel   = ''
+SiStripMonitorClusterCAF = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone(
+    SelectAllDetectors = True,
+    StripQualityLabel = ''
+)
 
 # SiStripMonitorTrack
 # clone for cosmic track finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrackCAF_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackCAF_cosmicTk.TrackProducer = 'cosmictrackfinderP5Refitter'
-SiStripMonitorTrackCAF_cosmicTk.Mod_On        = True
+SiStripMonitorTrackCAF_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'cosmictrackfinderP5Refitter',
+    Mod_On = True
+)
 # clone for CTF track finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrackCAF_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackCAF_ckf.TrackProducer = 'ctfWithMaterialTracksP5Refitter'
-SiStripMonitorTrackCAF_ckf.Mod_On        = True
+SiStripMonitorTrackCAF_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'ctfWithMaterialTracksP5Refitter',
+    Mod_On = True
+)
 # clone for RS track finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrackCAF_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackCAF_rs.TrackProducer = 'rsWithMaterialTracksP5Refitter'
-SiStripMonitorTrackCAF_rs.Mod_On        = True
+SiStripMonitorTrackCAF_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer = 'rsWithMaterialTracksP5Refitter',
+    Mod_On = True
+)
 
 # TrackerMonitorTrack
 # clone for cosmic track finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsCAF_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsCAF_cosmicTk.Tracks              = 'cosmictrackfinderP5'
-MonitorTrackResidualsCAF_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5Refitter'
+MonitorTrackResidualsCAF_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+    Tracks = 'cosmictrackfinderP5',
+    trajectoryInput = 'cosmictrackfinderP5Refitter'
+)
 # clone for CTF track finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsCAF_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsCAF_ckf.Tracks              = 'ctfWithMaterialTracksP5'
-MonitorTrackResidualsCAF_ckf.trajectoryInput     = 'ctfWithMaterialTracksP5Refitter'
+MonitorTrackResidualsCAF_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+    Tracks = 'ctfWithMaterialTracksP5',
+    trajectoryInput = 'ctfWithMaterialTracksP5Refitter'
+)
 # clone for RS track finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsCAF_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsCAF_rs.Tracks              = 'rsWithMaterialTracksP5'
-MonitorTrackResidualsCAF_rs.trajectoryInput     = 'rsWithMaterialTracksP5Refitter'
+MonitorTrackResidualsCAF_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone(
+    Tracks = 'rsWithMaterialTracksP5',
+    trajectoryInput = 'rsWithMaterialTracksP5Refitter'
+)
 
 # TrackingMonitor
 # clone for cosmic track finder
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMonCAF_cosmicTk = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMonCAF_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
-TrackMonCAF_cosmicTk.AlgoName      = 'CosmicTk'
-TrackMonCAF_cosmicTk.FolderName    = 'SiStrip/Tracks'
+TrackMonCAF_cosmicTk = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone(
+    TrackProducer = 'cosmictrackfinderP5',
+    AlgoName = 'CosmicTk',
+    FolderName = 'SiStrip/Tracks'
+)
 # clone for CTF track finder
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMonCAF_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMonCAF_ckf.TrackProducer = 'ctfWithMaterialTracksP5'
-TrackMonCAF_ckf.AlgoName      = 'CKFTk'
-TrackMonCAF_ckf.FolderName    = 'SiStrip/Tracks'
+TrackMonCAF_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone(
+    TrackProducer = 'ctfWithMaterialTracksP5',
+    AlgoName = 'CKFTk',
+    FolderName = 'SiStrip/Tracks'
+)
 # clone for RS track finder
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMonCAF_rs = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMonCAF_rs.TrackProducer = 'rsWithMaterialTracksP5'
-TrackMonCAF_rs.AlgoName      = 'RSTk'
-TrackMonCAF_rs.FolderName    = 'SiStrip/Tracks'
+TrackMonCAF_rs = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone(
+    TrackProducer = 'rsWithMaterialTracksP5',
+    AlgoName = 'RSTk',
+    FolderName = 'SiStrip/Tracks'
+)
 
 # Scheduling
 SiStripDQMSourceGlobalRunCAF_fromRAW  = cms.Sequence( siStripFEDMonitor )
