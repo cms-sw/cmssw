@@ -141,7 +141,8 @@ namespace SiPixelUtils {
     //--- length of the edge pixels.
     //
     //  bool usedEdgeAlgo = false;
-    if ((size >= size_cut) || ((w_eff / pitch < eff_charge_cut_low) | (w_eff / pitch > eff_charge_cut_high))) {
+    //Modified cut to make use of the w_eff in the bricked geometry
+    if (size >= size_cut) {
       w_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
                                            //  usedEdgeAlgo = true;
     }
