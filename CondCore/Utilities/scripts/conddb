@@ -745,7 +745,6 @@ def _get_maxtime_for_boost_version( session, timeType, boost_version):
     time = (maxSince,maxSince,maxSince)
     for r in q:
         r= _rawdict(r)
-        print('## bv %s - r[bv] %s'%(type(boost_version),type(r['boost_version'])))
         if boost_version < r['boost_version']:
             tlumi = r['run_number']<<32|0x1
             time = (r['run_number'],tlumi,r['run_start_time'])
