@@ -7,7 +7,7 @@ from DQM.CTPPS.totemRPDQMSource_cfi import *
 
 from DQM.CTPPS.ctppsDiamondDQMSource_cfi import *
 
-from DQM.CTPPS.totemTimingDQMSource_cfi import *
+from DQM.CTPPS.diamondSampicDQMSource_cfi import *
 
 from DQM.CTPPS.ctppsPixelDQMSource_cfi import *
 
@@ -23,7 +23,7 @@ ctppsCommonDQMSourceOnline = ctppsCommonDQMSource.clone(
 _ctppsDQMOnlineSource = cms.Sequence(
   ctppsPixelDQMSource
   + ctppsDiamondDQMSource
-  + totemTimingDQMSource
+  + diamondSampicDQMSourceOnline
   + ctppsCommonDQMSourceOnline
 )
 
@@ -35,7 +35,7 @@ _ctppsDQMCalibrationSource = cms.Sequence(
   totemRPDQMSource
   + ctppsPixelDQMSource
   + ctppsDiamondDQMSource
-  + totemTimingDQMSource
+  + diamondSampicDQMSourceOnline
   + ctppsCommonDQMSourceOnline
   + elasticPlotDQMSource
 )
@@ -58,7 +58,7 @@ dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
   + ctppsDiamondDQMSource
-  + totemTimingDQMSource
+  + diamondSampicDQMSourceOffline
   + ctppsCommonDQMSourceOffline
 )
 

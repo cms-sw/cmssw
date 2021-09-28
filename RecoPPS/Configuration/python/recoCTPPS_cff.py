@@ -15,7 +15,7 @@ from CalibPPS.ESProducers.ppsTopology_cff import *
 recoCTPPSTask = cms.Task(
     totemRPLocalReconstructionTask ,
     ctppsDiamondLocalReconstructionTask ,
-    totemTimingLocalReconstructionTask ,
+    diamondSampicLocalReconstructionTask ,
     ctppsPixelLocalReconstructionTask ,
     ctppsLocalTrackLiteProducer ,
     ctppsProtons
