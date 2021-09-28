@@ -5,6 +5,11 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007_rev0x50c3.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2013.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_TMB.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_CCLUT.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_GEM.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_Run2.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_rev0.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,7 +24,66 @@ std::atomic<bool> CSCTMBHeader::debug{false};
 
 CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
     : theHeaderFormat(), theFirmwareVersion(firmwareVersion) {
-  if (firmwareVersion == 2013) {
+  if (firmwareVersion == 2020) {
+    if ((firmwareRevision < 0x4000) && (firmwareRevision > 0x0)) { /* New (O)TMB firmware revision format */
+      bool isGEM_fw = false;
+      bool isCCLUT_HMT_fw = false;
+      bool isOTMB_Run2_fw = false;
+      bool isTMB_Run3_fw = false;
+      bool isTMB_Run2_fw = false;
+      bool isGEM_rev0_fw = false;
+      bool isRun2_df = false;
+      unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
+      unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
+      // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
+      switch (df_version) {
+        case 0x3:
+          isGEM_fw = true;
+          break;
+        case 0x2:
+          isCCLUT_HMT_fw = true;
+          break;
+        case 0x1:
+          isOTMB_Run2_fw = true;
+          break;
+        case 0x0:
+          if (major_ver == 1)
+            isTMB_Run2_fw = true;
+          else
+            isTMB_Run3_fw = true;
+          break;
+        default:
+          isGEM_fw = true;
+      }
+      if (firmwareRevision == 0x600)  // Initial rev0 ME11 GEM firmware
+        isGEM_rev0_fw = true;
+      if (major_ver == 1) {
+        isRun2_df = true;
+      }
+
+      if (isGEM_fw) {
+        if (isGEM_rev0_fw) {
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_rev0());
+        } else {
+          if (isRun2_df) {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+          } else {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM());
+          }
+        }
+      } else if (isCCLUT_HMT_fw) {
+        if (isRun2_df) {
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+        } else {
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT());
+        }
+      } else if (isOTMB_Run2_fw || isTMB_Run2_fw || isRun2_df) {
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+      } else if (isTMB_Run3_fw) {
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB());
+      }
+    }
+  } else if (firmwareVersion == 2013) {
     theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
   } else if (firmwareVersion == 2006) {
     theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006());
@@ -33,7 +97,17 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
       // if (firmwareRevision >= 0x7a76) // First OTMB firmware revision with 2013 format
       /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
       if ((firmwareRevision >= 0x6000) || (firmwareRevision < 0x42D5)) {
-        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
+        bool isGEMfirmware = false;
+        /* There are OTMB2013 firmware versions exist, which reports firmwareRevision code = 0x0 */
+        if ((firmwareRevision < 0x4000) && (firmwareRevision > 0x0)) { /* New (O)TMB firmware revision format */
+          if (((firmwareRevision >> 9) & 0x3) == 0x3)
+            isGEMfirmware = true;
+          if (isGEMfirmware) {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM());
+          } else {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013());
+          }
+        }
       } else {
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3());
       }
@@ -64,7 +138,72 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
       /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
       if ((theHeaderFormat->firmwareRevision() >= 0x6000) || (theHeaderFormat->firmwareRevision() < 0x42D5)) {
         theFirmwareVersion = 2013;
-        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013(buf));
+        bool isGEM_fw = false;
+        bool isCCLUT_HMT_fw = false;
+        bool isOTMB_Run2_fw = false;
+        bool isTMB_Run3_fw = false;
+        bool isTMB_Run2_fw = false;
+        bool isGEM_rev0_fw = false;
+        bool isRun2_df = false;
+        unsigned firmwareRevision = theHeaderFormat->firmwareRevision();
+        /* There are OTMB2013 firmware versions exist, which reports firmwareRevision code = 0x0 */
+        if ((firmwareRevision < 0x4000) && (firmwareRevision > 0x0)) { /* New (O)TMB firmware revision format */
+          theFirmwareVersion = 2020;
+          unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
+          unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
+          // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
+          switch (df_version) {
+            case 0x3:
+              isGEM_fw = true;
+              break;
+            case 0x2:
+              isCCLUT_HMT_fw = true;
+              break;
+            case 0x1:
+              isOTMB_Run2_fw = true;
+              break;
+            case 0x0:
+              if (major_ver == 1)
+                isTMB_Run2_fw = true;
+              else
+                isTMB_Run3_fw = true;
+              break;
+            default:
+              isGEM_fw = true;
+          }
+          if (firmwareRevision == 0x600)  // Initial rev0 ME11 GEM firmware
+            isGEM_rev0_fw = true;
+          if (major_ver == 1) {
+            isRun2_df = true;
+          }
+        }
+        if (theFirmwareVersion == 2020) {
+          if (isGEM_fw) {
+            if (isGEM_rev0_fw) {
+              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_rev0(buf));
+            } else {
+              if (isRun2_df) {
+                theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
+              } else {
+                theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM(buf));
+              }
+            }
+          } else if (isCCLUT_HMT_fw) {
+            if (isRun2_df) {
+              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
+            } else {
+              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT(buf));
+            }
+          } else if (isOTMB_Run2_fw || isTMB_Run2_fw || isRun2_df) {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
+          } else if (isTMB_Run3_fw) {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB(buf));
+          }
+
+        } else {
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2013(buf));
+        }
+
       } else {
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
       }
@@ -153,6 +292,46 @@ CSCTMBHeader2013 CSCTMBHeader::tmbHeader2013() const {
   CSCTMBHeader2013 *result = dynamic_cast<CSCTMBHeader2013 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2013 TMB header format");
+  }
+  return *result;
+}
+
+CSCTMBHeader2020_TMB CSCTMBHeader::tmbHeader2020_TMB() const {
+  CSCTMBHeader2020_TMB *result = dynamic_cast<CSCTMBHeader2020_TMB *>(theHeaderFormat.get());
+  if (result == nullptr) {
+    throw cms::Exception("Could not get 2020 TMB Run3 header format");
+  }
+  return *result;
+}
+
+CSCTMBHeader2020_CCLUT CSCTMBHeader::tmbHeader2020_CCLUT() const {
+  CSCTMBHeader2020_CCLUT *result = dynamic_cast<CSCTMBHeader2020_CCLUT *>(theHeaderFormat.get());
+  if (result == nullptr) {
+    throw cms::Exception("Could not get 2020 (O)TMB CCLUT header format");
+  }
+  return *result;
+}
+
+CSCTMBHeader2020_GEM CSCTMBHeader::tmbHeader2020_GEM() const {
+  CSCTMBHeader2020_GEM *result = dynamic_cast<CSCTMBHeader2020_GEM *>(theHeaderFormat.get());
+  if (result == nullptr) {
+    throw cms::Exception("Could not get 2020 (O)TMB GEM header format");
+  }
+  return *result;
+}
+
+CSCTMBHeader2020_Run2 CSCTMBHeader::tmbHeader2020_Run2() const {
+  CSCTMBHeader2020_Run2 *result = dynamic_cast<CSCTMBHeader2020_Run2 *>(theHeaderFormat.get());
+  if (result == nullptr) {
+    throw cms::Exception("Could not get 2020 (O)TMB legacy Run2 header format");
+  }
+  return *result;
+}
+
+CSCTMBHeader2020_rev0 CSCTMBHeader::tmbHeader2020_rev0() const {
+  CSCTMBHeader2020_rev0 *result = dynamic_cast<CSCTMBHeader2020_rev0 *>(theHeaderFormat.get());
+  if (result == nullptr) {
+    throw cms::Exception("Could not get 2020 (O)TMB initial rev0 CCLUT/GEM header format");
   }
   return *result;
 }
