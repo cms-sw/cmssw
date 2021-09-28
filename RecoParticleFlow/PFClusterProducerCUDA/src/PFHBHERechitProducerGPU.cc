@@ -10,12 +10,12 @@
 #include "CUDADataFormats/HcalRecHitSoA/interface/RecHitCollection.h"
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
 #include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
-//#include "RecoLocalCalo/HcalRecProducers/src/SimpleAlgoGPU.h"
+#include "RecoLocalCalo/HcalRecProducers/src/SimpleAlgoGPU.h"
 
 
 #include <functional>
 #include <optional>
-
+#include "RecoParticleFlow/PFClusterProducerCUDA/src/SimplePFGPUAlgos.h"
 
 class PFHBHERechitProducerGPU : public edm::stream::EDProducer <edm::ExternalWork> {
 public:
@@ -29,16 +29,16 @@ private:
 
 
   // Input Product Type
-  using RecHitSoAProductType = cms::cuda::Product<hcal::RecHitCollection<calo::common::DevStoragePolicy>>;
+  using RecHitSoAProductType = cms::cuda::Product<hcal::reconstruction::OutputDataGPU>;
   //Output Product Type
-  using PFRecHitSoAProductType = cms::cuda::Product<hcal::PFRecHitCollection<calo::common::DevStoragePolicy>>;
+  using PFRecHitSoAProductType = cms::cuda::Product<hcal::reconstruction::OutputPFRecHitDataGPU>;
   //Input Token
   edm::EDGetTokenT<RecHitSoAProductType> InputRecHitSoA_Token_;
   //Output Token
   edm::EDPutTokenT<PFRecHitSoAProductType> OutputPFRecHitSoA_Token_;
 
   
-  hcal::PFRecHitCollection<::calo::common::DevStoragePolicy> PFRecHits_;
+  hcal::reconstruction::OutputPFRecHitDataGPU PFRecHits_;
   //hcal::reconstruction::
   cms::cuda::ContextState cudaState_;
   
@@ -67,9 +67,14 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
-  auto& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
+  auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
+  //size_t RecHits_size = sizeof(*(HBHERecHitSoA)->rechits.energy.get());
+  auto const recHits_en = HBHERecHitSoA.recHits.energy.get();
+  size_t num_rechits = sizeof(recHits_en);
+  PFRecHits_.allocate(num_rechits, ctx.stream());
+  std::cout<<typeid(recHits_en).name()<<std::endl;
   //auto const& HBHERecHits_asInput = hcal::reconstruction::OutputDataGPU(HBHERecHitSoA);
-  //entryPoint_for_PFComputation();
+  hcal::reconstruction::entryPoint_for_PFComputation(HBHERecHitSoA, PFRecHits_, ctx.stream());
 
 }
 
