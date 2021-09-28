@@ -112,7 +112,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------
 process.load("DQM.PixelLumi.PixelLumiDQM_cfi") 
 
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.pixel_lumi_dqm.logFileName = "pixel_lumi.txt"
 else:
     process.pixel_lumi_dqm.logFileName = "/nfshome0/dqmpro/pixel_lumi.txt"

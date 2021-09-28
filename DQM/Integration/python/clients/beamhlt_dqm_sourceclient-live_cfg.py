@@ -99,7 +99,7 @@ process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 
 # Change Beam Monitor variables
 process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True

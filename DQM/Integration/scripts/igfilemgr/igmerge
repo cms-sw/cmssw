@@ -45,10 +45,10 @@ def numericalSort(x,y):
   if len(yvec) < 3 or len(xvec) < 3:
   	return cmp(x,y) 
   
-  xrun=long(xvec[1].split("_")[1])
-  xevent=long(xvec[2].split("_")[1])
-  yrun=long(yvec[1].split("_")[1])
-  yevent=long(yvec[2].split("_")[1])
+  xrun=int(xvec[1].split("_")[1])
+  xevent=int(xvec[2].split("_")[1])
+  yrun=int(yvec[1].split("_")[1])
+  yevent=int(yvec[2].split("_")[1])
   if xrun < yrun:
   	return -1
   elif xrun > yrun:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     elif item[0]=="-e":
       KEEP=False
     elif item[0]=="-n":
-      CHUNKSIZE=long(item[1])
+      CHUNKSIZE=int(item[1])
     elif item[0]=="-o":
       MFILENAME=item[1]
     elif item[0]=="--help":
@@ -139,7 +139,7 @@ if __name__ == "__main__":
       TOTALSIZE+=info.compress_size/1024
   print "found %d archived files in %d archives" % (len(MEMBERS),len(ZFHANDLES))
   numfiles=TOTALSIZE/CHUNKSIZE
-  numfiles=long(round(numfiles) + (numfiles-round(numfiles)>0 and 1 or 0 ))
+  numfiles=int(round(numfiles) + (numfiles-round(numfiles)>0 and 1 or 0 ))
   print "The Number of expected requiered files is: %d (could be more)" % numfiles  
   
   print "Starting Merging process..."
