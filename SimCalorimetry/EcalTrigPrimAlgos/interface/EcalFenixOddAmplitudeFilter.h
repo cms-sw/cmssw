@@ -27,7 +27,7 @@ private:
   bool debug_;
   bool tpInfoPrintout_;
   int setInput(int input);
-  void process();
+  void process(int i);
 
   int processedOutput_;
   int processedFgvbOutput_;
