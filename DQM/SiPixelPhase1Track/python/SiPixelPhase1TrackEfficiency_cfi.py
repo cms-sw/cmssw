@@ -149,7 +149,8 @@ SiPixelPhase1TrackEfficiencyAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackEfficien
         tracker = cms.InputTag("MeasurementTrackerEvent"),
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry,
-        triggerflags = trigger.SiPixelPhase1Triggers
+        triggerflags = trigger.SiPixelPhase1Triggers,
+        VertexCut = cms.untracked.bool(True)
 )
 
 SiPixelPhase1TrackEfficiencyHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

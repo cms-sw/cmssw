@@ -97,16 +97,17 @@ SiPixelHitEfficiencySource.ringOn = False
 
 #HI track modules
 hiTracks = "hiGeneralTracks"
-hiRefittedForPixelDQM= refittedForPixelDQM.clone()
-hiRefittedForPixelDQM.src=hiTracks
+hiRefittedForPixelDQM= refittedForPixelDQM.clone(
+    src = hiTracks
+)
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
-    vtxsrc='hiSelectedVertex'
-    )
+    vtxsrc = 'hiSelectedVertex'
+)
 
 SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
-    vtxsrc='hiSelectedVertex'
-    )
+    vtxsrc = 'hiSelectedVertex'
+)
 
 
 #DQM service
