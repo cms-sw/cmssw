@@ -393,6 +393,7 @@ if __name__ == '__main__':
                 self.matrices_ = {}
                 tmp = MatrixReader(self.opt_)
                 for what in tmp.files:
+                    what = what.replace('relval_','')
                     self.opt_.what = what
                     self.matrices_[what] = MatrixReader(self.opt_)
                     self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
@@ -523,7 +524,7 @@ if __name__ == '__main__':
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
-                    for key, mrd in self.matrices_.iteritems():
+                    for key, mrd in self.matrices_.items():
                         for wfl in mrd.workFlows:
                             if wfl.numId == float(wflid):
                                 wfName, stepNames = wfl.nameId.split('+',1)
