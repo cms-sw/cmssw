@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-* This is a part of CTPPS offline software.
+* This is a part of CTPPSDQM software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Nicola Minafra
