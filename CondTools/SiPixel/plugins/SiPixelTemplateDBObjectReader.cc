@@ -1,46 +1,87 @@
-#include "CondTools/SiPixel/test/SiPixel2DTemplateDBObjectReader.h"
 #include <iomanip>
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <memory>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
-SiPixel2DTemplateDBObjectReader::SiPixel2DTemplateDBObjectReader(const edm::ParameterSet& iConfig)
-    : the2DTemplateCalibrationLocation(iConfig.getParameter<std::string>("siPixel2DTemplateCalibrationLocation")),
-      theDetailed2DTemplateDBErrorOutput(iConfig.getParameter<bool>("wantDetailed2DTemplateDBErrorOutput")),
-      theFull2DTemplateDBOutput(iConfig.getParameter<bool>("wantFull2DTemplateDBOutput")),
+class SiPixelTemplateDBObjectReader : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
+  ~SiPixelTemplateDBObjectReader() override;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd> SiPixTemplDBObjectWatcher_;
+  edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixTemplDBObjWatcher_;
+
+  std::string theTemplateCalibrationLocation;
+  bool theDetailedTemplateDBErrorOutput;
+  bool theFullTemplateDBOutput;
+  bool testGlobalTag;
+  bool hasTriggeredWatcher;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> the1DTemplateESProdToken_;
+  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectRcd> the1DTemplateToken_;
+};
+
+SiPixelTemplateDBObjectReader::SiPixelTemplateDBObjectReader(const edm::ParameterSet& iConfig)
+    : theTemplateCalibrationLocation(iConfig.getParameter<std::string>("siPixelTemplateCalibrationLocation")),
+      theDetailedTemplateDBErrorOutput(iConfig.getParameter<bool>("wantDetailedTemplateDBErrorOutput")),
+      theFullTemplateDBOutput(iConfig.getParameter<bool>("wantFullTemplateDBOutput")),
       testGlobalTag(iConfig.getParameter<bool>("TestGlobalTag")),
-      hasTriggeredWatcher(false) {}
+      hasTriggeredWatcher(false),
+      magneticFieldToken_(esConsumes()),
+      the1DTemplateESProdToken_(esConsumes()),
+      the1DTemplateToken_(esConsumes()) {}
 
-SiPixel2DTemplateDBObjectReader::~SiPixel2DTemplateDBObjectReader() {}
+SiPixelTemplateDBObjectReader::~SiPixelTemplateDBObjectReader() = default;
 
-void SiPixel2DTemplateDBObjectReader::beginJob() {}
+void SiPixelTemplateDBObjectReader::beginJob() {}
 
-void SiPixel2DTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup) {
+void SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //To test with the ESProducer
+  SiPixelTemplateDBObject dbobject;
   if (testGlobalTag) {
-    edm::ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
+    // Get magnetic field
     GlobalPoint center(0.0, 0.0, 0.0);
+    edm::ESHandle<MagneticField> magfield = iSetup.getHandle(magneticFieldToken_);
     float theMagField = magfield.product()->inTesla(center).mag();
 
-    std::cout << "\nTesting global tag at magfield = " << theMagField << std::endl;
-    if (SiPix2DTemplDBObjWatcher_.check(setup)) {
-      edm::ESHandle<SiPixel2DTemplateDBObject> generrorH;
-      setup.get<SiPixel2DTemplateDBObjectESProducerRcd>().get(generrorH);
-      dbobject = *generrorH.product();
+    edm::LogPrint("SiPixelTemplateDBObjectReader") << "\nTesting global tag at magfield = " << theMagField;
+    if (SiPixTemplDBObjWatcher_.check(iSetup)) {
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << "With record SiPixelTemplateDBObjectESProducerRcd";
+      dbobject = *&iSetup.getData(the1DTemplateESProdToken_);
       hasTriggeredWatcher = true;
     }
   } else {
-    std::cout << "\nLoading from file " << std::endl;
-    if (SiPix2DTemplDBObjWatcher_.check(setup)) {
-      edm::ESHandle<SiPixel2DTemplateDBObject> generrorH;
-      setup.get<SiPixel2DTemplateDBObjectRcd>().get(generrorH);
-      dbobject = *generrorH.product();
+    edm::LogPrint("SiPixelTemplateDBObjectReader") << "\nLoading from file " << std::endl;
+    if (SiPixTemplDBObjWatcher_.check(iSetup)) {
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << "With record SiPixelTemplateDBObjectRcd";
+      dbobject = *&iSetup.getData(the1DTemplateToken_);
       hasTriggeredWatcher = true;
     }
   }
@@ -48,53 +89,54 @@ void SiPixel2DTemplateDBObjectReader::analyze(const edm::Event& iEvent, const ed
   if (hasTriggeredWatcher) {
     std::vector<short> tempMapId;
 
-    /*hp
-		if(theFull2DTemplateDBOutput) std::cout << "Map info" << std::endl;
-		std::map<unsigned int,short> templMap=dbobject.get2DTemplateIDs();
-		for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it) {
-			if(tempMapId.size()==0) tempMapId.push_back(it->second);
-			for(unsigned int i=0; i<tempMapId.size();++i) {
-				if(tempMapId[i]==it->second) continue;
-				else if(i==tempMapId.size()-1) {
-					tempMapId.push_back(it->second);
-					break;
-				}
-			}
-			if(theFull2DTemplateDBOutput)
-				std::cout<< "DetId: "<< it->first<<" 2DTemplateID: "<< it->second<<"\n";
-		}
-hp*/
+    if (theFullTemplateDBOutput)
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << "Map info" << std::endl;
+    std::map<unsigned int, short> templMap = dbobject.getTemplateIDs();
+    for (std::map<unsigned int, short>::const_iterator it = templMap.begin(); it != templMap.end(); ++it) {
+      if (tempMapId.empty())
+        tempMapId.push_back(it->second);
+      for (unsigned int i = 0; i < tempMapId.size(); ++i) {
+        if (tempMapId[i] == it->second)
+          continue;
+        else if (i == tempMapId.size() - 1) {
+          tempMapId.push_back(it->second);
+          break;
+        }
+      }
+      if (theFullTemplateDBOutput)
+        edm::LogPrint("SiPixelTemplateDBObjectReader")
+            << "DetId: " << it->first << " TemplateID: " << it->second << "\n";
+    }
 
-    std::cout << "\nMap stores 2DTemplate Id(s): ";
+    edm::LogPrint("SiPixelTemplateDBObjectReader") << "\nMap stores template Id(s): ";
     for (unsigned int vindex = 0; vindex < tempMapId.size(); ++vindex)
-      std::cout << tempMapId[vindex] << " ";
-    std::cout << std::endl;
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << tempMapId[vindex] << " ";
+    edm::LogPrint("SiPixelTemplateDBObjectReader") << std::endl;
 
     //local variables
     const char* tempfile;
-    char c;
     int numOfTempl = dbobject.numOfTempl();
     int index = 0;
     float tempnum = 0, diff = 0;
     float tol = 1.0E-23;
     bool error = false, givenErrorMsg = false;
-    ;
 
-    std::cout << "\nChecking 2DTemplate DB object version " << dbobject.version() << " containing " << numOfTempl
-              << " calibration(s) at " << dbobject.sVector()[index + 22] << "T\n";
+    edm::LogPrint("SiPixelTemplateDBObjectReader")
+        << "\nChecking Template DB object version " << dbobject.version() << " containing " << numOfTempl
+        << " calibration(s) at " << dbobject.sVector()[index + 22] << "T\n";
     for (int i = 0; i < numOfTempl; ++i) {
       //Removes header in db object from diff
       index += 20;
 
-      //Tell the person viewing the output what the 2DTemplate ID and version are -- note that version is only valid for >=13
-      std::cout << "Calibration " << i + 1 << " of " << numOfTempl << ", with 2DTemplate ID "
-                << dbobject.sVector()[index] << "\tand Version " << dbobject.sVector()[index + 1] << "\t--------  ";
+      //Tell the person viewing the output what the template ID and version are -- note that version is only valid for >=13
+      edm::LogPrint("SiPixelTemplateDBObjectReader")
+          << "Calibration " << i + 1 << " of " << numOfTempl << ", with Template ID " << dbobject.sVector()[index]
+          << "\tand Version " << dbobject.sVector()[index + 1] << "\t--------  ";
 
-      //Opening the text-based 2DTemplate calibration
+      //Opening the text-based template calibration
       std::ostringstream tout;
-      //tout << the2DTemplateCalibrationLocation.c_str() << "/data/generror_summary_zp"
-      tout << the2DTemplateCalibrationLocation.c_str() << "/data/template2D_IOV5/template_summary2D_zp" << std::setw(4)
-           << std::setfill('0') << std::right << dbobject.sVector()[index] << ".out" << std::ends;
+      tout << theTemplateCalibrationLocation.c_str() << "/data/template_summary_zp" << std::setw(4) << std::setfill('0')
+           << std::right << dbobject.sVector()[index] << ".out" << std::ends;
 
       edm::FileInPath file(tout.str());
       tempfile = (file.fullPath()).c_str();
@@ -102,9 +144,6 @@ hp*/
 
       if (in_file.is_open()) {
         //Removes header in textfile from diff
-        for (int header = 0; (c = in_file.get()) != '\n'; ++header) {
-        }
-
         //First read in from the text file -- this will be compared with index = 20
         in_file >> tempnum;
 
@@ -117,14 +156,15 @@ hp*/
           if (diff > tol) {
             //We have the if statement to output the message only once
             if (!givenErrorMsg)
-              std::cout << "does NOT match\n";
+              edm::LogPrint("SiPixelTemplateDBObjectReader") << "does NOT match\n";
             //If there is an error we want to display a message upon completion
             error = true;
             givenErrorMsg = true;
             //Do we want more detailed output?
-            if (theDetailed2DTemplateDBErrorOutput) {
-              std::cout << "from file = " << tempnum << "\t from dbobject = " << dbobject.sVector()[index]
-                        << "\tdiff = " << diff << "\t db index = " << index << std::endl;
+            if (theDetailedTemplateDBErrorOutput) {
+              edm::LogPrint("SiPixelTemplateDBObjectReader")
+                  << "from file = " << tempnum << "\t from dbobject = " << dbobject.sVector()[index]
+                  << "\tdiff = " << diff << "\t db index = " << index << std::endl;
             }
           }
           //Go to the next entries
@@ -133,62 +173,68 @@ hp*/
         }
         //There were no errors, the two files match.
         if (!givenErrorMsg)
-          std::cout << "MATCHES\n";
+          edm::LogPrint("SiPixelTemplateDBObjectReader") << "MATCHES\n";
       }  //end current file
       in_file.close();
       givenErrorMsg = false;
     }  //end loop over all files
 
-    if (error && !theDetailed2DTemplateDBErrorOutput)
-      std::cout << "\nThe were differences found between the files and the database.\n"
-                << "If you would like more detailed information please set\n"
-                << "wantDetailedOutput = True in the cfg file. If you would like a\n"
-                << "full output of the contents of the database file please set\n"
-                << "wantFullOutput = True. Make sure that you pipe the output to a\n"
-                << "log file. This could take a few minutes.\n\n";
+    if (error && !theDetailedTemplateDBErrorOutput)
+      edm::LogPrint("SiPixelTemplateDBObjectReader")
+          << "\nThe were differences found between the files and the database.\n"
+          << "If you would like more detailed information please set\n"
+          << "wantDetailedOutput = True in the cfg file. If you would like a\n"
+          << "full output of the contents of the database file please set\n"
+          << "wantFullOutput = True. Make sure that you pipe the output to a\n"
+          << "log file. This could take a few minutes.\n\n";
 
-    if (theFull2DTemplateDBOutput)
-      std::cout << dbobject << std::endl;
+    if (theFullTemplateDBOutput)
+      edm::LogPrint("SiPixelTemplateDBObjectReader") << dbobject << std::endl;
   }
 }
 
-void SiPixel2DTemplateDBObjectReader::endJob() {}
+void SiPixelTemplateDBObjectReader::endJob() {}
 
-std::ostream& operator<<(std::ostream& s, const SiPixel2DTemplateDBObject& dbobject) {
+std::ostream& operator<<(std::ostream& s, const SiPixelTemplateDBObject& dbobject) {
   //!-index to keep track of where we are in the object
   int index = 0;
-  //!-these are modifiable parameters for the extended 2DTemplates
+  //!-these are modifiable parameters for the extended templates
   int txsize[4] = {7, 13, 0, 0};
   int tysize[4] = {21, 21, 0, 0};
   //!-entries takes the number of entries in By,Bx,Fy,Fx from the object
   int entries[4] = {0};
   //!-local indicies for loops
   int i, j, k, l, m, n, entry_it;
-  //!-changes the size of the 2DTemplates based on the version
-  int sizeSetter = 0, generrorVersion = 0;
+  //!-changes the size of the templates based on the version
+  int sizeSetter = 0, templateVersion = 0;
 
-  std::cout << "\n\nDBobject version: " << dbobject.version() << std::endl;
+  edm::LogPrint("SiPixelTemplateDBObjectReader") << "\n\nDBobject version: " << dbobject.version() << std::endl;
 
   for (m = 0; m < dbobject.numOfTempl(); ++m) {
-    //To change the size of the output based on which 2DTemplate version we are using"
-    generrorVersion = (int)dbobject.sVector_[index + 21];
-    if (generrorVersion <= 10) {
-      std::cout << "*****WARNING***** This code will not format this 2DTemplate version properly *****WARNING*****\n";
+    //To change the size of the output based on which template version we are using"
+    templateVersion = (int)dbobject.sVector_[index + 21];
+    if (templateVersion <= 10) {
+      edm::LogPrint("SiPixelTemplateDBObjectReader")
+          << "*****WARNING***** This code will not format this template version properly *****WARNING*****\n";
       sizeSetter = 0;
-    } else if (generrorVersion <= 16)
+    } else if (templateVersion <= 16)
       sizeSetter = 1;
     else
-      std::cout << "*****WARNING***** This code has not been tested at formatting this version *****WARNING*****\n";
+      edm::LogPrint("SiPixelTemplateDBObjectReader")
+          << "*****WARNING***** This code has not been tested at formatting this version *****WARNING*****\n";
 
-    std::cout << "\n\n*********************************************************************************************"
-              << std::endl;
-    std::cout << "***************                  Reading 2DTemplate ID " << dbobject.sVector_[index + 20] << "\t("
-              << m + 1 << "/" << dbobject.numOfTempl_ << ")                 ***************" << std::endl;
-    std::cout << "*********************************************************************************************\n\n"
-              << std::endl;
+    edm::LogPrint("SiPixelTemplateDBObjectReader")
+        << "\n\n*********************************************************************************************"
+        << std::endl;
+    edm::LogPrint("SiPixelTemplateDBObjectReader")
+        << "***************                  Reading Template ID " << dbobject.sVector_[index + 20] << "\t(" << m + 1
+        << "/" << dbobject.numOfTempl_ << ")                 ***************" << std::endl;
+    edm::LogPrint("SiPixelTemplateDBObjectReader")
+        << "*********************************************************************************************\n\n"
+        << std::endl;
 
     //Header Title
-    SiPixel2DTemplateDBObject::char2float temp;
+    SiPixelTemplateDBObject::char2float temp;
     for (n = 0; n < 20; ++n) {
       temp.f = dbobject.sVector_[index];
       s << temp.c[0] << temp.c[1] << temp.c[2] << temp.c[3];
@@ -341,3 +387,5 @@ std::ostream& operator<<(std::ostream& s, const SiPixel2DTemplateDBObject& dbobj
   }
   return s;
 }
+
+DEFINE_FWK_MODULE(SiPixelTemplateDBObjectReader);
