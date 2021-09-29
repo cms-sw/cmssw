@@ -63,7 +63,7 @@ public:
       config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
       config.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
       config.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.log_level = pset_dnn.getParameter<std::string>("logLevel");
+      config.log_level = pset_dnn.getParameter<uint>("logLevel");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config);
     }
   }

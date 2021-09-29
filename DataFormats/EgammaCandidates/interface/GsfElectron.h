@@ -701,6 +701,8 @@ namespace reco {
             etOutsideMustache(-std::numeric_limits<float>::max()) {}
     };
 
+    static constexpr float mvaNaN = -999999999.;
+
     struct MvaOutput {
       int status;  // see PFCandidateElectronExtra::StatusFlag
       float mva_Isolated;
@@ -713,14 +715,14 @@ namespace reco {
       float dnn_e_bkgPhoton;
       MvaOutput()
           : status(-1),
-            mva_Isolated(-999999999.),
-            mva_e_pi(-999999999.),
-            mvaByPassForIsolated(-999999999.),
-            dnn_e_sigIsolated(-999999999.),
-            dnn_e_sigNonIsolated(-999999999.),
-            dnn_e_bkgNonIsolated(-999999999.),
-            dnn_e_bkgTau(-999999999.),
-            dnn_e_bkgPhoton(-999999999.) {}
+            mva_Isolated(mvaNaN),
+            mva_e_pi(mvaNaN),
+            mvaByPassForIsolated(mvaNaN),
+            dnn_e_sigIsolated(mvaNaN),
+            dnn_e_sigNonIsolated(mvaNaN),
+            dnn_e_bkgNonIsolated(mvaNaN),
+            dnn_e_bkgTau(mvaNaN),
+            dnn_e_bkgPhoton(mvaNaN) {}
     };
 
     // accessors
