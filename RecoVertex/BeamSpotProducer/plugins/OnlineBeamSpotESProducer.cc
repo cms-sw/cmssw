@@ -1,23 +1,22 @@
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Utilities/interface/do_nothing_deleter.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
-#include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-#include "FWCore/Framework/interface/ESProductHost.h"
-#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include <memory>
-#include <iostream>
 #include <string>
 
 using namespace edm;
@@ -86,25 +85,32 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
   // 3. If both are newer than the limit threshold return
   //    the BS that converged and has larger sigmaZ
   if (diffBStime1 > limitTime && diffBStime2 > limitTime) {
+    edm::LogInfo("OnlineBeamSpotESProducer") << "Defaulting to fake becuase both payloads are too old.";
     return nullptr;
   } else if (diffBStime2 > limitTime) {
     if (bs1->GetSigmaZ() > sigmaZThreshold_ && bs1->GetBeamType() == 2) {
       return bs1;
     } else {
+      edm::LogInfo("OnlineBeamSpotESProducer")
+          << "Defaulting to fake because the legacy Beam Spot is not suitable and HLT one is too old.";
       return nullptr;
     }
   } else if (diffBStime1 > limitTime) {
     if (bs2->GetSigmaZ() > sigmaZThreshold_ && bs2->GetBeamType() == 2) {
       return bs2;
     } else {
+      edm::LogInfo("OnlineBeamSpotESProducer")
+          << "Defaulting to fake because the HLT Beam Spot is not suitable and the legacy one too old.";
       return nullptr;
     }
   } else {
     if (bs1->GetSigmaZ() > bs2->GetSigmaZ() && bs1->GetBeamType() == 2) {
       return bs1;
-    } else if (bs2->GetSigmaZ() > bs1->GetSigmaZ() && bs2->GetBeamType() == 2) {
+    } else if (bs2->GetSigmaZ() >= bs1->GetSigmaZ() && bs2->GetBeamType() == 2) {
       return bs2;
     } else {
+      edm::LogInfo("OnlineBeamSpotESProducer")
+          << "Defaulting to fake because despite both payloads are young enough, none has the right BeamType.";
       return nullptr;
     }
   }
@@ -134,6 +140,7 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
   auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
   if (not legacyRec and not hltRec) {
+    edm::LogInfo("OnlineBeamSpotESProducer") << "None of the Beam Spots in ES are available! \n returning a fake one.";
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
   }
 
@@ -149,6 +156,8 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
     return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
   } else {
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
+    edm::LogInfo("OnlineBeamSpotESProducer")
+        << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one. ";
   }
 };
 
