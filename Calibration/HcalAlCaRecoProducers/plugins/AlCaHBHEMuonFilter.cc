@@ -179,7 +179,8 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Size of collection " << muonHandle->size();
 #endif
-      for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end(); ++RecMuon) {
+      for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+           ++RecMuon) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                      << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "

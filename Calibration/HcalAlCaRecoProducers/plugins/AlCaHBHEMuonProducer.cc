@@ -226,8 +226,8 @@ void AlCaHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotLabel", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VertexLabel", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<edm::InputTag>("EBRecHitLabel", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  desc.add<edm::InputTag>("EERecHitLabel", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("EBRecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("HBHERecHitLabel", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
   desc.add<double>("MinimumMuonP", 10.0);
