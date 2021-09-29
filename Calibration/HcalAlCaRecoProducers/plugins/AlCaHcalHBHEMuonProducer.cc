@@ -251,8 +251,7 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if (trigNames_.empty()) {
     ok = true;
   } else {
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       std::vector<std::string> modules;
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
