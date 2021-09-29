@@ -196,7 +196,6 @@ void TEcnaWrite::Init() {
 
   fjustap_2d_ss = nullptr;
   fjustap_1d_ss = nullptr;
-
 }
 // end of Init()
 
