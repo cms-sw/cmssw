@@ -34,21 +34,25 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
                                        std::vector<int> &output,
                                        std::vector<int> &fgvbIn,
                                        std::vector<int> &fgvbOut) {
-  // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
     buffer_[i] = 0;
     fgvbBuffer_[i] = 0;
   }
-  // test end
 
   for (unsigned int i = 0; i < addout.size(); i++) {
-    // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    // if (i >= 4 && tpInfoPrintout_) {
-      // edm::LogVerbatim("EcalTPG") << i << std::dec;
-    // }
     setInput(addout[i], fgvbIn[i]);
-    process(i);
+    process();
+    if (tpInfoPrintout_) {
+      if(i >= 4){
+        edm::LogVerbatim("EcalTPG") << i << " " << stripid_ 
+                                    << " " << weights_[0] << " " << weights_[1] << " " << weights_[2] << " " << weights_[3] << " " << weights_[4] 
+                                    << " " << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0 << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 
+                                    << " " << buffer_[0] << " " << buffer_[1] << " " << buffer_[2]  << " " << buffer_[3] << " " << buffer_[4]
+                                    << " --> output: " << processedOutput_ << " EVEN"; 
+        
+        }   
+      }    
     output[i] = processedOutput_;
     fgvbOut[i] = processedFgvbOutput_;
   }
@@ -65,11 +69,10 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
   return;
 }
 
-void EcalFenixAmplitudeFilter::process(int i) {
-  // UB FIXME: 5
+void EcalFenixAmplitudeFilter::process() {
   processedOutput_ = 0;
   processedFgvbOutput_ = 0;
-  if (inputsAlreadyIn_ < 5)
+  if (inputsAlreadyIn_ < 5) // 5 digis required to produce first ET value
     return;
   int output = 0;
   int fgvbInt = 0;
@@ -85,15 +88,6 @@ void EcalFenixAmplitudeFilter::process(int i) {
     output = 0X3FFFF;
   processedOutput_ = output;
   processedFgvbOutput_ = fgvbInt;
-
-  if (tpInfoPrintout_) {
-    edm::LogVerbatim("EcalTPG") << i << " " << stripid_ 
-                                << " " << weights_[0] << " " << weights_[1] << " " << weights_[2] << " " << weights_[3] << " " << weights_[4] << " " 
-                                << " " << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0 << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 << " " 
-                                << " " << buffer_[0] << " " << buffer_[1] << " " << buffer_[2]  << " " << buffer_[3] << " " << buffer_[4]
-                                << " --> output: " << output << " EVEN"; 
-    
-  }
 }
 
 void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
