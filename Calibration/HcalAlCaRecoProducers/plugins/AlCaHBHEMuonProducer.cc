@@ -57,6 +57,7 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
   static void globalEndJob(const AlCaHBHEMuons::Counters* counters);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
@@ -122,43 +123,37 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
 #endif
 
   //Step1: Get all the relevant containers
-  edm::Handle<reco::BeamSpot> bmspot;
-  iEvent.getByToken(tok_BS_, bmspot);
+  auto bmspot = iEvent.getHandle(tok_BS_);
   if (!bmspot.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelBS_;
     valid = false;
   }
 
-  edm::Handle<reco::VertexCollection> vt;
-  iEvent.getByToken(tok_Vtx_, vt);
+  auto vt = iEvent.getHandle(tok_Vtx_);
   if (!vt.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelVtx_;
     valid = false;
   }
 
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  auto barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEB_;
     valid = false;
   }
 
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  auto endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEE_;
     valid = false;
   }
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  auto hbhe = iEvent.getHandle(tok_HBHE_);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelHBHE_;
     valid = false;
   }
 
-  edm::Handle<reco::MuonCollection> muonhandle;
-  iEvent.getByToken(tok_Muon_, muonhandle);
+  auto muonhandle = iEvent.getHandle(tok_Muon_);
   if (!muonhandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelMuon_;
     valid = false;
@@ -223,6 +218,20 @@ void AlCaHBHEMuonProducer::endStream() {
 
 void AlCaHBHEMuonProducer::globalEndJob(const AlCaHBHEMuons::Counters* count) {
   edm::LogVerbatim("HcalHBHEMuon") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events";
+}
+
+void AlCaHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("BeamSpotLabel", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("VertexLabel", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("EBRecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("HBHERecHitLabel", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
+  desc.add<double>("MinimumMuonP", 10.0);
+  descriptions.add("alcaHBHEMuonProducer", desc);
 }
 
 void AlCaHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
