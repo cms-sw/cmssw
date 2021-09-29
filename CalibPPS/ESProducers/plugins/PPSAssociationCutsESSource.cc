@@ -117,7 +117,8 @@ edm::ParameterSetDescription PPSAssociationCutsESSource::getIOVDefaultParameters
   desc.add<edm::EventRange>("validityRange", edm::EventRange())->setComment("interval of validity");
 
   for (auto &sector : {"45", "56"}) {
-    desc.add<edm::ParameterSetDescription>("association_cuts_" + std::string(sector), PPSAssociationCuts::getDefaultParameters())
+    desc.add<edm::ParameterSetDescription>("association_cuts_" + std::string(sector),
+                                           PPSAssociationCuts::getDefaultParameters())
         ->setComment("track-association cuts for sector " + std::string(sector));
   }
 
