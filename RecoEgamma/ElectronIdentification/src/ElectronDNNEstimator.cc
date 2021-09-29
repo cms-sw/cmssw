@@ -16,9 +16,8 @@ ElectronDNNEstimator::ElectronDNNEstimator(std::vector<std::string>& models_file
            .outputTensorName = outputTensorName,
            .models_files = models_files,
            .scalers_files = scalers_files,
-           .log_level = "2"} {
+           .log_level = 2} {
   nModels_ = cfg_.models_files.size();
-  debug_ = cfg_.log_level == "0";
   initTensorFlowGraphs();
   initScalerFiles();
   LogDebug("EleDNNPFid") << "Ele PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
@@ -28,7 +27,6 @@ ElectronDNNEstimator::ElectronDNNEstimator(std::vector<std::string>& models_file
 ElectronDNNEstimator::ElectronDNNEstimator(const Configuration& cfg) : cfg_(cfg) {
   // Init tensorflow sessions
   nModels_ = cfg_.models_files.size();
-  debug_ = cfg_.log_level == "0";
   initTensorFlowGraphs();
   initScalerFiles();
   LogDebug("EleDNNPFid") << "Ele PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
@@ -37,7 +35,7 @@ ElectronDNNEstimator::ElectronDNNEstimator(const Configuration& cfg) : cfg_(cfg)
 
 void ElectronDNNEstimator::initTensorFlowGraphs() {
   // configure logging to show warnings (see table below)
-  tensorflow::setLogging(cfg_.log_level);
+  tensorflow::setLogging(std::to_string(cfg_.log_level));
   // load the graph definition
   LogDebug("EleDNNPFid") << "Loading " << nModels_ << " graphs";
   for (const auto& model_file : cfg_.models_files) {

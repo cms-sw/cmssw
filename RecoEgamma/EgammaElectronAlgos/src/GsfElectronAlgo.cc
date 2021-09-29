@@ -55,7 +55,7 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
     dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
     dconfig.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
     dconfig.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-    dconfig.log_level = pset_dnn.getParameter<std::string>("logLevel");
+    dconfig.log_level = pset_dnn.getParameter<uint>("logLevel");
     iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig);
   }
 }
@@ -469,11 +469,15 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   auto barrelRecHits = event.getHandle(cfg_.tokens.barrelRecHitCollection);
   auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
 
-  auto ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
-  std::vector<edm::Handle<reco::PFClusterCollection>> hcalClusters{event.getHandle(cfg_.tokens.pfClusterProducerHCAL)};
-  if (cfg_.pfiso.useHF) {
-    hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
-    hcalClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
+  edm::Handle<reco::PFClusterCollection> ecalPFClusters;
+  std::vector<edm::Handle<reco::PFClusterCollection>> hcalPFClusters;
+  if(cfg_.strategy.computePfClusterIso){
+    ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
+    hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHCAL));    
+    if (cfg_.pfiso.useHF) {
+      hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
+      hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
+    }
   }
 
   auto ctfTracks = event.getHandle(cfg_.tokens.ctfTracks);
@@ -626,8 +630,8 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .originalCtfTracks = {},
       .originalGsfTracks = {},
 
-      .ecalClustersHandle = ecalPFClusters,
-      .hcalClustersHandle = hcalClusters
+      .ecalClustersHandle =  ecalPFClusters,
+      .hcalClustersHandle = hcalPFClusters
 
   };
 

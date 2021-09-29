@@ -16,7 +16,7 @@ public:
     std::string outputTensorName;
     std::vector<std::string> models_files;
     std::vector<std::string> scalers_files;
-    std::string log_level = "2";
+    uint log_level = 2;
   };
   static constexpr uint nAvailableVars = 11;
   static constexpr uint nOutputs = 1;
@@ -67,7 +67,6 @@ private:
   * 2 = MinMax. par1=min, par2=max */
   std::vector<std::vector<std::tuple<std::string, uint, float, float>>> featuresMap_;
 
-  bool debug_;
 };
 
 #endif

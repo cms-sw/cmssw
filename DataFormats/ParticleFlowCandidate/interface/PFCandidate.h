@@ -383,7 +383,7 @@ namespace reco {
 
     const ElementsInBlocks& elementsInBlocks() const;
 
-    static const float bigMva_;
+    static constexpr float bigMva_ = -999.;
 
     friend std::ostream& operator<<(std::ostream& out, const PFCandidate& c);
 
@@ -493,19 +493,19 @@ namespace reco {
     float mva_gamma_nh_;
 
     /// DNN for electron PFid: isolated signal
-    float dnn_e_sigIsolated;
+    float dnn_e_sigIsolated_;
 
     /// DNN for electron PFid: non-isolated signal
-    float dnn_e_sigNonIsolated;
+    float dnn_e_sigNonIsolated_;
 
     /// DNN for electron PFid: non-isolated bkg
-    float dnn_e_bkgNonIsolated;
+    float dnn_e_bkgNonIsolated_;
 
     /// DNN for electron PFid: tau bkg
-    float dnn_e_bkgTau;
+    float dnn_e_bkgTau_;
 
     /// DNN for electron PFid: photon bkg
-    float dnn_e_bkgPhoton;
+    float dnn_e_bkgPhoton_;
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF positionAtECALEntrance_;

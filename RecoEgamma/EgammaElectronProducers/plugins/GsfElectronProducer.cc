@@ -411,6 +411,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   inputCfg_.pfClusterProducerHCAL = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
   inputCfg_.pfClusterProducerHFEM = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
   inputCfg_.pfClusterProducerHFHAD = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
+  // Config for PFID dnn
+  auto pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
+  dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
@@ -431,6 +434,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
   strategyCfg_.fillConvVtxFitProb = cfg.getParameter<bool>("fillConvVtxFitProb");
+  strategyCfg_.computePfClusterIso = dnnPFidEnabled_;
 
   // hcal helpers
   auto const& psetPreselection = cfg.getParameter<edm::ParameterSet>("preselection");
@@ -537,9 +541,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg"),
       consumesCollector());
 
-  // Config for PFID dnn
-  auto pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
-  dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+
   // Open the tensorflow sessions
   if (dnnPFidEnabled_)
     elePFid_tfSessions = gcache->iElectronDNNEstimator->getSessions();
