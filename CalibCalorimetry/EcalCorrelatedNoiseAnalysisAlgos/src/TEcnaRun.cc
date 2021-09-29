@@ -55,7 +55,6 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet) {
 }
 
 TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int_t& NbOfSamples) {
-
   Init(pObjectManager);
 
   //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
