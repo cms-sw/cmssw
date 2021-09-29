@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -29,8 +30,10 @@
 class AlCaEcalHcalReadoutsProducer : public edm::global::EDProducer<> {
 public:
   explicit AlCaEcalHcalReadoutsProducer(const edm::ParameterSet&);
+  ~AlCaEcalHcalReadoutsProducer() override = default;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----------member data ---------------------------
@@ -66,24 +69,32 @@ void AlCaEcalHcalReadoutsProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   iEvent.getByToken(tok_hbhe_, hbhe);
   if (!hbhe.isValid()) {
-    LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
     return;
   }
 
   iEvent.getByToken(tok_ho_, ho);
   if (!ho.isValid()) {
-    LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
   }
 
   iEvent.getByToken(tok_hf_, hf);
   if (!hf.isValid()) {
-    LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
   }
 
   //Put selected information in the event
   iEvent.emplace(put_hbhe_, *hbhe);
   iEvent.emplace(put_ho_, *ho);
   iEvent.emplace(put_hf_, *hf);
+}
+
+void AlCaEcalHcalReadoutsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("hbheInput", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("hfInput", edm::InputTag("hfreco"));
+  desc.add<edm::InputTag>("hoInput", edm::InputTag("horeco"));
+  descriptions.add("alcaEcalHcalReadoutsProducer", desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
