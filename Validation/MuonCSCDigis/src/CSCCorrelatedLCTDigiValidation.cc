@@ -103,14 +103,13 @@ void CSCCorrelatedLCTDigiValidation::analyze(const edm::Event &e, const edm::Eve
         chamberHistos[typeCorrected]["lct_bend"]->Fill(lct->getBend());
         chamberHistos[typeCorrected]["lct_bx"]->Fill(lct->getBX());
         if (isRun3_) {
+          // ignore these fields for chambers that do not enable the Run-3 algorithm
           if (std::find(chambersRun3_.begin(), chambersRun3_.end(), chamberType - 2) == chambersRun3_.end())
             continue;
           chamberHistos[typeCorrected]["lct_run3pattern"]->Fill(lct->getRun3Pattern());
           chamberHistos[typeCorrected]["lct_slope"]->Fill(lct->getSlope());
           chamberHistos[typeCorrected]["lct_quartstrip"]->Fill(lct->getStrip(4));
           chamberHistos[typeCorrected]["lct_eighthstrip"]->Fill(lct->getStrip(8));
-          chamberHistos[typeCorrected]["lct_quartstripbit"]->Fill(lct->getQuartStripBit());
-          chamberHistos[typeCorrected]["lct_eighthstripbit"]->Fill(lct->getEighthStripBit());
         }
       }
     }

@@ -61,10 +61,8 @@ void CSCCLCTPreTriggerDigiValidation::analyze(const edm::Event &e, const edm::Ev
     const unsigned typeCorrected(detId.endcap() == 1 ? chamberType - 2 : chamberType - 2 + chambers_.size());
     for (auto preclct = range.first; preclct != range.second; preclct++) {
       if (preclct->isValid()) {
-        chamberHistos[typeCorrected]["preclct_pattern"]->Fill(preclct->getPattern());
-        chamberHistos[typeCorrected]["preclct_quality"]->Fill(preclct->getQuality());
+        chamberHistos[typeCorrected]["preclct_cfeb"]->Fill(preclct->getCFEB());
         chamberHistos[typeCorrected]["preclct_halfstrip"]->Fill(preclct->getKeyStrip());
-        chamberHistos[typeCorrected]["preclct_bend"]->Fill(preclct->getBend());
         chamberHistos[typeCorrected]["preclct_bx"]->Fill(preclct->getBX());
       }
     }

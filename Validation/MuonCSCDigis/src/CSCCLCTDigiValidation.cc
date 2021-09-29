@@ -93,6 +93,7 @@ void CSCCLCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
         chamberHistos[typeCorrected]["clct_bend"]->Fill(clct->getBend());
         chamberHistos[typeCorrected]["clct_bx"]->Fill(clct->getBX());
         if (isRun3_) {
+          // ignore these fields for chambers that do not enable the Run-3 algorithm
           if (std::find(chambersRun3_.begin(), chambersRun3_.end(), chamberType - 2) == chambersRun3_.end())
             continue;
           chamberHistos[typeCorrected]["clct_run3pattern"]->Fill(clct->getRun3Pattern());
@@ -100,8 +101,6 @@ void CSCCLCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &
           chamberHistos[typeCorrected]["clct_eighthstrip"]->Fill(clct->getKeyStrip(8));
           chamberHistos[typeCorrected]["clct_slope"]->Fill(clct->getSlope());
           chamberHistos[typeCorrected]["clct_compcode"]->Fill(clct->getCompCode());
-          chamberHistos[typeCorrected]["clct_quartstripbit"]->Fill(clct->getQuartStripBit());
-          chamberHistos[typeCorrected]["clct_eighthstripbit"]->Fill(clct->getEighthStripBit());
         }
       }
     }
