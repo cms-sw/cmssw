@@ -6,3 +6,5 @@ onlineBeamSpotProducer = _mod.beamSpotOnlineProducer.clone(
                                         gtEvmLabel = 'gtEvmDigis'
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(onlineBeamSpotProducer, useTransientRecord = True)
