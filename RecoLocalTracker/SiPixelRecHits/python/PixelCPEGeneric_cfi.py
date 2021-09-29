@@ -56,8 +56,7 @@ from Configuration.Eras.Modifier_phase2_squarePixels_cff import phase2_squarePix
                                                                     )
 # customize phase2 CPE generic for bricked pixels
 from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
-from Configuration.ProcessModifiers.PixelCPEGenericForBricked_cff import PixelCPEGenericForBricked
-(phase2_tracker & (phase2_3DPixels & phase2_brickedPixels & PixelCPEGenericForBricked)).toModify(PixelCPEGenericESProducer,
+(phase2_tracker & phase2_brickedPixels ).toModify(PixelCPEGenericESProducer,
                                                                                                  ComponentName = 'PixelCPEGenericForBricked', # PixelCPEGenericForBricked is derived fromPixelCPEGeneric with changes in some of the methods to deal with bricked pixel topology
                                                                                                  UseErrorsFromTemplates = False,              # no GenErrors
                                                                                                  LoadTemplatesFromDB = False,                 # do not load template
