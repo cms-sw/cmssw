@@ -302,8 +302,7 @@ void EcalFenixStrip::process_part2_endcap(uint32_t stripid,
   this->getFormatterEE()->process(fgvb_out_, even_peak_out_, even_filt_out_, odd_peak_out_, odd_filt_out_, format_out_);
 
   if (debug_) {
-    edm::LogVerbatim("EcalTPG");
-    edm::LogVerbatim("EcalTPG") << "output of strip EE formatter is a vector of size: " << format_out_.size();
+    edm::LogVerbatim("EcalTPG") << "\noutput of strip EE formatter is a vector of size: " << format_out_.size();
     edm::LogVerbatim("EcalTPG") << "value : "; 
     for (unsigned int ix = 0; ix < format_out_.size(); ix++) {
       edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << format_out_[ix] << "  0b"
