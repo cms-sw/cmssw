@@ -138,29 +138,30 @@ void EcalFenixStrip::process_part1(int identif,
     edm::LogVerbatim("EcalTPG") << " "; 
     edm::LogVerbatim("EcalTPG") << "ECAL TPG TPMode printout:"; 
 
-    std::stringstream ss;
-    ecaltpgTPMode_->print(ss); 
-    edm::LogVerbatim("EcalTPG") << ss.str(); 
+    std::stringstream * ss = new std::stringstream(); 
+    ecaltpgTPMode_->print(*ss); 
+    edm::LogVerbatim("EcalTPG") << ss->str(); 
     edm::LogVerbatim("EcalTPG") << " "; 
+    delete ss; 
   }
 
   // loop over crystals
   for (int cryst = 0; cryst < nrXtals; cryst++) {
     if (debug_) {
 
-      edm::LogVerbatim("EcalTPG") << "crystal " << cryst << " EBDataFrame/EEDataFrame is (ADC counts): "; 
+      edm::LogVerbatim("EcalTPG") << "crystal " << cryst << " ADC counts (non-linearized): "; 
       int Nsamples = df[cryst].size(); 
 
-      std::string XTAL_ADCs; // Should this string be destroyed upon each iteration?
+      std::string * XTAL_ADCs = new std::string(""); 
 
       for (int i = 0; i < Nsamples; i++) {
-        XTAL_ADCs.append(" ");
-        XTAL_ADCs.append(std::to_string(df[cryst][i].adc()));
+        XTAL_ADCs->append(" ");
+        XTAL_ADCs->append(std::to_string(df[cryst][i].adc()));
       }
 
-      edm::LogVerbatim("EcalTPG") << XTAL_ADCs; 
+      edm::LogVerbatim("EcalTPG") << * XTAL_ADCs; 
       edm::LogVerbatim("EcalTPG") << " "; 
-
+      delete XTAL_ADCs; 
     }
     // call linearizer
     this->getLinearizer(cryst)->setParameters(df[cryst].id().rawId(), ecaltpPed, ecaltpLin, ecaltpBadX);
@@ -171,19 +172,19 @@ void EcalFenixStrip::process_part1(int identif,
     edm::LogVerbatim("EcalTPG") << "output of linearizer is a vector of size: " << lin_out_.size() << " of which used " << nrXtals;  
     for (int ix = 0; ix < nrXtals; ix++) {
 
-      edm::LogVerbatim("EcalTPG") << "crystal " << std::to_string(ix) << " value : "; 
-      edm::LogVerbatim("EcalTPG") << " lin_out size = " << std::to_string(lin_out_[ix].size()); 
-      std::string Lin_Vals; // Should this string be destroyed upon each iteration?
+      edm::LogVerbatim("EcalTPG") << "crystal " << std::to_string(ix) << " value (linearized): "; 
+      std::string * Lin_Vals = new std::string(""); 
 
       for (unsigned int i = 0; i < lin_out_[ix].size(); i++) {
-        Lin_Vals.append(" ");
-        Lin_Vals.append(std::to_string((lin_out_[ix])[i])); 
+        Lin_Vals->append(" ");
+        Lin_Vals->append(std::to_string((lin_out_[ix])[i])); 
       }
 
-      edm::LogVerbatim("EcalTPG") << Lin_Vals; 
+      edm::LogVerbatim("EcalTPG") << * Lin_Vals; 
+      edm::LogVerbatim("EcalTPG") << " "; 
+      delete Lin_Vals; 
     }
 
-    edm::LogVerbatim("EcalTPG") << " "; 
   }
 
   // Now call the sFGVB - this is common between EB and EE!
@@ -192,13 +193,14 @@ void EcalFenixStrip::process_part1(int identif,
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "output of strip fgvb is a vector of size: " << fgvb_out_temp_.size();
-    std::string fgvb_vals; 
+    std::string * fgvb_vals = new std::string("");
     for (unsigned int i = 0; i < fgvb_out_temp_.size(); i++) {
-      fgvb_vals.append(" ");
-      fgvb_vals.append(std::to_string(fgvb_out_temp_[i]));
+      fgvb_vals->append(" ");
+      fgvb_vals->append(std::to_string(fgvb_out_temp_[i]));
     }
-    edm::LogVerbatim("EcalTPG") << fgvb_vals; 
+    edm::LogVerbatim("EcalTPG") << * fgvb_vals; 
     edm::LogVerbatim("EcalTPG") << " ";
+    delete fgvb_vals; 
   }
   // call adder
   this->getAdder()->process(lin_out_, nrXtals, add_out_);  // add_out is of size SIZEMAX=maxNrSamples
