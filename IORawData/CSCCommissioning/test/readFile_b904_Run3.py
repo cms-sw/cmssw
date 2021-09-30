@@ -10,12 +10,20 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 options = VarParsing ('analysis')
-options.register ("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register ("inputFilesGEM", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("readGEMData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("firstRun", 341761, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+                 "The first run for this data. Typically for Run-3 it needs to be set high enough, so that \
+                  cmsRun recognizes GEM detectors as valid. That is the case starting run 341761. Beyond making \
+                  sure that the GEM detectors are there, firstRun does not have a meaning.")
+options.register("inputFilesGEM", "", VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 "The GEM input file (if applicable). This needs to be filled for joint GEM-CSC runs with B904 ME1/1 test-stand.")
+options.register("readGEMData", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to process the GEM data as well as the CSC data.")
+options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data.")
+options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
+options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
 options.maxEvents = 10000
 options.parseArguments()
 
