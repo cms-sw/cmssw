@@ -26,9 +26,13 @@ farg = re.compile(r"\(.*?\)")
 tmpl = re.compile(r'<.*?>')
 toplevelfuncs = set()
 
-epfuncre = re.compile(r"edm::eventsetup::EventSetupRecord::get<(class|struct) edm::ES(Transient)?Handle<(class|struct) .*>>\((const char \*, |const std::string &, )(class|struct) edm::ES(Transient)?Handle<(class|struct).*> &\) const")
-f= 'edm::eventsetup::EventSetupRecord::get<class edm::ESHandle<class CaloTopology>>(const std::string &, class edm::ESHandle<class CaloTopology> &) const'
-assert(epfuncre.search(f))
+getfuncre = re.compile(r"edm::eventsetup::EventSetupRecord::get<(class|struct) edm::ES(Transient)?Handle<(class|struct) .*>>\((const char \*, |const std::string &, )(class|struct) edm::ES(Transient)?Handle<(class|struct).*> &\) const")
+epfuncre = re.compile(r"edm::eventsetup::EventSetupRecord::deprecated_get<(class|struct) edm::ES(Transient)?Handle<(class|struct) .*>>\((const char \*, |const std::string &, )(class|struct) edm::ES(Transient)?Handle<(class|struct).*> &\) const")
+f = 'edm::eventsetup::EventSetupRecord::get<class edm::ESHandle<class CaloTopology>>(const std::string &, class edm::ESHandle<class CaloTopology> &) const'
+g = 'edm::eventsetup::EventSetupRecord::deprecated_get<class edm::ESHandle<class HcalDDDSimConstants>>(const char *, class edm::ESHandle<class HcalDDDSimConstants> &) const'
+
+assert(getfuncre.search(f))
+assert(epfuncre.search(g))
 
 skipfunc = re.compile(r"TGraph::IsA\(.*\)")
 epfuncs = set()
@@ -131,7 +135,7 @@ for tfunc in toplevelfuncs:
                 cs = str("")
                 previous = str("")
                 for p in path:
-                    if epfuncre.match(p):
+                    if getfuncre.match(p) or epfuncre.match(p):
                         break
                     #stripped=re.sub(farg, "()", p)
                     stripped=p
