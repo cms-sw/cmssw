@@ -845,5 +845,4 @@ void createPhase1TrackerGeometryAutoGen(TrackerInfo &ti) {
     obj.m_is_stereo_lyr = true;
     obj.m_is_tec_lyr = true;
   }
-
 }

@@ -48,10 +48,8 @@ void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord& iRecord) {
   auto trackerInfo = std::make_unique<mkfit::TrackerInfo>();
   mkfit::createPhase1TrackerGeometry(*trackerInfo, false);
-  return std::make_unique<MkFitGeometry>(iRecord.get(geomToken_),
-                                         iRecord.get(trackerToken_),
-                                         iRecord.get(ttopoToken_),
-                                         std::move(trackerInfo));
+  return std::make_unique<MkFitGeometry>(
+      iRecord.get(geomToken_), iRecord.get(trackerToken_), iRecord.get(ttopoToken_), std::move(trackerInfo));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MkFitGeometryESProducer);
