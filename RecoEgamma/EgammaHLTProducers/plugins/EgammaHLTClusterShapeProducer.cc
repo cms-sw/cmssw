@@ -63,7 +63,6 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi");
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi5x5");
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi5x5NoiseCleaned");
-
 }
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer() {}
@@ -134,7 +133,7 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
         sigmaee = sigmaee - 0.02 * (EtaSC - 2.3);
     }
 
-    //this is full5x5 showershape 
+    //this is full5x5 showershape
     double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[0]);
     double sigmaee5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()),
                                                                        EgammaLocalCovParamDefaults::kRelEnCut,
@@ -156,7 +155,6 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     clshMap2.insert(recoecalcandref, sigmapp);
     clsh5x5Map2.insert(recoecalcandref, sigmapp5x5);
     clsh5x5NoiseCleanedMap2.insert(recoecalcandref, sigmapp5x5NoiseCleaned);
-
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
@@ -168,7 +166,6 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map2), "sigmaIPhiIPhi5x5");
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap2),
              "sigmaIPhiIPhi5x5NoiseCleaned");
-
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
