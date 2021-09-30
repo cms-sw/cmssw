@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TSystem.h"
 
@@ -192,7 +194,7 @@ namespace edm {
       }
       fileIterLastOpened_ = fileIterEnd_;
     }
-    closeFile_();
+    closeFile();
 
     if (noMoreFiles()) {
       // No files specified
@@ -226,6 +228,10 @@ namespace edm {
     std::list<std::string> originalInfo;
     {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
+      edm::Service<edm::storage::StatisticsSenderService> service;
+      if (service.isAvailable()) {
+        service->openingFile(lfn(), -1);
+      }
       try {
         filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
       } catch (cms::Exception const& e) {
@@ -289,6 +295,14 @@ namespace edm {
       }
       LogWarning("") << "Input file: " << fileName() << " was not found or could not be opened, and will be skipped.\n";
     }
+  }
+
+  void RootInputFileSequence::closeFile() {
+    edm::Service<edm::storage::StatisticsSenderService> service;
+    if (rootFile() and service.isAvailable()) {
+      service->closedFile(lfn(), usedFallback());
+    }
+    closeFile_();
   }
 
   void RootInputFileSequence::setIndexIntoFile(size_t index) {

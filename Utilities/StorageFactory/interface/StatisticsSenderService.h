@@ -28,13 +28,14 @@ namespace edm {
       void closedFile(std::string const& lfn, bool usedFallback);
 
     private:
-      void filePreCloseEvent(std::string const& lfn, bool usedFallback);
+      void filePostCloseEvent(std::string const& lfn, bool usedFallback);
 
       std::string const* matchedLfn(std::string const& iURL);  //updates its internal cache
       class FileStatistics {
       public:
         FileStatistics();
-        void fillUDP(std::ostringstream& os);
+        void fillUDP(std::ostringstream& os) const;
+        void update();
 
       private:
         ssize_t m_read_single_operations;
@@ -53,13 +54,13 @@ namespace edm {
         std::string m_filelfn;
         std::string m_serverhost;
         std::string m_serverdomain;
-        ssize_t m_size;
+        std::atomic<ssize_t> m_size;
         size_t m_id;  //from m_counter
         std::atomic<int> m_openCount;
       };
 
       void determineHostnames();
-      void fillUDP(const std::string& site, const FileInfo& fileinfo, bool, std::string&);
+      void fillUDP(const std::string& site, const FileInfo& fileinfo, bool, std::string&) const;
       void cleanupOldFiles();
 
       std::string m_clienthost;

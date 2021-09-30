@@ -157,7 +157,7 @@ namespace edm {
     return std::move(fb);
   }
 
-  void PoolSource::closeFile_() { primaryFileSequence_->closeFile_(); }
+  void PoolSource::closeFile_() { primaryFileSequence_->closeFile(); }
 
   std::shared_ptr<RunAuxiliary> PoolSource::readRunAuxiliary_() { return primaryFileSequence_->readRunAuxiliary_(); }
 
@@ -254,7 +254,7 @@ namespace edm {
 
   void
   PoolSource::preForkReleaseResources() {
-    primaryFileSequence_->closeFile_();
+    primaryFileSequence_->closeFile();
   }
 
   SharedResourcesAcquirer*
