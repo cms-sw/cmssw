@@ -8,6 +8,7 @@
 
 SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiPixelQuality>(iConfig) {
+  tkTopoToken_ = esConsumes<edm::Transition::BeginRun>();
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
   BadModuleList_ = iConfig.getUntrackedParameter<Parameters>("BadModuleList");
   ROCListFile_ = iConfig.getUntrackedParameter<std::string>("ROCListFile");
@@ -90,10 +91,10 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
       uint32_t detId;
       if (name[0] == 'B') {
         PixelBarrelName bn(name, true);
-        detId = bn.getDetId(tTopo_);
+        detId = bn.getDetId(tTopo_.get());
       } else {
         PixelEndcapName en(name, true);
-        detId = en.getDetId(tTopo_);
+        detId = en.getDetId(tTopo_.get());
       }
       std::map<uint32_t, uint32_t>::iterator it = disabledModules.find(detId);
       if (it == disabledModules.end())

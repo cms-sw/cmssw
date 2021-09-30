@@ -23,18 +23,20 @@ public:
 
 private:
   std::unique_ptr<SiPixelQuality> getNewObject() override;
-  void algoBeginJob(const edm::EventSetup& es) override {
-    edm::ESHandle<TrackerTopology> htopo;
-    es.get<TrackerTopologyRcd>().get(htopo);
-    tTopo_ = htopo.product();
+
+  void algoBeginRun(const edm::Run& run, const edm::EventSetup& es) override {
+    if (!tTopo_) {
+      tTopo_ = std::make_unique<TrackerTopology>(es.getData(tkTopoToken_));
+    }
   };
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
   bool printdebug_;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BadModuleList_;
   std::string ROCListFile_;
-  const TrackerTopology* tTopo_;
+  std::unique_ptr<TrackerTopology> tTopo_;
 };
 
 #endif
