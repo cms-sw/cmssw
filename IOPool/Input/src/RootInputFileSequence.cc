@@ -224,58 +224,57 @@ namespace edm {
 
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
-    try {
+    {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-      std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));
-      ;
-      filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-    } catch (cms::Exception const& e) {
-      if (!skipBadFiles) {
-        if (hasFallbackUrl) {
-          std::ostringstream out;
-          out << e.explainSelf();
-
-          std::unique_ptr<char[]> name(gSystem->ExpandPathName(fallbackFileName().c_str()));
-          std::string pfn(name.get());
-          InputFile::reportFallbackAttempt(pfn, logicalFileName(), out.str());
-          originalInfo = e.additionalInfo();
-        } else {
-          InputFile::reportSkippedFile(fileName(), logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << fileName() << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
-          throw ex;
-        }
-      }
-    }
-    if (!filePtr && (hasFallbackUrl)) {
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
       try {
-        usedFallback_ = true;
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(
-            input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-        std::unique_ptr<char[]> fallbackFullName(gSystem->ExpandPathName(fallbackFileName().c_str()));
-        filePtr.reset(new InputFile(fallbackFullName.get(), "  Fallback request to file ", inputType));
+        std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));
+        filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
       } catch (cms::Exception const& e) {
         if (!skipBadFiles) {
-          InputFile::reportSkippedFile(fileName(), logicalFileName());
-          Exception ex(errors::FallbackFileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << fileName() << " could not be opened.\n";
-          out << "Fallback Input file " << fallbackFileName() << " also could not be opened.";
-          if (!originalInfo.empty()) {
-            out << std::endl << "Original exception info is above; fallback exception info is below.";
-            ex.addAdditionalInfo(out.str());
-            for (auto const& s : originalInfo) {
-              ex.addAdditionalInfo(s);
-            }
+          if (hasFallbackUrl) {
+            std::ostringstream out;
+            out << e.explainSelf();
+
+            std::unique_ptr<char[]> name(gSystem->ExpandPathName(fallbackFileName().c_str()));
+            std::string pfn(name.get());
+            InputFile::reportFallbackAttempt(pfn, logicalFileName(), out.str());
+            originalInfo = e.additionalInfo();
           } else {
+            InputFile::reportSkippedFile(fileName(), logicalFileName());
+            Exception ex(errors::FileOpenError, "", e);
+            ex.addContext("Calling RootFileSequenceBase::initTheFile()");
+            std::ostringstream out;
+            out << "Input file " << fileName() << " could not be opened.";
             ex.addAdditionalInfo(out.str());
+            throw ex;
           }
-          throw ex;
+        }
+      }
+      if (!filePtr && (hasFallbackUrl)) {
+        try {
+          usedFallback_ = true;
+          std::unique_ptr<char[]> fallbackFullName(gSystem->ExpandPathName(fallbackFileName().c_str()));
+          filePtr.reset(new InputFile(fallbackFullName.get(), "  Fallback request to file ", inputType));
+        } catch (cms::Exception const& e) {
+          if (!skipBadFiles) {
+            InputFile::reportSkippedFile(fileName(), logicalFileName());
+            Exception ex(errors::FallbackFileOpenError, "", e);
+            ex.addContext("Calling RootFileSequenceBase::initTheFile()");
+            std::ostringstream out;
+            out << "Input file " << fileName() << " could not be opened.\n";
+            out << "Fallback Input file " << fallbackFileName() << " also could not be opened.";
+            if (!originalInfo.empty()) {
+              out << std::endl << "Original exception info is above; fallback exception info is below.";
+              ex.addAdditionalInfo(out.str());
+              for (auto const& s : originalInfo) {
+                ex.addAdditionalInfo(s);
+              }
+            } else {
+              ex.addAdditionalInfo(out.str());
+            }
+            throw ex;
+          }
         }
       }
     }
