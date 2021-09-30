@@ -120,48 +120,42 @@ void AlCaDiJetsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   ++(runCache(iEvent.getRun().index())->nAll_);
 
   // Access the collections from iEvent
-  edm::Handle<reco::PFJetCollection> pfjet;
-  iEvent.getByToken(tok_PFJet_, pfjet);
+  edm::Handle<reco::PFJetCollection> pfjet = iEvent.getHandle(tok_PFJet_);
   if (!pfjet.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelPFJet_;
     return;
   }
   const reco::PFJetCollection pfjets = *(pfjet.product());
 
-  edm::Handle<reco::PFCandidateCollection> pfc;
-  iEvent.getByToken(tok_PFCand_, pfc);
+  edm::Handle<reco::PFCandidateCollection> pfc = iEvent.getHandle(tok_PFCand_);
   if (!pfc.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelPFCandidate_;
     return;
   }
   const reco::PFCandidateCollection pfcand = *(pfc.product());
 
-  edm::Handle<reco::VertexCollection> vt;
-  iEvent.getByToken(tok_Vertex_, vt);
+  edm::Handle<reco::VertexCollection> vt = iEvent.getHandle(tok_Vertex_);
   if (!vt.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelVertex_;
     return;
   }
   const reco::VertexCollection vtx = *(vt.product());
 
-  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  auto hbhe = iEvent.getHandle(tok_HBHE_);
   if (!hbhe.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHBHE_;
     return;
   }
   const edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>> Hithbhe = *(hbhe.product());
 
-  edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> ho;
-  iEvent.getByToken(tok_HO_, ho);
+  auto ho = iEvent.getHandle(tok_HO_);
   if (!ho.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHO_;
     return;
   }
   const edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>> Hitho = *(ho.product());
 
-  edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hf;
-  iEvent.getByToken(tok_HF_, hf);
+  auto hf = iEvent.getHandle(tok_HF_);
   if (!hf.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHF_;
     return;
