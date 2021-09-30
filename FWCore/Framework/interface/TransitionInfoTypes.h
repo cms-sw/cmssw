@@ -65,16 +65,20 @@ namespace edm {
   public:
     RunTransitionInfo() {}
 
-    RunTransitionInfo(RunPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
-        : runPrincipal_(&iPrincipal), eventSetupImpl_(&iEventSetupImpl) {}
+    RunTransitionInfo(RunPrincipal& iPrincipal,
+                      EventSetupImpl const& iEventSetupImpl,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls = nullptr)
+        : runPrincipal_(&iPrincipal), eventSetupImpl_(&iEventSetupImpl), eventSetupImpls_(iEventSetupImpls) {}
 
     RunPrincipal& principal() { return *runPrincipal_; }
     RunPrincipal const& principal() const { return *runPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls() const { return eventSetupImpls_; }
 
   private:
     RunPrincipal* runPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
+    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls_ = nullptr;
   };
 
   class ProcessBlockTransitionInfo {

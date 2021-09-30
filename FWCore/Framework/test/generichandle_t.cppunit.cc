@@ -78,8 +78,8 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   auto preg = std::make_shared<edm::ProductRegistry>();
   preg->setFrozen();
-  auto runAux = std::make_shared<edm::RunAuxiliary>(id.run(), time, time);
-  auto rp = std::make_shared<edm::RunPrincipal>(runAux, preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<edm::RunPrincipal>(preg, pc, &historyAppender_, 0);
+  rp->setAux(edm::RunAuxiliary(id.run(), time, time));
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
   lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp->setRunPrincipal(rp);
@@ -164,8 +164,8 @@ void testGenericHandle::getbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
-  auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
   lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   lbp->setRunPrincipal(rp);

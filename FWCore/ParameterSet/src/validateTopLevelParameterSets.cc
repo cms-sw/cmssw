@@ -32,7 +32,10 @@ namespace edm {
             "In all cases, the number of concurrent luminosity blocks will be reset to "
             "be the same as the number of streams if it is greater than the "
             "numbers of streams.");
-    description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1);
+    description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1)
+        ->setComment(
+            "If zero or greater than the number of concurrent luminosity blocks, this will be reset to "
+            "be the same as the number of concurrent luminosity blocks.");
 
     edm::ParameterSetDescription eventSetupDescription;
     eventSetupDescription.addUntracked<unsigned int>("numberOfConcurrentIOVs", 0)

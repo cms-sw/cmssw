@@ -49,6 +49,9 @@ pushd ${LOCAL_TMP_DIR}
   echo "testGetByRunsLumisMode_cfg.py"
   cmsRun -p ${LOCAL_TEST_DIR}/testGetByRunsLumisMode_cfg.py || die "cmsRun testGetByRunsLumisMode_cfg.py" $?
 
+  echo "testGetByWithEmptyRun_cfg.py"
+  cmsRun -p ${LOCAL_TEST_DIR}/testGetByWithEmptyRun_cfg.py || die "cmsRun testGetByWithEmptyRun_cfg.py" $?
+
 popd
 
 exit 0

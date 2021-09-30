@@ -327,8 +327,8 @@ Bool_t TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
     try {
       m_->reader_->setEntry(iEntry);
-      auto runAux = std::make_shared<edm::RunAuxiliary>(aux.run(), aux.time(), aux.time());
-      auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg(), m_->pc_, nullptr, 0);
+      auto rp = std::make_shared<edm::RunPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
+      rp->setAux(edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
       auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
       lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
       auto history = m_->phreg_->getMapped(eaux->processHistoryID());

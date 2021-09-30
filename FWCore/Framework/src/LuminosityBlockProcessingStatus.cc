@@ -10,11 +10,9 @@
 //         Created:  Thu, 11 Jan 2018 16:41:46 GMT
 //
 
-// system include files
-
-// user include files
 #include "LuminosityBlockProcessingStatus.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/src/RunProcessingStatus.h"
 
 namespace edm {
   void LuminosityBlockProcessingStatus::resetResources() {
@@ -23,7 +21,10 @@ namespace edm {
       iter.reset();
     }
     resumeGlobalLumiQueue();
-    run_.reset();
+  }
+
+  void LuminosityBlockProcessingStatus::setGlobalEndRunHolder() {
+    globalEndRunHolder_ = runStatus()->globalEndRunHolder();
   }
 
   void LuminosityBlockProcessingStatus::setEndTime() {
