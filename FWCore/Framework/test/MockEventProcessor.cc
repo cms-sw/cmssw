@@ -1,11 +1,4 @@
-/*
-*/
-
 #include "FWCore/Framework/test/MockEventProcessor.h"
-#include "FWCore/Framework/interface/InputSource.h"
-#include <cassert>
-#include <sstream>
-#include <exception>
 
 namespace {
   // As each data item is read from the mock data it is
@@ -29,17 +22,7 @@ namespace {
   class WaitingTaskHolder;
 }  // namespace
 
-namespace edm {
-  class LuminosityBlockPrincipal {
-  public:
-    LuminosityBlockPrincipal(int iRun, int iLumi) : run_(iRun), lumi_(iLumi) {}
-    int run_;
-    int lumi_;
-  };
-}  // namespace edm
-
 #define TEST_NO_FWD_DECL
-#include "FWCore/Framework/src/LuminosityBlockProcessingStatus.h"
 
 namespace {
 #include "FWCore/Framework/src/TransitionProcessors.icc"
@@ -51,8 +34,8 @@ namespace edm {
       : mockData_(mockData),
         output_(output),
         input_(mockData_),
-        run_(0),
-        lumi_(0),
+        nextRun_(0),
+        nextLumi_(0),
         doNotMerge_(iDoNotMerge),
         shouldWeCloseOutput_(true),
         shouldWeEndLoop_(true),
@@ -73,11 +56,11 @@ namespace edm {
     eventProcessed_ = false;
     if (ch == 'r') {
       output_ << "    *** nextItemType: Run " << t.value << " ***\n";
-      run_ = t.value;
+      nextRun_ = static_cast<RunNumber_t>(t.value);
       return lastTransition_ = InputSource::IsRun;
     } else if (ch == 'l') {
       output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
-      lumi_ = t.value;
+      nextLumi_ = static_cast<LuminosityBlockNumber_t>(t.value);
       return lastTransition_ = InputSource::IsLumi;
     } else if (ch == 'e') {
       output_ << "    *** nextItemType: Event ***\n";
@@ -118,12 +101,6 @@ namespace edm {
   }
 
   InputSource::ItemType MockEventProcessor::lastTransitionType() const { return lastTransition_; }
-
-  std::pair<edm::ProcessHistoryID, edm::RunNumber_t> MockEventProcessor::nextRunID() {
-    return std::make_pair(edm::ProcessHistoryID{}, run_);
-  }
-
-  edm::LuminosityBlockNumber_t MockEventProcessor::nextLuminosityBlockID() { return lumi_; }
 
   InputSource::ItemType MockEventProcessor::readAndProcessEvents() {
     bool first = true;
@@ -209,42 +186,45 @@ namespace edm {
   void MockEventProcessor::inputProcessBlocks() {}
   void MockEventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {}
 
-  void MockEventProcessor::beginRun(ProcessHistoryID const& phid,
-                                    RunNumber_t run,
-                                    bool& globalTransitionSucceeded,
-                                    bool& eventSetupForInstanceSucceeded) {
-    output_ << "\tbeginRun " << run << "\n";
-    eventSetupForInstanceSucceeded = true;
-    throwIfNeeded();
-    globalTransitionSucceeded = true;
-  }
-
-  void MockEventProcessor::endRun(ProcessHistoryID const& phid,
-                                  RunNumber_t run,
-                                  bool globalTransitionSucceeded,
-                                  bool /*cleaningUpAfterException*/) {
-    auto postfix = globalTransitionSucceeded ? "\n" : " global failed\n";
-    output_ << "\tendRun " << run << postfix;
-  }
-
-  void MockEventProcessor::endUnfinishedRun(ProcessHistoryID const& phid,
-                                            RunNumber_t run,
-                                            bool globalTransitionSucceeded,
-                                            bool cleaningUpAfterException,
-                                            bool eventSetupForInstanceSucceeded) {
-    if (eventSetupForInstanceSucceeded) {
-      endRun(phid, run, globalTransitionSucceeded, cleaningUpAfterException);
-      if (globalTransitionSucceeded) {
-        writeRun(phid, run);
+  InputSource::ItemType MockEventProcessor::processRuns() {
+    bool finished = false;
+    auto nextTransition = edm::InputSource::IsRun;
+    do {
+      switch (nextTransition) {
+        case edm::InputSource::IsRun: {
+          processRun();
+          nextTransition = nextTransitionType();
+          break;
+        }
+        case edm::InputSource::IsLumi: {
+          nextTransition = processLumis();
+          break;
+        }
+        default:
+          finished = true;
       }
-    }
-    deleteRunFromCache(phid, run);
+    } while (not finished);
+    return nextTransition;
   }
 
-  InputSource::ItemType MockEventProcessor::processLumis(std::shared_ptr<void> iRunResource) {
-    if (lumiStatus_ and lumiStatus_->runResource() == iRunResource and lumiStatus_->lumiPrincipal()->lumi_ == lumi_) {
-      readAndMergeLumi(*lumiStatus_);
+  void MockEventProcessor::processRun() {
+    if ((not currentRun_) or (currentRunNumber_ != nextRun_)) {
+      if (currentRun_) {
+        endUnfinishedLumi(true);
+        endUnfinishedRun(true);
+      }
+      currentRun_ = true;
+      readRun();
+      beginRun(currentRunNumber_);
+    } else {
+      //merge
+      readAndMergeRun();
+    }
+  }
 
+  InputSource::ItemType MockEventProcessor::processLumis() {
+    if (lumiStatus_ and currentLumiNumber_ == nextLumi_) {
+      readAndMergeLumi();
       if (nextTransitionType() == InputSource::IsEvent) {
         readAndProcessEvents();
         if (shouldWeStop()) {
@@ -252,12 +232,12 @@ namespace edm {
         }
       }
     } else {
-      endUnfinishedLumi();
-      lumiStatus_ = std::make_shared<LuminosityBlockProcessingStatus>(this, 1, iRunResource);
-      auto lumi = readLuminosityBlock(*lumiStatus_);
-      output_ << "\tbeginLumi " << run_ << "/" << lumi << "\n";
+      endUnfinishedLumi(true);
+      lumiStatus_ = true;
+      auto lumi = readLuminosityBlock();
+      output_ << "\tbeginLumi " << currentRunNumber_ << "/" << lumi << "\n";
       throwIfNeeded();
-      lumiStatus_->globalBeginDidSucceed();
+      didGlobalBeginLumiSucceed_ = true;
       //Need to do event processing here
       if (nextTransitionType() == InputSource::IsEvent) {
         readAndProcessEvents();
@@ -269,60 +249,74 @@ namespace edm {
     return lastTransitionType();
   }
 
-  void MockEventProcessor::endUnfinishedLumi() {
+  void MockEventProcessor::beginRun(RunNumber_t run) {
+    output_ << "\tbeginRun " << run << "\n";
+    throwIfNeeded();
+    didGlobalBeginRunSucceed_ = true;
+  }
+
+  void MockEventProcessor::endRun() {
+    auto postfix = didGlobalBeginRunSucceed_ ? "\n" : " global failed\n";
+    output_ << "\tendRun " << currentRunNumber_ << postfix;
+    currentRun_ = false;
+  }
+
+  void MockEventProcessor::endUnfinishedRun(bool) {
+    endRun();
+    if (didGlobalBeginRunSucceed_) {
+      writeRun();
+    }
+    clearRunPrincipal();
+  }
+
+  void MockEventProcessor::endUnfinishedLumi(bool) {
     if (lumiStatus_) {
-      auto tmp = lumiStatus_;
       endLumi();
-      if (tmp->didGlobalBeginSucceed()) {
-        writeLumi(*tmp);
+      if (didGlobalBeginLumiSucceed_) {
+        writeLumi();
       }
-      deleteLumiFromCache(*tmp);
+      clearLumiPrincipal();
     }
   }
 
   void MockEventProcessor::endLumi() {
-    auto postfix = lumiStatus_->didGlobalBeginSucceed() ? "\n" : " global failed\n";
-    output_ << "\tendLumi " << lumiStatus_->lumiPrincipal()->run_ << "/" << lumiStatus_->lumiPrincipal()->lumi_
-            << postfix;
-    lumiStatus_.reset();
+    auto postfix = didGlobalBeginLumiSucceed_ ? "\n" : " global failed\n";
+    output_ << "\tendLumi " << currentRunNumber_ << "/" << currentLumiNumber_ << postfix;
   }
 
-  std::pair<ProcessHistoryID, RunNumber_t> MockEventProcessor::readRun() {
-    output_ << "\treadRun " << run_ << "\n";
-    return std::make_pair(ProcessHistoryID(), run_);
+  void MockEventProcessor::readRun() {
+    currentRunNumber_ = nextRun_;
+    output_ << "\treadRun " << currentRunNumber_ << "\n";
   }
 
-  std::pair<ProcessHistoryID, RunNumber_t> MockEventProcessor::readAndMergeRun() {
-    output_ << "\treadAndMergeRun " << run_ << "\n";
-    return std::make_pair(ProcessHistoryID(), run_);
+  void MockEventProcessor::readAndMergeRun() { output_ << "\treadAndMergeRun " << currentRunNumber_ << "\n"; }
+
+  LuminosityBlockNumber_t MockEventProcessor::readLuminosityBlock() {
+    output_ << "\treadLuminosityBlock " << nextLumi_ << "\n";
+    currentLumiNumber_ = nextLumi_;
+    return currentLumiNumber_;
   }
 
-  int MockEventProcessor::readLuminosityBlock(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\treadLuminosityBlock " << lumi_ << "\n";
-    iStatus.lumiPrincipal() = std::make_shared<LuminosityBlockPrincipal>(run_, lumi_);
-    return lumi_;
+  LuminosityBlockNumber_t MockEventProcessor::readAndMergeLumi() {
+    output_ << "\treadAndMergeLumi " << currentLumiNumber_ << "\n";
+    return currentLumiNumber_;
   }
 
-  int MockEventProcessor::readAndMergeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\treadAndMergeLumi " << lumi_ << "\n";
-    return lumi_;
+  void MockEventProcessor::writeRun() { output_ << "\twriteRun " << currentRunNumber_ << "\n"; }
+
+  void MockEventProcessor::clearRunPrincipal() {
+    output_ << "\tclearRunPrincipal " << currentRunNumber_ << "\n";
+    didGlobalBeginRunSucceed_ = false;
   }
 
-  void MockEventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    output_ << "\twriteRun " << run << "\n";
+  void MockEventProcessor::writeLumi() {
+    output_ << "\twriteLumi " << currentRunNumber_ << "/" << currentLumiNumber_ << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
-    output_ << "\tdeleteRunFromCache " << run << "\n";
-  }
-
-  void MockEventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\twriteLumi " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_ << "\n";
-  }
-
-  void MockEventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
-    output_ << "\tdeleteLumiFromCache " << iStatus.lumiPrincipal()->run_ << "/" << iStatus.lumiPrincipal()->lumi_
-            << "\n";
+  void MockEventProcessor::clearLumiPrincipal() {
+    output_ << "\tclearLumiPrincipal " << currentRunNumber_ << "/" << currentLumiNumber_ << "\n";
+    lumiStatus_ = false;
+    didGlobalBeginLumiSucceed_ = false;
   }
 
   void MockEventProcessor::readAndProcessEvent() {
