@@ -247,7 +247,7 @@ void RequestManager::updateCurrentServer() {
     std::unique_ptr<std::string> hostname(hostname_ptr);
     edm::Service<edm::storage::StatisticsSenderService> statsService;
     if (statsService.isAvailable()) {
-      statsService->setCurrentServer(*hostname_ptr);
+      statsService->setCurrentServer(m_name, *hostname_ptr);
     }
   }
 }
