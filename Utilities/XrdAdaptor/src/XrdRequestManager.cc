@@ -91,7 +91,7 @@ public:
 
   SendMonitoringInfoHandler(const std::string &url) : m_fs(url) {}
 
-  XrdCl::FileSystem& fs() { return m_fs; }
+  XrdCl::FileSystem &fs() { return m_fs; }
 };
 
 static void SendMonitoringInfo(XrdCl::File &file) {
