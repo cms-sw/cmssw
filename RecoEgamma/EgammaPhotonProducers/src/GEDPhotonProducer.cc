@@ -92,15 +92,6 @@ private:
     unsigned int flags_;
   };
 
-  void endJob() {
-    // Close the tensorflow sessions
-    if (dnnPFidEnabled_)
-      std::for_each(photonPfidTFSessions_.begin(), photonPfidTFSessions_.end(), [](auto s) {
-        if (s != nullptr)
-          tensorflow::closeSession(s);
-      });
-  };
-
   void fillPhotonCollection(edm::Event& evt,
                             edm::EventSetup const& es,
                             const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
@@ -207,8 +198,6 @@ private:
 
   // DNN for PFID photon enabled
   bool dnnPFidEnabled_;
-  // Tensorflow sessions for the PFid DNN
-  std::vector<tensorflow::Session*> photonPfidTFSessions_;
 
   double ecaldrMax_;
   double ecaldrVetoBarrel_;
@@ -451,11 +440,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
     produces<edm::ValueMap<reco::PhotonRef>>(valueMapPFCandPhoton_);
   }
 
-  // Open the tensorflow sessions
-  auto pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+  const auto& pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
-  if (dnnPFidEnabled_)
-    photonPfidTFSessions_ = gcache->photonDNNEstimator->getSessions();
 }
 
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
@@ -677,14 +663,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   const EcalRecHitCollection* hits = nullptr;
   std::vector<double> preselCutValues;
   std::vector<int> flags_, severitiesexcl_;
-
-  auto clusterHandle = evt.getHandle(pfClusterProducer_);
-
-  std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles{evt.getHandle(pfClusterProducerHCAL_)};
-  if (useHF_) {
-    clusterHandles.push_back(evt.getHandle(pfClusterProducerHFEM_));
-    clusterHandles.push_back(evt.getHandle(pfClusterProducerHFHAD_));
-  }
 
   for (unsigned int lSC = 0; lSC < photonCoreHandle->size(); lSC++) {
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
@@ -930,14 +908,23 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //get the pointer for the photon object
     edm::Ptr<reco::PhotonCore> photonPtr(photonCoreHandle, lSC);
 
-    ///SJ - PF cluster based isolations available at this point.
-    reco::Photon::PflowIsolationVariables pfIso;
-    pfIso.sumEcalClusterEt = ecalisoAlgo->getSum(newCandidate, clusterHandle);
-    pfIso.sumHcalClusterEt = hcalisoAlgo->getSum(newCandidate, clusterHandles);
     // New in CMSSW_12_1_0 for PFID with DNNs
     // The PFIso values are computed in the first loop on gedPhotonsTmp to make them available as DNN inputs.
     // They are computed with the same inputs and algo as the final PFiso variables computed in the second loop after PF.
-    newCandidate.setPflowIsolationVariables(pfIso);
+    // Get PFClusters for PFID only if the PFID DNN evaluation is enabled
+    if (dnnPFidEnabled_) {
+      auto clusterHandle = evt.getHandle(pfClusterProducer_);
+      std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles{evt.getHandle(pfClusterProducerHCAL_)};
+      if (useHF_) {
+        clusterHandles.push_back(evt.getHandle(pfClusterProducerHFEM_));
+        clusterHandles.push_back(evt.getHandle(pfClusterProducerHFHAD_));
+      }
+      reco::Photon::PflowIsolationVariables pfIso;
+      pfIso.sumEcalClusterEt = ecalisoAlgo->getSum(newCandidate, clusterHandle);
+      pfIso.sumHcalClusterEt = hcalisoAlgo->getSum(newCandidate, clusterHandles);
+
+      newCandidate.setPflowIsolationVariables(pfIso);
+    }
 
     /// get ecal photon specific corrected energy
     /// plus values from regressions     and store them in the Photon
@@ -1005,7 +992,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
     LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
     std::vector<std::array<float, 1>> dnn_photon_pfid =
-        globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, photonPfidTFSessions_);
+        globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection);
     int ipho = -1;
     for (auto& photon : outputPhotonCollection) {
       ipho++;

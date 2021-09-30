@@ -101,7 +101,7 @@ photons = cms.EDProducer("GEDPhotonProducer",
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt',
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt'
         ),
-        logLevel = cms.string("0")
+        logLevel = cms.uint32(2)
     ),
     pfECALClusIsolCfg = cms.PSet(
         pfClusterProducer = egammaEcalPFClusterIsolationProducerRecoPhoton.pfClusterProducer,

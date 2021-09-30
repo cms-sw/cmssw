@@ -22,9 +22,6 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
 
     #Activate the evaluation of Egamma PFID DNN
     EleDNNPFid= dict(
-        enabled = True,
-        inputTensorName = "FirstLayer_input",
-        outputTensorName = "sequential/FinalLayer/Softmax",
         modelsFiles = [
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
@@ -49,3 +46,10 @@ egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp.preselection,
                                 minSCEtBarrel = 1.0, 
                                 minSCEtEndcaps = 1.0)
 egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp, applyPreselection = False) 
+
+
+# Activate the Egamma PFID dnn only for Run3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(gedGsfElectronsTmp.EleDNNPFid,
+    enabled = True
+)

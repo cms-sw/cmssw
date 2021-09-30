@@ -19,6 +19,7 @@ PhotonDNNEstimator::PhotonDNNEstimator(std::vector<std::string>& models_files,
            .log_level = 2} {
   nModels_ = cfg_.models_files.size();
   initTensorFlowGraphs();
+  initSessions();
   initScalerFiles();
   LogDebug("PhotonDNNPFid") << "Photon PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
                             << " variables --> LOADED";
@@ -28,9 +29,20 @@ PhotonDNNEstimator::PhotonDNNEstimator(const Configuration& cfg) : cfg_(cfg) {
   // Init tensorflow sessions
   nModels_ = cfg_.models_files.size();
   initTensorFlowGraphs();
+  initSessions();
   initScalerFiles();
   LogDebug("PhotonDNNPFid") << "Photon PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
                             << " variables --> LOADED";
+}
+
+PhotonDNNEstimator::~PhotonDNNEstimator() {
+  for (auto g : graphDefs_)
+    if (g != nullptr)
+      delete g;
+  for (auto s : sessions_)
+    if (s != nullptr)
+      tensorflow::closeSession(s);
+  ;
 }
 
 void PhotonDNNEstimator::initTensorFlowGraphs() {
@@ -44,6 +56,14 @@ void PhotonDNNEstimator::initTensorFlowGraphs() {
     graphDefs_.push_back(graphDef);
   }
   LogDebug("PhotonDNNPFid") << "Graphs loaded";
+}
+
+void PhotonDNNEstimator::initSessions() {
+  LogDebug("PhotonDNNPFid") << "Starting " << nModels_ << "TF sessions";
+  for (auto& graphDef : graphDefs_) {
+    sessions_.push_back(tensorflow::createSession(graphDef));
+  }
+  LogDebug("PhotonDNNPFid") << "TF sessions started";
 }
 
 void PhotonDNNEstimator::initScalerFiles() {
@@ -82,16 +102,6 @@ void PhotonDNNEstimator::initScalerFiles() {
     featuresMap_.push_back(features);
     nInputs_.push_back(ninputs);
   }
-}
-
-std::vector<tensorflow::Session*> PhotonDNNEstimator::getSessions() const {
-  LogDebug("PhotonDNNPFid") << "Starting " << nModels_ << "TF sessions";
-  std::vector<tensorflow::Session*> sessions;
-  for (auto& graphDef : graphDefs_) {
-    sessions.push_back(tensorflow::createSession(graphDef));
-  }
-  LogDebug("PhotonDNNPFid") << "TF sessions started";
-  return sessions;
 }
 
 const std::array<std::string, PhotonDNNEstimator::nAvailableVars> PhotonDNNEstimator::dnnAvaibleInputs = {
@@ -162,7 +172,7 @@ std::pair<uint, std::vector<float>> PhotonDNNEstimator::getScaledInputs(const re
 }
 
 std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> PhotonDNNEstimator::evaluate(
-    const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*> sessions) const {
+    const reco::PhotonCollection& photons) const {
   /*
       Evaluate the Photon PFID DNN for all the Photons. 
       2 models are defined depending on eta --> we need to build 2 input tensors to evaluate
@@ -221,7 +231,7 @@ std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> PhotonDNNEstimator:
       continue;  //Skip model without inputs
     std::vector<tensorflow::Tensor> output;
     LogDebug("PhotonDNNPFid") << "Run model: " << m << " with " << counts[m] << " photons";
-    tensorflow::run(sessions[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
+    tensorflow::run(sessions_[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
     // Get the output and save the PhotonDNNEstimator::nOutputs numbers along with the photon index
     auto r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many Photons
