@@ -4,3 +4,5 @@
 #include "CondFormats/DataRecord/interface/HDQMSummaryRcd.h"
 REGISTER_PLUGIN(HDQMSummaryRcd, HDQMSummary);
 #include "CondFormats/Common/interface/FileBlob.h"
+#include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
+REGISTER_PLUGIN(DQMXMLFileRcd, FileBlob);
