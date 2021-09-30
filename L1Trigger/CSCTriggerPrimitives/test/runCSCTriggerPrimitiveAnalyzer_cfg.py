@@ -36,12 +36,6 @@ process.source = cms.Source(
       fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
-## if dataVsEmulation and analyzeEffiency or analyzeResolution are true,
-## pick dataVsEmulation
-if options.dataVsEmulation and (options.analyzeEffiency or options.analyzeResolution):
-    options.analyzeEffiency = False
-    options.analyzeResolution = False
-
 if options.dataVsEmulation:
     options.maxEvents = 1
     process.source = cms.Source("EmptySource")
@@ -61,8 +55,6 @@ process.cscTriggerPrimitivesAnalyzer = cms.EDAnalyzer(
     ## e.g. 334393
     runNumber = cms.uint32(options.runNumber),
     dataVsEmulatorPlots = cms.bool(options.dataVsEmulation),
-    mcEfficiencyPlots = cms.bool(options.analyzeEffiency),
-    mcResolutionPlots = cms.bool(options.analyzeResolution),
     B904RunNumber = cms.string(options.B904RunNumber)
 )
 
