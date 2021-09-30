@@ -16,11 +16,7 @@
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 
-#define UPDATE_STATISTIC(x) m_##x = x;
-
-#define UPDATE_AND_OUTPUT_STATISTIC(x)        \
-  os << "\"" #x "\":" << (x - m_##x) << ", "; \
-  UPDATE_STATISTIC(x)
+#define OUTPUT_STATISTIC(x) os << "\"" #x "\":" << (x - m_##x) << ", ";
 
 // Simple hack to define HOST_NAME_MAX on Mac.
 // Allows arrays to be statically allocated
@@ -28,8 +24,8 @@
 #define HOST_NAME_MAX 128
 #endif
 
-#define JOB_UNIQUE_ID_ENV "CRAB_UNIQUE_JOB_ID"
-#define JOB_UNIQUE_ID_ENV_V2 "DashboardJobId"
+static constexpr char const *const JOB_UNIQUE_ID_ENV = "CRAB_UNIQUE_JOB_ID";
+static constexpr char const *const JOB_UNIQUE_ID_ENV_V2 = "DashboardJobId";
 
 using namespace edm::storage;
 
@@ -44,7 +40,7 @@ StatisticsSenderService::FileStatistics::FileStatistics()
       m_read_vector_count_square(0),
       m_start_time(time(nullptr)) {}
 
-void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
+void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) const {
   const StorageAccount::StorageStats &stats = StorageAccount::summary();
   ssize_t read_single_operations = 0;
   ssize_t read_single_bytes = 0;
@@ -84,7 +80,6 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
        << ", ";
     os << "\"read_single_average\":" << single_average << ", ";
   }
-  m_read_single_square = read_single_square;
   int64_t vector_op_count = read_vector_operations - m_read_vector_operations;
   if (vector_op_count > 0) {
     double vector_average =
@@ -104,9 +99,6 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
                         static_cast<double>(vector_op_count)))
        << ", ";
   }
-  m_read_vector_square = read_vector_square;
-  m_read_vector_count_square = read_vector_count_square;
-  m_read_vector_count_sum = read_vector_count_sum;
 
   os << "\"read_bytes\":" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes)
      << ", ";
@@ -114,17 +106,56 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
      << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
 
   // See top of file for macros; not complex, just avoiding copy/paste
-  UPDATE_AND_OUTPUT_STATISTIC(read_single_operations)
-  UPDATE_AND_OUTPUT_STATISTIC(read_single_bytes)
-  UPDATE_AND_OUTPUT_STATISTIC(read_vector_operations)
-  UPDATE_AND_OUTPUT_STATISTIC(read_vector_bytes)
+  OUTPUT_STATISTIC(read_single_operations)
+  OUTPUT_STATISTIC(read_single_bytes)
+  OUTPUT_STATISTIC(read_vector_operations)
+  OUTPUT_STATISTIC(read_vector_bytes)
 
   os << "\"start_time\":" << m_start_time << ", ";
-  m_start_time = time(nullptr);
   // NOTE: last entry doesn't have the trailing comma.
-  os << "\"end_time\":" << m_start_time;
+  os << "\"end_time\":" << time(nullptr);
 }
 
+void StatisticsSenderService::FileStatistics::update() {
+  const StorageAccount::StorageStats &stats = StorageAccount::summary();
+  ssize_t read_single_operations = 0;
+  ssize_t read_single_bytes = 0;
+  ssize_t read_single_square = 0;
+  ssize_t read_vector_operations = 0;
+  ssize_t read_vector_bytes = 0;
+  ssize_t read_vector_square = 0;
+  ssize_t read_vector_count_sum = 0;
+  ssize_t read_vector_count_square = 0;
+  auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+  for (StorageAccount::StorageStats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+    if (i->first == token.value()) {
+      continue;
+    }
+    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+      if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
+        read_vector_operations += j->second.attempts;
+        read_vector_bytes += j->second.amount;
+        read_vector_count_square += j->second.vector_square;
+        read_vector_square += j->second.amount_square;
+        read_vector_count_sum += j->second.vector_count;
+      } else if (j->first == static_cast<int>(StorageAccount::Operation::read)) {
+        read_single_operations += j->second.attempts;
+        read_single_bytes += j->second.amount;
+        read_single_square += j->second.amount_square;
+      }
+    }
+  }
+
+  m_read_single_square = read_single_square;
+  m_read_vector_square = read_vector_square;
+  m_read_vector_count_square = read_vector_count_square;
+  m_read_vector_count_sum = read_vector_count_sum;
+  m_read_single_operations = read_single_operations;
+  m_read_single_bytes = read_single_bytes;
+  m_read_vector_operations = read_vector_operations;
+  m_read_vector_bytes = read_vector_bytes;
+  m_start_time = time(nullptr);
+}
 StatisticsSenderService::FileInfo::FileInfo(std::string const &iLFN)
     : m_filelfn(iLFN), m_serverhost("unknown"), m_serverdomain("unknown"), m_size(-1), m_id(0), m_openCount(1) {}
 
@@ -137,8 +168,7 @@ StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const &iPSet,
       m_userdn("unknown"),
       m_debug(iPSet.getUntrackedParameter<bool>("debug", false)) {
   determineHostnames();
-  ar.watchPreCloseFile(this, &StatisticsSenderService::filePreCloseEvent);
-  ar.watchPreOpenFile([this](auto const &iLFN, bool) { openingFile(iLFN, -1); });
+  ar.watchPostCloseFile(this, &StatisticsSenderService::filePostCloseEvent);
   if (!getX509Subject(m_userdn)) {
     m_userdn = "unknown";
   }
@@ -304,7 +334,6 @@ void StatisticsSenderService::setSize(const std::string &url, size_t size) {
   if (nullptr != lfn) {
     auto itFound = m_lfnToFileInfo.find(*lfn);
     if (itFound != m_lfnToFileInfo.end()) {
-      //do I need to synchronize?
       itFound->second.m_size = size;
     }
   } else if (m_debug) {
@@ -312,10 +341,10 @@ void StatisticsSenderService::setSize(const std::string &url, size_t size) {
   }
 }
 
-void StatisticsSenderService::filePreCloseEvent(std::string const &lfn, bool usedFallback) {
-  closedFile(lfn, usedFallback);
+void StatisticsSenderService::filePostCloseEvent(std::string const &lfn, bool usedFallback) {
   //we are at a sync point in the framwework so no new files are being opened
   cleanupOldFiles();
+  m_filestats.update();
 }
 
 void StatisticsSenderService::determineHostnames(void) {
@@ -338,7 +367,7 @@ void StatisticsSenderService::determineHostnames(void) {
 void StatisticsSenderService::fillUDP(const std::string &siteName,
                                       const FileInfo &fileinfo,
                                       bool usedFallback,
-                                      std::string &udpinfo) {
+                                      std::string &udpinfo) const {
   std::ostringstream os;
 
   // Header - same for all IO accesses

@@ -45,7 +45,7 @@ namespace edm {
     InputFile::reportReadBranches();
   }
 
-  void EmbeddedRootSource::closeFile_() { fileSequence_->closeFile_(); }
+  void EmbeddedRootSource::closeFile_() { fileSequence_->closeFile(); }
 
   bool EmbeddedRootSource::readOneEvent(EventPrincipal& cache,
                                         size_t& fileNameHash,

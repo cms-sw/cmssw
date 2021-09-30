@@ -108,7 +108,7 @@ namespace edm {
 
   RootEmbeddedFileSequence::~RootEmbeddedFileSequence() {}
 
-  void RootEmbeddedFileSequence::endJob() { closeFile_(); }
+  void RootEmbeddedFileSequence::endJob() { closeFile(); }
 
   void RootEmbeddedFileSequence::closeFile_() {
     // delete the RootFile object.
