@@ -88,7 +88,7 @@ class SendMonitoringInfoHandler : public XrdCl::ResponseHandler {
 public:
   SendMonitoringInfoHandler(const SendMonitoringInfoHandler &) = delete;
   SendMonitoringInfoHandler &operator=(const SendMonitoringInfoHandler &) = delete;
-  SendMonitoringInfoHandler() = default;
+  SendMonitoringInfoHandler() = delete;
 
   SendMonitoringInfoHandler(const std::string &url) : m_fs(url) {}
 
