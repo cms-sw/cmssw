@@ -205,7 +205,7 @@ TStorageFactoryFile::Initialize(const char *path,
   try {
     edm::Service<edm::storage::StatisticsSenderService> statsService;
     if (statsService.isAvailable()) {
-      statsService->setSize(storage_->size());
+      statsService->setSize(path, storage_->size());
     }
   } catch (edm::Exception const& e) {
     if (e.categoryCode() != edm::errors::NotFound) {
