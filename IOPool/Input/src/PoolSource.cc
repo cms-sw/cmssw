@@ -161,7 +161,7 @@ namespace edm {
     return fb;
   }
 
-  void PoolSource::closeFile_() { primaryFileSequence_->closeFile_(); }
+  void PoolSource::closeFile_() { primaryFileSequence_->closeFile(); }
 
   std::shared_ptr<RunAuxiliary> PoolSource::readRunAuxiliary_() { return primaryFileSequence_->readRunAuxiliary_(); }
 
