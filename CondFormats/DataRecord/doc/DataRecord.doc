@@ -60,6 +60,7 @@
 - CastorRecoParamsRcd
 - CombinedTauTagRcd
 - ConfObjectRcd
+- DQMReferenceHistogramRootFileRcd
 - DQMSummaryRcd
 - DQMXMLFileRcd
 - DTCCBConfigRcd
