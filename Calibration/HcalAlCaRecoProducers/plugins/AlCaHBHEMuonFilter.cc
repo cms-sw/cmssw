@@ -112,9 +112,11 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const A
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n"
-                               << "Process " << processName_ << "  Prescale " << preScale_ << "  Isolation Cuts "
-                               << trackIsoCut_ << ":" << caloIsoCut_ << "\n";
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \nProcess " << processName_ << "  Prescale "
+                               << preScale_ << "  Isolation Cuts " << pfCut_ << ":" << pfIsoCut_ << ":" << trackIsoCut_
+                               << ":" << caloIsoCut_ << "\nInput tags "
+                               << labelMuon_ << " and " << triggerResults_ << "\nStudy " << trigNames_.size()
+                               << " triggers: ";
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HBHEMuon") << "Trigger[" << k << "] " << trigNames_[k] << "\n";
 }  // AlCaHBHEMuonFilter::AlCaHBHEMuonFilter  constructor
@@ -135,68 +137,77 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
                                << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
+  bool ok(false);
   /////////////////////////////TriggerResults
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
-  if (triggerResults.isValid()) {
-    bool ok(false);
-    std::vector<std::string> modules;
-    const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
-    const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
-    for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
-      int hlt = triggerResults->accept(iHLT);
-      for (unsigned int i = 0; i < trigNames_.size(); ++i) {
-        if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
-          if (hlt > 0) {
-            ok = true;
-          }
+  if (trigNames_.empty()) {
+    ok = true;
+  } else {
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
+    if (triggerResults.isValid()) {
+      std::vector<std::string> modules;
+      const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
+      const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
+      for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
+        int hlt = triggerResults->accept(iHLT);
+        for (unsigned int i = 0; i < trigNames_.size(); ++i) {
+          if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
+            if (hlt > 0) {
+              ok = true;
+            }
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt
-                                       << ":" << ok << std::endl;
+            edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Trigger " << triggerNames_[iHLT] << " Flag " << hlt
+                                         << ":" << ok << std::endl;
 #endif
+          }
         }
       }
     }
-    if (ok) {
-      //Step2: Get geometry/B-field information
-      const MagneticField* bField = &(iSetup.getData(tok_magField_));
-      const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
+  }
+  if (ok) {
+    //Step2: Get geometry/B-field information
+    const MagneticField* bField = &(iSetup.getData(tok_magField_));
+    const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
-      // Relevant blocks from iEvent
-      edm::Handle<reco::MuonCollection> _Muon;
-      iEvent.getByToken(tok_Muon_, _Muon);
+    // Relevant blocks from iEvent
+    auto _Muon = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid();
 #endif
-      if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+    if (_Muon.isValid()) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
-                                       << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
-                                       << RecMuon->outerTrack().isNonnull() << " globalTrack "
-                                       << RecMuon->globalTrack().isNonnull() << std::endl;
+      edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Size of collection " << _Muon->size();
 #endif
-          if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
-              (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
-            const reco::Track* pTrack = (RecMuon->innerTrack()).get();
-            spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
+      for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
-                                         << trackID.okHCAL << std::endl;
+        edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
+                                     << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
+                                     << RecMuon->outerTrack().isNonnull() << " globalTrack "
+                                     << RecMuon->globalTrack().isNonnull() << std::endl;
 #endif
-            double trackIso = RecMuon->isolationR03().sumPt;
-            double caloIso = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
-            double isolR04 =
-                ((RecMuon->pfIsolationR04().sumChargedHadronPt +
-                  std::max(0.,
-                           RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                               (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-                 RecMuon->pt());
-            bool isoCut = (pfCut_) ? (isolR04 < pfIsoCut_) : ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
-            if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
-              accept = true;
-              break;
-            }
+	if ((RecMuon->track().isNonnull()) && (RecMuon->innerTrack().isNonnull()) &&
+	    (RecMuon->outerTrack().isNonnull()) && (RecMuon->globalTrack().isNonnull())) {
+          const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+          spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL " << trackID.okECAL << " to HCAL "
+                                       << trackID.okHCAL << std::endl;
+#endif
+          double trackIso = RecMuon->isolationR03().sumPt;
+          double caloIso = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
+          double isolR04 =
+              ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+                std::max(0.,
+                         RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
+                             (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
+               RecMuon->pt());
+          bool isoCut = (pfCut_) ? (isolR04 < pfIsoCut_) : ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Isolation: " << trackIso << ":" << caloIso << ":"
+                                       << isolR04 << " --> " << isoCut;
+#endif
+          if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
+            accept = true;
+            break;
           }
         }
       }

@@ -286,7 +286,7 @@ void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow", 20.0);
   desc.add<double>("momentumRangeHigh", 40.0);
-  desc.add<int>("preScaleFactor", 10);
+  desc.add<int>("preScaleFactor", 1);
   descriptions.add("alcaisotrk", desc);
 }
 
