@@ -5,19 +5,20 @@ from Configuration.Eras.Era_Run3_cff import Run3
 
 options = VarParsing('analysis')
 options.register ("dataVsEmulation", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("analyzeEffiency", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("analyzeResolution", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("dataVsEmulationFile", "empty", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 """
 - For CMS runs, use the actual run number. Set useB904ME11, useB904ME21 or useB904ME234s2 to False
 - For B904 runs, set useB904ME11, useB904ME21 or useB904ME234s2 to True and set runNumber >= 341761.
   Set B904RunNumber to when the data was taken, e.g. 210519_162820.
 """
-options.register ("runNumber", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("B904RunNumber", "YYMMDD_HHMMSS", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("runNumber", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
+options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data.")
+options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
+options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
+options.register("B904RunNumber", "YYMMDD_HHMMSS", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
 B904Setup = options.useB904ME11 or options.useB904ME21 or options.useB904ME234s2
