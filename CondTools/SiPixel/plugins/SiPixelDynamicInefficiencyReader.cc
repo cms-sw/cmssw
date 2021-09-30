@@ -1,19 +1,12 @@
-#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondTools/SiPixel/plugins/SiPixelDynamicInefficiencyReader.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <cstdio>
 #include <iostream>
@@ -80,8 +73,7 @@ SiPixelDynamicInefficiencyReader::SiPixelDynamicInefficiencyReader(const edm::Pa
 SiPixelDynamicInefficiencyReader::~SiPixelDynamicInefficiencyReader() = default;
 
 void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
-  iSetup.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
+  const SiPixelDynamicInefficiency* SiPixelDynamicInefficiency_ = &iSetup.getData(dynIneffToken);
   edm::LogInfo("SiPixelDynamicInefficiencyReader")
       << "[SiPixelDynamicInefficiencyReader::analyze] End Reading SiPixelDynamicInefficiency" << std::endl;
 
@@ -125,12 +117,8 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
   //Comparing DB factors to config factors
   std::cout << "\nCalculating factors/module and comparing it to config file factors...\n" << std::endl;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerTopology* const tTopo = &iSetup.getData(tkTopoToken);
+  const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken);
   edm::LogInfo("SiPixelDynamicInefficiency (old)")
       << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
 

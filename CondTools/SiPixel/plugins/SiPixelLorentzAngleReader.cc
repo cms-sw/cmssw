@@ -1,6 +1,3 @@
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondTools/SiPixel/plugins/SiPixelLorentzAngleReader.h"
@@ -29,11 +26,13 @@ SiPixelLorentzAngleReader::SiPixelLorentzAngleReader(const edm::ParameterSet& iC
 SiPixelLorentzAngleReader::~SiPixelLorentzAngleReader() = default;
 
 void SiPixelLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
-  if (useSimRcd_ == true)
-    iSetup.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
-  else
-    iSetup.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
+  const SiPixelLorentzAngle* SiPixelLorentzAngle_;
+  if (useSimRcd_ == true) {
+    SiPixelLorentzAngle_ = &iSetup.getData(siPixelSimLAToken_);
+  } else {
+    SiPixelLorentzAngle_ = &iSetup.getData(siPixelLAToken_);
+  }
+
   edm::LogInfo("SiPixelLorentzAngleReader")
       << "[SiPixelLorentzAngleReader::analyze] End Reading SiPixelLorentzAngle" << std::endl;
   edm::Service<TFileService> fs;

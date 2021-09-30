@@ -6,13 +6,9 @@
 // Aug 2008
 
 #include <iostream>
-
-#include "CondTools/SiPixel/test/PixelPopConCalibChecker.h"
-
+#include "CondTools/SiPixel/plugins/PixelPopConCalibChecker.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
-#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
 using namespace std;
@@ -20,9 +16,7 @@ using namespace std;
 //
 // constructors and destructor
 //
-PixelPopConCalibChecker::PixelPopConCalibChecker(const edm::ParameterSet& iConfig)
-
-{
+PixelPopConCalibChecker::PixelPopConCalibChecker(const edm::ParameterSet& iConfig) : gainCalibToken_(esConsumes()) {
   _filename = iConfig.getParameter<string>("filename");
   _messageLevel = iConfig.getUntrackedParameter("messageLevel", 0);
   if (_messageLevel > 0)
@@ -49,8 +43,7 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   }  // if (_messageLevel > 0)
 
   // get the calib config object in the database from the event setup
-  ESHandle<SiPixelCalibConfiguration> calibES;
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calibES);
+  const SiPixelCalibConfiguration* calibES = &iSetup.getData(gainCalibToken_);
 
   // get the calib config object from the calib.dat file
   pos::PixelCalibConfiguration fancyCalib(_filename);
@@ -159,12 +152,6 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   }
 
 }  // PixelPopConCalibChecker::analyze()
-
-void
-//PixelPopConCalibChecker::beginJob(const edm::EventSetup&)
-PixelPopConCalibChecker::beginJob() {}  // void PixelPopConCalibChecker::beginJob(const edm::EventSetup&)
-
-void PixelPopConCalibChecker::endJob() {}  // void PixelPopConCalibChecker::endJob()
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PixelPopConCalibChecker);

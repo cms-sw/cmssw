@@ -14,11 +14,10 @@ namespace cms {
   public:
     explicit SiPixelPerformanceSummaryBuilder(const edm::ParameterSet&);
     ~SiPixelPerformanceSummaryBuilder() override;
-
-  private:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
     std::vector<uint32_t> detectorModules_;
   };
 }  // namespace cms

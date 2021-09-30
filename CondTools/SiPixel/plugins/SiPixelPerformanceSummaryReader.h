@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
+#include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
 
 namespace cms {
   class SiPixelPerformanceSummaryReader : public edm::one::EDAnalyzer<> {
@@ -19,6 +21,7 @@ namespace cms {
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
+    const edm::ESGetToken<SiPixelPerformanceSummary, SiPixelPerformanceSummaryRcd> perfSummaryToken_;
     bool printdebug_;
   };
 }  // namespace cms

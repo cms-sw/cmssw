@@ -3,7 +3,11 @@
 using namespace cms;
 
 SiPixelVCalReader::SiPixelVCalReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
+    : siPixelVCalToken_(esConsumes()),
+      siPixelVCalSimToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      tkTopoToken_(esConsumes()),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
       useSimRcd_(iConfig.getParameter<bool>("useSimRcd")) {
   usesResource(TFileService::kSharedResource);
 }
@@ -11,24 +15,21 @@ SiPixelVCalReader::SiPixelVCalReader(const edm::ParameterSet& iConfig)
 SiPixelVCalReader::~SiPixelVCalReader() = default;
 
 void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiPixelVCal> siPixelVCal;
+  const SiPixelVCal* siPixelVCal;
 
   // Get record & file service
   if (useSimRcd_ == true)
-    iSetup.get<SiPixelVCalSimRcd>().get(siPixelVCal);
+    siPixelVCal = &iSetup.getData(siPixelVCalSimToken_);
   else
-    iSetup.get<SiPixelVCalRcd>().get(siPixelVCal);
+    siPixelVCal = &iSetup.getData(siPixelVCalToken_);
   edm::LogInfo("SiPixelVCalReader") << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
   edm::Service<TFileService> fs;
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tkTopoToken_);
 
   // Retrieve old style tracker geometry from geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
   std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   // Phase

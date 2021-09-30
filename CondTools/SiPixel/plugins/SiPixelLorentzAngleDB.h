@@ -10,6 +10,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +30,9 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+
   unsigned int HVgroup(unsigned int panel, unsigned int module);
 
   std::vector<std::pair<uint32_t, float> > detid_la;

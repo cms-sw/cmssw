@@ -14,6 +14,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH2F.h"
@@ -30,6 +33,9 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  const edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> siPixelLAToken_;
+  const edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleSimRcd> siPixelSimLAToken_;
+
   bool printdebug_;
   TH1F* LorentzAngleBarrel_;
   TH1F* LorentzAngleForward_;

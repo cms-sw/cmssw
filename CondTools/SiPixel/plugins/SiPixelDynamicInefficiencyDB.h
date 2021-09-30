@@ -3,19 +3,17 @@
 
 #include <map>
 
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
 
 class SiPixelDynamicInefficiencyDB : public edm::one::EDAnalyzer<> {
 public:
@@ -25,6 +23,7 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
   edm::ParameterSet conf_;
   std::string recordName_;
 

@@ -33,6 +33,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
   std::string recordName_;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BPixParameters_;

@@ -40,6 +40,7 @@ public:
   ~SiPixelCalibConfigurationReadDb() override;
 
 private:
+  const edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> calibConfigToken;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -58,16 +59,11 @@ private:
 // constructors and destructor
 //
 SiPixelCalibConfigurationReadDb::SiPixelCalibConfigurationReadDb(const edm::ParameterSet& iConfig)
-    : verbose_(iConfig.getParameter<bool>("verbosity"))
-
-{
+    : calibConfigToken(esConsumes()), verbose_(iConfig.getParameter<bool>("verbosity")) {
   //now do what ever initialization is needed
 }
 
-SiPixelCalibConfigurationReadDb::~SiPixelCalibConfigurationReadDb() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+SiPixelCalibConfigurationReadDb::~SiPixelCalibConfigurationReadDb() = default;
 
 //
 // member functions
@@ -79,8 +75,7 @@ void SiPixelCalibConfigurationReadDb::analyze(const edm::Event& iEvent, const ed
 
   LogInfo("") << " examining SiPixelCalibConfiguration database object..." << std::endl;
 
-  ESHandle<SiPixelCalibConfiguration> calib;
-  iSetup.get<SiPixelCalibConfigurationRcd>().get(calib);
+  const SiPixelCalibConfiguration* calib = &iSetup.getData(calibConfigToken);
   std::cout << "calibration type: " << calib->getCalibrationMode() << std::endl;
   std::cout << "number of triggers: " << calib->getNTriggers() << std::endl;
   std::vector<short> vcalvalues = calib->getVCalValues();
