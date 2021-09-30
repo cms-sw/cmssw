@@ -8,13 +8,7 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
@@ -25,9 +19,9 @@ using namespace edm;
 
 //Constructor
 
-SiPixelDynamicInefficiencyDB::SiPixelDynamicInefficiencyDB(edm::ParameterSet const& conf) : conf_(conf) {
+SiPixelDynamicInefficiencyDB::SiPixelDynamicInefficiencyDB(edm::ParameterSet const& conf)
+    : tkTopoToken_(esConsumes()), conf_(conf) {
   recordName_ = conf_.getUntrackedParameter<std::string>("record", "SiPixelDynamicInefficiencyRcd");
-
   thePixelGeomFactors_ = conf_.getUntrackedParameter<Parameters>("thePixelGeomFactors");
   theColGeomFactors_ = conf_.getUntrackedParameter<Parameters>("theColGeomFactors");
   theChipGeomFactors_ = conf_.getUntrackedParameter<Parameters>("theChipGeomFactors");
@@ -44,9 +38,7 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
   SiPixelDynamicInefficiency* DynamicInefficiency = new SiPixelDynamicInefficiency();
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(tkTopoToken_);
 
   uint32_t max = numeric_limits<uint32_t>::max();
   uint32_t mask;

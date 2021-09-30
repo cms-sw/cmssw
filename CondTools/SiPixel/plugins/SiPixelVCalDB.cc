@@ -3,7 +3,8 @@
 using namespace std;
 using namespace edm;
 
-SiPixelVCalDB::SiPixelVCalDB(edm::ParameterSet const& iConfig) {
+SiPixelVCalDB::SiPixelVCalDB(edm::ParameterSet const& iConfig)
+    : tkGeomToken_(esConsumes()), tkTopoToken_(esConsumes()) {
   recordName_ = iConfig.getUntrackedParameter<std::string>("record", "SiPixelVCalRcd");
   BPixParameters_ = iConfig.getUntrackedParameter<Parameters>("BPixParameters");
   FPixParameters_ = iConfig.getUntrackedParameter<Parameters>("FPixParameters");
@@ -17,13 +18,10 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
   bool phase1 = true;
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tkTopoToken_);
 
   // Retrieve old style tracker geometry from geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
   std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {

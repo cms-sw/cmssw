@@ -29,19 +29,23 @@
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include <string>
 
 namespace cms {
   class SiPixelCondObjForHLTBuilder : public edm::one::EDAnalyzer<> {
   public:
     explicit SiPixelCondObjForHLTBuilder(const edm::ParameterSet& iConfig);
-
     ~SiPixelCondObjForHLTBuilder() override{};
     void beginJob() override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     bool loadFromFile();
 
   private:
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeometryToken_;
+
     edm::ParameterSet conf_;
     bool appendMode_;
     SiPixelGainCalibrationForHLT* SiPixelGainCalibration_;

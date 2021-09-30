@@ -7,13 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
@@ -24,7 +18,8 @@ using namespace edm;
 
 //Constructor
 
-SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) : conf_(conf) {
+SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf)
+    : tkGeomToken_(esConsumes()), tkTopoToken_(esConsumes()), conf_(conf) {
   magneticField_ = conf_.getParameter<double>("magneticField");
   recordName_ = conf_.getUntrackedParameter<std::string>("record", "SiPixelLorentzAngleRcd");
   useFile_ = conf_.getParameter<bool>("useFile");
@@ -44,13 +39,10 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
   SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &es.getData(tkTopoToken_);
 
   //Retrieve old style tracker geometry from geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  es.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &es.getData(tkGeomToken_);
   edm::LogInfo("SiPixelLorentzAngle (old)")
       << " There are " << pDD->detUnits().size() << " detectors (old)" << std::endl;
 

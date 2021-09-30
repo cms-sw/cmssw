@@ -14,6 +14,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 //
 //
@@ -27,6 +32,10 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken;
+  const edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> dynIneffToken;
+
   bool printdebug_;
   double thePixelEfficiency[20];                     // Single pixel effciency
   double thePixelColEfficiency[20];                  // Column effciency

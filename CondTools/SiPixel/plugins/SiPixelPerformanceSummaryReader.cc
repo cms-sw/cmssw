@@ -1,8 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
-#include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
-
 #include "CondTools/SiPixel/plugins/SiPixelPerformanceSummaryReader.h"
 
 #include <cstdio>
@@ -13,14 +9,13 @@ using namespace cms;
 using namespace std;
 
 SiPixelPerformanceSummaryReader::SiPixelPerformanceSummaryReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {}
+    : perfSummaryToken_(esConsumes()), printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {}
 
 SiPixelPerformanceSummaryReader::~SiPixelPerformanceSummaryReader() = default;
 
 void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::LogInfo("SiPixelPerformanceSummaryReader") << "start reading SiPixelPerformanceSummary" << endl;
-  edm::ESHandle<SiPixelPerformanceSummary> SiPixelPerformanceSummary_;
-  iSetup.get<SiPixelPerformanceSummaryRcd>().get(SiPixelPerformanceSummary_);
+  const SiPixelPerformanceSummary* SiPixelPerformanceSummary_ = &iSetup.getData(perfSummaryToken_);
   edm::LogInfo("SiPixelPerformanceSummaryReader") << "end reading SiPixelPerformanceSummary" << endl;
 
   SiPixelPerformanceSummary_->print();

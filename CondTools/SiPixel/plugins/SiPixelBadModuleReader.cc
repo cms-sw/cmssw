@@ -1,23 +1,13 @@
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondTools/SiPixel/plugins/SiPixelBadModuleReader.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "TCanvas.h"
 #include "TStyle.h"
 #include <cmath>
@@ -29,7 +19,12 @@
 #include <sys/time.h>
 
 SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)),
+    : badModuleToken(esConsumes()),
+      badModuleFromDBToken(esConsumes()),
+      siPixelFedCablingToken(esConsumes()),
+      tkGeomToken(esConsumes()),
+      tkTopoToken(esConsumes()),
+      printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)),
       whichRcd(iConfig.getUntrackedParameter<std::string>("RcdName")) {
   usesResource(TFileService::kSharedResource);
 }
@@ -38,22 +33,18 @@ SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
 SiPixelBadModuleReader::~SiPixelBadModuleReader() = default;
 
 void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  const SiPixelQuality* SiPixelBadModule_;
   if (whichRcd == "SiPixelQualityRcd")
-    iSetup.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+    SiPixelBadModule_ = &iSetup.getData(badModuleToken);
   if (whichRcd == "SiPixelQualityFromDbRcd")
-    iSetup.get<SiPixelQualityFromDbRcd>().get(SiPixelBadModule_);
+    SiPixelBadModule_ = &iSetup.getData(badModuleFromDBToken);
 
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  iSetup.get<SiPixelFedCablingMapRcd>().get(map);
+  edm::ESHandle<SiPixelFedCablingMap> map = iSetup.getHandle(siPixelFedCablingToken);
   edm::LogInfo("SiPixelBadModuleReader") << "[SiPixelBadModuleReader::analyze] End Reading SiPixelBadModule"
                                          << std::endl;
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerGeometry* geom = &iSetup.getData(tkGeomToken);
+  const TrackerTopology& ttopo = iSetup.getData(tkTopoToken);
 
   edm::Service<TFileService> fs;
   _TH2F_dead_modules_BPIX_lay1 =

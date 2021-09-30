@@ -13,7 +13,7 @@ SiPixelBadModuleByHandBuilder::SiPixelBadModuleByHandBuilder(const edm::Paramete
   ROCListFile_ = iConfig.getUntrackedParameter<std::string>("ROCListFile");
 }
 
-SiPixelBadModuleByHandBuilder::~SiPixelBadModuleByHandBuilder() {}
+SiPixelBadModuleByHandBuilder::~SiPixelBadModuleByHandBuilder() = default;
 
 std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
   auto obj = std::make_unique<SiPixelQuality>();

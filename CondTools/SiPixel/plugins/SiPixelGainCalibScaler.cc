@@ -116,6 +116,8 @@ private:
 
   edm::ESGetToken<SiPixelGainCalibrationForHLT, SiPixelGainCalibrationForHLTRcd> gainHLTCalibToken_;
   edm::ESGetToken<SiPixelGainCalibrationOffline, SiPixelGainCalibrationOfflineRcd> gainOfflineCalibToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
 
   edm::ESWatcher<SiPixelGainCalibrationForHLTRcd> pixelHLTGainWatcher_;
   edm::ESWatcher<SiPixelGainCalibrationOfflineRcd> pixelOfflineGainWatcher_;
@@ -129,8 +131,10 @@ SiPixelGainCalibScaler::SiPixelGainCalibScaler(const edm::ParameterSet& iConfig)
       isForHLT_(iConfig.getParameter<bool>("isForHLT")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       m_parameters(iConfig.getParameter<std::vector<edm::ParameterSet> >("parameters")) {
-  gainHLTCalibToken_ = esConsumes<SiPixelGainCalibrationForHLT, SiPixelGainCalibrationForHLTRcd>();
-  gainOfflineCalibToken_ = esConsumes<SiPixelGainCalibrationOffline, SiPixelGainCalibrationOfflineRcd>();
+  gainHLTCalibToken_ = esConsumes();
+  gainOfflineCalibToken_ = esConsumes();
+  tkGeomToken_ = esConsumes();
+  tkTopoToken_ = esConsumes();
 
   for (auto& thePSet : m_parameters) {
     const unsigned int phase(thePSet.getParameter<unsigned int>("phase"));
@@ -190,8 +194,7 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
   //=======================================================
   // Retrieve geometry information
   //=======================================================
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
   edm::LogInfo("SiPixelGainCalibScaler") << "There are: " << pDD->dets().size() << " detectors";
 
   // switch on the phase1
@@ -206,7 +209,7 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
   myVCalInfo.printAllInfo();
 
   // if need the ESHandle to check if the SetupData was there or not
-  auto payload = iSetup.getHandle(token);
+  auto payload = &iSetup.getData(token);
   std::vector<uint32_t> detids;
   payload->getDetIds(detids);
 
@@ -218,10 +221,9 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
   auto SiPixelGainCalibration_ = new PayloadType(minped, maxped, mingain, maxgain);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tkTopoToken_);
 
+  // possible to load it not from EventSetup
   //const char* path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
   //TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 

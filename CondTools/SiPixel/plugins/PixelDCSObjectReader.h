@@ -24,18 +24,19 @@ class PixelDCSObjectReader : public edm::one::EDAnalyzer<edm::one::SharedResourc
   typedef typename Record::Object Object;
 
 public:
-  PixelDCSObjectReader(const edm::ParameterSet&) { usesResource(TFileService::kSharedResource); }
+  PixelDCSObjectReader(const edm::ParameterSet&) : esToken(esConsumes()) {
+    usesResource(TFileService::kSharedResource);
+  }
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<Object, Record> esToken;
 };
 
 template <class Record>
 void PixelDCSObjectReader<Record>::analyze(const edm::Event&, const edm::EventSetup& setup) {
-  edm::ESHandle<Object> handle;
-
-  setup.get<Record>().get(handle);
-
-  Object object = *handle;
+  const Object* object = &setup.getData(esToken);
 
   edm::Service<TFileService> fs;
 

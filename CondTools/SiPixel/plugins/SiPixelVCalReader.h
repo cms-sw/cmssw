@@ -42,6 +42,11 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  edm::ESGetToken<SiPixelVCal, SiPixelVCalSimRcd> siPixelVCalToken_;
+  edm::ESGetToken<SiPixelVCal, SiPixelVCalRcd> siPixelVCalSimToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+
   bool printdebug_;
   bool useSimRcd_;
   TH1F* slopeBPix_;

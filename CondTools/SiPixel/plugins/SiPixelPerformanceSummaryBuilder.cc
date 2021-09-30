@@ -18,13 +18,13 @@
 
 using namespace cms;
 
-SiPixelPerformanceSummaryBuilder::SiPixelPerformanceSummaryBuilder(const edm::ParameterSet& iConfig) {}
+SiPixelPerformanceSummaryBuilder::SiPixelPerformanceSummaryBuilder(const edm::ParameterSet& iConfig)
+    : tkGeomToken_(esConsumes()) {}
 
 SiPixelPerformanceSummaryBuilder::~SiPixelPerformanceSummaryBuilder() = default;
 
 void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
   edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() << " detectors" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {

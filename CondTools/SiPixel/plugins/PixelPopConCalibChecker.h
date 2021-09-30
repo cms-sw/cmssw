@@ -26,11 +26,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 
 //
 // class decleration
@@ -38,18 +38,14 @@
 class PixelPopConCalibChecker : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelPopConCalibChecker(const edm::ParameterSet&);
-  ~PixelPopConCalibChecker();
+  ~PixelPopConCalibChecker() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  //virtual void beginJob(const edm::EventSetup&) ;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-
+  // ----------member data ---------------------------
+  edm::ESGetToken<SiPixelCalibConfiguration, SiPixelCalibConfigurationRcd> gainCalibToken_;
   std::string _filename;
   int _messageLevel;
-
-  // ----------member data ---------------------------
 };
 
 #endif
