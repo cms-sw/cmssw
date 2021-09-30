@@ -183,22 +183,22 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
   {
     TH2F *hist = h_trackCorr_vert->getTH2F();
     TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-    xa->SetBinLabel(1, "45, 210, far, top");
-    ya->SetBinLabel(1, "45, 210, far, top");
-    xa->SetBinLabel(2, "45, 210, far, bot");
-    ya->SetBinLabel(2, "45, 210, far, bot");
-    xa->SetBinLabel(3, "45, 220, far, top");
-    ya->SetBinLabel(3, "45, 220, far, top");
-    xa->SetBinLabel(4, "45, 220, far, bot");
-    ya->SetBinLabel(4, "45, 220, far, bot");
-    xa->SetBinLabel(5, "56, 210, far, top");
-    ya->SetBinLabel(5, "56, 210, far, top");
-    xa->SetBinLabel(6, "56, 210, far, bot");
-    ya->SetBinLabel(6, "56, 210, far, bot");
-    xa->SetBinLabel(7, "56, 220, far, top");
-    ya->SetBinLabel(7, "56, 220, far, top");
-    xa->SetBinLabel(8, "56, 220, far, bot");
-    ya->SetBinLabel(8, "56, 220, far, bot");
+    xa->SetBinLabel(1, "45, 210, FR-TP");
+    ya->SetBinLabel(1, "45, 210, FR-TP");
+    xa->SetBinLabel(2, "45, 210, FR-BT");
+    ya->SetBinLabel(2, "45, 210, FR-BT");
+    xa->SetBinLabel(3, "45, 220, FR-TP");
+    ya->SetBinLabel(3, "45, 220, FR-TP");
+    xa->SetBinLabel(4, "45, 220, FR-BT");
+    ya->SetBinLabel(4, "45, 220, FR-BT");
+    xa->SetBinLabel(5, "56, 210, FR-TP");
+    ya->SetBinLabel(5, "56, 210, FR-TP");
+    xa->SetBinLabel(6, "56, 210, FR-BT");
+    ya->SetBinLabel(6, "56, 210, FR-BT");
+    xa->SetBinLabel(7, "56, 220, FR-TP");
+    ya->SetBinLabel(7, "56, 220, FR-TP");
+    xa->SetBinLabel(8, "56, 220, FR-BT");
+    ya->SetBinLabel(8, "56, 220, FR-BT");
   }
 }
 
@@ -429,7 +429,6 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
       if (stRPNum == 25)
         idx = 7;
 
-      // TODO: remove hor - not used
       const signed int hor = ((rpNum == 2) || (rpNum == 3) || (rpNum == 6)) ? 1 : 0;
 
       if (idx >= 0)
@@ -504,10 +503,8 @@ void CTPPSCommonDQMSource::analyzeTracks(edm::Event const &event, edm::EventSetu
 
     for (const auto &idx1 : ap.second) {
       for (const auto &idx2 : ap.second) {
-        // TODO: remove /10
         plots.h_trackCorr->Fill(idx1 / 10, idx2 / 10);
 
-        // TODO: remove /10
         if ((idx1 % 10) != (idx2 % 10))
           plots.h_trackCorr_overlap->Fill(idx1 / 10, idx2 / 10);
       }
