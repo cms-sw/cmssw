@@ -134,19 +134,17 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     }
 
     //this is full5x5 showershape
-    double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[0]);
-    double sigmaee5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()),
-                                                                       EgammaLocalCovParamDefaults::kRelEnCut,
-                                                                       &thresholds,
-                                                                       multThresEB_,
-                                                                       multThresEE_)[0]);
+    auto const ecalCandLocalCov = lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed())); 
+    auto const sigmaee5x5 = sqrt(ecalCandLocalCov[0]); 
+    auto const sigmapp5x5 = sqrt(ecalCandLocalCov[2]);
 
-    double sigmapp5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[2]);
-    double sigmapp5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()),
-                                                                       EgammaLocalCovParamDefaults::kRelEnCut,
-                                                                       &thresholds,
-                                                                       multThresEB_,
-                                                                       multThresEE_)[2]);
+    auto const ecalCandLocalCovNoiseCleaned = lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), 
+									    EgammaLocalCovParamDefaults::kRelEnCut, 
+									    &thresholds, 
+									    multThresEB_, 
+									    multThresEE_); 
+    auto const sigmaee5x5NoiseCleaned = sqrt(ecalCandLocalCovNoiseCleaned[0]); 
+    auto const sigmapp5x5NoiseCleaned = sqrt(ecalCandLocalCovNoiseCleaned[2]);
 
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
