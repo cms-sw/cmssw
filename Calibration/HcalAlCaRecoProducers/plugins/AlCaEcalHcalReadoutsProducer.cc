@@ -60,7 +60,6 @@ AlCaEcalHcalReadoutsProducer::AlCaEcalHcalReadoutsProducer(const edm::ParameterS
 
 // ------------ method called to produce the data  ------------
 void AlCaEcalHcalReadoutsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
   edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
   if (!hbhe.isValid()) {
     edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!";

@@ -85,7 +85,7 @@ private:
 
   edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection>> toks_ecal_;
 };
 
 AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
@@ -101,7 +101,7 @@ AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-  ecalLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
+  ecalLabels_ = iConfig.getParameter<std::vector<edm::InputTag>>("ecalInputs");
   tok_ps_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalPSInput"));
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInput"));
 
@@ -198,7 +198,7 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     auto tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
 
-    std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+    std::vector<edm::EDGetTokenT<EcalRecHitCollection>>::const_iterator i;
     for (i = toks_ecal_.begin(); i != toks_ecal_.end(); i++) {
       edm::Handle<EcalRecHitCollection> ec = iEvent.getHandle(*i);
       for (EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
@@ -307,9 +307,10 @@ void AlCaHcalNoiseProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("hbheInput", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("hfInput", edm::InputTag("hfreco"));
   desc.add<edm::InputTag>("hoInput", edm::InputTag("horeco"));
-  std::vector<edm::InputTag> inputs = {edm::InputTag("ecalRecHit","EcalRecHitsEB"), edm::InputTag("ecalRecHit","EcalRecHitsEE")};
+  std::vector<edm::InputTag> inputs = {edm::InputTag("ecalRecHit", "EcalRecHitsEB"),
+                                       edm::InputTag("ecalRecHit", "EcalRecHitsEE")};
   desc.add<std::vector<edm::InputTag>>("ecalInputs", inputs);
-  desc.add<edm::InputTag>("ecalPSInput", edm::InputTag("ecalPreshowerRecHit","EcalRecHitsES"));
+  desc.add<edm::InputTag>("ecalPSInput", edm::InputTag("ecalPreshowerRecHit", "EcalRecHitsES"));
   desc.add<edm::InputTag>("rawInput", edm::InputTag("rawDataCollector"));
   descriptions.add("alcaHcalNoiseProducer", desc);
 }
