@@ -18,7 +18,6 @@
 using namespace reco;
 using namespace std;
 
-
 #include "DataFormats/ParticleFlowCandidate/src/CountBits.h"
 
 PFCandidate::PFCandidate()

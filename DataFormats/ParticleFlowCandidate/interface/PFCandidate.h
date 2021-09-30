@@ -343,6 +343,16 @@ namespace reco {
     /// set mva for neutral hadron - gamma discrimination
     void set_mva_gamma_nh(float mva) { mva_gamma_nh_ = mva; }
 
+    // set DNN for electron PFID
+    void set_dnn_e_sigIsolated(float mva) { dnn_e_sigIsolated_ = mva; }
+    void set_dnn_e_sigNonIsolated(float mva) { dnn_e_sigNonIsolated_ = mva; }
+    void set_dnn_e_bkgNonIsolated(float mva) { dnn_e_bkgNonIsolated_ = mva; }
+    void set_dnn_e_bkgTau(float mva) { dnn_e_bkgTau_ = mva; }
+    void set_dnn_e_bkgPhoton(float mva) { dnn_e_bkgPhoton_ = mva; }
+
+    // set DNN for gamma PFID
+    void set_dnn_gamma(float mva) { dnn_gamma_ = mva; }
+
     /// mva for neutral hadron - gamma discrimination
     float mva_gamma_nh() const { return mva_gamma_nh_; }
 
@@ -506,6 +516,9 @@ namespace reco {
 
     /// DNN for electron PFid: photon bkg
     float dnn_e_bkgPhoton_;
+
+    // DNN for gamma PFid
+    float dnn_gamma_;
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF positionAtECALEntrance_;
