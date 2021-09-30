@@ -63,7 +63,7 @@ if options.useB904ME11:
 # For B904 setup ME21 chamber, which corresponds to ME+2/1/03 VMECrate13 / DMBSlot2 RUI17 / FED838 in the production system mapping
 elif options.useB904ME21:
     FEDRUI = cms.PSet(
-        FED838 = cms.untracked.vstring('RUI16'),
+        FED838 = cms.untracked.vstring('RUI17'),
         RUI17 = cms.untracked.vstring(options.inputFiles[0])
     )
 # Please note that after passing mapping check this chamber still would be recognized as production chamber
