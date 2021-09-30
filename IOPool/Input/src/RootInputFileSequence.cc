@@ -240,31 +240,32 @@ namespace edm {
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
     std::list<std::string> exInfo;
-    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
-      try {
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(
-            input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
-        std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
-        filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-        break;
-      } catch (cms::Exception const& e) {
-        if (!skipBadFiles && std::next(it) == fNames.end()) {
-          InputFile::reportSkippedFile((*it), logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootInputFileSequence::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << (*it) << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
-          //report previous exceptions when use other names to open file
-          for (auto const& s : exInfo)
-            ex.addAdditionalInfo(s);
-          throw ex;
-        } else {
-          exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+    {
+      std::unique_ptr<InputSource::FileOpenSentry> sentry(
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
+      for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+        try {
+          std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
+          filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
+          break;
+        } catch (cms::Exception const& e) {
+          if (!skipBadFiles && std::next(it) == fNames.end()) {
+            InputFile::reportSkippedFile((*it), logicalFileName());
+            Exception ex(errors::FileOpenError, "", e);
+            ex.addContext("Calling RootInputFileSequence::initTheFile()");
+            std::ostringstream out;
+            out << "Input file " << (*it) << " could not be opened.";
+            ex.addAdditionalInfo(out.str());
+            //report previous exceptions when use other names to open file
+            for (auto const& s : exInfo)
+              ex.addAdditionalInfo(s);
+            throw ex;
+          } else {
+            exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+          }
         }
       }
     }
-
     if (filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = makeRootFile(filePtr);
