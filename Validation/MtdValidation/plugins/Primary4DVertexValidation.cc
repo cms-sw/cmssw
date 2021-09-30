@@ -47,10 +47,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-namespace {
-  static constexpr unsigned int NOT_MATCHED = 66666;
-}
-
 //class declaration
 class Primary4DVertexValidation : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
@@ -206,14 +202,15 @@ private:
   // ----------member data ---------------------------
 
   const std::string folder_;
+  static constexpr unsigned int NOT_MATCHED = 66666;
   static constexpr double simUnit_ = 1e9;     //sim time in s while reco time in ns
   static constexpr double c_ = 2.99792458e1;  //c in cm/ns
   static constexpr double mvaL_ = 0.5;        //MVA cuts for MVA categories
   static constexpr double mvaH_ = 0.8;
   static constexpr double selNdof_ = 4;
-  static constexpr double maxRank_ = 8;       
-  static constexpr double maxTry_ = 10;     
-  static constexpr double zWosMatchMax_ = 1; 
+  static constexpr double maxRank_ = 8;
+  static constexpr double maxTry_ = 10;
+  static constexpr double zWosMatchMax_ = 1;
 
   const double trackweightTh_;
   const double mvaTh_;
@@ -333,28 +330,34 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
-  meTrackRes_[0] =
-      ibook.book1D("TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
+  meTrackRes_[0] = ibook.book1D(
+      "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
   meTrackRes_[1] = ibook.book1D(
       "TrackRes-MediumMVA", "t_{rec} - t_{sim} for tracks with 0.5 < MVA < 0.8; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
-  meTrackRes_[2] =
-      ibook.book1D("TrackRes-HighMVA", "t_{rec} - t_{sim} for tracks with MVA > 0.8; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
+  meTrackRes_[2] = ibook.book1D(
+      "TrackRes-HighMVA", "t_{rec} - t_{sim} for tracks with MVA > 0.8; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
   if (optionalPlots_) {
-     meTrackResMass_[0] = ibook.book1D(
-         "TrackResMass-LowMVA", "t_{rec} - t_{est} for tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
-     meTrackResMass_[1] = ibook.book1D(
-         "TrackResMass-MediumMVA", "t_{rec} - t_{est} for tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
-     meTrackResMass_[2] = ibook.book1D(
-         "TrackResMass-HighMVA", "t_{rec} - t_{est} for tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
-     meTrackResMassTrue_[0] = ibook.book1D(
-         "TrackResMassTrue-LowMVA", "t_{est} - t_{sim} for tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ", 100, -1., 1.);
-     meTrackResMassTrue_[1] = ibook.book1D("TrackResMassTrue-MediumMVA",
-                                           "t_{est} - t_{sim} for tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
-                                           100,
-                                           -1.,
-                                           1.);
-     meTrackResMassTrue_[2] = ibook.book1D(
-         "TrackResMassTrue-HighMVA", "t_{est} - t_{sim} for tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ", 100, -1., 1.);
+    meTrackResMass_[0] = ibook.book1D(
+        "TrackResMass-LowMVA", "t_{rec} - t_{est} for tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
+    meTrackResMass_[1] = ibook.book1D("TrackResMass-MediumMVA",
+                                      "t_{rec} - t_{est} for tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ",
+                                      100,
+                                      -1.,
+                                      1.);
+    meTrackResMass_[2] = ibook.book1D(
+        "TrackResMass-HighMVA", "t_{rec} - t_{est} for tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
+    meTrackResMassTrue_[0] = ibook.book1D(
+        "TrackResMassTrue-LowMVA", "t_{est} - t_{sim} for tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ", 100, -1., 1.);
+    meTrackResMassTrue_[1] = ibook.book1D("TrackResMassTrue-MediumMVA",
+                                          "t_{est} - t_{sim} for tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
+                                          100,
+                                          -1.,
+                                          1.);
+    meTrackResMassTrue_[2] = ibook.book1D("TrackResMassTrue-HighMVA",
+                                          "t_{est} - t_{sim} for tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ",
+                                          100,
+                                          -1.,
+                                          1.);
   }
   meTrackPull_[0] =
       ibook.book1D("TrackPull-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
@@ -363,23 +366,29 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meTrackPull_[2] =
       ibook.book1D("TrackPull-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   if (optionalPlots_) {
-     meTrackPullMass_[0] =
-         ibook.book1D("TrackPullMass-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMass_[1] = ibook.book1D(
-         "TrackPullMass-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMass_[2] =
-         ibook.book1D("TrackPullMass-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTrue_[0] = ibook.book1D(
-         "TrackPullMassTrue-LowMVA", "Pull for tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTrue_[1] = ibook.book1D(
-         "TrackPullMassTrue-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTrue_[2] = ibook.book1D(
-         "TrackPullMassTrue-HighMVA", "Pull for tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMass_[0] = ibook.book1D(
+        "TrackPullMass-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMass_[1] = ibook.book1D(
+        "TrackPullMass-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMass_[2] = ibook.book1D(
+        "TrackPullMass-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMassTrue_[0] = ibook.book1D(
+        "TrackPullMassTrue-LowMVA", "Pull for tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMassTrue_[1] = ibook.book1D("TrackPullMassTrue-MediumMVA",
+                                           "Pull for tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
+                                           100,
+                                           -10.,
+                                           10.);
+    meTrackPullMassTrue_[2] = ibook.book1D(
+        "TrackPullMassTrue-HighMVA", "Pull for tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   }
   meTrackZposRes_[0] = ibook.book1D(
       "TrackZposRes-LowMVA", "Z_{PCA} - Z_{sim} for tracks with MVA < 0.5;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
-  meTrackZposRes_[1] = ibook.book1D(
-      "TrackZposRes-MediumMVA", "Z_{PCA} - Z_{sim} for tracks with 0.5 < MVA < 0.8 ;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
+  meTrackZposRes_[1] = ibook.book1D("TrackZposRes-MediumMVA",
+                                    "Z_{PCA} - Z_{sim} for tracks with 0.5 < MVA < 0.8 ;Z_{PCA} - Z_{sim} [cm] ",
+                                    100,
+                                    -1.,
+                                    1.);
   meTrackZposRes_[2] = ibook.book1D(
       "TrackZposRes-HighMVA", "Z_{PCA} - Z_{sim} for tracks with MVA > 0.8 ;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
   meTrack3DposRes_[0] =
@@ -474,136 +483,174 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -1.,
                    1.);
-  meTrackPullLowP_[0] = ibook.book1D(
-      "TrackPullLowP-LowMVA", "Pull for tracks with MVA < 0.5 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+  meTrackPullLowP_[0] = ibook.book1D("TrackPullLowP-LowMVA",
+                                     "Pull for tracks with MVA < 0.5 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
+                                     100,
+                                     -10.,
+                                     10.);
   meTrackPullLowP_[1] = ibook.book1D("TrackPullLowP-MediumMVA",
                                      "Pull for tracks with 0.5 < MVA < 0.8 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
                                      100,
                                      -10.,
                                      10.);
-  meTrackPullLowP_[2] = ibook.book1D(
-      "TrackPullLowP-HighMVA", "Pull for tracks with MVA > 0.8 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-  meTrackPullHighP_[0] = ibook.book1D(
-      "TrackPullHighP-LowMVA", "Pull for tracks with MVA < 0.5 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+  meTrackPullLowP_[2] = ibook.book1D("TrackPullLowP-HighMVA",
+                                     "Pull for tracks with MVA > 0.8 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
+                                     100,
+                                     -10.,
+                                     10.);
+  meTrackPullHighP_[0] = ibook.book1D("TrackPullHighP-LowMVA",
+                                      "Pull for tracks with MVA < 0.5 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
+                                      100,
+                                      -10.,
+                                      10.);
   meTrackPullHighP_[1] =
       ibook.book1D("TrackPullHighP-MediumMVA",
                    "Pull for tracks with 0.5 < MVA < 0.8 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
                    100,
                    -10.,
                    10.);
-  meTrackPullHighP_[2] = ibook.book1D(
-      "TrackPullHighP-HighMVA", "Pull for tracks with MVA > 0.8 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+  meTrackPullHighP_[2] = ibook.book1D("TrackPullHighP-HighMVA",
+                                      "Pull for tracks with MVA > 0.8 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
+                                      100,
+                                      -10.,
+                                      10.);
   if (optionalPlots_) {
-     meTrackResMassProtons_[0] =
-         ibook.book1D("TrackResMass-Protons-LowMVA",
-                      "t_{rec} - t_{est} for proton tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassProtons_[1] =
-         ibook.book1D("TrackResMass-Protons-MediumMVA",
-                      "t_{rec} - t_{est} for proton tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassProtons_[2] =
-         ibook.book1D("TrackResMass-Protons-HighMVA",
-                      "t_{rec} - t_{est} for proton tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassTrueProtons_[0] =
-         ibook.book1D("TrackResMassTrue-Protons-LowMVA",
-                      "t_{est} - t_{sim} for proton tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassTrueProtons_[1] =
-         ibook.book1D("TrackResMassTrue-Protons-MediumMVA",
-                      "t_{est} - t_{sim} for proton tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassTrueProtons_[2] =
-         ibook.book1D("TrackResMassTrue-Protons-HighMVA",
-                      "t_{est} - t_{sim} for proton tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
+    meTrackResMassProtons_[0] =
+        ibook.book1D("TrackResMass-Protons-LowMVA",
+                     "t_{rec} - t_{est} for proton tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassProtons_[1] =
+        ibook.book1D("TrackResMass-Protons-MediumMVA",
+                     "t_{rec} - t_{est} for proton tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassProtons_[2] =
+        ibook.book1D("TrackResMass-Protons-HighMVA",
+                     "t_{rec} - t_{est} for proton tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassTrueProtons_[0] =
+        ibook.book1D("TrackResMassTrue-Protons-LowMVA",
+                     "t_{est} - t_{sim} for proton tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassTrueProtons_[1] =
+        ibook.book1D("TrackResMassTrue-Protons-MediumMVA",
+                     "t_{est} - t_{sim} for proton tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassTrueProtons_[2] =
+        ibook.book1D("TrackResMassTrue-Protons-HighMVA",
+                     "t_{est} - t_{sim} for proton tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
 
-     meTrackResMassPions_[0] = ibook.book1D(
-         "TrackResMass-Pions-LowMVA", "t_{rec} - t_{est} for pion tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
-     meTrackResMassPions_[1] =
-         ibook.book1D("TrackResMass-Pions-MediumMVA",
-                      "t_{rec} - t_{est} for pion tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassPions_[2] = ibook.book1D(
-         "TrackResMass-Pions-HighMVA", "t_{rec} - t_{est} for pion tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ", 100, -1., 1.);
-     meTrackResMassTruePions_[0] =
-         ibook.book1D("TrackResMassTrue-Pions-LowMVA",
-                      "t_{est} - t_{sim} for pion tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassTruePions_[1] =
-         ibook.book1D("TrackResMassTrue-Pions-MediumMVA",
-                      "t_{est} - t_{sim} for pion tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
-     meTrackResMassTruePions_[2] =
-         ibook.book1D("TrackResMassTrue-Pions-HighMVA",
-                      "t_{est} - t_{sim} for pion tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ",
-                      100,
-                      -1.,
-                      1.);
+    meTrackResMassPions_[0] = ibook.book1D("TrackResMass-Pions-LowMVA",
+                                           "t_{rec} - t_{est} for pion tracks with MVA < 0.5; t_{rec} - t_{est} [ns] ",
+                                           100,
+                                           -1.,
+                                           1.);
+    meTrackResMassPions_[1] =
+        ibook.book1D("TrackResMass-Pions-MediumMVA",
+                     "t_{rec} - t_{est} for pion tracks with 0.5 < MVA < 0.8; t_{rec} - t_{est} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassPions_[2] = ibook.book1D("TrackResMass-Pions-HighMVA",
+                                           "t_{rec} - t_{est} for pion tracks with MVA > 0.8; t_{rec} - t_{est} [ns] ",
+                                           100,
+                                           -1.,
+                                           1.);
+    meTrackResMassTruePions_[0] =
+        ibook.book1D("TrackResMassTrue-Pions-LowMVA",
+                     "t_{est} - t_{sim} for pion tracks with MVA < 0.5; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassTruePions_[1] =
+        ibook.book1D("TrackResMassTrue-Pions-MediumMVA",
+                     "t_{est} - t_{sim} for pion tracks with 0.5 < MVA < 0.8; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
+    meTrackResMassTruePions_[2] =
+        ibook.book1D("TrackResMassTrue-Pions-HighMVA",
+                     "t_{est} - t_{sim} for pion tracks with MVA > 0.8; t_{est} - t_{sim} [ns] ",
+                     100,
+                     -1.,
+                     1.);
 
-     meTrackPullMassProtons_[0] = ibook.book1D(
-         "TrackPullMass-Protons-LowMVA", "Pull for proton tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassProtons_[1] = ibook.book1D("TrackPullMass-Protons-MediumMVA",
-                                               "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                                               100,
-                                               -10.,
-                                               10.);
-     meTrackPullMassProtons_[2] = ibook.book1D(
-         "TrackPullMass-Protons-HighMVA", "Pull for proton tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTrueProtons_[0] = ibook.book1D("TrackPullMassTrue-Protons-LowMVA",
-                                                   "Pull for proton tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}",
-                                                   100,
-                                                   -10.,
-                                                   10.);
-     meTrackPullMassTrueProtons_[1] =
-         ibook.book1D("TrackPullMassTrue-Protons-MediumMVA",
-                      "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                      100,
-                      -10.,
-                      10.);
-     meTrackPullMassTrueProtons_[2] = ibook.book1D("TrackPullMassTrue-Protons-HighMVA",
-                                                   "Pull for proton tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                                                   100,
-                                                   -10.,
-                                                   10.);
+    meTrackPullMassProtons_[0] = ibook.book1D("TrackPullMass-Protons-LowMVA",
+                                              "Pull for proton tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}",
+                                              100,
+                                              -10.,
+                                              10.);
+    meTrackPullMassProtons_[1] =
+        ibook.book1D("TrackPullMass-Protons-MediumMVA",
+                     "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
+                     100,
+                     -10.,
+                     10.);
+    meTrackPullMassProtons_[2] = ibook.book1D("TrackPullMass-Protons-HighMVA",
+                                              "Pull for proton tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}",
+                                              100,
+                                              -10.,
+                                              10.);
+    meTrackPullMassTrueProtons_[0] = ibook.book1D("TrackPullMassTrue-Protons-LowMVA",
+                                                  "Pull for proton tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}",
+                                                  100,
+                                                  -10.,
+                                                  10.);
+    meTrackPullMassTrueProtons_[1] =
+        ibook.book1D("TrackPullMassTrue-Protons-MediumMVA",
+                     "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
+                     100,
+                     -10.,
+                     10.);
+    meTrackPullMassTrueProtons_[2] = ibook.book1D("TrackPullMassTrue-Protons-HighMVA",
+                                                  "Pull for proton tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}",
+                                                  100,
+                                                  -10.,
+                                                  10.);
 
-     meTrackPullMassPions_[0] = ibook.book1D(
-         "TrackPullMass-Pions-LowMVA", "Pull for pion tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassPions_[1] = ibook.book1D("TrackPullMass-Pions-MediumMVA",
-                                             "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                                             100,
-                                             -10.,
-                                             10.);
-     meTrackPullMassPions_[2] = ibook.book1D(
-         "TrackPullMass-Pions-HighMVA", "Pull for pion tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTruePions_[0] = ibook.book1D(
-         "TrackPullMassTrue-Pions-LowMVA", "Pull for pion tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-     meTrackPullMassTruePions_[1] = ibook.book1D("TrackPullMassTrue-Pions-MediumMVA",
-                                                 "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                                                 100,
-                                                 -10.,
-                                                 10.);
-     meTrackPullMassTruePions_[2] = ibook.book1D(
-         "TrackPullMassTrue-Pions-HighMVA", "Pull for pion tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
+    meTrackPullMassPions_[0] = ibook.book1D("TrackPullMass-Pions-LowMVA",
+                                            "Pull for pion tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}",
+                                            100,
+                                            -10.,
+                                            10.);
+    meTrackPullMassPions_[1] = ibook.book1D("TrackPullMass-Pions-MediumMVA",
+                                            "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
+                                            100,
+                                            -10.,
+                                            10.);
+    meTrackPullMassPions_[2] = ibook.book1D("TrackPullMass-Pions-HighMVA",
+                                            "Pull for pion tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}",
+                                            100,
+                                            -10.,
+                                            10.);
+    meTrackPullMassTruePions_[0] = ibook.book1D("TrackPullMassTrue-Pions-LowMVA",
+                                                "Pull for pion tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}",
+                                                100,
+                                                -10.,
+                                                10.);
+    meTrackPullMassTruePions_[1] =
+        ibook.book1D("TrackPullMassTrue-Pions-MediumMVA",
+                     "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
+                     100,
+                     -10.,
+                     10.);
+    meTrackPullMassTruePions_[2] = ibook.book1D("TrackPullMassTrue-Pions-HighMVA",
+                                                "Pull for pion tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}",
+                                                100,
+                                                -10.,
+                                                10.);
   }
 }
 
@@ -974,7 +1021,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
   while (ntry++ < maxTry_) {
     unsigned nmatch = 0;
     for (unsigned int iev = 0; iev < simpv.size(); iev++) {
-      if ((simpv.at(iev).rec != NOT_MATCHED) || (simpv.at(iev).wos.size() == 0))
+      if ((simpv.at(iev).rec != NOT_MATCHED) || (simpv.at(iev).wos.empty()))
         continue;
       // find a rec vertex for the NOT_MATCHED sim vertex
       unsigned int rec = NOT_MATCHED;
@@ -1007,7 +1054,7 @@ void Primary4DVertexValidation::matchReco2Sim(std::vector<recoPrimaryVertex>& re
         }
       }
       if (iev == rec2sim) {
-        // do the match and assign lowest quality (i.e. max rank) 
+        // do the match and assign lowest quality (i.e. max rank)
         recopv.at(rec).sim = iev;
         recopv.at(rec).matchQuality = maxRank_;
         simpv.at(iev).rec = rec;
@@ -1159,19 +1206,19 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               meTrackResHighP_[0]->Fill(t0Safe[*iTrack] - tsim);
               meTrackPullHighP_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
             }
-            
-            if (optionalPlots_) { 
-               if (std::abs((*tp_info)->pdgId()) == 2212) {
-                 meTrackResMassProtons_[0]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassProtons_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTrueProtons_[0]->Fill(tEst - tsim);
-                 meTrackPullMassTrueProtons_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                 meTrackResMassPions_[0]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassPions_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTruePions_[0]->Fill(tEst - tsim);
-                 meTrackPullMassTruePions_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               }
+
+            if (optionalPlots_) {
+              if (std::abs((*tp_info)->pdgId()) == 2212) {
+                meTrackResMassProtons_[0]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassProtons_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTrueProtons_[0]->Fill(tEst - tsim);
+                meTrackPullMassTrueProtons_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                meTrackResMassPions_[0]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassPions_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTruePions_[0]->Fill(tEst - tsim);
+                meTrackPullMassTruePions_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              }
             }
 
           } else if (mtdQualMVA[(*iTrack)] > mvaL_ && mtdQualMVA[(*iTrack)] < mvaH_) {
@@ -1181,10 +1228,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             meTrackPull_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
 
             if (optionalPlots_) {
-               meTrackResMass_[1]->Fill(t0Safe[*iTrack] - tEst);
-               meTrackPullMass_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-               meTrackResMassTrue_[1]->Fill(tEst - tsim);
-               meTrackPullMassTrue_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              meTrackResMass_[1]->Fill(t0Safe[*iTrack] - tEst);
+              meTrackPullMass_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+              meTrackResMassTrue_[1]->Fill(tEst - tsim);
+              meTrackPullMassTrue_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
             }
 
             if ((*iTrack)->p() <= 2) {
@@ -1196,17 +1243,17 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             }
 
             if (optionalPlots_) {
-               if (std::abs((*tp_info)->pdgId()) == 2212) {
-                 meTrackResMassProtons_[1]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassProtons_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTrueProtons_[1]->Fill(tEst - tsim);
-                 meTrackPullMassTrueProtons_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                 meTrackResMassPions_[1]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassPions_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTruePions_[1]->Fill(tEst - tsim);
-                 meTrackPullMassTruePions_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               }
+              if (std::abs((*tp_info)->pdgId()) == 2212) {
+                meTrackResMassProtons_[1]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassProtons_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTrueProtons_[1]->Fill(tEst - tsim);
+                meTrackPullMassTrueProtons_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                meTrackResMassPions_[1]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassPions_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTruePions_[1]->Fill(tEst - tsim);
+                meTrackPullMassTruePions_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              }
             }
 
           } else if (mtdQualMVA[(*iTrack)] > mvaH_) {
@@ -1216,10 +1263,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             meTrackPull_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
 
             if (optionalPlots_) {
-               meTrackResMass_[2]->Fill(t0Safe[*iTrack] - tEst);
-               meTrackPullMass_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-               meTrackResMassTrue_[2]->Fill(tEst - tsim);
-               meTrackPullMassTrue_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              meTrackResMass_[2]->Fill(t0Safe[*iTrack] - tEst);
+              meTrackPullMass_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+              meTrackResMassTrue_[2]->Fill(tEst - tsim);
+              meTrackPullMassTrue_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
             }
 
             if ((*iTrack)->p() <= 2) {
@@ -1231,17 +1278,17 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             }
 
             if (optionalPlots_) {
-               if (std::abs((*tp_info)->pdgId()) == 2212) {
-                 meTrackResMassProtons_[2]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassProtons_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTrueProtons_[2]->Fill(tEst - tsim);
-                 meTrackPullMassTrueProtons_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                 meTrackResMassPions_[2]->Fill(t0Safe[*iTrack] - tEst);
-                 meTrackPullMassPions_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
-                 meTrackResMassTruePions_[2]->Fill(tEst - tsim);
-                 meTrackPullMassTruePions_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
-               }
+              if (std::abs((*tp_info)->pdgId()) == 2212) {
+                meTrackResMassProtons_[2]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassProtons_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTrueProtons_[2]->Fill(tEst - tsim);
+                meTrackPullMassTrueProtons_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                meTrackResMassPions_[2]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackPullMassPions_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
+                meTrackResMassTruePions_[2]->Fill(tEst - tsim);
+                meTrackPullMassTruePions_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
+              }
             }
           }
         }  //if tp_info != nullptr
@@ -1344,7 +1391,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   //dz histos
   for (unsigned int iv = 0; iv < recVtxs->size() - 1; iv++) {
-    if (recVtxs->at(iv).ndof() > 4.) {
+    if (recVtxs->at(iv).ndof() > selNdof_) {
       double mindistance_realreal = 1e10;
 
       for (unsigned int jv = iv; jv < recVtxs->size(); jv++) {
@@ -1412,6 +1459,8 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("trackweightTh", 0.5);
   desc.add<double>("mvaTh", 0.01);
 
+  //lineDensity parameters have been obtained by fitting the distribution of the z position of the vertices,
+  //using a 200k single mu ptGun sample (gaussian fit)
   std::vector<double> lDP;
   lDP.push_back(1.87);
   lDP.push_back(0.);
