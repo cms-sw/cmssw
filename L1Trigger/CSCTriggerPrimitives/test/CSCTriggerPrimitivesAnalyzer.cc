@@ -98,8 +98,7 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
   useB904_ = useB904ME11_ or useB904ME21_ or useB904ME234s2_;
 }
 
-void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
-}
+void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {}
 
 void CSCTriggerPrimitivesAnalyzer::endJob() {
   if (dataVsEmulatorPlots_)
