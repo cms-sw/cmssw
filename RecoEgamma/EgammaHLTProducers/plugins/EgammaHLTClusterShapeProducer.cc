@@ -60,6 +60,11 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
   produces<reco::RecoEcalCandidateIsolationMap>();
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5");
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5NoiseCleaned");
+
+  produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi");
+  produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi5x5");
+  produces<reco::RecoEcalCandidateIsolationMap>("sigmaIPhiIPhi5x5NoiseCleaned");
+
 }
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer() {}
@@ -92,21 +97,33 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
   reco::RecoEcalCandidateIsolationMap clsh5x5Map(recoecalcandHandle);
   reco::RecoEcalCandidateIsolationMap clsh5x5NoiseCleanedMap(recoecalcandHandle);
 
+  reco::RecoEcalCandidateIsolationMap clshMap2(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap clsh5x5Map2(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap clsh5x5NoiseCleanedMap2(recoecalcandHandle);
+
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
     if (recoecalcandref->superCluster()->seed()->seed().det() != DetId::Ecal) {  //HGCAL, skip for now
       clshMap.insert(recoecalcandref, 0);
       clsh5x5Map.insert(recoecalcandref, 0);
+
+      clshMap2.insert(recoecalcandref, 0);
+      clsh5x5Map2.insert(recoecalcandref, 0);
+      clsh5x5NoiseCleanedMap2.insert(recoecalcandref, 0);
+
       continue;
     }
 
     double sigmaee;
+    double sigmapp;
     if (EtaOrIeta_) {
       const auto& vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
       sigmaee = sqrt(vCov[0]);
+      sigmapp = sqrt(vCov[2]);
     } else {
       const auto& vCov = lazyTools.covariances(*(recoecalcandref->superCluster()->seed()));
       sigmaee = sqrt(vCov[0]);
+      sigmapp = sqrt(vCov[2]);
       double EtaSC = recoecalcandref->eta();
       if (EtaSC > 1.479)
         sigmaee = sigmaee - 0.02 * (EtaSC - 2.3);
@@ -118,15 +135,34 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
                                                                        &thresholds,
                                                                        multThresEB_,
                                                                        multThresEE_)[0]);
+
+    double sigmapp5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[2]);
+    double sigmapp5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()),
+                                                                       EgammaLocalCovParamDefaults::kRelEnCut,
+                                                                       &thresholds,
+                                                                       multThresEB_,
+                                                                       multThresEE_)[2]);
+
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
     clsh5x5NoiseCleanedMap.insert(recoecalcandref, sigmaee5x5NoiseCleaned);
+
+    clshMap2.insert(recoecalcandref, sigmapp);
+    clsh5x5Map2.insert(recoecalcandref, sigmapp5x5);
+    clsh5x5NoiseCleanedMap2.insert(recoecalcandref, sigmapp5x5NoiseCleaned);
+
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map), "sigmaIEtaIEta5x5");
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap),
              "sigmaIEtaIEta5x5NoiseCleaned");
+
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap2), "sigmaIPhiIPhi");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map2), "sigmaIPhiIPhi5x5");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap2),
+             "sigmaIPhiIPhi5x5NoiseCleaned");
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
