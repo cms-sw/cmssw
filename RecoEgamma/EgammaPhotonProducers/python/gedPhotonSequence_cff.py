@@ -15,11 +15,8 @@ gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone
     outputPhotonCollection = "",
     reconstructionStep     = "tmp",
     PhotonDNNPFid = dict(
-        enabled = True,
-        inputTensorName = "FirstLayer_input",
-        outputTensorName = "sequential/FinalLayer/Sigmoid",
         modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_modelDNN.pb",
-                                "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_modelDNN.pb"],
+                        "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_modelDNN.pb"],
         scalersFiles = [
                     "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_scaler.txt",
                     "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_scaler.txt"]
@@ -44,9 +41,6 @@ gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone(
         chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
         chargedHadronPFPVIso     = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
         ),
-    PhotonDNNPFid = cms.PSet(
-        enabled = cms.bool(False)
-    )
 )
 gedPhotonTask    = cms.Task(gedPhotons)
 gedPhotonSequence    = cms.Sequence(gedPhotonTask)
@@ -58,3 +52,10 @@ egamma_lowPt_exclusive.toModify(gedPhotons,
 egamma_lowPt_exclusive.toModify(gedPhotonsTmp,
                            minSCEtBarrel = 1.0,
                            minSCEtEndcap = 1.0)
+
+
+# Activate the Egamma PFID dnn only for Run3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(gedPhotonsTmp.PhotonDNNPFid,
+    enabled = True
+)

@@ -19,6 +19,7 @@ ElectronDNNEstimator::ElectronDNNEstimator(std::vector<std::string>& models_file
            .log_level = 2} {
   nModels_ = cfg_.models_files.size();
   initTensorFlowGraphs();
+  initSessions();
   initScalerFiles();
   LogDebug("EleDNNPFid") << "Ele PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
                          << " variables --> LOADED";
@@ -28,9 +29,19 @@ ElectronDNNEstimator::ElectronDNNEstimator(const Configuration& cfg) : cfg_(cfg)
   // Init tensorflow sessions
   nModels_ = cfg_.models_files.size();
   initTensorFlowGraphs();
+  initSessions();
   initScalerFiles();
   LogDebug("EleDNNPFid") << "Ele PFID DNN evaluation with " << nModels_ << " models and " << nInputs_[0]
                          << " variables --> LOADED";
+}
+
+ElectronDNNEstimator::~ElectronDNNEstimator() {
+  for (auto g : graphDefs_)
+    if (g != nullptr)
+      delete g;
+  for (auto s : sessions_)
+    if (s != nullptr)
+      tensorflow::closeSession(s);
 }
 
 void ElectronDNNEstimator::initTensorFlowGraphs() {
@@ -44,6 +55,14 @@ void ElectronDNNEstimator::initTensorFlowGraphs() {
     graphDefs_.push_back(graphDef);
   }
   LogDebug("EleDNNPFid") << "Graphs loaded";
+}
+
+void ElectronDNNEstimator::initSessions() {
+  LogDebug("EleDNNPFid") << "Starting " << nModels_ << " TF sessions";
+  for (auto& graphDef : graphDefs_) {
+    sessions_.push_back(tensorflow::createSession(graphDef));
+  }
+  LogDebug("EleDNNPFid") << "TF sessions started";
 }
 
 void ElectronDNNEstimator::initScalerFiles() {
@@ -81,16 +100,6 @@ void ElectronDNNEstimator::initScalerFiles() {
     featuresMap_.push_back(features);
     nInputs_.push_back(ninputs);
   }
-}
-
-std::vector<tensorflow::Session*> ElectronDNNEstimator::getSessions() const {
-  LogDebug("EleDNNPFid") << "Starting " << nModels_ << "TF sessions";
-  std::vector<tensorflow::Session*> sessions;
-  for (auto& graphDef : graphDefs_) {
-    sessions.push_back(tensorflow::createSession(graphDef));
-  }
-  LogDebug("EleDNNPFid") << "TF sessions started";
-  return sessions;
 }
 
 const std::array<std::string, ElectronDNNEstimator::nAvailableVars> ElectronDNNEstimator::dnnAvaibleInputs = {
@@ -191,7 +200,7 @@ std::pair<uint, std::vector<float>> ElectronDNNEstimator::getScaledInputs(const 
 }
 
 std::vector<std::array<float, ElectronDNNEstimator::nOutputs>> ElectronDNNEstimator::evaluate(
-    const reco::GsfElectronCollection& electrons, const std::vector<tensorflow::Session*> sessions) const {
+    const reco::GsfElectronCollection& electrons) const {
   /*
       Evaluate the Electron PFID DNN for all the electrons. 
       3 models are defined depending on the pt and eta --> we need to build 3 input tensors to evaluate
@@ -250,7 +259,8 @@ std::vector<std::array<float, ElectronDNNEstimator::nOutputs>> ElectronDNNEstima
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
     LogDebug("EleDNNPFid") << "Run model: " << m << " with " << counts[m] << " electrons";
-    tensorflow::run(sessions[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
+
+    tensorflow::run(sessions_[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
     // Get the output and save the ElectronDNNEstimator::nOutputs numbers along with the ele index
     auto r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons

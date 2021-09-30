@@ -33,10 +33,9 @@ namespace {
 
   void setMVAOutputs(reco::GsfElectronCollection& electrons,
                      const GsfElectronAlgo::HeavyObjectCache* hoc,
-                     std::vector<tensorflow::Session*> tf_sessions,
                      reco::VertexCollection const& vertices,
                      bool dnnPFidEnabled) {
-    std::vector<GsfElectron::MvaOutput> mva_outputs;
+    std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
     for (auto& el : electrons) {
       GsfElectron::MvaOutput mvaOutput;
       mvaOutput.mva_e_pi = hoc->sElectronMVAEstimator->mva(el, vertices);
@@ -49,13 +48,13 @@ namespace {
     if (dnnPFidEnabled) {
       // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go
       LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele";
-      std::vector<std::array<float, 5>> dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tf_sessions);
+      const auto& dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons);
       int iele = -1;
       for (auto& el : electrons) {
         iele++;
-        auto values = dnn_ele_pfid[iele];
+        const auto& values = dnn_ele_pfid[iele];
         // get the previous values
-        auto mvaOutput = mva_outputs[iele];
+        auto& mvaOutput = mva_outputs[iele];
         mvaOutput.dnn_e_sigIsolated = values[0];
         mvaOutput.dnn_e_sigNonIsolated = values[1];
         mvaOutput.dnn_e_bkgNonIsolated = values[2];
@@ -112,15 +111,7 @@ public:
     return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
   }
 
-  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
-
-  void endJob() {
-    // Close all the tensorflow sessions
-    std::for_each(elePFid_tfSessions.begin(), elePFid_tfSessions.end(), [](auto s) {
-      if (s != nullptr)
-        tensorflow::closeSession(s);
-    });
-  }
+  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
   // ------------ method called to produce the data  ------------
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
@@ -154,7 +145,6 @@ private:
   const bool resetMvaValuesUsingPFCandidates_;
 
   bool dnnPFidEnabled_;
-  std::vector<tensorflow::Session*> elePFid_tfSessions;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -293,7 +283,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<bool>("enabled", false);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<std::string>("logLevel", "2");  //0 debug, 1 info, 2 warning
+    psd1.add<uint>("logLevel", 2);  //0 debug, 1 info, 2 warning
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
@@ -412,7 +402,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   inputCfg_.pfClusterProducerHFEM = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
   inputCfg_.pfClusterProducerHFHAD = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
   // Config for PFID dnn
-  auto pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
+  const auto& pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
@@ -540,11 +530,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP03Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg"),
       consumesCollector());
-
-
-  // Open the tensorflow sessions
-  if (dnnPFidEnabled_)
-    elePFid_tfSessions = gcache->iElectronDNNEstimator->getSessions();
 }
 
 void GsfElectronProducer::checkEcalSeedingParameters(edm::ParameterSet const& pset) {
@@ -719,7 +704,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     for (auto& el : electrons) {
       el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
     }
-    setMVAOutputs(electrons, globalCache(), elePFid_tfSessions, event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_);
+    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_);
   }
 
   // all electrons

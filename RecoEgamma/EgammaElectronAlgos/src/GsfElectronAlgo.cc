@@ -48,8 +48,8 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
 
   // Here we will have to load the DNN PFID if present in the config
   ElectronDNNEstimator::Configuration dconfig;
-  auto pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
-  bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+  const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
+  const bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
   if (dnnEnabled) {
     dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
     dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
@@ -471,9 +471,9 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 
   edm::Handle<reco::PFClusterCollection> ecalPFClusters;
   std::vector<edm::Handle<reco::PFClusterCollection>> hcalPFClusters;
-  if(cfg_.strategy.computePfClusterIso){
+  if (cfg_.strategy.computePfClusterIso) {
     ecalPFClusters = event.getHandle(cfg_.tokens.pfClusterProducer);
-    hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHCAL));    
+    hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHCAL));
     if (cfg_.pfiso.useHF) {
       hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFEM));
       hcalPFClusters.push_back(event.getHandle(cfg_.tokens.pfClusterProducerHFHAD));
@@ -630,7 +630,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
       .originalCtfTracks = {},
       .originalGsfTracks = {},
 
-      .ecalClustersHandle =  ecalPFClusters,
+      .ecalClustersHandle = ecalPFClusters,
       .hcalClustersHandle = hcalPFClusters
 
   };
@@ -1177,11 +1177,13 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // PFclusters based ISO !
   // Added in CMSSW_12_0_1 at this stage to be able to use them in PF ID DNN
   //====================================================
-  reco::GsfElectron::PflowIsolationVariables isoVariables;
-  isoVariables.sumEcalClusterEt = ecalisoAlgo_->getSum(ele, eventData.ecalClustersHandle);
-  isoVariables.sumHcalClusterEt = hcalisoAlgo_->getSum(ele, eventData.hcalClustersHandle);
-  // Other Pfiso variables are initialized at 0 and not used
-  ele.setPfIsolationVariables(isoVariables);
+  if (cfg_.strategy.computePfClusterIso) {
+    reco::GsfElectron::PflowIsolationVariables isoVariables;
+    isoVariables.sumEcalClusterEt = ecalisoAlgo_->getSum(ele, eventData.ecalClustersHandle);
+    isoVariables.sumHcalClusterEt = hcalisoAlgo_->getSum(ele, eventData.hcalClustersHandle);
+    // Other Pfiso variables are initialized at 0 and not used
+    ele.setPfIsolationVariables(isoVariables);
+  }
 
   //====================================================
   // preselection flag

@@ -27,13 +27,7 @@ public:
                      std::string inputTensorName,
                      std::string outputTensorName);
   PhotonDNNEstimator(const Configuration&);
-  ~PhotonDNNEstimator() {
-    for (auto graph : graphDefs_)
-      if (graph != nullptr)
-        delete graph;
-  };
-
-  std::vector<tensorflow::Session*> getSessions() const;
+  ~PhotonDNNEstimator();
 
   // Function returning a map with all the possible variables and their name
   std::map<std::string, float> getInputsVars(const reco::Photon& photon) const;
@@ -44,18 +38,20 @@ public:
   uint getModelIndex(const reco::Photon& photon) const;
 
   // Evaluate the DNN on all the Photons with the correct model
-  std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> evaluate(
-      const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*> session) const;
+  std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> evaluate(const reco::PhotonCollection& photons) const;
 
   static const std::array<std::string, nAvailableVars> dnnAvaibleInputs;
 
 private:
   void initTensorFlowGraphs();
+  void initSessions();
   void initScalerFiles();
 
   const Configuration cfg_;
 
   std::vector<tensorflow::GraphDef*> graphDefs_;  // --> Should be std::atomic but does not compile
+  std::vector<tensorflow::Session*> sessions_;
+
   uint nModels_;
   // Number of inputs for each loaded model
   std::vector<int> nInputs_;
@@ -66,7 +62,6 @@ private:
   * 1 = standard norm. par1=mean, par2=std
   * 2 = MinMax. par1=min, par2=max */
   std::vector<std::vector<std::tuple<std::string, uint, float, float>>> featuresMap_;
-
 };
 
 #endif
