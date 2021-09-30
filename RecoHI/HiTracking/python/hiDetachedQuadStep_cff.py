@@ -141,11 +141,11 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiDetachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiDetachedQuadStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiDetachedQuadStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiDetachedQuadStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiDetachedQuadStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'hiDetachedQuadStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

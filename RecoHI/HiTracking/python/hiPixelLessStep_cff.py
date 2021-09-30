@@ -42,6 +42,7 @@ pixelLessStepTrajectoryFilter.minimumNumberOfHits = 5
 pixelLessStepTrajectoryFilter.minPt = 0.7
 
 # MAKING OF TRACK CANDIDATES
+pixelLessStepTrackCandidates.skipClusters = True
 pixelLessStepTrackCandidates.clustersToSkip = 'hiPixelLessStepClusters'
 
 # TRACK FITTING

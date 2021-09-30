@@ -160,8 +160,8 @@ hiDetachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiDetachedTripletStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiDetachedTripletStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiDetachedTripletStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'hiDetachedTripletStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )

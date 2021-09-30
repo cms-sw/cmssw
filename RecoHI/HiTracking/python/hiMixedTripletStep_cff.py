@@ -73,7 +73,8 @@ mixedTripletStepPropagator.ptMin = 0.4
 mixedTripletStepPropagatorOpposite.ptMin = 0.4
 
 # MAKING OF TRACK CANDIDATES
-mixedTripletStepTrackCandidates.clustersToSkip = cms.InputTag('hiMixedTripletStepClusters')
+mixedTripletStepTrackCandidates.skipClusters = True
+mixedTripletStepTrackCandidates.clustersToSkip = 'hiMixedTripletStepClusters'
 
 # TRACK FITTING
 hiMixedTripletStepTracks = mixedTripletStepTracks.clone()

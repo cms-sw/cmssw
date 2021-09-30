@@ -148,11 +148,12 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiPixelPairSeeds',
-    clustersToSkip = cms.InputTag('hiPixelPairClusters'),
+    skipClusters = True,
+    clustersToSkip = 'hiPixelPairClusters',
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiPixelPairTrajectoryBuilder'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
 )
 trackingPhase1.toModify(hiPixelPairTrackCandidates,
     src = 'hiPixelPairStepSeedsPhase1'

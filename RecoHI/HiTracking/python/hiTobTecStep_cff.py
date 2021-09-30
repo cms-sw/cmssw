@@ -52,6 +52,7 @@ tobTecStepTrajectoryFilter.minimumNumberOfHits = 5
 tobTecStepTrajectoryFilter.minPt = 0.85
 
 # MAKING OF TRACK CANDIDATES
+tobTecStepTrackCandidates.skipClusters = True
 tobTecStepTrackCandidates.clustersToSkip = 'hiTobTecStepClusters'
 
 # TRACK FITTING

@@ -140,11 +140,11 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiHighPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'hiHighPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'hiHighPtTripletStepTrajectoryBuilder'),
-    TrajectoryBuilder = 'hiHighPtTripletStepTrajectoryBuilder',
-    clustersToSkip = cms.InputTag('hiHighPtTripletStepClusters'),
+    skipClusters = True,
+    clustersToSkip = 'hiHighPtTripletStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
