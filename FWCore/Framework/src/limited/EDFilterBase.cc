@@ -85,6 +85,8 @@ namespace edm {
       previousParentages_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
       previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
+      preallocRuns(iPrealloc.numberOfRuns());
+      preallocRunsSummary(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
@@ -228,6 +230,8 @@ namespace edm {
     }
 
     void EDFilterBase::preallocStreams(unsigned int) {}
+    void EDFilterBase::preallocRuns(unsigned int) {}
+    void EDFilterBase::preallocRunsSummary(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
     void EDFilterBase::preallocLumisSummary(unsigned int) {}
     void EDFilterBase::preallocate(PreallocationConfiguration const&) {}

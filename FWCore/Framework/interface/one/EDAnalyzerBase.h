@@ -81,6 +81,7 @@ namespace edm {
                                                     Principal const&) const {}
 
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocRuns(unsigned int);
       virtual void preallocLumis(unsigned int);
       void doBeginJob();
       void doEndJob();

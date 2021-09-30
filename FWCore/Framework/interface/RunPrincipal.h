@@ -36,8 +36,7 @@ namespace edm {
     typedef RunAuxiliary Auxiliary;
     typedef Principal Base;
 
-    RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
-                 std::shared_ptr<ProductRegistry const> reg,
+    RunPrincipal(std::shared_ptr<ProductRegistry const> reg,
                  ProcessConfiguration const& pc,
                  HistoryAppender* historyAppender,
                  unsigned int iRunIndex,
@@ -51,12 +50,13 @@ namespace edm {
      return value can be used to identify a particular Run.
      The value will range from 0 to one less than
      the maximum number of allowed simultaneous Runs. A particular
-     value will be reused once the processing of the previous Run 
+     value will be reused once the processing of the previous Run
      using that index has been completed.
      */
     RunIndex index() const { return index_; }
 
-    RunAuxiliary const& aux() const { return *aux_; }
+    void setAux(RunAuxiliary iAux) { aux_ = iAux; }
+    RunAuxiliary const& aux() const { return aux_; }
 
     RunNumber_t run() const { return aux().run(); }
 
@@ -68,9 +68,9 @@ namespace edm {
 
     Timestamp const& endTime() const { return aux().endTime(); }
 
-    void setEndTime(Timestamp const& time) { aux_->setEndTime(time); }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    void mergeAuxiliary(RunAuxiliary const& aux) { return aux_->mergeAuxiliary(aux); }
+    void mergeAuxiliary(RunAuxiliary const& aux) { return aux_.mergeAuxiliary(aux); }
 
     void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
@@ -89,7 +89,7 @@ namespace edm {
   private:
     unsigned int transitionIndex_() const override;
 
-    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
+    RunAuxiliary aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
 

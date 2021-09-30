@@ -94,10 +94,12 @@ namespace edm {
     void EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
-    void EDProducerBase::preallocLumis(unsigned int){};
+    void EDProducerBase::preallocRuns(unsigned int) {}
+    void EDProducerBase::preallocLumis(unsigned int) {}
 
     void EDProducerBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
       ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);
