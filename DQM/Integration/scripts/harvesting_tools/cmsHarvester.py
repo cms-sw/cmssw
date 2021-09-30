@@ -4685,41 +4685,6 @@ class CMSHarvester(object):
 
     ##########
 
-    def create_es_prefer_snippet(self, dataset_name):
-        """Build the es_prefer snippet for the reference histograms.
-
-        The building of the snippet is wrapped in some care-taking
-        code that figures out the name of the reference histogram set
-        and makes sure the corresponding tag exists.
-
-        """
-
-        # Figure out the name of the reference histograms tag.
-        # NOTE: The existence of these tags has already been checked.
-        ref_hist_tag_name = self.ref_hist_mappings[dataset_name]
-
-        connect_name = self.frontier_connection_name["refhists"]
-        connect_name += self.db_account_name_cms_cond_dqm_summary()
-        record_name = "DQMReferenceHistogramRootFileRcd"
-
-        # Build up the code snippet.
-        code_lines = []
-        code_lines.append("from CondCore.DBCommon.CondDBSetup_cfi import *")
-        code_lines.append("process.ref_hist_source = cms.ESSource(\"PoolDBESSource\", CondDBSetup,")
-        code_lines.append("                                       connect = cms.string(\"%s\")," % connect_name)
-        code_lines.append("                                       toGet = cms.VPSet(cms.PSet(record = cms.string(\"%s\")," % record_name)
-        code_lines.append("                                                                  tag = cms.string(\"%s\"))," % ref_hist_tag_name)
-        code_lines.append("                                                         )")
-        code_lines.append("                                       )")
-        code_lines.append("process.es_prefer_ref_hist_source = cms.ESPrefer(\"PoolDBESSource\", \"ref_hist_source\")")
-
-        snippet = "\n".join(code_lines)
-
-        # End of create_es_prefer_snippet.
-        return snippet
-
-    ##########
-
     def create_harvesting_config(self, dataset_name):
         """Create the Python harvesting configuration for harvesting.
 
