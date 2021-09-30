@@ -20,6 +20,18 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Eta Extended Electrons 
+def customiseFor35309(process):
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                if not hasattr(pset, 'highEtaSwitch'):
+                    pset.highEtaSwitch = cms.double(5.0)
+                if not hasattr(pset, 'minHitsAtHighEta'):
+                    pset.minHitsAtHighEta = cms.int32(5)
+
+    return process
+
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
 
@@ -155,6 +167,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
+    process = customiseFor35309(process)
     process = customiseFor35315(process)
     process = customiseFor35269(process)
 
