@@ -351,6 +351,7 @@ This simulates a problem happening early in the job which causes processing not 
 
       std::shared_ptr<ModuleRegistry> moduleRegistry_;
       std::unique_ptr<Schedule> schedule_;
+      std::shared_ptr<RunPrincipal> runPrincipal_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
       std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
