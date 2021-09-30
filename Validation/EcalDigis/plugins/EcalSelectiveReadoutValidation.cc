@@ -561,8 +561,6 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   vector<pair<int, int>> xtalEtaPhi;
 
   xtalEtaPhi.reserve(nEbPhi * nEbEta);
-  std::unique_ptr<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>> ebEnergies =
-      std::make_unique<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>>();
   for (int iEta0 = 0; iEta0 < nEbEta; ++iEta0) {
     for (int iPhi0 = 0; iPhi0 < nEbPhi; ++iPhi0) {
       (*ebEnergies)[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();
