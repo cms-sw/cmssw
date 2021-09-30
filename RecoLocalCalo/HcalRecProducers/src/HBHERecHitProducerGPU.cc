@@ -175,6 +175,10 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   edm::ESHandle<HcalDDDRecConstants> recConstantsHandle;
   setup.get<HcalRecNumberingRecord>().get(recConstantsHandle);
 
+  edm::ESHandle<HcalChannelQualityGPU> qualHandle;
+  setup.get<HcalChannelQualityRcd>().get(qualHandle);
+  auto const& chQualProduct = qualHandle->getProduct(ctx.stream());
+
   edm::ESHandle<HcalSiPMParametersGPU> sipmParametersHandle;
   setup.get<HcalSiPMParametersRcd>().get(sipmParametersHandle);
   auto const& sipmParametersProduct = sipmParametersHandle->getProduct(ctx.stream());
@@ -195,6 +199,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       effectivePedestalWidthsProduct,
                                                       pedestalsProduct,
                                                       qieCodersProduct,
+                                                      chQualProduct,
                                                       recoParamsProduct,
                                                       respCorrsProduct,
                                                       timeCorrsProduct,
