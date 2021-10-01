@@ -33,54 +33,58 @@
 
 class PPSAlignmentWorker : public DQMEDAnalyzer {
 public:
-  PPSAlignmentWorker(const edm::ParameterSet &iConfig);
+  PPSAlignmentWorker(const edm::ParameterSet& iConfig);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &iSetup) override;
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // ------------ structures ------------
   struct SectorData {
     PPSAlignmentConfiguration::SectorConfig scfg_;
 
     // hit distributions
-    std::map<unsigned int, MonitorElement *> m_h2_y_vs_x_bef_sel;
+    std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_bef_sel;
 
-    std::map<unsigned int, MonitorElement *> m_h2_y_vs_x_mlt_sel;
+    std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_mlt_sel;
 
-    std::map<unsigned int, MonitorElement *> m_h2_y_vs_x_aft_sel;
+    std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_aft_sel;
 
     // cut plots
-    MonitorElement *h_q_cut_h_bef, *h_q_cut_h_aft;
-    MonitorElement *h2_cut_h_bef, *h2_cut_h_aft;
+    MonitorElement* h_q_cut_h_bef;
+    MonitorElement* h_q_cut_h_aft;
+    MonitorElement* h2_cut_h_bef;
+    MonitorElement* h2_cut_h_aft;
 
-    MonitorElement *h_q_cut_v_bef, *h_q_cut_v_aft;
-    MonitorElement *h2_cut_v_bef, *h2_cut_v_aft;
+    MonitorElement* h_q_cut_v_bef;
+    MonitorElement* h_q_cut_v_aft;
+    MonitorElement* h2_cut_v_bef;
+    MonitorElement* h2_cut_v_aft;
 
     // near-far plots
-    MonitorElement *p_x_diffFN_vs_x_N;
-    MonitorElement *p_y_diffFN_vs_y_F;
+    MonitorElement* p_x_diffFN_vs_x_N;
+    MonitorElement* p_y_diffFN_vs_y_F;
 
     struct SlicePlots {
-      MonitorElement *h_y;
-      MonitorElement *h2_y_diffFN_vs_y;
-      MonitorElement *p_y_diffFN_vs_y;
+      MonitorElement* h_y;
+      MonitorElement* h2_y_diffFN_vs_y;
+      MonitorElement* p_y_diffFN_vs_y;
 
       SlicePlots();
-      SlicePlots(DQMStore::IBooker &iBooker, const PPSAlignmentConfiguration &cfg, bool debug);
+      SlicePlots(DQMStore::IBooker& iBooker, const PPSAlignmentConfiguration& cfg, bool debug);
     };
 
     std::map<unsigned int, SlicePlots> x_slice_plots_N, x_slice_plots_F;
 
-    void init(DQMStore::IBooker &iBooker,
-              const PPSAlignmentConfiguration &cfg,
-              const PPSAlignmentConfiguration::SectorConfig &scfg,
-              const std::string &folder,
+    void init(DQMStore::IBooker& iBooker,
+              const PPSAlignmentConfiguration& cfg,
+              const PPSAlignmentConfiguration::SectorConfig& scfg,
+              const std::string& folder,
               bool debug);
 
-    unsigned int process(const CTPPSLocalTrackLiteCollection &tracks, const PPSAlignmentConfiguration &cfg, bool debug);
+    unsigned int process(const CTPPSLocalTrackLiteCollection& tracks, const PPSAlignmentConfiguration& cfg, bool debug);
   };
 
   // ------------ member data ------------
@@ -98,7 +102,7 @@ private:
 
 // -------------------------------- DQMEDAnalyzer methods --------------------------------
 
-PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet &iConfig)
+PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet& iConfig)
     : esTokenBookHistograms_(
           esConsumes<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd, edm::Transition::BeginRun>(
               edm::ESInputTag("", iConfig.getParameter<std::string>("label")))),
@@ -107,7 +111,7 @@ PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet &iConfig)
       tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
       folder_(iConfig.getParameter<std::string>("folder")),
       debug_(iConfig.getParameter<bool>("debug")) {
-  edm::LogInfo("PPS").log([&](auto &li) {
+  edm::LogInfo("PPS").log([&](auto& li) {
     li << "[worker] parameters:\n";
     li << "* label: " << iConfig.getParameter<std::string>("label") << "\n";
     li << "* tagTracks: " << iConfig.getParameter<edm::InputTag>("tagTracks") << "\n";
@@ -116,23 +120,23 @@ PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet &iConfig)
   });
 }
 
-void PPSAlignmentWorker::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &iSetup) {
-  const auto &cfg = iSetup.getData(esTokenBookHistograms_);
+void PPSAlignmentWorker::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup) {
+  const auto& cfg = iSetup.getData(esTokenBookHistograms_);
 
   sectorData45_.init(iBooker, cfg, cfg.sectorConfig45(), folder_ + "/worker", debug_);
   sectorData56_.init(iBooker, cfg, cfg.sectorConfig56(), folder_ + "/worker", debug_);
 }
 
-void PPSAlignmentWorker::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  const auto &tracks = iEvent.get(tracksToken_);
+void PPSAlignmentWorker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const auto& tracks = iEvent.get(tracksToken_);
 
-  const auto &cfg = iSetup.getData(esTokenAnalyze_);
+  const auto& cfg = iSetup.getData(esTokenAnalyze_);
 
   sectorData45_.process(tracks, cfg, debug_);
   sectorData56_.process(tracks, cfg, debug_);
 }
 
-void PPSAlignmentWorker::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void PPSAlignmentWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("label", "");
@@ -147,12 +151,12 @@ void PPSAlignmentWorker::fillDescriptions(edm::ConfigurationDescriptions &descri
 
 PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots() {}
 
-PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker &iBooker,
-                                                       const PPSAlignmentConfiguration &cfg,
+PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker& iBooker,
+                                                       const PPSAlignmentConfiguration& cfg,
                                                        bool debug) {
   h_y = iBooker.book1DD(
       "h_y", ";y", cfg.binning().slice_n_bins_x_, cfg.binning().slice_x_min_, cfg.binning().slice_x_max_);
-  auto *tmp = new TProfile(
+  auto* tmp = new TProfile(
       "", ";y;y_{F} - y_{N}", cfg.binning().slice_n_bins_x_, cfg.binning().slice_x_min_, cfg.binning().slice_x_max_);
   p_y_diffFN_vs_y = iBooker.bookProfile("p_y_diffFN_vs_y", tmp);
 
@@ -167,10 +171,10 @@ PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker &iBooke
                                        cfg.binning().slice_y_max_);
 }
 
-void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker &iBooker,
-                                          const PPSAlignmentConfiguration &cfg,
-                                          const PPSAlignmentConfiguration::SectorConfig &scfg,
-                                          const std::string &folder,
+void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
+                                          const PPSAlignmentConfiguration& cfg,
+                                          const PPSAlignmentConfiguration::SectorConfig& scfg,
+                                          const std::string& folder,
                                           bool debug) {
   scfg_ = scfg;
 
@@ -225,7 +229,7 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker &iBooker,
 
   // near-far plots
   iBooker.setCurrentFolder(folder + "/" + scfg_.name_ + "/near_far");
-  auto *tmp = new TProfile("",
+  auto* tmp = new TProfile("",
                            ";x_{N};x_{F} - x_{N}",
                            cfg.binning().diffFN_n_bins_x_,
                            cfg.binning().diffFN_x_min_,
@@ -255,12 +259,12 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker &iBooker,
   }
 }
 
-unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCollection &tracks,
-                                                     const PPSAlignmentConfiguration &cfg,
+unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCollection& tracks,
+                                                     const PPSAlignmentConfiguration& cfg,
                                                      bool debug) {
   CTPPSLocalTrackLiteCollection tracksUp, tracksDw;
 
-  for (const auto &tr : tracks) {
+  for (const auto& tr : tracks) {
     CTPPSDetId rpId(tr.rpId());
     unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
@@ -275,10 +279,10 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
   }
 
   // update plots before selection
-  for (const auto &tr : tracksUp)
+  for (const auto& tr : tracksUp)
     m_h2_y_vs_x_bef_sel[scfg_.rp_N_.id_]->Fill(tr.x(), tr.y());
 
-  for (const auto &tr : tracksDw)
+  for (const auto& tr : tracksDw)
     m_h2_y_vs_x_bef_sel[scfg_.rp_F_.id_]->Fill(tr.x(), tr.y());
 
   // skip crowded events (multiplicity selection)
@@ -289,17 +293,17 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
     return 0;
 
   // update plots with multiplicity selection
-  for (const auto &tr : tracksUp)
+  for (const auto& tr : tracksUp)
     m_h2_y_vs_x_mlt_sel[scfg_.rp_N_.id_]->Fill(tr.x(), tr.y());
 
-  for (const auto &tr : tracksDw)
+  for (const auto& tr : tracksDw)
     m_h2_y_vs_x_mlt_sel[scfg_.rp_F_.id_]->Fill(tr.x(), tr.y());
 
   // do the selection
   unsigned int pairsSelected = 0;
 
-  for (const auto &trUp : tracksUp) {
-    for (const auto &trDw : tracksDw) {
+  for (const auto& trUp : tracksUp) {
+    for (const auto& trDw : tracksDw) {
       h2_cut_h_bef->Fill(trUp.x(), trDw.x());
       h2_cut_v_bef->Fill(trUp.y(), trDw.y());
 
