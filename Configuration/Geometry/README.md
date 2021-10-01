@@ -34,26 +34,21 @@ Muon system:
 * M1: 2021 baseline
 
 PPS:
-* P2: 2021 baseline (after using its own material files for pixel)
-* P3: 2021 baseline (same as P2 but removing common materials)
-* P4: 2021 baseline (same as P2 or P3 but using the same Vacuum)
-* P5: new Run3 detectors
-* P6: Same as P5 but with unique names for materials
+* P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
 
 The script also handles the common and forward elements of the geometry:
-* O3: 2021 baseline
-* O4: as O3, but with zero material
-* O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
-* O6: Replaces O3 as baseline to remove duplicate material definition
+* O4: as O6, but with zero material
+* O5: as O6, but with trackermaterial removed (they are in T5, T6, T7, T8)
+* O6: 2021 baseline
 * F1: 2021 baseline
 
 Several detector combinations have been generated:
-* 2021 = T3+C1+M1+P6+O6+F1
-* 2021ZeroMaterial = T4+C1+M1+P6+O4+F1
-* 2021FlatMinus05Percent = T5+C1+M1+P6+O5+F1
-* 2021FlatMinus10Percent = T6+C1+M1+P6+O5+F1
-* 2021FlatPlus05Percent = T7+C1+M1+P6+O5+F1
-* 2021FlatPlus10Percent = T8+C1+M1+P6+O5+F1
+* 2021 = T3+C1+M1+P7+O6+F1
+* 2021ZeroMaterial = T4+C1+M1+P7+O4+F1
+* 2021FlatMinus05Percent = T5+C1+M1+P7+O5+F1
+* 2021FlatMinus10Percent = T6+C1+M1+P7+O5+F1
+* 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
+* 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
 
 # Phase 2 Geometries
 
