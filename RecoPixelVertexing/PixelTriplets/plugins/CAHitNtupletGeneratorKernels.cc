@@ -15,15 +15,16 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   auto nhits = hh.nHits();
 
 #ifdef NTUPLE_DEBUG
-  std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
+  std::cout << "building Doublets out of " << nhits << " Hits. BPIX2 offset is " << hh.offsetBPIX2() << std::endl;
 #endif
 
   // use "nhits" to heuristically dimension the workspace
 
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
   //device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
-  device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits));
+  device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1U, nhits));
   assert(device_isOuterHitOfCell_.get());
+  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
   auto cellStorageSize = caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
                          caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks);
@@ -34,7 +35,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
                                                                                       sizeof(GPUCACell::CellNeighbors));
 
-  gpuPixelDoublets::initDoublets(device_isOuterHitOfCell_.get(),
+  gpuPixelDoublets::initDoublets(isOuterHitOfCell_,
                                  nhits,
                                  device_theCellNeighbors_.get(),
                                  device_theCellNeighborsContainer_,
@@ -64,7 +65,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                          device_theCellNeighbors_.get(),
                                          device_theCellTracks_.get(),
                                          hh.view(),
-                                         device_isOuterHitOfCell_.get(),
+                                         isOuterHitOfCell_,
                                          nActualPairs,
                                          params_.idealConditions_,
                                          params_.doClusterCut_,
@@ -98,7 +99,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                  device_theCells_.get(),
                  device_nCells_,
                  device_theCellNeighbors_.get(),
-                 device_isOuterHitOfCell_.get(),
+                 isOuterHitOfCell_,
                  params_.hardCurvCut_,
                  params_.ptmin_,
                  params_.CAThetaCutBarrel_,
@@ -107,8 +108,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                  params_.dcaCutOuterTriplet_);
 
   if (nhits > 1 && params_.earlyFishbone_) {
-    gpuPixelDoublets::fishbone(
-        hh.view(), device_theCells_.get(), device_nCells_, device_isOuterHitOfCell_.get(), nhits, false);
+    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, false);
   }
 
   kernel_find_ntuplets(hh.view(),
@@ -132,8 +132,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   kernel_fillMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
 
   if (nhits > 1 && params_.lateFishbone_) {
-    gpuPixelDoublets::fishbone(
-        hh.view(), device_theCells_.get(), device_nCells_, device_isOuterHitOfCell_.get(), nhits, true);
+    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
   }
 
   if (params_.doStats_) {
@@ -145,7 +144,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                           device_nCells_,
                           device_theCellNeighbors_.get(),
                           device_theCellTracks_.get(),
-                          device_isOuterHitOfCell_.get(),
+                          isOuterHitOfCell_,
                           nhits,
                           params_.maxNumberOfDoublets_,
                           counters_);
