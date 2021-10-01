@@ -3,8 +3,8 @@
 using namespace cms;
 
 SiPixelVCalReader::SiPixelVCalReader(const edm::ParameterSet& iConfig)
-    : siPixelVCalToken_(esConsumes()),
-      siPixelVCalSimToken_(esConsumes()),
+    : siPixelVCalSimToken_(esConsumes()),
+      siPixelVCalToken_(esConsumes()),
       tkGeomToken_(esConsumes()),
       tkTopoToken_(esConsumes()),
       printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
@@ -18,10 +18,11 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   const SiPixelVCal* siPixelVCal;
 
   // Get record & file service
-  if (useSimRcd_ == true)
+  if (useSimRcd_) {
     siPixelVCal = &iSetup.getData(siPixelVCalSimToken_);
-  else
+  } else {
     siPixelVCal = &iSetup.getData(siPixelVCalToken_);
+  }
   edm::LogInfo("SiPixelVCalReader") << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
   edm::Service<TFileService> fs;
 

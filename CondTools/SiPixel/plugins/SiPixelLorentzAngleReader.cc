@@ -18,7 +18,9 @@
 using namespace cms;
 
 SiPixelLorentzAngleReader::SiPixelLorentzAngleReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
+    : siPixelLAToken_(esConsumes()),
+      siPixelSimLAToken_(esConsumes()),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
       useSimRcd_(iConfig.getParameter<bool>("useSimRcd")) {
   usesResource(TFileService::kSharedResource);
 }
@@ -27,7 +29,7 @@ SiPixelLorentzAngleReader::~SiPixelLorentzAngleReader() = default;
 
 void SiPixelLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const SiPixelLorentzAngle* SiPixelLorentzAngle_;
-  if (useSimRcd_ == true) {
+  if (useSimRcd_) {
     SiPixelLorentzAngle_ = &iSetup.getData(siPixelSimLAToken_);
   } else {
     SiPixelLorentzAngle_ = &iSetup.getData(siPixelLAToken_);
