@@ -593,7 +593,7 @@ if __name__ == "__main__":
             self.assertEqual(cl.test2.type_(), "Bar")
             self.assertEqual(cl.test2.aa.value(), 11)
             self.assertEqual(cl.test2.bb.cc.value(), 12)
-            self.assertEqual(sp._getProducer().type_(), "Bar")
+            self.assertEqual(cl._getProducer().type_(), "Bar")
             # Modify clone
             cl.test1.a = 3
             self.assertEqual(cl.test1.a.value(), 3)
