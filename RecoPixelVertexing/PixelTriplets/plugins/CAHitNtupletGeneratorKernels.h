@@ -205,7 +205,8 @@ private:
   caConstants::CellTracks* device_theCellTracksContainer_;
 
   unique_ptr<GPUCACell[]> device_theCells_;
-  unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
+  unique_ptr<GPUCACell::OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
+  GPUCACell::OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
   unique_ptr<HitToTuple> device_hitToTuple_;
