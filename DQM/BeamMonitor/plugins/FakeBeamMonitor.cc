@@ -916,7 +916,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   DipPVInfo_.push_back(rndm_->Gaus(10., 5.));      // Rms PV
   DipPVInfo_.push_back(rndm_->Gaus(5., 3.));       // Rms PV err
   DipPVInfo_.push_back(rndm_->Gaus(100., 10.));    // Max PVs
-  countEvtLastNLS_ = 0;
 
   if (onlineMode_) {  // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
