@@ -71,7 +71,8 @@ print("outputing on record: ",MyRecord)
 ##
 ## Empty Source
 ##
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(400000))      
+print("running over",options.maxEvents, "events")
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents))
 
 ####################################################################
 # Empty source 
