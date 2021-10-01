@@ -49,14 +49,17 @@ void PhotonDNNEstimator::initScalerFiles(){
     int ninputs = 0;
     if(inputfile_scaler.fail())  
     { 
-        // TODO ERROR
+        throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
     }else{ 
         // Now read mean, scale factors for each variable
         float m,s;
         std::string varname{};
         while (inputfile_scaler >> varname >> m >> s){
             features.push_back(std::make_tuple(varname, m,s));
-            //TODO Add protection for mismatch between requested variables and the available ones
+            auto match = std::find(PhotonDNNEstimator::dnnAvaibleInputs.begin(),PhotonDNNEstimator::dnnAvaibleInputs.end(), varname);
+            if (match == std::end(PhotonDNNEstimator::dnnAvaibleInputs)) {
+              throw cms::Exception("MissingVariable") << "Requested variable (" << varname << ") not available between Photon PFid DNN inputs";
+            }
             ninputs += 1;
         }  
     }   
@@ -77,6 +80,12 @@ std::vector<tensorflow::Session*> PhotonDNNEstimator::getSessions() const{
    return sessions;
 }
 
+const std::array<std::string, PhotonDNNEstimator::nInputs > PhotonDNNEstimator::dnnAvaibleInputs = {{
+    "hadTowOverEm","phoTrkSumPtHollow","phoEcalRecHit",
+    "phoSigmaIetaIeta","phoSigmaIEtaIEtaFull5x5","phoSigmaIEtaIPhiFull5x5",
+    "phoEcalPFClusterIso","phoHcalPFClusterIso","phoHasPixelSeed",
+    "phoR9Full5x5","phohcalTower"
+  }};
 
 std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photon& photon) const{
     // Prepare a map with all the defined variables

@@ -49,14 +49,18 @@ void ElectronDNNEstimator::initScalerFiles(){
     int ninputs = 0;
     if(inputfile_scaler.fail())  
     { 
-        // TODO ERROR
+        throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
     }else{ 
         // Now read mean, scale factors for each variable
         float m,s;
         std::string varname{};
         while (inputfile_scaler >> varname >> m >> s){
             features.push_back(std::make_tuple(varname, m,s));
-            //TODO Add protection for mismatch between requested variables and the available ones
+            // Protection for mismatch between requested variables and the available ones
+            auto match = std::find(ElectronDNNEstimator::dnnAvaibleInputs.begin(),ElectronDNNEstimator::dnnAvaibleInputs.end(), varname);
+            if (match == std::end(ElectronDNNEstimator::dnnAvaibleInputs)) {
+              throw cms::Exception("MissingVariable") << "Requested variable (" << varname << ") not available between Electron PFid DNN inputs";
+            }
             ninputs += 1;
         }  
     }   
@@ -77,6 +81,17 @@ std::vector<tensorflow::Session*> ElectronDNNEstimator::getSessions() const{
    return sessions;
 }
 
+const std::array<std::string, ElectronDNNEstimator::nInputs>  ElectronDNNEstimator::dnnAvaibleInputs = {{
+    "fbrem", "abs(deltaEtaSuperClusterTrackAtVtx)", "abs(deltaPhiSuperClusterTrackAtVtx)",
+    "full5x5_sigmaIetaIeta","full5x5_hcalOverEcal", "eSuperClusterOverP",
+    "full5x5_e1x5","eEleClusterOverPout","closestCtfTrackNormChi2", 
+    "closestCtfTrackNLayers", "gsfTrack.missing_inner_hits", "dr03TkSumPt", 
+    "dr03EcalRecHitSumEt", "dr03HcalTowerSumEt", "gsfTrack.normalizedChi2",
+     "superCluster.eta", "pt",  "ecalPFClusterIso", 
+     "hcalPFClusterIso", "numberOfBrems", "abs(deltaEtaSeedClusterTrackAtCalo)",
+    "hadronicOverEm", "full5x5_e2x5Max", "full5x5_e5x5"
+  }};
+
 
 std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::GsfElectron& ele) const{
     // Prepare a map with all the defined variables
@@ -93,7 +108,7 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
     variables["eEleClusterOverPout"] = ele.eEleClusterOverPout();
     variables["closestCtfTrackNormChi2"] = ele.closestCtfTrackNormChi2();
     variables["closestCtfTrackNLayers"] = ele.closestCtfTrackNLayers();
-    variables["gsfTrack.hitPattern.numberOfLostHits.MISSING_INNER_HITS"] = (validKF) ? myTrackRef->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) : -1.;
+    variables["gsfTrack.missing_inner_hits"] = (validKF) ? myTrackRef->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) : -1.;
     variables["dr03TkSumPt"] = ele.dr03TkSumPt();
     variables["dr03EcalRecHitSumEt"] = ele.dr03EcalRecHitSumEt();
     variables["dr03HcalTowerSumEt"] = ele.dr03HcalTowerSumEt();
