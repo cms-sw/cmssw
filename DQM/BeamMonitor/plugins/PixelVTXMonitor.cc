@@ -33,7 +33,7 @@ PixelVTXMonitor::PixelVTXMonitor(const edm::ParameterSet& ps) : parameters_(ps) 
   minVtxDoF_ = parameters_.getParameter<double>("MinVtxDoF");
 }
 
-PixelVTXMonitor::~PixelVTXMonitor() {}
+PixelVTXMonitor::~PixelVTXMonitor() = default;
 
 void PixelVTXMonitor::bookHistograms() {
   std::vector<std::string> hltPathsOfInterest =
@@ -164,12 +164,6 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
 
 void PixelVTXMonitor::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
-void PixelVTXMonitor::endJob() {}
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PixelVTXMonitor);
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

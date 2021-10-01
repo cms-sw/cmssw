@@ -56,15 +56,13 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
   }
 }
 
-AlcaBeamMonitorClient::~AlcaBeamMonitorClient() {}
-
-//----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::beginJob() {}
+AlcaBeamMonitorClient::~AlcaBeamMonitorClient() = default;
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {}
 
 //----------------------------------------------------------------------------------------------------------------------
+void AlcaBeamMonitorClient::beginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {}
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::analyze(const Event& iEvent, const EventSetup& iSetup) {}

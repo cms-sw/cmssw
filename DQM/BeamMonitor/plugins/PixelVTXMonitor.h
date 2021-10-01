@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class PixelVTXMonitor : public edm::EDAnalyzer {
+class PixelVTXMonitor : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -39,7 +39,6 @@ protected:
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
   void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void endJob() override;
 
 private:
   void bookHistograms();
@@ -68,8 +67,3 @@ private:
 };
 
 #endif  // PIXELVTXMONITOR_H
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

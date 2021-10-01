@@ -36,7 +36,7 @@ BeamConditionsMonitor::BeamConditionsMonitor(const ParameterSet& ps) : countEvt_
     monitorName_ = monitorName_ + "/";
 }
 
-BeamConditionsMonitor::~BeamConditionsMonitor() {}
+BeamConditionsMonitor::~BeamConditionsMonitor() = default;
 
 //--------------------------------------------------------
 void BeamConditionsMonitor::beginJob() {
@@ -56,9 +56,6 @@ void BeamConditionsMonitor::beginJob() {
 }
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::beginRun(const edm::Run& r, const EventSetup& context) {}
-
-//--------------------------------------------------------
 void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   countLumi_++;
 }
@@ -75,9 +72,5 @@ void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, c
   h_x0_lumi->ShiftFillLast(condBeamSpot.GetX(), condBeamSpot.GetXError(), 1);
   h_y0_lumi->ShiftFillLast(condBeamSpot.GetY(), condBeamSpot.GetYError(), 1);
 }
-//--------------------------------------------------------
-void BeamConditionsMonitor::endRun(const Run& r, const EventSetup& context) {}
-//--------------------------------------------------------
-void BeamConditionsMonitor::endJob() {}
 
 DEFINE_FWK_MODULE(BeamConditionsMonitor);

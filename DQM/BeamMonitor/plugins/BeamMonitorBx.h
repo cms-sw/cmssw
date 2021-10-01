@@ -10,11 +10,11 @@
 // C++
 #include <string>
 // CMS
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
 
@@ -22,7 +22,7 @@
 // class declaration
 //
 
-class BeamMonitorBx : public edm::EDAnalyzer {
+class BeamMonitorBx : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -90,10 +90,6 @@ private:
   std::map<TString, MonitorElement*> hs;   // Tables
   std::map<TString, MonitorElement*> hst;  // Trending Histos
 
-  //Test
-  //  MonitorElement * h_x0;
-
-  //
   std::time_t tmpTime;
   std::time_t refTime;
   std::time_t startTime;
