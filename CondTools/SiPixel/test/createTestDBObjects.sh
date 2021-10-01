@@ -42,3 +42,8 @@ cmsRun  ${LOCAL_TEST_DIR}/SiPixelDynamicInefficiencyDB_cfg.py || die "Failure ru
 
 echo "TESTING Reading SiPixelDynamicInefficiency DB object ...\n\n"
 cmsRun  ${LOCAL_TEST_DIR}/SiPixelDynamicInefficiencyReader_cfg.py || die "Failure running SiPixelDynamicInefficiencyReader_cfg.py" $?
+
+echo "TESTING SiPixelGain Scaling DB codes ... \n\n"
+
+echo "TESTING Writing Scaled SiPixel Gain DB Object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelGainCalibScaler_cfg.py firstRun=278869 maxEvents=12000 || die "Failure running SiPixelGainCalibScaler_cfg.py" $?
