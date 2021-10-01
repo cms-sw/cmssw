@@ -25,9 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
 
 DTHVStatusValidateDBRead::DTHVStatusValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dthvstatusToken_(esConsumes()) {}
 
-DTHVStatusValidateDBRead::DTHVStatusValidateDBRead(int i) {}
+DTHVStatusValidateDBRead::DTHVStatusValidateDBRead(int i) : dthvstatusToken_(esConsumes()) {}
 
 DTHVStatusValidateDBRead::~DTHVStatusValidateDBRead() {}
 
@@ -40,8 +42,7 @@ void DTHVStatusValidateDBRead::analyze(const edm::Event& e, const edm::EventSetu
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTHVStatus> hv;
-  context.get<DTHVStatusRcd>().get(hv);
+  auto hv = context.getHandle(dthvstatusToken_);
   std::cout << hv->version() << std::endl;
   std::cout << std::distance(hv->begin(), hv->end()) << " data in the container" << std::endl;
   int status;

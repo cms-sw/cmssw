@@ -24,6 +24,7 @@
 
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 #include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <memory>
 
@@ -82,6 +83,11 @@ PPSPixelTopologyESSource::PPSPixelTopologyESSource(const edm::ParameterSet& iCon
       active_edge_sigma_(0.),
       phys_active_edge_dist_(0.) {
   setPPSPixelTopology(iConfig);
+
+  // validate input
+  if (runType_ != "Run2" && runType_ != "Run3")
+    throw cms::Exception("PPS") << runType_ << " is not valid runType.";
+
   setWhatProduced(this);
   findingRecord<PPSPixelTopologyRcd>();
 }

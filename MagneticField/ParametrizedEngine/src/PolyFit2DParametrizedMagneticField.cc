@@ -14,11 +14,13 @@ using namespace magfieldparam;
 
 PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(double bVal) : theParam(new BFit()) {
   theParam->SetField(bVal);
+  setNominalValue();
 }
 
 PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(const edm::ParameterSet& parameters)
     : theParam(new BFit()) {
   theParam->SetField(parameters.getParameter<double>("BValue"));
+  setNominalValue();
 }
 
 PolyFit2DParametrizedMagneticField::~PolyFit2DParametrizedMagneticField() { delete theParam; }

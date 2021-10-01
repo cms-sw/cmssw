@@ -7,9 +7,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi import TrackEffMon
 
-MonitorTrackEfficiencyTkTracks = TrackEffMon.clone()
-MonitorTrackEfficiencyTkTracks.TKTrackCollection = 'ctfWithMaterialTracksP5'
-MonitorTrackEfficiencyTkTracks.STATrackCollection = 'cosmicMuons'
-MonitorTrackEfficiencyTkTracks.FolderName = 'Muons/TKTrack'
-MonitorTrackEfficiencyTkTracks.AlgoName = 'CTF'
-MonitorTrackEfficiencyTkTracks.trackEfficiency = False
+MonitorTrackEfficiencyTkTracks = TrackEffMon.clone(
+    TKTrackCollection = 'ctfWithMaterialTracksP5',
+    STATrackCollection = 'cosmicMuons',
+    FolderName = 'Muons/TKTrack',
+    AlgoName = 'CTF',
+    trackEfficiency = False
+)

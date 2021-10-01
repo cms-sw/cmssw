@@ -978,7 +978,7 @@ caloDict = {
         1 : [
             'Geometry/EcalCommonData/data/eregalgo/2026/v2/eregalgo.xml',
             'Geometry/EcalCommonData/data/ectkcable/2026/v1/ectkcable.xml',
-            'Geometry/EcalCommonData/data/ectkcablemat/2026/v1/ectkcablemat.xml',
+            'Geometry/EcalCommonData/data/ectkcablemat/2026/v2/ectkcablemat.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',

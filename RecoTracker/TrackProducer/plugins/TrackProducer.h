@@ -34,6 +34,7 @@ public:
 
 private:
   TrackProducerAlgorithm<reco::Track> theAlgo;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTTopoToken;
 };
 
 #endif

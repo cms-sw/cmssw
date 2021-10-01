@@ -65,7 +65,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "boost/lexical_cast.hpp"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 // forward declarations

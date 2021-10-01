@@ -43,6 +43,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -93,6 +96,9 @@ public:
 
   /** Set configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
@@ -102,6 +108,11 @@ public:
 
   // VK: change to protected, to allow inheritance
 protected:
+  // access to lookup tables via eventsetup
+  const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
+  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+
   /* Containers for reconstructed ALCTs and CLCTs */
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
@@ -137,6 +148,8 @@ protected:
 
   // encode special bits for high-multiplicity triggers
   unsigned showerSource_;
+
+  bool ignoreAlctCrossClct_;
 
   /*
      Preferential index array in matching window, relative to the ALCT BX.
@@ -200,6 +213,8 @@ protected:
     if present, so that we always construct the maximum number of valid LCts
   */
   void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
+
+  bool doesALCTCrossCLCT(const CSCALCTDigi&, const CSCCLCTDigi&) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;

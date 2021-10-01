@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
-
+from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
+
+options = VarParsing('analysis')
+options.register("doSim", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("cmssw", "CMSSW_X_Y_Z", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("globalTag", "tag", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("dataSetTag", "sample", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.parseArguments()
 
 process = cms.Process('HARVESTING',Run3)
 
@@ -31,13 +38,17 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 # Path and EndPath definitions
-process.harvesting_step = cms.Path(process.cscDigiHarvesting)
+if options.doSim:
+    process.harvesting_step = cms.Path(process.cscDigiHarvesting)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
+process.dqmSaver.workflow = '/{}/{}/{}'.format(options.dataSetTag,options.globalTag,options.cmssw)
+
 # Schedule definition
-process.schedule = cms.Schedule(
-    process.harvesting_step,
-    process.endjob_step,
-    process.dqmsave_step
-)
+process.schedule = cms.Schedule()
+
+if options.doSim:
+    process.schedule.extend([process.harvesting_step])
+
+process.schedule.extend([process.endjob_step, process.dqmsave_step])

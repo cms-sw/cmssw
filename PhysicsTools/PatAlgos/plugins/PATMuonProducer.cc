@@ -403,7 +403,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   // resolutions
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
   // puppi
   addPuppiIsolation_ = iConfig.getParameter<bool>("addPuppiIsolation");

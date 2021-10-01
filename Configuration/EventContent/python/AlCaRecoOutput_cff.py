@@ -53,6 +53,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_Output_cff impor
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_Output_cff import *
 # AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmicsNano_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalCosmics_Output_cff import *
 
 # AlCaReco for tracker based alignment using beam halo
@@ -90,7 +91,9 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilterNoHLT_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkProducerFilter_Output_cff import *
 # HCAL calibration with iterative phi sym
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_Output_cff import *
 # HCAL calibration with min.bias
@@ -107,6 +110,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_Output
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_Output_cff import *
 # HCAL calibration with muons (HB/HE)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonProducerFilter_Output_cff import *
 # HCAL calibration with muons from low PU (HB/HE)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalLowPUHBHEMuonFilter_Output_cff import *
 # HCAL calibration with muons (HE)
@@ -143,6 +147,7 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 ###############################################################
 from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalib_Output_cff import *
 
 ###############################################################
 # stream for prompt-calibration @ Tier0

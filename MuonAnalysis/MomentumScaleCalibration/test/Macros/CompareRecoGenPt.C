@@ -19,23 +19,20 @@
 #include <iostream>
 #include <iomanip>
 
-// #include "boost/lexical_cast.hpp"
-
 /// Helper function getting the histogram from file.
-TProfile * getHistogram( const TString & fileName )
-{
-  TFile * file = new TFile(fileName, "READ");
-  if( file == 0 ) {
+TProfile *getHistogram(const TString &fileName) {
+  TFile *file = new TFile(fileName, "READ");
+  if (file == 0) {
     std::cout << "Wrong file: " << fileName << std::endl;
     exit(1);
   }
-  TDirectory * dir = (TDirectory*) file->Get("hPtRecoVsPtGen");
-  if( dir == 0 ) {
+  TDirectory *dir = (TDirectory *)file->Get("hPtRecoVsPtGen");
+  if (dir == 0) {
     std::cout << "Wrong directory for file: " << fileName << std::endl;
     exit(1);
   }
-  TProfile * profile = (TProfile*) dir->Get("hPtRecoVsPtGenProf");
-  if( profile == 0 ) {
+  TProfile *profile = (TProfile *)dir->Get("hPtRecoVsPtGenProf");
+  if (profile == 0) {
     std::cout << "Wrong histogram for file: " << fileName << std::endl;
     exit(1);
   }
@@ -43,79 +40,68 @@ TProfile * getHistogram( const TString & fileName )
 }
 
 /// Helper function building the histogram from the TProfile settings.
-TH1F * makeHistogram( const TProfile * profile, const TString & name )
-{
-  return new TH1F(TString(profile->GetName())+name, TString(profile->GetTitle())+" "+name, profile->GetNbinsX(), profile->GetXaxis()->GetXmin(), profile->GetXaxis()->GetXmax());
+TH1F *makeHistogram(const TProfile *profile, const TString &name) {
+  return new TH1F(TString(profile->GetName()) + name,
+                  TString(profile->GetTitle()) + " " + name,
+                  profile->GetNbinsX(),
+                  profile->GetXaxis()->GetXmin(),
+                  profile->GetXaxis()->GetXmax());
 }
 
 /// Helper function to write the histograms to file.
-void saveHistograms( TH1 * histo1, TH1 * histo2 )
-{
+void saveHistograms(TH1 *histo1, TH1 *histo2) {
   histo1->Draw();
   histo2->SetLineColor(kRed);
   histo2->Draw("Same");
-  TLegend *leg = new TLegend(0.65,0.85,1,1);
+  TLegend *leg = new TLegend(0.65, 0.85, 1, 1);
   leg->SetFillColor(0);
-  leg->AddEntry(histo1,"before calibration","L");
-  leg->AddEntry(histo2,"after calibration","L");
+  leg->AddEntry(histo1, "before calibration", "L");
+  leg->AddEntry(histo2, "after calibration", "L");
   leg->Draw("same");
 }
 
 #include "TPaveText.h"
 /// Helper class holding a TPaveText for better formatting and predefined options
-class PaveText
-{
- public:
-  PaveText(const double & textX = 0.7, const double & textY = 0.4 )
-  {
-    paveText_ = new TPaveText(textX, textY, textX+0.2, textY+0.17, "NDC");
+class PaveText {
+public:
+  PaveText(const double &textX = 0.7, const double &textY = 0.4) {
+    paveText_ = new TPaveText(textX, textY, textX + 0.2, textY + 0.17, "NDC");
   }
-  void AddText(const TString & text)
-  {
-    paveText_->AddText(text);
-  }
-  void Draw(const TString & option)
-  {
-    paveText_->SetFillColor(0); // text is black on white
+  void AddText(const TString &text) { paveText_->AddText(text); }
+  void Draw(const TString &option) {
+    paveText_->SetFillColor(0);  // text is black on white
     paveText_->SetTextSize(0.03);
     paveText_->SetBorderSize(0);
     paveText_->SetTextAlign(12);
     paveText_->Draw(option);
   }
-  void SetTextColor(const int color)
-  {
-    paveText_->SetTextColor(color);
-  }
- protected:
-  TPaveText * paveText_;
+  void SetTextColor(const int color) { paveText_->SetTextColor(color); }
+
+protected:
+  TPaveText *paveText_;
 };
 
 /**
  * Compute the precision to give to the stream operator so that the passed number
  * will be printed with two significant figures.
  */
-int precision( const double & value )
-{
+int precision(const double &value) {
   // Counter gives the precision
   int precision = 1;
-  int k=1;
-  while( int(value*k) == 0 ) {
-    k*=10;
+  int k = 1;
+  while (int(value * k) == 0) {
+    k *= 10;
     ++precision;
   }
   return precision;
 }
 
 /// Helper function to extract and format the text for the fitted parameters
-void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & fit3 )
-{
-
-
+void getParameters(const TF1 *func, TString &fit1, TString &fit2, TString &fit3) {
   std::stringstream a;
 
   double error = func->GetParError(0);
   a << std::setprecision(precision(error)) << std::fixed << func->GetParameter(0);
-  // fit1 += boost::lexical_cast<string>(1);
   fit1 += a.str() + "+-";
   a.str("");
   a << error;
@@ -137,18 +123,16 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & 
   fit3 += a.str();
 }
 
-void CompareRecoGenPt( const TString & fileNum1 = "0",
-                       const TString & fileNum2 = "1" )
-{
-  TFile * outputFile = new TFile("CompareRecoGenPt.root", "RECREATE");
+void CompareRecoGenPt(const TString &fileNum1 = "0", const TString &fileNum2 = "1") {
+  TFile *outputFile = new TFile("CompareRecoGenPt.root", "RECREATE");
 
-  TProfile * profile1 = getHistogram( fileNum1+"_MuScleFit.root" );
+  TProfile *profile1 = getHistogram(fileNum1 + "_MuScleFit.root");
   profile1->SetXTitle("gen muon Pt (GeV)");
   profile1->SetYTitle("reco muon Pt (GeV)");
-  TProfile * profile2 = getHistogram( fileNum2+"_MuScleFit.root" );
+  TProfile *profile2 = getHistogram(fileNum2 + "_MuScleFit.root");
 
   int xBins = profile1->GetNbinsX();
-  if( xBins != profile2->GetNbinsX() ) {
+  if (xBins != profile2->GetNbinsX()) {
     std::cout << "Wrong number of bins" << std::endl;
     exit(1);
   }
@@ -158,40 +142,40 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
 
   outputFile->cd();
 
-  TH1F * meanHisto1 = makeHistogram(profile1, "mean");
-  TH1F * meanHisto2 = makeHistogram(profile2, "mean");
-  TH1F * rmsHisto1 = makeHistogram(profile1, "rms");
-  TH1F * rmsHisto2 = makeHistogram(profile2, "rms");
-  for( int iBin = 1; iBin <= xBins; ++iBin ) {
-//     if( profile1->GetBinError(iBin) != 0 ) {
-      meanHisto1->SetBinContent( iBin, profile1->GetBinContent(iBin) );
-      meanHisto1->SetBinError( iBin, profile1->GetBinError(iBin) );
-//     }
-//     if( profile2->GetBinError(iBin) ) {
-      meanHisto2->SetBinContent( iBin, profile2->GetBinContent(iBin) );
-      meanHisto2->SetBinError( iBin, profile2->GetBinError(iBin) );
-//     }
-    rmsHisto1->SetBinContent( iBin, profile1->GetBinError(iBin) );
-    rmsHisto2->SetBinContent( iBin, profile2->GetBinError(iBin) );
+  TH1F *meanHisto1 = makeHistogram(profile1, "mean");
+  TH1F *meanHisto2 = makeHistogram(profile2, "mean");
+  TH1F *rmsHisto1 = makeHistogram(profile1, "rms");
+  TH1F *rmsHisto2 = makeHistogram(profile2, "rms");
+  for (int iBin = 1; iBin <= xBins; ++iBin) {
+    //     if( profile1->GetBinError(iBin) != 0 ) {
+    meanHisto1->SetBinContent(iBin, profile1->GetBinContent(iBin));
+    meanHisto1->SetBinError(iBin, profile1->GetBinError(iBin));
+    //     }
+    //     if( profile2->GetBinError(iBin) ) {
+    meanHisto2->SetBinContent(iBin, profile2->GetBinContent(iBin));
+    meanHisto2->SetBinError(iBin, profile2->GetBinError(iBin));
+    //     }
+    rmsHisto1->SetBinContent(iBin, profile1->GetBinError(iBin));
+    rmsHisto2->SetBinContent(iBin, profile2->GetBinError(iBin));
   }
 
   // Setting all weigths to 1 ("W" option) because of Profile errors for low statistics bins biasing the fit
 
   // meanHisto1->Fit("pol1", "W", "", 2, 1000);
   profile1->Fit("pol1", "W", "", 0, 1000);
-  TF1 * func1 = profile1->GetFunction("pol1");
+  TF1 *func1 = profile1->GetFunction("pol1");
   // TF1 * func1 = meanHisto1->GetFunction("pol1");
   func1->SetLineWidth(1);
   func1->SetLineColor(kBlack);
 
   profile2->Fit("pol1", "W", "", 0, 1000);
   // meanHisto2->Fit("pol1", "W", "", 2, 1000);
-  TF1 * func2 = profile2->GetFunction("pol1");
+  TF1 *func2 = profile2->GetFunction("pol1");
   // TF1 * func2 = meanHisto2->GetFunction("pol1");
   func2->SetLineWidth(1);
   func2->SetLineColor(kRed);
 
-  TCanvas * canvas = new TCanvas("before", "before corrections", 1000, 800);
+  TCanvas *canvas = new TCanvas("before", "before corrections", 1000, 800);
   // canvas->Divide(2);
   canvas->cd();
   // canvas->cd(1);
@@ -231,10 +215,9 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   outputFile->Write();
   outputFile->Close();
 
-//   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6);
-//   leg->SetFillColor(0);
-//   leg->AddEntry(func1,"fit of before","L");
-//   leg->AddEntry(func2,"fit of after","L");
-//   leg->Draw("same");
+  //   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6);
+  //   leg->SetFillColor(0);
+  //   leg->AddEntry(func1,"fit of before","L");
+  //   leg->AddEntry(func2,"fit of after","L");
+  //   leg->Draw("same");
 }
-

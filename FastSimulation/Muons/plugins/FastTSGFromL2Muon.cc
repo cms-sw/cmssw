@@ -17,7 +17,7 @@
 
 #include <set>
 
-FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg) : theConfig(cfg) {
+FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg) {
   produces<L3MuonTrajectorySeedCollection>();
 
   edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -28,15 +28,14 @@ FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg) : theConfig(c
   theSeedCollectionLabels = cfg.getParameter<std::vector<edm::InputTag> >("SeedCollectionLabels");
   theSimTrackCollectionLabel = cfg.getParameter<edm::InputTag>("SimTrackCollectionLabel");
   // useTFileService_ = cfg.getUntrackedParameter<bool>("UseTFileService",false);
+  edm::ParameterSet regionBuilderPSet = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
+  theRegionBuilder = std::make_unique<MuonTrackingRegionBuilder>(regionBuilderPSet, consumesCollector());
 }
 
 FastTSGFromL2Muon::~FastTSGFromL2Muon() {}
 
 void FastTSGFromL2Muon::beginRun(edm::Run const& run, edm::EventSetup const& es) {
   //region builder
-  edm::ParameterSet regionBuilderPSet = theConfig.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
-  edm::ConsumesCollector iC = consumesCollector();
-  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet, iC);
 
   /*
   if(useTFileService_) {
@@ -57,7 +56,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   std::unique_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   // Region builder
-  theRegionBuilder->setEvent(ev);
+  theRegionBuilder->setEvent(ev, es);
 
   // Retrieve the Monte Carlo truth (SimTracks)
   edm::Handle<edm::SimTrackContainer> theSimTracks;

@@ -33,7 +33,8 @@
 
 class RKTestField final : public MagneticField {
 public:
-  virtual GlobalVector inTesla(const GlobalPoint&) const { return GlobalVector(0, 0, 4); }
+  RKTestField() { setNominalValue(); }
+  GlobalVector inTesla(const GlobalPoint&) const override { return GlobalVector(0, 0, 4); }
 };
 
 using namespace std;

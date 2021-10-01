@@ -29,8 +29,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,7 +37,8 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
 
 class L1MuBMTrackSegPhi;
@@ -49,25 +48,25 @@ class L1MuBMLUTHandler;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMAssignmentUnit : public L1AbstractProcessor {
+class L1MuBMAssignmentUnit {
 public:
   /// constructor
   L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id);
 
   /// destructor
-  ~L1MuBMAssignmentUnit() override;
+  ~L1MuBMAssignmentUnit();
 
   /// run Assignment Unit
-  void run(const edm::EventSetup& c) override;
+  void run(const L1TMuonBarrelParams& mbtfParams);
 
   /// reset Assignment Unit
-  void reset() override;
+  void reset();
 
   /// assign phi
-  void PhiAU(const edm::EventSetup& c);
+  void PhiAU(const L1TMuonBarrelParams&);
 
   /// assign pt and charge
-  void PtAU(const edm::EventSetup& c);
+  void PtAU(const L1TMuonBarrelParams&);
 
   /// assign quality
   void QuaAU();
@@ -110,7 +109,6 @@ private:
   std::vector<const L1MuBMTrackSegPhi*> m_TSphi;
   L1MuBMLUTHandler::PtAssMethod m_ptAssMethod;
 
-  edm::ESHandle<L1TMuonBarrelParams> bmtfParamsHandle;
   L1MuBMLUTHandler* thePtaLUTs;     ///< pt-assignment look-up tables
   L1MuBMLUTHandler* thePhiLUTs;     ///< phi-assignment look-up tables
   static unsigned short nbit_phi;   ///< # of bits used for pt-assignment

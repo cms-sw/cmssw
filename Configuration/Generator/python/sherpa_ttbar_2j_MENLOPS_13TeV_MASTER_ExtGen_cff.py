@@ -29,7 +29,7 @@ _generator = cms.EDFilter("SherpaGeneratorFilter",
 				" METS_BBAR_MODE 5;",
 				" NJET:=2; LJET:=2; QCUT:=20.;",
 				" ME_SIGNAL_GENERATOR Comix Amegic LOOPGEN;",
-				" OL_PREFIX={0} ".format(os.environ['CMS_OPENLOOPS_PREFIX']),
+				" OL_PREFIX={0};".format(os.environ['CMS_OPENLOOPS_PREFIX'] if 'CMS_OPENLOOPS_PREFIX' in os.environ else ''),
 				" LOOPGEN:=OpenLoops;",
 				" MI_HANDLER=Amisic;",
 				" NLO_SMEAR_THRESHOLD 1;",
@@ -62,8 +62,6 @@ _generator = cms.EDFilter("SherpaGeneratorFilter",
 )
 
 from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
-generator = ExternalGeneratorFilter(_generator,
-                                    _external_process_waitTime_=cms.untracked.uint32(1200), # increase the max waitTime for Sherpa
-                                    )
+generator = ExternalGeneratorFilter(_generator)
 
 ProductionFilterSequence = cms.Sequence(generator)

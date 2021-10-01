@@ -7,6 +7,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,13 +15,17 @@
 
 #include <memory>
 
+class CaloGeometryRecord;
+
 class EcalSelectiveReadoutSuppressor {
 public:
   /** Construtor.
    * @param params configuration from python file
    * @param settings configuration from condition DB
    */
-  EcalSelectiveReadoutSuppressor(const edm::ParameterSet& params, const EcalSRSettings* settings);
+  EcalSelectiveReadoutSuppressor(const edm::ParameterSet& params, edm::ConsumesCollector iC);
+
+  void setSettings(const EcalSRSettings* settings);
 
   enum { BARREL, ENDCAP };
 
@@ -304,5 +309,7 @@ private:
   /** Number of produced events
    */
   int ievt_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
 };
 #endif

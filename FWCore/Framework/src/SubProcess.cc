@@ -1,4 +1,4 @@
-#include "FWCore/Framework/src/SubProcess.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"

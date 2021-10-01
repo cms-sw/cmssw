@@ -11,6 +11,20 @@
 ///////
 
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+void tttrack_trackword::infoTestDigitizationScheme(const unsigned int nBits,
+                                                   const double lsb,
+                                                   const double floatingPointValue,
+                                                   const unsigned int digitizedSignedValue,
+                                                   const double undigitizedSignedValue,
+                                                   const unsigned int redigitizedSignedValue) {
+  edm::LogInfo("TTTrack_TrackWord") << "testDigitizationScheme: (nBits, lsb) = (" << nBits << ", " << lsb << ")\n"
+                                    << "Floating point value = " << floatingPointValue
+                                    << "\tDigitized value = " << digitizedSignedValue
+                                    << "\tUn-digitized value = " << undigitizedSignedValue
+                                    << "\tRe-digitized value = " << redigitizedSignedValue;
+}
 
 //Constructor - turn track parameters into 96-bit word
 TTTrack_TrackWord::TTTrack_TrackWord(unsigned int valid,
@@ -22,8 +36,9 @@ TTTrack_TrackWord::TTTrack_TrackWord(unsigned int valid,
                                      double bendChi2,
                                      unsigned int hitPattern,
                                      unsigned int mvaQuality,
-                                     unsigned int mvaOther) {
-  setTrackWord(valid, momentum, POCA, rInv, chi2RPhi, chi2RZ, bendChi2, hitPattern, mvaQuality, mvaOther);
+                                     unsigned int mvaOther,
+                                     unsigned int sector) {
+  setTrackWord(valid, momentum, POCA, rInv, chi2RPhi, chi2RZ, bendChi2, hitPattern, mvaQuality, mvaOther, sector);
 }
 
 TTTrack_TrackWord::TTTrack_TrackWord(unsigned int valid,
@@ -51,9 +66,10 @@ void TTTrack_TrackWord::setTrackWord(unsigned int valid,
                                      double bendChi2,
                                      unsigned int hitPattern,
                                      unsigned int mvaQuality,
-                                     unsigned int mvaOther) {
+                                     unsigned int mvaOther,
+                                     unsigned int sector) {
   // first, derive quantities to be packed
-  float rPhi = momentum.phi();  // this needs to be phi relative to center of sector ****
+  float rPhi = localPhi(momentum.phi(), sector);  // this needs to be phi relative to the center of the sector
   float rTanl = momentum.z() / momentum.perp();
   float rZ0 = POCA.z();
   float rD0 = POCA.perp();
@@ -175,4 +191,30 @@ void TTTrack_TrackWord::setTrackWord(
   for (unsigned int b = offset; b < offset + TrackBitWidths::kValidSize; b++) {
     trackWord_.set(b, valid[b - offset]);
   }
+}
+
+bool TTTrack_TrackWord::singleDigitizationSchemeTest(const double floatingPointValue,
+                                                     const unsigned int nBits,
+                                                     const double lsb) const {
+  unsigned int digitizedSignedValue = digitizeSignedValue(floatingPointValue, nBits, lsb);
+  double undigitizedSignedValue = undigitizeSignedValue(digitizedSignedValue, nBits, lsb);
+  unsigned int redigitizedSignedValue = digitizeSignedValue(undigitizedSignedValue, nBits, lsb);
+  tttrack_trackword::infoTestDigitizationScheme(
+      nBits, lsb, floatingPointValue, digitizedSignedValue, undigitizedSignedValue, redigitizedSignedValue);
+  return (std::abs(floatingPointValue - undigitizedSignedValue) <= (lsb / 2.0)) &&
+         (digitizedSignedValue == redigitizedSignedValue);
+}
+
+void TTTrack_TrackWord::testDigitizationScheme() const {
+  /*
+  Expected output:
+    testDigitizationScheme: Floating point value = -4 Digitized value = 4  Un-digitized value = -3.5
+    testDigitizationScheme: Floating point value = 3  Digitized value = 3  Un-digitized value = 3.5
+    testDigitizationScheme: Floating point value = -3.5 Digitized value = 9  Un-digitized value = -3.25
+    testDigitizationScheme: Floating point value = 3.5  Digitized value = 7  Un-digitized value = 3.75
+  */
+  assert(singleDigitizationSchemeTest(-4.0, 3, 1.0));
+  assert(singleDigitizationSchemeTest(3.0, 3, 1.0));
+  assert(singleDigitizationSchemeTest(-3.5, 4, 0.5));
+  assert(singleDigitizationSchemeTest(3.5, 4, 0.5));
 }

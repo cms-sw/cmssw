@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -42,8 +43,10 @@ using namespace dttmaxenums;
 
 DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset)
     :  // Get the synchronizer
+      theDTGeomToken{esConsumes()},
       theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                                pset.getParameter<ParameterSet>("tTrigModeConfig"))}
+                                                pset.getParameter<ParameterSet>("tTrigModeConfig"),
+                                                consumesCollector())}
 
 {
   edm::ConsumesCollector collector(consumesCollector());
@@ -125,18 +128,11 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
   }
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry& dtGeom = eventSetup.getData(theDTGeomToken);
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByToken(theRecHits4DToken, all4DSegments);
-
-  // Get the map of noisy channels
-  /*ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels) {
-    eventSetup.get<DTStatusFlagRcd>().get(statusMap);
-  }*/
 
   // Set the event setup in the Synchronizer
   theSync->setES(eventSetup);
@@ -145,7 +141,7 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
   DTRecSegment4DCollection::id_iterator chamberIdIt;
   for (chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt) {
     // Get the chamber from the setup
-    const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
+    const DTChamber* chamber = dtGeom.chamber(*chamberIdIt);
     LogTrace("Calibration") << "Chamber Id: " << *chamberIdIt;
 
     // Calibrate just the chosen chamber/s

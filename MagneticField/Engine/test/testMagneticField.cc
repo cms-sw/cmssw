@@ -47,7 +47,6 @@
 #include <fstream>
 #include <iomanip>
 #include <libgen.h>
-#include <boost/lexical_cast.hpp>
 
 using namespace edm;
 using namespace Geom;
@@ -272,7 +271,6 @@ void testMagneticField::validate(string filename, string type) {
 void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
-  using boost::lexical_cast;
 
   char buf[512];
   strcpy(buf, filename.c_str());
@@ -286,11 +284,11 @@ void testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& se
 
   // Find volume number
   string::size_type iext = table.rfind('.');  // last  occurence of "."
-  volNo = boost::lexical_cast<int>(table.substr(iend + 1, iext - iend - 1));
+  volNo = std::stoi(table.substr(iend + 1, iext - iend - 1));
 
   // Find sector number
   if (ssector[0] == 's') {
-    sector = boost::lexical_cast<int>(ssector.substr(1, 2));
+    sector = std::stoi(ssector.substr(1, 2));
   } else {
     cout << "Can not determine sector number, assuming 1" << endl;
     sector = 1;

@@ -12,7 +12,6 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CoralBase/TimeStamp.h"
-
 #include "CondTools/DT/test/stubs/DTHVDump.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
 #include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
@@ -21,11 +20,11 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTHVDump::DTHVDump(edm::ParameterSet const& p) {
+  DTHVDump::DTHVDump(edm::ParameterSet const& p) : dthvstatusToken_(esConsumes()) {
     // parameters to setup
   }
 
-  DTHVDump::DTHVDump(int i) {}
+  DTHVDump::DTHVDump(int i) : dthvstatusToken_(esConsumes()) {}
 
   DTHVDump::~DTHVDump() {}
 
@@ -36,8 +35,7 @@ namespace edmtest {
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
 
     // get configuration for current run
-    edm::ESHandle<DTHVStatus> hv;
-    context.get<DTHVStatusRcd>().get(hv);
+    auto hv = context.getHandle(dthvstatusToken_);
     std::cout << hv->version() << std::endl;
     std::cout << std::distance(hv->begin(), hv->end()) << " data in the container" << std::endl;
     edm::ValidityInterval iov(context.get<DTHVStatusRcd>().validityInterval());

@@ -52,6 +52,10 @@ public:
       token_measurementTracker =
           iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
+    token_field = iC.esConsumes();
+    if (m_precise) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
   ~TrackingRegionsFromBeamSpotAndL2Tau() override {}
@@ -105,6 +109,12 @@ public:
       measurementTracker = hmte.product();
     }
 
+    const auto& field = es.getData(token_field);
+    const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+    if (m_precise) {
+      msmaker = &es.getData(token_msmaker);
+    }
+
     // create maximum JetMaxN tracking regions in directions of
     // highest pt jets that are above threshold and are within allowed eta
     // (we expect that jet collection was sorted in decreasing pt order)
@@ -123,8 +133,10 @@ public:
                                                                          m_originHalfLength,
                                                                          m_deltaEta,
                                                                          m_deltaPhi,
-                                                                         m_whereToUseMeasurementTracker,
+                                                                         field,
+                                                                         msmaker,
                                                                          m_precise,
+                                                                         m_whereToUseMeasurementTracker,
                                                                          measurementTracker,
                                                                          m_searchOpt));
       ++n_regions;
@@ -147,6 +159,8 @@ private:
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_precise;
 };
 

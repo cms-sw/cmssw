@@ -48,11 +48,7 @@ SiPixelCalibDigiFilter::SiPixelCalibDigiFilter(const edm::ParameterSet& iConfig)
   tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi>>(edm::InputTag("SiPixelCalibDigiProducer"));
 }
 
-SiPixelCalibDigiFilter::~SiPixelCalibDigiFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+SiPixelCalibDigiFilter::~SiPixelCalibDigiFilter() = default;
 //
 // member functions
 //
@@ -63,17 +59,12 @@ bool SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   Handle<DetSetVector<SiPixelCalibDigi>> listOfDetIds;
   iEvent.getByToken(tPixelCalibDigi, listOfDetIds);
 
-  if (listOfDetIds->empty())
+  if (listOfDetIds->empty()) {
     return false;
-  else
+  } else {
     return true;
+  }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelCalibDigiFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPixelCalibDigiFilter::endJob() {}
 
 // -- define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelCalibDigiFilter);

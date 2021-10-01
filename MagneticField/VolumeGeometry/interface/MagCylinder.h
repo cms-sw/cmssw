@@ -13,7 +13,7 @@
 template <class T>
 class MagneticFieldProvider;
 
-class MagCylinder : public MagVolume {
+class MagCylinder final : public MagVolume {
 public:
   MagCylinder(const PositionType& pos,
               const RotationType& rot,

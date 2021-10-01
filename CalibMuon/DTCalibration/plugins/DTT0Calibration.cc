@@ -42,9 +42,8 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset)
       tpPeakWidthPerLayer(pset.getParameter<double>("tpPeakWidthPerLayer")),
       rejectDigiFromPeak(pset.getParameter<unsigned int>("rejectDigiFromPeak")),
       hLayerPeaks("hLayerPeaks", "", 3000, 0, 3000),
-      spectrum(20)
-
-{
+      spectrum(20),
+      dtGeomToken_(esConsumes()) {
   // Get the debug parameter for verbose output
   if (debug)
     cout << "[DTT0Calibration]Constructor called!" << endl;
@@ -99,7 +98,7 @@ void DTT0Calibration::analyze(const edm::Event& event, const edm::EventSetup& ev
 
   // Get the DT Geometry
   if (nevents == 1)
-    eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+    dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Iterate through all digi collections ordered by LayerId
   for (const auto& digis_per_layer : *digis) {

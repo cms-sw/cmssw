@@ -11,6 +11,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTRangeT0;
+class DTRangeT0Rcd;
+
 class DTRangeT0ValidateDBRead : public edm::EDAnalyzer {
 public:
   explicit DTRangeT0ValidateDBRead(edm::ParameterSet const& p);
@@ -22,4 +25,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  edm::ESGetToken<DTRangeT0, DTRangeT0Rcd> dtrangeToken_;
 };

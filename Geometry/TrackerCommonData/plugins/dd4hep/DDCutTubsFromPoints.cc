@@ -192,6 +192,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              segments[segments.size() - 1],
                              dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift));
 
+  edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: " << solid.name() << " Union solid with " << segments.size()
+                                  << " segments";
+
   // remove the common offset from the input, to get sth. aligned at z=0.
   float offset = -shift + (min_z + 0.5 * (max_z - min_z));
 

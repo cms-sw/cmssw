@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,15 +34,13 @@
 // class declaration
 //
 
-class SiPixelCalibDigiFilter : public edm::EDFilter {
+class SiPixelCalibDigiFilter : public edm::stream::EDFilter<> {
 public:
   explicit SiPixelCalibDigiFilter(const edm::ParameterSet&);
   ~SiPixelCalibDigiFilter() override;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;

@@ -25,7 +25,7 @@
 //                          by one of dddXML/dd4hepXML/dddDB/dd4hepDB strings
 //                          and finally with *tag* and ".root"
 // txt        (std::string) Part of the y-title coming after #frac for the plot
-//                          ("{DDD}/{DD4Hep}")
+//                          ("{DDD}{DD4Hep}")
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -299,7 +299,7 @@ void etaPhiPlotComp(
       }
       std::vector<double> xx, yy, dx, dy;
       int ii = nflayer[i];
-      double sumNum(0), sumDen(0);
+      double sumNum(0), sumDen(0), maxtmp(0), maxDev(0), dmaxDev(0);
       for (unsigned int k = 0; k < xx0.size(); ++k) {
         if ((yy1[k] > 0) && (yy2[k] > 0)) {
           double rat = yy1[k] / yy2[k];
@@ -314,13 +314,20 @@ void etaPhiPlotComp(
           }
           double temp1 = (rat > 1.0) ? 1.0 / rat : rat;
           double temp2 = (rat > 1.0) ? drt / (rat * rat) : drt;
-          sumNum += (fabs(1.0 - temp1) / (temp2 * temp2));
+          double temp0 = (fabs(1.0 - temp1) / (temp2 * temp2));
+          sumNum += temp0;
           sumDen += (1.0 / (temp2 * temp2));
+          if (temp0 >= maxtmp) {
+            maxtmp = temp0;
+            maxDev = fabs(1.0 - temp1);
+            dmaxDev = temp2;
+          }
         }
       }
       sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
       sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
-      std::cout << "Mean deviation for " << title[ii] << "  " << sumNum << " +- " << sumDen << std::endl;
+      std::cout << "Mean deviation for " << title[ii] << "  " << sumNum << " +- " << sumDen << " Max " << maxDev
+                << " +- " << dmaxDev << std::endl;
       if (xx.size() > 0) {
         TGraphErrors *graph = new TGraphErrors(xx.size(), &xx[0], &yy[0], &dx[0], &dy[0]);
         graph->SetLineColor(colorLay[ii]);

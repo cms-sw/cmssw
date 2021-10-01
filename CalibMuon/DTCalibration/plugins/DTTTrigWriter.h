@@ -8,7 +8,10 @@
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 // #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
 #include <string>
 
@@ -60,5 +63,9 @@ private:
 
   // The object to be written to DB
   DTTtrig* tTrig;
+
+  //geom
+  edm::ESHandle<DTGeometry> dtGeom;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

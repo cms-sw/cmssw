@@ -46,8 +46,6 @@
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
 
-#include <boost/lexical_cast.hpp>
-
 using namespace evf::FastMonState;
 
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
@@ -613,7 +611,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
   setMonState(inReadEvent);
   std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
-  edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData);
+  bool tcdsInRange;
+  edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData, tcdsInRange);
 
   if (useL1EventID_) {
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, L1EventID_);
@@ -639,7 +638,8 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
                                       event_->isRealData(),
                                       static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType()),
                                       processGUID(),
-                                      !fileListLoopMode_);
+                                      !fileListLoopMode_,
+                                      !tcdsInRange);
     aux.setProcessHistoryID(processHistoryID_);
     makeEvent(eventPrincipal, aux);
   }
@@ -684,7 +684,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
   return;
 }
 
-edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData) {
+edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool& tcdsInRange) {
   edm::TimeValue_t time;
   timeval stv;
   gettimeofday(&stv, nullptr);
@@ -696,6 +696,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   unsigned char* event = (unsigned char*)event_->payload();
   GTPEventID_ = 0;
   tcds_pointer_ = nullptr;
+  tcdsInRange = false;
   uint16_t selectedTCDSFed = 0;
   while (eventSize > 0) {
     assert(eventSize >= FEDTrailer::length);
@@ -712,6 +713,9 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
       if (!selectedTCDSFed) {
         selectedTCDSFed = fedId;
         tcds_pointer_ = event + eventSize;
+        if (fedId >= FEDNumbering::MINTCDSuTCAFEDID && fedId <= FEDNumbering::MAXTCDSuTCAFEDID) {
+          tcdsInRange = true;
+        }
       } else
         throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection")
             << "Second TCDS FED ID " << fedId << " found. First ID: " << selectedTCDSFed;
@@ -810,7 +814,6 @@ void FedRawDataInputSource::readSupervisor() {
     if (fms_) {
       setMonStateSup(inSupBusy);
       fms_->startedLookingForFile();
-      setMonStateSup(inSupLockPolling);
     }
 
     evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
@@ -830,6 +833,7 @@ void FedRawDataInputSource::readSupervisor() {
 
       assert(rawFd == -1);
       uint64_t thisLockWaitTimeUs = 0.;
+      setMonStateSup(inSupLockPolling);
       if (fileListMode_) {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
@@ -1556,10 +1560,10 @@ long FedRawDataInputSource::initFileList() {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
         //get long to support test run numbers < 2^32
-        long rval = boost::lexical_cast<long>(runStr);
+        long rval = std::stol(runStr);
         edm::LogInfo("FedRawDataInputSource") << "Autodetected run number in fileListMode -: " << rval;
         return rval;
-      } catch (boost::bad_lexical_cast const&) {
+      } catch (const std::exception&) {
         edm::LogWarning("FedRawDataInputSource")
             << "Unable to autodetect run number in fileListMode from file -: " << fileName;
       }
@@ -1586,7 +1590,7 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
       fileStem = fileStem.substr(0, fileStem.find('_'));
 
     if (!fileListLoopMode_)
-      ls = boost::lexical_cast<unsigned int>(fileStem);
+      ls = std::stoul(fileStem);
     else  //always starting from LS 1 in loop mode
       ls = 1 + loopModeIterationInc_;
 

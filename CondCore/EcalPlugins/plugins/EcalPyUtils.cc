@@ -8,10 +8,8 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-
-using namespace boost::python;
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
 
 namespace ecalpyutils {
 
@@ -59,7 +57,7 @@ namespace ecalpyutils {
   }
 }  // namespace ecalpyutils
 
-BOOST_PYTHON_MODULE(pluginEcalPyUtils) {
+PYBIND11_MODULE(pluginEcalPyUtils, m) {
   //   looks like these are already defined somewhere
 
   //   python access to stl integer vectors
@@ -71,12 +69,12 @@ BOOST_PYTHON_MODULE(pluginEcalPyUtils) {
   //     .def(vector_indexing_suite<std::vector<float> >())
   //   ;
 
-  def("hashedIndexToEtaPhi", &ecalpyutils::hashedIndexToEtaPhi);
-  def("hashedIndexToXY", &ecalpyutils::hashedIndexToXY);
-  def("hashedIndex", &ecalpyutils::hashedIndex);
-  def("hashedIndexEE", &ecalpyutils::hashedIndexEE);
-  def("ism", &ecalpyutils::ism);
-  def("barrelfromXML", &EcalFloatCondObjectContainerXMLTranslator::barrelfromXML);
-  def("endcapfromXML", &EcalFloatCondObjectContainerXMLTranslator::endcapfromXML);
-  def("arraystoXML", &ecalpyutils::arraystoXML);
+  m.def("hashedIndexToEtaPhi", &ecalpyutils::hashedIndexToEtaPhi);
+  m.def("hashedIndexToXY", &ecalpyutils::hashedIndexToXY);
+  m.def("hashedIndex", &ecalpyutils::hashedIndex);
+  m.def("hashedIndexEE", &ecalpyutils::hashedIndexEE);
+  m.def("ism", &ecalpyutils::ism);
+  m.def("barrelfromXML", &EcalFloatCondObjectContainerXMLTranslator::barrelfromXML);
+  m.def("endcapfromXML", &EcalFloatCondObjectContainerXMLTranslator::endcapfromXML);
+  m.def("arraystoXML", &ecalpyutils::arraystoXML);
 }

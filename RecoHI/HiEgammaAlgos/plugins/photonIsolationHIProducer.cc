@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,6 +40,7 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> tracks_;
 
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 
   std::string trackQuality_;
 };
@@ -54,6 +56,7 @@ photonIsolationHIProducer::photonIsolationHIProducer(const edm::ParameterSet& co
       endcapClusters_(consumes(config.getParameter<edm::InputTag>("basicClusterEndcap"))),
       tracks_(consumes(config.getParameter<edm::InputTag>("trackCollection"))),
       ecalClusterToolsESGetTokens_{consumesCollector()},
+      geometryToken_{esConsumes()},
       trackQuality_(config.getParameter<std::string>("trackQuality")) {
   produces<reco::HIPhotonIsolationMap>();
 }
@@ -82,8 +85,13 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
   reco::HIPhotonIsolationMap::Filler filler(*outputMap);
   std::vector<reco::HIPhotonIsolation> isoVector;
 
-  EcalClusterIsoCalculator CxC(evt, es, barrelClusters, endcapClusters);
-  HcalRechitIsoCalculator RxC(evt, es, hbhe, hf, ho);
+  EcalClusterIsoCalculator CxC(barrelClusters, endcapClusters);
+  edm::ESHandle<CaloGeometry> geometryHandle = es.getHandle(geometryToken_);
+  const CaloGeometry* geometry = nullptr;
+  if (geometryHandle.isValid()) {
+    geometry = geometryHandle.product();
+  }
+  HcalRechitIsoCalculator RxC(geometry, hbhe, hf, ho);
   TrackIsoCalculator TxC(*trackCollection, trackQuality_);
   EcalClusterLazyTools lazyTool(evt, ecalClusterToolsESGetTokens_.get(es), barrelEcalHits_, endcapEcalHits_);
 

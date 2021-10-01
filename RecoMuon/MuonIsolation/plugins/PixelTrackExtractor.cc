@@ -8,8 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 using namespace edm;
 using namespace std;
 using namespace reco;

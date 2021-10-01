@@ -10,13 +10,14 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 using namespace edm;
 
-DTNoDriftAlgo::DTNoDriftAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTNoDriftAlgo::DTNoDriftAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       fixedDrift(config.getParameter<double>("fixedDrift")),
       hitResolution(config.getParameter<double>("hitResolution")),  // Set to size of (half)cell
       minTime(config.getParameter<double>("minTime")),

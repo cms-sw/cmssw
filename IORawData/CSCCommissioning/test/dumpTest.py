@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+#process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
