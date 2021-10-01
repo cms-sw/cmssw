@@ -7,8 +7,11 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -31,10 +34,11 @@
 
 class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 public:
-  explicit HITRegionalPixelSeedGenerator(const edm::ParameterSet& conf_, edm::ConsumesCollector&& iC) {
+  explicit HITRegionalPixelSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : token_bfield(iC.esConsumes()), token_msmaker(iC.esConsumes()) {
     edm::LogVerbatim("HITRegionalPixelSeedGenerator") << "Enter the HITRegionalPixelSeedGenerator";
 
-    edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+    edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     ptmin = regionPSet.getParameter<double>("ptMin");
     originradius = regionPSet.getParameter<double>("originRadius");
@@ -69,6 +73,9 @@ public:
 
     double deltaZVertex = halflength;
 
+    auto const& bfield = es.getData(token_bfield);
+    auto const& msmaker = es.getData(token_msmaker);
+
     if (usetracks_) {
       edm::Handle<reco::TrackCollection> tracks;
       e.getByToken(token_trks, tracks);
@@ -93,8 +100,15 @@ public:
         GlobalVector ptrVec((itr)->px(), (itr)->py(), (itr)->pz());
         globalVector = ptrVec;
 
-        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-            globalVector, GlobalPoint(0, 0, originz), ptmin, originradius, deltaZVertex, deltaTrackEta, deltaTrackPhi));
+        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(globalVector,
+                                                                           GlobalPoint(0, 0, originz),
+                                                                           ptmin,
+                                                                           originradius,
+                                                                           deltaZVertex,
+                                                                           deltaTrackEta,
+                                                                           deltaTrackPhi,
+                                                                           bfield,
+                                                                           &msmaker));
       }
     }
 
@@ -127,8 +141,15 @@ public:
                             (isoPixTrackRefs[p]->track())->pz());
         globalVector = ptrVec;
 
-        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-            globalVector, GlobalPoint(0, 0, originz), ptmin, originradius, deltaZVertex, deltaTrackEta, deltaTrackPhi));
+        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(globalVector,
+                                                                           GlobalPoint(0, 0, originz),
+                                                                           ptmin,
+                                                                           originradius,
+                                                                           deltaZVertex,
+                                                                           deltaTrackEta,
+                                                                           deltaTrackPhi,
+                                                                           bfield,
+                                                                           &msmaker));
       }
     }
 
@@ -155,7 +176,7 @@ public:
         GlobalPoint vertex(0, 0, originz);
 
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-            jetVector, vertex, ptmin, originradius, deltaZVertex, deltaL1JetEta, deltaL1JetPhi));
+            jetVector, vertex, ptmin, originradius, deltaZVertex, deltaL1JetEta, deltaL1JetPhi, bfield, &msmaker));
       }
     }
     if (fixedReg_) {
@@ -175,15 +196,13 @@ public:
       }
 
       result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-          fixedVector, vertex, ptmin, originradius, deltaZVertex, deltaL1JetEta, deltaL1JetPhi));
+          fixedVector, vertex, ptmin, originradius, deltaZVertex, deltaL1JetEta, deltaL1JetPhi, bfield, &msmaker));
     }
 
     return result;
   }
 
 private:
-  edm::ParameterSet conf_;
-
   float ptmin;
   float originradius;
   float halflength;
@@ -201,6 +220,8 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> token_vertex;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> token_isoTrack;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> token_l1jet;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_bfield;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
 };
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

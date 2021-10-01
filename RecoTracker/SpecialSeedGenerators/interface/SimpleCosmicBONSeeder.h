@@ -47,8 +47,8 @@ public:
   void produce(edm::Event &e, const edm::EventSetup &c) override;
 
   void init(const edm::EventSetup &c);
-  bool triplets(const edm::Event &e, const edm::EventSetup &c);
-  bool seeds(TrajectorySeedCollection &output, const edm::EventSetup &iSetup);
+  bool triplets(const edm::Event &e);
+  bool seeds(TrajectorySeedCollection &output);
   void done();
 
   bool goodTriplet(const GlobalPoint &inner,
@@ -58,12 +58,9 @@ public:
 
   std::pair<GlobalVector, int> pqFromHelixFit(const GlobalPoint &inner,
                                               const GlobalPoint &middle,
-                                              const GlobalPoint &outer,
-                                              const edm::EventSetup &iSetup) const;
+                                              const GlobalPoint &outer) const;
 
 private:
-  edm::ParameterSet conf_;
-
   const edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;

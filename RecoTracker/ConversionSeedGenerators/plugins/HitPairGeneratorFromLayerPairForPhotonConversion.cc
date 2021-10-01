@@ -36,8 +36,17 @@ namespace {
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 HitPairGeneratorFromLayerPairForPhotonConversion::HitPairGeneratorFromLayerPairForPhotonConversion(
-    unsigned int inner, unsigned int outer, LayerCacheType* layerCache, unsigned int nSize, unsigned int max)
-    : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max) {}
+    edm::ConsumesCollector iC,
+    unsigned int inner,
+    unsigned int outer,
+    LayerCacheType* layerCache,
+    unsigned int nSize,
+    unsigned int max)
+    : theLayerCache(*layerCache),
+      theOuterLayer(outer),
+      theInnerLayer(inner),
+      theMaxElement(max),
+      theFieldToken(iC.esConsumes()) {}
 
 void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const ConversionRegion& convRegion,
                                                                 const TrackingRegion& region,
@@ -69,11 +78,11 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     return;  //FIXME, the maxSearchR(Z) are not optimized
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi& innerHitsMap = theLayerCache(innerLayerObj, region, es);
+  const RecHitsSortedInPhi& innerHitsMap = theLayerCache(innerLayerObj, region);
   if (innerHitsMap.empty())
     return;
 
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region);
   if (outerHitsMap.empty())
     return;
   /*----------------*/
@@ -88,9 +97,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   float innerPhimin, innerPhimax;
 
   /*Getting only the Hits in the outer layer that are compatible with the conversion region*/
-  edm::ESHandle<MagneticField> hfield;
-  es.get<IdealMagneticFieldRecord>().get(hfield);
-  const auto& field = *hfield;
+  const auto& field = es.getData(theFieldToken);
   if (!getPhiRange(outerPhimin, outerPhimax, *outerLayerObj.detLayer(), convRegion, field))
     return;
   outerHitsMap.hits(outerPhimin, outerPhimax, outerHits);
@@ -121,7 +128,7 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
     if (phiRange.empty()) continue;
     */
 
-    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, es);
+    std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit);
     if (!checkRZ) {
 #ifdef mydebug_Seed
       ss << "*******\nNo valid checkRZ\n*******" << std::endl;

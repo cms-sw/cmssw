@@ -56,7 +56,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   std::unique_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   // Region builder
-  theRegionBuilder->setEvent(ev);
+  theRegionBuilder->setEvent(ev, es);
 
   // Retrieve the Monte Carlo truth (SimTracks)
   edm::Handle<edm::SimTrackContainer> theSimTracks;
