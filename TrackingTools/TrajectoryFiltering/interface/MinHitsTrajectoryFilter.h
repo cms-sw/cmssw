@@ -51,10 +51,10 @@ protected:
     bool passed = false;
 
     if (!traj.empty()) {
-      double pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
-      double pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
-      double sinhTrajEta2 = (pz * pz) / (pt * pt);
-      double myEtaSwitch = sinh(theHighEtaSwitch);
+      auto pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
+      auto pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
+      auto sinhTrajEta2 = (pz * pz) / (pt * pt);
+      auto myEtaSwitch = sinh(theHighEtaSwitch);
       if (sinhTrajEta2 < (myEtaSwitch * myEtaSwitch)) {
         if (traj.foundHits() >= theMinHits + seedPenalty)
           passed = true;
