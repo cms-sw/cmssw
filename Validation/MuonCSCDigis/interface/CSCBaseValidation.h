@@ -10,6 +10,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 class CSCBaseValidation {
 public:
@@ -23,10 +24,16 @@ public:
   virtual void analyze(const edm::Event &e, const edm::EventSetup &eventSetup) = 0;
 
 protected:
+  bool isSimTrackGood(const SimTrack &t) const;
+
   bool doSim_;
   const CSCLayer *findLayer(int detId) const;
   const PSimHitMap *theSimHitMap;
   const CSCGeometry *theCSCGeometry;
+
+  double simTrackMinPt_;
+  double simTrackMinEta_;
+  double simTrackMaxEta_;
 };
 
 #endif
