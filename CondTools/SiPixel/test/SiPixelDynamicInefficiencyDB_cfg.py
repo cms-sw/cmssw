@@ -1,5 +1,5 @@
 from __future__ import print_function
-#import os
+import os
 import shlex, shutil, getpass
 #import subprocess
 
@@ -50,7 +50,8 @@ print('\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile
 
 
 #standard python libraries instead of spawn processes
-shutil.move("siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency_old.db")
+if(os.path.isfile('./'+file)):
+    shutil.move("siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency_old.db")
 #subprocess.call(["/bin/cp", "siPixelDynamicInefficiency.db", file])
 #subprocess.call(["/bin/mv", "siPixelDynamicInefficiency.db", "siPixelDynamicInefficiency.db"])
 

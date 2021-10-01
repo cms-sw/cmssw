@@ -34,3 +34,11 @@ cmsRun  ${LOCAL_TEST_DIR}/SiPixelLorentzAngleDB_cfg.py || die "Failure running S
 
 echo "TESTING Reading SiPixelLorentzAngle DB object ...\n\n"
 cmsRun  ${LOCAL_TEST_DIR}/SiPixelLorentzAngleReader_cfg.py || die "Failure running SiPixelLorentzAngleReader_cfg.py" $?
+
+echo "TESTING SiPixelDynamicInefficiency DB codes ... \n\n"
+
+echo "TESTING Writing SiPixelDynamicInefficiency DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelDynamicInefficiencyDB_cfg.py || die "Failure running SiPixelDynamicInefficiencyDB_cfg.py" $?
+
+echo "TESTING Reading SiPixelDynamicInefficiency DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelDynamicInefficiencyReader_cfg.py || die "Failure running SiPixelDynamicInefficiencyReader_cfg.py" $?
