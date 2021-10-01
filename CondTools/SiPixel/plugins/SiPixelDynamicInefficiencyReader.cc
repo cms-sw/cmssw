@@ -15,7 +15,10 @@
 using namespace cms;
 
 SiPixelDynamicInefficiencyReader::SiPixelDynamicInefficiencyReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
+    : tkGeomToken(esConsumes()),
+      tkTopoToken(esConsumes()),
+      dynIneffToken(esConsumes()),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
   //Load factors from config file, copied from SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.cc
   int i = 0;
   thePixelColEfficiency[i++] = iConfig.getParameter<double>("thePixelColEfficiency_BPix1");
