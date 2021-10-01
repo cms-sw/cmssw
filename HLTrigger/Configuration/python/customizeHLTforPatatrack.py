@@ -161,7 +161,9 @@ def customisePixelLocalReconstruction(process):
     )
 
     # reconstruct the pixel clusters on the cpu
-    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone()
+    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
+        src = "hltSiPixelDigisLegacy"
+    )
 
     # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
     from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
