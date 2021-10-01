@@ -29,7 +29,7 @@ namespace gpuPixelDoublets {
                                                     CellNeighborsVector* cellNeighbors,
                                                     CellTracksVector* cellTracks,
                                                     TrackingRecHit2DSOAView const& __restrict__ hh,
-                                                    GPUCACell::OuterHitOfCell* isOuterHitOfCell,
+                                                    GPUCACell::OuterHitOfCell isOuterHitOfCell,
                                                     int16_t const* __restrict__ phicuts,
                                                     float const* __restrict__ minz,
                                                     float const* __restrict__ maxz,

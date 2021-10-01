@@ -22,6 +22,7 @@ public:
   using PtrAsInt = unsigned long long;
 
   static constexpr auto maxCellsPerHit = caConstants::maxCellsPerHit;
+  using OuterHitOfCellContainer = caConstants::OuterHitOfCellContainer;
   using OuterHitOfCell = caConstants::OuterHitOfCell;
   using CellNeighbors = caConstants::CellNeighbors;
   using CellTracks = caConstants::CellTracks;

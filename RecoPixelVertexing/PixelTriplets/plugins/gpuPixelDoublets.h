@@ -65,16 +65,16 @@ namespace gpuPixelDoublets {
   using CellNeighborsVector = caConstants::CellNeighborsVector;
   using CellTracksVector = caConstants::CellTracksVector;
 
-  __global__ void initDoublets(GPUCACell::OuterHitOfCell* isOuterHitOfCell,
+  __global__ void initDoublets(GPUCACell::OuterHitOfCell isOuterHitOfCell,
                                int nHits,
                                CellNeighborsVector* cellNeighbors,
                                CellNeighbors* cellNeighborsContainer,
                                CellTracksVector* cellTracks,
                                CellTracks* cellTracksContainer) {
-    assert(isOuterHitOfCell);
+    assert(isOuterHitOfCell.container);
     int first = blockIdx.x * blockDim.x + threadIdx.x;
-    for (int i = first; i < nHits; i += gridDim.x * blockDim.x)
-      isOuterHitOfCell[i].reset();
+    for (int i = first; i < nHits - isOuterHitOfCell.offset; i += gridDim.x * blockDim.x)
+      isOuterHitOfCell.container[i].reset();
 
     if (0 == first) {
       cellNeighbors->construct(caConstants::maxNumOfActiveDoublets, cellNeighborsContainer);
@@ -100,7 +100,7 @@ namespace gpuPixelDoublets {
                                 CellNeighborsVector* cellNeighbors,
                                 CellTracksVector* cellTracks,
                                 TrackingRecHit2DSOAView const* __restrict__ hhp,
-                                GPUCACell::OuterHitOfCell* isOuterHitOfCell,
+                                GPUCACell::OuterHitOfCell isOuterHitOfCell,
                                 int nActualPairs,
                                 bool ideal_cond,
                                 bool doClusterCut,
