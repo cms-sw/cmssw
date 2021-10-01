@@ -53,9 +53,13 @@ private:
   std::vector< tensorflow::GraphDef* > graphDefs_; // --> Should be std::atomic but does not compile
   uint N_models_;
   std::vector<int> n_inputs_;
-  // List of input variables for each of the model; 
-  // Each input variable is represented by the tuple <varname, mean,std>
-  std::vector< std::vector< std::tuple< std::string, float,float >> > features_maps_;
+  /* List of input variables for each of the model; 
+  * Each input variable is represented by the tuple <varname, standardization_type, par1, par2>
+  * The standardization_type can be:
+  * 0 = Do not scale the variable
+  * 1 = standard norm. par1=mean, par2=std
+  * 2 = MinMax. par1=min, par2=max */
+  std::vector< std::vector< std::tuple< std::string, uint, float,float >> > features_maps_;
   
   bool debug_;
 

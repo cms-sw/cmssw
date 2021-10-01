@@ -44,7 +44,7 @@ void ElectronDNNEstimator::initTensorFlowGraphs(){
 void ElectronDNNEstimator::initScalerFiles(){
   for (auto scaler_file : cfg_.scalers_files){
     // Parse scaler configuration
-    std::vector<std::tuple<std::string,float,float>> features;
+    std::vector<std::tuple<std::string,uint, float,float>> features;
     std::ifstream inputfile_scaler{scaler_file};
     int ninputs = 0;
     if(inputfile_scaler.fail())  
@@ -52,10 +52,14 @@ void ElectronDNNEstimator::initScalerFiles(){
         throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
     }else{ 
         // Now read mean, scale factors for each variable
-        float m,s;
-        std::string varname{};
-        while (inputfile_scaler >> varname >> m >> s){
-            features.push_back(std::make_tuple(varname, m,s));
+        float par1,par2;
+        std::string varname, type_str;
+        uint type;
+        while (inputfile_scaler >> varname >> type_str >> par1 >> par2){
+            if(type_str == "stdscale") type=1;
+            else if (type_str == "minmax") type=2;
+            else type=0;
+            features.push_back(std::make_tuple(varname, type, par1, par2));
             // Protection for mismatch between requested variables and the available ones
             auto match = std::find(ElectronDNNEstimator::dnnAvaibleInputs.begin(),ElectronDNNEstimator::dnnAvaibleInputs.end(), varname);
             if (match == std::end(ElectronDNNEstimator::dnnAvaibleInputs)) {
@@ -150,9 +154,17 @@ std::pair<uint, std::vector<float>> ElectronDNNEstimator::getScaledInputs(const 
     auto allInputs = getInputsVars(ele);
     std::vector<float> inputs;
     // Loop on the list of requested variables and scaling values for the specific modelIndex
-    for( auto& [varName, mean, scale] : features_maps_[modelIndex]){
-      inputs.push_back( (allInputs[varName]-mean)/scale );
-      //TODO Add protection for mismatch between requested variables and the available ones
+    // Different type of scaling are available: 0=no scaling, 1=standard scaler, 2=minmax
+    for( auto& [varName, type, par1, par2] : features_maps_[modelIndex]){
+      if (type==1) // Standard scaling
+        inputs.push_back( (allInputs[varName]-par1)/par2 );
+      else if (type==2) // MinMax
+        inputs.push_back( (allInputs[varName]-par1)/(par2-par1) );
+      else {
+        inputs.push_back( allInputs[varName]); // Do nothing on the variable
+      }
+      //Protection for mismatch between requested variables and the available ones
+      // have been added when the scaler config are loaded --> here we know that the variables are available
     } 
     return std::make_pair(modelIndex, inputs);
 }

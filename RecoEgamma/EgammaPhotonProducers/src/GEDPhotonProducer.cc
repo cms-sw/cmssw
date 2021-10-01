@@ -290,7 +290,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
     //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
     //to preserve 80X behaviour
     if (config.exists("pfECALClusIsolation")) {
-      std::cout<<"SJ!!! recoStep_.isFinal()"<< recoStep_.isFinal() <<" pfECALClusIsolation found!!!"<<std::endl;
+      // std::cout<<"SJ!!! recoStep_.isFinal()"<< recoStep_.isFinal() <<" pfECALClusIsolation found!!!"<<std::endl;
       phoPFECALClusIsolationToken_ = consumes(config.getParameter<edm::InputTag>("pfECALClusIsolation"));
     }
     if (config.exists("pfHCALClusIsolation")) {
@@ -877,7 +877,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
     /// fill extra full5x5 shower shapes
     const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : std::sqrt(full5x5_locCov[2]));
-    const float full5x5_sep = full5x5_locCov[1];
+    const float full5x5_sep = full5x5_sigmaIetaIphi;
     full5x5_showerShape.sigmaIetaIphi = full5x5_sep;
     full5x5_showerShape.sigmaIphiIphi = full5x5_spp;
     full5x5_showerShape.e2nd = (hits != nullptr ? noZS::EcalClusterTools::e2nd(*(scRef->seed()), hits) : 0.f);
@@ -1080,7 +1080,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //SJ
     // std::cout<<" "<<std::endl;
     // std::cout<<"SJ!! inside second fillPhotonCollection"<<std::endl;
--   // std::cout<<"SJ!! trackSumHollowConePt "<<trackSumHollowConePt<<" sieie_full5x5 "<<sieie_full5x5<<" hadTowOverEm "
+    // std::cout<<"SJ!! trackSumHollowConePt "<<trackSumHollowConePt<<" sieie_full5x5 "<<sieie_full5x5<<" hadTowOverEm "
     //  <<hadTowOverEm<<" EcalRecHitSumEtConeDR03 "<<EcalRecHitSumEtConeDR03<<" hcalTowerSumEtConeDR03 "
     //  << hcalTowerSumEtConeDR03<<" SigmaIEtaIEta "<<SigmaIEtaIEta<<" SigmaIEtaIPhiFull5x5 "<<SigmaIEtaIPhiFull5x5
     // << " EcalPFClusterIso "<<EcalPFClusterIso<<" HcalPFClusterIso "<<HcalPFClusterIso<<" R9Full5x5 "<<R9Full5x5<<" HasPix "<<HasPix<<std::endl;
