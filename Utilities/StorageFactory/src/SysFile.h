@@ -8,6 +8,8 @@
 #include <climits>
 #include <cerrno>
 #include <cstdlib>
+#include <sys/types.h>
+#include <sys/uio.h>
 
 #if !defined O_SYNC && defined O_SYNCIO
 #define O_SYNC O_SYNCIO

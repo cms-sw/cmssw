@@ -4,6 +4,8 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
+
   bool exists = StorageFactory::get()->check("/etc/passwdx");
   std::cout << "exists = " << exists << "\n";
   std::cout << "stats:\n" << StorageAccount::summaryText() << std::endl;
