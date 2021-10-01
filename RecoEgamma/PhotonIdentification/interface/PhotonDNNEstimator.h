@@ -19,6 +19,7 @@ public:
     std::vector<std::string> scalers_files;
     std::string log_level="2";
   };
+  static constexpr uint nInputs = 11;
   static constexpr uint nOutputs = 1;
 
   PhotonDNNEstimator();
@@ -40,6 +41,7 @@ public:
   // Evaluate the DNN on all the Photons with the correct model
   std::vector<std::array<float,PhotonDNNEstimator::nOutputs>> evaluate(const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*> session) const;
 
+  static const std::array<std::string, nInputs > dnnAvaibleInputs;
 
 private:
 

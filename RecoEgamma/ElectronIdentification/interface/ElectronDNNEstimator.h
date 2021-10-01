@@ -18,6 +18,7 @@ public:
     std::vector<std::string> scalers_files;
     std::string log_level="2";
   };
+  static constexpr uint  nInputs = 24;
   static constexpr uint  nOutputs = 5;
   
   ElectronDNNEstimator();
@@ -39,7 +40,10 @@ public:
   // Evaluate the DNN on all the electrons with the correct model
   std::vector<std::array<float,ElectronDNNEstimator::nOutputs>> evaluate(const reco::GsfElectronCollection& ele, const std::vector<tensorflow::Session*> session) const;
 
-  
+  // List of input variables names used to check the variables request as inputs in a dynamic way from configuration file.
+  // If an input variables is not found at construction time an expection is thrown.
+  static const std::array<std::string, nInputs> dnnAvaibleInputs;
+
 private:
 
   void initTensorFlowGraphs() ;
