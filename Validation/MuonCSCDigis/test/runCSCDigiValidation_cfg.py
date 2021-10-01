@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-
+from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
+
+options = VarParsing('analysis')
+options.register ("doSim", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.parseArguments()
 
 process = cms.Process('VALIDATION',Run3)
 
@@ -47,7 +51,12 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 # Path and EndPath definitions
-process.validation_step = cms.Path(process.mix * process.cscDigiValidation)
+process.cscDigiValidation.doSim = options.doSim
+if options.doSim:
+    process.validation_step = cms.Path(process.mix *
+                                       process.cscDigiValidation)
+else:
+    process.validation_step = cms.Path(process.cscDigiValidation)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 

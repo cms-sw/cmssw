@@ -16,6 +16,10 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 /** class CandidateSeededTrackingRegionsProducer
  *
@@ -46,7 +50,8 @@ class CandidateSeededTrackingRegionsProducer : public TrackingRegionProducer {
 public:
   typedef enum { BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
-  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
+  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : token_field(iC.esConsumes()) {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     // operation mode
@@ -101,9 +106,12 @@ public:
         edm::LogError("CandidateSeededTrackingRegionsProducer")
             << "nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
     }
+    if (m_precise) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
-  ~CandidateSeededTrackingRegionsProducer() override {}
+  ~CandidateSeededTrackingRegionsProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -193,6 +201,12 @@ public:
       measurementTracker = hmte.product();
     }
 
+    const auto& field = es.getData(token_field);
+    const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+    if (m_precise) {
+      msmaker = &es.getData(token_msmaker);
+    }
+
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // objects of interest (we expect that the collection was sorted in decreasing pt order)
     int n_regions = 0;
@@ -208,8 +222,10 @@ public:
                                                                            origins[j].second,
                                                                            m_deltaEta,
                                                                            m_deltaPhi,
-                                                                           m_whereToUseMeasurementTracker,
+                                                                           field,
+                                                                           msmaker,
                                                                            m_precise,
+                                                                           m_whereToUseMeasurementTracker,
                                                                            measurementTracker,
                                                                            m_searchOpt));
         ++n_regions;
@@ -238,6 +254,8 @@ private:
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_searchOpt;
 
   float m_nSigmaZVertex;

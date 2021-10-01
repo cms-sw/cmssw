@@ -56,20 +56,16 @@ public:
                                                         const edm::EventSetup& es) const override;
 
 private:
-  edm::ParameterSet conf_;
-  edm::ParameterSet regionPSet;
-
   float ptMin_;
   float rVertex_;
   float zVertex_;
   float deltaEta_;
   float deltaPhi_;
 
-  std::string thePropagatorName_;
   std::string regionBase_;
 
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
   edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
 
   edm::InputTag recoMuonsCollection_;
   edm::InputTag recoTrackMuonsCollection_;

@@ -4,6 +4,7 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   IOOffset size = -1;
   bool exists = StorageFactory::get()->check("ftp://cmsdoc.cern.ch/non-existent", &size);
 

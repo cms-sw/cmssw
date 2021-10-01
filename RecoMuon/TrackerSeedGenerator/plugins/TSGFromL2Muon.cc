@@ -67,7 +67,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
   if (theRegionBuilder)
-    theRegionBuilder->setEvent(ev);
+    theRegionBuilder->setEvent(ev, es);
   if (theSeedCleaner)
     theSeedCleaner->setEvent(ev);
 

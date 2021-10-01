@@ -51,7 +51,8 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) : theSFPTConfig(consu
 
   theSourceToken = iC.consumes<L1MuonParticleCollection>(theSourceTag);
 
-  theRegionProducer = std::make_unique<L1MuonRegionProducer>(cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet"));
+  theRegionProducer =
+      std::make_unique<L1MuonRegionProducer>(cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC);
   theFitter = std::make_unique<L1MuonPixelTrackFitter>(cfg.getParameter<edm::ParameterSet>("FitterPSet"));
 
   edm::ParameterSet cleanerPSet = cfg.getParameter<edm::ParameterSet>("CleanerPSet");
@@ -85,7 +86,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
     theFitter->setL1Constraint(muon);
 
     typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
-    Regions regions = theRegionProducer->regions();
+    Regions regions = theRegionProducer->regions(es);
     for (Regions::const_iterator ir = regions.begin(); ir != regions.end(); ++ir) {
       L1MuonSeedsMerger::TracksAndHits tracks;
       const TrackingRegion& region = **ir;

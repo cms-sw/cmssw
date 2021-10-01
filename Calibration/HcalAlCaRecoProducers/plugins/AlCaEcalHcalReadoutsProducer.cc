@@ -60,27 +60,20 @@ AlCaEcalHcalReadoutsProducer::AlCaEcalHcalReadoutsProducer(const edm::ParameterS
 
 // ------------ method called to produce the data  ------------
 void AlCaEcalHcalReadoutsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  using namespace edm;
-  using namespace std;
-
-  edm::Handle<HBHERecHitCollection> hbhe;
-  edm::Handle<HORecHitCollection> ho;
-  edm::Handle<HFRecHitCollection> hf;
-
-  iEvent.getByToken(tok_hbhe_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
   if (!hbhe.isValid()) {
-    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!";
     return;
   }
 
-  iEvent.getByToken(tok_ho_, ho);
+  edm::Handle<HORecHitCollection> ho = iEvent.getHandle(tok_ho_);
   if (!ho.isValid()) {
-    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!";
   }
 
-  iEvent.getByToken(tok_hf_, hf);
+  edm::Handle<HFRecHitCollection> hf = iEvent.getHandle(tok_hf_);
   if (!hf.isValid()) {
-    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
+    edm::LogVerbatim("AlCaEcalHcal") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!";
   }
 
   //Put selected information in the event

@@ -34,11 +34,10 @@
 
 class MuonServiceProxy;
 class MeasurementTrackerEvent;
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-}  // namespace edm
+class MagneticField;
+class IdealMagneticFieldRecord;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 
 class MuonTrackingRegionBuilder : public TrackingRegionProducer {
 public:
@@ -54,11 +53,15 @@ public:
 
   /// Define tracking region
   std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::TrackRef&) const;
-  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track& t) const { return region(t, *theEvent); }
-  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track&, const edm::Event&) const;
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track& t) const {
+    return region(t, *theEvent, *theEventSetup);
+  }
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track&,
+                                                          const edm::Event&,
+                                                          const edm::EventSetup&) const;
 
   /// Pass the Event to the algo at each event
-  virtual void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&, const edm::EventSetup&);
 
   /// Add Fill Descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -69,6 +72,7 @@ private:
   void build(const edm::ParameterSet&, edm::ConsumesCollector&);
 
   const edm::Event* theEvent;
+  const edm::EventSetup* theEventSetup;
 
   bool useVertex;
   bool useFixedZ;
@@ -101,5 +105,7 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken;
   edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> msmakerToken;
 };
 #endif
