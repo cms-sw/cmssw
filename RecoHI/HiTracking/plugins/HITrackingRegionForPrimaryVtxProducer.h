@@ -11,6 +11,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -28,7 +33,8 @@
 
 class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
 public:
-  HITrackingRegionForPrimaryVtxProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
+  HITrackingRegionForPrimaryVtxProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : theTtopoToken(iC.esConsumes()), theFieldToken(iC.esConsumes()) {
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     thePtMin = regionPSet.getParameter<double>("ptMin");
     theOriginRadius = regionPSet.getParameter<double>("originRadius");
@@ -51,9 +57,13 @@ public:
     theUseFixedError = regionPSet.getParameter<bool>("useFixedError");
     vertexCollName = regionPSet.getParameter<edm::InputTag>("VertexCollection");
     vertexCollToken = iC.consumes<reco::VertexCollection>(vertexCollName);
+
+    if (thePrecise) {
+      theMSMakerToken = iC.esConsumes();
+    }
   }
 
-  ~HITrackingRegionForPrimaryVtxProducer() override {}
+  ~HITrackingRegionForPrimaryVtxProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -88,11 +98,10 @@ public:
     edm::Handle<SiPixelRecHitCollection> recHitColl;
     ev.getByToken(theSiPixelRecHitsToken, recHitColl);
 
-    edm::ESHandle<TrackerTopology> httopo;
-    es.get<TrackerTopologyRcd>().get(httopo);
+    auto const& ttopo = es.getData(theTtopoToken);
 
     std::vector<const TrackingRecHit*> theChosenHits;
-    edmNew::copyDetSetRange(*recHitColl, theChosenHits, httopo->pxbDetIdLayerComparator(1));
+    edmNew::copyDetSetRange(*recHitColl, theChosenHits, ttopo.pxbDetIdLayerComparator(1));
     return theChosenHits.size();
   }
 
@@ -159,16 +168,14 @@ public:
       }
 
       if (estTracks > regTracking) {  // regional tracking
+        const auto& field = es.getData(theFieldToken);
+        const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+        if (thePrecise) {
+          msmaker = &es.getData(theMSMakerToken);
+        }
+
         result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-            theDirection,
-            origin,
-            thePtMin,
-            theOriginRadius,
-            halflength,
-            etaB,
-            phiB,
-            RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever,
-            thePrecise));
+            theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, field, msmaker, thePrecise));
       } else {  // global tracking
         LogTrace("heavyIonHLTVertexing") << " [HIVertexing: Global Tracking]";
         result.push_back(
@@ -196,6 +203,9 @@ private:
   bool theUseFixedError;
   edm::InputTag vertexCollName;
   edm::EDGetTokenT<reco::VertexCollection> vertexCollToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTtopoToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
 };
 
 #endif

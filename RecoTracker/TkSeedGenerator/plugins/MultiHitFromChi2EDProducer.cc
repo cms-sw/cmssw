@@ -118,8 +118,7 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
       const auto& thirdLayers = found->second;
 
-      generator_.hitSets(
-          region, multihits, iEvent, iSetup, layerPair.doublets(), thirdLayers, hitCache, refittedHitStorage);
+      generator_.hitSets(region, multihits, layerPair.doublets(), thirdLayers, hitCache, refittedHitStorage);
 
 #ifdef EDM_ML_DEBUG
       LogTrace("MultiHitFromChi2EDProducer")
