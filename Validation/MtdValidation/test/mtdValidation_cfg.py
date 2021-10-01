@@ -46,8 +46,10 @@ process.etlDigiHits.LocalPositionDebug = True
 process.btlLocalReco.LocalPositionDebug = True
 process.etlLocalReco.LocalPositionDebug = True
 
+process.load("Validation.MtdValidation.vertices4D_cfi")
+
 process.DQMStore = cms.Service("DQMStore")
 
 process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
 
-process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracks + process.dqmSaver)
+process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracks + process.vertices4D + process.dqmSaver)
