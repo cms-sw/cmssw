@@ -47,3 +47,11 @@ echo "TESTING SiPixelGain Scaling DB codes ... \n\n"
 
 echo "TESTING Writing Scaled SiPixel Gain DB Object ...\n\n"
 cmsRun  ${LOCAL_TEST_DIR}/SiPixelGainCalibScaler_cfg.py firstRun=278869 maxEvents=12000 || die "Failure running SiPixelGainCalibScaler_cfg.py" $?
+
+echo "TESTING SiPixelQuality DB codes ... \n\n"
+
+echo "TESTING Writing SiPixelQuality DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelBadModuleByHandBuilder_cfg.py || die "Failure running SiPixelBadModuleByHandBuilder_cfg.py" $?
+
+echo "TESTING Reading SiPixelQuality DB object ...\n\n"
+cmsRun  ${LOCAL_TEST_DIR}/SiPixelBadModuleReader_cfg.py || die "Failure running SiPixelBadModuleReader_cfg.py" $?
