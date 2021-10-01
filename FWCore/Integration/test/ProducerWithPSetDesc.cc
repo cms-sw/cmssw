@@ -1042,6 +1042,24 @@ namespace edmtest {
     pluginDesc1.addNode(edm::PluginDescription<AnotherIntFactory>("type", true));
     iDesc.add<edm::ParameterSetDescription>("plugin1", pluginDesc1);
 
+    edm::ParameterSetDescription pluginDesc2;
+    pluginDesc2.addNode(edm::PluginDescription<AnotherIntFactory>("type", true));
+    std::vector<edm::ParameterSet> vDefaultsPlugins2;
+    iDesc.addVPSet("plugin2", pluginDesc2, vDefaultsPlugins2);
+
+    edm::ParameterSetDescription pluginDesc3;
+    pluginDesc3.addNode(edm::PluginDescription<AnotherIntFactory>("type", true));
+    std::vector<edm::ParameterSet> vDefaultsPlugins3;
+    edm::ParameterSet vpsetDefault0;
+    vpsetDefault0.addParameter<std::string>("type", "edmtestAnotherOneMaker");
+    vDefaultsPlugins3.push_back(vpsetDefault0);
+    edm::ParameterSet vpsetDefault1;
+    vpsetDefault1.addParameter<std::string>("type", "edmtestAnotherValueMaker");
+    vpsetDefault1.addParameter<int>("value", 11);
+    vDefaultsPlugins3.push_back(vpsetDefault1);
+
+    iDesc.addVPSet("plugin3", pluginDesc3, vDefaultsPlugins3);
+
     // ------------------------------------------
 
     descriptions.add("testProducerWithPsetDesc", iDesc);

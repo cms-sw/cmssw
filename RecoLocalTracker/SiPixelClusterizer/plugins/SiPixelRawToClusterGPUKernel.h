@@ -114,7 +114,8 @@ namespace pixelgpudetails {
 
     std::pair<SiPixelDigisCUDA, SiPixelClustersCUDA> getResults() {
       digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);
-      clusters_d.setNClusters(nModules_Clusters_h[1]);
+      assert(nModules_Clusters_h[2] <= nModules_Clusters_h[1]);
+      clusters_d.setNClusters(nModules_Clusters_h[1], nModules_Clusters_h[2]);
       // need to explicitly deallocate while the associated CUDA
       // stream is still alive
       //
