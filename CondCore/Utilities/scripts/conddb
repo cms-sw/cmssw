@@ -1852,8 +1852,10 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
     else:
         maxTime = _get_maxtime_for_boost_version( session1, tag['time_type'], cond2xml.boost_version_for_this_release())
+        logging.info('Max time for boost version %s is %s'%(cond2xml.boost_version_for_this_release(),maxTime))
         query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
         lastIov = None
+        prevIovSince = None
         targetIovSince = None
         targetIovPayload = None
         for iov in query:
@@ -1867,7 +1869,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                         targetIovSince = since
                     if since < maxTime: 
                         targetIovPayload = iov['payload_hash']
+                        prevIovSince = since
                         break
+        iovs[prevIovSince]=targetIovPayload
         iovs[targetIovSince]=targetIovPayload
         hashes.add(targetIovPayload)
     logfun = logging.info 
