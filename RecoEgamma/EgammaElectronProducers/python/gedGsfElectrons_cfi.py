@@ -19,7 +19,25 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
                                          "gedelectron_EBUncertainty_offline_v1",
                                          "gedelectron_EEUncertainty_offline_v1"],
     combinationRegressionWeightLabels = ["gedelectron_p4combination_offline"],
+
+    #Activate the evaluation of Egamma PFID DNN
+    EleDNNPFid= dict(
+        enabled = True,
+        inputTensorName = "FirstLayer_input",
+        outputTensorName = "sequential/FinalLayer/Softmax",
+        modelsFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"
+        ],
+        scalersFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"
+        ]
+    )    
 )
+
 
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA

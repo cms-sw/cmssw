@@ -64,6 +64,8 @@ void PhotonDNNEstimator::initScalerFiles() {
           type = 1;
         else if (type_str == "minmax")
           type = 2;
+        else if (type_str == "custom1")  // 2*((X_train - minValues)/(MaxMinusMin)) -1.0
+          type = 3;
         else
           type = 0;
         features.push_back(std::make_tuple(varname, type, par1, par2));
@@ -148,6 +150,8 @@ std::pair<uint, std::vector<float>> PhotonDNNEstimator::getScaledInputs(const re
       inputs.push_back((allInputs[varName] - par1) / par2);
     else if (type == 2)  // MinMax
       inputs.push_back((allInputs[varName] - par1) / (par2 - par1));
+    else if (type == 3)  //2*((X_train - minValues)/(MaxMinusMin)) -1.0
+      inputs.push_back(2 * (allInputs[varName] - par1) / (par2 - par1) - 1.);
     else {
       inputs.push_back(allInputs[varName]);  // Do nothing on the variable
     }
@@ -173,7 +177,7 @@ std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> PhotonDNNEstimator:
     */
   std::vector<std::vector<int>> photonIndexMap(nModels_);  // for each model; the list of ele index is saved
   std::vector<std::vector<float>> inputsVectors;
-  std::vector<uint> counts (nModels_);
+  std::vector<uint> counts(nModels_);
 
   LogDebug("PhotonDNNPFid") << "Working on " << photons.size() << " photons";
 
@@ -227,8 +231,7 @@ std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> PhotonDNNEstimator:
         result[k] = r(b, k);
       // Get the original index of the electorn in the original order
       int photon_index = photonIndexMap[m][b];
-      LogDebug("PhotonDNNPFid") << "DNN output, model " << m << " photon " << photon_index << " : " << result[0] << " "
-                                << result[1] << " " << result[2] << " " << result[3] << " " << result[4];
+      LogDebug("PhotonDNNPFid") << "DNN output, model " << m << " photon " << photon_index << " : " << result[0];
       outputs.push_back(std::make_pair(photon_index, result));
     }
   }

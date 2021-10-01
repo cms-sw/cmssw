@@ -294,14 +294,16 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
     psd1.add<std::string>("logLevel", "2");  //0 debug, 1 info, 2 warning
-    psd1.add<std::vector<std::string>>("modelsFiles",
-                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"});
-    psd1.add<std::vector<std::string>>("scalersFiles",
-                                       {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
-                                        "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"});
+    psd1.add<std::vector<std::string>>(
+        "modelsFiles",
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"});
+    psd1.add<std::vector<std::string>>(
+        "scalersFiles",
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"});
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
   }

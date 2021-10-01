@@ -13,7 +13,17 @@ gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone
     photonProducer         = "gedPhotonCore",
     candidateP4type        = "fromEcalEnergy",
     outputPhotonCollection = "",
-    reconstructionStep     = "tmp"
+    reconstructionStep     = "tmp",
+    PhotonDNNPFid = dict(
+        enabled = True,
+        inputTensorName = "FirstLayer_input",
+        outputTensorName = "sequential/FinalLayer/Sigmoid",
+        modelsFiles = [ "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_modelDNN.pb",
+                                "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_modelDNN.pb"],
+        scalersFiles = [
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_scaler.txt",
+                    "RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_scaler.txt"]
+    )
 )
 del gedPhotonsTmp.regressionConfig
 

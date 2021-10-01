@@ -14,6 +14,9 @@ particleFlowTmp = particleFlow.clone()
 ## In 12_2, we expect to have EEE's ID/regression, then this switch can flip to True
 particleFlowTmp.PFEGammaFiltersParameters.allowEEEinPF = cms.bool(False)
 
+# Activate the Egamma PFID
+particleFlowTmp.PFEGammaFiltersParameters.useElePFidDnn = cms.bool(True)
+particleFlowTmp.PFEGammaFiltersParameters.usePhotonPFidDnn = cms.bool(True)
 # Thresholds for e/gamma PFID DNN 
 particleFlowTmp.PFEGammaFiltersParameters.electronDnnThresholds = cms.PSet(
             electronDnnHighPtBarrelThr = cms.double(0.122),
