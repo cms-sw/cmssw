@@ -206,7 +206,7 @@ std::vector<std::array<float, ElectronDNNEstimator::nOutputs>> ElectronDNNEstima
     */
   std::vector<std::vector<int>> eleIndexMap(nModels_);  // for each model; the list of ele index is saved
   std::vector<std::vector<float>> inputsVectors;
-  std::vector<uint> counts (nModels_);
+  std::vector<uint> counts(nModels_);
 
   LogDebug("EleDNNPFid") << "Working on " << electrons.size() << " electrons";
 
