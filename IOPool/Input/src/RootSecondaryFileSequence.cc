@@ -37,7 +37,7 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    StorageFactory::get()->stagein(fileNames()[0]);
+    storage::StorageFactory::get()->stagein(fileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {

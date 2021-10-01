@@ -17,6 +17,10 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include <TMath.h>
 #include <TLorentzVector.h>
@@ -49,7 +53,8 @@ class PointSeededTrackingRegionsProducer : public TrackingRegionProducer {
 public:
   typedef enum { BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
-  explicit PointSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
+  explicit PointSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : token_field(iC.esConsumes()) {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     // operation mode
@@ -109,6 +114,10 @@ public:
         edm::LogError("PointSeededTrackingRegionsProducer")
             << "nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
     }
+
+    if (m_precise) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
   ~PointSeededTrackingRegionsProducer() override {}
@@ -160,6 +169,12 @@ public:
     e.getByToken(token_beamSpot, bs);
     if (!bs.isValid())
       return result;
+
+    const auto& field = es.getData(token_field);
+    const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+    if (m_precise) {
+      msmaker = &es.getData(token_msmaker);
+    }
 
     // this is a default origin for all modes
     GlobalPoint default_origin(bs->x0(), bs->y0(), bs->z0());
@@ -219,8 +234,10 @@ public:
                                                                            origins[j].second,
                                                                            m_deltaEta,
                                                                            m_deltaPhi,
-                                                                           m_whereToUseMeasurementTracker,
+                                                                           field,
+                                                                           msmaker,
                                                                            m_precise,
+                                                                           m_whereToUseMeasurementTracker,
                                                                            measurementTracker,
                                                                            m_searchOpt));
         ++n_regions;
@@ -250,6 +267,8 @@ private:
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_searchOpt;
 
   float m_nSigmaZVertex;

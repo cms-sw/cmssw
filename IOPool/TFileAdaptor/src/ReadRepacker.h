@@ -32,6 +32,8 @@
 
 class ReadRepacker {
 public:
+  using IOSize = edm::storage::IOSize;
+  using IOPosBuffer = edm::storage::IOPosBuffer;
   // Returns the number of input buffers it was able to pack into the IO operation.
   int pack(long long int *pos,   // An array of file offsets to read.
            int *len,             // An array of lengths to read.
@@ -55,13 +57,13 @@ public:
 
   // Two reads distanced by less than READ_COALESCE_SIZE will turn into one
   // large read.
-  static const IOSize TEMPORARY_BUFFER_SIZE = 256 * 1024;
+  static constexpr IOSize TEMPORARY_BUFFER_SIZE = 256 * 1024;
 
   // A read larger than BIG_READ_SIZE will not be coalesced.
-  static const IOSize READ_COALESCE_SIZE = 32 * 1024;
+  static constexpr IOSize READ_COALESCE_SIZE = 32 * 1024;
 
   // The size of the temporary holding buffer for read-coalescing.
-  static const IOSize BIG_READ_SIZE = 256 * 1024;
+  static constexpr IOSize BIG_READ_SIZE = 256 * 1024;
 
 private:
   int packInternal(long long int *pos,
