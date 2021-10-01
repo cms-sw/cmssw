@@ -42,13 +42,14 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::ESGetToken<SiPixelVCal, SiPixelVCalSimRcd> siPixelVCalToken_;
-  edm::ESGetToken<SiPixelVCal, SiPixelVCalRcd> siPixelVCalSimToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
+  const edm::ESGetToken<SiPixelVCal, SiPixelVCalSimRcd> siPixelVCalSimToken_;
+  const edm::ESGetToken<SiPixelVCal, SiPixelVCalRcd> siPixelVCalToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkTopoToken_;
 
   bool printdebug_;
   bool useSimRcd_;
+
   TH1F* slopeBPix_;
   TH1F* slopeFPix_;
   TH1F* offsetBPix_;
