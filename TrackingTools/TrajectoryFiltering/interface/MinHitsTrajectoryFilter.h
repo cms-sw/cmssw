@@ -13,7 +13,7 @@
 class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
   explicit MinHitsTrajectoryFilter(int minHits = 5,
-                                   double highEtaSwitch = 5.0,
+                                   double highEtaSwitch = sinh(5.0),
                                    int minHitsAtHighEta = 5,
                                    int seedPairPenalty = 0)
       : theMinHits(minHits),
@@ -23,7 +23,7 @@ public:
 
   MinHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theMinHits(pset.getParameter<int>("minimumNumberOfHits")),
-        theHighEtaSwitch(pset.getParameter<double>("highEtaSwitch")),
+        theHighEtaSwitch(sinh(pset.getParameter<double>("highEtaSwitch"))),
         theMinHitsAtHighEta(pset.getParameter<int>("minHitsAtHighEta")),
         theSeedPairPenalty(pset.getParameter<int>("seedPairPenalty")) {}
 
@@ -51,11 +51,10 @@ protected:
     bool passed = false;
 
     if (!traj.empty()) {
-      auto pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
+      auto pt2 = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp2();
       auto pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
-      auto sinhTrajEta2 = (pz * pz) / (pt * pt);
-      auto myEtaSwitch = sinh(theHighEtaSwitch);
-      if (sinhTrajEta2 < (myEtaSwitch * myEtaSwitch)) {
+      auto sinhTrajEta2 = (pz * pz) / pt2;
+      if (sinhTrajEta2 < (theHighEtaSwitch * theHighEtaSwitch)) {
         if (traj.foundHits() >= theMinHits + seedPenalty)
           passed = true;
       } else {  //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
