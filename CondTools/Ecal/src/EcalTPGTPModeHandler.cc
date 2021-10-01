@@ -266,9 +266,9 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
           }
 
           catch (std::exception& e) {
-            std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag
-                      << " version=" << the_config_version << std::endl;
-            std::cout << e.what() << std::endl;
+            throw cms::Exception("FileReadError") << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag
+              << " version=" << the_config_version << "\n" 
+              << e.what(); 
             m_i_run_number = irun;
           }
           std::cout << " **************** " << std::endl;
@@ -331,7 +331,7 @@ void popcon::EcalTPGTPModeHandler::readtxtFile() {
     m_to_transfer.push_back(std::make_pair((EcalTPGTPMode*)tpMode, snc));
 
   } catch (std::exception& e) {
-    std::cout << "EcalTPGTPModeHandler::readtxtFile error : " << e.what() << std::endl;
+    throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what(); 
   }
   std::cout << " **************** " << std::endl;
 }

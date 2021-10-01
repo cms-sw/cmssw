@@ -17,6 +17,8 @@
 #include "TH2F.h"
 #include "TF1.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 class CondDBApp {
@@ -30,8 +32,7 @@ public:
       econn = new EcalCondDBInterface(host, sid, user, pass, port);
       cout << "Done." << endl;
     } catch (runtime_error& e) {
-      cerr << e.what() << endl;
-      exit(-1);
+        throw cms::Exception("RuntimeError") << e.what();
     }
   }
   CondDBApp(string sid, string user, string pass) {
@@ -40,8 +41,7 @@ public:
       econn = new EcalCondDBInterface(sid, user, pass);
       cout << "Done." << endl;
     } catch (runtime_error& e) {
-      cerr << e.what() << endl;
-      exit(-1);
+        throw cms::Exception("RuntimeError") << e.what();
     }
   }
 
@@ -318,9 +318,7 @@ int main(int argc, char* argv[]) {
     if (rw_id == 0 || rw_id == 2)
       app.testReadOddWeights(cfg_id);
   } catch (exception& e) {
-    cout << "ERROR:  " << e.what() << endl;
-  } catch (...) {
-    cout << "Unknown error caught" << endl;
+      throw cms::Exception("Exception") << e.what();    
   }
 
   cout << "All Done." << endl;
