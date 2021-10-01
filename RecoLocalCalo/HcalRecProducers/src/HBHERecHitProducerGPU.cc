@@ -33,6 +33,26 @@ private:
   using OProductType = cms::cuda::Product<RecHitType>;
   edm::EDPutTokenT<OProductType> rechitsM0Token_;
 
+  const edm::ESGetToken<HcalRecoParamsWithPulseShapesGPU, HcalRecoParamsRcd> recoParamsToken_;
+  const edm::ESGetToken<HcalGainWidthsGPU, HcalGainWidthsRcd> gainWidthsToken_;
+  const edm::ESGetToken<HcalGainsGPU, HcalGainsRcd> gainsToken_;
+  const edm::ESGetToken<HcalLUTCorrsGPU, HcalLUTCorrsRcd> lutCorrsToken_;
+  const edm::ESGetToken<HcalConvertedPedestalWidthsGPU, HcalConvertedPedestalWidthsRcd> pedestalWidthsToken_;
+  const edm::ESGetToken<HcalConvertedEffectivePedestalWidthsGPU, HcalConvertedPedestalWidthsRcd>
+      effectivePedestalWidthsToken_;
+  const edm::ESGetToken<HcalConvertedPedestalsGPU, HcalConvertedPedestalsRcd> pedestalsToken_;
+  edm::ESGetToken<HcalConvertedEffectivePedestalsGPU, HcalConvertedPedestalsRcd> effectivePedestalsToken_;
+  const edm::ESGetToken<HcalQIECodersGPU, HcalQIEDataRcd> qieCodersToken_;
+  const edm::ESGetToken<HcalRespCorrsGPU, HcalRespCorrsRcd> respCorrsToken_;
+  const edm::ESGetToken<HcalTimeCorrsGPU, HcalTimeCorrsRcd> timeCorrsToken_;
+  const edm::ESGetToken<HcalQIETypesGPU, HcalQIETypesRcd> qieTypesToken_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> recConstantsToken_;
+  const edm::ESGetToken<HcalSiPMParametersGPU, HcalSiPMParametersRcd> sipmParametersToken_;
+  const edm::ESGetToken<HcalSiPMCharacteristicsGPU, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
+  const edm::ESGetToken<HcalChannelQualityGPU, HcalChannelQualityRcd> chQualProductToken_;
+  const edm::ESGetToken<HcalMahiPulseOffsetsGPU, JobConfigurationGPURecord> pulseOffsetsToken_;
+
   hcal::reconstruction::ConfigParameters configParameters_;
   hcal::reconstruction::OutputDataGPU outputGPU_;
   cms::cuda::ContextState cudaState_;
@@ -42,7 +62,24 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
     : digisTokenF01HE_{consumes<IProductTypef01>(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
       digisTokenF5HB_{consumes<IProductTypef5>(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
       digisTokenF3HB_{consumes<IProductTypef3>(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
-      rechitsM0Token_{produces<OProductType>(ps.getParameter<std::string>("recHitsLabelM0HBHE"))} {
+      rechitsM0Token_{produces<OProductType>(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
+      recoParamsToken_{esConsumes()},
+      gainWidthsToken_{esConsumes()},
+      gainsToken_{esConsumes()},
+      lutCorrsToken_{esConsumes()},
+      pedestalWidthsToken_{esConsumes()},
+      effectivePedestalWidthsToken_{esConsumes()},
+      pedestalsToken_{esConsumes()},
+      qieCodersToken_{esConsumes()},
+      respCorrsToken_{esConsumes()},
+      timeCorrsToken_{esConsumes()},
+      qieTypesToken_{esConsumes()},
+      topologyToken_{esConsumes()},
+      recConstantsToken_{esConsumes()},
+      sipmParametersToken_{esConsumes()},
+      sipmCharacteristicsToken_{esConsumes()},
+      chQualProductToken_{esConsumes()},
+      pulseOffsetsToken_{esConsumes()} {
   configParameters_.maxChannels = ps.getParameter<uint32_t>("maxChannels");
   configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
   configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
@@ -50,6 +87,9 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
   configParameters_.sipmQNTStoSum = ps.getParameter<int>("sipmQNTStoSum");
   configParameters_.firstSampleShift = ps.getParameter<int>("firstSampleShift");
   configParameters_.useEffectivePedestals = ps.getParameter<bool>("useEffectivePedestals");
+  if (configParameters_.useEffectivePedestals) {
+    effectivePedestalsToken_ = esConsumes();
+  }
 
   configParameters_.meanTime = ps.getParameter<double>("meanTime");
   configParameters_.timeSigmaSiPM = ps.getParameter<double>("timeSigmaSiPM");
@@ -120,72 +160,46 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   hcal::reconstruction::InputDataGPU inputGPU{f01HEDigis, f5HBDigis, f3HBDigis};
 
   // conditions
-  edm::ESHandle<HcalRecoParamsWithPulseShapesGPU> recoParamsHandle;
-  setup.get<HcalRecoParamsRcd>().get(recoParamsHandle);
-  auto const& recoParamsProduct = recoParamsHandle->getProduct(ctx.stream());
+  auto const& recoParamsProduct = setup.getData(recoParamsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalGainWidthsGPU> gainWidthsHandle;
-  setup.get<HcalGainWidthsRcd>().get(gainWidthsHandle);
-  auto const& gainWidthsProduct = gainWidthsHandle->getProduct(ctx.stream());
+  auto const& gainWidthsProduct = setup.getData(gainWidthsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalGainsGPU> gainsHandle;
-  setup.get<HcalGainsRcd>().get(gainsHandle);
-  auto const& gainsProduct = gainsHandle->getProduct(ctx.stream());
+  auto const& gainsProduct = setup.getData(gainsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalLUTCorrsGPU> lutCorrsHandle;
-  setup.get<HcalLUTCorrsRcd>().get(lutCorrsHandle);
-  auto const& lutCorrsProduct = lutCorrsHandle->getProduct(ctx.stream());
+  auto const& lutCorrsProduct = setup.getData(lutCorrsToken_).getProduct(ctx.stream());
 
   // use only 1 depending on useEffectivePedestals
-  edm::ESHandle<HcalConvertedPedestalWidthsGPU> pedestalWidthsHandle;
-  edm::ESHandle<HcalConvertedEffectivePedestalWidthsGPU> effectivePedestalWidthsHandle;
-  setup.get<HcalConvertedPedestalWidthsRcd>().get(effectivePedestalWidthsHandle);
-  setup.get<HcalConvertedPedestalWidthsRcd>().get(pedestalWidthsHandle);
-  auto const& pedestalWidthsProduct = pedestalWidthsHandle->getProduct(ctx.stream());
-  auto const& effectivePedestalWidthsProduct = effectivePedestalWidthsHandle->getProduct(ctx.stream());
+  auto const& pedestalWidthsProduct = setup.getData(pedestalWidthsToken_).getProduct(ctx.stream());
+  auto const& effectivePedestalWidthsProduct = setup.getData(effectivePedestalWidthsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalConvertedPedestalsGPU> pedestalsHandle;
-  setup.get<HcalConvertedPedestalsRcd>().get(pedestalsHandle);
-  auto const& pedestalsProduct = pedestalsHandle->getProduct(ctx.stream());
+  auto const& pedestals = setup.getData(pedestalsToken_);
+  auto const& pedestalsProduct = pedestals.getProduct(ctx.stream());
 
   edm::ESHandle<HcalConvertedEffectivePedestalsGPU> effectivePedestalsHandle;
   if (configParameters_.useEffectivePedestals)
-    setup.get<HcalConvertedPedestalsRcd>().get(effectivePedestalsHandle);
+    effectivePedestalsHandle = setup.getHandle(effectivePedestalsToken_);
   auto const* effectivePedestalsProduct =
       configParameters_.useEffectivePedestals ? &effectivePedestalsHandle->getProduct(ctx.stream()) : nullptr;
 
-  edm::ESHandle<HcalQIECodersGPU> qieCodersHandle;
-  setup.get<HcalQIEDataRcd>().get(qieCodersHandle);
-  auto const& qieCodersProduct = qieCodersHandle->getProduct(ctx.stream());
+  auto const& qieCodersProduct = setup.getData(qieCodersToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalRespCorrsGPU> respCorrsHandle;
-  setup.get<HcalRespCorrsRcd>().get(respCorrsHandle);
-  auto const& respCorrsProduct = respCorrsHandle->getProduct(ctx.stream());
+  auto const& respCorrsProduct = setup.getData(respCorrsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalTimeCorrsGPU> timeCorrsHandle;
-  setup.get<HcalTimeCorrsRcd>().get(timeCorrsHandle);
-  auto const& timeCorrsProduct = timeCorrsHandle->getProduct(ctx.stream());
+  auto const& timeCorrsProduct = setup.getData(timeCorrsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalQIETypesGPU> qieTypesHandle;
-  setup.get<HcalQIETypesRcd>().get(qieTypesHandle);
-  auto const& qieTypesProduct = qieTypesHandle->getProduct(ctx.stream());
+  auto const& qieTypesProduct = setup.getData(qieTypesToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalTopology> topologyHandle;
-  setup.get<HcalRecNumberingRecord>().get(topologyHandle);
-  edm::ESHandle<HcalDDDRecConstants> recConstantsHandle;
-  setup.get<HcalRecNumberingRecord>().get(recConstantsHandle);
+  HcalTopology const& topology = setup.getData(topologyToken_);
+  HcalDDDRecConstants const& recConstants = setup.getData(recConstantsToken_);
 
-  edm::ESHandle<HcalSiPMParametersGPU> sipmParametersHandle;
-  setup.get<HcalSiPMParametersRcd>().get(sipmParametersHandle);
-  auto const& sipmParametersProduct = sipmParametersHandle->getProduct(ctx.stream());
+  auto const& sipmParametersProduct = setup.getData(sipmParametersToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalSiPMCharacteristicsGPU> sipmCharacteristicsHandle;
-  setup.get<HcalSiPMCharacteristicsRcd>().get(sipmCharacteristicsHandle);
-  auto const& sipmCharacteristicsProduct = sipmCharacteristicsHandle->getProduct(ctx.stream());
+  auto const& sipmCharacteristicsProduct = setup.getData(sipmCharacteristicsToken_).getProduct(ctx.stream());
 
-  edm::ESHandle<HcalMahiPulseOffsetsGPU> pulseOffsetsHandle;
-  setup.get<JobConfigurationGPURecord>().get(pulseOffsetsHandle);
-  auto const& pulseOffsetsProduct = pulseOffsetsHandle->getProduct(ctx.stream());
+  auto const& chQualProduct = setup.getData(chQualProductToken_).getProduct(ctx.stream());
+
+  auto const& pulseOffsets = setup.getData(pulseOffsetsToken_);
+  auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
 
   // bundle up conditions
   hcal::reconstruction::ConditionsProducts conditions{gainWidthsProduct,
@@ -195,6 +209,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       effectivePedestalWidthsProduct,
                                                       pedestalsProduct,
                                                       qieCodersProduct,
+                                                      chQualProduct,
                                                       recoParamsProduct,
                                                       respCorrsProduct,
                                                       timeCorrsProduct,
@@ -202,11 +217,11 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                                       sipmParametersProduct,
                                                       sipmCharacteristicsProduct,
                                                       effectivePedestalsProduct,
-                                                      topologyHandle.product(),
-                                                      recConstantsHandle.product(),
-                                                      pedestalsHandle->offsetForHashes(),
+                                                      &topology,
+                                                      &recConstants,
+                                                      pedestals.offsetForHashes(),
                                                       pulseOffsetsProduct,
-                                                      pulseOffsetsHandle->getValues()};
+                                                      pulseOffsets.getValues()};
 
   // scratch mem on device
   hcal::reconstruction::ScratchDataGPU scratchGPU = {

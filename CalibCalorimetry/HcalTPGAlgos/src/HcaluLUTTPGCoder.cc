@@ -63,6 +63,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       allLinear_{},
       contain1TSHB_{},
       contain1TSHE_{},
+      applyFixPCC_{},
       linearLSB_QIE8_{},
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
@@ -78,6 +79,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   allLinear_ = false;
   contain1TSHB_ = false;
   contain1TSHE_ = false;
+  applyFixPCC_ = false;
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
@@ -333,6 +335,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   assert(metadata != nullptr);
   float nominalgain_ = metadata->getNominalGain();
 
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError, applyFixPCC_);
   pulseCorr_->beginRun(&conditions, delay_);
 
   make_cosh_ieta_map();
@@ -361,15 +364,21 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       continue;
 
     int aieta = abs(hcalTTDetId.ieta());
-    int tp_version = hcalTTDetId.version();
+
+    // The absence of TT channels in the HcalTPChannelParameters
+    // is intepreted as to not use the new filter
+    int weight = -1.0;
+    auto tpParam = conditions.getHcalTPChannelParameter(hcalTTDetId, false);
+    if (tpParam)
+      weight = tpParam->getauxi1();
 
     if (aieta <= lastHBRing) {
       foundHB = true;
-      if (tp_version > 1)
+      if (weight != -1.0)
         newHBtp = true;
     } else if (aieta > lastHBRing and aieta < lastHERing) {
       foundHE = true;
-      if (tp_version > 1)
+      if (weight != -1.0)
         newHEtp = true;
     }
   }

@@ -19,10 +19,12 @@ from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 from RecoMET.METProducers.pfMet_cfi import pfMet
 
-process.chs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+process.load("CommonTools.ParticleFlow.pfCHS_cff")
+task.add(process.packedPrimaryVertexAssociationJME)
+task.add(process.pfCHS)
 
 process.ak5PFJets = ak5PFJets.clone(src = 'packedPFCandidates', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
-process.ak5PFJetsCHS = ak5PFJets.clone(src = 'chs', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
+process.ak5PFJetsCHS = ak5PFJets.clone(src = 'pfCHS', doAreaFastjet = True) # no idea while doArea is false by default, but it's True in RECO so we have to set it
 process.ak5GenJets = ak5GenJets.clone(src = 'packedGenParticles')
 process.pfMet = pfMet.clone(src = "packedPFCandidates")
 process.pfMet.calculateSignificance = False # this can't be easily implemented on packed PF candidates at the moment

@@ -17,7 +17,7 @@ class KfTrackProducerBase : public TrackProducerBase<reco::Track> {
 public:
   /// Constructor
   explicit KfTrackProducerBase(bool trajectoryInEvent, bool split)
-      : TrackProducerBase<reco::Track>(trajectoryInEvent), useSplitting(split) {}
+      : TrackProducerBase<reco::Track>(trajectoryInEvent), rekeyClusterRefs_(false), useSplitting(split) {}
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
@@ -38,6 +38,16 @@ public:
                         int BeforeOrAfter = 0);
 
   //  void setSecondHitPattern(Trajectory* traj, reco::Track& track);
+protected:
+  /// Sets the information on cluster removal, and turns it on
+  void setClusterRemovalInfo(const edm::InputTag& clusterRemovalInfo) {
+    rekeyClusterRefs_ = true;
+    clusterRemovalInfo_ = clusterRemovalInfo;
+  }
+
+  bool rekeyClusterRefs_;
+  edm::InputTag clusterRemovalInfo_;
+
 private:
   bool useSplitting;
 };

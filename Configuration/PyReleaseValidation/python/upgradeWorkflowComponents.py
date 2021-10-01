@@ -415,10 +415,12 @@ upgradeWFs['mlpf'].step3 = {
 #   - 2021 conditions, TTbar
 #   - 2021 conditions, Z->mumu,
 class PatatrackWorkflow(UpgradeWorkflow):
-    def __init__(self, reco, harvest, **kwargs):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
         super(PatatrackWorkflow, self).__init__(
             steps = [
+                'Digi',
+                'DigiTrigger',
                 'Reco',
                 'HARVEST',
                 'RecoFakeHLT',
@@ -428,6 +430,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ],
             PU = [],
             **kwargs)
+        self.__digi = digi
         self.__reco = reco
         self.__reco.update({
             '--datatier':     'GEN-SIM-RECO,DQMIO',
@@ -452,13 +455,18 @@ class PatatrackWorkflow(UpgradeWorkflow):
         return result
 
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step:
+        if 'Digi' in step:
+            stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
+        elif 'Reco' in step:
             stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
         elif 'HARVEST' in step:
             stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 
 
 upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel quadruplets running only on the CPU
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit'
@@ -471,6 +479,9 @@ upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit,gpu'
@@ -483,6 +494,9 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit',
@@ -496,6 +510,10 @@ upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit,gpu',
@@ -520,6 +538,9 @@ upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
         '--procModifiers': 'gpu'
@@ -543,6 +564,9 @@ upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
 )
 
 upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
         '--procModifiers': 'gpu'
@@ -552,6 +576,69 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_HCALOnlyGPU',
     offset = 0.522,
+)
+
+upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel quadruplets running only on the CPU
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_CPU',
+    offset = 0.591,
+)
+
+upgradeWFs['PatatrackGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_GPU',
+    offset = 0.592,
+)
+
+upgradeWFs['PatatrackTripletsCPU'] = PatatrackWorkflow(
+    digi = {
+        # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit',
+        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_TripletsCPU',
+    offset = 0.595,
+)
+
+upgradeWFs['PatatrackTripletsGPU'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+    },
+    suffix = 'Patatrack_TripletsGPU',
+    offset = 0.596,
 )
 
 # end of Patatrack workflows
@@ -1017,7 +1104,7 @@ upgradeWFs['DD4hep'].allowReuse = False
 class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': '120X_mcRun3_2021_realistic_dd4hep_v1', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': '121X_mcRun3_2021_realistic_dd4hep_v3', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(

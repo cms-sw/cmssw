@@ -25,6 +25,9 @@
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 
+class EcalSeverityLevelAlgo;
+class EcalSeverityLevelAlgoRcd;
+
 class PhotonIsolationCalculator {
 public:
   PhotonIsolationCalculator() {}
@@ -99,6 +102,7 @@ private:
   edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> hcalChannelQualityToken_;
   edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSevLvlComputerToken_;
   edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> towerMapToken_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSevLvlToken_;
 
   edm::EDGetToken trackInputTag_;
   edm::EDGetToken beamSpotProducerTag_;

@@ -372,23 +372,21 @@ namespace brokenline {
 
     riemannFit::Vector2d dVec = hits.block(0, 0, 2, 1) + (-zInSZplane(0) + uVec(0)) * radii.block(0, 0, 2, 1);
     riemannFit::Vector2d eVec = hits.block(0, 1, 2, 1) + (-zInSZplane(1) + uVec(1)) * radii.block(0, 1, 2, 1);
+    auto eMinusd = eVec - dVec;
+    auto eMinusd2 = eMinusd.squaredNorm();
+    auto tmp1 = 1. / eMinusd2;
+    auto tmp2 = sqrt(riemannFit::sqr(fast_fit(2)) - 0.25 * eMinusd2);
 
-    circle_results.par << atan2((eVec - dVec)(1), (eVec - dVec)(0)),
-        -circle_results.qCharge *
-            (fast_fit(2) - sqrt(riemannFit::sqr(fast_fit(2)) - 0.25 * (eVec - dVec).squaredNorm())),
+    circle_results.par << atan2(eMinusd(1), eMinusd(0)), circle_results.qCharge * (tmp2 - fast_fit(2)),
         circle_results.qCharge * (1. / fast_fit(2) + uVec(n));
 
-    assert(circle_results.qCharge * circle_results.par(1) <= 0);
-
-    riemannFit::Vector2d eMinusd = eVec - dVec;
-    double tmp1 = eMinusd.squaredNorm();
-    double tmp2 = sqrt(riemannFit::sqr(2 * fast_fit(2)) - tmp1);
+    tmp2 = 1. / tmp2;
 
     riemannFit::Matrix3d jacobian;
-    jacobian << (radii(1, 0) * eMinusd(0) - eMinusd(1) * radii(0, 0)) / tmp1,
-        (radii(1, 1) * eMinusd(0) - eMinusd(1) * radii(0, 1)) / tmp1, 0,
-        (circle_results.qCharge / 2) * (eMinusd(0) * radii(0, 0) + eMinusd(1) * radii(1, 0)) / tmp2,
-        (circle_results.qCharge / 2) * (eMinusd(0) * radii(0, 1) + eMinusd(1) * radii(1, 1)) / tmp2, 0, 0, 0,
+    jacobian << (radii(1, 0) * eMinusd(0) - eMinusd(1) * radii(0, 0)) * tmp1,
+        (radii(1, 1) * eMinusd(0) - eMinusd(1) * radii(0, 1)) * tmp1, 0,
+        circle_results.qCharge * (eMinusd(0) * radii(0, 0) + eMinusd(1) * radii(1, 0)) * tmp2,
+        circle_results.qCharge * (eMinusd(0) * radii(0, 1) + eMinusd(1) * radii(1, 1)) * tmp2, 0, 0, 0,
         circle_results.qCharge;
 
     circle_results.cov << iMat(0, 0), iMat(0, 1), iMat(0, n), iMat(1, 0), iMat(1, 1), iMat(1, n), iMat(n, 0),
@@ -398,8 +396,7 @@ namespace brokenline {
 
     //...Translate in the system in which the first corrected hit is the origin, adding the m.s. correction...
 
-    auto eMinusDVec = eVec - dVec;
-    translateKarimaki(circle_results, 0.5 * eMinusDVec(0), 0.5 * eMinusDVec(1), jacobian);
+    translateKarimaki(circle_results, 0.5 * eMinusd(0), 0.5 * eMinusd(1), jacobian);
     circle_results.cov(0, 0) +=
         (1 + riemannFit::sqr(slope)) * multScatt(sTotal(1) - sTotal(0), bField, fast_fit(2), 2, slope);
 
@@ -420,8 +417,6 @@ namespace brokenline {
                             (sTransverse(i + 1) - sTransverse(i - 1)) * uVec(n) / 2) /
             varBeta(i);
     }
-
-    // assert(circle_results.chi2>=0);
   }
 
   /*!

@@ -4,6 +4,7 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
+class TrackingComponentsRecord;
 class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
 public:
   MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
@@ -30,6 +31,7 @@ protected:
   const double theDeltaPhi;
   const std::string theProximityPropagatorName;
   const Propagator* theProximityPropagator;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
   edm::ESWatcher<BaseCkfTrajectoryBuilder::Chi2MeasurementEstimatorRecord> theEstimatorWatcher;
   std::unique_ptr<Chi2MeasurementEstimatorBase> theEtaPhiEstimator;
 };

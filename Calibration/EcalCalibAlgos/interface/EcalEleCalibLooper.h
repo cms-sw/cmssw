@@ -25,6 +25,8 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CLHEP/Matrix/GenMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -60,64 +62,64 @@ private:
 
 private:
   //! EcalBarrel Input Collection name
-  edm::InputTag m_barrelAlCa;
+  const edm::InputTag m_barrelAlCa;
   //! EcalEndcap Input Collection name
-  edm::InputTag m_endcapAlCa;
+  const edm::InputTag m_endcapAlCa;
+  //! To take the electrons
+  edm::InputTag m_ElectronLabel;
 
   //! reconstruction window size
-  int m_recoWindowSidex;
-  int m_recoWindowSidey;
+  const int m_recoWindowSidex;
+  const int m_recoWindowSidey;
 
   //! eta size of the sub-matrix
-  int m_etaWidth;  //PG sub matrix size and borders
+  const int m_etaWidth;  //PG sub matrix size and borders
   //! eta size of the additive border to the sub-matrix
   //    int m_etaBorder ; //FIXME
   //! phi size of the sub-matrix
-  int m_phiWidthEB;
+  const int m_phiWidthEB;
   //! phi size of the additive border to the sub-matrix
   //    int m_phiBorderEB //FIXME;
 
   //! eta start of the region of interest
-  int m_etaStart;  //PG ECAL region to be calibrated
+  const int m_etaStart;  //PG ECAL region to be calibrated
   //! eta end of the region of interest
-  int m_etaEnd;
+  const int m_etaEnd;
   //! phi start of the region of interest
-  int m_phiStartEB;
+  const int m_phiStartEB;
   //! phi end of the region of interest
-  int m_phiEndEB;
+  const int m_phiEndEB;
   //!DS For the EE
-  int m_radStart;
-  int m_radEnd;
-  int m_radWidth;
+  const int m_radStart;
+  const int m_radEnd;
+  const int m_radWidth;
   //FIXME    int m_radBorder ;
-  int m_phiStartEE;
-  int m_phiEndEE;
-  int m_phiWidthEE;
+  const int m_phiStartEE;
+  const int m_phiEndEE;
+  const int m_phiWidthEE;
 
   //! maximum number of events per crystal
-  int m_maxSelectedNumPerXtal;
+  const int m_maxSelectedNumPerXtal;
 
   //! single blocks calibrators
   std::vector<VEcalCalibBlock *> m_EcalCalibBlocks;
   //! minimum energy per crystal cut
-  double m_minEnergyPerCrystal;
+  const double m_minEnergyPerCrystal;
   //! maximum energy per crystal cut
-  double m_maxEnergyPerCrystal;
+  const double m_maxEnergyPerCrystal;
   //! minimum coefficient accepted (RAW)
-  double m_minCoeff;
+  const double m_minCoeff;
   //! maximum coefficient accepted (RAW)
-  double m_maxCoeff;
+  const double m_maxCoeff;
   //! to exclude the blocksolver
-  int m_usingBlockSolver;
+  const int m_usingBlockSolver;
 
   //!the maps of  recalib coeffs
   EcalIntercalibConstantMap m_barrelMap;
   EcalIntercalibConstantMap m_endcapMap;
 
   //! DS sets the number of loops to do
-  unsigned int m_loops;
-  //! To take the electrons
-  edm::InputTag m_ElectronLabel;
+  const unsigned int m_loops;
   //The map Filler
   VFillMap *m_MapFiller;
 
@@ -136,6 +138,13 @@ private:
   std::map<int, int> m_xtalNumOfHits;
 
   bool isfirstcall_;
+
+  //! ED token
+  const edm::EDGetTokenT<EBRecHitCollection> m_ebRecHitToken;
+  const edm::EDGetTokenT<EERecHitCollection> m_eeRecHitToken;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> m_gsfElectronToken;
+  //! ES token
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_geometryToken;
 };
 #endif
 #endif

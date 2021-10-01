@@ -4,6 +4,8 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
+
   IOOffset size;
   bool exists = StorageFactory::get()->check(
       "rfio:/castor/cern.ch/cms/reconstruction/datafiles/"

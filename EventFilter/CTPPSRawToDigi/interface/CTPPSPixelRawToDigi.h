@@ -44,5 +44,6 @@ private:
   std::string mappingLabel_;
 
   bool includeErrors_;
+  bool isRun3_;
 };
 #endif

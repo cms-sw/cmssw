@@ -259,6 +259,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
     GenParticle &newGen = out->back();
     //fill status flags
     newGen.statusFlags() = gen.statusFlags();
+    newGen.setCollisionId(gen.collisionId());
     // The "daIndxs" and "moIndxs" keep a list of the keys for the mother/daughter
     // parentage/descendency. In some cases, a circular referencing is encountered,
     // which would result in an infinite loop. The list is checked to

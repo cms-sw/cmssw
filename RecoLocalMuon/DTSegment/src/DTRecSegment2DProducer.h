@@ -21,6 +21,8 @@ namespace edm {
 }  // namespace edm
 
 class DTRecSegment2DBaseAlgo;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 
@@ -49,7 +51,7 @@ private:
   // The 2D-segments reconstruction algorithm
   std::unique_ptr<DTRecSegment2DBaseAlgo> theAlgo;
 
-  //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif  // DTRecHit_DTRecSegment2DProducer_h

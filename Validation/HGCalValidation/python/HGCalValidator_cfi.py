@@ -25,7 +25,7 @@ hgcalValidator = DQMEDAnalyzer(
     #2DLayerClusters, PFClusters, Tracksters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
     label_tst = cms.VInputTag(labelTst),
-    label_simTSFromCP = cms.InputTag("ticlSimTracksters"),
+    label_simTSFromCP = cms.InputTag("ticlSimTracksters", "fromCPs"),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 

@@ -43,9 +43,10 @@ struct DDCoreToDDXMLOutput {
 
   void element(const TGeoMaterial* element, std::ostream& xos);
   void material(const DDMaterial& material, std::ostream& xos);
-  void material(
-      const std::pair<std::string, std::pair<double, std::vector<cms::DDParsingContext::CompositeMaterial>>>& material,
-      std::ostream& xos);
+  void material(const std::string& matName,
+                double density,
+                const std::vector<cms::DDParsingContext::CompositeMaterial>& matRefs,
+                std::ostream& xos);
 
   void rotation(const DDRotation& rotation, std::ostream& xos, const std::string& rotn = "");
   void rotation(const dd4hep::Rotation3D& rotation,

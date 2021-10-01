@@ -9,7 +9,7 @@
 //
 //--------------------------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackAssParam.h"
 #include <iostream>
 
 using namespace std;

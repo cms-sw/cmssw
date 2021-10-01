@@ -1,7 +1,6 @@
 #ifndef SimPPS_RPDigiProducer_DEAD_CHANNELS_MANAGER
 #define SimPPS_RPDigiProducer_DEAD_CHANNELS_MANAGER
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
@@ -13,7 +12,7 @@
  */
 class DeadChannelsManager {
 private:
-  edm::ESHandle<TotemAnalysisMask> analysisMask;
+  const TotemAnalysisMask* analysisMask;
   bool analysisMaskPresent;  //this variable indicates whether analysisMask is present or not
 
 public:
@@ -21,7 +20,7 @@ public:
 	 * This constructor allows us to set analysisMask. The analysisMask can be read from
 	 * EventSetup.
 	 */
-  DeadChannelsManager(edm::ESHandle<TotemAnalysisMask> analysisMask);
+  DeadChannelsManager(const TotemAnalysisMask* analysisMask);
   DeadChannelsManager();
   /**
 	 * This function answers the question whether given channel is dead or not.
@@ -37,7 +36,6 @@ public:
 	 */
   bool isChannelDead(RPDetId detectorId, unsigned short stripNumber);
   void displayMap();
-  static uint32_t rawToDecId(uint32_t raw);
 };
 
 #endif

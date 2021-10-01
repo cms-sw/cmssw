@@ -148,7 +148,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
-  copy_to_buffer(begin, end);
+  if (end > begin)
+    copy_to_buffer(begin, end);
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
@@ -222,6 +223,13 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
 #endif
+
+  //If called with empty/invalid DetSet, warn the user
+  if (end <= begin) {
+    edm::LogWarning("PixelThresholdClusterizer") << " copy_to_buffer called with empty or invalid range" << std::endl;
+    return;
+  }
+
   int electron[end - begin];  // pixel charge in electrons
   memset(electron, 0, (end - begin) * sizeof(int));
 

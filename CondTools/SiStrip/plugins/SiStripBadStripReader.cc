@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <sys/time.h>
 
-class SiStripBadStripReader : public edm::EDAnalyzer {
+class SiStripBadStripReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripBadStripReader(const edm::ParameterSet& iConfig)
       : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)), badStripToken_(esConsumes()) {}
@@ -25,7 +25,7 @@ private:
   edm::ESGetToken<SiStripBadStrip, SiStripBadStripRcd> badStripToken_;
 };
 
-SiStripBadStripReader::~SiStripBadStripReader() {}
+SiStripBadStripReader::~SiStripBadStripReader() = default;
 
 void SiStripBadStripReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& badStrip = iSetup.getData(badStripToken_);

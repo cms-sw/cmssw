@@ -60,7 +60,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
-  edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
+  edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection& rawData, bool& tcdsInRange);
 
   void readSupervisor();
   void readWorker(unsigned int tid);

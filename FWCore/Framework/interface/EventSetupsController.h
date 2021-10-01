@@ -19,8 +19,8 @@
 //
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Framework/src/EventSetupRecordIOVQueue.h"
-#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>

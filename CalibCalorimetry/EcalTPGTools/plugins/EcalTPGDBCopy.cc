@@ -1,50 +1,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightIdMap.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-
-#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGOddWeightIdMapRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGOddWeightGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTPModeRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 
 #include "EcalTPGDBCopy.h"
 
@@ -52,6 +12,7 @@
 
 EcalTPGDBCopy::EcalTPGDBCopy(const edm::ParameterSet& iConfig)
     : m_timetype(iConfig.getParameter<std::string>("timetype")), m_cacheIDs(), m_records() {
+  auto cc = consumesCollector();
   std::string container;
   std::string tag;
   std::string record;
@@ -62,6 +23,7 @@ EcalTPGDBCopy::EcalTPGDBCopy(const edm::ParameterSet& iConfig)
     record = i->getParameter<std::string>("record");
     m_cacheIDs.insert(std::make_pair(container, 0));
     m_records.insert(std::make_pair(container, record));
+    setConsumes(cc, container);
   }
 }
 
@@ -80,7 +42,51 @@ void EcalTPGDBCopy::analyze(const edm::Event& evt, const edm::EventSetup& evtSet
   }
 }
 
-bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container) {
+void EcalTPGDBCopy::setConsumes(edm::ConsumesCollector& cc, const std::string& container) {
+  if (container == "EcalTPGPedestals") {
+    pedestalsToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGLinearizationConst") {
+    linearizationConstToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGSlidingWindow") {
+    slidingWindowToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGFineGrainEBIdMap") {
+    fineGrainEBIdMapToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGFineGrainStripEE") {
+    fineGrainStripEEToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGFineGrainTowerEE") {
+    fineGrainTowerEEToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGLutIdMap") {
+    lutIdMapToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGWeightIdMap") {
+    weightIdMapToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGWeightGroup") {
+    weightGroupToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGOddWeightIdMap") {
+    oddWeightIdMapToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGOddWeightGroup") {
+    oddWeightGroupToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGTPMode") {
+    tpModeToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGLutGroup") {
+    lutGroupToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGFineGrainEBGroup") {
+    fineGrainEBGroupToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGPhysicsConst") {
+    physicsConstToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGCrystalStatus") {
+    crystalStatusToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGTowerStatus") {
+    towerStatusToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGSpike") {
+    spikeToken_ = cc.esConsumes();
+  } else if (container == "EcalTPGStripStatus") {
+    stripStatusToken_ = cc.esConsumes();
+  } else {
+    throw cms::Exception("Unknown container");
+  }
+}
+
+bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container) {
   unsigned long long cacheID = 0;
 
   if (container == "EcalTPGPedestals") {
@@ -133,7 +139,7 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
   }
 }
 
-void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container) {
+void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container) {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if (!dbOutput.isAvailable()) {
     throw cms::Exception("PoolDBOutputService is not available");
@@ -142,148 +148,123 @@ void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string contai
   std::string recordName = m_records[container];
 
   if (container == "EcalTPGPedestals") {
-    edm::ESHandle<EcalTPGPedestals> handle;
-    evtSetup.get<EcalTPGPedestalsRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(pedestalsToken_);
     const EcalTPGPedestals* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGPedestals>(
         new EcalTPGPedestals(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGLinearizationConst") {
-    edm::ESHandle<EcalTPGLinearizationConst> handle;
-    evtSetup.get<EcalTPGLinearizationConstRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(linearizationConstToken_);
     const EcalTPGLinearizationConst* obj = handle.product();
-
     dbOutput->createNewIOV<const EcalTPGLinearizationConst>(
         new EcalTPGLinearizationConst(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGSlidingWindow") {
-    edm::ESHandle<EcalTPGSlidingWindow> handle;
-    evtSetup.get<EcalTPGSlidingWindowRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(slidingWindowToken_);
     const EcalTPGSlidingWindow* obj = handle.product();
-
     dbOutput->createNewIOV<const EcalTPGSlidingWindow>(
         new EcalTPGSlidingWindow(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGFineGrainEBIdMap") {
-    edm::ESHandle<EcalTPGFineGrainEBIdMap> handle;
-    evtSetup.get<EcalTPGFineGrainEBIdMapRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(fineGrainEBIdMapToken_);
     const EcalTPGFineGrainEBIdMap* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGFineGrainEBIdMap>(
         new EcalTPGFineGrainEBIdMap(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGFineGrainStripEE") {
-    edm::ESHandle<EcalTPGFineGrainStripEE> handle;
-    evtSetup.get<EcalTPGFineGrainStripEERcd>().get(handle);
+    const auto handle = evtSetup.getHandle(fineGrainStripEEToken_);
     const EcalTPGFineGrainStripEE* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGFineGrainStripEE>(
         new EcalTPGFineGrainStripEE(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGFineGrainTowerEE") {
-    edm::ESHandle<EcalTPGFineGrainTowerEE> handle;
-    evtSetup.get<EcalTPGFineGrainTowerEERcd>().get(handle);
+    const auto handle = evtSetup.getHandle(fineGrainTowerEEToken_);
     const EcalTPGFineGrainTowerEE* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGFineGrainTowerEE>(
         new EcalTPGFineGrainTowerEE(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGLutIdMap") {
-    edm::ESHandle<EcalTPGLutIdMap> handle;
-    evtSetup.get<EcalTPGLutIdMapRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(lutIdMapToken_);
     const EcalTPGLutIdMap* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGLutIdMap>(
         new EcalTPGLutIdMap(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGWeightIdMap") {
-    edm::ESHandle<EcalTPGWeightIdMap> handle;
-    evtSetup.get<EcalTPGWeightIdMapRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(weightIdMapToken_);
     const EcalTPGWeightIdMap* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGWeightIdMap>(
         new EcalTPGWeightIdMap(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGWeightGroup") {
-    edm::ESHandle<EcalTPGWeightGroup> handle;
-    evtSetup.get<EcalTPGWeightGroupRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(weightGroupToken_);
     const EcalTPGWeightGroup* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGWeightGroup>(
         new EcalTPGWeightGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGOddWeightIdMap") {
-    edm::ESHandle<EcalTPGOddWeightIdMap> handle;
-    evtSetup.get<EcalTPGOddWeightIdMapRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(oddWeightIdMapToken_);
     const EcalTPGOddWeightIdMap* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGOddWeightIdMap>(
         new EcalTPGOddWeightIdMap(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGOddWeightGroup") {
-    edm::ESHandle<EcalTPGOddWeightGroup> handle;
-    evtSetup.get<EcalTPGOddWeightGroupRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(oddWeightGroupToken_);
     const EcalTPGOddWeightGroup* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGOddWeightGroup>(
         new EcalTPGOddWeightGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGTPMode") {
-    edm::ESHandle<EcalTPGTPMode> handle;
-    evtSetup.get<EcalTPGTPModeRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(tpModeToken_);
     const EcalTPGTPMode* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGTPMode>(
         new EcalTPGTPMode(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGLutGroup") {
-    edm::ESHandle<EcalTPGLutGroup> handle;
-    evtSetup.get<EcalTPGLutGroupRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(lutGroupToken_);
     const EcalTPGLutGroup* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGLutGroup>(
         new EcalTPGLutGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGFineGrainEBGroup") {
-    edm::ESHandle<EcalTPGFineGrainEBGroup> handle;
-    evtSetup.get<EcalTPGFineGrainEBGroupRcd>().get(handle);
-
+    const auto handle = evtSetup.getHandle(fineGrainEBGroupToken_);
     const EcalTPGFineGrainEBGroup* obj = handle.product();
-
     dbOutput->createNewIOV<const EcalTPGFineGrainEBGroup>(
         new EcalTPGFineGrainEBGroup(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGPhysicsConst") {
-    edm::ESHandle<EcalTPGPhysicsConst> handle;
-    evtSetup.get<EcalTPGPhysicsConstRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(physicsConstToken_);
     const EcalTPGPhysicsConst* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGPhysicsConst>(
         new EcalTPGPhysicsConst(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGCrystalStatus") {
-    edm::ESHandle<EcalTPGCrystalStatus> handle;
-    evtSetup.get<EcalTPGCrystalStatusRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(crystalStatusToken_);
     const EcalTPGCrystalStatus* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGCrystalStatus>(
         new EcalTPGCrystalStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGTowerStatus") {
-    edm::ESHandle<EcalTPGTowerStatus> handle;
-    evtSetup.get<EcalTPGTowerStatusRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(towerStatusToken_);
     const EcalTPGTowerStatus* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGTowerStatus>(
         new EcalTPGTowerStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGSpike") {
-    edm::ESHandle<EcalTPGSpike> handle;
-    evtSetup.get<EcalTPGSpikeRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(spikeToken_);
     const EcalTPGSpike* obj = handle.product();
 
     dbOutput->createNewIOV<const EcalTPGSpike>(
         new EcalTPGSpike(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
   } else if (container == "EcalTPGStripStatus") {
-    edm::ESHandle<EcalTPGStripStatus> handle;
-    evtSetup.get<EcalTPGStripStatusRcd>().get(handle);
+    const auto handle = evtSetup.getHandle(stripStatusToken_);
     const EcalTPGStripStatus* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGStripStatus>(
         new EcalTPGStripStatus(*obj), dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
 
-  }
-
-  else {
+  } else {
     throw cms::Exception("Unknown container");
   }
 
-  std::cout << "EcalTPGDBCopy wrote " << recordName << std::endl;
+  edm::LogInfo("EcalTPGDBCopy") << "EcalTPGDBCopy wrote " << recordName;
 }

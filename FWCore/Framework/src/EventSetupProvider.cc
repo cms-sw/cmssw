@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
-#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

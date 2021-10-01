@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# modifiers
+from Configuration.ProcessModifiers.gpu_cff import gpu
+
 # helper fuctions
 from HLTrigger.Configuration.common import *
 
@@ -17,20 +20,17 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-# New cards in DT local reco to control which format for DT DB is used
-def customiseFor34612(process):    
-    for producer in producers_by_type(process, "DTRecHitProducer"):
-        producer.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
-        producer.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
-
-    for producer in producers_by_type(process, "DTRecSegment4DProducer"):
-        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
-        producer.Reco4DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
-        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyTTrigDB = cms.bool(True)
-        producer.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.readLegacyVDriftDB = cms.bool(True)
+# Eta Extended Electrons 
+def customiseFor35309(process):
+    for pset in process._Process__psets.values():
+        if hasattr(pset,'ComponentType'):
+            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+                if not hasattr(pset, 'highEtaSwitch'):
+                    pset.highEtaSwitch = cms.double(5.0)
+                if not hasattr(pset, 'minHitsAtHighEta'):
+                    pset.minHitsAtHighEta = cms.int32(5)
 
     return process
-
 
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
@@ -144,13 +144,31 @@ def customiseFor2018Input(process):
     return process
 
 
+def customiseFor35315(process):
+    """Update the HLT configuration for the changes in #35315"""
+    for module in filters_by_type(process, "HLTHcalCalibTypeFilter"):
+        if hasattr(module, "FilterSummary"):
+            delattr(module, "FilterSummary")
+
+    return process
+
+# MultipleScatteringParametrisationMakerESProducer
+def customiseFor35269(process):
+    process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
+    # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
+    from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
+    gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    # New cards for DT local reco
-    process = customiseFor34612(process)
+    process = customiseFor35309(process)
+    process = customiseFor35315(process)
+    process = customiseFor35269(process)
 
     return process

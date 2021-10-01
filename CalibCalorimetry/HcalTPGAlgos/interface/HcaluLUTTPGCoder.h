@@ -69,6 +69,7 @@ public:
   void set1TSContainHE(bool contain1TSHE) { contain1TSHE_ = contain1TSHE; }
   void setContainPhaseHB(double containPhaseNSHB) { containPhaseNSHB_ = containPhaseNSHB; }
   void setContainPhaseHE(double containPhaseNSHE) { containPhaseNSHE_ = containPhaseNSHE; }
+  void setApplyFixPCC(double applyFixPCC) { applyFixPCC_ = applyFixPCC; }
   void setOverrideDBweightsAndFilterHB(bool overrideDBweightsAndFilterHB) {
     overrideDBweightsAndFilterHB_ = overrideDBweightsAndFilterHB;
   }
@@ -122,6 +123,7 @@ private:
   bool contain1TSHB_, contain1TSHE_;
   double containPhaseNSHB_ = 6.0;
   double containPhaseNSHE_ = 6.0;
+  bool applyFixPCC_;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   bool overrideDBweightsAndFilterHB_ = false;

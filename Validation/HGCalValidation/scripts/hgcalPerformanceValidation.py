@@ -83,7 +83,12 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = OrderedDict()
-thereleases = { "CMSSW 12_0_X" : [
+thereleases = { "CMSSW 12_1_X" : [
+    "CMSSW_12_1_0_pre2_vs_CMSSW_12_0_0_pre6",
+    "CMSSW_12_1_0_pre2_D77_vs_CMSSW_12_1_0_pre2_D76"
+                 ],
+                "CMSSW 12_0_X" : [
+    "CMSSW_12_0_0_pre6_vs_CMSSW_12_0_0_pre4",
     "CMSSW_12_0_0_pre4_vs_CMSSW_12_0_0_pre3",
     "CMSSW_12_0_0_pre3_vs_CMSSW_12_0_0_pre2",
     "CMSSW_12_0_0_pre2_vs_CMSSW_12_0_0_pre1",
@@ -136,18 +141,20 @@ geometryTests = OrderedDict()
 geometryTests = { "Material budget" : [
                 #"Extended2026D49_vs_Extended2026D71",
                 "Extended2026D49_vs_Extended2026D76",
-                "Extended2026D76_vs_Extended2026D83"
+                "Extended2026D76_vs_Extended2026D83",
+                "Extended2026D83_vs_Extended2026D86"
                 ]
 }
 
-GeoScenario = "Extended2026D76_vs_Extended2026D83"
+GeoScenario = "Extended2026D83_vs_Extended2026D86"
 
-RefRelease='CMSSW_12_0_0_pre3'
+RefRelease='CMSSW_12_0_0_pre6'
 
-NewRelease='CMSSW_12_0_0_pre4'
+NewRelease='CMSSW_12_1_0_pre2'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
+#NotNormalRefRelease = "raw"
 
 if ( os.path.isdir('%s/%s' %(opt.WWWAREA, NewRelease))) : 
     print("The campaign you are trying to validate has already an existing validation folder in the official www area.")
@@ -162,6 +169,7 @@ if "raw" in NotNormalRelease:
 else: 
     #   appendglobaltag = "_2026D49noPU"
     appendglobaltag = "_2026D76noPU"
+    #   appendglobaltag = "_2026D77noPU"
 
 #Until the final list of RelVals settles down the following sample list is under constant review
 '''
@@ -234,9 +242,10 @@ phase2samples_noPU = [
     #Sample("RelValZpTT_1500", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZTT", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZMM", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValZMM", midfix="14", scenario="2026D49", dqmVersion="0002", appendGlobalTag=appendglobaltag ),
     Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    #Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
-    Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
+    Sample("RelValTenTau_15_500_Eta3p1", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
+    #Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     #Sample("RelValQCD_Pt15To7000_Flat", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
@@ -405,6 +414,9 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename)+ ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D76noPU-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+        elif "normal" in NotNormalRelease and "raw" in NotNormalRefRelease:
+            cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v7_2026D77noPU-v1","mcRun4_realistic_v7_2026D76noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
             #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("mcRun4_realistic_v3_2026D49noPU_raw1100_rsb-v1","mcRun4_realistic_v3_2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "raw" in NotNormalRelease and "raw" in NotNormalRefRelease:
             #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
@@ -910,6 +922,8 @@ if (opt.GEOMETRY) :
         #We need the directory for the geometry related results 
         if (not os.path.isdir('%s/%s/%s' %(opt.WWWAREA,GeoScenario,obj))):
             processCmd('mkdir -p %s/%s/%s' %(opt.WWWAREA,GeoScenario,obj) )
+            processCmd('mkdir -p %s/%s' %(GeoScenario,obj) )
+
         index_file.write('  <br/>\n' )
         index_file.write('  <ul>\n' )
         index_file.write('   <li><a href="%s/index.html">%s</a></li>\n' %(obj, _geoPageNameMap[obj] ) )

@@ -42,7 +42,7 @@ namespace edm {
     virtual void setSourceOffset(const unsigned int s) = 0;
     virtual void setTof() = 0;
     virtual void put(edm::Event &e) = 0;
-    virtual void reload(const edm::EventSetup &setup){};
+    virtual void reload(int minBunch, int maxBunch, int bunchSpace){};
   };
 }  // namespace edm
 

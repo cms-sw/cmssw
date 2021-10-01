@@ -20,6 +20,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+class CaloGeometryRecord;
+
 class PileUpSubtractor {
 public:
   typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
@@ -70,9 +72,10 @@ protected:
   int activeAreaRepeats;
   double ghostArea;
 
-  double nSigmaPU_;                     // number of sigma for pileup
-  double radiusPU_;                     // pileup radius
-  ActiveAreaSpecPtr fjActiveArea_;      // fastjet active area definition
+  double nSigmaPU_;                 // number of sigma for pileup
+  double radiusPU_;                 // pileup radius
+  ActiveAreaSpecPtr fjActiveArea_;  // fastjet active area definition
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
   CaloGeometry const* geo_;             // geometry
   int ietamax_;                         // maximum eta in geometry
   int ietamin_;                         // minimum eta in geometry

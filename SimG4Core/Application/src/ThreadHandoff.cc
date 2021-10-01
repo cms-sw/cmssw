@@ -97,13 +97,13 @@ ThreadHandoff::~ThreadHandoff() {
 //
 void* ThreadHandoff::threadLoop(void* iArgs) {
   auto theThis = reinterpret_cast<ThreadHandoff*>(iArgs);
-  {
-    std::unique_lock<std::mutex> lck(theThis->m_mutex);
-    theThis->m_loopReady = true;
-  }
+
+  //need to hold lock until wait to avoid both threads
+  // being stuck in wait
+  std::unique_lock<std::mutex> lck(theThis->m_mutex);
+  theThis->m_loopReady = true;
   theThis->m_threadHandoff.notify_one();
 
-  std::unique_lock<std::mutex> lck(theThis->m_mutex);
   do {
     theThis->m_toRun = nullptr;
     theThis->m_threadHandoff.wait(lck, [theThis]() { return nullptr != theThis->m_toRun; });

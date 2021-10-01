@@ -354,7 +354,8 @@ void HFShowerLibrary::getRecord(int type, int record) {
     if (newForm) {
       if (!v3version) {
         hadBranch->SetAddress(&photo);
-        hadBranch->GetEntry(nrc + totEvents);
+        int position = (fileVersion_ >= 2) ? nrc : (nrc + totEvents);
+        hadBranch->GetEntry(position);
       } else {
         std::vector<float> t;
         std::vector<float>* tp = &t;

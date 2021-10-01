@@ -55,6 +55,8 @@ from L1Trigger.L1TGEM.simGEMDigis_cff import *
 valMuonGEMPadDigis = simMuonGEMPadDigis.clone(InputCollection = "muonGEMDigis")
 valMuonGEMPadDigiClusters = simMuonGEMPadDigiClusters.clone(InputCollection = "valMuonGEMPadDigis")
 
+# Lookup tables for the CSC TP emulator
+from CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff import *
 # CSC TPG
 from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 valCscStage2Digis = cscTriggerPrimitiveDigis.clone(

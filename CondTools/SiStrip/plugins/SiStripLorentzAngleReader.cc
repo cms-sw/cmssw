@@ -12,7 +12,6 @@ SiStripLorentzAngleReader::SiStripLorentzAngleReader(const edm::ParameterSet& iC
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 5)),
       label_(iConfig.getUntrackedParameter<std::string>("label", "")),
       laToken_(esConsumes(edm::ESInputTag{"", label_})) {}
-SiStripLorentzAngleReader::~SiStripLorentzAngleReader() {}
 
 void SiStripLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& lorentzAngles = iSetup.getData(laToken_);

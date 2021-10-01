@@ -7,6 +7,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimG4CMS.CherenkovAnalysis.gun_cff")
 process.load("Configuration.Geometry.GeometryDD4hep_cff")
+process.load("DetectorDescription.DDCMS.DDDetectorESProducer_cfi")
 process.load("Geometry.HcalCommonData.caloSimulationParameters_cff")
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -24,6 +25,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.EcalSim=dict()
     process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.Geometry=dict()
     process.MessageLogger.CherenkovAnalysis=dict()
     process.MessageLogger.SimG4CoreGeometry=dict()
 

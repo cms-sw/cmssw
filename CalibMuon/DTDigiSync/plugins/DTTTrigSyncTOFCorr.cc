@@ -34,18 +34,18 @@
  */
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
-
-class DTLayer;
-class DTWireId;
-
-namespace edm {
-  class ParameterSet;
-}
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include <iostream>
 
 class DTTTrigSyncTOFCorr : public DTTTrigBaseSync {
 public:
   /// Constructor
-  DTTTrigSyncTOFCorr(const edm::ParameterSet& config);
+  DTTTrigSyncTOFCorr(const edm::ParameterSet& config, edm::ConsumesCollector);
 
   /// Destructor
   ~DTTTrigSyncTOFCorr() override;
@@ -102,16 +102,9 @@ private:
   double theBXspace;
 };
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include <iostream>
-
 using namespace std;
 
-DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config)
+DTTTrigSyncTOFCorr::DTTTrigSyncTOFCorr(const edm::ParameterSet& config, edm::ConsumesCollector)
     :                                                  // The fixed t0 (or t_trig) to be subtracted to digi time (ns)
       theTTrig(config.getParameter<double>("tTrig")),  // FIXME: Default was 500 ns
       // Velocity of signal propagation along the wire (cm/ns)

@@ -27,7 +27,8 @@ namespace cms {
       namespaces.emplace_back("");
       if (makePayload) {
         rotRevMap.reserve(3000);
-        allCompMaterials.reserve(400);
+        compMaterialsVec.reserve(400);
+        compMaterialsRefs.reserve(400);
       }
     }
 
@@ -84,7 +85,8 @@ namespace cms {
     std::vector<std::string> namespaces;
 
     std::unordered_map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
-    std::unordered_map<std::string, std::pair<double, std::vector<CompositeMaterial>>> allCompMaterials;
+    std::vector<std::pair<std::string, double>> compMaterialsVec;
+    std::unordered_map<std::string, std::vector<CompositeMaterial>> compMaterialsRefs;
     std::unordered_map<std::string, std::vector<std::string>> unresolvedVectors;
     std::unordered_map<std::string,
                        std::variant<BooleanShape<dd4hep::UnionSolid>,

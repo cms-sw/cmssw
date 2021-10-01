@@ -401,7 +401,9 @@ def L1TReEmulFromRAWLegacyMuon(process):
     process.simTwinMuxDigisForDttf.DTDigi_Source      = cms.InputTag('bmtfDigis')
     process.simTwinMuxDigisForDttf.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
 
-## - CSC TP emulator 
+    # Lookup tables for the CSC TP emulator
+    process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
+    ## - CSC TP emulator
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigis.clone()
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi' )

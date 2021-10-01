@@ -51,8 +51,6 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 public:
   GEDPhotonProducer(const edm::ParameterSet& ps);
 
-  void beginRun(edm::Run const& r, edm::EventSetup const& es) final;
-  void endRun(edm::Run const&, edm::EventSetup const&) final {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -357,12 +355,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
   produces<reco::PhotonCollection>(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized()) {
     produces<edm::ValueMap<reco::PhotonRef>>(valueMapPFCandPhoton_);
-  }
-}
-
-void GEDPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& eventSetup) {
-  if (!recoStep_.isFinal()) {
-    photonEnergyCorrector_->init(eventSetup);
   }
 }
 

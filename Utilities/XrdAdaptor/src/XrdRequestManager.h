@@ -43,6 +43,10 @@ namespace XrdAdaptor {
 
   class RequestManager {
   public:
+    using IOSize = edm::storage::IOSize;
+    using IOPosBuffer = edm::storage::IOPosBuffer;
+    using IOOffset = edm::storage::IOOffset;
+
     RequestManager(const RequestManager &) = delete;
     RequestManager &operator=(const RequestManager &) = delete;
 

@@ -436,11 +436,6 @@ namespace edm {
     for (nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
       LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
     }
-
-    // Test boost::lexical_cast  We don't need this right now so comment it out.
-    // int k = 137;
-    // std::string ktext = boost::lexical_cast<std::string>(k);
-    // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
   }
 
   void EventContentAnalyzer::fillDescriptions(ConfigurationDescriptions& descriptions) {

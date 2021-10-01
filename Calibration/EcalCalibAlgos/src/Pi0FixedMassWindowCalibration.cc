@@ -6,17 +6,14 @@
 
 // Conditions database
 
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/Pi0CalibXMLwriter.h"
 
 // Reconstruction Classes
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 // Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
@@ -35,7 +32,10 @@ using namespace std;
 Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::ParameterSet& iConfig)
     : theMaxLoops(iConfig.getUntrackedParameter<unsigned int>("maxLoops", 0)),
       ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
-      barrelHits_(iConfig.getParameter<std::string>("barrelHitCollection")) {
+      barrelHits_(iConfig.getParameter<std::string>("barrelHitCollection")),
+      recHitToken_(consumes<EcalRecHitCollection>(edm::InputTag(ecalHitsProducer_, barrelHits_))),
+      intercalibConstantsToken_(esConsumes()),
+      geometryToken_(esConsumes()) {
   std::cout << "[Pi0FixedMassWindowCalibration] Constructor " << std::endl;
   // The verbosity level
   std::string verbosityString = iConfig.getParameter<std::string>("VerbosityLevel");
@@ -272,6 +272,9 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
   // this chunk used to belong to beginJob(isetup). Moved here
   // with the beginJob without arguments migration
 
+  // get the ecal geometry:
+  const auto& geometry = setup.getData(geometryToken_);
+
   if (isfirstcall_) {
     // initialize arrays
 
@@ -288,23 +291,9 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
     // get initial constants out of DB
 
-    edm::ESHandle<EcalIntercalibConstants> pIcal;
-    EcalIntercalibConstantMap imap;
-
-    try {
-      setup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-      std::cout << "Taken EcalIntercalibConstants" << std::endl;
-      imap = pIcal.product()->getMap();
-      std::cout << "imap.size() = " << imap.size() << std::endl;
-    } catch (std::exception& ex) {
-      std::cerr << "Error! can't get EcalIntercalibConstants " << std::endl;
-    }
-
-    // get the ecal geometry:
-    edm::ESHandle<CaloGeometry> geoHandle;
-    setup.get<CaloGeometryRecord>().get(geoHandle);
-    const CaloGeometry& geometry = *geoHandle;
-    //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    const auto& pIcal = setup.getData(intercalibConstantsToken_);
+    const auto& imap = pIcal.getMap();
+    std::cout << "imap.size() = " << imap.size() << std::endl;
 
     // loop over all barrel crystals
     barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
@@ -340,7 +329,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
   int nRecHitsEB = 0;
   Handle<EcalRecHitCollection> pEcalRecHitBarrelCollection;
-  event.getByLabel(ecalHitsProducer_, barrelHits_, pEcalRecHitBarrelCollection);
+  event.getByToken(recHitToken_, pEcalRecHitBarrelCollection);
   const EcalRecHitCollection* ecalRecHitBarrelCollection = pEcalRecHitBarrelCollection.product();
   cout << " ECAL Barrel RecHits # " << ecalRecHitBarrelCollection->size() << endl;
   for (EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin();
@@ -380,18 +369,14 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
     irecalib++;
   }
 
-  // get the geometry and topology from the event setup:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<CaloGeometryRecord>().get(geoHandle);
-
   const CaloSubdetectorGeometry* geometry_p;
 
   std::string clustershapetag;
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  EcalBarrelTopology topology{*geoHandle};
+  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  EcalBarrelTopology topology{geometry};
 
   const CaloSubdetectorGeometry* geometryES_p;
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  geometryES_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   /*
   reco::BasicClusterCollection clusters;
