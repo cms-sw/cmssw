@@ -1,5 +1,5 @@
+#include "SiPixelPerformanceSummaryReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondTools/SiPixel/plugins/SiPixelPerformanceSummaryReader.h"
 
 #include <cstdio>
 #include <iostream>

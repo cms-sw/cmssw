@@ -23,21 +23,6 @@
 #include <sys/stat.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -51,7 +36,7 @@
 #include "TList.h"
 #include "TTree.h"
 
-#include "CondTools/SiPixel/plugins/SiPixelGainCalibrationReadDQMFile.h"
+#include "SiPixelGainCalibrationReadDQMFile.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //

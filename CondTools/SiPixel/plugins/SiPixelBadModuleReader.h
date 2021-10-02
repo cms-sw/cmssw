@@ -1,5 +1,5 @@
-#ifndef SiPixelBadModuleReader_H
-#define SiPixelBadModuleReader_H
+#ifndef CondTools_SiPixel_SiPixelBadModuleReader_H
+#define CondTools_SiPixel_SiPixelBadModuleReader_H
 
 // system include files
 
@@ -12,7 +12,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

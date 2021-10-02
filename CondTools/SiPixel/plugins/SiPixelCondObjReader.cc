@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "CondTools/SiPixel/plugins/SiPixelCondObjReader.h"
+#include "SiPixelCondObjReader.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"

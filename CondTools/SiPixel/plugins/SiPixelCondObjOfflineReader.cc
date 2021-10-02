@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "CondTools/SiPixel/plugins/SiPixelCondObjOfflineReader.h"
+#include "SiPixelCondObjOfflineReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 

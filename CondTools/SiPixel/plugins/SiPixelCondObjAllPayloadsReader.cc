@@ -1,7 +1,6 @@
 #include <memory>
 
-#include "CondTools/SiPixel/plugins/SiPixelCondObjAllPayloadsReader.h"
-
+#include "SiPixelCondObjAllPayloadsReader.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

@@ -3,11 +3,10 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include "SiPixelDynamicInefficiencyDB.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondTools/SiPixel/plugins/SiPixelDynamicInefficiencyDB.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"

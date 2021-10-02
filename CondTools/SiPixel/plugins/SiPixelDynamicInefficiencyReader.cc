@@ -1,5 +1,5 @@
+#include "SiPixelDynamicInefficiencyReader.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "CondTools/SiPixel/plugins/SiPixelDynamicInefficiencyReader.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"

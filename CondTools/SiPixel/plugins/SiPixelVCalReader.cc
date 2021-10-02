@@ -1,4 +1,4 @@
-#include "CondTools/SiPixel/plugins/SiPixelVCalReader.h"
+#include "SiPixelVCalReader.h"
 
 using namespace cms;
 
