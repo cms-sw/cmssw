@@ -28,7 +28,7 @@ for year in upgradeKeys:
             for specialType in upgradeWFs.keys():
                 stepList[specialType] = []
             hasHarvest = False
-            for step in upgradeProperties[year][key]['ScenToRun']:                    
+            for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step:
                     if 'HLBeamSpot' in step:
@@ -41,6 +41,10 @@ for year in upgradeKeys:
                 if 'HARVEST' in step: hasHarvest = True
 
                 for specialType,specialWF in upgradeWFs.items():
+                    if specialType == 'baseline':
+                        for ist, st in enumerate(stepList[specialType]):
+                            if st.split('_')[0] == 'Reco': stepList[specialType][ist] = st.replace('Reco', 'RecNan')
+                            elif st.split('_')[0] == 'HARVEST': stepList[specialType][ist] = st.replace('HARVEST', 'HARVESTRecNan')
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step

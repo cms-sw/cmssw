@@ -150,7 +150,9 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
-        if era is not None: stepDict[stepName][k]['--era']=era
+        if era is not None: 
+            stepDict[stepName][k]['--era']=era
+            if 'RecNan' in stepName: stepDict[stepName][k]['--era'] += ',run3_nanoAOD_devel'
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
@@ -1210,9 +1212,9 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2021_realistic',
         'HLTmenu': '@relval2021',
-        'Era' : 'Run3,run3_nanoAOD_devel',
+        'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSim','Digi','RecNan','HARVESTRecNan','ALCA'],
+        'ScenToRun' : ['GenSim','Digi','Reco','HARVEST','ALCA'],
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
