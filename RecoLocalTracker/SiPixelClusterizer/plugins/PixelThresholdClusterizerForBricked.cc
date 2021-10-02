@@ -68,7 +68,8 @@ void PixelThresholdClusterizerForBricked::clusterizeDetUnitT(const T& input,
 
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
-  copy_to_buffer(begin, end);
+  if (end > begin)
+    copy_to_buffer(begin, end);
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
