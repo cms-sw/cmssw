@@ -25,6 +25,7 @@ using namespace l1t;
 
 l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
   static const l1t::L1TGtObjectStringToEnum l1TGtObjectStringToEnumMap[] = {{"Mu", gtMu},
+                                                                            {"MuShower", gtMuShower},
                                                                             {"EG", gtEG},
                                                                             {"Tau", gtTau},
                                                                             {"Jet", gtJet},
@@ -85,6 +86,10 @@ std::string l1t::l1TGtObjectEnumToString(const GlobalObject& gtObject) {
   switch (gtObject) {
     case gtMu: {
       gtObjectString = "Mu";
+    } break;
+
+    case gtMuShower: {
+      gtObjectString = "MuShower";
     } break;
 
     case gtEG: {

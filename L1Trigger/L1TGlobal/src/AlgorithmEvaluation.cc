@@ -1,14 +1,14 @@
 /**
  * \class AlgorithmEvaluation
- * 
- * 
+ *
+ *
  * Description: Evaluation of a L1 Global Trigger algorithm.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  *
  */
 

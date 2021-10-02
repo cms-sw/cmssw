@@ -5,7 +5,14 @@ l1t::MuonShower::MuonShower(bool oneNominalInTime, bool oneNominalOutOfTime, boo
       isOneNominalInTime_(oneNominalInTime),
       isOneNominalOutOfTime_(oneNominalOutOfTime),
       isTwoLooseInTime_(twoLooseInTime),
-      isTwoLooseOutOfTime_(twoLooseOutOfTime) {}
+      isTwoLooseOutOfTime_(twoLooseOutOfTime),
+      // This makes sense as long as the one-nominal shower case is mapped
+      // onto 0b01 and the two-loose shower case is mapped onto 0b10.
+      // A third (unused option) is 0b11
+      mus0_(isOneNominalInTime_),
+      mus1_(twoLooseInTime),
+      musOutOfTime0_(oneNominalOutOfTime),
+      musOutOfTime1_(twoLooseOutOfTime) {}
 
 l1t::MuonShower::~MuonShower() {}
 

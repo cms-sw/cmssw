@@ -15,6 +15,7 @@ namespace l1t {
   ///    ObjNull catch all errors
   enum GlobalObject {
     gtMu,
+    gtMuShower,
     gtEG,
     gtJet,
     gtTau,

@@ -4,32 +4,22 @@
 # All changes must be explicitly discussed with the L1T offline coordinator.
 #
 import FWCore.ParameterSet.Config as cms
-
-# cfi uGT emulator
-
-simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
-    MuonInputTag = cms.InputTag("simGmtStage2Digis"),
-    ExtInputTag = cms.InputTag("simGtExtFakeStage2Digis"),
-    EGammaInputTag = cms.InputTag("simCaloStage2Digis"),
-    TauInputTag = cms.InputTag("simCaloStage2Digis"),
-    JetInputTag = cms.InputTag("simCaloStage2Digis"),
-    EtSumInputTag = cms.InputTag("simCaloStage2Digis"),
-    AlgorithmTriggersUnmasked = cms.bool(True),    
-    AlgorithmTriggersUnprescaled = cms.bool(True),
-    GetPrescaleColumnFromData = cms.bool(False),
-    RequireMenuToMatchAlgoBlkInput = cms.bool(False),
-    AlgoBlkInputTag = cms.InputTag("gtStage2Digis")
-    # deprecated in Mike's version of producer:                              
-    #ProduceL1GtDaqRecord = cms.bool(True),
-    #GmtInputTag = cms.InputTag("gtInput"),
-    #extInputTag = cms.InputTag("gtInput"),
-    #caloInputTag = cms.InputTag("gtInput"),
-    #AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    #TriggerMenuLuminosity = cms.string('startup'),
-    #PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv'),
-    #PrescaleSet = cms.uint32(1),
-    #BstLengthBytes = cms.int32(-1),
-    #Verbosity = cms.untracked.int32(0)
+from L1Trigger.L1TGlobal.simGtStage2DigisDef_cfi import simGtStage2DigisDef
+simGtStage2Digis = simGtStage2DigisDef.clone(
+    MuonInputTag = "simGmtStage2Digis",
+    MuonShowerInputTag = "simGmtShowerDigis",
+    EGammaInputTag = "simCaloStage2Digis",
+    TauInputTag = "simCaloStage2Digis",
+    JetInputTag = "simCaloStage2Digis",
+    EtSumInputTag = "simCaloStage2Digis",
+    ExtInputTag = "simGtExtFakeStage2Digis",
+    AlgoBlkInputTag = "gtStage2Digis",
+    AlgorithmTriggersUnmasked = True,
+    AlgorithmTriggersUnprescaled = True,
+    GetPrescaleColumnFromData = False,
+    RequireMenuToMatchAlgoBlkInput = False,
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(simGtStage2Digis,
+                     useMuonShowers = False)

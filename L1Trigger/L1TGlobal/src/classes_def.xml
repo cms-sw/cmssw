@@ -31,17 +31,25 @@
     <field name="m_vecHfRingEtSumsTemplate" mapping="blob" />
     <field name="m_vecJetCountsTemplate" mapping="blob" />
     <field name="m_vecMuonTemplate" mapping="blob" />
+    <field name="m_vecMuonShowerTemplate" mapping="blob" />
   </class>
   <class name="MuonTemplate"/>
   <class name="MuonTemplate::ObjectParameter"/>
   <class name="std::vector<MuonTemplate::ObjectParameter>"/>
-  <class name="MuonTemplate::CorrelationParameter"/>
   <class name="std::vector<MuonTemplate>"/>
   <class name="std::vector<std::vector<MuonTemplate> >"/>
+  <class name="MuonTemplate::CorrelationParameter"/>
+
   <class name="CaloTemplate"/>
   <class name="CaloTemplate::ObjectParameter"/>
   <class name="std::vector<CaloTemplate::ObjectParameter>"/>
-  <class name="CaloTemplate::CorrelationParameter"/>
   <class name="std::vector<CaloTemplate>"/>
   <class name="std::vector<std::vector<CaloTemplate> >"/>
+  <class name="CaloTemplate::CorrelationParameter"/>
+
+  <class name="MuonShowerTemplate"/>
+  <class name="MuonShowerTemplate::ObjectParameter"/>
+  <class name="std::vector<MuonShowerTemplate::ObjectParameter>"/>
+  <class name="std::vector<MuonShowerTemplate>"/>
+  <class name="std::vector<std::vector<MuonShowerTemplate> >"/>
 </lcgdict>

@@ -39,6 +39,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // These parameters are part of the L1T/HLT interface, avoid changing if possible::
   desc.add<edm::InputTag>("MuonInputTag", edm::InputTag(""))
       ->setComment("InputTag for Global Muon Trigger (required parameter:  default value is invalid)");
+  desc.add<edm::InputTag>("MuonShowerInputTag", edm::InputTag(""))
+      ->setComment("InputTag for Global Muon Shower Trigger (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("EGammaInputTag", edm::InputTag(""))
       ->setComment("InputTag for Calo Trigger EGamma (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("TauInputTag", edm::InputTag(""))
@@ -47,6 +49,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("InputTag for Calo Trigger Jet (required parameter:  default value is invalid)");
   desc.add<edm::InputTag>("EtSumInputTag", edm::InputTag(""))
       ->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
+
   desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
       ->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
   desc.add<edm::InputTag>("AlgoBlkInputTag", edm::InputTag("hltGtStage2Digis"))
@@ -63,6 +66,10 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
           "true when used by the HLT to produce the object map");
   desc.add<bool>("AlgorithmTriggersUnmasked", false)
       ->setComment("not required, but recommend to specify explicitly in config");
+
+  // switch for muon showers in Run-3
+  desc.add<bool>("useMuonShowers", false);
+
   // These parameters have well defined  default values and are not currently
   // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool>("ProduceL1GtDaqRecord", true);
@@ -76,13 +83,15 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<bool>("PrintL1Menu", false);
   desc.add<std::string>("TriggerMenuLuminosity", "startup");
   desc.add<std::string>("PrescaleCSVFile", "prescale_L1TGlobal.csv");
-  descriptions.add("L1TGlobalProducer", desc);
+
+  descriptions.add("simGtStage2DigisDef", desc);
 }
 
 // constructors
 
 L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
     : m_muInputTag(parSet.getParameter<edm::InputTag>("MuonInputTag")),
+      m_muShowerInputTag(parSet.getParameter<edm::InputTag>("MuonShowerInputTag")),
       m_egInputTag(parSet.getParameter<edm::InputTag>("EGammaInputTag")),
       m_tauInputTag(parSet.getParameter<edm::InputTag>("TauInputTag")),
       m_jetInputTag(parSet.getParameter<edm::InputTag>("JetInputTag")),
@@ -108,12 +117,15 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_isDebugEnabled(edm::isDebugEnabled()),
       m_getPrescaleColumnFromData(parSet.getParameter<bool>("GetPrescaleColumnFromData")),
       m_requireMenuToMatchAlgoBlkInput(parSet.getParameter<bool>("RequireMenuToMatchAlgoBlkInput")),
-      m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")) {
+      m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")),
+      m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
   m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
   m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
   m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
+  if (m_useMuonShowers)
+    m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
   m_extInputToken = consumes<BXVector<GlobalExtBlk>>(m_extInputTag);
   m_l1GtStableParToken = esConsumes<L1TGlobalParameters, L1TGlobalParametersRcd>();
   m_l1GtMenuToken = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
@@ -197,6 +209,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_numberDaqPartitions = 0;
 
   m_nrL1Mu = 0;
+  m_nrL1MuShower = 0;
   m_nrL1EG = 0;
   m_nrL1Tau = 0;
 
@@ -259,6 +272,12 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // number of objects of each type
     m_nrL1Mu = data->numberL1Mu();
 
+    // There should be at most 1 muon shower object per BX
+    // This object contains information for the in-time
+    // showers and out-of-time showers
+    if (m_useMuonShowers)
+      m_nrL1MuShower = 1;
+
     // EG
     m_nrL1EG = data->numberL1EG();
 
@@ -274,8 +293,14 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1) / 2 - 1;
 
     // Initialize Board
-    m_uGtBrd->init(
-        m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent);
+    m_uGtBrd->init(m_numberPhysTriggers,
+                   m_nrL1Mu,
+                   m_nrL1MuShower,
+                   m_nrL1EG,
+                   m_nrL1Tau,
+                   m_nrL1Jet,
+                   minL1DataBxInEvent,
+                   maxL1DataBxInEvent);
 
     //
     m_l1GtParCacheID = l1GtParCacheID;
@@ -330,6 +355,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     m_l1GtMenu = std::make_unique<TriggerMenu>(gtParser.gtTriggerMenuName(),
                                                data->numberChips(),
                                                gtParser.vecMuonTemplate(),
+                                               gtParser.vecMuonShowerTemplate(),
                                                gtParser.vecCaloTemplate(),
                                                gtParser.vecEnergySumTemplate(),
                                                gtParser.vecExternalTemplate(),
@@ -377,7 +403,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         m_l1GtBMCacheID = l1GtBMCacheID;
 
     }
-   
+
 
     // TODO need changes in CondFormats to cache the maps
     const std::vector<L1GtBoard>& boardMaps = m_l1GtBM->gtBoardMaps();
@@ -471,6 +497,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   //
   bool receiveMu = true;
+  bool receiveMuShower = false;
   bool receiveEG = true;
   bool receiveTau = true;
   bool receiveJet = true;
@@ -574,6 +601,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputToken, receiveMu, m_nrL1Mu);
 
+  if (m_useMuonShowers)
+    m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);
+
   m_uGtBrd->receiveExternalData(iEvent, m_extInputToken, receiveExt);
 
   // loop over BxInEvent
@@ -590,6 +620,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                      gtObjectMapRecord,
                      m_numberPhysTriggers,
                      m_nrL1Mu,
+                     m_nrL1MuShower,
                      m_nrL1EG,
                      m_nrL1Tau,
                      m_nrL1Jet);

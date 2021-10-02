@@ -103,7 +103,8 @@
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
 
-  <class name="l1t::MuonShower" ClassVersion="10">
+  <class name="l1t::MuonShower" ClassVersion="11">
+   <version ClassVersion="11" checksum="1417249241"/>
    <version ClassVersion="10" checksum="3869296059"/>
   </class>
   <class name="edm::Ptr<l1t::MuonShower>"/>

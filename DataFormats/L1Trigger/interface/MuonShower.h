@@ -34,16 +34,41 @@ namespace l1t {
 
     ~MuonShower() override;
 
-    void setOneNominalInTime(const bool bit) { isOneNominalInTime_ = bit; }
-    void setOneNominalOutOfTime(const bool bit) { isOneNominalOutOfTime_ = bit; }
-    void setTwoLooseInTime(const bool bit) { isTwoLooseInTime_ = bit; }
-    void setTwoLooseOutOfTime(const bool bit) { isTwoLooseOutOfTime_ = bit; }
+    // This makes sense as long as the one-nominal shower case is mapped
+    // onto 0b01 and the two-loose shower case is mapped onto 0b10.
+    // A third (unused option) is 0b11
+    void setOneNominalInTime(const bool bit) {
+      isOneNominalInTime_ = bit;
+      mus0_ = bit;
+    }
+    void setOneNominalOutOfTime(const bool bit) {
+      isOneNominalOutOfTime_ = bit;
+      musOutOfTime0_ = bit;
+    }
+    void setTwoLooseInTime(const bool bit) {
+      isTwoLooseInTime_ = bit;
+      mus1_ = bit;
+    }
+    void setTwoLooseOutOfTime(const bool bit) {
+      isTwoLooseOutOfTime_ = bit;
+      musOutOfTime1_ = bit;
+    }
+
+    void setMus0(const bool bit) { mus0_ = bit; }
+    void setMus1(const bool bit) { mus1_ = bit; }
+    void setMusOutOfTime0(const bool bit) { musOutOfTime0_ = bit; }
+    void setMusOutOfTime1(const bool bit) { musOutOfTime1_ = bit; }
 
     bool isValid() const;
     bool isOneNominalInTime() const { return isOneNominalInTime_; }
     bool isOneNominalOutOfTime() const { return isOneNominalOutOfTime_; }
     bool isTwoLooseInTime() const { return isTwoLooseInTime_; }
     bool isTwoLooseOutOfTime() const { return isTwoLooseOutOfTime_; }
+
+    bool mus0() const { return mus0_; }
+    bool mus1() const { return mus1_; }
+    bool musOutOfTime0() const { return musOutOfTime0_; }
+    bool musOutOfTime1() const { return musOutOfTime1_; }
 
     virtual bool operator==(const l1t::MuonShower& rhs) const;
     virtual inline bool operator!=(const l1t::MuonShower& rhs) const { return !(operator==(rhs)); };
@@ -55,6 +80,15 @@ namespace l1t {
     bool isOneNominalOutOfTime_;
     bool isTwoLooseInTime_;
     bool isTwoLooseOutOfTime_;
+
+    // The data members below represent the same data as the 4 members above.
+    // They are needed in order to interface with the uGT GlobalBoard class.
+    // 2 bits for the in-time showers
+    bool mus0_;
+    bool mus1_;
+    // 2 bits for the out-of-time showers
+    bool musOutOfTime0_;
+    bool musOutOfTime1_;
   };
 
 }  // namespace l1t
