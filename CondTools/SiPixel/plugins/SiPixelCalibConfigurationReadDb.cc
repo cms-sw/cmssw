@@ -76,62 +76,64 @@ void SiPixelCalibConfigurationReadDb::analyze(const edm::Event& iEvent, const ed
   LogInfo("") << " examining SiPixelCalibConfiguration database object..." << std::endl;
 
   const SiPixelCalibConfiguration* calib = &iSetup.getData(calibConfigToken);
-  std::cout << "calibration type: " << calib->getCalibrationMode() << std::endl;
-  std::cout << "number of triggers: " << calib->getNTriggers() << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationReadDb") << "calibration type: " << calib->getCalibrationMode() << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationReadDb") << "number of triggers: " << calib->getNTriggers() << std::endl;
   std::vector<short> vcalvalues = calib->getVCalValues();
-  std::cout << "number of VCAL: " << vcalvalues.size() << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationReadDb") << "number of VCAL: " << vcalvalues.size() << std::endl;
   int ngoodcols = 0;
   int ngoodrows = 0;
   for (uint32_t i = 0; i < vcalvalues.size(); ++i) {
     if (verbose_) {
-      std::cout << "Vcal values " << i << "," << i + 1 << " : " << vcalvalues[i] << ",";
+      edm::LogPrint("SiPixelCalibConfigurationReadDb")
+          << "Vcal values " << i << "," << i + 1 << " : " << vcalvalues[i] << ",";
     }
     ++i;
     if (verbose_) {
       if (i < vcalvalues.size())
-        std::cout << vcalvalues[i];
-      std::cout << std::endl;
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << vcalvalues[i];
+      edm::LogPrint("SiPixelCalibConfigurationReadDb") << std::endl;
     }
   }
   if (verbose_)
-    std::cout << "column patterns:" << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << "column patterns:" << std::endl;
   for (uint32_t i = 0; i < calib->getColumnPattern().size(); ++i) {
     if (calib->getColumnPattern()[i] != -1) {
       if (verbose_)
-        std::cout << calib->getColumnPattern()[i];
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << calib->getColumnPattern()[i];
       ngoodcols++;
     }
     if (verbose_) {
       if (i != 0)
-        std::cout << " ";
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << " ";
       if (calib->getColumnPattern()[i] == -1)
-        std::cout << "- ";
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << "- ";
     }
   }
   if (verbose_) {
-    std::cout << std::endl;
-    std::cout << "row patterns:" << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << "row patterns:" << std::endl;
   }
   for (uint32_t i = 0; i < calib->getRowPattern().size(); ++i) {
     if (calib->getRowPattern()[i] != -1) {
       if (verbose_)
-        std::cout << calib->getRowPattern()[i];
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << calib->getRowPattern()[i];
       ngoodrows++;
     }
     if (verbose_) {
       if (i != 0)
-        std::cout << " ";
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << " ";
       if (calib->getRowPattern()[i] == -1)
-        std::cout << "- ";
+        edm::LogPrint("SiPixelCalibConfigurationReadDb") << "- ";
     }
   }
   if (verbose_) {
-    std::cout << std::endl;
-    std::cout << "number of row patterns: " << ngoodrows << std::endl;
-    std::cout << "number of column patterns: " << ngoodcols << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << "number of row patterns: " << ngoodrows << std::endl;
+    edm::LogPrint("SiPixelCalibConfigurationReadDb") << "number of column patterns: " << ngoodcols << std::endl;
   }
-  std::cout << "this payload is designed to run on "
-            << vcalvalues.size() * ngoodcols * ngoodrows * calib->getNTriggers() << " events." << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationReadDb")
+      << "this payload is designed to run on " << vcalvalues.size() * ngoodcols * ngoodrows * calib->getNTriggers()
+      << " events." << std::endl;
 }
 
 //define this as a plug-in

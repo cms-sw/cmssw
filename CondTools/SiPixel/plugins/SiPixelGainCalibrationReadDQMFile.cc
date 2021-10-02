@@ -46,7 +46,7 @@
 void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSetup, TFile *therootfile) {
   // only create when necessary.
   // process the minimum and maximum gain & ped values...
-  std::cout << "now starting db fill!!!" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now starting db fill!!!" << std::endl;
 
   std::map<uint32_t, std::pair<TString, int> > badresults;
 
@@ -75,9 +75,10 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
   //   TH1F *pedPerDetid;
 
   size_t ntimes = 0;
-  std::cout << "now filling record " << record_ << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now filling record " << record_ << std::endl;
   if (record_ != "SiPixelGainCalibrationForHLTRcd" && record_ != "SiPixelGainCalibrationOfflineRcd") {
-    std::cout << "you passed record " << record_ << ", which I have no idea what to do with!" << std::endl;
+    edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+        << "you passed record " << record_ << ", which I have no idea what to do with!" << std::endl;
     return;
   }
   if (gainlow_ > gainhi_) {
@@ -96,12 +97,12 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     pedhi_ = pedmax_;
   float badpedval = pedlow_ - 200;
   float badgainval = gainlow_ - 200;
-  std::cout << "now filling db: values: pedlow, hi: " << pedlow_ << ", " << pedhi_ << " and gainlow, hi: " << gainlow_
-            << ", " << gainhi_;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now filling db: values: pedlow, hi: " << pedlow_ << ", "
+                                                     << pedhi_ << " and gainlow, hi: " << gainlow_ << ", " << gainhi_;
   float meangain = meanGainHist_->GetMean();
   float meanped = meanPedHist_->GetMean();
-  //  std::cout << ", and mean gain " << meangain<< ", ped " << meanped ;
-  //  std::cout << std::endl;
+  //  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << ", and mean gain " << meangain<< ", ped " << meanped ;
+  //  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << std::endl;
 
   // and fill the dummy histos:
 
@@ -123,8 +124,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
 
   uint32_t nchannels = 0;
   uint32_t nmodules = 0;
-  std::cout << "now starting loop on detids, there are " << bookkeeper_.size() << " histograms to consider..."
-            << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+      << "now starting loop on detids, there are " << bookkeeper_.size() << " histograms to consider..." << std::endl;
   uint32_t detid = 0;
   therootfile->cd();
   const TrackerGeometry *pDD = &iSetup.getData(pddToken_);
@@ -145,9 +146,9 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     //if(detid!=302058516) continue;
     ntimes = 0;
     useddefaultfortree = 0;
-    std::cout
+    edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
         << "now creating database object for detid " << detid
-        << std::endl;  //<< " " << bookkeeper_[detid]["gain_2d"] << " " << bookkeeper_[detid]["ped_2d"] << std::endl; //std::cout<< " nrows:" << nrows << " ncols: " << ncols << std::endl;
+        << std::endl;  //<< " " << bookkeeper_[detid]["gain_2d"] << " " << bookkeeper_[detid]["ped_2d"] << std::endl; //edm::LogPrint("SiPixelGainCalibrationReadDQMFile")<< " nrows:" << nrows << " ncols: " << ncols << std::endl;
 
     // Get the module sizes.
     TH2F *tempchi2;
@@ -172,14 +173,14 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
       TString tempgainstring = bookkeeper_[detid]["gain_2d"];
       tempgain = dynamic_cast<TH2F *>(therootfile->Get(tempgainstring));
       if (tempgain == nullptr) {
-        //  std::cout <<"WARNING, gain histo " << bookkeeper_[detid]["gain_2d"] << " does not exist, using default instead" << std::endl;
+        //  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<"WARNING, gain histo " << bookkeeper_[detid]["gain_2d"] << " does not exist, using default instead" << std::endl;
         tempgain = defaultGain_.get();
         useddefaultfortree = 1;
       }
       TString temppedstring = bookkeeper_[detid]["ped_2d"];
       tempped = dynamic_cast<TH2F *>(therootfile->Get(temppedstring));
       if (tempped == nullptr) {
-        //      std::cout <<"WARNING, ped histo " << bookkeeper_[detid]["ped_2d"] << " for detid " << detid << " does not exist, using default instead" << std::endl;
+        //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<"WARNING, ped histo " << bookkeeper_[detid]["ped_2d"] << " for detid " << detid << " does not exist, using default instead" << std::endl;
         std::pair<TString, int> tempval(tempgainstring, 0);
         badresults[detid] = tempval;
         tempped = defaultPed_.get();
@@ -203,7 +204,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
 
     //    int nrows=tempgain->GetNbinsY();
     //    int ncols=tempgain->GetNbinsX();
-    //    std::cout << "next histo " << tempgain->GetTitle() << " has nrow,ncol:" << nrows << ","<< ncols << std::endl;
+    //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "next histo " << tempgain->GetTitle() << " has nrow,ncol:" << nrows << ","<< ncols << std::endl;
     size_t nrowsrocsplit = theGainCalibrationDbInputHLT->getNumberOfRowsToAverageOver();
     if (theGainCalibrationDbInputOffline->getNumberOfRowsToAverageOver() != nrowsrocsplit)
       throw cms::Exception("GainCalibration Payload configuration error")
@@ -248,12 +249,12 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     float gainforthiscol[2];
     int nusedrows[2];
     size_t nemptypixels = 0;
-    //std::cout << pedlow_<<"  "<<pedhi_<<"  "<<gainlow_<<"  "<<gainhi_<< std::endl;
+    //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << pedlow_<<"  "<<pedhi_<<"  "<<gainlow_<<"  "<<gainhi_<< std::endl;
     for (size_t icol = 1; icol <= ncols; icol++) {
       nusedrows[0] = nusedrows[1] = 0;
       pedforthiscol[0] = pedforthiscol[1] = 0;
       gainforthiscol[0] = gainforthiscol[1] = 0;
-      //   std::cout << "now lookign at col " << icol << std::endl;
+      //   edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now lookign at col " << icol << std::endl;
       for (size_t jrow = 1; jrow <= nrows; jrow++) {
         size_t iglobalrow = 0;
         if (jrow > nrowsrocsplit)
@@ -268,7 +269,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
         if (ped > pedlow_ && gain > gainlow_ && ped < pedhi_ && gain < gainhi_ && (fitresult > 0)) {
           ntimes++;
           //	  if(ntimes<=10)
-          //        std::cout << detid << " " << jrow << " " << icol << " " << ped << " " << ped << " " << chi2 << " " << fitresult << std::endl;
+          //        edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << detid << " " << jrow << " " << icol << " " << ped << " " << ped << " " << chi2 << " " << fitresult << std::endl;
           VCAL_endpoint->Fill((255 - ped) / gain);
           peds[jrow] = ped;
           gains[jrow] = gain;
@@ -287,12 +288,12 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
         } else {
           nemptypixels++;
           // 	  if(nemptypixels<0.01*nrows*ncols )
-          // 	    std::cout << "ped,gain="<< ped << ","<< gain << " row, col " << jrow <<","<< icol << ", detid " << detid <<  std::endl;
+          // 	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "ped,gain="<< ped << ","<< gain << " row, col " << jrow <<","<< icol << ", detid " << detid <<  std::endl;
           if (usemeanwhenempty_) {
             //ntimes++;
             //if(nemptypixels<=50)
-            //std::cout << "USING DEFAULT MEAN GAIN & PED (" << meangain << ","<< meanped << ")!, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2  << ", fitresult "<< fitresult<<  std::endl;
-            // std::cout <<jrow<<"  "<<icol<<std::endl;
+            //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "USING DEFAULT MEAN GAIN & PED (" << meangain << ","<< meanped << ")!, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2  << ", fitresult "<< fitresult<<  std::endl;
+            // edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<jrow<<"  "<<icol<<std::endl;
             // }
             peds[jrow] = meanped;
             gains[jrow] = meangain;
@@ -300,7 +301,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
             badresults[detid] = tempval;
           } else {
             //if(ntimes<=100)
-            // std::cout << tempgainstring << " bad/dead Pixel, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2 << ", fitresult "<< fitresult<< std::endl;
+            // edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempgainstring << " bad/dead Pixel, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2 << ", fitresult "<< fitresult<< std::endl;
             std::pair<TString, int> tempval(tempgainstring, 2);
             badresults[detid] = tempval;
             // if everything else fails: set the gain & ped now to dead
@@ -308,7 +309,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
             gains[jrow] = badgainval;
           }
         }
-        //std::cout << detid << " " << jrow << " " << icol << " " << peds[jrow] << " " << gains[jrow] << " " << chi2 << " " << fitresult << std::endl;
+        //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << detid << " " << jrow << " " << icol << " " << peds[jrow] << " " << gains[jrow] << " " << chi2 << " " << fitresult << std::endl;
 
         totgains->Fill(gains[jrow]);
         totpeds->Fill(peds[jrow]);
@@ -332,24 +333,24 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
         }
 
         if (jrow % nrowsrocsplit == 0) {
-          //	  std::cout << "now in col " << icol << " " << jrow << " " << iglobalrow << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now in col " << icol << " " << jrow << " " << iglobalrow << std::endl;
           if (nusedrows[iglobalrow] > 0) {
             pedforthiscol[iglobalrow] /= (float)nusedrows[iglobalrow];
             gainforthiscol[iglobalrow] /= (float)nusedrows[iglobalrow];
           }
           if (gainforthiscol[iglobalrow] > gainlow_ && gainforthiscol[iglobalrow] < gainhi_ &&
               pedforthiscol[iglobalrow] > pedlow_ && pedforthiscol[iglobalrow] < pedhi_) {  // good
-            //	    std::cout << "setting ped & col aves: " << pedforthiscol[iglobalrow] << " " <<  gainforthiscol[iglobalrow]<< std::endl;
+            //	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "setting ped & col aves: " << pedforthiscol[iglobalrow] << " " <<  gainforthiscol[iglobalrow]<< std::endl;
           } else {
             if (usemeanwhenempty_) {
-              //	      std::cout << "setting ped & col aves: " << pedforthiscol[iglobalrow] << " " <<  gainforthiscol[iglobalrow]<< std::endl;
+              //	      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "setting ped & col aves: " << pedforthiscol[iglobalrow] << " " <<  gainforthiscol[iglobalrow]<< std::endl;
               pedforthiscol[iglobalrow] = meanped;
               gainforthiscol[iglobalrow] = meangain;
               std::pair<TString, int> tempval(tempgainstring, 3);
               badresults[detid] = tempval;
             } else {  //make dead
               //if(ntimes<=100)
-              //std::cout << tempgainstring << "dead Column, observed values are gain,ped : "<< gainforthiscol[iglobalrow] << "," << pedforthiscol[iglobalrow] << std::endl;
+              //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempgainstring << "dead Column, observed values are gain,ped : "<< gainforthiscol[iglobalrow] << "," << pedforthiscol[iglobalrow] << std::endl;
               pedforthiscol[iglobalrow] = badpedval;
               gainforthiscol[iglobalrow] = badgainval;
               std::pair<TString, int> tempval(tempgainstring, 4);
@@ -364,7 +365,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
             theGainCalibrationDbInputHLT->setData(
                 pedforthiscol[iglobalrow], gainforthiscol[iglobalrow], theSiPixelGainCalibrationPerColumn);
           } else {
-            //	    std::cout << pedforthiscol[iglobalrow] << " " << gainforthiscol[iglobalrow] << std::endl;
+            //	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << pedforthiscol[iglobalrow] << " " << gainforthiscol[iglobalrow] << std::endl;
             theGainCalibrationDbInputOffline->setDeadColumn(nrowsrocsplit,
                                                             theSiPixelGainCalibrationGainPerColPedPerPixel);
             theGainCalibrationDbInputHLT->setDeadColumn(nrowsrocsplit, theSiPixelGainCalibrationPerColumn);
@@ -373,7 +374,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
       }
     }
 
-    //    std::cout << "setting range..." << std::endl;
+    //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "setting range..." << std::endl;
     SiPixelGainCalibration::Range range(theSiPixelGainCalibrationPerPixel.begin(),
                                         theSiPixelGainCalibrationPerPixel.end());
     SiPixelGainCalibrationForHLT::Range hltrange(theSiPixelGainCalibrationPerColumn.begin(),
@@ -381,7 +382,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     SiPixelGainCalibrationOffline::Range offlinerange(theSiPixelGainCalibrationGainPerColPedPerPixel.begin(),
                                                       theSiPixelGainCalibrationGainPerColPedPerPixel.end());
 
-    //    std::cout <<"putting things in db..." << std::endl;
+    //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<"putting things in db..." << std::endl;
     // now start creating the various database objects
     if (!theGainCalibrationDbInput->put(detid, range, ncols))
       edm::LogError("SiPixelGainCalibrationAnalysis")
@@ -407,42 +408,47 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
        ++ibad) {
     uint32_t detid = ibad->first;
     if (badresults[detid].second == 0) {
-      //      std::cout << " used pixel mean value";
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " used pixel mean value";
       nempty++;
     } else if (badresults[detid].second == 1) {
-      //      std::cout << " used pixel mean value";
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " used pixel mean value";
       ndefault++;
     } else if (badresults[detid].second == 2) {
-      std::cout << badresults[detid].first;
-      std::cout << " has one or more dead pixels";
-      std::cout << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << badresults[detid].first;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " has one or more dead pixels";
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << std::endl;
       ndead++;
     } else if (badresults[detid].second == 3) {
-      //      std::cout << " used column mean value";
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " used column mean value";
       ncoldefault++;
     } else if (badresults[detid].second == 4) {
-      std::cout << badresults[detid].first;
-      std::cout << " has one or more dead columns";
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << badresults[detid].first;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " has one or more dead columns";
       ncoldead++;
-      std::cout << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << std::endl;
     }
   }
-  std::cout << nempty << " modules were empty and now have pixels filled with default values." << std::endl;
-  std::cout << ndefault << " modules have pixels filled with default values." << std::endl;
-  std::cout << ndead << " modules have pixels flagged as dead." << std::endl;
-  std::cout << ncoldefault << " modules have columns filled with default values." << std::endl;
-  std::cout << ncoldead << " modules have columns filled with dead values." << std::endl;
-  std::cout << " ---> PIXEL Modules  " << nmodules << "\n"
-            << " ---> PIXEL Channels " << nchannels << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+      << nempty << " modules were empty and now have pixels filled with default values." << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+      << ndefault << " modules have pixels filled with default values." << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << ndead << " modules have pixels flagged as dead." << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+      << ncoldefault << " modules have columns filled with default values." << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+      << ncoldead << " modules have columns filled with dead values." << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " ---> PIXEL Modules  " << nmodules << "\n"
+                                                     << " ---> PIXEL Channels " << nchannels << std::endl;
 
-  std::cout << " --- writing to DB!" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << " --- writing to DB!" << std::endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("db service unavailable");
     return;
   } else {
     if (record_ == "SiPixelGainCalibrationForHLTRcd") {
-      std::cout << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+          << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
         mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
             *theGainCalibrationDbInputHLT, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
@@ -451,7 +457,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
             *theGainCalibrationDbInputHLT, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     } else if (record_ == "SiPixelGainCalibrationOfflineRcd") {
-      std::cout << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
+          << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
         mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
             *theGainCalibrationDbInputOffline, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
@@ -535,7 +542,7 @@ void SiPixelGainCalibrationReadDQMFile::analyze(const edm::Event &iEvent, const 
 }
 
 std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
-  std::cout << "now parsing file " << rootfilestring_ << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now parsing file " << rootfilestring_ << std::endl;
   auto therootfile = std::make_unique<TFile>(rootfilestring_.c_str());
   therootfile->cd();
   TDirectory *dir = therootfile->GetDirectory("DQMData");
@@ -558,18 +565,18 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
     TString keytype = thekey->GetClassName();
     //    if(keyname=="EventInfo")
     //      continue;
-    //    std::cout <<  keytype << " " << keyname << std::endl;
+    //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<  keytype << " " << keyname << std::endl;
     if (keytype == "TDirectoryFile") {
       TString dirname = dir->GetPath();
       dirname += "/";
       dirname += keyname;
-      //      std::cout << dirname << std::endl;
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirname << std::endl;
       dir = therootfile->GetDirectory(dirname);
 
       list = dir->GetListOfKeys();
       if (dirname.Contains(comparestring)) {
         dirlist.push_back(dirname);
-        //	std::cout << dirname << std::endl;
+        //	edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirname << std::endl;
       } else {
         notdonelist.push_back(dirname);
         nsubdirs.push_back(-1);
@@ -581,11 +588,11 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
     for (size_t idir = 0; idir < notdonelist.size(); ++idir) {
       if (nsubdirs[idir] == 0)
         continue;
-      //      std::cout << "now examining " << notdonelist[idir]<< " " << nsubdirs[idir] <<  std::endl;
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now examining " << notdonelist[idir]<< " " << nsubdirs[idir] <<  std::endl;
       dir = therootfile->GetDirectory(notdonelist[idir]);
-      //      std::cout << dir->GetName() << std::endl;
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dir->GetName() << std::endl;
       list = dir->GetListOfKeys();
-      //      std::cout << list->GetEntries() << std::endl;
+      //      edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << list->GetEntries() << std::endl;
       int ndirectories = 0;
       for (ikey = 0; ikey < list->GetEntries(); ikey++) {
         TKey *thekey = (TKey *)list->At(ikey);
@@ -593,15 +600,15 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
           continue;
         TString keyname = thekey->GetName();
         TString keytype = thekey->GetClassName();
-        //	std::cout << keyname << " " << keytype << std::endl;
+        //	edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << keyname << " " << keytype << std::endl;
         if (keytype == "TDirectoryFile") {
           TString dirname = dir->GetPath();
           dirname += "/";
           dirname += keyname;
-          //	  std::cout << dirname << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirname << std::endl;
           ndirectories++;
           if (dirname.Contains(comparestring)) {
-            //	    std::cout << dirname << std::endl;
+            //	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirname << std::endl;
             dirlist.push_back(dirname);
           } else {
             notdonelist.push_back(dirname);
@@ -610,7 +617,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
         }
       }
       nsubdirs[idir] = ndirectories;
-      // std::cout << "now done examining " << notdonelist[idir]<< " " << nsubdirs[idir] <<  std::endl;
+      // edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now done examining " << notdonelist[idir]<< " " << nsubdirs[idir] <<  std::endl;
     }
     nempty = 0;
     for (size_t i = 0; i < nsubdirs.size(); i++) {
@@ -618,10 +625,10 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
         nempty++;
     }
   }
-  //  std::cout << "\n done!" << std::endl;
+  //  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "\n done!" << std::endl;
 
   for (size_t idir = 0; idir < dirlist.size(); ++idir) {
-    //    std::cout << "good dir "  << dirlist[idir] << std::endl;
+    //    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "good dir "  << dirlist[idir] << std::endl;
 
     uint32_t detid = 1;
 
@@ -633,7 +640,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
         continue;
       TString keyname = thekey->GetName();
       TString keytype = thekey->GetClassName();
-      //	std::cout << keyname << " " << keytype << std::endl;
+      //	edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << keyname << " " << keytype << std::endl;
       if (keytype == "TH2F" && (keyname.Contains("Gain2d") || keyname.Contains("Pedestal2d") ||
                                 keyname.Contains("GainChi2Prob2d") || keyname.Contains("GainFitResult2d"))) {
         TString detidstring = keyname;
@@ -648,7 +655,7 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
           TString replacestring = rootfilestring_;
           replacestring += ":";
           tempstr.ReplaceAll(replacestring, "");
-          //	  std::cout << tempstr << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempstr << std::endl;
           bookkeeper_[detid]["chi2prob_2d"] = tempstr;
         } else if (keyname.Contains("GainFitResult2d")) {
           TString tempstr = dirlist[idir];
@@ -657,10 +664,10 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
           TString replacestring = rootfilestring_;
           replacestring += ":";
           tempstr.ReplaceAll(replacestring, "");
-          //	  std::cout << tempstr << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempstr << std::endl;
           bookkeeper_[detid]["fitresult_2d"] = tempstr;
         } else if (keyname.Contains("Gain2d")) {
-          //	  std::cout << dirlist[idir] << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirlist[idir] << std::endl;
           std::map<std::string, TString> tempmap;
           TString tempstr = dirlist[idir];
           tempstr += "/";
@@ -668,26 +675,26 @@ std::unique_ptr<TFile> SiPixelGainCalibrationReadDQMFile::getHistograms() {
           TString replacestring = rootfilestring_;
           replacestring += ":";
           tempstr.ReplaceAll(replacestring, "");
-          //	  std::cout << tempstr << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempstr << std::endl;
           bookkeeper_[detid]["gain_2d"] = tempstr;
-          //std::cout << detidstring << " " << keyname << " " << detid << " " << bookkeeper_[detid]["gain_2d"] << std::endl ;
+          //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << detidstring << " " << keyname << " " << detid << " " << bookkeeper_[detid]["gain_2d"] << std::endl ;
         }
         if (keyname.Contains("Pedestal2d")) {
-          //	  std::cout << dirlist[idir] << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << dirlist[idir] << std::endl;
           std::map<std::string, TString> tempmap;
 
           TString tempstr = dirlist[idir];
           tempstr += "/";
           tempstr += keyname;
-          //	  std::cout << tempstr << std::endl;
+          //	  edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempstr << std::endl;
           TString replacestring = rootfilestring_;
           replacestring += ":";
           tempstr.ReplaceAll(replacestring, "");
           bookkeeper_[detid]["ped_2d"] = tempstr;
 
-          //std::cout << detidstring << " " << keyname << " " << detid << " " << bookkeeper_[detid]["ped_2d"] << std::endl ;
+          //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << detidstring << " " << keyname << " " << detid << " " << bookkeeper_[detid]["ped_2d"] << std::endl ;
         }
-        //   	std::cout << keyname << " " << keytype << std::endl;
+        //   	edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << keyname << " " << keytype << std::endl;
       }
     }
 

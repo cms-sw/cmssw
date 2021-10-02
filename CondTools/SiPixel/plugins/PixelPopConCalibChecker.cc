@@ -19,7 +19,7 @@ PixelPopConCalibChecker::PixelPopConCalibChecker(const edm::ParameterSet& iConfi
   _filename = iConfig.getParameter<string>("filename");
   _messageLevel = iConfig.getUntrackedParameter("messageLevel", 0);
   if (_messageLevel > 0)
-    cout << "********* PixelPopConCalibChecker ************" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "********* PixelPopConCalibChecker ************" << endl;
 }
 
 PixelPopConCalibChecker::~PixelPopConCalibChecker() = default;
@@ -37,8 +37,8 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   // get the run and event number from the EmptyIOVSource
   if (_messageLevel > 0) {
     EventID eventID = iEvent.id();
-    cout << "Comparing SiPixelCalibConfiguration object from database for run " << eventID.run()
-         << " to calib.dat file at " << _filename << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "Comparing SiPixelCalibConfiguration object from database for run "
+                                             << eventID.run() << " to calib.dat file at " << _filename << endl;
   }  // if (_messageLevel > 0)
 
   // get the calib config object in the database from the event setup
@@ -52,15 +52,15 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   string modeES = calibES->getCalibrationMode();
   string modeFile = calibFile->getCalibrationMode();
   if (_messageLevel > 1) {
-    cout << "*** Checking calibration mode ***" << endl;
-    cout << "  mode from DB:   " << modeES << endl;
-    cout << "  mode from file: " << modeFile << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "*** Checking calibration mode ***" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  mode from DB:   " << modeES << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  mode from file: " << modeFile << endl;
   }
   if (modeES != modeFile) {
     isSame = false;
     if (_messageLevel > 0) {
-      cout << "Mismatch in calibration mode!" << endl;
-      cout << "  " << modeES << " in database, " << modeFile << " in file" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "Mismatch in calibration mode!" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "  " << modeES << " in database, " << modeFile << " in file" << endl;
     }
   }
 
@@ -68,15 +68,16 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   short ntriggerES = calibES->getNTriggers();
   short ntriggerFile = calibFile->getNTriggers();
   if (_messageLevel > 1) {
-    cout << "*** Checking number of triggers ***" << endl;
-    cout << "  NTriggers from DB:   " << ntriggerES << endl;
-    cout << "  NTriggers from file: " << ntriggerFile << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "*** Checking number of triggers ***" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  NTriggers from DB:   " << ntriggerES << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  NTriggers from file: " << ntriggerFile << endl;
   }
   if (ntriggerES != ntriggerFile) {
     isSame = false;
     if (_messageLevel > 0) {
-      cout << "Mismatch in number of triggers!" << endl;
-      cout << "  " << ntriggerES << " in database, " << ntriggerFile << " in file" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "Mismatch in number of triggers!" << endl;
+      edm::LogPrint("PixelPopConCalibChecker")
+          << "  " << ntriggerES << " in database, " << ntriggerFile << " in file" << endl;
     }
   }
 
@@ -84,20 +85,20 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   vector<short> vcalES = calibES->getVCalValues();
   vector<short> vcalFile = calibFile->getVCalValues();
   if (_messageLevel > 1) {
-    cout << "*** Checking vcal values ***" << endl;
-    cout << "  vcal values from DB:   ";
+    edm::LogPrint("PixelPopConCalibChecker") << "*** Checking vcal values ***" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  vcal values from DB:   ";
     for (vector<short>::const_iterator it = vcalES.begin(); it != vcalES.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
-    cout << "  vcal values from file: ";
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  vcal values from file: ";
     for (vector<short>::const_iterator it = vcalFile.begin(); it != vcalFile.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
   }
   if (vcalES != vcalFile) {
     isSame = false;
     if (_messageLevel > 0) {
-      cout << "Mismatch in vcal values!" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "Mismatch in vcal values!" << endl;
     }
   }
 
@@ -105,20 +106,20 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   vector<short> colES = calibES->getColumnPattern();
   vector<short> colFile = calibFile->getColumnPattern();
   if (_messageLevel > 1) {
-    cout << "*** Checking column pattern values ***" << endl;
-    cout << "  column pattern from DB:   ";
+    edm::LogPrint("PixelPopConCalibChecker") << "*** Checking column pattern values ***" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  column pattern from DB:   ";
     for (vector<short>::const_iterator it = colES.begin(); it != colES.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
-    cout << "  column pattern from file: ";
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  column pattern from file: ";
     for (vector<short>::const_iterator it = colFile.begin(); it != colFile.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
   }
   if (colES != colFile) {
     isSame = false;
     if (_messageLevel > 0) {
-      cout << "Mismatch in column pattern!" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "Mismatch in column pattern!" << endl;
     }
   }
 
@@ -126,28 +127,30 @@ void PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::Event
   vector<short> rowES = calibES->getRowPattern();
   vector<short> rowFile = calibFile->getRowPattern();
   if (_messageLevel > 1) {
-    cout << "*** Checking row pattern values ***" << endl;
-    cout << "  row pattern from DB:   ";
+    edm::LogPrint("PixelPopConCalibChecker") << "*** Checking row pattern values ***" << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  row pattern from DB:   ";
     for (vector<short>::const_iterator it = rowES.begin(); it != rowES.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
-    cout << "  row pattern from file: ";
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
+    edm::LogPrint("PixelPopConCalibChecker") << "  row pattern from file: ";
     for (vector<short>::const_iterator it = rowFile.begin(); it != rowFile.end(); ++it)
-      cout << *it << ", ";
-    cout << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << *it << ", ";
+    edm::LogPrint("PixelPopConCalibChecker") << endl;
   }
   if (rowES != rowFile) {
     isSame = false;
     if (_messageLevel > 0) {
-      cout << "Mismatch in row pattern!" << endl;
+      edm::LogPrint("PixelPopConCalibChecker") << "Mismatch in row pattern!" << endl;
     }
   }
 
-  cout << endl;
+  edm::LogPrint("PixelPopConCalibChecker") << endl;
   if (isSame) {
-    cout << "*** Calibration configuration in database and file match. Go forth and calibrate." << endl;
+    edm::LogPrint("PixelPopConCalibChecker")
+        << "*** Calibration configuration in database and file match. Go forth and calibrate." << endl;
   } else {
-    cout << "*** WARNING! Calibration configuration is database and file DO NOT match!" << endl;
+    edm::LogPrint("PixelPopConCalibChecker")
+        << "*** WARNING! Calibration configuration is database and file DO NOT match!" << endl;
   }
 
 }  // PixelPopConCalibChecker::analyze()

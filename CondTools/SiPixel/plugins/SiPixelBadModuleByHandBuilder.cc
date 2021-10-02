@@ -100,7 +100,7 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
       if (it == disabledModules.end())
         it = disabledModules.insert(disabledModules.begin(), std::make_pair(detId, 0));
       it->second |= 1 << roc;
-      //std::cout<<"New module read "<<name<<" "<<roc<<" --> "<<detId<<" "<<std::bitset<32>(it->second)<<std::endl;
+      //edm::LogPrint("SiPixelBadModuleByHandBuilder")<<"New module read "<<name<<" "<<roc<<" --> "<<detId<<" "<<std::bitset<32>(it->second)<<std::endl;
     }
 
     for (const auto& it : disabledModules) {

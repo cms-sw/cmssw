@@ -80,10 +80,10 @@ void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm:
 
   std::string fixedmode = fancyCalib.mode();
   std::string tobereplaced = "WithSLink";
-  std::cout << "mode = " << fixedmode << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationObjectMaker") << "mode = " << fixedmode << std::endl;
   if (fixedmode.find(tobereplaced) != std::string::npos)
     fixedmode.erase(fixedmode.find(tobereplaced), tobereplaced.length());
-  std::cout << "mode = " << fixedmode << std::endl;
+  edm::LogPrint("SiPixelCalibConfigurationObjectMaker") << "mode = " << fixedmode << std::endl;
   myCalib->setCalibrationMode(fixedmode);
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;

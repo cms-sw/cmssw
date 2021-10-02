@@ -41,11 +41,14 @@ using namespace std;
 
 void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetup& iSetup) {
   if (DEBUG)
-    cout << "=>=>=>=> Starting the function fillDatabase()" << endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+        << "=>=>=>=> Starting the function fillDatabase()" << endl;
 
   if (record_ != "SiPixelGainCalibrationOfflineRcd" && record_ != "SiPixelGainCalibrationForHLTRcd") {
-    std::cout << record_ << " : this record  can't be used !" << std::endl;
-    std::cout << "Please select SiPixelGainCalibrationForHLTRcd or SiPixelGainCalibrationOfflineRcd" << std::endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+        << record_ << " : this record  can't be used !" << std::endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+        << "Please select SiPixelGainCalibrationForHLTRcd or SiPixelGainCalibrationOfflineRcd" << std::endl;
     return;
   }
 
@@ -79,8 +82,9 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   if (pedhi_ > 300)
     pedhi_ = 300;
 
-  std::cout << "New payload will have pedlow,hi " << pedlow_ << "," << pedhi_ << " and gainlow,hi " << gainlow_ << ","
-            << gainhi_ << endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+      << "New payload will have pedlow,hi " << pedlow_ << "," << pedhi_ << " and gainlow,hi " << gainlow_ << ","
+      << gainhi_ << endl;
   if (record_ == "SiPixelGainCalibrationOfflineRcd")
     theGainCalibrationDbInputOffline_ = new SiPixelGainCalibrationOffline(pedlow_, pedhi_, gainlow_, gainhi_);
   if (record_ == "SiPixelGainCalibrationForHLTRcd")
@@ -108,12 +112,13 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       }
     }
     if (!willNoisyPixBeInserted)
-      cout << "All Noisy Pixels in detid " << it->first
-           << "won't be inserted, check the TrackerGeometry you are using !! You are missing some modules" << endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+          << "All Noisy Pixels in detid " << it->first
+          << "won't be inserted, check the TrackerGeometry you are using !! You are missing some modules" << endl;
   }
 
   if (DEBUG)
-    cout << "=>=>=>=> Starting Loop over all modules" << endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Starting Loop over all modules" << endl;
 
   //Looping over all modules
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
@@ -123,11 +128,11 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     if (detid == 0)
       continue;
     NDetid++;
-    //cout<<NDetid<<"  "<<detid<<endl;
+    //edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<NDetid<<"  "<<detid<<endl;
     //if(NDetid==164) continue;
 
     if (DEBUG)
-      cout << "=>=>=>=> We are in module " << detid << endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> We are in module " << detid << endl;
 
     // Get the module sizes
     const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>((*it));
@@ -149,11 +154,11 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     std::vector<char> theSiPixelGainCalibrationPerCol;
 
     if (DEBUG)
-      cout << "=>=>=>=> Starting Loop for each rows/cols " << endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Starting Loop for each rows/cols " << endl;
 
     for (int icol = 0; icol <= ncols - 1; icol++) {
       if (DEBUG)
-        cout << "=>=>=>=> Starting a new column" << endl;
+        edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Starting a new column" << endl;
 
       nusedrows[0] = nusedrows[1] = 0;
       gainforthiscol[0] = gainforthiscol[1] = 0;
@@ -161,7 +166,8 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
 
       for (int jrow = 0; jrow <= nrows - 1; jrow++) {
         if (DEBUG)
-          cout << "=>=>=>=> We are in col,row " << icol << "," << jrow << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "=>=>=>=> We are in col,row " << icol << "," << jrow << endl;
 
         ped = 0;
 
@@ -188,7 +194,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
         bool isPixelNoisy = false;
 
         if (DEBUG)
-          cout << "=>=>=>=> Trying to get gain/ped " << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Trying to get gain/ped " << endl;
 
         try {
           if (record_ == "SiPixelGainCalibrationOfflineRcd") {
@@ -213,14 +219,16 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
             if (record_ == "SiPixelGainCalibrationOfflineRcd")
               ped = SiPixelGainCalibrationOfflineService_.getPedestal(detid, icol, jrow);
         } catch (const std::exception& er) {
-          cout << "Problem trying to catch gain/ped from DETID " << detid << " @ col,row " << icol << "," << jrow
-               << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "Problem trying to catch gain/ped from DETID " << detid << " @ col,row " << icol << "," << jrow
+              << endl;
         }
-        //std::cout<<"For DetId "<<detid<<" we found gain : "<<gain<<", pedestal : "<<ped<<std::endl;
+        //edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<"For DetId "<<detid<<" we found gain : "<<gain<<", pedestal : "<<ped<<std::endl;
 
         if (DEBUG)
-          cout << "=>=>=>=> Found gain " << gainforthiscol[iglobalrow] << " and ped " << pedforthiscol[iglobalrow]
-               << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "=>=>=>=> Found gain " << gainforthiscol[iglobalrow] << " and ped " << pedforthiscol[iglobalrow]
+              << endl;
 
         //Check if pixel is in new noisy list
         for (std::map<int, std::vector<std::pair<int, int> > >::const_iterator it = noisypixelkeeper.begin();
@@ -250,21 +258,24 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
         }
 
         if (isPixelNoisy)
-          cout << "Inserting a noisy pixel in " << detid << " at col,row " << icol << "," << jrow << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "Inserting a noisy pixel in " << detid << " at col,row " << icol << "," << jrow << endl;
         if (isColumnNoisy)
-          cout << "Inserting a noisy column in " << detid << " at col,row " << icol << "," << jrow << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "Inserting a noisy column in " << detid << " at col,row " << icol << "," << jrow << endl;
         if (isPixelNoisy)
           nnoisy++;
         if (isPixelDead)
           ndead++;
 
         if (DEBUG)
-          cout << "=>=>=>=> Now Starting to fill the DB" << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Now Starting to fill the DB" << endl;
 
         //**********  Fill the new DB !!
 
         if (DEBUG)
-          cout << "=>=>=>=> Filling Pixel Level Calibration" << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "=>=>=>=> Filling Pixel Level Calibration" << endl;
 
         //Set Pedestal
         if (record_ == "SiPixelGainCalibrationOfflineRcd") {
@@ -279,7 +290,8 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
         //Set Gain
         if ((jrow + 1) % nrowsrocsplit == 0) {
           if (DEBUG)
-            cout << "=>=>=>=> Filling Column Level Calibration" << endl;
+            edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+                << "=>=>=>=> Filling Column Level Calibration" << endl;
 
           if (isColumnDead) {
             if (record_ == "SiPixelGainCalibrationOfflineRcd")
@@ -304,17 +316,19 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
         }
 
         if (DEBUG)
-          cout << "=>=>=>=> This pixel is finished inserting" << endl;
+          edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+              << "=>=>=>=> This pixel is finished inserting" << endl;
 
       }  //end of loop over rows
 
       if (DEBUG)
-        cout << "=>=>=>=> This column is finished inserting" << endl;
+        edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+            << "=>=>=>=> This column is finished inserting" << endl;
 
     }  //end of loop over col
 
     if (DEBUG)
-      cout << "=>=>=>=> Loop over rows/cols is finished" << endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> Loop over rows/cols is finished" << endl;
 
     if (record_ == "SiPixelGainCalibrationOfflineRcd") {
       SiPixelGainCalibrationOffline::Range offlinerange(theSiPixelGainCalibrationGainPerColPedPerPixel.begin(),
@@ -333,18 +347,19 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     }
 
     if (DEBUG)
-      cout << "=>=>=>=> This detid is finished inserting" << endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> This detid is finished inserting" << endl;
 
   }  //end of loop over Detids
 
-  std::cout << " --- writing to DB!" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << " --- writing to DB!" << std::endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("db service unavailable");
     return;
   } else {
     if (record_ == "SiPixelGainCalibrationOfflineRcd") {
-      std::cout << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+          << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationOfflineRcd")) {
         mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(theGainCalibrationDbInputOffline_,
                                                                  mydbservice->beginOfTime(),
@@ -356,7 +371,8 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       }
     }
     if (record_ == "SiPixelGainCalibrationForHLTRcd") {
-      std::cout << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+          << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest("SiPixelGainCalibrationForHLTRcd")) {
         mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(theGainCalibrationDbInputForHLT_,
                                                                 mydbservice->beginOfTime(),
@@ -369,11 +385,12 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     }
   }
 
-  std::cout << " ---> SUMMARY :" << std::endl;
-  std::cout << " File had   " << nnoisyininput << " noisy pixels" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << " ---> SUMMARY :" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+      << " File had   " << nnoisyininput << " noisy pixels" << std::endl;
 
-  std::cout << " DB has now " << nnoisy << " noisy pixels" << std::endl;
-  std::cout << " DB has now " << ndead << " dead pixels" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << " DB has now " << nnoisy << " noisy pixels" << std::endl;
+  edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << " DB has now " << ndead << " dead pixels" << std::endl;
 }
 
 void SiPixelGainCalibrationRejectNoisyAndDead::getNoisyPixels() {
@@ -382,16 +399,16 @@ void SiPixelGainCalibrationRejectNoisyAndDead::getNoisyPixels() {
   ifstream in;
   struct stat Stat;
   if (stat(noisypixellist_.c_str(), &Stat)) {
-    std::cout << "No file named " << noisypixellist_ << std::endl;
-    std::cout << "If you don't want to insert noisy pixel flag, disable it using tag insertNoisyPixelsInDB "
-              << std::endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "No file named " << noisypixellist_ << std::endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+        << "If you don't want to insert noisy pixel flag, disable it using tag insertNoisyPixelsInDB " << std::endl;
     return;
   }
 
   in.open(noisypixellist_.c_str());
   if (in.is_open()) {
     TString line;
-    cout << "opened" << endl;
+    edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "opened" << endl;
     char linetmp[201];
     while (in.getline(linetmp, 200)) {
       line = linetmp;
@@ -407,7 +424,8 @@ void SiPixelGainCalibrationRejectNoisyAndDead::getNoisyPixels() {
         TString row = line;
         row.Remove(line.First(" "), line.Sizeof());
 
-        std::cout << "Found noisy pixel in DETID " << detidstring << " col,row " << col << "," << row << std::endl;
+        edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")
+            << "Found noisy pixel in DETID " << detidstring << " col,row " << col << "," << row << std::endl;
         nnoisyininput++;
 
         std::vector<std::pair<int, int> > tempvec;
@@ -423,7 +441,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::getNoisyPixels() {
   /*
   for(std::map <int,std::vector<std::pair<int,int> > >::const_iterator it=noisypixelkeeper.begin();it!=noisypixelkeeper.end();it++) 
     for(int i=0;i<(it->second).size();i++)
-      std::cout<<it->first<<"  "<<(it->second.at(i)).first<<"  "<<(it->second.at(i)).second<<std::endl;
+      edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<it->first<<"  "<<(it->second.at(i)).first<<"  "<<(it->second.at(i)).second<<std::endl;
   */
 }
 

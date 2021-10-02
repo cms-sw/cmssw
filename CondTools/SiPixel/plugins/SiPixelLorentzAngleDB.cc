@@ -52,9 +52,10 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
       // fill bpix values for LA
       if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        cout << " pixel barrel:"
-             << "  layer=" << tTopo->pxbLayer(detidc.rawId()) << "  ladder=" << tTopo->pxbLadder(detidc.rawId())
-             << "  module=" << tTopo->pxbModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
+        edm::LogPrint("SiPixelLorentzAngleDB")
+            << " pixel barrel:"
+            << "  layer=" << tTopo->pxbLayer(detidc.rawId()) << "  ladder=" << tTopo->pxbLadder(detidc.rawId())
+            << "  module=" << tTopo->pxbModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
 
         if (!useFile_) {
           //first individuals are put
@@ -62,7 +63,8 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
             if (it->getParameter<unsigned int>("rawid") == detidc.rawId()) {
               float lorentzangle = (float)it->getParameter<double>("angle");
               LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
-              cout << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
+              edm::LogPrint("SiPixelLorentzAngleDB")
+                  << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
             }
           }
 
@@ -82,17 +84,19 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
         // fill fpix values for LA
       } else if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-        cout << " pixel endcap:"
-             << "  side=" << tTopo->pxfSide(detidc.rawId()) << "  disk=" << tTopo->pxfDisk(detidc.rawId())
-             << "  blade=" << tTopo->pxfBlade(detidc.rawId()) << "  panel=" << tTopo->pxfPanel(detidc.rawId())
-             << "  module=" << tTopo->pxfModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
+        edm::LogPrint("SiPixelLorentzAngleDB")
+            << " pixel endcap:"
+            << "  side=" << tTopo->pxfSide(detidc.rawId()) << "  disk=" << tTopo->pxfDisk(detidc.rawId())
+            << "  blade=" << tTopo->pxfBlade(detidc.rawId()) << "  panel=" << tTopo->pxfPanel(detidc.rawId())
+            << "  module=" << tTopo->pxfModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
 
         //first individuals are put
         for (Parameters::iterator it = ModuleParameters_.begin(); it != ModuleParameters_.end(); ++it) {
           if (it->getParameter<unsigned int>("rawid") == detidc.rawId()) {
             float lorentzangle = (float)it->getParameter<double>("angle");
             LorentzAngle->putLorentzAngle(detid.rawId(), lorentzangle);
-            cout << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
+            edm::LogPrint("SiPixelLorentzAngleDB")
+                << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
           }
         }
 
@@ -145,8 +149,8 @@ unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int mod
   } else if (2 == panel && (2 == module || 3 == module)) {
     return 2;
   } else {
-    cout << " *** error *** in SiPixelLorentzAngleDB::HVgroup(...), panel = " << panel << ", module = " << module
-         << endl;
+    edm::LogPrint("SiPixelLorentzAngleDB") << " *** error *** in SiPixelLorentzAngleDB::HVgroup(...), panel = " << panel
+                                           << ", module = " << module << endl;
     return 0;
   }
 }
