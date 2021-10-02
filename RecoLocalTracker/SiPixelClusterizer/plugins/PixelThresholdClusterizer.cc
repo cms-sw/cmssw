@@ -152,7 +152,6 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  //  LogError("PixelThresholdClusterizer") <<  "Starting clusterizing";
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
     // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
     // so we don't want to call "make_cluster" for these cases
@@ -163,7 +162,6 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
       //  Check if the cluster is above threshold
       // (TO DO: one is signed, other unsigned, gcc warns...)
       if (cluster.charge() >= clusterThreshold) {
-        // LogDebug("clusterizeDetUnit():") << "putting in this cluster" << i << cluster.charge() << cluster.pixelADC().size();
         // sort by row (x)
         output.push_back(std::move(cluster));
         std::push_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
