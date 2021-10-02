@@ -3510,14 +3510,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
-
-    upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
-                                      '-n':'10',
-                                      '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-                                      '--geometry' : geom
-                                      }
                                       
     upgradeStepDict['RecNan'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@nanoAODDQM',
                                       '--conditions':gt,
