@@ -77,55 +77,47 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-
-#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-#include "DataFormats/Math/interface/Error.h"
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Math/interface/Error.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 // Necessary includes for identify severity of flagged problems in HO rechits
 //#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
@@ -133,6 +125,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -150,7 +143,9 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 class AlCaHOCalibProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit AlCaHOCalibProducer(const edm::ParameterSet&);
+  ~AlCaHOCalibProducer() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   typedef Basic3DVector<float> PositionType;
   typedef Basic3DVector<float> DirectionType;
   typedef Basic3DVector<float> RotationType;
@@ -290,6 +285,25 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig) {
 // member functions
 //
 
+void AlCaHOCalibProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("hbheInput", edm::InputTag("hbhereco"));
+  desc.addUntracked<bool>("hotime", false);
+  desc.addUntracked<bool>("hbinfo", false);
+  desc.addUntracked<double>("sigma", 1.0);
+  desc.addUntracked<bool>("plotOccupancy", false);
+  desc.addUntracked<bool>("CosmicData", false);
+  desc.add<edm::InputTag>("hoInput", edm::InputTag("horeco"));
+  desc.add<edm::InputTag>("towerInput", edm::InputTag("towerMaker"));
+  desc.addUntracked<std::string>("RootFileName", "test.root");
+  desc.addUntracked<double>("m_scale", 4.0);
+  desc.addUntracked<bool>("debug", false);
+  desc.addUntracked<edm::InputTag>("muons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("vertexTags", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("lumiTags", edm::InputTag("scalersRawToDigi"));
+  descriptions.add("alcaHOCalibProducer", desc);
+}
+
 // ------------ method called to produce the data  ------------
 void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int irun = iEvent.id().run();
@@ -314,23 +328,21 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   tmpHOCalib.inslumi = -1.;
 
   if (m_cosmic) {
-    iEvent.getByToken(tok_muonsCosmic_, cosmicmuon);
+    cosmicmuon = iEvent.getHandle(tok_muonsCosmic_);
     muonOK = (cosmicmuon.isValid() && !cosmicmuon->empty());
   } else {
-    iEvent.getByToken(tok_muons_, collisionmuon);
+    collisionmuon = iEvent.getHandle(tok_muons_);
     muonOK = (collisionmuon.isValid() && !collisionmuon->empty());
 
     if (iEvent.isRealData()) {
-      edm::Handle<reco::VertexCollection> primaryVertices;
-      iEvent.getByToken(tok_vertex_, primaryVertices);
+      auto const& primaryVertices = iEvent.getHandle(tok_vertex_);
       if (primaryVertices.isValid()) {
         tmpHOCalib.nprim = primaryVertices->size();
       }
 
       tmpHOCalib.inslumi = 0.;
 
-      edm::Handle<LumiScalersCollection> lumiScale;
-      iEvent.getByToken(tok_lumi_, lumiScale);
+      auto const& lumiScale = iEvent.getHandle(tok_lumi_);
 
       if (lumiScale.isValid()) {
         if (lumiScale->empty()) {
@@ -496,8 +508,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
     }
   } else {
     //            if (muonTags_.label() =="muons") {
-    edm::Handle<CaloTowerCollection> calotower;
-    iEvent.getByToken(tok_tower_, calotower);
+    auto const& calotower = iEvent.getHandle(tok_tower_);
 
     for (CaloTowerCollection::const_iterator calt = calotower->begin(); calt != calotower->end(); calt++) {
       //CMSSW_2_1_x	const math::XYZVector towermom = (*calt).momentum();
@@ -748,9 +759,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
             tmpHOCalib.hbhesig[ij] = -100.0;
           }
 
-          edm::Handle<HBHERecHitCollection> hbheht;  // iEvent.getByType(hbheht);
-          iEvent.getByToken(tok_hbhe_, hbheht);
-
+          auto const& hbheht = iEvent.getHandle(tok_hbhe_);  // iEvent.getByType(hbheht);
           if (!(*hbheht).empty()) {
             if ((*hbheht).empty())
               throw(int)(*hbheht).size();
@@ -806,8 +815,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
           }
         }  //m_hbinfo #endif
 
-        edm::Handle<HORecHitCollection> hoht;
-        iEvent.getByToken(tok_ho_, hoht);
+        auto const& hoht = iEvent.getHandle(tok_ho_);
 
         if (!(*hoht).empty()) {
           for (HORecHitCollection::const_iterator jk = (*hoht).begin(); jk != (*hoht).end(); jk++) {

@@ -5,10 +5,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -39,7 +40,9 @@
 class AlCaGammaJetProducer : public edm::global::EDProducer<> {
 public:
   explicit AlCaGammaJetProducer(const edm::ParameterSet&);
+  ~AlCaGammaJetProducer() override = default;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool select(const reco::PhotonCollection&, const reco::PFJetCollection&) const;
@@ -156,107 +159,95 @@ bool AlCaGammaJetProducer::select(const reco::PhotonCollection& ph, const reco::
   }
   return false;
 }
+
 // ------------ method called to produce the data  ------------
 void AlCaGammaJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   // Access the collections from iEvent
-  edm::Handle<reco::PhotonCollection> phoHandle;
-  iEvent.getByToken(tok_Photon_, phoHandle);
+  auto const& phoHandle = iEvent.getHandle(tok_Photon_);
   if (!phoHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get the product " << labelPhoton_;
     return;
   }
   const reco::PhotonCollection& photon = *(phoHandle.product());
 
-  edm::Handle<reco::PFJetCollection> pfjet;
-  iEvent.getByToken(tok_PFJet_, pfjet);
+  auto const& pfjet = iEvent.getHandle(tok_PFJet_);
   if (!pfjet.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFJet_;
     return;
   }
   const reco::PFJetCollection& pfjets = *(pfjet.product());
 
-  edm::Handle<reco::PFCandidateCollection> pfc;
-  iEvent.getByToken(tok_PFCand_, pfc);
+  auto const& pfc = iEvent.getHandle(tok_PFCand_);
   if (!pfc.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFCandidate_;
     return;
   }
   const reco::PFCandidateCollection& pfcand = *(pfc.product());
 
-  edm::Handle<reco::VertexCollection> vt;
-  iEvent.getByToken(tok_Vertex_, vt);
+  auto const& vt = iEvent.getHandle(tok_Vertex_);
   if (!vt.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelVertex_;
     return;
   }
   const reco::VertexCollection& vtx = *(vt.product());
 
-  edm::Handle<reco::PFMETCollection> pfmt;
-  iEvent.getByToken(tok_PFMET_, pfmt);
+  auto const& pfmt = iEvent.getHandle(tok_PFMET_);
   if (!pfmt.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFMET_;
     return;
   }
   const reco::PFMETCollection& pfmet = *(pfmt.product());
 
-  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  auto const& hbhe = iEvent.getHandle(tok_HBHE_);
   if (!hbhe.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHBHE_;
     return;
   }
   const edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>& Hithbhe = *(hbhe.product());
 
-  edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> ho;
-  iEvent.getByToken(tok_HO_, ho);
+  auto const& ho = iEvent.getHandle(tok_HO_);
   if (!ho.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHO_;
     return;
   }
   const edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>& Hitho = *(ho.product());
 
-  edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hf;
-  iEvent.getByToken(tok_HF_, hf);
+  auto const& hf = iEvent.getHandle(tok_HF_);
   if (!hf.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHF_;
     return;
   }
   const edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>& Hithf = *(hf.product());
 
-  edm::Handle<edm::TriggerResults> trig;
-  iEvent.getByToken(tok_TrigRes_, trig);
+  auto const& trig = iEvent.getHandle(tok_TrigRes_);
   if (!trig.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelTrigger_;
     return;
   }
   const edm::TriggerResults& trigres = *(trig.product());
 
-  edm::Handle<double> rh;
-  iEvent.getByToken(tok_Rho_, rh);
+  auto const& rh = iEvent.getHandle(tok_Rho_);
   if (!rh.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelRho_;
     return;
   }
   const double rho_val = *(rh.product());
 
-  edm::Handle<reco::GsfElectronCollection> gsf;
-  iEvent.getByToken(tok_GsfElec_, gsf);
+  auto const& gsf = iEvent.getHandle(tok_GsfElec_);
   if (!gsf.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelGsfEle_;
     return;
   }
   const reco::GsfElectronCollection& gsfele = *(gsf.product());
 
-  edm::Handle<reco::ConversionCollection> con;
-  iEvent.getByToken(tok_Conv_, con);
+  auto const& con = iEvent.getHandle(tok_Conv_);
   if (!con.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelConv_;
     return;
   }
   const reco::ConversionCollection& conv = *(con.product());
 
-  edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByToken(tok_BS_, bs);
+  auto const& bs = iEvent.getHandle(tok_BS_);
   if (!bs.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelBeamSpot_;
     return;
@@ -287,10 +278,8 @@ void AlCaGammaJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
     iEvent.emplace(put_rho_, rho_val);
     iEvent.emplace(put_conv_, conv);
 
-    edm::Handle<edm::ValueMap<Bool_t>> loosePhotonQual;
-    iEvent.getByToken(tok_loosePhoton_, loosePhotonQual);
-    edm::Handle<edm::ValueMap<Bool_t>> tightPhotonQual;
-    iEvent.getByToken(tok_tightPhoton_, tightPhotonQual);
+    auto const& loosePhotonQual = iEvent.getHandle(tok_loosePhoton_);
+    auto const& tightPhotonQual = iEvent.getHandle(tok_tightPhoton_);
     if (loosePhotonQual.isValid() && tightPhotonQual.isValid()) {
       miniLoosePhoton.reserve(photon.size());
       miniTightPhoton.reserve(photon.size());
@@ -327,6 +316,28 @@ void AlCaGammaJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
   iEvent.emplace(put_tightPhot_, std::move(miniTightPhoton));
 
   return;
+}
+
+void AlCaGammaJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PhoInput", edm::InputTag("gedPhotons"));
+  desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("HBHEInput", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("HFInput", edm::InputTag("hfreco"));
+  desc.add<edm::InputTag>("HOInput", edm::InputTag("horeco"));
+  desc.add<edm::InputTag>("METInput", edm::InputTag("pfMet"));
+  desc.add<edm::InputTag>("TriggerResults", edm::InputTag("TriggerResults::HLT"));
+  desc.add<edm::InputTag>("gsfeleInput", edm::InputTag("gedGsfElectrons"));
+  desc.add<edm::InputTag>("particleFlowInput", edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("VertexInput", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("ConversionsInput", edm::InputTag("allConversions"));
+  desc.add<edm::InputTag>("rhoInput", edm::InputTag("fixedGridRhoFastjetAll"));
+  desc.add<edm::InputTag>("BeamSpotInput", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("PhoLoose", edm::InputTag("PhotonIDProdGED", "PhotonCutBasedIDLoose"));
+  desc.add<edm::InputTag>("PhoTight", edm::InputTag("PhotonIDProdGED", "PhotonCutBasedIDTight"));
+  desc.add<double>("MinPtJet", 10.0);
+  desc.add<double>("MinPtPhoton", 10.0);
+  descriptions.add("alcaGammaJetProducer", desc);
 }
 
 DEFINE_FWK_MODULE(AlCaGammaJetProducer);
