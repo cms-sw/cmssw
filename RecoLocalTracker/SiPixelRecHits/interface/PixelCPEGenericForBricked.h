@@ -42,7 +42,7 @@
 #include <vector>
 
 #if 0
-/** \class PixelCPEGenericForBrocked
+/** \class PixelCPEGenericForBricked
  * Perform the position and error evaluation of pixel hits using
  * the Det angle to estimate the track impact angle
  */
