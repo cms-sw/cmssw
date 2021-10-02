@@ -109,7 +109,7 @@ namespace SiPixelUtils {
 
     //--- Predicted charge width from geometry
     const auto w_pred = theThickness * cot_angle  // geometric correction (in cm)
-                   - lorentz_shift;          // (in cm) &&& check fpix!
+                        - lorentz_shift;          // (in cm) &&& check fpix!
 
     //--- Total length of the two edge pixels (first+last)
     auto sum_of_edge = 2.0f;
