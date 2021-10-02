@@ -14,6 +14,7 @@
 #include <iomanip>  // std::setw
 #include <iostream>
 #include <sys/time.h>
+#include "SiPixelVCalDB.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -25,7 +26,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
-#include "CondTools/SiPixel/plugins/SiPixelVCalDB.h"
 
 class SiPixelVCalReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:

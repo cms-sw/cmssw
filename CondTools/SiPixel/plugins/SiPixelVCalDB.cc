@@ -1,4 +1,4 @@
-#include "CondTools/SiPixel/plugins/SiPixelVCalDB.h"
+#include "SiPixelVCalDB.h"
 
 using namespace std;
 using namespace edm;

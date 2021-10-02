@@ -1,6 +1,6 @@
+#include "SiPixelLorentzAngleReader.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CondTools/SiPixel/plugins/SiPixelLorentzAngleReader.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
