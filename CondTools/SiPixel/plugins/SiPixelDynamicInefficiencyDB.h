@@ -3,8 +3,6 @@
 
 #include <map>
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

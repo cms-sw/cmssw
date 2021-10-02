@@ -2,11 +2,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "SiPixelLorentzAngleDB.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondTools/SiPixel/plugins/SiPixelLorentzAngleDB.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"

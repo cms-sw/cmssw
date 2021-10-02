@@ -1,6 +1,6 @@
 #include <memory>
 #include <iostream>
-#include "CondTools/SiPixel/plugins/SiPixelCondObjOfflineBuilder.h"
+#include "SiPixelCondObjOfflineBuilder.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

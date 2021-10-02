@@ -6,9 +6,8 @@
 // Aug 2008
 
 #include <iostream>
-#include "CondTools/SiPixel/plugins/PixelPopConCalibChecker.h"
+#include "PixelPopConCalibChecker.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
 using namespace std;
