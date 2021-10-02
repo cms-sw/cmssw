@@ -9,7 +9,7 @@ process = cms.Process("SiPixelInclusiveBuilder")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.cout = dict(enable = True, threshold = "INFO")
+process.MessageLogger.cout = dict(enable = True, threshold = "WARNING")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
