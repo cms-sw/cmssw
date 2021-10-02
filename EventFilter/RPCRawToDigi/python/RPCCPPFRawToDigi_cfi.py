@@ -1,13 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import EventFilter.RPCRawToDigi.RPCAMCRawToDigi_cfi as _mod
 
-rpcCPPFRawToDigi = cms.EDProducer('RPCAMCRawToDigi',
-    inputTag = cms.InputTag('rawDataCollector'),
-    calculateCRC = cms.bool(True),
-    fillCounters = cms.bool(True),
-    RPCAMCUnpacker = cms.string('RPCCPPFUnpacker'),
-    RPCAMCUnpackerSettings = cms.PSet(
-        fillAMCCounters = cms.bool(True),
-        bxMin = cms.int32(-2),
-        bxMax = cms.int32(2)
-    )
+rpcCPPFRawToDigi = _mod.RPCAMCRawToDigi.clone(
+    RPCAMCUnpacker = 'RPCCPPFUnpacker',
+    RPCAMCUnpackerSettings = dict()
 )
