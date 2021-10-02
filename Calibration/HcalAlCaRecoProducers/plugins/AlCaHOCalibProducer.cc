@@ -759,7 +759,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
             tmpHOCalib.hbhesig[ij] = -100.0;
           }
 
-          auto const& hbheht =iEvent.getHandle(tok_hbhe_); // iEvent.getByType(hbheht);
+          auto const& hbheht = iEvent.getHandle(tok_hbhe_);  // iEvent.getByType(hbheht);
           if (!(*hbheht).empty()) {
             if ((*hbheht).empty())
               throw(int)(*hbheht).size();
@@ -815,7 +815,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
           }
         }  //m_hbinfo #endif
 
-        auto const&  hoht = iEvent.getHandle(tok_ho_);
+        auto const& hoht = iEvent.getHandle(tok_ho_);
 
         if (!(*hoht).empty()) {
           for (HORecHitCollection::const_iterator jk = (*hoht).begin(); jk != (*hoht).end(); jk++) {
