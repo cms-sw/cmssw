@@ -29,6 +29,8 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("minimumNumberOfHits", 5);
+    iDesc.add<double>("highEtaSwitch", 5.0);
+    iDesc.add<int>("minHitsAtHighEta", 5);
     iDesc.add<int>("seedPairPenalty", 0);
   }
 
