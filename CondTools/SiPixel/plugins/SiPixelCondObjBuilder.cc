@@ -68,7 +68,7 @@ namespace cms {
         // Get the module sizes.
         int nrows = topol.nrows();     // rows in x
         int ncols = topol.ncolumns();  // cols in y
-        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
+        //edm::LogPrint("SiPixelCondObjBuilder") << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
         PixelIndices pIndexConverter(ncols, nrows);
 
@@ -126,7 +126,7 @@ namespace cms {
             }
 
             // 	   if(i==mycol && j==myrow) {
-            //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+            //	     edm::LogPrint("SiPixelCondObjBuilder") << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
             // 	   }
 
             // 	   gain =  2.8;
@@ -143,8 +143,8 @@ namespace cms {
               << "[SiPixelCondObjBuilder::analyze] detid already exists" << std::endl;
       }
     }
-    std::cout << " ---> PIXEL Modules  " << nmodules << std::endl;
-    std::cout << " ---> PIXEL Channels " << nchannels << std::endl;
+    edm::LogPrint("SiPixelCondObjBuilder") << " ---> PIXEL Modules  " << nmodules << std::endl;
+    edm::LogPrint("SiPixelCondObjBuilder") << " ---> PIXEL Channels " << nchannels << std::endl;
 
     //   // Try to read object
     //    int mynmodules =0;
@@ -156,14 +156,14 @@ namespace cms {
     //        SiPixelGainCalibration::Range myrange = SiPixelGainCalibration_->getRange(mydetid);
     //        float mypedestal = SiPixelGainCalibration_->getPed (mycol,myrow,myrange,416);
     //        float mygain     = SiPixelGainCalibration_->getGain(mycol,myrow,myrange,416);
-    //        //std::cout<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
+    //        //edm::LogPrint("SiPixelCondObjBuilder")<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
     //      }
     //    }
     // Write into DB
     edm::LogInfo(" --- writeing to DB!");
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if (!mydbservice.isAvailable()) {
-      std::cout << "Didn't get DB" << std::endl;
+      edm::LogPrint("SiPixelCondObjBuilder") << "Didn't get DB" << std::endl;
       edm::LogError("db service unavailable");
       return;
     } else {
@@ -193,10 +193,10 @@ namespace cms {
       }
       edm::LogInfo(" --- all OK");
     } catch (const cond::Exception& er) {
-      std::cout << "Database exception!   " << er.what() << std::endl;
+      edm::LogPrint("SiPixelCondObjBuilder") << "Database exception!   " << er.what() << std::endl;
       edm::LogError("SiPixelCondObjBuilder") << er.what() << std::endl;
     } catch (const std::exception& er) {
-      std::cout << "Standard exception!   " << er.what() << std::endl;
+      edm::LogPrint("SiPixelCondObjBuilder") << "Standard exception!   " << er.what() << std::endl;
       edm::LogError("SiPixelCondObjBuilder") << "caught std::exception " << er.what() << std::endl;
     } catch (...) {
       edm::LogError("SiPixelCondObjBuilder") << "Funny error" << std::endl;
@@ -238,7 +238,8 @@ namespace cms {
     for (int i = 0; i < (52 * 80); i++) {
       in_file >> par0 >> par1 >> name >> colid >> rowid;
 
-      std::cout << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
+      edm::LogPrint("SiPixelCondObjBuilder")
+          << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
 
       CalParameters onePix;
       onePix.p0 = par0;

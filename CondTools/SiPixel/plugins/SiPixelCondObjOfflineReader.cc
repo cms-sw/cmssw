@@ -120,12 +120,12 @@ namespace cms {
           nchannels++;
 
           if (SiPixelGainCalibrationService_->isDead(detid, col_iter, row_iter)) {
-            //	    std::cout << "found dead pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
+            //	    edm::LogPrint("SiPixelCondObjOfflineReader") << "found dead pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
             ndead++;
             _deadfrac_m[detid]++;
             continue;
           } else if (SiPixelGainCalibrationService_->isNoisy(detid, col_iter, row_iter)) {
-            //	    std::cout << "found noisy pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
+            //	    edm::LogPrint("SiPixelCondObjOfflineReader") << "found noisy pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
             nnoisy++;
             _noisyfrac_m[detid]++;
             continue;
@@ -143,14 +143,14 @@ namespace cms {
           float ped = SiPixelGainCalibrationService_->getPedestal(detid, col_iter, row_iter);
           _TH1F_Pedestals_m[detid]->Fill(ped);
           _TH1F_Pedestals_all->Fill(ped);
-          //	 std::cout<<"detid  "<<detid<<"     ped "<<ped<<std::endl;
+          //	 edm::LogPrint("SiPixelCondObjOfflineReader")<<"detid  "<<detid<<"     ped "<<ped<<std::endl;
 
           if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel))
             _TH1F_Pedestals_bpix->Fill(ped);
           if (detIdObject.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))
             _TH1F_Pedestals_fpix->Fill(ped);
 
-          //	 std::cout <<"    DetId "<<detid<<"       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+          //	 edm::LogPrint("SiPixelCondObjOfflineReader") <<"    DetId "<<detid<<"       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
         }
       }
 
@@ -169,12 +169,13 @@ namespace cms {
       gainrmsfortree = _TH1F_Gains_m[detid]->GetRMS();
       pedmeanfortree = _TH1F_Pedestals_m[detid]->GetMean();
       pedrmsfortree = _TH1F_Pedestals_m[detid]->GetRMS();
-      std::cout << "DetId " << detid << "       GainMean " << gainmeanfortree << " RMS " << gainrmsfortree
-                << "      PedMean " << pedmeanfortree << " RMS " << pedrmsfortree << std::endl;
+      edm::LogPrint("SiPixelCondObjOfflineReader")
+          << "DetId " << detid << "       GainMean " << gainmeanfortree << " RMS " << gainrmsfortree << "      PedMean "
+          << pedmeanfortree << " RMS " << pedrmsfortree << std::endl;
       tree->Fill();
 
       if (pedmeanfortree == 0)
-        std::cout << detid << std::endl;
+        edm::LogPrint("SiPixelCondObjOfflineReader") << detid << std::endl;
 
       ibin++;
     }
@@ -185,25 +186,27 @@ namespace cms {
         << "[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Channels (i.e. Number of Columns)" << nchannels
         << std::endl;
 
-    std::cout << " ---> SUMMARY :" << std::endl;
-    std::cout << "Encounted " << ndead << " dead pixels" << std::endl;
-    std::cout << "Encounted " << nnoisy << " noisy pixels" << std::endl;
-    std::cout << "The Gain Mean is " << _TH1F_Gains_all->GetMean() << " with rms " << _TH1F_Gains_all->GetRMS()
-              << std::endl;
-    std::cout << "         in BPIX " << _TH1F_Gains_bpix->GetMean() << " with rms " << _TH1F_Gains_bpix->GetRMS()
-              << std::endl;
-    std::cout << "         in FPIX " << _TH1F_Gains_fpix->GetMean() << " with rms " << _TH1F_Gains_fpix->GetRMS()
-              << std::endl;
-    std::cout << "The Ped Mean is " << _TH1F_Pedestals_all->GetMean() << " with rms " << _TH1F_Pedestals_all->GetRMS()
-              << std::endl;
-    std::cout << "         in BPIX " << _TH1F_Pedestals_bpix->GetMean() << " with rms "
-              << _TH1F_Pedestals_bpix->GetRMS() << std::endl;
-    std::cout << "         in FPIX " << _TH1F_Pedestals_fpix->GetMean() << " with rms "
-              << _TH1F_Pedestals_fpix->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << " ---> SUMMARY :" << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "Encounted " << ndead << " dead pixels" << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "Encounted " << nnoisy << " noisy pixels" << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader")
+        << "The Gain Mean is " << _TH1F_Gains_all->GetMean() << " with rms " << _TH1F_Gains_all->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "         in BPIX " << _TH1F_Gains_bpix->GetMean() << " with rms "
+                                                 << _TH1F_Gains_bpix->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "         in FPIX " << _TH1F_Gains_fpix->GetMean() << " with rms "
+                                                 << _TH1F_Gains_fpix->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "The Ped Mean is " << _TH1F_Pedestals_all->GetMean() << " with rms "
+                                                 << _TH1F_Pedestals_all->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "         in BPIX " << _TH1F_Pedestals_bpix->GetMean()
+                                                 << " with rms " << _TH1F_Pedestals_bpix->GetRMS() << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineReader") << "         in FPIX " << _TH1F_Pedestals_fpix->GetMean()
+                                                 << " with rms " << _TH1F_Pedestals_fpix->GetRMS() << std::endl;
   }
 
   // ------------ method called once each job just after ending the event loop  ------------
-  void SiPixelCondObjOfflineReader::endJob() { std::cout << " ---> End job " << std::endl; }
+  void SiPixelCondObjOfflineReader::endJob() {
+    edm::LogPrint("SiPixelCondObjOfflineReader") << " ---> End job " << std::endl;
+  }
 }  // namespace cms
 using namespace cms;
 DEFINE_FWK_MODULE(SiPixelCondObjOfflineReader);

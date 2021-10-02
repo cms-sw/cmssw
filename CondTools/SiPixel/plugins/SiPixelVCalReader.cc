@@ -31,7 +31,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
 
   // Retrieve old style tracker geometry from geometry
   const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
-  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
+  edm::LogPrint("SiPixelVCalReader") << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   // Phase
   bool phase1 = true;
@@ -59,8 +59,9 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   std::map<unsigned int, SiPixelVCal::VCal>::const_iterator it;
 
   // Fill histograms
-  std::cout << std::setw(12) << "detid" << std::setw(8) << "subdet" << std::setw(8) << "layer" << std::setw(8) << "disk"
-            << std::setw(14) << "VCal slope" << std::setw(8) << "offset" << std::endl;
+  edm::LogPrint("SiPixelVCalReader") << std::setw(12) << "detid" << std::setw(8) << "subdet" << std::setw(8) << "layer"
+                                     << std::setw(8) << "disk" << std::setw(14) << "VCal slope" << std::setw(8)
+                                     << "offset" << std::endl;
   for (it = vcal.begin(); it != vcal.end(); it++) {
     detid = it->first;
     slope = it->second.slope;
@@ -73,9 +74,10 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
     side = tTopo->pxfSide(detIdObj);      // 1, 2
     disk = tTopo->pxfDisk(detIdObj);      // 1, 2, 3
     ring = fpix.ringName();               // 1 (lower), 2 (upper)
-    std::cout << std::setw(12) << detid << std::setw(8) << subdet << std::setw(8) << layer << std::setw(8) << disk
-              << std::setw(14) << slope << std::setw(8) << offset << std::endl;
-    // std::cout << "detid " << detid << ", subdet " << subdet << ", layer " <<
+    edm::LogPrint("SiPixelVCalReader") << std::setw(12) << detid << std::setw(8) << subdet << std::setw(8) << layer
+                                       << std::setw(8) << disk << std::setw(14) << slope << std::setw(8) << offset
+                                       << std::endl;
+    // edm::LogPrint("SiPixelVCalReader") << "detid " << detid << ", subdet " << subdet << ", layer " <<
     // layer << ", disk " << disk
     //          << ", VCal slope " << slope << ", offset " << offset <<
     //          std::endl;

@@ -89,7 +89,7 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
   std::map<unsigned int, double>::const_iterator it_chipgeom;
   std::map<unsigned int, std::vector<double> >::const_iterator it_pu;
 
-  std::cout << "Printing out DB content:" << std::endl;
+  edm::LogPrint("SiPixelDynamicInefficiencyReader") << "Printing out DB content:" << std::endl;
   for (it_pixelgeom = map_pixelgeomfactor.begin(); it_pixelgeom != map_pixelgeomfactor.end(); it_pixelgeom++) {
     printf("pixelgeom detid %x\tfactor %f\n", it_pixelgeom->first, it_pixelgeom->second);
   }
@@ -101,24 +101,26 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
   }
   for (it_pu = map_pufactor.begin(); it_pu != map_pufactor.end(); it_pu++) {
     printf("pu detid %x\t", it_pu->first);
-    std::cout << " Size of vector " << it_pu->second.size() << " elements:";
+    edm::LogPrint("SiPixelDynamicInefficiencyReader") << " Size of vector " << it_pu->second.size() << " elements:";
     if (it_pu->second.size() > 1) {
       for (unsigned int i = 0; i < it_pu->second.size(); i++) {
-        std::cout << " " << it_pu->second.at(i);
+        edm::LogPrint("SiPixelDynamicInefficiencyReader") << " " << it_pu->second.at(i);
       }
-      std::cout << std::endl;
+      edm::LogPrint("SiPixelDynamicInefficiencyReader") << std::endl;
     } else {
-      std::cout << " " << it_pu->second.at(0) << std::endl;
+      edm::LogPrint("SiPixelDynamicInefficiencyReader") << " " << it_pu->second.at(0) << std::endl;
     }
   }
   std::vector<uint32_t> detIdmasks = SiPixelDynamicInefficiency_->getDetIdmasks();
   for (unsigned int i = 0; i < detIdmasks.size(); i++)
     printf("DetId Mask: %x\t\n", detIdmasks.at(i));
   double theInstLumiScaleFactor = SiPixelDynamicInefficiency_->gettheInstLumiScaleFactor_();
-  std::cout << "theInstLumiScaleFactor " << theInstLumiScaleFactor << std::endl;
+  edm::LogPrint("SiPixelDynamicInefficiencyReader") << "theInstLumiScaleFactor " << theInstLumiScaleFactor << std::endl;
 
   //Comparing DB factors to config factors
-  std::cout << "\nCalculating factors/module and comparing it to config file factors...\n" << std::endl;
+  edm::LogPrint("SiPixelDynamicInefficiencyReader")
+      << "\nCalculating factors/module and comparing it to config file factors...\n"
+      << std::endl;
 
   const TrackerTopology* const tTopo = &iSetup.getData(tkTopoToken);
   const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken);
@@ -236,15 +238,16 @@ void SiPixelDynamicInefficiencyReader::analyze(const edm::Event& e, const edm::E
       }
     }
   }
-  std::cout << match << " geom factors and " << pu_match << " pu factors matched to config file factors!\n"
-            << std::endl;
+  edm::LogPrint("SiPixelDynamicInefficiencyReader")
+      << match << " geom factors and " << pu_match << " pu factors matched to config file factors!\n"
+      << std::endl;
   if (mismatch != 0)
-    std::cout << "ERROR! " << mismatch
-              << " geom factors mismatched to config file factors! Please change config and/or DB content!"
-              << std::endl;
+    edm::LogPrint("SiPixelDynamicInefficiencyReader")
+        << "ERROR! " << mismatch
+        << " geom factors mismatched to config file factors! Please change config and/or DB content!" << std::endl;
   if (pu_mismatch != 0)
-    std::cout << "ERROR! " << pu_mismatch
-              << " pu_factors mismatched to config file pu_factors! Please change config and/or DB content!"
-              << std::endl;
+    edm::LogPrint("SiPixelDynamicInefficiencyReader")
+        << "ERROR! " << pu_mismatch
+        << " pu_factors mismatched to config file pu_factors! Please change config and/or DB content!" << std::endl;
 }
 DEFINE_FWK_MODULE(SiPixelDynamicInefficiencyReader);

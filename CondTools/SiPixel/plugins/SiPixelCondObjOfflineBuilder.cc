@@ -80,7 +80,7 @@ namespace cms {
         // Get the module sizes.
         int nrows = topol.nrows();     // rows in x
         int ncols = topol.ncolumns();  // cols in y
-        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
+        //edm::LogPrint("SiPixelCondObjOfflineBuilder") << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
         double meanPedWork = meanPed_;
         double rmsPedWork = rmsPed_;
@@ -124,14 +124,14 @@ namespace cms {
                 double val = CLHEP::RandFlat::shoot();
                 if (val < deadFraction_) {
                   isDead = true;
-                  //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+                  //		 edm::LogPrint("SiPixelCondObjOfflineBuilder") << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
                 }
               }
               if (deadFraction_ > 0 && !isDead) {
                 double val = CLHEP::RandFlat::shoot();
                 if (val < noisyFraction_) {
                   isNoisy = true;
-                  //		 std::cout << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+                  //		 edm::LogPrint("SiPixelCondObjOfflineBuilder") << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
                 }
               }
 
@@ -151,7 +151,7 @@ namespace cms {
             }
 
             // 	   if(i==mycol && j==myrow) {
-            //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+            //	     edm::LogPrint("SiPixelCondObjOfflineBuilder") << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
             // 	   }
 
             //  	   gain =  2.8;
@@ -178,10 +178,10 @@ namespace cms {
             if (!isDead && !isNoisy) {
               SiPixelGainCalibration_->setDataPedestal(ped, theSiPixelGainCalibration);
             } else if (isDead)  // dead pixel
-              //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
+              //	     edm::LogPrint("SiPixelCondObjOfflineBuilder") << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
               SiPixelGainCalibration_->setDeadPixel(theSiPixelGainCalibration);
             else if (isNoisy)  // dead pixel
-              //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
+              //	     edm::LogPrint("SiPixelCondObjOfflineBuilder") << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
               SiPixelGainCalibration_->setNoisyPixel(theSiPixelGainCalibration);
             if ((j + 1) % 80 == 0)  // fill the column average after ever ROC!
             {
@@ -191,7 +191,7 @@ namespace cms {
                 averageGain = gain;
               }
 
-              //std::cout << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
+              //edm::LogPrint("SiPixelCondObjOfflineBuilder") << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
               SiPixelGainCalibration_->setDataGain(averageGain, 80, theSiPixelGainCalibration);
               totalGain = 0;
             }
@@ -204,8 +204,8 @@ namespace cms {
               << "[SiPixelCondObjOfflineBuilder::analyze] detid already exists" << std::endl;
       }
     }
-    std::cout << " ---> PIXEL Modules  " << nmodules << std::endl;
-    std::cout << " ---> PIXEL Channels " << nchannels << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineBuilder") << " ---> PIXEL Modules  " << nmodules << std::endl;
+    edm::LogPrint("SiPixelCondObjOfflineBuilder") << " ---> PIXEL Channels " << nchannels << std::endl;
 
     //   // Try to read object
     //    int mynmodules =0;
@@ -217,7 +217,7 @@ namespace cms {
     //        SiPixelGainCalibration::Range myrange = SiPixelGainCalibration_->getRange(mydetid);
     //        float mypedestal = SiPixelGainCalibration_->getPed (mycol,myrow,myrange,416);
     //        float mygain     = SiPixelGainCalibration_->getGain(mycol,myrow,myrange,416);
-    //        //std::cout<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
+    //        //edm::LogPrint("SiPixelCondObjOfflineBuilder")<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
     //      }
     //    }
     // Write into DB
@@ -283,7 +283,8 @@ namespace cms {
     for (int i = 0; i < (52 * 80); i++) {
       in_file >> par0 >> par1 >> name >> colid >> rowid;
 
-      std::cout << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
+      edm::LogPrint("SiPixelCondObjOfflineBuilder")
+          << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
 
       CalParameters onePix;
       onePix.p0 = par0;

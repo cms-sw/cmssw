@@ -22,7 +22,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
 
   // Retrieve old style tracker geometry from geometry
   const TrackerGeometry* pDD = &iSetup.getData(tkGeomToken_);
-  std::cout << " There are " << pDD->detUnits().size() << " modules" << std::endl;
+  edm::LogPrint("SiPixelVCalDB") << " There are " << pDD->detUnits().size() << " modules" << std::endl;
 
   for (const auto& it : pDD->detUnits()) {
     if (dynamic_cast<PixelGeomDetUnit const*>(it) != nullptr) {
@@ -34,19 +34,19 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
       if (subid == static_cast<int>(PixelSubdetector::PixelBarrel)) {
         int layer = tTopo->pxbLayer(detid);    // 1, 2, 3, 4
         int ladder = tTopo->pxbLadder(detid);  // 1-12/28/44/64
-        std::cout << " pixel barrel:"
-                  << " detId=" << rawDetId << ", layer=" << layer << ", ladder=" << ladder;
+        edm::LogPrint("SiPixelVCalDB") << " pixel barrel:"
+                                       << " detId=" << rawDetId << ", layer=" << layer << ", ladder=" << ladder;
         for (Parameters::iterator it = BPixParameters_.begin(); it != BPixParameters_.end(); ++it) {
           if (it->getParameter<int>("layer") == layer && it->getParameter<int>("ladder") == ladder) {
             float slope = (float)it->getParameter<double>("slope");
             float offset = (float)it->getParameter<double>("offset");
-            std::cout << ";  VCal slope " << slope << ", offset " << offset;
+            edm::LogPrint("SiPixelVCalDB") << ";  VCal slope " << slope << ", offset " << offset;
             // edm::LogInfo("SiPixelVCalDB")  << "  detId " << rawDetId << " \t
             // VCal slope " << slope << ", offset " << offset;
             vcal->putSlopeAndOffset(detid, slope, offset);
           }
         }
-        std::cout << std::endl;
+        edm::LogPrint("SiPixelVCalDB") << std::endl;
 
         // FILL FPIX
       } else if (subid == static_cast<int>(PixelSubdetector::PixelEndcap)) {
@@ -59,20 +59,21 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
           edm::LogError("SiPixelVCalDB::analyze")
               << "Found contradicting FPIX disk number: " << disk << " vs." << disk2 << std::endl;
         }
-        std::cout << " pixel endcap:"
-                  << " detId=" << rawDetId << ", side=" << side << ", disk=" << disk << ", ring=" << ring;
+        edm::LogPrint("SiPixelVCalDB") << " pixel endcap:"
+                                       << " detId=" << rawDetId << ", side=" << side << ", disk=" << disk
+                                       << ", ring=" << ring;
         for (Parameters::iterator it = FPixParameters_.begin(); it != FPixParameters_.end(); ++it) {
           if (it->getParameter<int>("side") == side && it->getParameter<int>("disk") == disk &&
               it->getParameter<int>("ring") == ring) {
             float slope = (float)it->getParameter<double>("slope");
             float offset = (float)it->getParameter<double>("offset");
-            std::cout << ";  VCal slope " << slope << ", offset " << offset;
+            edm::LogPrint("SiPixelVCalDB") << ";  VCal slope " << slope << ", offset " << offset;
             // edm::LogInfo("SiPixelVCalDB")  << "  detId " << rawDetId << " \t
             // VCal slope " << slope << ", offset " << offset;
             vcal->putSlopeAndOffset(rawDetId, slope, offset);
           }
         }
-        std::cout << std::endl;
+        edm::LogPrint("SiPixelVCalDB") << std::endl;
 
       } else {
         edm::LogError("SiPixelVCalDB::analyze") << "detid is Pixel but neither bpix nor fpix" << std::endl;

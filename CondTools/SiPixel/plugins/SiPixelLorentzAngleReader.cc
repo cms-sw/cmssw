@@ -43,7 +43,7 @@ void SiPixelLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSet
   std::map<unsigned int, float> detid_la = SiPixelLorentzAngle_->getLorentzAngles();
   std::map<unsigned int, float>::const_iterator it;
   for (it = detid_la.begin(); it != detid_la.end(); it++) {
-    //	std::cout  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second  << std::endl;
+    //	edm::LogPrint("SiPixelLorentzAngleReader")  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second  << std::endl;
     //edm::LogInfo("SiPixelLorentzAngleReader")  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second;
     unsigned int subdet = DetId(it->first).subdetId();
     if (subdet == static_cast<int>(PixelSubdetector::PixelBarrel)) {

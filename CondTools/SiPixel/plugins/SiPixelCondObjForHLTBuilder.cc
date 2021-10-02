@@ -81,7 +81,7 @@ namespace cms {
         // Get the module sizes.
         int nrows = topol.nrows();     // rows in x
         int ncols = topol.ncolumns();  // cols in y
-        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
+        //edm::LogPrint("SiPixelCondObjForHLTBuilder") << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
         double meanPedWork = meanPed_;
         double rmsPedWork = rmsPed_;
@@ -126,14 +126,14 @@ namespace cms {
                 double val = CLHEP::RandFlat::shoot();
                 if (val < deadFraction_) {
                   isDead = true;
-                  //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+                  //		 edm::LogPrint("SiPixelCondObjForHLTBuilder") << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
                 }
               }
               if (deadFraction_ > 0 && !isDead) {
                 double val = CLHEP::RandFlat::shoot();
                 if (val < noisyFraction_) {
                   isNoisy = true;
-                  //		 std::cout << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+                  //		 edm::LogPrint("SiPixelCondObjForHLTBuilder") << "noisy pixel " << detid << " " << i << "," << j << " " << val << std::endl;
                 }
               }
 
@@ -177,7 +177,7 @@ namespace cms {
             totalGain += gain;
 
             if ((j + 1) % 80 == 0) {
-              //std::cout << "Filling   Col "<<i<<" Row "<<j<<" Ped "<<totalPed<<" Gain "<<totalGain<<std::endl;
+              //edm::LogPrint("SiPixelCondObjForHLTBuilder") << "Filling   Col "<<i<<" Row "<<j<<" Ped "<<totalPed<<" Gain "<<totalGain<<std::endl;
               float averagePed = totalPed / static_cast<float>(80);
               float averageGain = totalGain / static_cast<float>(80);
 
@@ -205,8 +205,8 @@ namespace cms {
               << "[SiPixelCondObjForHLTBuilder::analyze] detid already exists" << std::endl;
       }
     }
-    std::cout << " ---> PIXEL Modules  " << nmodules << std::endl;
-    std::cout << " ---> PIXEL Channels " << nchannels << std::endl;
+    edm::LogPrint("SiPixelCondObjForHLTBuilder") << " ---> PIXEL Modules  " << nmodules << std::endl;
+    edm::LogPrint("SiPixelCondObjForHLTBuilder") << " ---> PIXEL Channels " << nchannels << std::endl;
 
     //   // Try to read object
     //    int mynmodules =0;
@@ -218,7 +218,7 @@ namespace cms {
     //        SiPixelGainCalibration::Range myrange = SiPixelGainCalibration_->getRange(mydetid);
     //        float mypedestal = SiPixelGainCalibration_->getPed (mycol,myrow,myrange,416);
     //        float mygain     = SiPixelGainCalibration_->getGain(mycol,myrow,myrange,416);
-    //        //std::cout<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
+    //        //edm::LogPrint("SiPixelCondObjForHLTBuilder")<<" PEDESTAL "<< mypedestal<<" GAIN "<<mygain<<std::endl;
     //      }
     //    }
     // Write into DB
@@ -297,7 +297,8 @@ namespace cms {
     for (int i = 0; i < (52 * 80); i++) {
       in_file >> par0 >> par1 >> name >> colid >> rowid;
 
-      std::cout << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
+      edm::LogPrint("SiPixelCondObjForHLTBuilder")
+          << " Col " << colid << " Row " << rowid << " P0 " << par0 << " P1 " << par1 << std::endl;
 
       CalParameters onePix;
       onePix.p0 = par0;

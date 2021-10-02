@@ -93,7 +93,7 @@ namespace cms {
           _TH1F_Pedestals_m[detid]->Fill(ped);
           _TH1F_Pedestals_all->Fill(ped);
 
-          //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+          //edm::LogPrint("SiPixelCondObjAllPayloadsReader") << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
         }
       }
 
@@ -112,7 +112,9 @@ namespace cms {
   }
 
   // ------------ method called once each job just after ending the event loop  ------------
-  void SiPixelCondObjAllPayloadsReader::endJob() { std::cout << " ---> End job " << std::endl; }
+  void SiPixelCondObjAllPayloadsReader::endJob() {
+    edm::LogPrint("SiPixelCondObjAllPayloadsReader") << " ---> End job " << std::endl;
+  }
 }  // namespace cms
 
 using namespace cms;
