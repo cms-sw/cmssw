@@ -68,15 +68,14 @@ Tracker:
 * T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.0): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are bricked. Compatible with DD4hep library.
 
 Calorimeters:
-* C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables
-* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB
-* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers)
-* C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
-* C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
-* C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
-* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB
-* C16: HGCal (create HGCal geometry with real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB
-* C17: HGCal (create HGCal geometry with new longitudinal structure having 47 layers and new definition of partial wafers using the constants of the flat file) + Phase2 HCAL and EB
+* C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
+* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in 2026D60)
+* C11: HGCal (v12 post TDR HGCal Geometry same as C9 + modified support structure + full list of masked wafers) + Phase2 HCAL and EB + Tracker cables (used in 2026D68)
+* C13: HGCal (v13 version which reads the input from the flat file, uses these for checks and makes provision to be used downstream) + Phase2 HCAL and EB (used in 2026D70, 2026D84)
+* C14: HGCal (v14 version reading the input from the flat file and uses it to create geometry, still using masking to define partial wafers) + Phase2 HCAL and EB (used in 2026D76-81, 2026D85, 2026D87)
+* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB (used in 2026D82)
+* C16: HGCal (v15 version of HGCal geometry created using real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D83)
+* C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D86)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
