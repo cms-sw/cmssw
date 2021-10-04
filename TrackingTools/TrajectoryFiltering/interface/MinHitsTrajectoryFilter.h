@@ -13,7 +13,7 @@
 class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
   explicit MinHitsTrajectoryFilter(int minHits = 5,
-                                   double highEtaSwitch = 5.0,
+                                   double highEtaSwitch = sinh(5.0),
                                    int minHitsAtHighEta = 5,
                                    int seedPairPenalty = 0)
       : theMinHits(minHits),
@@ -23,7 +23,7 @@ public:
 
   MinHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theMinHits(pset.getParameter<int>("minimumNumberOfHits")),
-        theHighEtaSwitch(pset.getParameter<double>("highEtaSwitch")),
+        theHighEtaSwitch(sinh(pset.getParameter<double>("highEtaSwitch"))),
         theMinHitsAtHighEta(pset.getParameter<int>("minHitsAtHighEta")),
         theSeedPairPenalty(pset.getParameter<int>("seedPairPenalty")) {}
 
@@ -49,16 +49,18 @@ protected:
   bool QF(const T& traj) const {
     int seedPenalty = (2 == traj.seedNHits()) ? theSeedPairPenalty : 0;  // increase by one if seed-doublet...
     bool passed = false;
-    double pt = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp();
-    double pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
-    double sinhTrajEta2 = (pz * pz) / (pt * pt);
-    double myEtaSwitch = sinh(theHighEtaSwitch);
-    if (sinhTrajEta2 < (myEtaSwitch * myEtaSwitch)) {
-      if (traj.foundHits() >= theMinHits + seedPenalty)
-        passed = true;
-    } else {  //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
-      if (traj.foundHits() >= theMinHitsAtHighEta + seedPenalty)
-        passed = true;
+
+    if (!traj.empty()) {
+      auto pt2 = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().perp2();
+      auto pz = traj.lastMeasurement().updatedState().freeTrajectoryState()->momentum().z();
+      auto sinhTrajEta2 = (pz * pz) / pt2;
+      if (sinhTrajEta2 < (theHighEtaSwitch * theHighEtaSwitch)) {
+        if (traj.foundHits() >= theMinHits + seedPenalty)
+          passed = true;
+      } else {  //absTrajEta>theHighEtaSwitch, so apply relaxed cuts
+        if (traj.foundHits() >= theMinHitsAtHighEta + seedPenalty)
+          passed = true;
+      }
     }
     return passed;
   }
