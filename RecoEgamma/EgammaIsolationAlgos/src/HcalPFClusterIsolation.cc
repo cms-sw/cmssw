@@ -32,10 +32,11 @@ template <typename T1>
 double HcalPFClusterIsolation<T1>::getSum(const T1 cand,
                                           const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles) {
   double etSum = 0.;
+  double candAbsEta = std::abs(cand.eta());
 
   float etaStrip = 0;
   float dRVeto = 0;
-  if (std::abs(cand.eta()) < 1.479) {
+  if (candAbsEta < 1.479) {
     dRVeto = drVetoBarrel_;
     etaStrip = etaStripBarrel_;
   } else {
@@ -47,7 +48,7 @@ double HcalPFClusterIsolation<T1>::getSum(const T1 cand,
     for (unsigned i = 0; i < clusterHandles[nHandle]->size(); i++) {
       const reco::PFClusterRef pfclu(clusterHandles[nHandle], i);
 
-      if (std::abs(cand.eta()) < 1.479) {
+      if (candAbsEta < 1.479) {
         if (std::abs(pfclu->pt()) < energyBarrel_)
           continue;
       } else {
