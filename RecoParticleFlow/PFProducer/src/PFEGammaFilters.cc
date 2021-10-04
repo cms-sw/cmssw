@@ -34,6 +34,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ph_sietaieta_ee_(cfg.getParameter<double>("photon_SigmaiEtaiEta_endcap")),
       useElePFidDNN_(cfg.getParameter<bool>("useElePFidDnn")),
       usePhotonPFidDNN_(cfg.getParameter<bool>("usePhotonPFidDnn")),
+      useEBModelInGap_(cfg.getParameter<bool>("useEBModelInGap")),
       ele_iso_pt_(cfg.getParameter<double>("electron_iso_pt")),
       ele_iso_mva_eb_(cfg.getParameter<double>("electron_iso_mva_barrel")),
       ele_iso_mva_ee_(cfg.getParameter<double>("electron_iso_mva_endcap")),
@@ -110,10 +111,11 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon& photon) const {
     // Run3 DNN based PFID
     const auto dnn = photon.pfDNN();
     const auto photEta = std::abs(photon.eta());
+    const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
     // using the Barrel model for photons in the EB-EE gap
-    if (photEta <= ecalBarrelMaxEtaWithGap) {
+    if (photEta <= etaThreshold) {
       return dnn > photon_dnnBarrelThr_;
-    } else if (photEta > ecalBarrelMaxEtaWithGap) {
+    } else if (photEta > etaThreshold) {
       return dnn > photon_dnnEndcapThr_;
     }
   } else {
@@ -168,11 +170,12 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 
   if (useElePFidDNN_) {  // Use DNN for ele pfID >=CMSSW12_1
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
+    const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
     if (electronPt > ele_iso_pt_) {
       // using the Barrel model for electron in the EB-EE gap
-      if (eleEta <= ecalBarrelMaxEtaWithGap) {
+      if (eleEta <= etaThreshold) {
         passEleSelection = dnn_sig > ele_dnnHighPtBarrelThr_;
-      } else if (eleEta > ecalBarrelMaxEtaWithGap) {
+      } else if (eleEta > etaThreshold) {
         passEleSelection = dnn_sig > ele_dnnHighPtEndcapThr_;
       }
     } else {  // pt < ele_iso_pt_
@@ -492,6 +495,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("electronDnnLowPtThr", 0.5);
     psd.add<double>("electronDnnHighPtBarrelThr", 0.5);
     psd.add<double>("electronDnnHighPtEndcapThr", 0.5);
+
     iDesc.add<edm::ParameterSetDescription>("electronDnnThresholds", psd);
   }
   iDesc.add<bool>("usePhotonPFidDnn", false);
@@ -501,6 +505,8 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("photonDnnEndcapThr", 0.5);
     iDesc.add<edm::ParameterSetDescription>("photonDnnThresholds", psd);
   }
+  // control if the EB DNN models should be used up to eta 1.485 or 1.566
+  iDesc.add<bool>("useEBModelInGap", true);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");

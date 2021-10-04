@@ -55,16 +55,18 @@ class CacheData {
 public:
   CacheData(const edm::ParameterSet& conf) {
     // Here we will have to load the DNN PFID if present in the config
-    PhotonDNNEstimator::Configuration config;
-    auto pset_dnn = conf.getParameter<edm::ParameterSet>("PhotonDNNPFid");
-    bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+    egammaTools::DNNConfiguration config;
+    const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+    const auto dnnEnabled = pset_dnn.getParameter<bool>("enabled");
     if (dnnEnabled) {
       config.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
       config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
-      config.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
-      config.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.log_level = pset_dnn.getParameter<uint>("logLevel");
-      photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config);
+      config.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+      config.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+      config.logLevel = pset_dnn.getParameter<uint>("logLevel");
+      config.outputDim = pset_dnn.getParameter<uint>("outputDim");
+      const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
+      photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
     }
   }
   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
@@ -78,6 +80,8 @@ public:
 
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(const CacheData*){};
+
+  void endJob();
 
 private:
   class RecoStepInfo {
@@ -198,6 +202,7 @@ private:
 
   // DNN for PFID photon enabled
   bool dnnPFidEnabled_;
+  std::vector<tensorflow::Session*> tfSessions_;
 
   double ecaldrMax_;
   double ecaldrVetoBarrel_;
@@ -442,12 +447,20 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 
   const auto& pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  if (dnnPFidEnabled_) {
+    tfSessions_ = gcache->photonDNNEstimator->getSessions();
+  }
 }
 
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
   // this method is supposed to create, initialize and return a CacheData instance
-  CacheData* cacheData = new CacheData(config);
-  return std::unique_ptr<CacheData>(cacheData);
+  return std::make_unique<CacheData>(config);
+}
+
+void GEDPhotonProducer::endJob() {
+  for (auto session : tfSessions_) {
+    tensorflow::closeSession(session);
+  }
 }
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
@@ -991,12 +1004,11 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   if (dnnPFidEnabled_) {
     // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
     LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
-    std::vector<std::array<float, 1>> dnn_photon_pfid =
-        globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection);
+    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
     int ipho = -1;
     for (auto& photon : outputPhotonCollection) {
       ipho++;
-      auto values = dnn_photon_pfid[ipho];
+      const auto& values = dnn_photon_pfid[ipho];
       reco::Photon::PflowIDVariables pfID;
       pfID.dnn = values[0];
       photon.setPflowIDVariables(pfID);
@@ -1068,14 +1080,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     pfIso.sumEcalClusterEt = !phoPFECALClusIsolationToken_.isUninitialized() ? (*pfEcalClusters)[photonPtr] : 0.;
     pfIso.sumHcalClusterEt = !phoPFHCALClusIsolationToken_.isUninitialized() ? (*pfHcalClusters)[photonPtr] : 0.;
     newCandidate.setPflowIsolationVariables(pfIso);
-
-    //SJ
-    // std::cout<<" "<<std::endl;
-    // std::cout<<"SJ!! inside second fillPhotonCollection"<<std::endl;
-    // std::cout<<"SJ!! trackSumHollowConePt "<<trackSumHollowConePt<<" sieie_full5x5 "<<sieie_full5x5<<" hadTowOverEm "
-    //  <<hadTowOverEm<<" EcalRecHitSumEtConeDR03 "<<EcalRecHitSumEtConeDR03<<" hcalTowerSumEtConeDR03 "
-    //  << hcalTowerSumEtConeDR03<<" SigmaIEtaIEta "<<SigmaIEtaIEta<<" SigmaIEtaIPhiFull5x5 "<<SigmaIEtaIPhiFull5x5
-    // << " EcalPFClusterIso "<<EcalPFClusterIso<<" HcalPFClusterIso "<<HcalPFClusterIso<<" R9Full5x5 "<<R9Full5x5<<" HasPix "<<HasPix<<std::endl;
 
     // do the regression
     photonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);

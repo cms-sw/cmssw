@@ -47,16 +47,18 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
   iElectronMVAEstimator = std::make_unique<ElectronMVAEstimator>(iconfig);
 
   // Here we will have to load the DNN PFID if present in the config
-  ElectronDNNEstimator::Configuration dconfig;
+  egammaTools::DNNConfiguration dconfig;
   const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("EleDNNPFid");
   const bool dnnEnabled = pset_dnn.getParameter<bool>("enabled");
   if (dnnEnabled) {
     dconfig.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
     dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
-    dconfig.models_files = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
-    dconfig.scalers_files = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-    dconfig.log_level = pset_dnn.getParameter<uint>("logLevel");
-    iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig);
+    dconfig.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+    dconfig.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+    dconfig.logLevel = pset_dnn.getParameter<uint>("logLevel");
+    dconfig.outputDim = pset_dnn.getParameter<uint>("outputDim");
+    const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
+    iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig, useEBModelInGap);
   }
 }
 
