@@ -55,7 +55,7 @@ int FEConfigMainInfo::fetchNextId() noexcept(false) {
     return result;
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchNextId():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchNextId():  " << e.getMessage();
   }
 }
 
@@ -101,7 +101,7 @@ int FEConfigMainInfo::fetchID() noexcept(false) {
     std::cout << m_ID << endl;
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchID:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchID:  " << e.getMessage();
   }
   setByID(m_ID);
   return m_ID;
@@ -124,7 +124,7 @@ void FEConfigMainInfo::prepareWrite() noexcept(false) {
     m_ID = next_id;
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::prepareWrite():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -155,7 +155,7 @@ void FEConfigMainInfo::writeDB() noexcept(false) {
     m_writeStmt->executeUpdate();
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::writeDB:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::writeDB:  " << e.getMessage();
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -183,7 +183,7 @@ int FEConfigMainInfo::fetchIDLast() noexcept(false) {
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "ODRunConfigInfo::fetchIDLast:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "ODRunConfigInfo::fetchIDLast:  " << e.getMessage();
   }
 
   setByID(m_ID);
@@ -233,7 +233,7 @@ void FEConfigMainInfo::setByID(int id) noexcept(false) {
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::setByID:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::setByID:  " << e.getMessage();
   }
 }
 
@@ -290,7 +290,7 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo* result) noexcept(false) {
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchData():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigMainInfo::fetchData():  " << e.getMessage();
   }
 }
 
@@ -302,6 +302,6 @@ void FEConfigMainInfo::insertConfig() noexcept(false) {
     terminateWriteStatement();
   } catch (std::runtime_error& e) {
     m_conn->rollback();
-    throw cms::Exception("RuntimeError") << e.what(); 
-  } 
+    throw cms::Exception("RuntimeError") << e.what();
+  }
 }

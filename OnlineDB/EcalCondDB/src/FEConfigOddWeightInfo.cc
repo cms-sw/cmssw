@@ -42,7 +42,7 @@ int FEConfigOddWeightInfo::fetchNextId() noexcept(false) {
     return result;
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchNextId():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchNextId():  " << e.getMessage();
   }
 }
 
@@ -64,7 +64,7 @@ void FEConfigOddWeightInfo::prepareWrite() noexcept(false) {
     m_ID = next_id;
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::prepareWrite():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -92,7 +92,7 @@ void FEConfigOddWeightInfo::writeDB() noexcept(false) {
     m_writeStmt->executeUpdate();
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::writeDB():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::writeDB():  " << e.getMessage();
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -127,7 +127,7 @@ void FEConfigOddWeightInfo::fetchData(FEConfigOddWeightInfo* result) noexcept(fa
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchData():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchData():  " << e.getMessage();
   }
 }
 
@@ -150,7 +150,7 @@ void FEConfigOddWeightInfo::fetchLastData(FEConfigOddWeightInfo* result) noexcep
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchData():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchData():  " << e.getMessage();
   }
 }
 
@@ -177,7 +177,7 @@ int FEConfigOddWeightInfo::fetchID() noexcept(false) {
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchID:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::fetchID:  " << e.getMessage();
   }
 
   return m_ID;
@@ -208,6 +208,6 @@ void FEConfigOddWeightInfo::setByID(int id) noexcept(false) {
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::setByID:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightInfo::setByID:  " << e.getMessage();
   }
 }

@@ -133,29 +133,28 @@ void EcalFenixStrip::process_part1(int identif,
                                    const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup,
                                    const EcalTPGCrystalStatus *ecaltpBadX) {
   if (debug_) {
-    edm::LogVerbatim("EcalTPG"); 
-    edm::LogVerbatim("EcalTPG") << "EcalFenixStrip input is a vector of size: " << nrXtals << "\n"; 
-    edm::LogVerbatim("EcalTPG") << "ECAL TPG TPMode printout:"; 
+    edm::LogVerbatim("EcalTPG");
+    edm::LogVerbatim("EcalTPG") << "EcalFenixStrip input is a vector of size: " << nrXtals << "\n";
+    edm::LogVerbatim("EcalTPG") << "ECAL TPG TPMode printout:";
 
-    std::stringstream ss; 
-    ecaltpgTPMode_->print(ss); 
-    edm::LogVerbatim("EcalTPG") << ss.str() << "\n"; 
+    std::stringstream ss;
+    ecaltpgTPMode_->print(ss);
+    edm::LogVerbatim("EcalTPG") << ss.str() << "\n";
   }
 
   // loop over crystals
   for (int cryst = 0; cryst < nrXtals; cryst++) {
     if (debug_) {
-
-      edm::LogVerbatim("EcalTPG") << "crystal " << cryst << " ADC counts per clock (non-linearized): "; 
-      int Nsamples = df[cryst].size(); 
-      std::string XTAL_ADCs; 
+      edm::LogVerbatim("EcalTPG") << "crystal " << cryst << " ADC counts per clock (non-linearized): ";
+      int Nsamples = df[cryst].size();
+      std::string XTAL_ADCs;
 
       for (int i = 0; i < Nsamples; i++) {
         XTAL_ADCs.append(" ");
         XTAL_ADCs.append(std::to_string(df[cryst][i].adc()));
       }
 
-      edm::LogVerbatim("EcalTPG") << XTAL_ADCs << "\n"; 
+      edm::LogVerbatim("EcalTPG") << XTAL_ADCs << "\n";
     }
     // call linearizer
     this->getLinearizer(cryst)->setParameters(df[cryst].id().rawId(), ecaltpPed, ecaltpLin, ecaltpBadX);
@@ -163,20 +162,19 @@ void EcalFenixStrip::process_part1(int identif,
   }
 
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "output of linearizer is a vector of size: " << lin_out_.size() << " of which used " << nrXtals;  
+    edm::LogVerbatim("EcalTPG") << "output of linearizer is a vector of size: " << lin_out_.size() << " of which used "
+                                << nrXtals;
     for (int ix = 0; ix < nrXtals; ix++) {
-
-      edm::LogVerbatim("EcalTPG") << "crystal " << std::to_string(ix) << " values per clock (linearized): "; 
+      edm::LogVerbatim("EcalTPG") << "crystal " << std::to_string(ix) << " values per clock (linearized): ";
       std::string Lin_Vals;
 
       for (unsigned int i = 0; i < lin_out_[ix].size(); i++) {
         Lin_Vals.append(" ");
-        Lin_Vals.append(std::to_string((lin_out_[ix])[i])); 
+        Lin_Vals.append(std::to_string((lin_out_[ix])[i]));
       }
 
-      edm::LogVerbatim("EcalTPG") << Lin_Vals << "\n"; 
+      edm::LogVerbatim("EcalTPG") << Lin_Vals << "\n";
     }
-
   }
 
   // Now call the sFGVB - this is common between EB and EE!
@@ -185,22 +183,22 @@ void EcalFenixStrip::process_part1(int identif,
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "output of strip fgvb is a vector of size: " << fgvb_out_temp_.size();
-    std::string fgvb_vals; 
+    std::string fgvb_vals;
     for (unsigned int i = 0; i < fgvb_out_temp_.size(); i++) {
       fgvb_vals.append(" ");
       fgvb_vals.append(std::to_string(fgvb_out_temp_[i]));
     }
-    edm::LogVerbatim("EcalTPG") << fgvb_vals << "\n"; 
+    edm::LogVerbatim("EcalTPG") << fgvb_vals << "\n";
   }
   // call adder
   this->getAdder()->process(lin_out_, nrXtals, add_out_);  // add_out is of size SIZEMAX=maxNrSamples
 
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "output of adder is a vector of size: " << add_out_.size(); 
+    edm::LogVerbatim("EcalTPG") << "output of adder is a vector of size: " << add_out_.size();
     for (unsigned int ix = 0; ix < add_out_.size(); ix++) {
-      edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value: " << add_out_[ix]; 
+      edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value: " << add_out_[ix];
     }
-    edm::LogVerbatim("EcalTPG"); 
+    edm::LogVerbatim("EcalTPG");
   }
 
   if (famos_) {
@@ -217,16 +215,15 @@ void EcalFenixStrip::process_part1(int identif,
     // Print out even filter ET and sfgvb values
     if (debug_) {
       edm::LogVerbatim("EcalTPG");
-      edm::LogVerbatim("EcalTPG") << "output of EVEN filter is a vector of size: " << even_filt_out_.size(); 
+      edm::LogVerbatim("EcalTPG") << "output of EVEN filter is a vector of size: " << even_filt_out_.size();
       for (unsigned int ix = 0; ix < even_filt_out_.size(); ix++) {
-        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value : " << even_filt_out_[ix]; 
+        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value : " << even_filt_out_[ix];
       }
       edm::LogVerbatim("EcalTPG");
-      edm::LogVerbatim("EcalTPG") << "output of EVEN sfgvb after filter is a vector of size: " << fgvb_out_.size(); 
+      edm::LogVerbatim("EcalTPG") << "output of EVEN sfgvb after filter is a vector of size: " << fgvb_out_.size();
       for (unsigned int ix = 0; ix < fgvb_out_.size(); ix++) {
-        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value : " << fgvb_out_[ix]; 
+        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value : " << fgvb_out_[ix];
       }
-      
     }
 
     // Call peak finder on even filter output
@@ -235,7 +232,7 @@ void EcalFenixStrip::process_part1(int identif,
     // Print out even filter peak finder values
     if (debug_) {
       edm::LogVerbatim("EcalTPG");
-      edm::LogVerbatim("EcalTPG") << "output of EVEN peakfinder is a vector of size: " << even_peak_out_.size(); 
+      edm::LogVerbatim("EcalTPG") << "output of EVEN peakfinder is a vector of size: " << even_peak_out_.size();
       for (unsigned int ix = 0; ix < even_peak_out_.size(); ix++) {
         edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << even_peak_out_[ix];
       }
@@ -249,9 +246,9 @@ void EcalFenixStrip::process_part1(int identif,
     // Print out odd filter ET
     if (debug_) {
       edm::LogVerbatim("EcalTPG");
-      edm::LogVerbatim("EcalTPG") << "output of ODD filter is a vector of size: " << odd_filt_out_.size(); 
+      edm::LogVerbatim("EcalTPG") << "output of ODD filter is a vector of size: " << odd_filt_out_.size();
       for (unsigned int ix = 0; ix < odd_filt_out_.size(); ix++) {
-        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << odd_filt_out_[ix]; 
+        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << odd_filt_out_[ix];
       }
       edm::LogVerbatim("EcalTPG");
     }
@@ -261,9 +258,9 @@ void EcalFenixStrip::process_part1(int identif,
     this->getPeakFinder()->process(odd_filt_out_, odd_peak_out_);
 
     if (debug_) {
-      edm::LogVerbatim("EcalTPG") << "output of ODD peakfinder is a vector of size: " << odd_peak_out_.size(); 
+      edm::LogVerbatim("EcalTPG") << "output of ODD peakfinder is a vector of size: " << odd_peak_out_.size();
       for (unsigned int ix = 0; ix < odd_peak_out_.size(); ix++) {
-        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << odd_peak_out_[ix]; 
+        edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << odd_peak_out_[ix];
       }
       edm::LogVerbatim("EcalTPG");
     }
@@ -276,17 +273,16 @@ void EcalFenixStrip::process_part1(int identif,
 void EcalFenixStrip::process_part2_barrel(uint32_t stripid,
                                           const EcalTPGSlidingWindow *ecaltpgSlidW,
                                           const EcalTPGFineGrainStripEE *ecaltpgFgStripEE) {
-
   // call formatter
   this->getFormatterEB()->setParameters(stripid, ecaltpgSlidW, ecaltpgTPMode_);
   this->getFormatterEB()->process(fgvb_out_, even_peak_out_, even_filt_out_, odd_peak_out_, odd_filt_out_, format_out_);
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "output of strip EB formatter is a vector of size: " << format_out_.size();
-    edm::LogVerbatim("EcalTPG") << "value : "; 
+    edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int ix = 0; ix < format_out_.size(); ix++) {
       edm::LogVerbatim("EcalTPG") << "Clock: " << ix << " value : " << format_out_[ix] << "  0b"
-                                  << std::bitset<14>(format_out_[ix]).to_string(); 
+                                  << std::bitset<14>(format_out_[ix]).to_string();
     }
     edm::LogVerbatim("EcalTPG");
   }
@@ -303,10 +299,10 @@ void EcalFenixStrip::process_part2_endcap(uint32_t stripid,
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "\noutput of strip EE formatter is a vector of size: " << format_out_.size();
-    edm::LogVerbatim("EcalTPG") << "value : "; 
+    edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int ix = 0; ix < format_out_.size(); ix++) {
       edm::LogVerbatim("EcalTPG") << "Clock: " << ix << "  value : " << format_out_[ix] << "  0b"
-                << std::bitset<14>(format_out_[ix]).to_string();
+                                  << std::bitset<14>(format_out_[ix]).to_string();
     }
     edm::LogVerbatim("EcalTPG");
   }

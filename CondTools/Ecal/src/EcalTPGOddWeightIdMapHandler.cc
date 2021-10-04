@@ -50,9 +50,9 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
     //check whats already inside of database
     if (tagInfo().size) {
       //check whats already inside of database
-      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "got offlineInfo = "; 
+      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "got offlineInfo = ";
       edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "tag name = " << tagInfo().name;
-      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "size = " << tagInfo().size; 
+      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "size = " << tagInfo().size;
 
     } else {
       edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " First object for this tag ";
@@ -72,7 +72,7 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
     edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "Done.";
 
     if (!econn) {
-      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " connection parameters " << m_sid << "/" << m_user; 
+      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " connection parameters " << m_sid << "/" << m_user;
       throw cms::Exception("OMDS not available");
     }
 
@@ -100,7 +100,8 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
     if (min_run < max_since) {
       min_run = max_since + 1;  // we have to add 1 to the last transferred one
     }
-    edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun << "max_since " << max_since;
+    edm::LogInfo("EcalTPGOddWeightIdMapHandler")
+        << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun << "max_since " << max_since;
 
     unsigned int max_run = m_lastRun;
     edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "min_run= " << min_run << "max_run= " << max_run;
@@ -118,7 +119,7 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
       for (size_t kr = 0; kr < run_vec.size(); kr++) {
         irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
 
-        edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** "; 
+        edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
         edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
         edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " run= " << irun;
 
@@ -142,21 +143,23 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
 
         // it is all the same for all SM... get the last one
 
-        edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version; 
+        edm::LogInfo("EcalTPGOddWeightIdMapHandler")
+            << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version;
 
         // here we should check if it is the same as previous run.
 
         if ((the_config_tag != m_i_tag || the_config_version != m_i_version) && nr > 0) {
-          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "the tag is different from last transferred run ... retrieving last config set from DB"; 
+          edm::LogInfo("EcalTPGOddWeightIdMapHandler")
+              << "the tag is different from last transferred run ... retrieving last config set from DB";
 
           FEConfigMainInfo fe_main_info;
           fe_main_info.setConfigTag(the_config_tag);
           fe_main_info.setVersion(the_config_version);
 
           try {
-            edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " before fetch config set"; 
+            edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " before fetch config set";
             econn->fetchConfigSet(&fe_main_info);
-            edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " after fetch config set"; 
+            edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " after fetch config set";
 
             // now get TPGOddWeightIdMap
             int weightId = fe_main_info.getWei2Id();
@@ -209,30 +212,29 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
 
               writeFile("last_tpg_OddweightIdMap_settings.txt");
 
-              edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " even if the tag/version is not the same, the weightIdMap id is the same -> no transfer needed "; 
-
+              edm::LogInfo("EcalTPGOddWeightIdMapHandler")
+                  << " even if the tag/version is not the same, the weightIdMap id is the same -> no transfer needed ";
             }
 
           } catch (std::exception& e) {
-
             throw cms::Exception("FileReadError") << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag
-              << " version=" << the_config_version 
-              << "\n" << e.what(); 
+                                                  << " version=" << the_config_version << "\n"
+                                                  << e.what();
             m_i_run_number = irun;
-
           }
           edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
 
         } else if (nr == 0) {
           m_i_run_number = irun;
-          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "; 
-          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** "; 
+          edm::LogInfo("EcalTPGOddWeightIdMapHandler")
+              << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed ";
+          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
         } else {
           m_i_run_number = irun;
           m_i_tag = the_config_tag;
           m_i_version = the_config_version;
-          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " the tag/version is the same -> no transfer needed "; 
-          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** "; 
+          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " the tag/version is the same -> no transfer needed ";
+          edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
           writeFile("last_tpg_OddweightIdMap_settings.txt");
         }
       }
@@ -243,11 +245,11 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
   edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "Ecal - > end of getNewObjects -----------";
 }
 void popcon::EcalTPGOddWeightIdMapHandler::readtxtFile() {
-  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " reading the input file " << m_file_name; 
+  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " reading the input file " << m_file_name;
   std::ifstream fInput;
   fInput.open(m_file_name);
   if (!fInput.is_open()) {
-    edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "ERROR : cannot open file " << m_file_name; 
+    edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "ERROR : cannot open file " << m_file_name;
     exit(1);
   }
   unsigned int wloc[5];
@@ -271,17 +273,17 @@ void popcon::EcalTPGOddWeightIdMapHandler::readtxtFile() {
     Time_t snc = (Time_t)m_firstRun;
     m_to_transfer.push_back(std::make_pair((EcalTPGOddWeightIdMap*)weightMap, snc));
   } catch (std::exception& e) {
-      throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readtxtFile error : " << e.what();     
+    throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readtxtFile error : " << e.what();
   }
-  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** "; 
+  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
 }
 
 void popcon::EcalTPGOddWeightIdMapHandler::readxmlFile() {
-  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " reading the input file " << m_file_name; 
+  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " reading the input file " << m_file_name;
   std::ifstream fxml;
   fxml.open(m_file_name);
   if (!fxml.is_open()) {
-    edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "ERROR : cannot open file " << m_file_name; 
+    edm::LogInfo("EcalTPGOddWeightIdMapHandler") << "ERROR : cannot open file " << m_file_name;
     exit(1);
   }
   std::string dummyLine, bid;
@@ -301,14 +303,14 @@ void popcon::EcalTPGOddWeightIdMapHandler::readxmlFile() {
     std::getline(fxml, dummyLine);  //    <item_version>0</item_version>
   for (int i = 0; i < ngroups; i++) {
     std::getline(fxml, dummyLine);  //    <item
-    fxml >> bid;  //    <first
+    fxml >> bid;                    //    <first
     std::size_t found = bid.find("</");
     stt = bid.substr(7, found - 7);
     std::istringstream sg1(stt);
     sg1 >> igroups;
     if (igroups != i) {
-      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " group " << i << ": " << bid << " igroups " << igroups; 
-      throw cms::Exception("MismatchError"); 
+      edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " group " << i << ": " << bid << " igroups " << igroups;
+      throw cms::Exception("MismatchError");
     }
     for (int i = 0; i < 2; i++)
       std::getline(fxml, dummyLine);  // < second
@@ -328,9 +330,9 @@ void popcon::EcalTPGOddWeightIdMapHandler::readxmlFile() {
     Time_t snc = (Time_t)m_firstRun;
     m_to_transfer.push_back(std::make_pair((EcalTPGOddWeightIdMap*)weightMap, snc));
   } catch (std::exception& e) {
-      throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readxmlFile error : " << e.what();
+    throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readxmlFile error : " << e.what();
   }
-  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** "; 
+  edm::LogInfo("EcalTPGOddWeightIdMapHandler") << " **************** ";
 }
 
 void popcon::EcalTPGOddWeightIdMapHandler::readFromFile(const char* inputFile) {
