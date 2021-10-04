@@ -32,7 +32,7 @@ namespace {
       TrackerInfo::EtaRegion reg;
 
       // Max eta used for region sorting
-      constexpr float maxEta_regSort = 5.0;
+      constexpr float maxEta_regSort = 7.0;
 
       const LayerInfo &outer_brl = trk_info.outer_barrel_layer();
 
