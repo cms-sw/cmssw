@@ -81,6 +81,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<TotemTimingLocalTrack>> tokenTrack_;
   edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo_;
 
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
+
   unsigned int samplesForNoise_;
   unsigned int verbosity_;
   bool plotOnline_;
@@ -378,6 +380,7 @@ DiamondSampicDQMSource::DiamondSampicDQMSource(const edm::ParameterSet &ps)
       tokenRecHit_(consumes<edm::DetSetVector<TotemTimingRecHit>>(ps.getParameter<edm::InputTag>("tagRecHits"))),
       tokenTrack_(consumes<edm::DetSetVector<TotemTimingLocalTrack>>(ps.getParameter<edm::InputTag>("tagTracks"))),
       tokenFEDInfo_(consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"))),
+      ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       samplesForNoise_(ps.getUntrackedParameter<unsigned int>("samplesForNoise", 5)),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       plotOnline_(ps.getUntrackedParameter<bool>("plotOnline", true)),
@@ -393,9 +396,7 @@ DiamondSampicDQMSource::~DiamondSampicDQMSource() {}
 
 void DiamondSampicDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Get detector shifts from the geometry (if present)
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
-  const CTPPSGeometry *geom = geometry_.product();
+  const CTPPSGeometry *geom = &iSetup.getData(ctppsGeometryRunToken_);
   for (auto it = geom->beginSensor(); it != geom->endSensor(); it++) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
@@ -418,9 +419,7 @@ void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
-  edm::ESHandle<CTPPSGeometry> geometry_;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
-  const CTPPSGeometry *geom = geometry_.product();
+  const CTPPSGeometry *geom = &iSetup.getData(ctppsGeometryRunToken_);
   for (auto it = geom->beginSensor(); it != geom->endSensor(); ++it) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
@@ -458,9 +457,6 @@ std::shared_ptr<totemds::Cache> DiamondSampicDQMSource::globalBeginLuminosityBlo
 //----------------------------------------------------------------------------------------------------
 
 void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-  // get event setup data
-  edm::ESHandle<CTPPSGeometry> geometry;
-  eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
 
   // get event data
   edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigis;
