@@ -363,7 +363,7 @@ namespace dqmservices {
       hltPath.erase(
           std::remove_if(
               hltPath.begin(), hltPath.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
-          hltPath.end()); 
+          hltPath.end());
       std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
       if (!matches.empty()) {
         matchTriggerSel_ = true;
