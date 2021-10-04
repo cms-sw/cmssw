@@ -241,11 +241,11 @@ void CSCSimHitMatcher::fitHitsInChamber(unsigned int detid, float& intercept, fl
     return;
 
   std::unique_ptr<TGraphErrors> gr(new TGraphErrors(x.size(), &x[0], &y[0], &xe[0], &ye[0]));
-  std::unique_ptr<TF1> fit(new TF1("fit", "pol1", -3, 4));
-  gr->Fit("fit", "EMQN");
+  TF1 fit("fit", "pol1", -3, 4);
+  gr->Fit(&fit, "EMQN");
 
-  intercept = fit->GetParameter(0);
-  slope = fit->GetParameter(1);
+  intercept = fit.GetParameter(0);
+  slope = fit.GetParameter(1);
 }
 
 float CSCSimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const {
