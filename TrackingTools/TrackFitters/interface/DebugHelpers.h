@@ -11,6 +11,7 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 
 namespace {
   inline void dump(TrackingRecHit const& hit, int hitcounter, const std::string& msgCat) {
@@ -81,15 +82,18 @@ namespace {
   inline void dump(TrajectoryStateOnSurface const& tsos, const char* header, const std::string& msgCat) {
     std::ostringstream ss;
     ss << " weights ";
-    for (auto const& c : tsos.components())
+    GetComponents comps(tsos);
+    auto const & tsosComponents = comps();
+
+    for (auto const& c : tsosComponents)
       ss << c.weight() << '/';
     ss << "\nmomentums ";
-    for (auto const& c : tsos.components())
+    for (auto const& c : tsosComponents)
       ss << c.globalMomentum().mag() << '/';
     ss << "\ndeltap/p ";
-    for (auto const& c : tsos.components())
+    for (auto const& c : tsosComponents)
       ss << std::sqrt(tsos.curvilinearError().matrix()(0, 0)) / c.globalMomentum().mag() << '/';
-    LogTrace(msgCat) << header << "! size " << tsos.components().size() << ss.str() << "\n"
+    LogTrace(msgCat) << header << "! size " << tsosComponents.size() << ss.str() << "\n"
                      << " with local position " << tsos.localPosition() << "\n"
                      << tsos;
   }
