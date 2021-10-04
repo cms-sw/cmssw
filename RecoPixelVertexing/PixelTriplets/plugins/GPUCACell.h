@@ -271,6 +271,7 @@ public:
 
   // trying to free the track building process from hardcoded layers, leaving
   // the visit of the graph based on the neighborhood connections between cells.
+  template <int DEPTH>
   __device__ inline void find_ntuplets(Hits const& hh,
                                        GPUCACell* __restrict__ cells,
                                        CellTracksVector& cellTracks,
@@ -294,7 +295,7 @@ public:
       if (cells[otherCell].theDoubletId_ < 0)
         continue;  // killed by earlyFishbone
       last = false;
-      cells[otherCell].find_ntuplets(
+      cells[otherCell].find_ntuplets<DEPTH - 1>(
           hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet, startAt0);
     }
     if (last) {  // if long enough save...
@@ -346,5 +347,19 @@ private:
   hindex_type theInnerHitId;
   hindex_type theOuterHitId;
 };
+
+template <>
+__device__ inline void GPUCACell::find_ntuplets<0>(Hits const& hh,
+                                                   GPUCACell* __restrict__ cells,
+                                                   CellTracksVector& cellTracks,
+                                                   HitContainer& foundNtuplets,
+                                                   cms::cuda::AtomicPairCounter& apc,
+                                                   Quality* __restrict__ quality,
+                                                   TmpTuple& tmpNtuplet,
+                                                   const unsigned int minHitsPerNtuplet,
+                                                   bool startAt0) const {
+  printf("ERROR: GPUCACell::find_ntuplets reached full depth!\n");
+  assert(false);  // on GPU is compiled away in NDEBUG mode
+}
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
