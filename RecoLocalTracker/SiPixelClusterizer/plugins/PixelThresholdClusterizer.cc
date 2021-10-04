@@ -102,9 +102,8 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit* pixDet) {
   theNumOfCols = ncols;
 
   if (nrows > theBuffer.rows() || ncols > theBuffer.columns()) {  // change only when a larger is needed
-    //if( nrows != theNumOfRows || ncols != theNumOfCols ) {
-    //cout << " PixelThresholdClusterizer: pixel buffer redefined to "
-    // << nrows << " * " << ncols << endl;
+    if (nrows != theNumOfRows || ncols != theNumOfCols)
+      edm::LogWarning("setup()") << "pixel buffer redefined to" << nrows << " * " << ncols;
     //theNumOfRows = nrows;  // Set new sizes
     //theNumOfCols = ncols;
     // Resize the buffer
@@ -132,7 +131,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
   typename T::const_iterator end = input.end();
 
   // Do not bother for empty detectors
-  //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
+  if (begin == end)
+    edm::LogWarning("clusterizeDetUnit()") << "No digis to clusterize";
 
   //  Set up the clusterization on this DetId.
   if (!setup(pixDet))
@@ -153,7 +153,6 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  //  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
     // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
     // so we don't want to call "make_cluster" for these cases
@@ -164,7 +163,6 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
       //  Check if the cluster is above threshold
       // (TO DO: one is signed, other unsigned, gcc warns...)
       if (cluster.charge() >= clusterThreshold) {
-        // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
         // sort by row (x)
         output.push_back(std::move(cluster));
         std::push_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
