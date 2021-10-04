@@ -10,6 +10,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 class HcalLutGenerator : public edm::EDAnalyzer {
@@ -26,6 +28,7 @@ private:
   edm::ESGetToken<HcalTPGCoder, HcalTPGRecord> tok_inCoder_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
   edm::ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> tok_hcalChStatus_;
+  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> tok_hcalCoder_;
 };
 
 #endif
