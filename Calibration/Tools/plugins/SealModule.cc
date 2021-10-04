@@ -12,9 +12,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "CommonTools/RecoAlgos/interface/GsfElectronSelector.h"
 
-//#include "Calibration/Tools/plugins/SelectorWithEventSetup.h"
-#include "Calibration/Tools/plugins/ElectronSqPtTkIsolationProducer.h"
-
 namespace reco {
   namespace modules {
     typedef SingleObjectSelector<reco::GsfElectronCollection, ::PhiRangeSelector> PhiRangeSelector;
@@ -25,5 +22,3 @@ namespace reco {
 
   }  // namespace modules
 }  // namespace reco
-
-DEFINE_FWK_MODULE(ElectronSqPtTkIsolationProducer);
