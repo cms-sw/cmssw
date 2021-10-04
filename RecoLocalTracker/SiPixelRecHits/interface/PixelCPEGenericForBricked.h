@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEGeneric_H
-#define RecoLocalTracker_SiPixelRecHits_PixelCPEGeneric_H
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEGenericForBricked_H
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEGenericForBricked_H
 
 // \class PixelCPEGeneric  -- a generalized CPE reco for the idealized detector
 //
@@ -30,7 +30,7 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // The template header files
@@ -42,58 +42,37 @@
 #include <vector>
 
 #if 0
-/** \class PixelCPEGeneric
+/** \class PixelCPEGenericForBricked
  * Perform the position and error evaluation of pixel hits using
  * the Det angle to estimate the track impact angle
  */
 #endif
 
 class MagneticField;
-class PixelCPEGeneric : public PixelCPEGenericBase {
+class PixelCPEGenericForBricked final : public PixelCPEGeneric {
 public:
-  PixelCPEGeneric(edm::ParameterSet const &conf,
-                  const MagneticField *,
-                  const TrackerGeometry &,
-                  const TrackerTopology &,
-                  const SiPixelLorentzAngle *,
-                  const SiPixelGenErrorDBObject *,
-                  const SiPixelLorentzAngle *);
+  PixelCPEGenericForBricked(edm::ParameterSet const& conf,
+                            const MagneticField*,
+                            const TrackerGeometry&,
+                            const TrackerTopology&,
+                            const SiPixelLorentzAngle*,
+                            const SiPixelGenErrorDBObject*,
+                            const SiPixelLorentzAngle*);
 
-  ~PixelCPEGeneric() override = default;
+  ~PixelCPEGenericForBricked() override{};
 
-  static void fillPSetDescription(edm::ParameterSetDescription &desc);
-
-protected:
-  LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
-  LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
-
-  //--------------------------------------------------------------------
-  //  Methods.
-  //------------------------------------------------------------------
-
-  //--- Errors squared in x and y.  &&& Need to be revisited.
-  float err2X(bool &, int &) const;
-  float err2Y(bool &, int &) const;
-
-  //--- Cuts made externally settable
-  float the_eff_charge_cut_lowX;
-  float the_eff_charge_cut_lowY;
-  float the_eff_charge_cut_highX;
-  float the_eff_charge_cut_highY;
-  float the_size_cutX;
-  float the_size_cutY;
-
-  bool inflate_errors;
-  bool inflate_all_errors_no_trk_angle;
-
-  bool DoCosmics_;
-  bool IrradiationBiasCorrection_;
-  bool isUpgrade_;
-  bool NoTemplateErrorsWhenNoTrkAngles_;
-
-  //--- DB Error Parametrization object, new light templates
-  std::vector<SiPixelGenErrorStore> thePixelGenError_;
-  //SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+private:
+  LocalPoint localPosition(DetParam const& theDetParam, ClusterParam& theClusterParam) const override;
+  static void collect_edge_charges_bricked(ClusterParam& theClusterParam,  //!< input, the cluster
+                                           int& q_f_X,                     //!< output, Q first  in X
+                                           int& q_l_X,                     //!< output, Q last   in X
+                                           int& q_f_Y,                     //!< output, Q first  in Y
+                                           int& q_l_Y,                     //!< output, Q last   in Y
+                                           int& Q_f_b,
+                                           int& Q_l_b,               //Bricked correction
+                                           int& lowest_is_bricked,   //Bricked correction
+                                           int& highest_is_bricked,  //Bricked correction
+                                           bool truncate);
 };
 
 #endif
