@@ -1,6 +1,7 @@
-#ifndef __RecoEgamma_PhotonIdentification_PhotonDNNEstimator_H__
-#define __RecoEgamma_PhotonIdentification_PhotonDNNEstimator_H__
+#ifndef RecoEgamma_PhotonIdentification_PhotonDNNEstimator_h
+#define RecoEgamma_PhotonIdentification_PhotonDNNEstimator_h
 
+#include "RecoEgamma/EgammaTools/interface/EgammaDNNHelper.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -11,57 +12,30 @@
 
 class PhotonDNNEstimator {
 public:
-  struct Configuration {
-    std::string inputTensorName;
-    std::string outputTensorName;
-    std::vector<std::string> models_files;
-    std::vector<std::string> scalers_files;
-    uint log_level = 2;
-  };
-  static constexpr uint nAvailableVars = 11;
-  static constexpr uint nOutputs = 1;
+  PhotonDNNEstimator(const egammaTools::DNNConfiguration&, const bool useEBModelInGap);
 
-  PhotonDNNEstimator();
-  PhotonDNNEstimator(std::vector<std::string>& models_files,
-                     std::vector<std::string>& scalers_files,
-                     std::string inputTensorName,
-                     std::string outputTensorName);
-  PhotonDNNEstimator(const Configuration&);
-  ~PhotonDNNEstimator();
+  std::vector<tensorflow::Session*> getSessions() const;
+  ;
 
   // Function returning a map with all the possible variables and their name
-  std::map<std::string, float> getInputsVars(const reco::Photon& photon) const;
-  // Function getting the input vector for a specific Photon, already scaled
-  // together with the model index it has to be used (depending on pt/eta)
-  std::pair<uint, std::vector<float>> getScaledInputs(const reco::Photon& photon) const;
+  std::map<std::string, float> getInputsVars(const reco::Photon& ele) const;
 
-  uint getModelIndex(const reco::Photon& photon) const;
+  // Evaluate the DNN on all the electrons with the correct model
+  std::vector<std::vector<float>> evaluate(const reco::PhotonCollection& ele,
+                                           const std::vector<tensorflow::Session*>& sessions) const;
 
-  // Evaluate the DNN on all the Photons with the correct model
-  std::vector<std::array<float, PhotonDNNEstimator::nOutputs>> evaluate(const reco::PhotonCollection& photons) const;
+  // List of input variables names used to check the variables request as
+  // inputs in a dynamic way from configuration file.
+  // If an input variables is not found at construction time an expection is thrown.
+  static const std::vector<std::string> dnnAvaibleInputs;
 
-  static const std::array<std::string, nAvailableVars> dnnAvaibleInputs;
+  static constexpr float ecalBarrelMaxEtaWithGap = 1.566;
+  static constexpr float ecalBarrelMaxEtaNoGap = 1.485;
 
 private:
-  void initTensorFlowGraphs();
-  void initSessions();
-  void initScalerFiles();
+  const egammaTools::EgammaDNNHelper dnnHelper_;
 
-  const Configuration cfg_;
-
-  std::vector<tensorflow::GraphDef*> graphDefs_;  // --> Should be std::atomic but does not compile
-  std::vector<tensorflow::Session*> sessions_;
-
-  uint nModels_;
-  // Number of inputs for each loaded model
-  std::vector<int> nInputs_;
-  /* List of input variables for each of the model; 
-  * Each input variable is represented by the tuple <varname, standardization_type, par1, par2>
-  * The standardization_type can be:
-  * 0 = Do not scale the variable
-  * 1 = standard norm. par1=mean, par2=std
-  * 2 = MinMax. par1=min, par2=max */
-  std::vector<std::vector<std::tuple<std::string, uint, float, float>>> featuresMap_;
+  const bool useEBModelInGap_;
 };
 
 #endif

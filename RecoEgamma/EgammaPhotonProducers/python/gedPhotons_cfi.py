@@ -110,7 +110,9 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EB/EB_scaler.txt',
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/EE/EE_scaler.txt'
         ),
-        logLevel = cms.uint32(2)
+        logLevel = cms.uint32(2),
+        outputDim = cms.uint32(1),
+        useEBModelInGap = cms.bool(True)
     ),
 
     pfECALClusIsolCfg = cms.PSet( 
