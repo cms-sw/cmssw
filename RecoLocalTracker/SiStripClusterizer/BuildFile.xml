@@ -9,7 +9,6 @@
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
 <use name="RecoLocalTracker/Records"/>
-<use name="root"/>
 <export>
   <lib name="1"/>
 </export>

@@ -2,6 +2,9 @@
 <use name="DataFormats/SiStripCommon"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="DataFormats/TrackerCommon"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="cuda"/>
 <export>
   <lib name="1"/>
 </export>
