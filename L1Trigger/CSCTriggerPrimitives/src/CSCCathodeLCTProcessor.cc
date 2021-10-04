@@ -616,11 +616,10 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           }
           // temporary alias
           const int best_hs(best_halfstrip[0]);
-          const int best_pat(best_pid[best_hs]);
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current best CLCT
-            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
+            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
           }
         }
       }
@@ -643,11 +642,10 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           }
           // temporary alias
           const int best_hs(best_halfstrip[1]);
-          const int best_pat(best_pid[best_hs]);
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current second best CLCT
-            tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
+            tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
           }
         }
         // add the CLCTs to the collection
