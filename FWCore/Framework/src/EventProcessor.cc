@@ -642,7 +642,7 @@ namespace edm {
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
-      throwAboutModulesRequiringLuminosityBLockSynchronization();
+      throwAboutModulesRequiringLuminosityBlockSynchronization();
     }
     warnAboutLegacyModules();
 
@@ -2003,7 +2003,7 @@ namespace edm {
     return false;
   }
 
-  void EventProcessor::throwAboutModulesRequiringLuminosityBLockSynchronization() const {
+  void EventProcessor::throwAboutModulesRequiringLuminosityBlockSynchronization() const {
     cms::Exception ex("ModulesSynchingOnLumis");
     ex << "The framework is configured to use at least two streams, but the following modules\n"
        << "require synchronizing on LuminosityBlock boundaries:";
