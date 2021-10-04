@@ -195,7 +195,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
 # some commonalities among tracking WFs
 class UpgradeWorkflowTracking(UpgradeWorkflow):
     def condition(self, fragment, stepList, key, hasHarvest):
-        result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
+        result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV" or fragment=="MinBias_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         if result:
             # skip ALCA and Nano
             skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
@@ -265,8 +265,10 @@ class UpgradeWorkflow_trackingLowPU(UpgradeWorkflowTracking):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, stepDict[step][k]])
+        elif 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_trackingLowPU'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key
+        return ((fragment=="TTbar_13") and ('2017' in key)) or ((fragment=="TTbar_14TeV" or fragment=="MinBias_14TeV") and ('2021' in key))
 upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
     steps = [
         'Reco',
@@ -776,7 +778,7 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         myGT+="_0T"
         stepDict[stepName][k] = merge([{'-n':'1','--magField':'0T','--conditions':myGT}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key)
+        return ((fragment=="TTbar_13") and ('2017' in key or '2018' in key)) or ((fragment=="TTbar_14TeV" or fragment=="MinBias_14TeV") and ('2021' in key))
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
         'GenSim',
@@ -792,6 +794,21 @@ upgradeWFs['0T'] = UpgradeWorkflow_0T(
     ],
     suffix = '_0T',
     offset = 0.24,
+)
+
+class UpgradeWorkflow_trackingLowPUat0T(UpgradeWorkflowTracking,UpgradeWorkflow_0T):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_trackingLowPU'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ((fragment=="TTbar_14TeV" or fragment=="MinBias_14TeV") and ('2021' in key))
+upgradeWFs['trackingLowPUat0T'] = UpgradeWorkflow_trackingLowPUat0T(
+    steps = [
+        'Reco',
+    ],
+    PU = [],
+    suffix = '_trackingLowPUat0T',
+    offset = 0.424,
 )
 
 class UpgradeWorkflow_ParkingBPH(UpgradeWorkflow):

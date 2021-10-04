@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.ModifierChain_run3_noTrackingModifier_cff import run3_noTrackingModifier
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+
+Run3_trackingLowPU = cms.ModifierChain(run3_noTrackingModifier, trackingLowPU)
