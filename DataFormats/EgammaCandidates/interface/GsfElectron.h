@@ -26,7 +26,7 @@ namespace reco {
  *
  * An Electron with a GsfTrack seeded from an ElectronSeed.
  * Renamed from PixelMatchGsfElectron.
- * Originally adapted from the TRecElectron class in ORCA.
+ * Originally adaqed from the TRecElectron class in ORCA.
  *
  * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
@@ -701,7 +701,7 @@ namespace reco {
             etOutsideMustache(-std::numeric_limits<float>::max()) {}
     };
 
-    static constexpr float mvaNaN = -999999999.;
+    static constexpr float mvaPlaceholder = -999999999.;
 
     struct MvaOutput {
       int status;  // see PFCandidateElectronExtra::StatusFlag
@@ -715,14 +715,14 @@ namespace reco {
       float dnn_e_bkgPhoton;
       MvaOutput()
           : status(-1),
-            mva_Isolated(mvaNaN),
-            mva_e_pi(mvaNaN),
-            mvaByPassForIsolated(mvaNaN),
-            dnn_e_sigIsolated(mvaNaN),
-            dnn_e_sigNonIsolated(mvaNaN),
-            dnn_e_bkgNonIsolated(mvaNaN),
-            dnn_e_bkgTau(mvaNaN),
-            dnn_e_bkgPhoton(mvaNaN) {}
+            mva_Isolated(mvaPlaceholder),
+            mva_e_pi(mvaPlaceholder),
+            mvaByPassForIsolated(mvaPlaceholder),
+            dnn_e_sigIsolated(mvaPlaceholder),
+            dnn_e_sigNonIsolated(mvaPlaceholder),
+            dnn_e_bkgNonIsolated(mvaPlaceholder),
+            dnn_e_bkgTau(mvaPlaceholder),
+            dnn_e_bkgPhoton(mvaPlaceholder) {}
     };
 
     // accessors

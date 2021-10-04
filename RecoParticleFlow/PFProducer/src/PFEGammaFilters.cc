@@ -12,6 +12,10 @@ using namespace reco;
 
 namespace {
 
+  // Constants defining the ECAL barrel limit
+  constexpr float ecalBarrelMaxEtaWithGap = 1.566;
+  constexpr float ecalBarrelMaxEtaNoGap = 1.485;
+
   void readEBEEParams_(const edm::ParameterSet& pset, const std::string& name, std::array<float, 2>& out) {
     const auto& vals = pset.getParameter<std::vector<double>>(name);
     if (vals.size() != 2)
@@ -104,11 +108,12 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon& photon) const {
 
   if (usePhotonPFidDNN_) {
     // Run3 DNN based PFID
-    float dnn = photon.pfDNN();
-    double photEta = fabs(photon.eta());
-    if (photEta <= 1.566) {
+    const auto dnn = photon.pfDNN();
+    const auto photEta = std::abs(photon.eta());
+    // using the Barrel model for photons in the EB-EE gap
+    if (photEta <= ecalBarrelMaxEtaWithGap) {
       return dnn > photon_dnnBarrelThr_;
-    } else if (photEta > 1.566) {
+    } else if (photEta > ecalBarrelMaxEtaWithGap) {
       return dnn > photon_dnnEndcapThr_;
     }
   } else {
@@ -158,15 +163,16 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
   bool passEleSelection = false;
 
   // Electron ET
-  float electronPt = electron.pt();
-  double eleEta = fabs(electron.eta());
+  const auto electronPt = electron.pt();
+  const auto eleEta = std::abs(electron.eta());
 
   if (useElePFidDNN_) {  // Use DNN for ele pfID >=CMSSW12_1
-    float dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
+    const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     if (electronPt > ele_iso_pt_) {
-      if (eleEta <= 1.566) {
+      // using the Barrel model for electron in the EB-EE gap
+      if (eleEta <= ecalBarrelMaxEtaWithGap) {
         passEleSelection = dnn_sig > ele_dnnHighPtBarrelThr_;
-      } else if (eleEta > 1.566) {
+      } else if (eleEta > ecalBarrelMaxEtaWithGap) {
         passEleSelection = dnn_sig > ele_dnnHighPtEndcapThr_;
       }
     } else {  // pt < ele_iso_pt_
@@ -178,10 +184,10 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
   } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
     if (electronPt > ele_iso_pt_) {
       double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
-      if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
+      if (eleEta <= ecalBarrelMaxEtaNoGap && isoDr03 < ele_iso_combIso_eb_) {
         if (electron.mva_Isolated() > ele_iso_mva_eb_)
           passEleSelection = true;
-      } else if (eleEta > 1.485 && isoDr03 < ele_iso_combIso_ee_) {
+      } else if (eleEta > ecalBarrelMaxEtaNoGap && isoDr03 < ele_iso_combIso_ee_) {
         if (electron.mva_Isolated() > ele_iso_mva_ee_)
           passEleSelection = true;
       }
@@ -191,7 +197,8 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
       if (validHoverE || !badHcal_eleEnable_) {
         passEleSelection = true;
       } else {
-        bool EE = (std::abs(electron.eta()) > 1.485);  // for prefer consistency with above than with E/gamma for now
+        bool EE = (std::abs(electron.eta()) >
+                   ecalBarrelMaxEtaNoGap);  // for prefer consistency with above than with E/gamma for now
         if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
             (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
             (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) <

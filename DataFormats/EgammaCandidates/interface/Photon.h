@@ -556,7 +556,7 @@ namespace reco {
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables(const PflowIsolationVariables& pfisol) { pfIsolation_ = pfisol; }
 
-    static constexpr float NaN = -999999999.;
+    static constexpr float mvaPlaceholder = -999999999.;
 
     struct PflowIDVariables {
       int nClusterOutsideMustache;
@@ -564,7 +564,8 @@ namespace reco {
       float mva;
       float dnn;
 
-      PflowIDVariables() : nClusterOutsideMustache(-1), etOutsideMustache(NaN), mva(NaN), dnn(NaN) {}
+      PflowIDVariables()
+          : nClusterOutsideMustache(-1), etOutsideMustache(mvaPlaceholder), mva(mvaPlaceholder), dnn(mvaPlaceholder) {}
     };
 
     // getters
