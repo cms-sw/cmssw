@@ -18,7 +18,7 @@
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -41,7 +41,7 @@ namespace edm {
 
 namespace edmtest {
 
-  class TestMergeResults : public edm::EDAnalyzer {
+  class TestMergeResults : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestMergeResults(edm::ParameterSet const&);
     virtual ~TestMergeResults();

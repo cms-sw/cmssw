@@ -57,7 +57,7 @@ namespace edmtest {
     explicit TestParentage(edm::ParameterSet const& pset);
     ~TestParentage() override = default;
 
-    virtual void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& es) const override;
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& es) const override;
 
   private:
     edm::EDGetTokenT<IntProduct> token_;
