@@ -83,7 +83,7 @@ namespace {
     std::ostringstream ss;
     ss << " weights ";
     GetComponents comps(tsos);
-    auto const & tsosComponents = comps();
+    auto const& tsosComponents = comps();
 
     for (auto const& c : tsosComponents)
       ss << c.weight() << '/';
