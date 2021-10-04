@@ -47,15 +47,23 @@ void CSCJetCandidateProducer::produce(edm::Event& ev, const edm::EventSetup& set
     if (cscchamber) {
         GlobalPoint globalPosition = cscchamber->toGlobal(cscRecHitLocalPosition);
 
-        double x = globalPosition.x();
-        double y = globalPosition.y();
-        double z = globalPosition.z();
+        float x = globalPosition.x();
+        float y = globalPosition.y();
+        float z = globalPosition.z();
         double phi = globalPosition.phi();
         double eta = globalPosition.eta();
-        double tpeak    = cscRechit.tpeak();
-        double wireTime = cscRechit.wireTime();
+        float tpeak    = cscRechit.tpeak();
+        float wireTime = cscRechit.wireTime();
+        int  quality = cscRechit.quality();
+        int  chamber =  endcap * (CSCDetId::station(cscdetid)*10 + CSCDetId::ring(cscdetid));
+        int station  = endcap *CSCDetId::station(cscdetid);
+        int nStrips  = cscRechit.nStrips();
+        int hitWire  = cscRechit.hitWire();
+        int wgroupsBX = cscRechit.wgroupsBX();
+        int nWireGroups = cscRechit.nWireGroups();
 
-        reco::CSCJetCandidate rh(phi, eta, x ,y,z,tpeak,wireTime);
+
+        reco::CSCJetCandidate rh(phi, eta, x ,y,z,tpeak,wireTime,quality,chamber, station, nStrips, hitWire,wgroupsBX,nWireGroups);
         oc->push_back(rh);
     }
   }
