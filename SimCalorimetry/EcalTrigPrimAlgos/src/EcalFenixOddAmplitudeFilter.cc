@@ -39,15 +39,15 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
     setInput(addout[i]);
     process();
     if (tpInfoPrintout_) {
-      if(i >= 4){
-        edm::LogVerbatim("EcalTPG") << i << " " << stripid_ 
-                                    << " " << weights_[0] << " " << weights_[1] << " " << weights_[2] << " " << weights_[3] << " " << weights_[4]  
-                                    << " " << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0 << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0  
-                                    << " " << buffer_[0] << " " << buffer_[1] << " " << buffer_[2]  << " " << buffer_[3] << " " << buffer_[4]
-                                    << " --> output: " << processedOutput_ << " ODD"; 
-        
-      }   
-    }    
+      if (i >= 4) {
+        edm::LogVerbatim("EcalTPG") << i << " " << stripid_ << " " << weights_[0] << " " << weights_[1] << " "
+                                    << weights_[2] << " " << weights_[3] << " " << weights_[4] << " "
+                                    << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0
+                                    << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 << " " << buffer_[0]
+                                    << " " << buffer_[1] << " " << buffer_[2] << " " << buffer_[3] << " " << buffer_[4]
+                                    << " --> output: " << processedOutput_ << " ODD";
+      }
+    }
     output[i] = processedOutput_;
   }
   // shift the result by 1!
@@ -63,7 +63,7 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
 
 void EcalFenixOddAmplitudeFilter::process() {
   processedOutput_ = 0;
-  if (inputsAlreadyIn_ < 5) // 5 digis required to produce first ET value
+  if (inputsAlreadyIn_ < 5)  // 5 digis required to produce first ET value
     return;
   int output = 0;
 
@@ -76,7 +76,6 @@ void EcalFenixOddAmplitudeFilter::process() {
   if (output > 0X3FFFF)
     output = 0X3FFFF;
   processedOutput_ = output;
-
 }
 
 void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,

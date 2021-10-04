@@ -46,18 +46,17 @@ popcon::EcalTPGTPModeHandler::~EcalTPGTPModeHandler() {}
 void popcon::EcalTPGTPModeHandler::getNewObjects() {
   if (m_file_type == "txt") {
     readtxtFile();
-  }
-  else {
+  } else {
     edm::LogInfo("EcalTPGTPModeHandler") << "Started GetNewObjects!!!";
 
     //check whats already inside of database
     if (tagInfo().size) {
       //check whats already inside of database
-      edm::LogInfo("EcalTPGTPModeHandler") << "got offlineInfo = "; 
-      edm::LogInfo("EcalTPGTPModeHandler") << "tag name = " << tagInfo().name; 
-      edm::LogInfo("EcalTPGTPModeHandler") << "size = " << tagInfo().size; 
+      edm::LogInfo("EcalTPGTPModeHandler") << "got offlineInfo = ";
+      edm::LogInfo("EcalTPGTPModeHandler") << "tag name = " << tagInfo().name;
+      edm::LogInfo("EcalTPGTPModeHandler") << "size = " << tagInfo().size;
     } else {
-      edm::LogInfo("EcalTPGTPModeHandler") << " First object for this tag "; 
+      edm::LogInfo("EcalTPGTPModeHandler") << " First object for this tag ";
     }
 
     unsigned int max_since = 0;
@@ -103,7 +102,8 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
       min_run = max_since + 1;  // we have to add 1 to the last transferred one
     }
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun << "max_since " << max_since; 
+    edm::LogInfo("EcalTPGTPModeHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun
+                                         << "max_since " << max_since;
 
     unsigned int max_run = m_lastRun;
     edm::LogInfo("EcalTPGTPModeHandler") << "min_run= " << min_run << " max_run= " << max_run;
@@ -114,15 +114,15 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
     std::vector<RunIOV> run_vec = my_list.getRuns();
     size_t num_runs = run_vec.size();
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "number of runs is : " << num_runs; 
+    edm::LogInfo("EcalTPGTPModeHandler") << "number of runs is : " << num_runs;
 
     unsigned int irun = 0;
     if (num_runs > 0) {
       for (size_t kr = 0; kr < run_vec.size(); kr++) {
         irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
         edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
-        edm::LogInfo("EcalTPGTPModeHandler") << " **************** "; 
-        edm::LogInfo("EcalTPGTPModeHandler") << " run= " << irun; 
+        edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
+        edm::LogInfo("EcalTPGTPModeHandler") << " run= " << irun;
 
         // retrieve the data :
         std::map<EcalLogicID, RunTPGConfigDat> dataset;
@@ -143,19 +143,21 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
         }
 
         // it is all the same for all SM... get the last one
-        edm::LogInfo("EcalTPGTPModeHandler") << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version;
+        edm::LogInfo("EcalTPGTPModeHandler")
+            << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version;
 
         // here we should check if it is the same as previous run.
 
         if ((the_config_tag != m_i_tag || the_config_version != m_i_version) && nr > 0) {
-          edm::LogInfo("EcalTPGTPModeHandler") << "the tag is different from last transferred run ... retrieving last config set from DB"; 
+          edm::LogInfo("EcalTPGTPModeHandler")
+              << "the tag is different from last transferred run ... retrieving last config set from DB";
 
           FEConfigMainInfo fe_main_info;
           fe_main_info.setConfigTag(the_config_tag);
           fe_main_info.setVersion(the_config_version);
 
           try {
-            edm::LogInfo("EcalTPGTPModeHandler") << " before fetch config set"; 
+            edm::LogInfo("EcalTPGTPModeHandler") << " before fetch config set";
             econn->fetchConfigSet(&fe_main_info);
             edm::LogInfo("EcalTPGTPModeHandler") << " after fetch config set";
 
@@ -204,13 +206,13 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
                 edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBTcpOutput:" << rd_modev[10];
                 edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBTcpinfobit1:" << rd_modev[11];
                 edm::LogInfo("EcalTPGTPModeHandler") << " FenixEETcpOutput:" << rd_modev[12];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEETcpinfobit1:" << rd_modev[13] ;
+                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEETcpinfobit1:" << rd_modev[13];
                 k = k + 1;
               }
 
               edm::LogInfo("EcalTPGTPModeHandler") << "*****************************************";
-              edm::LogInfo("EcalTPGTPModeHandler") << "read done " << wId; 
-              edm::LogInfo("EcalTPGTPModeHandler") << "*****************************************"; 
+              edm::LogInfo("EcalTPGTPModeHandler") << "read done " << wId;
+              edm::LogInfo("EcalTPGTPModeHandler") << "*****************************************";
 
               EcalTPGTPMode* tpMode = new EcalTPGTPMode;
               tpMode->EnableEBOddFilter = rd_modev[0];
@@ -248,29 +250,30 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
 
               writeFile("last_tpg_TPMode_settings.txt");
 
-              edm::LogInfo("EcalTPGTPModeHandler") << " even if the tag/version is not the same, the weight group id is the same -> no transfer needed "; 
-
+              edm::LogInfo("EcalTPGTPModeHandler")
+                  << " even if the tag/version is not the same, the weight group id is the same -> no transfer needed ";
             }
 
           }
 
           catch (std::exception& e) {
             throw cms::Exception("FileReadError") << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag
-              << " version=" << the_config_version << "\n" 
-              << e.what(); 
+                                                  << " version=" << the_config_version << "\n"
+                                                  << e.what();
             m_i_run_number = irun;
           }
           edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
 
         } else if (nr == 0) {
           m_i_run_number = irun;
-          edm::LogInfo("EcalTPGTPModeHandler") << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed ";
+          edm::LogInfo("EcalTPGTPModeHandler")
+              << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed ";
           edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
         } else {
           m_i_run_number = irun;
           m_i_tag = the_config_tag;
           m_i_version = the_config_version;
-          edm::LogInfo("EcalTPGTPModeHandler") << " the tag/version is the same -> no transfer needed "; 
+          edm::LogInfo("EcalTPGTPModeHandler") << " the tag/version is the same -> no transfer needed ";
           edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
           writeFile("last_tpg_TPMode_settings.txt");
         }
@@ -283,11 +286,11 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
 }
 
 void popcon::EcalTPGTPModeHandler::readtxtFile() {
-  edm::LogInfo("EcalTPGTPModeHandler") << " reading the input file " << m_file_name; 
+  edm::LogInfo("EcalTPGTPModeHandler") << " reading the input file " << m_file_name;
   std::ifstream fInput;
   fInput.open(m_file_name);
   if (!fInput.is_open()) {
-    throw cms::Exception("FileOpenError") << "ERROR : cannot open file " << m_file_name; 
+    throw cms::Exception("FileOpenError") << "ERROR : cannot open file " << m_file_name;
   }
   std::map<std::string, int> values;
   EcalTPGTPMode* tpMode = new EcalTPGTPMode;
@@ -319,13 +322,12 @@ void popcon::EcalTPGTPModeHandler::readtxtFile() {
     m_to_transfer.push_back(std::make_pair((EcalTPGTPMode*)tpMode, snc));
 
   } catch (std::exception& e) {
-      throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what(); 
+    throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what();
   }
-  edm::LogInfo("EcalTPGTPModeHandler") << " **************** "; 
+  edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
 }
 
 void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
-
   m_i_tag = "";
   m_i_version = 0;
   m_i_run_number = 0;
@@ -344,7 +346,7 @@ void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
 
   fgets(line, 255, inpFile);
   m_i_tag = to_string(line);
-  str << "gen tag " << m_i_tag << std::endl;  
+  str << "gen tag " << m_i_tag << std::endl;
 
   fgets(line, 255, inpFile);
   m_i_version = atoi(line);
@@ -362,7 +364,6 @@ void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
 }
 
 void popcon::EcalTPGTPModeHandler::writeFile(const char* inputFile) {
-
   std::ofstream myfile;
   myfile.open(inputFile);
   myfile << m_i_tag << std::endl;

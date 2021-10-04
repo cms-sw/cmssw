@@ -31,7 +31,7 @@ void FEConfigOddWeightDat::prepareWrite() noexcept(false) {
         "VALUES (:wei2_conf_id, :logic_id, "
         ":group_id )");
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightDat::prepareWrite():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightDat::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -58,7 +58,7 @@ void FEConfigOddWeightDat::writeDB(const EcalLogicID* ecid,
 
     m_writeStmt->executeUpdate();
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightDat::writeDB():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightDat::writeDB():  " << e.getMessage();
   }
 }
 
@@ -100,7 +100,7 @@ void FEConfigOddWeightDat::fetchData(map<EcalLogicID, FEConfigOddWeightDat>* fil
       fillMap->insert(p);
     }
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightDat::fetchData:  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightDat::fetchData:  " << e.getMessage();
   }
 }
 
@@ -166,6 +166,6 @@ void FEConfigOddWeightDat::writeArrayDB(const std::map<EcalLogicID, FEConfigOddW
     delete[] x_len;
 
   } catch (SQLException& e) {
-      throw cms::Exception("SQLException") << "FEConfigOddWeightDat::writeArrayDB():  " << e.getMessage();
+    throw cms::Exception("SQLException") << "FEConfigOddWeightDat::writeArrayDB():  " << e.getMessage();
   }
 }

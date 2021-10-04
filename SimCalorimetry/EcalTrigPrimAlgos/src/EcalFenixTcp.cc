@@ -111,17 +111,17 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow, int 
   // call adder
   this->getAdder()->process(tpframetow, nStr, bitMask, bitOddEven, adder_even_out_, adder_odd_out_);
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "output of TCP adder is a vector of size: " << adder_even_out_.size(); 
-    edm::LogVerbatim("EcalTPG") << "EVEN sum : "; 
-    std::string even_adder_outputs; 
+    edm::LogVerbatim("EcalTPG") << "output of TCP adder is a vector of size: " << adder_even_out_.size();
+    edm::LogVerbatim("EcalTPG") << "EVEN sum : ";
+    std::string even_adder_outputs;
     for (unsigned int i = 0; i < adder_even_out_.size(); i++) {
       even_adder_outputs.append(" ");
       even_adder_outputs.append(std::to_string(adder_even_out_[i]));
     }
-    edm::LogVerbatim("EcalTPG") << even_adder_outputs << "\n"; 
+    edm::LogVerbatim("EcalTPG") << even_adder_outputs << "\n";
 
-    edm::LogVerbatim("EcalTPG") << "ODD sum : "; 
-    std::string odd_adder_outputs; 
+    edm::LogVerbatim("EcalTPG") << "ODD sum : ";
+    std::string odd_adder_outputs;
     for (unsigned int i = 0; i < adder_odd_out_.size(); i++) {
       odd_adder_outputs.append(" ");
       odd_adder_outputs.append(std::to_string(adder_odd_out_[i]));
@@ -150,13 +150,13 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "output of maxof2 is a vector of size: " << maxOf2_out_.size();
-    edm::LogVerbatim("EcalTPG") << "value : "; 
-    std::string maxOf2_outputs; 
+    edm::LogVerbatim("EcalTPG") << "value : ";
+    std::string maxOf2_outputs;
     for (unsigned int i = 0; i < maxOf2_out_.size(); i++) {
-      maxOf2_outputs.append(" "); 
+      maxOf2_outputs.append(" ");
       maxOf2_outputs.append(std::to_string(maxOf2_out_[i]));
     }
-    edm::LogVerbatim("EcalTPG") << maxOf2_outputs << "\n"; 
+    edm::LogVerbatim("EcalTPG") << maxOf2_outputs << "\n";
   }
 
   // call fgvb
@@ -169,8 +169,8 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
 
   if (debug_) {
     edm::LogVerbatim("EcalTPG") << "output of fgvb is a vector of size: " << fgvb_out_.size();
-    edm::LogVerbatim("EcalTPG") << "value : ";  
-    std::string fgvb_output; 
+    edm::LogVerbatim("EcalTPG") << "value : ";
+    std::string fgvb_output;
     for (unsigned int i = 0; i < fgvb_out_.size(); i++) {
       fgvb_output.append(" ");
       fgvb_output.append(std::to_string(fgvb_out_[i]));
@@ -186,7 +186,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
   this->getFormatterEB()->process(
       adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc);
 
-
   if (tpInfoPrintout_) {
     for (unsigned int i = 3; i < tcp_out.size(); i++) {
       edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
@@ -194,12 +193,12 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
   }
 
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter Barrel is a vector of size: " << tcp_out.size(); 
-    edm::LogVerbatim("EcalTPG") << "value : "; 
+    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter Barrel is a vector of size: " << tcp_out.size();
+    edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
-      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i]; 
+      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
     }
-    edm::LogVerbatim("EcalTPG"); 
+    edm::LogVerbatim("EcalTPG");
   }
 
   return;
@@ -241,12 +240,12 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int>> &bypasslin
   this->getFormatterEE()->process(
       adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter(endcap) is a vector of size: " << tcp_out.size(); 
+    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter(endcap) is a vector of size: " << tcp_out.size();
     edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
-      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i]; 
+      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
     }
-    edm::LogVerbatim("EcalTPG"); 
+    edm::LogVerbatim("EcalTPG");
   }
   return;
 }
