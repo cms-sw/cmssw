@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericForBricked.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -26,71 +26,19 @@ namespace {
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
-                                 const MagneticField* mag,
-                                 const TrackerGeometry& geom,
-                                 const TrackerTopology& ttopo,
-                                 const SiPixelLorentzAngle* lorentzAngle,
-                                 const SiPixelGenErrorDBObject* genErrorDBObject,
-                                 const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
-    : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth) {
+PixelCPEGenericForBricked::PixelCPEGenericForBricked(edm::ParameterSet const& conf,
+                                                     const MagneticField* mag,
+                                                     const TrackerGeometry& geom,
+                                                     const TrackerTopology& ttopo,
+                                                     const SiPixelLorentzAngle* lorentzAngle,
+                                                     const SiPixelGenErrorDBObject* genErrorDBObject,
+                                                     const SiPixelLorentzAngle* lorentzAngleWidth = nullptr)
+    : PixelCPEGeneric(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth) {
   if (theVerboseLevel > 0)
-    LogDebug("PixelCPEGeneric") << " constructing a generic algorithm for ideal pixel detector.\n"
-                                << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
-
-  // Externally settable cuts
-  the_eff_charge_cut_lowX = conf.getParameter<double>("eff_charge_cut_lowX");
-  the_eff_charge_cut_lowY = conf.getParameter<double>("eff_charge_cut_lowY");
-  the_eff_charge_cut_highX = conf.getParameter<double>("eff_charge_cut_highX");
-  the_eff_charge_cut_highY = conf.getParameter<double>("eff_charge_cut_highY");
-  the_size_cutX = conf.getParameter<double>("size_cutX");
-  the_size_cutY = conf.getParameter<double>("size_cutY");
-
-  // Externally settable flags to inflate errors
-  inflate_errors = conf.getParameter<bool>("inflate_errors");
-  inflate_all_errors_no_trk_angle = conf.getParameter<bool>("inflate_all_errors_no_trk_angle");
-
-  NoTemplateErrorsWhenNoTrkAngles_ = conf.getParameter<bool>("NoTemplateErrorsWhenNoTrkAngles");
-  IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
-  DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-
-  // Upgrade means phase 2
-  isUpgrade_ = conf.getParameter<bool>("Upgrade");
-
-  // For cosmics force the use of simple errors
-  if ((DoCosmics_))
-    useErrorsFromTemplates_ = false;
-
-  if (!useErrorsFromTemplates_ && (truncatePixelCharge_ || IrradiationBiasCorrection_ || LoadTemplatesFromDB_)) {
-    throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ")
-        << "\nERROR: useErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
-        << " In this case it does not make sense to set any of the following to True: "
-        << " truncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!"
-        << "\n\n";
-  }
-
-  // Use errors from templates or from GenError
-  if (useErrorsFromTemplates_) {
-    if (LoadTemplatesFromDB_) {  // From DB
-      if (!SiPixelGenError::pushfile(*genErrorDBObject_, thePixelGenError_))
-        throw cms::Exception("InvalidCalibrationLoaded")
-            << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-            << (*genErrorDBObject_).version();
-      edm::LogInfo("PixelCPEGeneric") << "Loaded genErrorDBObject v" << (*genErrorDBObject_).version();
-    } else {  // From file
-      if (!SiPixelGenError::pushfile(-999, thePixelGenError_))
-        throw cms::Exception("InvalidCalibrationLoaded")
-            << "ERROR: GenErrors not loaded correctly from text file. Reconstruction will fail.";
-    }  // if load from DB
-
-  } else {
+    LogDebug("PixelCPEGenericBricked") << "constructing a generic algorithm for ideal pixel detector.\n"
+                                       << "CPEGenericForBricked::VerboseLevel =" << theVerboseLevel;
 #ifdef EDM_ML_DEBUG
-    cout << " Use simple parametrised errors " << endl;
-#endif
-  }  // if ( useErrorsFromTemplates_ )
-
-#ifdef EDM_ML_DEBUG
-  cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
+  cout << "From PixelCPEGenericForBricked::PixelCPEGenericForBricked(...)" << endl;
   cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
   cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
   cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
@@ -104,10 +52,9 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
 //! one converts everything from the measurement frame (in channel numbers)
 //! into the local frame (in centimeters).
 //-----------------------------------------------------------------------------
-LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
+LocalPoint PixelCPEGenericForBricked::localPosition(DetParam const& theDetParam,
+                                                    ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
-
-  //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
 
   float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFractionX);
   float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFractionY);
@@ -120,7 +67,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     float qclus = theClusterParam.theCluster->charge();
     float locBz = theDetParam.bz;
     float locBx = theDetParam.bx;
-    //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
+    //cout << "PixelCPEGenericForBricked::localPosition(...) : locBz = " << locBz << endl;
 
     theClusterParam.pixmx = -999;     // max pixel charge for truncation of 2-D cluster
     theClusterParam.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
@@ -169,9 +116,10 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     if (useLAWidthFromGenError) {
       chargeWidthX = (-micronsToCm * gtempl.lorxwidth());
       chargeWidthY = (-micronsToCm * gtempl.lorywidth());
-      edm::LogInfo("PixelCPE localPosition():") << "redefine la width (gen-error)" << chargeWidthX << chargeWidthY;
+      edm::LogInfo("PixelCPE bricked localPosition():")
+          << "redefine la width (gen-error)" << chargeWidthX << " " << chargeWidthY;
     }
-    edm::LogInfo("PixelCPE localPosition():") << "GenError:" << gtemplID_;
+    edm::LogInfo("PixelCPEGeneric bricked localPosition():") << "GenError:" << gtemplID_;
 
     // These numbers come in microns from the qbin(...) call. Transform them to cm.
     theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
@@ -199,7 +147,25 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   int q_l_X;  //!< Q of the last   pixel  in X
   int q_f_Y;  //!< Q of the first  pixel  in Y
   int q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
+  int q_f_b;  // Q first bricked: charge of the dented row at the bootom of a cluster
+  int q_l_b;  // Same but at the top of the cluster
+  int lowest_is_bricked = 1;
+  int highest_is_bricked = 0;
+
+  if (theDetParam.theTopol->isBricked()) {
+    collect_edge_charges_bricked(theClusterParam,
+                                 q_f_X,
+                                 q_l_X,
+                                 q_f_Y,
+                                 q_l_Y,
+                                 q_f_b,
+                                 q_l_b,
+                                 lowest_is_bricked,
+                                 highest_is_bricked,
+                                 useErrorsFromTemplates_ && truncatePixelCharge_);
+  } else {
+    collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y, useErrorsFromTemplates_ && truncatePixelCharge_);
+  }
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -211,17 +177,25 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   //--- Upper Right corner of Lower Left pixel -- in measurement frame
   MeasurementPoint meas_URcorn_LLpix(theClusterParam.theCluster->minPixelRow() + 1.0,
                                      theClusterParam.theCluster->minPixelCol() + 1.0);
-
   //--- Lower Left corner of Upper Right pixel -- in measurement frame
   MeasurementPoint meas_LLcorn_URpix(theClusterParam.theCluster->maxPixelRow(),
                                      theClusterParam.theCluster->maxPixelCol());
+
+  if (theDetParam.theTopol->isBricked()) {
+    if (lowest_is_bricked)
+      meas_URcorn_LLpix = MeasurementPoint(theClusterParam.theCluster->minPixelRow() + 1.0,
+                                           theClusterParam.theCluster->minPixelCol() + 1.5);
+    if (highest_is_bricked)
+      meas_LLcorn_URpix =
+          MeasurementPoint(theClusterParam.theCluster->maxPixelRow(), theClusterParam.theCluster->maxPixelCol() + 0.5);
+  }
 
   //--- These two now converted into the local
   LocalPoint local_URcorn_LLpix;
   LocalPoint local_LLcorn_URpix;
 
-  // PixelCPEGeneric can be used with or without track angles
-  // If PixelCPEGeneric is called with track angles, use them to correct for bows/kinks:
+  // PixelCPEGenericForBricked can be used with or without track angles
+  // If PixelCPEGenericForBricked is called with track angles, use them to correct for bows/kinks:
   if (theClusterParam.with_track_angle) {
     local_URcorn_LLpix = theDetParam.theTopol->localPosition(meas_URcorn_LLpix, theClusterParam.loc_trk_pred);
     local_LLcorn_URpix = theDetParam.theTopol->localPosition(meas_LLcorn_URpix, theClusterParam.loc_trk_pred);
@@ -231,7 +205,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   }
 
 #ifdef EDM_ML_DEBUG
-  if (theVerboseLevel > 20) {
+  if (theVerboseLevel > 0) {
     cout << "\n\t >>> theClusterParam.theCluster->x = " << theClusterParam.theCluster->x()
          << "\n\t >>> theClusterParam.theCluster->y = " << theClusterParam.theCluster->y()
          << "\n\t >>> cluster: minRow = " << theClusterParam.theCluster->minPixelRow()
@@ -250,7 +224,7 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   //--- Position, including the half lorentz shift
 
 #ifdef EDM_ML_DEBUG
-  if (theVerboseLevel > 20)
+  if (theVerboseLevel > 0)
     cout << "\t >>> Generic:: processing X" << endl;
 #endif
 
@@ -274,25 +248,47 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   xPos = xPos + shiftX;
 
 #ifdef EDM_ML_DEBUG
-  if (theVerboseLevel > 20)
+  if (theVerboseLevel > 0)
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
 
-  float yPos = SiPixelUtils::generic_position_formula(
-      theClusterParam.theCluster->sizeY(),
-      q_f_Y,
-      q_l_Y,
-      local_URcorn_LLpix.y(),
-      local_LLcorn_URpix.y(),
-      chargeWidthY,  // lorentz shift in cm
-      theDetParam.theThickness,
-      theClusterParam.cotbeta,
-      theDetParam.thePitchY,
-      theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
-      theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
-      the_eff_charge_cut_lowY,
-      the_eff_charge_cut_highY,
-      the_size_cutY);  // cut for eff charge width &&&
+  // staggering pf the pixel cells allowed along local-Y direction only
+  float yPos;
+  if (theDetParam.theTopol->isBricked()) {
+    yPos = SiPixelUtils::generic_position_formula_y_bricked(
+        theClusterParam.theCluster->sizeY(),
+        q_f_Y,
+        q_l_Y,
+        q_f_b,
+        q_l_b,
+        local_URcorn_LLpix.y(),
+        local_LLcorn_URpix.y(),
+        chargeWidthY,  // lorentz shift in cm
+        theDetParam.theThickness,
+        theClusterParam.cotbeta,
+        theDetParam.thePitchY,
+        theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
+        theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
+        the_eff_charge_cut_lowY,
+        the_eff_charge_cut_highY,
+        the_size_cutY);  // cut for eff charge width &&&
+  } else {
+    yPos = SiPixelUtils::generic_position_formula(
+        theClusterParam.theCluster->sizeY(),
+        q_f_Y,
+        q_l_Y,
+        local_URcorn_LLpix.y(),
+        local_LLcorn_URpix.y(),
+        chargeWidthY,  // lorentz shift in cm
+        theDetParam.theThickness,
+        theClusterParam.cotbeta,
+        theDetParam.thePitchY,
+        theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
+        theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
+        the_eff_charge_cut_lowY,
+        the_eff_charge_cut_highY,
+        the_size_cutY);  // cut for eff charge width &&&
+  }
 
   // apply the lorentz offset correction
   yPos = yPos + shiftY;
@@ -335,121 +331,119 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   }  // if ( IrradiationBiasCorrection_ )
 
-  //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
+  //cout<<" in PixelCPEGenericForBricked:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
 
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
   return pos_in_local;
 }
 
-//==============  INFLATED ERROR AND ERRORS FROM DB BELOW  ================
-
-//-------------------------------------------------------------------------
-//  Hit error in the local frame
-//-------------------------------------------------------------------------
-LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
+void PixelCPEGenericForBricked::collect_edge_charges_bricked(ClusterParam& theClusterParamBase,  //!< input, the cluster
+                                                             int& q_f_X,  //!< output, Q first  in X
+                                                             int& q_l_X,  //!< output, Q last   in X
+                                                             int& q_f_Y,  //!< output, Q first  in Y
+                                                             int& q_l_Y,  //!< output, Q last   in Y
+                                                             int& q_f_b,
+                                                             int& q_l_b,               //Bricked correction
+                                                             int& lowest_is_bricked,   //Bricked correction
+                                                             int& highest_is_bricked,  //Bricked correction
+                                                             bool truncate) {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-  // local variables
-  float xerr, yerr;
-  bool edgex, edgey, bigInX, bigInY;
-  int maxPixelCol, maxPixelRow, minPixelCol, minPixelRow;
-  uint sizex, sizey;
+  // Initialize return variables.
+  q_f_X = q_l_X = 0.0;
+  q_f_Y = q_l_Y = 0.0;
+  q_f_b = q_l_b = 0.0;
 
-  initializeLocalErrorVariables(xerr,
-                                yerr,
-                                edgex,
-                                edgey,
-                                bigInX,
-                                bigInY,
-                                maxPixelCol,
-                                maxPixelRow,
-                                minPixelCol,
-                                minPixelRow,
-                                sizex,
-                                sizey,
-                                theDetParam,
-                                theClusterParam);
+  // Obtain boundaries in index units
+  int xmin = theClusterParam.theCluster->minPixelRow();
+  int xmax = theClusterParam.theCluster->maxPixelRow();
+  int ymin = theClusterParam.theCluster->minPixelCol();
+  int ymax = theClusterParam.theCluster->maxPixelCol();
 
-  bool useTempErrors =
-      useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
+  //bool lowest_is_bricked = 1; //Tells you if the lowest pixel of the cluster is on a bricked row or not.
+  //bool highest_is_bricked = 0;
 
-  if (int(sizex) != (maxPixelRow - minPixelRow + 1))
-    LogDebug("PixelCPEGeneric") << " wrong x";
-  if (int(sizey) != (maxPixelCol - minPixelCol + 1))
-    LogDebug("PixelCPEGeneric") << " wrong y";
+  //Sums up the charge of the non-bricked pixels at the top of the clusters in the event that the highest pixel of the cluster is on a bricked row.
+  int q_t_b = 0;
+  int q_t_nb = 0;
+  int q_b_b = 0;
+  int q_b_nb = 0;
 
-  LogDebug("PixelCPEGeneric") << " edge clus " << xerr << " " << yerr;  //dk
-  if (bigInX || bigInY)
-    LogDebug("PixelCPEGeneric") << " big " << bigInX << " " << bigInY;
-  if (edgex || edgey)
-    LogDebug("PixelCPEGeneric") << " edge " << edgex << " " << edgey;
-  LogDebug("PixelCPEGeneric") << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_;
-  if (theClusterParam.qBin_ == 0)
-    LogDebug("PixelCPEGeneric") << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " "
-                                << sizex << " " << sizey;
+  //This is included in the main loop.
+  // Iterate over the pixels to find out if a bricked row is lowest/highest.
+  /*  int isize = theClusterParam.theCluster->size();
+  for (int i = 0; i != isize; ++i) {
+    auto const& pixel = theClusterParam.theCluster->pixel(i);
 
-  // from PixelCPEGenericBase
-  setXYErrors(xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useTempErrors, theDetParam, theClusterParam);
+    // Y projection
+    if (pixel.y == ymin && !(pixel.x%2) ) lowest_is_bricked = 0;
+    if (pixel.y == ymax && (pixel.x%2) ) highest_is_bricked = 1;
+  } */
 
-  if (!useTempErrors) {
-    LogDebug("PixelCPEGeneric") << "Track angles are not known.\n"
-                                << "Default angle estimation which assumes track from PV (0,0,0) does not work.";
+  // Iterate over the pixels.
+  int isize = theClusterParam.theCluster->size();
+  for (int i = 0; i != isize; ++i) {
+    auto const& pixel = theClusterParam.theCluster->pixel(i);
+    // ggiurgiu@fnal.gov: add pixel charge truncation
+    int pix_adc = pixel.adc;
+    if (truncate)
+      pix_adc = std::min(pix_adc, theClusterParam.pixmx);
+    //
+    // X projection
+    if (pixel.x == xmin)
+      q_f_X += pix_adc;
+    if (pixel.x == xmax)
+      q_l_X += pix_adc;
+    //
+    // Y projection
+    if (pixel.y == ymin) {
+      q_f_Y += pix_adc;
+      if (pixel.x % 2)
+        q_b_nb += pix_adc;
+      else
+        lowest_is_bricked = 0;
+    }
+    if (pixel.y == ymin + 1 && !(pixel.x % 2))
+      q_b_b += pix_adc;
+    if (pixel.y == ymax) {
+      q_l_Y += pix_adc;
+      if (!(pixel.x % 2))
+        q_t_b += pix_adc;
+      else
+        highest_is_bricked = 1;
+    }
+    if (pixel.y == ymax - 1 && (pixel.x % 2))
+      q_t_nb += pix_adc;
   }
 
-  if (!useTempErrors && inflate_errors) {
-    int n_bigx = 0;
-    int n_bigy = 0;
+  edm::LogInfo("PixelCPE: collect_edge_charges_bricked: l/h") << lowest_is_bricked << "it" << highest_is_bricked;
 
-    for (int irow = 0; irow < 7; ++irow) {
-      if (theDetParam.theRecTopol->isItBigPixelInX(irow + minPixelRow))
-        ++n_bigx;
-    }
+  if (lowest_is_bricked)
+    q_f_b = q_b_b;
+  else
+    q_f_b = q_b_nb;
 
-    for (int icol = 0; icol < 21; ++icol) {
-      if (theDetParam.theRecTopol->isItBigPixelInY(icol + minPixelCol))
-        ++n_bigy;
-    }
+  if (highest_is_bricked)
+    q_l_b = -q_t_b;
+  else
+    q_l_b = -q_t_nb;
 
-    xerr = (float)(sizex + n_bigx) * theDetParam.thePitchX / std::sqrt(12.0f);
-    yerr = (float)(sizey + n_bigy) * theDetParam.thePitchY / std::sqrt(12.0f);
+  //Need to add the edge pixels that were missed:
+  for (int i = 0; i != isize; ++i) {
+    auto const& pixel = theClusterParam.theCluster->pixel(i);
+    int pix_adc = pixel.adc;
+    if (truncate)
+      pix_adc = std::min(pix_adc, theClusterParam.pixmx);
+
+    if (lowest_is_bricked && pixel.y == ymin + 1 && !(pixel.x % 2))
+      q_f_Y += pix_adc;
+
+    if (!highest_is_bricked && pixel.y == ymax - 1 && (pixel.x % 2))
+      q_l_Y += pix_adc;
+
+    edm::LogInfo("PixelCPE: collect_edge_charges_bricked: Q") << q_l_b << q_f_b << q_f_X << q_l_X << q_f_Y << q_l_Y;
+
+    return;
   }
-
-#ifdef EDM_ML_DEBUG
-  if (!(xerr > 0.0))
-    throw cms::Exception("PixelCPEGeneric::localError") << "\nERROR: Negative pixel error xerr = " << xerr << "\n\n";
-
-  if (!(yerr > 0.0))
-    throw cms::Exception("PixelCPEGeneric::localError") << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
-#endif
-
-  LogDebug("PixelCPEGeneric") << " errors  " << xerr << " " << yerr;  //dk
-  if (theClusterParam.qBin_ == 0)
-    LogDebug("PixelCPEGeneric") << " qbin 0 " << xerr << " " << yerr;
-
-  auto xerr_sq = xerr * xerr;
-  auto yerr_sq = yerr * yerr;
-
-  return LocalError(xerr_sq, 0, yerr_sq);
-}
-
-void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
-  PixelCPEGenericBase::fillPSetDescription(desc);
-  desc.add<double>("eff_charge_cut_highX", 1.0);
-  desc.add<double>("eff_charge_cut_highY", 1.0);
-  desc.add<double>("eff_charge_cut_lowX", 0.0);
-  desc.add<double>("eff_charge_cut_lowY", 0.0);
-  desc.add<double>("size_cutX", 3.0);
-  desc.add<double>("size_cutY", 3.0);
-  desc.add<double>("EdgeClusterErrorX", 50.0);
-  desc.add<double>("EdgeClusterErrorY", 85.0);
-  desc.add<bool>("inflate_errors", false);
-  desc.add<bool>("inflate_all_errors_no_trk_angle", false);
-  desc.add<bool>("NoTemplateErrorsWhenNoTrkAngles", false);
-  desc.add<bool>("UseErrorsFromTemplates", true);
-  desc.add<bool>("TruncatePixelCharge", true);
-  desc.add<bool>("IrradiationBiasCorrection", false);
-  desc.add<bool>("DoCosmics", false);
-  desc.add<bool>("Upgrade", false);
-  desc.add<bool>("SmallPitch", false);
 }
