@@ -9,22 +9,34 @@
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
-#define XML_CONVERTER_NAME( CLASS_NAME ) (std::string( #CLASS_NAME )+"2xml").c_str()
+#define XML_CONVERTER_NAME(CLASS_NAME) (std::string(#CLASS_NAME) + "2xml").c_str()
 
-#define PAYLOAD_2XML_MODULE( MODULE_NAME ) \
-  BOOST_PYTHON_MODULE( MODULE_NAME ) 
+#define PAYLOAD_2XML_MODULE(MODULE_NAME) BOOST_PYTHON_MODULE(MODULE_NAME)
 
-#define PAYLOAD_2XML_CLASS( CLASS_NAME ) \
-  boost::python::class_< Payload2xml<CLASS_NAME> >( XML_CONVERTER_NAME( CLASS_NAME ), boost::python::init<>()) \
-  .def("write",&Payload2xml<CLASS_NAME>::write ) \
-  ;
+#define PAYLOAD_2XML_CLASS(CLASS_NAME)                                                                     \
+  boost::python::class_<Payload2xml<CLASS_NAME> >(XML_CONVERTER_NAME(CLASS_NAME), boost::python::init<>()) \
+      .def("write", &Payload2xml<CLASS_NAME>::write);
+
+#include <boost/version.hpp>
+namespace cond {
+  struct BoostVersion {
+    std::string label() {
+      std::stringstream ss;
+      ss << BOOST_VERSION / 100000 << ".";
+      ss << BOOST_VERSION / 100 % 1000 << ".";
+      ss << BOOST_VERSION % 100;
+      return ss.str();
+    }
+  };
+}  // namespace cond
 
 namespace { // Avoid cluttering the global namespace.
 
-  template <typename PayloadType> class Payload2xml {
+  template <typename PayloadType>
+  class Payload2xml {
   public:
-    Payload2xml(){
-    }
+    Payload2xml() {}    
+
     //
     std::string write( const std::string &payloadData ){
       // now to convert
