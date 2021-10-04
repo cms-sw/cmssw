@@ -360,7 +360,8 @@ __global__ void kernel_find_ntuplets(GPUCACell::Hits const *__restrict__ hhp,
     if (doit) {
       GPUCACell::TmpTuple stack;
       stack.reset();
-      thisCell.find_ntuplets(hh, cells, *cellTracks, *foundNtuplets, *apc, quality, stack, minHitsPerNtuplet, pid < 3);
+      thisCell.find_ntuplets<6>(
+          hh, cells, *cellTracks, *foundNtuplets, *apc, quality, stack, minHitsPerNtuplet, pid < 3);
       assert(stack.empty());
       // printf("in %d found quadruplets: %d\n", cellIndex, apc->get());
     }
