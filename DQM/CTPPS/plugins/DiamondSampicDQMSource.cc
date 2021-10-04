@@ -457,7 +457,6 @@ std::shared_ptr<totemds::Cache> DiamondSampicDQMSource::globalBeginLuminosityBlo
 //----------------------------------------------------------------------------------------------------
 
 void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-
   // get event data
   edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigis;
   event.getByToken(tokenDigi_, timingDigis);
