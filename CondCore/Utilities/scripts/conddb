@@ -573,7 +573,7 @@ def search(args):
     session = connection.session()
 
     max_limit = 100
-    if args.limit > max_limit:
+    if args.limit is not None and int(args.limit) > max_limit:
         raise Exception('The limit on the number of returned results is capped at %s. Please use a reasonable limit.' % max_limit)
 
     if connection.is_frontier and ':' in args.string:
