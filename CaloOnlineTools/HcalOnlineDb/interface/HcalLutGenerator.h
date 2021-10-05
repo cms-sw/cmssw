@@ -1,7 +1,7 @@
 #ifndef HcalLutGenerator_h
 #define HcalLutGenerator_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,12 +14,12 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
-class HcalLutGenerator : public edm::EDAnalyzer {
+class HcalLutGenerator : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalLutGenerator(const edm::ParameterSet&);
-  ~HcalLutGenerator() override;
+  ~HcalLutGenerator() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void endJob() override {}
 
 private:
   std::string _tag;

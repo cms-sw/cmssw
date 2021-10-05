@@ -19,8 +19,6 @@ HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig) {
   tok_hcalCoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
 }
 
-HcalLutGenerator::~HcalLutGenerator() {}
-
 void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const HcalTPGCoder* inputCoder = &iSetup.getData(tok_inCoder_);
   const HcalDbService* hcalcond = &iSetup.getData(tok_dbservice_);
@@ -35,5 +33,3 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   manager.createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC(_tag, *inputCoder, *transcoder, _lin_file, split_by_crate);
 }
-
-void HcalLutGenerator::endJob() {}
