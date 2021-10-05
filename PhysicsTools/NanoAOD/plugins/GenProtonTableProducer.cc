@@ -45,7 +45,9 @@ GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
       puCandsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("srcPUProtons"))),
       protonsCut_(iConfig.getParameter<std::string>("cut")),
       table_name_(iConfig.getParameter<std::string>("name")),
-      tolerance_(iConfig.getParameter<double>("tolerance")) {}
+      tolerance_(iConfig.getParameter<double>("tolerance")) {
+  produces<nanoaod::FlatTable>();
+}
 
 void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   // define the variables
@@ -94,7 +96,7 @@ void GenProtonTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("input source for pruned gen-level particle candidates");
   desc.add<edm::InputTag>("srcPUProtons", edm::InputTag())->setComment("input source for pileup protons collection");
   desc.add<std::string>("cut", "")->setComment("proton kinematic selection");
-  desc.add<std::string>("name", "GenProtons")->setComment("flat table name");
+  desc.add<std::string>("name", "GenProton")->setComment("flat table name");
   desc.add<double>("tolerance", 1.e-3)
       ->setComment("relative difference between the signal and pileup protons pt and pz");
   descriptions.add("genProtonTable", desc);
