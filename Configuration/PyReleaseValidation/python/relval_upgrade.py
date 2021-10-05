@@ -41,16 +41,13 @@ for year in upgradeKeys:
                 if 'HARVEST' in step: hasHarvest = True
 
                 for specialType,specialWF in upgradeWFs.items():
-                    if specialType == 'baseline':
-                        for ist, st in enumerate(stepList[specialType]):
-                            if st.split('_')[0] == 'Reco': stepList[specialType][ist] = st.replace('Reco', 'RecNan')
-                            elif st.split('_')[0] == 'HARVEST': stepList[specialType][ist] = st.replace('HARVEST', 'HARVESTRecNan')
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
                         if 'ProdLike' in specialType:
                             if 'Reco' in step: # handles both Reco and RecoGlobal
                                 stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','Nano').replace('Reco','Nano'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
                             if 'GenSim' in step:
@@ -63,6 +60,11 @@ for year in upgradeKeys:
                                     else: stepList[specialType][-1] = stepMade
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
+                        
+                    if specialType in ['baseline']:
+                        for ist, st in enumerate(stepList[specialType]):
+                            if st.split('_')[0] == 'Reco': stepList[specialType][ist] = st.replace('Reco', 'RecNan')
+                            elif st.split('_')[0] == 'HARVEST': stepList[specialType][ist] = st.replace('HARVEST', 'HARVESTRecNan')
 
             for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1

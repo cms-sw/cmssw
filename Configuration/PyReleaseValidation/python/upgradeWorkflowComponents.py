@@ -666,7 +666,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             # remove step
             stepDict[stepName][k] = None
         if 'Nano' in step:
-            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
