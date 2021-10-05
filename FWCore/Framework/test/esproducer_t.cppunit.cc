@@ -7,6 +7,7 @@
  */
 #include <iostream>
 #include "cppunit/extensions/HelperMacros.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/Dummy2Record.h"
@@ -22,6 +23,7 @@
 #include "FWCore/Framework/interface/es_Label.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -46,6 +48,42 @@ namespace {
     return pset;
   }
   edm::ActivityRegistry activityRegistry;
+
+  struct DummyDataConsumerBase : public edm::EDConsumerBase {
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          edm::FinalWaitingTask waitTask;
+          tbb::task_group group;
+          rec->prefetchAsync(
+              edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          do {
+            group.wait();
+          } while (not waitTask.done());
+          if (waitTask.exceptionPtr()) {
+            std::rethrow_exception(*waitTask.exceptionPtr());
+          }
+        }
+      }
+    }
+  };
+
+  template <typename Record>
+  struct DummyDataConsumer : public DummyDataConsumerBase {
+    DummyDataConsumer() : m_token{esConsumes()} {}
+    edm::ESGetToken<DummyData, Record> m_token;
+  };
+
+  struct DummyDataConsumer2 : public DummyDataConsumerBase {
+    DummyDataConsumer2(edm::ESInputTag const& tag1, edm::ESInputTag const& tag2, edm::ESInputTag const& tag3)
+        : m_token1{esConsumes(tag1)}, m_token2{esConsumes(tag2)}, m_token3{esConsumes(tag3)} {}
+    edm::ESGetToken<DummyData, DummyRecord> m_token1;
+    edm::ESGetToken<DummyData, DummyRecord> m_token2;
+    edm::ESGetToken<DummyData, DummyRecord> m_token3;
+  };
 }  // namespace
 
 class testEsproducer : public CppUnit::TestFixture {
@@ -211,9 +249,14 @@ void testEsproducer::getFromTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == pDummy->value_);
   }
@@ -235,9 +278,14 @@ void testEsproducer::getfromShareTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == pDummy->value_);
   }
@@ -259,9 +307,14 @@ void testEsproducer::getfromUniqueTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == pDummy->value_);
   }
@@ -282,9 +335,14 @@ void testEsproducer::getfromOptionalTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == pDummy->value_);
   }
@@ -307,17 +365,23 @@ void testEsproducer::labelTest() {
       const edm::Timestamp time(iTime);
       pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
       controller.eventSetupForInstance(edm::IOVSyncValue(time));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-      edm::ESHandle<DummyData> pDummy;
-      eventSetup.get<DummyRecord>().get("foo", pDummy);
+      DummyDataConsumer2 consumer(edm::ESInputTag("", "foo"), edm::ESInputTag("", "fi"), edm::ESInputTag("", "fum"));
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                       static_cast<unsigned int>(edm::Transition::Event),
+                                       consumer.esGetTokenIndices(edm::Transition::Event),
+                                       parentC);
+
+      edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token1);
       CPPUNIT_ASSERT(0 != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
 
-      eventSetup.get<DummyRecord>().get("fi", pDummy);
+      pDummy = eventSetup.getHandle(consumer.m_token2);
       CPPUNIT_ASSERT(0 != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
 
-      eventSetup.get<DummyRecord>().get("fum", pDummy);
+      pDummy = eventSetup.getHandle(consumer.m_token3);
       CPPUNIT_ASSERT(0 != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
     }
@@ -366,12 +430,17 @@ void testEsproducer::decoratorTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
 
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_post);
-    eventSetup.get<DummyRecord>().get(pDummy);
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(iTime == TestDecorator::s_pre);
     CPPUNIT_ASSERT(iTime == TestDecorator::s_post);
@@ -411,10 +480,14 @@ void testEsproducer::dependsOnTest() {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-
-    eventSetup.get<DepRecord>().get(pDummy);
+    DummyDataConsumer<DepRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(3 * iTime == pDummy->value_);
   }
@@ -435,21 +508,31 @@ void testEsproducer::forceCacheClearTest() {
   const edm::Timestamp time(1);
   pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
-  edm::ESParentContext parentC;
-  const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, false);
   {
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    edm::ESParentContext parentC;
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(),
+                                     static_cast<unsigned int>(edm::Transition::Event),
+                                     consumer.esGetTokenIndices(edm::Transition::Event),
+                                     parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(1 == pDummy->value_);
   }
   provider.forceCacheClear();
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
   {
+    DummyDataConsumer<DummyRecord> consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
     edm::ESParentContext parentC;
-    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC, false);
-    edm::ESHandle<DummyData> pDummy;
-    eventSetup2.get<DummyRecord>().get(pDummy);
+    const edm::EventSetup eventSetup2(provider.eventSetupImpl(),
+                                      static_cast<unsigned int>(edm::Transition::Event),
+                                      consumer.esGetTokenIndices(edm::Transition::Event),
+                                      parentC);
+    edm::ESHandle<DummyData> pDummy = eventSetup2.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(2 == pDummy->value_);
   }

@@ -72,7 +72,7 @@ namespace edm {
           iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, iToken, iParent]() {
             try {
               RecordT rec;
-              rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent, true);
+              rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent);
               ServiceRegistry::Operate operate(iToken);
               this->make(rec, iKey);
             } catch (...) {

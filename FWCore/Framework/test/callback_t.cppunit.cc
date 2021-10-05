@@ -39,8 +39,7 @@ namespace callbacktest {
                  unsigned int transitionID,
                  void const* getTokenIndices,
                  void const* iEventSetupImpl,
-                 void const* ESParentContext,
-                 bool requireTokens) {}
+                 void const* ESParentContext) {}
     constexpr static bool allowConcurrentIOVs_ = false;
   };
 
