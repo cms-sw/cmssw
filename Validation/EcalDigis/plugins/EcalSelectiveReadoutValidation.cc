@@ -291,7 +291,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   nEeZsErrors_ = 0;
   nEeZsErrorsType1_ = 0;
 
-   /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
+  /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
    * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
    * system.*/
   std::unique_ptr<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>> eeEnergies =
