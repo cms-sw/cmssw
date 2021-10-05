@@ -291,6 +291,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   nEeZsErrors_ = 0;
   nEeZsErrorsType1_ = 0;
 
+   /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
+   * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
+   * system.*/
+  std::unique_ptr<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>> eeEnergies =
+      std::make_unique<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>>();
+
   for (int iZ0 = 0; iZ0 < nEndcaps; ++iZ0) {
     for (int iX0 = 0; iX0 < nEeX; ++iX0) {
       for (int iY0 = 0; iY0 < nEeY; ++iY0) {
@@ -561,6 +567,13 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   vector<pair<int, int>> xtalEtaPhi;
 
   xtalEtaPhi.reserve(nEbPhi * nEbEta);
+
+  /** Energy deposited in ECAL barrel crystals. Eta index starts from 0 at
+   * eta minimum and phi index starts at phi=0+ in CMS std coordinate system.
+   */
+  std::unique_ptr<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>> ebEnergies =
+      std::make_unique<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>>();
+
   for (int iEta0 = 0; iEta0 < nEbEta; ++iEta0) {
     for (int iPhi0 = 0; iPhi0 < nEbPhi; ++iPhi0) {
       (*ebEnergies)[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();

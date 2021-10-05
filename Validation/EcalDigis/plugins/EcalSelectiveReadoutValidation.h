@@ -786,19 +786,6 @@ private:
    */
   double ttEtSums[nTtEta][nTtPhi];
 
-  /** Energy deposited in ECAL barrel crystals. Eta index starts from 0 at
-   * eta minimum and phi index starts at phi=0+ in CMS std coordinate system.
-   */
-  std::unique_ptr<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>> ebEnergies =
-      std::make_unique<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>>();
-
-  /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
-   * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
-   * system.
-   */
-  std::unique_ptr<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>> eeEnergies =
-      std::make_unique<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>>();
-
   /** Permits to skip inner SC
    */
   bool SkipInnerSC_;
