@@ -502,6 +502,22 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
     offset = 0.502,
 )
 
+# add here a .503 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyGPU_Profiling',
+    offset = 0.504,
+)
+
 upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
     digi = {
         # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
@@ -535,6 +551,23 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
     offset = 0.506,
 )
 
+# add here a .507 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',
+    offset = 0.508,
+)
+
 upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
@@ -561,6 +594,22 @@ upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.512,
 )
 
+# add here a .513 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackECALOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly',
+        '--procModifiers': 'gpu',
+        '--customise' : 'RecoLocalCalo/Configuration/customizeEcalOnlyForProfiling.customizeEcalOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_ECALOnlyGPU_Profiling',
+    offset = 0.514,
+)
+
 upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
@@ -585,6 +634,22 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_HCALOnlyGPU',
     offset = 0.522,
+)
+
+# add here a .523 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly',
+        '--procModifiers': 'gpu',
+        '--customise' : 'RecoLocalCalo/Configuration/customizeHcalOnlyForProfiling.customizeHcalOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_HCALOnlyGPU_Profiling',
+    offset = 0.524,
 )
 
 upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
