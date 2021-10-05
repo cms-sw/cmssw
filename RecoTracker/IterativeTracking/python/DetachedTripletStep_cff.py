@@ -194,7 +194,8 @@ trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_detachedTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'detachedTripletStepSeeds',
     clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
@@ -204,6 +205,7 @@ detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )
+detachedTripletStepTrackCandidates = _detachedTripletStepTrackCandidatesCkf.clone()
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 detachedTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(

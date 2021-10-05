@@ -225,7 +225,8 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder,
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner       = cms.int32(50),
@@ -236,6 +237,7 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     useHitsSplitting            = True,
     TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
 )
+lowPtTripletStepTrackCandidates = _lowPtTripletStepTrackCandidatesCkf.clone()
 
 trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
     clustersToSkip = None,

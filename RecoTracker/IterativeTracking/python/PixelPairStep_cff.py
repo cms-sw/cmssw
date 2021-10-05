@@ -291,7 +291,8 @@ trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_pixelPairStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
     clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
@@ -300,6 +301,7 @@ pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
 )
+pixelPairStepTrackCandidates = _pixelPairStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import trackingMkFitPixelPairStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as _mkFitSeedConverter_cfi
