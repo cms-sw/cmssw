@@ -22,7 +22,8 @@ protonTable.tagRecoProtonsSingle = cms.InputTag("filteredProtons" if singleRPPro
 
 genProtonTable = _genproton.clone(
     srcPruned = cms.InputTag('prunedGenParticles'),
-    srcPUProtons = cms.InputTag('genPUProtons'), #FIXME could have an extra 'genPUProtons' collection name for some samples
+    #srcPUProtons = cms.InputTag('genPUProtons'), #FIXME could have an extra 'genPUProtons' collection name for some samples
+    srcPUProtons = cms.InputTag('genPUProtons', 'genPUProtons'),
     cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)'), # xi in [0.015, 0.2]
 )
 
