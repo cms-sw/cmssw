@@ -102,8 +102,8 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
       min_run = max_since + 1;  // we have to add 1 to the last transferred one
     }
 
-    edm::LogVerbatim("EcalTPGTPModeHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun
-                                         << "max_since " << max_since;
+    edm::LogVerbatim("EcalTPGTPModeHandler")
+        << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun << "max_since " << max_since;
 
     unsigned int max_run = m_lastRun;
     edm::LogVerbatim("EcalTPGTPModeHandler") << "min_run= " << min_run << " max_run= " << max_run;
