@@ -642,7 +642,7 @@ namespace edm {
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
-      warnAboutModulesRequiringLuminosityBLockSynchronization();
+      throwAboutModulesRequiringLuminosityBlockSynchronization();
     }
     warnAboutLegacyModules();
 
@@ -2003,16 +2003,22 @@ namespace edm {
     return false;
   }
 
-  void EventProcessor::warnAboutModulesRequiringLuminosityBLockSynchronization() const {
-    std::unique_ptr<LogSystem> s;
+  void EventProcessor::throwAboutModulesRequiringLuminosityBlockSynchronization() const {
+    cms::Exception ex("ModulesSynchingOnLumis");
+    ex << "The framework is configured to use at least two streams, but the following modules\n"
+       << "require synchronizing on LuminosityBlock boundaries:";
+    bool found = false;
     for (auto worker : schedule_->allWorkers()) {
       if (worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
-        if (not s) {
-          s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
-          (*s) << "The following modules require synchronizing on LuminosityBlock boundaries:";
-        }
-        (*s) << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
+        found = true;
+        ex << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
+    }
+    if (found) {
+      ex << "\n\nThe situation can be fixed by either\n"
+         << " * modifying the modules to support concurrent LuminosityBlocks (preferred), or\n"
+         << " * setting 'process.options.numberOfConcurrentLuminosityBlocks = 1' in the configuration file";
+      throw ex;
     }
   }
 
