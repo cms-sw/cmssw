@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-AlcaBeamMonitorClient = cms.EDAnalyzer("AlcaBeamMonitorClient",
+AlcaBeamMonitorClient = DQMEDAnalyzer("AlcaBeamMonitorClient",
                               	 MonitorName = cms.untracked.string('AlcaBeamMonitor'),
                                )
