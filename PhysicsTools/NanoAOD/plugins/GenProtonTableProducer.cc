@@ -28,6 +28,8 @@ public:
   explicit GenProtonTableProducer(const edm::ParameterSet&);
   ~GenProtonTableProducer() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -85,3 +87,17 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
   protons_table->addColumn<int>("isPU", isPUs, "pileup proton?", nanoaod::FlatTable::IntColumn, 10);
   iEvent.put(std::move(protons_table));
 }
+
+void GenProtonTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcPruned", edm::InputTag())
+      ->setComment("input source for pruned gen-level particle candidates");
+  desc.add<edm::InputTag>("srcPUProtons", edm::InputTag())->setComment("input source for pileup protons collection");
+  desc.add<std::string>("cut", "")->setComment("proton kinematic selection");
+  desc.add<std::string>("name", "GenProtons")->setComment("flat table name");
+  desc.add<double>("tolerance", 1.e-3)
+      ->setComment("relative difference between the signal and pileup protons pt and pz");
+  descriptions.add("genProtonTable", desc);
+}
+
+DEFINE_FWK_MODULE(GenProtonTableProducer);
