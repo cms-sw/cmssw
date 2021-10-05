@@ -288,7 +288,6 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<bool>("enabled", false);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<uint>("logLevel", 2);   //0 debug, 1 info, 2 warning
     psd1.add<uint>("outputDim", 3);  // Dimension of output vector
     psd1.add<std::vector<std::string>>(
         "modelsFiles",

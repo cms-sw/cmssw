@@ -55,7 +55,6 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
     dconfig.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
     dconfig.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
     dconfig.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-    dconfig.logLevel = pset_dnn.getParameter<uint>("logLevel");
     dconfig.outputDim = pset_dnn.getParameter<uint>("outputDim");
     const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
     iElectronDNNEstimator = std::make_unique<ElectronDNNEstimator>(dconfig, useEBModelInGap);
