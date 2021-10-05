@@ -192,10 +192,10 @@ private:
   static std::string changePathToSampic(std::string path);
 };
 //----------------------------------------------------------------------------------------------------
-std::string DiamondSampicDQMSource::changePathToSampic(std::string path){
-  std::string toReplace="TimingDiamond";
-  path=path.substr(path.find(toReplace)+toReplace.length());
-  path="CTPPS/DiamondSampic/"+path;
+std::string DiamondSampicDQMSource::changePathToSampic(std::string path) {
+  std::string toReplace = "TimingDiamond";
+  path = path.substr(path.find(toReplace) + toReplace.length());
+  path = "CTPPS/DiamondSampic/" + path;
   return path;
 }
 //----------------------------------------------------------------------------------------------------
@@ -464,7 +464,6 @@ std::shared_ptr<totemds::Cache> DiamondSampicDQMSource::globalBeginLuminosityBlo
 //----------------------------------------------------------------------------------------------------
 
 void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
-
   // get event data
   edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigis;
   event.getByToken(tokenDigi_, timingDigis);
