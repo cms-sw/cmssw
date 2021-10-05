@@ -54,8 +54,7 @@ EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(const EcalTrigTowerConstituentsMa
       tcpFormat_(tcpFormat),
       barrelOnly_(false),
       debug_(debug),
-      famos_(famos)
-{
+      famos_(famos) {
   maxNrSamples_ = 10;
   this->init();
 }
