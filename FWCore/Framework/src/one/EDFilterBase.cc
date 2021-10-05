@@ -57,7 +57,7 @@ namespace edm {
       EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       returnValue = this->filter(e, c);
       commit_(e, &previousParentageId_);
       return returnValue;
@@ -118,11 +118,8 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginRun),
-                         esGetTokenIndices(Transition::BeginRun),
-                         parentC,
-                         false};
+      const EventSetup c{
+          info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
       this->doBeginRunProduce_(r, c);
@@ -135,7 +132,7 @@ namespace edm {
       Run const& cnstR = r;
       ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+          info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
       this->doEndRun_(cnstR, c);
       r.setProducer(this);
       this->doEndRunProduce_(r, c);
@@ -150,8 +147,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                          esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doBeginLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
@@ -166,8 +162,7 @@ namespace edm {
       const EventSetup c{info,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC,
-                         false};
+                         parentC};
       this->doEndLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);

@@ -38,6 +38,9 @@
 
 #include <vector>
 #include <memory>
+
+class testEventsetupRecord;
+
 namespace edm {
   class ESConsumesCollectorAdaptor;
   class ESConsumesCollectorWithTagAdaptor;
@@ -160,6 +163,7 @@ namespace edm {
   private:
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
+    friend class ::testEventsetupRecord;
 
     explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
         : ESConsumesCollector(iConsumer, iTransitionID) {}

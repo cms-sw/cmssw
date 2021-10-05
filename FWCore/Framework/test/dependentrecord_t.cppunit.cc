@@ -611,16 +611,16 @@ void testdependentrecord::timeAndRunTest() {
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
-      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2)));
-      const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id2 = eventSetup2.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id2);
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(2)));
-      const edm::EventSetup eventSetup3(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup3(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id3 = eventSetup3.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id3);
 
@@ -628,7 +628,7 @@ void testdependentrecord::timeAndRunTest() {
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(6)), edm::IOVSyncValue(edm::Timestamp(10))));
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup4(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup4(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id4 = eventSetup4.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 != id4);
 
@@ -636,7 +636,7 @@ void testdependentrecord::timeAndRunTest() {
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 6)), edm::IOVSyncValue(edm::EventID(1, 1, 10))));
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(8)));
-      const edm::EventSetup eventSetup5(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup5(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id5 = eventSetup5.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id4 != id5);
     }
@@ -666,30 +666,30 @@ void testdependentrecord::timeAndRunTest() {
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
-      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2)));
-      const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id2 = eventSetup2.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id2);
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(2)));
-      const edm::EventSetup eventSetup3(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup3(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id3 = eventSetup3.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id3);
 
       dummy2Finder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(6)), edm::IOVSyncValue::invalidIOVSyncValue()));
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup4(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup4(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id4 = eventSetup4.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 != id4);
 
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 6)), edm::IOVSyncValue::invalidIOVSyncValue()));
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(8)));
-      const edm::EventSetup eventSetup5(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup5(provider.eventSetupImpl(), 0, nullptr, parentC);
       long long id5 = eventSetup5.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id4 != id5);
     }
@@ -731,7 +731,7 @@ void testdependentrecord::getTest() {
   edm::ESParentContext parentC;
   {
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
     const DepRecord& depRecord = eventSetup1.get<DepRecord>();
 
     depRecord.getRecord<DummyRecord>();
@@ -741,7 +741,7 @@ void testdependentrecord::getTest() {
   }
   {
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 4)));
-    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr, parentC);
     CPPUNIT_ASSERT_THROW(eventSetup2.get<DepRecord>(), edm::eventsetup::NoRecordException<DepRecord>);
   }
 }
@@ -855,8 +855,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data.value_);
     }
@@ -867,8 +866,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data.value_);
     }
@@ -879,8 +877,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
       auto const& data = depRecord.get(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data.value_);
@@ -892,8 +889,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       auto const& data = depRecord.get(consumer.m_token);
@@ -906,8 +902,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       auto const& data = depRecord.get(consumer.m_token);
@@ -920,8 +915,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       auto const& data1 = depRecord.get(consumer.m_token1);
@@ -937,8 +931,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       CPPUNIT_ASSERT_THROW(depRecord.get(consumer.m_token), cms::Exception);
@@ -950,8 +943,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       CPPUNIT_ASSERT_THROW(depRecord.get(consumer.m_token), cms::Exception);
@@ -1010,8 +1002,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -1024,8 +1015,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -1038,8 +1028,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
@@ -1054,8 +1043,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
@@ -1070,8 +1058,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESHandle<DummyData> data = depRecord.getHandle(consumer.m_token);
@@ -1086,8 +1073,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESHandle<DummyData> data1 = depRecord.getHandle(consumer.m_token1);
@@ -1107,8 +1093,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       CPPUNIT_ASSERT(not depRecord.getHandle(consumer.m_token));
@@ -1121,8 +1106,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       CPPUNIT_ASSERT(not depRecord.getHandle(consumer.m_token));
@@ -1181,8 +1165,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_ == data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -1195,8 +1178,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -1209,8 +1191,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
@@ -1225,8 +1206,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
@@ -1241,8 +1221,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
@@ -1257,8 +1236,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data1 = depRecord.getTransientHandle(consumer.m_token1);
@@ -1278,8 +1256,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
@@ -1293,8 +1270,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
       const edm::EventSetup eventSetup{provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC,
-                                       true};
+                                       parentC};
       auto const& depRecord = eventSetup.get<DepRecord>();
 
       edm::ESTransientHandle<DummyData> data = depRecord.getTransientHandle(consumer.m_token);
@@ -1325,7 +1301,7 @@ void testdependentrecord::oneOfTwoRecordTest() {
   {
     edm::ESParentContext parentC;
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
     const DepOn2Record& depRecord = eventSetup1.get<DepOn2Record>();
 
     depRecord.getRecord<DummyRecord>();
@@ -1360,7 +1336,7 @@ void testdependentrecord::resetTest() {
   {
     edm::ESParentContext parentC;
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
     const DepRecord& depRecord = eventSetup1.get<DepRecord>();
     unsigned long long depCacheID = depRecord.cacheIdentifier();
     const DummyRecord& dummyRecord = depRecord.getRecord<DummyRecord>();
@@ -1510,14 +1486,14 @@ void testdependentrecord::extendIOVTest() {
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
   {
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
-    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+    const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
     unsigned long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
     CPPUNIT_ASSERT(id1 == eventSetup1.get<DummyRecord>().cacheIdentifier());
     CPPUNIT_ASSERT(id1 == eventSetup1.get<Dummy2Record>().cacheIdentifier());
 
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(2)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id);
       CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
@@ -1527,7 +1503,7 @@ void testdependentrecord::extendIOVTest() {
     dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 7}}});
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id);
       CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
@@ -1539,7 +1515,7 @@ void testdependentrecord::extendIOVTest() {
 
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id);
       CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
@@ -1551,7 +1527,7 @@ void testdependentrecord::extendIOVTest() {
     dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 8}}});
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 8), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 == id);
       CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
@@ -1564,7 +1540,7 @@ void testdependentrecord::extendIOVTest() {
         edm::ValidityInterval{edm::IOVSyncValue{edm::EventID{1, 1, 9}}, edm::IOVSyncValue{edm::EventID{1, 1, 9}}});
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 9), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 + 1 == id);
       CPPUNIT_ASSERT(id1 + 1 == eventSetup.get<DummyRecord>().cacheIdentifier());
@@ -1579,7 +1555,7 @@ void testdependentrecord::extendIOVTest() {
 
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 10), edm::Timestamp(7)));
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC, true);
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
       unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
       CPPUNIT_ASSERT(id1 + 2 == id);
       CPPUNIT_ASSERT(id1 + 1 == eventSetup.get<DummyRecord>().cacheIdentifier());

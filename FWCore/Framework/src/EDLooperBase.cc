@@ -64,7 +64,7 @@ namespace edm {
     try {
       ESParentContext parentC(&moduleCallingContext_);
       const EventSetup es{
-          esi, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
+          esi, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
       status = duringLoop(event, es, ioController);
     } catch (cms::Exception& e) {
       e.addContext("Calling the 'duringLoop' method of a looper");
@@ -81,7 +81,7 @@ namespace edm {
   EDLooperBase::Status EDLooperBase::doEndOfLoop(const edm::EventSetupImpl& esi) {
     ESParentContext parentC(&moduleCallingContext_);
     const EventSetup es{
-        esi, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+        esi, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
     return endOfLoop(es, iCounter_);
   }
 
@@ -95,11 +95,8 @@ namespace edm {
 
   void EDLooperBase::beginOfJob(const edm::EventSetupImpl& iImpl) {
     ESParentContext parentC(&moduleCallingContext_);
-    beginOfJob(EventSetup{iImpl,
-                          static_cast<unsigned int>(Transition::BeginRun),
-                          esGetTokenIndices(Transition::BeginRun),
-                          parentC,
-                          false});
+    beginOfJob(EventSetup{
+        iImpl, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC});
   }
   void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob(); }
   void EDLooperBase::beginOfJob() {}
@@ -119,7 +116,7 @@ namespace edm {
     run.setConsumer(this);
     ESParentContext parentC(&moduleCallingContext_);
     const EventSetup es{
-        iES, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
+        iES, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC};
     beginRun(run, es);
   }
 
@@ -136,7 +133,7 @@ namespace edm {
     run.setConsumer(this);
     ESParentContext parentC(&moduleCallingContext_);
     const EventSetup es{
-        iES, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
+        iES, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC};
     endRun(run, es);
   }
   void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB,
@@ -156,8 +153,7 @@ namespace edm {
     const EventSetup es{iES,
                         static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                         esGetTokenIndices(Transition::BeginLuminosityBlock),
-                        parentC,
-                        false};
+                        parentC};
     beginLuminosityBlock(luminosityBlock, es);
   }
   void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB,
@@ -177,8 +173,7 @@ namespace edm {
     const EventSetup es{iES,
                         static_cast<unsigned int>(Transition::EndLuminosityBlock),
                         esGetTokenIndices(Transition::EndLuminosityBlock),
-                        parentC,
-                        false};
+                        parentC};
     endLuminosityBlock(luminosityBlock, es);
   }
 

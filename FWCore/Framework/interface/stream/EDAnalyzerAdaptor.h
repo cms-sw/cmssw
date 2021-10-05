@@ -159,8 +159,7 @@ namespace edm {
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginRun),
                              this->consumer()->esGetTokenIndices(Transition::BeginRun),
-                             pc,
-                             false};
+                             pc};
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           MyGlobalRunSummary::beginRun(cnstR, c, &rc, m_runSummaries[ri]);
@@ -178,8 +177,7 @@ namespace edm {
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndRun),
                              this->consumer()->esGetTokenIndices(Transition::EndRun),
-                             pc,
-                             false};
+                             pc};
           MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           MyGlobalRun::endRun(r, c, &rc);
         }
@@ -198,8 +196,7 @@ namespace edm {
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock),
-                             pc,
-                             false};
+                             pc};
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
           MyGlobalLuminosityBlockSummary::beginLuminosityBlock(cnstLb, c, &lc, m_lumiSummaries[li]);
@@ -218,8 +215,7 @@ namespace edm {
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock),
-                             pc,
-                             false};
+                             pc};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           MyGlobalLuminosityBlock::endLuminosityBlock(lb, c, &lc);
         }

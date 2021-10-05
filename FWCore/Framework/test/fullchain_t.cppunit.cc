@@ -11,7 +11,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "FWCore/Framework/test/DummyData.h"
@@ -44,6 +46,32 @@ namespace {
     pset.addParameter<std::vector<std::string>>("@all_esmodules", emptyVStrings);
     return pset;
   }
+
+  struct DummyDataConsumer : public EDConsumerBase {
+    explicit DummyDataConsumer() : m_token{esConsumes()} {}
+
+    void prefetch(edm::EventSetupImpl const& iImpl) const {
+      auto const& recs = this->esGetTokenRecordIndicesVector(edm::Transition::Event);
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          edm::FinalWaitingTask waitTask;
+          tbb::task_group group;
+          rec->prefetchAsync(
+              WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          do {
+            group.wait();
+          } while (not waitTask.done());
+          if (waitTask.exceptionPtr()) {
+            std::rethrow_exception(*waitTask.exceptionPtr());
+          }
+        }
+      }
+    }
+
+    ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
+  };
 }  // namespace
 
 class testfullChain : public CppUnit::TestFixture {
@@ -82,12 +110,17 @@ void testfullChain::getfromDataproxyproviderTest() {
   for (unsigned int iTime = 1; iTime != 6; ++iTime) {
     const Timestamp time(iTime);
     controller.eventSetupForInstance(IOVSyncValue(time));
-    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, pc, false);
-    ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    DummyDataConsumer consumer;
+    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.prefetch(provider.eventSetupImpl());
+    EventSetup eventSetup(provider.eventSetupImpl(),
+                          static_cast<unsigned int>(edm::Transition::Event),
+                          consumer.esGetTokenIndices(edm::Transition::Event),
+                          pc);
+    ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
 
-    eventSetup.getData(pDummy);
+    pDummy = eventSetup.getHandle(consumer.m_token);
     CPPUNIT_ASSERT(0 != pDummy.product());
   }
 }
