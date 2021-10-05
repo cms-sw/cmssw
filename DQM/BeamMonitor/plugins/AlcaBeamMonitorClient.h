@@ -12,13 +12,13 @@
 #include <string>
 // CMS
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class AlcaBeamMonitorClient : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+class AlcaBeamMonitorClient : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -27,11 +27,12 @@ public:
   ~AlcaBeamMonitorClient() override;
 
 protected:
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
   void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  void dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
 
 private:
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name

@@ -14,20 +14,20 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/one/EDAnalyzer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //
 // class declaration
 //
 
-class PixelVTXMonitor : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class PixelVTXMonitor : public DQMOneEDAnalyzer<> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -36,13 +36,12 @@ public:
 
 protected:
   void beginJob() override;
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void dqmEndRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
 
 private:
-  void bookHistograms();
-
   edm::ParameterSet parameters_;
 
   std::string moduleName_;

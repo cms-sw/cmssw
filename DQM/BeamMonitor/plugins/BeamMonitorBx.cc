@@ -116,8 +116,11 @@ void BeamMonitorBx::beginJob() {
   dbe_->setCurrentFolder(monitorName_ + "FitBx/All_nPVs");
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+void BeamMonitorBx::bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) {}
+
 //--------------------------------------------------------
-void BeamMonitorBx::beginRun(const edm::Run& r, const EventSetup& context) {
+void BeamMonitorBx::dqmBeginRun(const edm::Run& r, const EventSetup& context) {
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
   startTime = refTime = tmpTime;
@@ -563,6 +566,6 @@ void BeamMonitorBx::weight(double& mean, double& meanError, const double& val, c
 }
 
 //--------------------------------------------------------
-void BeamMonitorBx::endRun(const Run& r, const EventSetup& context) {}
+void BeamMonitorBx::dqmEndRun(const Run& r, const EventSetup& context) {}
 
 DEFINE_FWK_MODULE(BeamMonitorBx);

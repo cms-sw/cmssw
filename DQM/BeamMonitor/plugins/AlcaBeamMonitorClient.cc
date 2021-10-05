@@ -59,7 +59,10 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
 AlcaBeamMonitorClient::~AlcaBeamMonitorClient() = default;
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {}
+void AlcaBeamMonitorClient::dqmBeginRun(const edm::Run& r, const EventSetup& context) {}
+
+//----------------------------------------------------------------------------------------------------------------------
+void AlcaBeamMonitorClient::bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) {}
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::beginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {}
@@ -81,7 +84,7 @@ void AlcaBeamMonitorClient::endLuminosityBlock(const LuminosityBlock& iLumi, con
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
+void AlcaBeamMonitorClient::dqmEndRun(const Run& iRun, const EventSetup& context) {
   // use this in case any LS is missing.
   if (valuesMap_.empty()) {
     LogInfo("AlcaBeamMonitorClient") << "The histogram "

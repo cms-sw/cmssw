@@ -10,20 +10,20 @@
 // C++
 #include <string>
 // CMS
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
 // class declaration
 //
 class BeamSpotObjectsRcd;
-class BeamConditionsMonitor : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class BeamConditionsMonitor : public DQMOneLumiEDAnalyzer<> {
 public:
   BeamConditionsMonitor(const edm::ParameterSet&);
   ~BeamConditionsMonitor() override;
@@ -35,13 +35,15 @@ protected:
   // BeginJob
   void beginJob() override;
 
+  void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
+
   // Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
 
   // DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
 
 private:
   edm::ParameterSet parameters_;

@@ -35,7 +35,7 @@ PixelVTXMonitor::PixelVTXMonitor(const edm::ParameterSet& ps) : parameters_(ps) 
 
 PixelVTXMonitor::~PixelVTXMonitor() = default;
 
-void PixelVTXMonitor::bookHistograms() {
+void PixelVTXMonitor::bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) {
   std::vector<std::string> hltPathsOfInterest =
       parameters_.getParameter<std::vector<std::string> >("HLTPathsOfInterest");
   if (hltPathsOfInterest.empty())
@@ -95,7 +95,7 @@ void PixelVTXMonitor::bookHistograms() {
 
 void PixelVTXMonitor::beginJob() { dbe_ = edm::Service<DQMStore>().operator->(); }
 
-void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void PixelVTXMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed = true;
   if (hltConfig_.init(iRun, iSetup, hltInputTag_.process(), changed)) {
     // if init returns TRUE, initialisation has succeeded!
@@ -108,8 +108,8 @@ void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
                                      << " failed";
     // In this case, all access methods will return empty values!
   }
-  bookHistograms();
 }
+
 void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   if (histoMap_.empty())
     return;
@@ -162,7 +162,7 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   }
 }
 
-void PixelVTXMonitor::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
+void PixelVTXMonitor::dqmEndRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

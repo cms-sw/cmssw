@@ -56,9 +56,12 @@ void BeamConditionsMonitor::beginJob() {
 }
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
+void BeamConditionsMonitor::dqmBeginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   countLumi_++;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+void BeamConditionsMonitor::bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) {}
 
 // ----------------------------------------------------------
 void BeamConditionsMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
@@ -67,7 +70,7 @@ void BeamConditionsMonitor::analyze(const Event& iEvent, const EventSetup& iSetu
 }
 
 //--------------------------------------------------------
-void BeamConditionsMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
+void BeamConditionsMonitor::dqmEndLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
   LogInfo("BeamConditions") << "[BeamConditionsMonitor]:" << condBeamSpot << endl;
   h_x0_lumi->ShiftFillLast(condBeamSpot.GetX(), condBeamSpot.GetXError(), 1);
   h_y0_lumi->ShiftFillLast(condBeamSpot.GetY(), condBeamSpot.GetYError(), 1);
