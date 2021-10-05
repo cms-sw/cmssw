@@ -47,31 +47,31 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
   if (m_file_type == "txt") {
     readtxtFile();
   } else {
-    edm::LogInfo("EcalTPGTPModeHandler") << "Started GetNewObjects!!!";
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "Started GetNewObjects!!!";
 
     //check whats already inside of database
     if (tagInfo().size) {
       //check whats already inside of database
-      edm::LogInfo("EcalTPGTPModeHandler") << "got offlineInfo = ";
-      edm::LogInfo("EcalTPGTPModeHandler") << "tag name = " << tagInfo().name;
-      edm::LogInfo("EcalTPGTPModeHandler") << "size = " << tagInfo().size;
+      edm::LogVerbatim("EcalTPGTPModeHandler") << "got offlineInfo = ";
+      edm::LogVerbatim("EcalTPGTPModeHandler") << "tag name = " << tagInfo().name;
+      edm::LogVerbatim("EcalTPGTPModeHandler") << "size = " << tagInfo().size;
     } else {
-      edm::LogInfo("EcalTPGTPModeHandler") << " First object for this tag ";
+      edm::LogVerbatim("EcalTPGTPModeHandler") << " First object for this tag ";
     }
 
     unsigned int max_since = 0;
     max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
-    edm::LogInfo("EcalTPGTPModeHandler") << "max_since : " << max_since;
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "max_since : " << max_since;
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "retrieved last payload ";
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "retrieved last payload ";
 
     // here we retrieve all the runs after the last from online DB
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "Retrieving run list from ONLINE DB ... ";
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "Retrieving run list from ONLINE DB ... ";
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "Making connection...";
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "Making connection...";
     econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
-    edm::LogInfo("EcalTPGTPModeHandler") << "Done.";
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "Done.";
 
     if (!econn) {
       throw cms::Exception("OMDS not available") << " connection parameters " << m_sid << "/" << m_user;
@@ -102,11 +102,11 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
       min_run = max_since + 1;  // we have to add 1 to the last transferred one
     }
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "m_i_run_number" << m_i_run_number << "m_firstRun " << m_firstRun
                                          << "max_since " << max_since;
 
     unsigned int max_run = m_lastRun;
-    edm::LogInfo("EcalTPGTPModeHandler") << "min_run= " << min_run << " max_run= " << max_run;
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "min_run= " << min_run << " max_run= " << max_run;
 
     RunList my_list;
     my_list = econn->fetchGlobalRunListByLocation(my_runtag, min_run, max_run, my_locdef);
@@ -114,15 +114,15 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
     std::vector<RunIOV> run_vec = my_list.getRuns();
     size_t num_runs = run_vec.size();
 
-    edm::LogInfo("EcalTPGTPModeHandler") << "number of runs is : " << num_runs;
+    edm::LogVerbatim("EcalTPGTPModeHandler") << "number of runs is : " << num_runs;
 
     unsigned int irun = 0;
     if (num_runs > 0) {
       for (size_t kr = 0; kr < run_vec.size(); kr++) {
         irun = static_cast<unsigned int>(run_vec[kr].getRunNumber());
-        edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
-        edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
-        edm::LogInfo("EcalTPGTPModeHandler") << " run= " << irun;
+        edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
+        edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
+        edm::LogVerbatim("EcalTPGTPModeHandler") << " run= " << irun;
 
         // retrieve the data :
         std::map<EcalLogicID, RunTPGConfigDat> dataset;
@@ -143,13 +143,13 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
         }
 
         // it is all the same for all SM... get the last one
-        edm::LogInfo("EcalTPGTPModeHandler")
+        edm::LogVerbatim("EcalTPGTPModeHandler")
             << " run= " << irun << " tag " << the_config_tag << " version=" << the_config_version;
 
         // here we should check if it is the same as previous run.
 
         if ((the_config_tag != m_i_tag || the_config_version != m_i_version) && nr > 0) {
-          edm::LogInfo("EcalTPGTPModeHandler")
+          edm::LogVerbatim("EcalTPGTPModeHandler")
               << "the tag is different from last transferred run ... retrieving last config set from DB";
 
           FEConfigMainInfo fe_main_info;
@@ -157,9 +157,9 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
           fe_main_info.setVersion(the_config_version);
 
           try {
-            edm::LogInfo("EcalTPGTPModeHandler") << " before fetch config set";
+            edm::LogVerbatim("EcalTPGTPModeHandler") << " before fetch config set";
             econn->fetchConfigSet(&fe_main_info);
-            edm::LogInfo("EcalTPGTPModeHandler") << " after fetch config set";
+            edm::LogVerbatim("EcalTPGTPModeHandler") << " after fetch config set";
 
             // now get TPGTPMode
             int wId = fe_main_info.getWei2Id();
@@ -192,27 +192,27 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
                 rd_modev[12] = rd_mode.getFenixEETcpOutput();
                 rd_modev[13] = rd_mode.getFenixEETcpInfobit1();
 
-                edm::LogInfo("EcalTPGTPModeHandler") << "here is the value for the weight mode: ";
-                edm::LogInfo("EcalTPGTPModeHandler") << " EnableEBOddFilter:" << rd_modev[0];
-                edm::LogInfo("EcalTPGTPModeHandler") << " EnableEEOddFilter:" << rd_modev[1];
-                edm::LogInfo("EcalTPGTPModeHandler") << " EnableEBOddPeakFinder:" << rd_modev[2];
-                edm::LogInfo("EcalTPGTPModeHandler") << " EnableEEOddPeakFinder:" << rd_modev[3];
-                edm::LogInfo("EcalTPGTPModeHandler") << " DisableEBEvenPeakFinder:" << rd_modev[4];
-                edm::LogInfo("EcalTPGTPModeHandler") << " DisableEEEvenPeakFinder:" << rd_modev[5];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBStripOutput:" << rd_modev[6];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEEStripOutput:" << rd_modev[7];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBStripInfobit2:" << rd_modev[8];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEEStripInfobit2:" << rd_modev[9];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBTcpOutput:" << rd_modev[10];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEBTcpinfobit1:" << rd_modev[11];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEETcpOutput:" << rd_modev[12];
-                edm::LogInfo("EcalTPGTPModeHandler") << " FenixEETcpinfobit1:" << rd_modev[13];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << "here is the value for the weight mode: ";
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " EnableEBOddFilter:" << rd_modev[0];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " EnableEEOddFilter:" << rd_modev[1];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " EnableEBOddPeakFinder:" << rd_modev[2];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " EnableEEOddPeakFinder:" << rd_modev[3];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " DisableEBEvenPeakFinder:" << rd_modev[4];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " DisableEEEvenPeakFinder:" << rd_modev[5];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEBStripOutput:" << rd_modev[6];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEEStripOutput:" << rd_modev[7];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEBStripInfobit2:" << rd_modev[8];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEEStripInfobit2:" << rd_modev[9];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEBTcpOutput:" << rd_modev[10];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEBTcpinfobit1:" << rd_modev[11];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEETcpOutput:" << rd_modev[12];
+                edm::LogVerbatim("EcalTPGTPModeHandler") << " FenixEETcpinfobit1:" << rd_modev[13];
                 k = k + 1;
               }
 
-              edm::LogInfo("EcalTPGTPModeHandler") << "*****************************************";
-              edm::LogInfo("EcalTPGTPModeHandler") << "read done " << wId;
-              edm::LogInfo("EcalTPGTPModeHandler") << "*****************************************";
+              edm::LogVerbatim("EcalTPGTPModeHandler") << "*****************************************";
+              edm::LogVerbatim("EcalTPGTPModeHandler") << "read done " << wId;
+              edm::LogVerbatim("EcalTPGTPModeHandler") << "*****************************************";
 
               EcalTPGTPMode* tpMode = new EcalTPGTPMode;
               tpMode->EnableEBOddFilter = rd_modev[0];
@@ -250,7 +250,7 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
 
               writeFile("last_tpg_TPMode_settings.txt");
 
-              edm::LogInfo("EcalTPGTPModeHandler")
+              edm::LogVerbatim("EcalTPGTPModeHandler")
                   << " even if the tag/version is not the same, the weight group id is the same -> no transfer needed ";
             }
 
@@ -262,19 +262,19 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
                                                   << e.what();
             m_i_run_number = irun;
           }
-          edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
+          edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
 
         } else if (nr == 0) {
           m_i_run_number = irun;
-          edm::LogInfo("EcalTPGTPModeHandler")
+          edm::LogVerbatim("EcalTPGTPModeHandler")
               << " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed ";
-          edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
+          edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
         } else {
           m_i_run_number = irun;
           m_i_tag = the_config_tag;
           m_i_version = the_config_version;
-          edm::LogInfo("EcalTPGTPModeHandler") << " the tag/version is the same -> no transfer needed ";
-          edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
+          edm::LogVerbatim("EcalTPGTPModeHandler") << " the tag/version is the same -> no transfer needed ";
+          edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
           writeFile("last_tpg_TPMode_settings.txt");
         }
       }
@@ -282,11 +282,11 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
 
     delete econn;
   }  // usual way
-  edm::LogInfo("EcalTPGTPModeHandler") << "Ecal - > end of getNewObjects -----------";
+  edm::LogVerbatim("EcalTPGTPModeHandler") << "Ecal - > end of getNewObjects -----------";
 }
 
 void popcon::EcalTPGTPModeHandler::readtxtFile() {
-  edm::LogInfo("EcalTPGTPModeHandler") << " reading the input file " << m_file_name;
+  edm::LogVerbatim("EcalTPGTPModeHandler") << " reading the input file " << m_file_name;
   std::ifstream fInput;
   fInput.open(m_file_name);
   if (!fInput.is_open()) {
@@ -324,7 +324,7 @@ void popcon::EcalTPGTPModeHandler::readtxtFile() {
   } catch (std::exception& e) {
     throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what();
   }
-  edm::LogInfo("EcalTPGTPModeHandler") << " **************** ";
+  edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
 }
 
 void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
