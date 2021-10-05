@@ -31,7 +31,6 @@ options.register('startLumi',
                  "IOV Start Lumi")
 options.parseArguments()
 
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000                         # do not clog output with IO
 
