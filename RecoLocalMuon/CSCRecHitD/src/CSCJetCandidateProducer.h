@@ -21,8 +21,6 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-
-
 class CSCJetCandidateProducer : public edm::stream::EDProducer<> {
 public:
   explicit CSCJetCandidateProducer(const edm::ParameterSet& ps);
@@ -30,9 +28,7 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-
 private:
-
   edm::EDGetTokenT<CSCRecHit2DCollection> cscRechitInputToken_;
   typedef std::vector<reco::CSCJetCandidate> CSCJetCandidateCollection;
 };
