@@ -759,6 +759,10 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
                         << ff->GetParameter(2) << "), ff_sl_fix: " << ff_sl_fix->GetParameter(0) << " + "
                         << ff_sl_fix->GetParameter(1) << " * (x - " << ff_sl_fix->GetParameter(2) << ")";
 
+    // rebook the diffFN plot in the harvester
+    iBooker.setCurrentFolder(folder_ + "/harvester/x_alignment_relative/" + sc.name_);
+    iBooker.bookProfile("p_x_diffFN_vs_x_N", p_x_diffFN_vs_x_N);
+
     if (debug_) {
       p_x_diffFN_vs_x_N->Write("p_x_diffFN_vs_x_N");
 
