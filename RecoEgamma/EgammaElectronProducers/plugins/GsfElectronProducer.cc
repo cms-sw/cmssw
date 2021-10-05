@@ -42,11 +42,12 @@ namespace {
       GsfElectron::MvaOutput mvaOutput;
       mvaOutput.mva_e_pi = hoc->sElectronMVAEstimator->mva(el, vertices);
       mvaOutput.mva_Isolated = hoc->iElectronMVAEstimator->mva(el, vertices.size());
-      if (dnnPFidEnabled)
+      if (dnnPFidEnabled) {
         mva_outputs[iele] = mvaOutput;
-        iele++;
-      else
+      } else {
         el.setMvaOutput(mvaOutput);
+      }
+      iele++;
     }
     if (dnnPFidEnabled) {
       // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go

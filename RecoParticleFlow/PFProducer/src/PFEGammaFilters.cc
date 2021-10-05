@@ -343,7 +343,8 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
     // the electron is retained and the kf tracks are not locked
     if ((std::abs(1. - EtotPinMode) < ele_maxEcalEOverPRes_ &&
          (std::abs(electron.eta()) < 1.0 || std::abs(electron.eta()) > 2.0)) ||
-        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) && (std::abs(electron.eta()) >= 1.0 && std::abs(electron.eta()) <= 2.0))) {
+        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) &&
+         (std::abs(electron.eta()) >= 1.0 && std::abs(electron.eta()) <= 2.0))) {
       if (std::abs(1. - EGsfPoutMode) < ele_maxEeleOverPoutRes_ && (itrackHcalLinked == iextratrack)) {
         lockTracks = false;
         //	lockExtraKf = false;

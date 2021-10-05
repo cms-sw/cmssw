@@ -1003,13 +1003,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
     LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
     const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
-    int ipho = -1;
+    size_t ipho = 0;
     for (auto& photon : outputPhotonCollection) {
-      ipho++;
       const auto& values = dnn_photon_pfid[ipho];
       reco::Photon::PflowIDVariables pfID;
       pfID.dnn = values[0];
       photon.setPflowIDVariables(pfID);
+      ipho++;
     }
   }
 }

@@ -59,6 +59,8 @@ void EgammaDNNHelper::initScalerFiles(const std::vector<std::string>& availableV
           type = 1;
         else if (type_str == "minmax")
           type = 2;
+        else if (type_str == "custom1")  // 2*((X_train - minValues)/(MaxMinusMin)) -1.0
+          type = 3;
         else
           type = 0;
         features.push_back(ScalerConfiguration{.varName = varName, .type = type, .par1 = par1, .par2 = par2});
@@ -90,6 +92,8 @@ std::pair<uint, std::vector<float>> EgammaDNNHelper::getScaledInputs(
       inputs.push_back((variables.at(varName) - par1) / par2);
     else if (type == 2)  // MinMax
       inputs.push_back((variables.at(varName) - par1) / (par2 - par1));
+    else if (type == 3)  //2*((X_train - minValues)/(MaxMinusMin)) -1.0
+      inputs.push_back(2 * (variables.at(varName) - par1) / (par2 - par1) - 1.);
     else {
       inputs.push_back(variables.at(varName));  // Do nothing on the variable
     }
