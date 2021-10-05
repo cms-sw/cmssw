@@ -456,11 +456,20 @@ class PatatrackWorkflow(UpgradeWorkflow):
 
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step:
-            stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
+            if self.__digi is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
         elif 'Reco' in step:
-            stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
+            if self.__reco is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
         elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
+            if self.__harvest is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 
 
 upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
