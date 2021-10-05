@@ -63,7 +63,6 @@ public:
       config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
       config.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
       config.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.logLevel = pset_dnn.getParameter<uint>("logLevel");
       config.outputDim = pset_dnn.getParameter<uint>("outputDim");
       const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
@@ -285,7 +284,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
     //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
     //to preserve 80X behaviour
     if (config.exists("pfECALClusIsolation")) {
-      // std::cout<<"SJ!!! recoStep_.isFinal()"<< recoStep_.isFinal() <<" pfECALClusIsolation found!!!"<<std::endl;
       phoPFECALClusIsolationToken_ = consumes(config.getParameter<edm::InputTag>("pfECALClusIsolation"));
     }
     if (config.exists("pfHCALClusIsolation")) {
@@ -754,7 +752,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
-    float full5x5_sigmaIetaIphi = full5x5_locCov[1];  //SJ
+    float full5x5_sigmaIetaIphi = full5x5_locCov[1];
 
     // compute position of ECAL shower
     math::XYZPoint caloPosition = scRef->position();

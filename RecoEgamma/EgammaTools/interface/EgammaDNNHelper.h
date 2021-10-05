@@ -19,7 +19,6 @@ namespace egammaTools {
     std::string outputTensorName;
     std::vector<std::string> modelsFiles;
     std::vector<std::string> scalersFiles;
-    uint logLevel = 2;
     uint outputDim = 1;
   };
 

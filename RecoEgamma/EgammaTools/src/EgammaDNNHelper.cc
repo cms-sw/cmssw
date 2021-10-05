@@ -21,8 +21,6 @@ EgammaDNNHelper::~EgammaDNNHelper() {
 }
 
 void EgammaDNNHelper::initTensorFlowGraphs() {
-  // configure logging to show warnings (see table below)
-  tensorflow::setLogging(std::to_string(cfg_.logLevel));
   // load the graph definition
   LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs";
   size_t i = 0;
