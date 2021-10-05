@@ -213,7 +213,8 @@ trackingPhase2PU140.toModify(initialStepTrajectoryBuilder,
 )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_initialStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'initialStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
@@ -222,6 +223,7 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
+initialStepTrackCandidates = _initialStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitInitialStep_cff import trackingMkFitInitialStep
 from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer

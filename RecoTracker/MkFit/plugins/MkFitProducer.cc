@@ -157,21 +157,25 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   std::vector<bool> pixelMask;
   std::vector<bool> stripMask(stripHits.hits().size(), false);
   if (not pixelMaskToken_.isUninitialized()) {
-    const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
-    pixelMask.resize(pixelContainerMask.size(), false);
-    if UNLIKELY (pixelContainerMask.refProd().id() != pixelHits.clustersID()) {
-      throw cms::Exception("LogicError") << "MkFitHitWrapper has pixel cluster ID " << pixelHits.clustersID()
-                                         << " but pixel cluster mask has " << pixelContainerMask.refProd().id();
+    if (not pixelHits.hits().empty()) {
+      const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
+      pixelMask.resize(pixelContainerMask.size(), false);
+      if UNLIKELY (pixelContainerMask.refProd().id() != pixelHits.clustersID()) {
+        throw cms::Exception("LogicError") << "MkFitHitWrapper has pixel cluster ID " << pixelHits.clustersID()
+                                           << " but pixel cluster mask has " << pixelContainerMask.refProd().id();
+      }
+      pixelContainerMask.copyMaskTo(pixelMask);
+      pixelMaskPtr = &pixelMask;
     }
-    pixelContainerMask.copyMaskTo(pixelMask);
-    pixelMaskPtr = &pixelMask;
 
-    const auto& stripContainerMask = iEvent.get(stripMaskToken_);
-    if UNLIKELY (stripContainerMask.refProd().id() != stripHits.clustersID()) {
-      throw cms::Exception("LogicError") << "MkFitHitWrapper has strip cluster ID " << stripHits.clustersID()
-                                         << " but strip cluster mask has " << stripContainerMask.refProd().id();
+    if (not stripHits.hits().empty()) {
+      const auto& stripContainerMask = iEvent.get(stripMaskToken_);
+      if UNLIKELY (stripContainerMask.refProd().id() != stripHits.clustersID()) {
+        throw cms::Exception("LogicError") << "MkFitHitWrapper has strip cluster ID " << stripHits.clustersID()
+                                           << " but strip cluster mask has " << stripContainerMask.refProd().id();
+      }
+      stripContainerMask.copyMaskTo(stripMask);
     }
-    stripContainerMask.copyMaskTo(stripMask);
   } else {
     stripClusterChargeCut(iEvent.get(stripClusterChargeToken_), stripMask);
   }
