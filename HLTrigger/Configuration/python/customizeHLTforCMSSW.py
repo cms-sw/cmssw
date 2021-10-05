@@ -135,7 +135,7 @@ def customisePixelGainForRun2Input(process):
 
     return process
 
-def customizePixelL1ClusterThreshold(process):
+def customisePixelL1ClusterThresholdForRun2Input(process):
     # revert the pixel Layer 1 cluster threshold to be compatible with Run2:
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
         if hasattr(producer,"ClusterThreshold_L1"):
@@ -146,7 +146,7 @@ def customizePixelL1ClusterThreshold(process):
 def customiseFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC"""
     process = customisePixelGainForRun2Input(process)
-    process = customizePixelL1ClusterThreshold(process)
+    process = customisePixelL1ClusterThresholdForRun2Input(process)
     process = customiseHCALFor2018Input(process)
 
     return process
