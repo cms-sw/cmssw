@@ -36,8 +36,9 @@ public:
   explicit AJJGenJetFilter(const edm::ParameterSet& pset);
   ~AJJGenJetFilter() override;
 
-  //void analyze(edm::Event&, const edm::EventSetup&) 
+  //void analyze(edm::Event&, const edm::EventSetup&)
   bool filter(edm::Event&, const edm::EventSetup&) override;
+
 private:
   // ----------memeber function----------------------
   std::vector<const reco::GenJet*> filterGenJets(const vector<reco::GenJet>* jets);
