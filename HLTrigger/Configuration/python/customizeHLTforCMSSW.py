@@ -170,6 +170,8 @@ def customiseFor35518(process):
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
         if hasattr(producer,"ClusterThreshold_L1"):
             producer.ClusterThreshold_L1 = 4000
+        if hasattr(producer,"ChannelThreshold"):
+            producer.ChannelThreshold = 10
     return process
 
 # CMSSW version specific customizations
