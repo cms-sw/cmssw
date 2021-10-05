@@ -180,12 +180,12 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                                                               minCosPointing,
                                                                               verbosity_ > Advanced);
                     if (isRootDoublet and checkDistanceRootDoubletVsSeed) {
-		      if (reco::deltaR2(layerClusters[innerClusterId].eta(),
-					layerClusters[innerClusterId].phi(),
-					origin_eta,
-					origin_phi) > root_doublet_max_distance_from_seed_squared) {
+                      if (reco::deltaR2(layerClusters[innerClusterId].eta(),
+                                        layerClusters[innerClusterId].phi(),
+                                        origin_eta,
+                                        origin_phi) > root_doublet_max_distance_from_seed_squared) {
                         isRootDoublet = false;
-		      }
+                      }
                     }
                     if (isRootDoublet) {
                       theRootDoublets_.push_back(doubletId);
