@@ -26,7 +26,7 @@ namespace reco {
  *
  * An Electron with a GsfTrack seeded from an ElectronSeed.
  * Renamed from PixelMatchGsfElectron.
- * Originally adaqed from the TRecElectron class in ORCA.
+ * Originally adapted from the TRecElectron class in ORCA.
  *
  * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3

@@ -341,10 +341,10 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       isSafeForJetMET = false;
     }
     // the electron is retained and the kf tracks are not locked
-    if ((fabs(1. - EtotPinMode) < ele_maxEcalEOverPRes_ &&
-         (fabs(electron.eta()) < 1.0 || fabs(electron.eta()) > 2.0)) ||
-        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) && (fabs(electron.eta()) >= 1.0 && fabs(electron.eta()) <= 2.0))) {
-      if (fabs(1. - EGsfPoutMode) < ele_maxEeleOverPoutRes_ && (itrackHcalLinked == iextratrack)) {
+    if ((std::abs(1. - EtotPinMode) < ele_maxEcalEOverPRes_ &&
+         (std::abs(electron.eta()) < 1.0 || std::abs(electron.eta()) > 2.0)) ||
+        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) && (std::abs(electron.eta()) >= 1.0 && std::abs(electron.eta()) <= 2.0))) {
+      if (std::abs(1. - EGsfPoutMode) < ele_maxEeleOverPoutRes_ && (itrackHcalLinked == iextratrack)) {
         lockTracks = false;
         //	lockExtraKf = false;
         if (debugSafeForJetMET)
@@ -373,7 +373,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
   }
 
   // For not-preselected Gsf Tracks ET > 50 GeV, apply dphi preselection
-  if (ETtotal > ele_maxE_ && fabs(dphi_normalsc) > ele_maxDPhiIN_) {
+  if (ETtotal > ele_maxE_ && std::abs(dphi_normalsc) > ele_maxDPhiIN_) {
     if (debugSafeForJetMET)
       cout << " *****This electron candidate is discarded  Large ANGLE "
            << " ETtotal " << ETtotal << " EGsfPoutMode " << dphi_normalsc << endl;

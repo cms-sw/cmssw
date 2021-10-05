@@ -37,12 +37,14 @@ namespace {
                      bool dnnPFidEnabled,
                      const std::vector<tensorflow::Session*>& tfSessions) {
     std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
+    size_t iele = 0;
     for (auto& el : electrons) {
       GsfElectron::MvaOutput mvaOutput;
       mvaOutput.mva_e_pi = hoc->sElectronMVAEstimator->mva(el, vertices);
       mvaOutput.mva_Isolated = hoc->iElectronMVAEstimator->mva(el, vertices.size());
       if (dnnPFidEnabled)
-        mva_outputs.push_back(mvaOutput);
+        mva_outputs[iele] = mvaOutput;
+        iele++;
       else
         el.setMvaOutput(mvaOutput);
     }
@@ -50,18 +52,18 @@ namespace {
       // Here send the list of electrons to the ElectronDNNEstimator and get back the values for all the electrons in one go
       LogDebug("GsfElectronProducer") << "Getting DNN PFId for ele";
       const auto& dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tfSessions);
-      int iele = -1;
+      int jele = 0;
       for (auto& el : electrons) {
-        iele++;
-        const auto& values = dnn_ele_pfid[iele];
+        const auto& values = dnn_ele_pfid[jele];
         // get the previous values
-        auto& mvaOutput = mva_outputs[iele];
+        auto& mvaOutput = mva_outputs[jele];
         mvaOutput.dnn_e_sigIsolated = values[0];
         mvaOutput.dnn_e_sigNonIsolated = values[1];
         mvaOutput.dnn_e_bkgNonIsolated = values[2];
         mvaOutput.dnn_e_bkgTau = values[3];
         mvaOutput.dnn_e_bkgPhoton = values[4];
         el.setMvaOutput(mvaOutput);
+        jele++;
       }
     }
   }
