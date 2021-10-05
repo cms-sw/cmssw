@@ -55,7 +55,6 @@ EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(const EcalTrigTowerConstituentsMa
       barrelOnly_(false),
       debug_(debug),
       famos_(famos)
-
 {
   maxNrSamples_ = 10;
   this->init();
@@ -78,6 +77,7 @@ EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(int nSam, int binofmax, bool tcpF
 //----------------------------------------------------------------------
 void EcalEBTrigPrimTestAlgo::init() {
   // initialise data structures
+  theMapping_ = new EcalElectronicsMapping();
   initStructures(towerMapEB_);
   hitTowers_.resize(maxNrTowers_);
 
@@ -115,6 +115,7 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo() {
   delete peak_finder_;
   delete fenixFormatterEB_;
   delete fenixTcpFormat_;
+  delete theMapping_;
 }
 
 void EcalEBTrigPrimTestAlgo::run(EBDigiCollection const *digi,
