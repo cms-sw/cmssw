@@ -189,8 +189,15 @@ private:
   };
 
   std::unordered_map<unsigned int, ChannelPlots> channelPlots_;
+  static std::string changePathToSampic(std::string path);
 };
-
+//----------------------------------------------------------------------------------------------------
+std::string DiamondSampicDQMSource::changePathToSampic(std::string path){
+  std::string toReplace="TimingDiamond";
+  path=path.substr(path.find(toReplace)+toReplace.length());
+  path="CTPPS/DiamondSampic/"+path;
+  return path;
+}
 //----------------------------------------------------------------------------------------------------
 
 // Values for all constants
@@ -214,7 +221,7 @@ DiamondSampicDQMSource::GlobalPlots::GlobalPlots(DQMStore::IBooker &ibooker) {
 DiamondSampicDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker &ibooker, unsigned int id, bool plotOnline) {
   std::string path, title;
   CTPPSDiamondDetId(id).armName(path, CTPPSDiamondDetId::nPath);
-  ibooker.setCurrentFolder(path);
+  ibooker.setCurrentFolder(DiamondSampicDQMSource::changePathToSampic(path));
 
   CTPPSDiamondDetId(id).armName(title, CTPPSDiamondDetId::nFull);
 
@@ -251,7 +258,7 @@ DiamondSampicDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker &ibooker, uns
 DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id, bool plotOnline) {
   std::string path, title;
   CTPPSDiamondDetId(id).rpName(path, CTPPSDiamondDetId::nPath);
-  ibooker.setCurrentFolder(path);
+  ibooker.setCurrentFolder(DiamondSampicDQMSource::changePathToSampic(path));
 
   CTPPSDiamondDetId(id).rpName(title, CTPPSDiamondDetId::nFull);
 
@@ -332,7 +339,7 @@ DiamondSampicDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned 
 DiamondSampicDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id) {
   std::string path, title;
   CTPPSDiamondDetId(id).planeName(path, CTPPSDiamondDetId::nPath);
-  ibooker.setCurrentFolder(path);
+  ibooker.setCurrentFolder(DiamondSampicDQMSource::changePathToSampic(path));
 
   CTPPSDiamondDetId(id).planeName(title, CTPPSDiamondDetId::nFull);
 
@@ -355,7 +362,7 @@ DiamondSampicDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsig
 DiamondSampicDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker &ibooker, unsigned int id) {
   std::string path, title;
   CTPPSDiamondDetId(id).channelName(path, CTPPSDiamondDetId::nPath);
-  ibooker.setCurrentFolder(path);
+  ibooker.setCurrentFolder(DiamondSampicDQMSource::changePathToSampic(path));
 
   CTPPSDiamondDetId(id).channelName(title, CTPPSDiamondDetId::nFull);
 
@@ -417,7 +424,7 @@ void DiamondSampicDQMSource::bookHistograms(DQMStore::IBooker &ibooker,
                                             const edm::Run &,
                                             const edm::EventSetup &iSetup) {
   ibooker.cd();
-  ibooker.setCurrentFolder("CTPPS");
+  ibooker.setCurrentFolder("CTPPS/DiamondSampic");
 
   const CTPPSGeometry *geom = &iSetup.getData(ctppsGeometryRunToken_);
   for (auto it = geom->beginSensor(); it != geom->endSensor(); ++it) {
@@ -457,6 +464,7 @@ std::shared_ptr<totemds::Cache> DiamondSampicDQMSource::globalBeginLuminosityBlo
 //----------------------------------------------------------------------------------------------------
 
 void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
+
   // get event data
   edm::Handle<edm::DetSetVector<TotemTimingDigi>> timingDigis;
   event.getByToken(tokenDigi_, timingDigis);
