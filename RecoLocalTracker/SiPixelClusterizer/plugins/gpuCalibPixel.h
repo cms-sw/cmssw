@@ -58,7 +58,7 @@ namespace gpuCalibPixel {
         id[i] = invalidModuleId;
         adc[i] = 0;
       } else {
-        float vcal = adc[i] * gain - pedestal * gain;
+        float vcal = float(adc[i]) * gain - pedestal * gain;
         adc[i] = std::max(100, int(vcal * conversionFactor + offset));
       }
     }
