@@ -38,8 +38,8 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
+// #include "CondFormats/RunInfo/interface/LHCInfo.h"
+// #include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 
 #include <string>
 
@@ -159,12 +159,12 @@ private:
     // MonitorElement* TOTVsLS = nullptr;
     // MonitorElement* trackTimeVsLS = nullptr;
     MonitorElement* trackTimeVsBX = nullptr;
-    MonitorElement* trackTimeVsXAngle = nullptr;
+    // MonitorElement* trackTimeVsXAngle = nullptr;
 
     // MonitorElement* TOTVsLSProfile = nullptr;
     // MonitorElement* trackTimeVsLSProfile = nullptr;
     MonitorElement* trackTimeVsBXProfile = nullptr;
-    MonitorElement* trackTimeVsXAngleProfile = nullptr;
+    // MonitorElement* trackTimeVsXAngleProfile = nullptr;
 
     PotPlots() = default;
     PotPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum, bool plotOnline, bool plotOffline);
@@ -214,7 +214,7 @@ private:
 
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryRunToken_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> ctppsGeometryEventToken_;
-  edm::ESGetToken<LHCInfo, LHCInfoRcd> ctppsLhcInfoToken_;
+  // edm::ESGetToken<LHCInfo, LHCInfoRcd> ctppsLhcInfoToken_;
 
   bool excludeMultipleHits_;
   bool perLSsaving_;  //to avoid nanoDQMIO crashing, driven by  DQMServices/Core/python/DQMStore_cfi.py
@@ -334,21 +334,21 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(
     // trackTimeVsLS=ibooker.book2D("track time vs LS",title+" track time vs LS;LS;track_time(ns)",4000,0,4000, 500, -25, 25);
     trackTimeVsBX =
         ibooker.book2D("track time vs BX", title + " track time vs BX;BX;track_time(ns)", 4000, 0, 4000, 500, -25, 25);
-    trackTimeVsXAngle = ibooker.book2D(
-        "track time vs xangle", title + " track time vs xangle;xangle;track_time(ns)", 60, 120, 180, 500, -25, 25);
+    // trackTimeVsXAngle = ibooker.book2D(
+    //     "track time vs xangle", title + " track time vs xangle;xangle;track_time(ns)", 60, 120, 180, 500, -25, 25);
 
     // TOTVsLSProfile=ibooker.bookProfile("ToT vs LS profile",title+" ToT vs LS profile;LS;track_time(ns)", 500, -25, 25,4000,0,4000);
     // trackTimeVsLSProfile=ibooker.bookProfile("track time vs LS profile",title+" track time vs LS profile;LS;track_time(ns)", 500, -25, 25,4000,0,4000);
     trackTimeVsBXProfile = ibooker.bookProfile(
         "track time vs BX profile", title + " track time vs BX profile;BX;track_time(ns)", 500, -25, 25, 4000, 0, 4000);
-    trackTimeVsXAngleProfile = ibooker.bookProfile("track time vs xangle profile",
-                                                   title + " track time vs xangle profile;xangle;track_time(ns)",
-                                                   500,
-                                                   -25,
-                                                   25,
-                                                   60,
-                                                   120,
-                                                   180);
+    // trackTimeVsXAngleProfile = ibooker.bookProfile("track time vs xangle profile",
+    //                                                title + " track time vs xangle profile;xangle;track_time(ns)",
+    //                                                500,
+    //                                                -25,
+    //                                                25,
+    //                                                60,
+    //                                                120,
+    //                                                180);
     ibooker.setCurrentFolder(path);
   }
 
@@ -584,7 +584,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
           consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(ps.getParameter<edm::InputTag>("tagDiamondLocalTracks"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
-      ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
+      // ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
       excludeMultipleHits_(ps.getParameter<bool>("excludeMultipleHits")),
       perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
       extract_digi_info_(ps.getParameter<bool>("extractDigiInfo")),
@@ -707,7 +707,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   event.getByToken(tokenDiamondTrack_, diamondLocalTracks);
 
   const CTPPSGeometry* ctppsGeometry = &iSetup.getData(ctppsGeometryEventToken_);
-  const LHCInfo* hLhcInfo = &iSetup.getData(ctppsLhcInfoToken_);
+  // const LHCInfo* hLhcInfo = &iSetup.getData(ctppsLhcInfoToken_);
 
   // check validity
   bool valid = true;
@@ -972,7 +972,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (plotOffline_) {
         // potPlots_[detId_pot].trackTimeVsLS->Fill(event.luminosityBlock(),track.time());
         potPlots_[detId_pot].trackTimeVsBX->Fill(event.bunchCrossing(), track.time());
-        potPlots_[detId_pot].trackTimeVsXAngle->Fill(hLhcInfo->crossingAngle(), track.time());
+        //potPlots_[detId_pot].trackTimeVsXAngle->Fill(hLhcInfo->crossingAngle(), track.time());
       }
     }
   }
@@ -1368,7 +1368,7 @@ void CTPPSDiamondDQMSource::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
       // *(plots.TOTVsLSProfile->getTProfile())=*plots.TOTVsLS->getTH2F()->ProfileX();
       // *(plots.trackTimeVsLSProfile->getTProfile())=*plots.trackTimeVsLS->getTH2F()->ProfileX();
       *(plots.trackTimeVsBXProfile->getTProfile()) = *plots.trackTimeVsBX->getTH2F()->ProfileX();
-      *(plots.trackTimeVsXAngleProfile->getTProfile()) = *plots.trackTimeVsXAngle->getTH2F()->ProfileX();
+      // *(plots.trackTimeVsXAngleProfile->getTProfile()) = *plots.trackTimeVsXAngle->getTH2F()->ProfileX();
     }
 }
 
