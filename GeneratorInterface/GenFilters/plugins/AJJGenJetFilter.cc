@@ -1,25 +1,88 @@
-#include "GeneratorInterface/GenFilters/plugins/AJJGenJetFilter.h"
+// -*- C++ -*-
+//
+// Package:    GeneratorInterface/GenFilters
+// Class:      AJJGenJetFilter
+//
+/*
 
+ Description: A filter to select events with one photon and 2 jets.
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  Hamed Bakhshian
+//         Created:  Wed Oct 06 2021
+//
+//
+
+// CMSSW include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <HepMC/GenVertex.h>
 
-// ROOT includes
-#include "TMath.h"
-#include "TH1.h"
-#include "TH2.h"
-
-// C++ includes
-#include <iostream>
+// C++ include files
+#include <memory>
+#include <map>
 #include <vector>
+#include <iostream>
 
 using namespace edm;
 using namespace std;
+//
+// class declaration
+//
+
+class AJJGenJetFilter : public edm::global::EDFilter<> {
+public:
+  explicit AJJGenJetFilter(const edm::ParameterSet& pset);
+  ~AJJGenJetFilter() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // ----------memeber function----------------------
+  const std::vector<const reco::GenJet*> filterGenJets(const vector<reco::GenJet>* jets) const;
+  const std::vector<const reco::GenParticle*> filterGenLeptons(const std::vector<reco::GenParticle>* particles) const;
+  const std::vector<const reco::GenParticle*> filterGenPhotons(const std::vector<reco::GenParticle>* particles) const;
+
+  //**************************
+  // Private Member data *****
+private:
+  // Dijet cut
+  const double ptMin;
+  const double etaMin;
+  const double etaMax;
+  const double minDeltaEta;
+  const double maxDeltaEta;
+  const double deltaRJetLep;
+  const double maxPhotonEta;
+  const double minPhotonPt;
+  const double maxPhotonPt;
+  const double mininvmass;
+
+  // Input tags
+  edm::EDGetTokenT<reco::GenJetCollection> m_GenJetCollection;
+  edm::EDGetTokenT<reco::GenParticleCollection> m_GenParticleCollection;
+};
 
 AJJGenJetFilter::AJJGenJetFilter(const edm::ParameterSet& iConfig)
     : ptMin(iConfig.getUntrackedParameter<double>("minPt", 0)),
@@ -44,7 +107,8 @@ AJJGenJetFilter::AJJGenJetFilter(const edm::ParameterSet& iConfig)
 
 AJJGenJetFilter::~AJJGenJetFilter() {}
 
-vector<const reco::GenParticle*> AJJGenJetFilter::filterGenLeptons(const vector<reco::GenParticle>* particles) {
+const vector<const reco::GenParticle*> AJJGenJetFilter::filterGenLeptons(
+    const vector<reco::GenParticle>* particles) const {
   vector<const reco::GenParticle*> out;
 
   for (const auto& p : *particles) {
@@ -57,7 +121,8 @@ vector<const reco::GenParticle*> AJJGenJetFilter::filterGenLeptons(const vector<
   return out;
 }
 
-vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(const vector<reco::GenParticle>* particles) {
+const vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(
+    const vector<reco::GenParticle>* particles) const {
   vector<const reco::GenParticle*> out;
 
   for (const auto& p : *particles) {
@@ -75,7 +140,7 @@ vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(const vector<
   return out;
 }
 
-vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) {
+const vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) const {
   vector<const reco::GenJet*> out;
 
   for (unsigned i = 0; i < jets->size(); i++) {
@@ -92,7 +157,7 @@ vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<reco::Ge
 }
 
 // ------------ method called to skim the data  ------------
-bool AJJGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   using namespace edm;
 
   Handle<vector<reco::GenJet> > handleGenJets;
@@ -152,6 +217,23 @@ bool AJJGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   edm::LogInfo("AJJJets") << "Events rejected, dEta:" << dEta << ", mjj:" << invMassLeadingJet;
   return false;
+}
+
+void AJJGenJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("GenJetCollection", edm::InputTag("ak4GenJetsNoNu"));
+  desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
+  desc.addUntracked<double>("minPt", 0)->setComment("If this is negative, no cut on jets is applied");
+  desc.addOptionalUntracked<double>("minEta", -4.5);
+  desc.addOptionalUntracked<double>("maxEta", 4.5);
+  desc.addOptionalUntracked<double>("deltaRJetLep", 0.);
+  desc.addOptionalUntracked<double>("minDeltaEta", 0.0);
+  desc.addOptionalUntracked<double>("maxDeltaEta", 9999.0);
+  desc.addOptionalUntracked<double>("MinInvMass", 0.0);
+  desc.addUntracked<double>("maxPhotonEta", 5);
+  desc.addUntracked<double>("minPhotonPt", 50);
+  desc.addUntracked<double>("maxPhotonPt", 10000);
+  descriptions.addDefault(desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(AJJGenJetFilter);
