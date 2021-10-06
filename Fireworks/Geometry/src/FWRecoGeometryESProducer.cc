@@ -531,11 +531,11 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       fwRecoGeometry.idToName[id].topology[3] = rhtools.isSilicon(it->rawId());
 
       // Silicon index
-      fwRecoGeometry.idToName[id].topology[4] = rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
+      fwRecoGeometry.idToName[id].topology[4] =
+          rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
 
       // Last EE layer
       fwRecoGeometry.idToName[id].topology[5] = rhtools.lastLayerEE();
-
     }
   }
 }
