@@ -2046,7 +2046,9 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
     php.waferPosXRot_.emplace_back(php.waferPosX_[k] * cth - php.waferPosY_[k] * sth);
     php.waferPosYRot_.emplace_back(php.waferPosY_[k] * cth + php.waferPosX_[k] * sth);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Rotated Wafer[" << k << "] X " << php.waferPosXRot_.back() << ":" << php.waferPosYRot_.back() << " Original " << php.waferPosX_[k] << ":" << php.waferPosY_[k];
+    edm::LogVerbatim("HGCalGeom") << "Rotated Wafer[" << k << "] X " << php.waferPosXRot_.back() << ":"
+                                  << php.waferPosYRot_.back() << " Original " << php.waferPosX_[k] << ":"
+                                  << php.waferPosY_[k];
 #endif
   }
 }

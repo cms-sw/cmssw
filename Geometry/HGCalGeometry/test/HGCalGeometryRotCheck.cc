@@ -35,9 +35,9 @@ private:
 
 HGCalGeometryRotCheck::HGCalGeometryRotCheck(const edm::ParameterSet& iC)
     : nameDetector_(iC.getParameter<std::string>("detectorName")),
-      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
-      layers_(iC.getParameter<std::vector<int>>("layers")) {
-}
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      layers_(iC.getParameter<std::vector<int>>("layers")) {}
 
 void HGCalGeometryRotCheck::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -53,26 +53,29 @@ void HGCalGeometryRotCheck::beginRun(const edm::Run&, const edm::EventSetup& iSe
   int layerF = *(layers_.begin());
   int layerL = *(--layers_.end());
   int layerOff = geom->topology().dddConstants().getLayerOffset();
-  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL << " Offset " << layerOff;
+  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL
+                                << " Offset " << layerOff;
 
   auto rrF = geom->topology().dddConstants().rangeRLayer(layerF - layerOff, true);
   auto rrE = geom->topology().dddConstants().rangeRLayer(layerL - layerOff, true);
-  edm::LogVerbatim("HGCalGeom") << " RFront " << rrF.first << ":" << rrF.second << " RBack " << rrE.first << ":" << rrE.second;
+  edm::LogVerbatim("HGCalGeom") << " RFront " << rrF.first << ":" << rrF.second << " RBack " << rrE.first << ":"
+                                << rrE.second;
   double r = rrE.first + 5.0;
   const int nPhi = 10;
   while (r <= rrF.second) {
     for (int k = 0; k < nPhi; ++k) {
       double phi = 2.0 * k * M_PI / nPhi;
       for (auto lay : layers_) {
-	double zz = geom->topology().dddConstants().waferZ(lay - layerOff, true);
-	GlobalPoint global1(r * cos(phi), r * sin(phi), zz);
-	DetId id = geom->getClosestCell(global1);
-	HGCSiliconDetId detId = HGCSiliconDetId(id);
-	GlobalPoint global2 = geom->getPosition(id);
-	double dx = global1.x() - global2.x();
-	double dy = global1.y() - global2.y();
-	double dR = std::sqrt(dx * dx + dy* dy);
-	edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " ID " << detId << " I/P " << global1 << " O/P " << global2 << " dR " << dR;
+        double zz = geom->topology().dddConstants().waferZ(lay - layerOff, true);
+        GlobalPoint global1(r * cos(phi), r * sin(phi), zz);
+        DetId id = geom->getClosestCell(global1);
+        HGCSiliconDetId detId = HGCSiliconDetId(id);
+        GlobalPoint global2 = geom->getPosition(id);
+        double dx = global1.x() - global2.x();
+        double dy = global1.y() - global2.y();
+        double dR = std::sqrt(dx * dx + dy * dy);
+        edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " ID " << detId << " I/P " << global1 << " O/P " << global2
+                                      << " dR " << dR;
       }
     }
     r += 100.0;

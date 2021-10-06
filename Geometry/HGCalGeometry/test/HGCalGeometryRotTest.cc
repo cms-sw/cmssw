@@ -36,13 +36,14 @@ private:
 
 HGCalGeometryRotTest::HGCalGeometryRotTest(const edm::ParameterSet& iC)
     : nameDetector_(iC.getParameter<std::string>("detectorName")),
-      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       layers_(iC.getParameter<std::vector<int>>("layers")),
       waferU_(iC.getParameter<std::vector<int>>("waferUs")),
       waferV_(iC.getParameter<std::vector<int>>("waferVs")),
       cellU_(iC.getParameter<std::vector<int>>("cellUs")),
       cellV_(iC.getParameter<std::vector<int>>("cellVs")),
-      types_(iC.getParameter<std::vector<int>>("types")) { }
+      types_(iC.getParameter<std::vector<int>>("types")) {}
 
 void HGCalGeometryRotTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -69,14 +70,16 @@ void HGCalGeometryRotTest::beginRun(const edm::Run&, const edm::EventSetup& iSet
   int layerF = *(layers_.begin());
   int layerL = *(--layers_.end());
   int layerOff = geom->topology().dddConstants().getLayerOffset();
-  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL << " Offset " << layerOff << " and for " << waferU_.size() << " wafers and cells";
+  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL
+                                << " Offset " << layerOff << " and for " << waferU_.size() << " wafers and cells";
 
   for (unsigned int k = 0; k < waferU_.size(); ++k) {
     for (auto lay : layers_) {
       HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], cellU_[k], cellV_[k]);
       GlobalPoint global = geom->getPosition(DetId(detId));
       auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true);
-      edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position (" << xy.first << ", " << xy.second << ")";
+      edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position ("
+                                    << xy.first << ", " << xy.second << ")";
       edm::LogVerbatim("HGCalGeom") << detId << " Position " << global;
     }
   }
