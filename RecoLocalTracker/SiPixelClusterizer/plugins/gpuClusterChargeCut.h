@@ -74,6 +74,8 @@ namespace gpuClustering {
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         charge[i] = 0;
       }
+      __shared__ bool sameClus;
+      sameClus = true;
       __syncthreads();
 
       for (auto i = first; i < numElements; i += blockDim.x) {
@@ -89,28 +91,22 @@ namespace gpuClustering {
           clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         newclusId[i] = ok[i] = charge[i] >= chargeCut ? 1 : 0;
+        if (!ok[i])
+          sameClus = false;
       }
 
       __syncthreads();
+
+      if (sameClus)
+        continue;
 
       // renumber
       __shared__ uint16_t ws[32];
       cms::cuda::blockPrefixScan(newclusId, nclus, ws);
 
-      assert(nclus >= newclusId[nclus - 1]);
-
-      if (nclus == newclusId[nclus - 1])
-        continue;
+      assert(nclus > newclusId[nclus - 1]);
 
       nClustersInModule[thisModuleId] = newclusId[nclus - 1];
-      __syncthreads();
-
-      // mark bad cluster again
-      for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
-        if (0 == ok[i])
-          newclusId[i] = invalidModuleId + 1;
-      }
-      __syncthreads();
 
       // reassign id
       for (auto i = first; i < numElements; i += blockDim.x) {
@@ -118,9 +114,9 @@ namespace gpuClustering {
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
-        clusterId[i] = newclusId[clusterId[i]] - 1;
-        if (clusterId[i] == invalidModuleId)
+        if (0 == ok[clusterId[i]])
           id[i] = invalidModuleId;
+        clusterId[i] = newclusId[clusterId[i]] - 1;
       }
 
       //done
