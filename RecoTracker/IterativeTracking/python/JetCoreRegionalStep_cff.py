@@ -32,11 +32,12 @@ jetCoreRegionalStepSeedLayers = _mod.seedingLayersEDProducer.clone(
                  'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
                  #'BPix2+TIB1','BPix2+TIB2',
                  'BPix3+TIB1','BPix3+TIB2'],
-    TIB = cms.PSet(
+    TIB = dict(
         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    BPix = cms.PSet(
+    BPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         hitErrorRZ = cms.double(0.006),
@@ -44,7 +45,7 @@ jetCoreRegionalStepSeedLayers = _mod.seedingLayersEDProducer.clone(
         HitProducer = cms.string('siPixelRecHits'),
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         hitErrorRZ = cms.double(0.0036),
@@ -70,17 +71,19 @@ trackingPhase1.toModify(jetCoreRegionalStepSeedLayers, layerList = _layerListFor
 
 # TrackingRegion
 from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions
-jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(RegionPSet=dict(
-    ptMin          = 10,
-    deltaPhiRegion = 0.20,
-    deltaEtaRegion = 0.20,
-    JetSrc         = 'jetsForCoreTracking',
-    vertexSrc      = 'firstStepGoodPrimaryVertices',
-    howToUseMeasurementTracker = 'Never'
-))
-jetCoreRegionalStepEndcapTrackingRegions = jetCoreRegionalStepTrackingRegions.clone(RegionPSet=dict(
-    JetSrc = 'jetsForCoreTrackingEndcap',
-))
+jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
+    RegionPSet=dict(
+        ptMin          = 10,
+        deltaPhiRegion = 0.20,
+        deltaEtaRegion = 0.20,
+        JetSrc         = 'jetsForCoreTracking',
+        vertexSrc      = 'firstStepGoodPrimaryVertices',
+        howToUseMeasurementTracker = 'Never')
+)
+jetCoreRegionalStepEndcapTrackingRegions = jetCoreRegionalStepTrackingRegions.clone(
+    RegionPSet=dict(
+        JetSrc = 'jetsForCoreTrackingEndcap')
+)
 
 # Seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
