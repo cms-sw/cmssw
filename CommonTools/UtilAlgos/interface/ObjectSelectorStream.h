@@ -20,22 +20,27 @@
 
 // system include files
 #include "FWCore/Framework/interface/stream/EDFilter.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorBase.h"
+#include "CommonTools/UtilAlgos/interface/NonNullNumberSelector.h"
+#include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
+#include "CommonTools/UtilAlgos/interface/NullPostProcessor.h"
+#include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 template <typename Selector,
           typename OutputCollection =
               typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
           typename SizeSelector = NonNullNumberSelector,
-          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::stream::EDFilter<>>,
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
           typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDFilter<>>::type,
           typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
 using ObjectSelectorStream =
-    ObjectSelector<Selector,
-                   OutputCollection,
-                   SizeSelector,
-                   PostProcessor,
-                   StoreManager,
-                   typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDFilter<>>::base,
-                   Init>;
+    ObjectSelectorBase<Selector,
+                       OutputCollection,
+                       SizeSelector,
+                       PostProcessor,
+                       StoreManager,
+                       typename ::helper::StoreManagerTrait<OutputCollection, edm::stream::EDFilter<>>::base,
+                       Init>;
 
 #endif

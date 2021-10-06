@@ -13,8 +13,8 @@ template <typename InputCollection,
           typename Selector,
           typename StoreContainer = typename helper::StoreContainerTrait<reco::CandidateCollection>::type,
           typename PostProcessor = helper::NullPostProcessor<reco::CandidateCollection>,
-          typename StoreManager = typename helper::StoreManagerTrait<reco::CandidateCollection>::type,
-          typename Base = typename helper::StoreManagerTrait<reco::CandidateCollection>::base,
+          typename StoreManager = typename helper::StoreManagerTrait<reco::CandidateCollection, edm::EDFilter>::type,
+          typename Base = typename helper::StoreManagerTrait<reco::CandidateCollection, edm::EDFilter>::base,
           typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SingleObjectShallowCloneSelector
     : public ObjectShallowCloneSelector<
