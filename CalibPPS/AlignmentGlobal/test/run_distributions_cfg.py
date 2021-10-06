@@ -1,6 +1,6 @@
 ########## Configuration ##########
 # if set to True, a file with logs will be produced.
-produce_logs = True
+produce_logs = False
 
 # Path for a ROOT file with the histograms
 output_distributions = 'dqm_run_distributions_test.root'
