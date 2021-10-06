@@ -9,7 +9,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_CCLUT.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_GEM.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_Run2.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2020_rev0.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +30,6 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
       bool isOTMB_Run2_fw = false;
       bool isTMB_Run3_fw = false;
       bool isTMB_Run2_fw = false;
-      bool isGEM_rev0_fw = false;
       bool isRun2_df = false;
       unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
       unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
@@ -55,21 +53,15 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
         default:
           isGEM_fw = true;
       }
-      if (firmwareRevision == 0x600)  // Initial rev0 ME11 GEM firmware
-        isGEM_rev0_fw = true;
       if (major_ver == 1) {
         isRun2_df = true;
       }
 
       if (isGEM_fw) {
-        if (isGEM_rev0_fw) {
-          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_rev0());
+        if (isRun2_df) {
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
         } else {
-          if (isRun2_df) {
-            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
-          } else {
-            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM());
-          }
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM());
         }
       } else if (isCCLUT_HMT_fw) {
         if (isRun2_df) {
@@ -143,7 +135,6 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
         bool isOTMB_Run2_fw = false;
         bool isTMB_Run3_fw = false;
         bool isTMB_Run2_fw = false;
-        bool isGEM_rev0_fw = false;
         bool isRun2_df = false;
         unsigned firmwareRevision = theHeaderFormat->firmwareRevision();
         /* There are OTMB2013 firmware versions exist, which reports firmwareRevision code = 0x0 */
@@ -171,22 +162,16 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
             default:
               isGEM_fw = true;
           }
-          if (firmwareRevision == 0x600)  // Initial rev0 ME11 GEM firmware
-            isGEM_rev0_fw = true;
           if (major_ver == 1) {
             isRun2_df = true;
           }
         }
         if (theFirmwareVersion == 2020) {
           if (isGEM_fw) {
-            if (isGEM_rev0_fw) {
-              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_rev0(buf));
+            if (isRun2_df) {
+              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
             } else {
-              if (isRun2_df) {
-                theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
-              } else {
-                theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM(buf));
-              }
+              theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM(buf));
             }
           } else if (isCCLUT_HMT_fw) {
             if (isRun2_df) {
@@ -324,14 +309,6 @@ CSCTMBHeader2020_Run2 CSCTMBHeader::tmbHeader2020_Run2() const {
   CSCTMBHeader2020_Run2 *result = dynamic_cast<CSCTMBHeader2020_Run2 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2020 (O)TMB legacy Run2 header format");
-  }
-  return *result;
-}
-
-CSCTMBHeader2020_rev0 CSCTMBHeader::tmbHeader2020_rev0() const {
-  CSCTMBHeader2020_rev0 *result = dynamic_cast<CSCTMBHeader2020_rev0 *>(theHeaderFormat.get());
-  if (result == nullptr) {
-    throw cms::Exception("Could not get 2020 (O)TMB initial rev0 CCLUT/GEM header format");
   }
   return *result;
 }

@@ -27,8 +27,8 @@ struct CSCTMBHeader2007 : public CSCVTMBHeaderFormat {
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
 
   /// == Run 3 CSC-GEM Trigger Format
-  uint16_t CLCT0_ComparatorCode() const override { return 0; }
-  uint16_t CLCT1_ComparatorCode() const override { return 0; }
+  uint16_t clct0_ComparatorCode() const override { return 0; }
+  uint16_t clct1_ComparatorCode() const override { return 0; }
   uint16_t CLCT0_xky() const override { return 0; }
   uint16_t CLCT1_xky() const override { return 0; }
   uint16_t HMT_nhits() const override { return 0; }
