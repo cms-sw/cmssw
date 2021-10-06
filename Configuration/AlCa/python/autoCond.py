@@ -32,11 +32,11 @@ autoCond = {
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi'      : '120X_dataRun2_PromptLike_HI_v1',
     # GlobalTag for Run3 HLT: it points to the online GT
-    'run3_hlt'                     : '113X_dataRun3_HLT_v3',
+    'run3_hlt'                     : '120X_dataRun3_HLT_Candidate_2021_09_30_19_21_44',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '113X_dataRun2_HLT_relval_v2',
     # GlobalTag for Run3 data relvals (express GT)
-    'run3_data_express'            : '113X_dataRun3_Express_v4',
+    'run3_data_express'            : '120X_dataRun3_Express_Candidate_2021_09_30_18_36_13',
     # GlobalTag for Run3 data relvals
     'run3_data_prompt'             : '113X_dataRun3_Prompt_v3',
     # GlobalTag for Run3 offline data reprocessing
