@@ -76,8 +76,10 @@ BeamSpotOnlineRecordsWriter::BeamSpotOnlineRecordsWriter(const edm::ParameterSet
     fIOVStartLumi = iConfig.getUntrackedParameter<uint32_t>("IOVStartLumi");
     fnewSince = BeamSpotOnlineRecordsWriter::pack(fIOVStartRun, fIOVStartLumi);
     fuseNewSince = true;
+    edm::LogPrint("BeamSpotOnlineRecordsWriter") << "useNewSince = True";
   } else {
     fuseNewSince = false;
+    edm::LogPrint("BeamSpotOnlineRecordsWriter") << "useNewSince = False";
   }
 }
 
@@ -226,8 +228,8 @@ void BeamSpotOnlineRecordsWriter::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<bool>("isHLT", true);
   desc.addUntracked<std::string>("InputFileName", "");
-  desc.addUntracked<uint32_t>("IOVStartRun", 1);
-  desc.addUntracked<uint32_t>("IOVStartLumi", 1);
+  desc.addOptionalUntracked<uint32_t>("IOVStartRun", 1);
+  desc.addOptionalUntracked<uint32_t>("IOVStartLumi", 1);
   descriptions.addWithDefaultLabel(desc);
 }
 

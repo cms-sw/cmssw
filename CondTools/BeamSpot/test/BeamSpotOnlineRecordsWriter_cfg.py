@@ -67,8 +67,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.beamspotonlinewriter = cms.EDAnalyzer("BeamSpotOnlineRecordsWriter",
                                               isHLT = cms.bool((options.inputRecord ==  "BeamSpotOnlineHLTObjectsRcd")),
                                               InputFileName = cms.untracked.string(options.inputFile), # choose your input file
-                                              IOVStartRun = cms.untracked.uint32(options.startRun),    # Customize your Run
-                                              IOVStartLumi = cms.untracked.uint32(options.startLumi),  # Customize your Lumi
                                               )
+
+if(options.startRun>0 and options.startLumi>0):
+    process.beamspotonlinewriter.IOVStartRun = cms.untracked.uint32(options.startRun)    # Customize your Run
+    process.beamspotonlinewriter.IOVStartLumi = cms.untracked.uint32(options.startLumi)  # Customize your Lumi
+
 
 process.p = cms.Path(process.beamspotonlinewriter)
