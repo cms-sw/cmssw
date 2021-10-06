@@ -220,7 +220,8 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
 #endif
     } else {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay << " Wafer " << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":" << id.iCell2;
+      edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay << " Wafer "
+                                    << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":" << id.iCell2;
 #endif
       xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true);
       double xx = id.zSide * xy.first;
