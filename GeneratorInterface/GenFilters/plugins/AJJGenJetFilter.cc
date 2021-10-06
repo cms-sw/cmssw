@@ -71,13 +71,15 @@ private:
   const double ptMin;
   const double etaMin;
   const double etaMax;
+  const double deltaRJetLep;
+
   const double minDeltaEta;
   const double maxDeltaEta;
-  const double deltaRJetLep;
+  const double mininvmass;
+
   const double maxPhotonEta;
   const double minPhotonPt;
   const double maxPhotonPt;
-  const double mininvmass;
 
   // Input tags
   edm::EDGetTokenT<reco::GenJetCollection> m_GenJetCollection;
@@ -85,19 +87,23 @@ private:
 };
 
 AJJGenJetFilter::AJJGenJetFilter(const edm::ParameterSet& iConfig)
-    : ptMin(iConfig.getUntrackedParameter<double>("minPt", 0)),
-      etaMin(iConfig.getUntrackedParameter<double>("minEta", -4.5)),
-      etaMax(iConfig.getUntrackedParameter<double>("maxEta", 4.5)),
-      minDeltaEta(iConfig.getUntrackedParameter<double>("minDeltaEta", 0.0)),
-      maxDeltaEta(iConfig.getUntrackedParameter<double>("maxDeltaEta", 99999.0)),
-      deltaRJetLep(iConfig.getUntrackedParameter<double>("deltaRJetLep", 0.0)),
-      maxPhotonEta(iConfig.getUntrackedParameter<double>("maxPhotonEta", 5)),
-      minPhotonPt(iConfig.getUntrackedParameter<double>("minPhotonPt", 50)),
-      maxPhotonPt(iConfig.getUntrackedParameter<double>("maxPhotonPt", 10000)),
-      mininvmass(iConfig.getUntrackedParameter<double>("MinInvMass", 0.0)) {
-  m_GenJetCollection = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("GenJetCollection"));
+    : ptMin(iConfig.getParameter<double>("minPt")),
+      etaMin(iConfig.getParameter<double>("minEta")),
+      etaMax(iConfig.getParameter<double>("maxEta")),
+      deltaRJetLep(iConfig.getParameter<double>("deltaRJetLep")),
+
+      minDeltaEta(iConfig.getParameter<double>("minDeltaEta")),
+      maxDeltaEta(iConfig.getParameter<double>("maxDeltaEta")),
+      mininvmass(iConfig.getParameter<double>("MinInvMass")),
+
+      maxPhotonEta(iConfig.getParameter<double>("maxPhotonEta")),
+      minPhotonPt(iConfig.getParameter<double>("minPhotonPt")),
+      maxPhotonPt(iConfig.getParameter<double>("maxPhotonPt")) {
   m_GenParticleCollection = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
 
+  if (ptMin > 0) {
+    m_GenJetCollection = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("GenJetCollection"));
+  }
   edm::LogInfo("AJJGenJetFilter") << "Parameters:"
                                   << "jPtMin:" << ptMin << ",jEta:" << etaMin << "--" << etaMax << ",minDR(j,lep)"
                                   << deltaRJetLep << ",deltaEta(j1,j2)" << minDeltaEta << "--" << maxDeltaEta
@@ -159,18 +165,28 @@ const vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<re
 // ------------ method called to skim the data  ------------
 bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   using namespace edm;
-
-  Handle<vector<reco::GenJet> > handleGenJets;
-  iEvent.getByToken(m_GenJetCollection, handleGenJets);
-  const vector<reco::GenJet>* genJets = handleGenJets.product();
   // Getting filtered generator jets
-  vector<const reco::GenJet*> filGenJets = filterGenJets(genJets);
 
   Handle<reco::GenParticleCollection> genParticelesCollection;
   iEvent.getByToken(m_GenParticleCollection, genParticelesCollection);
   const vector<reco::GenParticle>* genParticles = genParticelesCollection.product();
   vector<const reco::GenParticle*> filGenLep = filterGenLeptons(genParticles);
 
+  vector<const reco::GenParticle*> filGenPhotons = filterGenPhotons(genParticles);
+
+  if (filGenPhotons.size() != 1) {
+    edm::LogInfo("AJJPhoton") << "Events rejected, number of photons:" << filGenPhotons.size();
+    return false;
+  }
+
+  if (ptMin < 0)
+    return true;
+
+  Handle<vector<reco::GenJet> > handleGenJets;
+  iEvent.getByToken(m_GenJetCollection, handleGenJets);
+  const vector<reco::GenJet>* genJets = handleGenJets.product();
+
+  vector<const reco::GenJet*> filGenJets = filterGenJets(genJets);
   // Getting p4 of jet with no lepton
   vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
   unsigned int jetIdx = 0;
@@ -191,16 +207,6 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
     };
     ++jetIdx;
   }
-
-  vector<const reco::GenParticle*> filGenPhotons = filterGenPhotons(genParticles);
-
-  if (filGenPhotons.size() != 1) {
-    edm::LogInfo("AJJPhoton") << "Events rejected, number of photons:" << filGenPhotons.size();
-    return false;
-  }
-
-  if (ptMin < 0)
-    return true;
 
   //If we do not find at least 2 jets veto the event
   if (nGoodJets < 2) {
@@ -223,16 +229,16 @@ void AJJGenJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("GenJetCollection", edm::InputTag("ak4GenJetsNoNu"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
-  desc.addUntracked<double>("minPt", 0)->setComment("If this is negative, no cut on jets is applied");
-  desc.addOptionalUntracked<double>("minEta", -4.5);
-  desc.addOptionalUntracked<double>("maxEta", 4.5);
-  desc.addOptionalUntracked<double>("deltaRJetLep", 0.);
-  desc.addOptionalUntracked<double>("minDeltaEta", 0.0);
-  desc.addOptionalUntracked<double>("maxDeltaEta", 9999.0);
-  desc.addOptionalUntracked<double>("MinInvMass", 0.0);
-  desc.addUntracked<double>("maxPhotonEta", 5);
-  desc.addUntracked<double>("minPhotonPt", 50);
-  desc.addUntracked<double>("maxPhotonPt", 10000);
+  desc.add<double>("minPt", -1.0)->setComment("If this is negative, no cut on jets is applied");
+  desc.add<double>("minEta", -4.5);
+  desc.add<double>("maxEta", 4.5);
+  desc.add<double>("deltaRJetLep", 0.);
+  desc.add<double>("minDeltaEta", 0.0);
+  desc.add<double>("maxDeltaEta", 9999.0);
+  desc.add<double>("MinInvMass", 0.0);
+  desc.add<double>("maxPhotonEta", 5);
+  desc.add<double>("minPhotonPt", 50);
+  desc.add<double>("maxPhotonPt", 10000);
   descriptions.addDefault(desc);
 }
 //define this as a plug-in
