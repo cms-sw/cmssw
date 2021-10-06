@@ -123,8 +123,6 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
     const int layer = parameters[1];
     const int zside = parameters[2];
     const bool isSilicon = parameters[3];
-    const int siliconIndex = parameters[4];
-    const int lastLayerEE = parameters[5];
 
     auto const z_selection_is_on = z_plus_ ^ z_minus_;
     auto const z_plus_selection_ok = z_plus_ && (zside == 1);
