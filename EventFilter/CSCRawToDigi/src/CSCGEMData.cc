@@ -7,7 +7,11 @@
 #include <strings.h>  // for bzero
 #include <cstring>
 
+#ifdef LOCAL_UNPACK
 bool CSCGEMData::debug = false;
+#else
+std::atomic<bool> CSCGEMData::debug{false};
+#endif
 
 CSCGEMData::CSCGEMData(int ntbins, int gems_fibers) : ntbins_(ntbins), size_(0) {
   theData[0] = 0x6C04;
