@@ -2,6 +2,9 @@
 #define EventFilter_CSCRawToDigi_CSCGEMData_h
 
 #include <vector>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 
 class GEMPadDigiCluster;
 
@@ -25,13 +28,19 @@ public:
   void Print() const;
   bool check() const { return ((theData[0] == 0x6C04) && (theData[size_ - 1] == 0x6D04)); }
 
+  /// turns on the debug flag for this class
   static void setDebug(bool debugValue) { debug = debugValue; }
 
 private:
   int getPartitionNumber(int address, int nPads) const;
   int getPartitionStripNumber(int address, int nPads, int etaPart) const;
 
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
+
   int ntbins_;
   int gems_enabled_;
   int ngems_;
