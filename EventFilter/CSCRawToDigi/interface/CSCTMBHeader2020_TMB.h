@@ -29,24 +29,24 @@ struct CSCTMBHeader2020_TMB : public CSCVTMBHeaderFormat {
   // == Run 3 CSC-GEM Trigger Format
   uint16_t clct0_ComparatorCode() const override { return 0; }
   uint16_t clct1_ComparatorCode() const override { return 0; }
-  uint16_t CLCT0_xky() const override { return 0; }
-  uint16_t CLCT1_xky() const override { return 0; }
-  uint16_t HMT_nhits() const override { return 0; }
-  uint16_t HMT_ALCTMatchTime() const override { return 0; }
-  uint16_t GEM_enabled_fibers() const override { return 0; }
-  uint16_t GEM_fifo_tbins() const override { return 0; }
-  uint16_t GEM_fifo_pretrig() const override { return 0; }
-  uint16_t GEM_zero_suppress() const override { return 0; }
-  uint16_t GEM_sync_dataword() const override { return 0; }
-  uint16_t GEM_timing_dataword() const override { return 0; }
-  uint16_t Run3_CLCT_patternID() const override { return 0; }
+  uint16_t clct0_xky() const override { return 0; }
+  uint16_t clct1_xky() const override { return 0; }
+  uint16_t hmt_nhits() const override { return 0; }
+  uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t gem_enabled_fibers() const override { return 0; }
+  uint16_t gem_fifo_tbins() const override { return 0; }
+  uint16_t gem_fifo_pretrig() const override { return 0; }
+  uint16_t gem_zero_suppress() const override { return 0; }
+  uint16_t gem_sync_dataword() const override { return 0; }
+  uint16_t gem_timing_dataword() const override { return 0; }
+  uint16_t run3_CLCT_patternID() const override { return 0; }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
   ///returns HMT Shower digi
-  CSCShowerDigi ShowerDigi(uint32_t idlayer) const override;
+  CSCShowerDigi showerDigi(uint32_t idlayer) const override;
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -129,17 +129,6 @@ struct CSCTMBHeader2020_TMB : public CSCVTMBHeaderFormat {
         MPC_Muon_HMT_bit0 : 1, MPC_Muon1_clct_bx0 : 1, MPC_Muon1_clct_bend_low : 3, flag34 : 1;
     unsigned MPC_Muon0_lct_vpf : 1, MPC_Muon0_clct_bend_bit4 : 1, MPC_Muon1_lct_vpf : 1, MPC_Muon1_clct_bend_bit4 : 1,
         MPCDelay : 4, MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
-    /*
-    unsigned MPC_Muon0_wire_ : 7, MPC_Muon0_clct_pattern_ : 4, MPC_Muon0_quality_ : 4, flag31 : 1;
-    // 32
-    unsigned MPC_Muon0_halfstrip_clct_pattern : 8, MPC_Muon0_bend_ : 1, MPC_Muon0_SyncErr_ : 1, MPC_Muon0_bx_ : 1,
-        MPC_Muon0_bc0_ : 1, MPC_Muon0_cscid_low : 3, flag32 : 1;
-    unsigned MPC_Muon1_wire_ : 7, MPC_Muon1_clct_pattern_ : 4, MPC_Muon1_quality_ : 4, flag33 : 1;
-    unsigned MPC_Muon1_halfstrip_clct_pattern : 8, MPC_Muon1_bend_ : 1, MPC_Muon1_SyncErr_ : 1, MPC_Muon1_bx_ : 1,
-        MPC_Muon1_bc0_ : 1, MPC_Muon1_cscid_low : 3, flag34 : 1;
-    unsigned MPC_Muon0_vpf_ : 1, MPC_Muon0_cscid_bit4 : 1, MPC_Muon1_vpf_ : 1, MPC_Muon1_cscid_bit4 : 1, MPCDelay : 4,
-        MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
-     */
     // 36
     unsigned RPCList : 2, NRPCs : 2, RPCEnable : 1, fifo_tbins_rpc : 5, fifo_pretrig_rpc : 5, flag36 : 1;
 

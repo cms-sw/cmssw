@@ -98,7 +98,6 @@ void CSCTMBHeader2020_Run2::addALCT1(const CSCALCTDigi& digi) {
 void CSCTMBHeader2020_Run2::addCLCT0(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //unsigned bend = digi.getBend();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct0_valid = digi.isValid();
   bits.clct0_quality = digi.getQuality();
@@ -114,7 +113,6 @@ void CSCTMBHeader2020_Run2::addCLCT0(const CSCCLCTDigi& digi) {
 void CSCTMBHeader2020_Run2::addCLCT1(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //unsigned bend = digi.getBend();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct1_valid = digi.isValid();
   bits.clct1_quality = digi.getQuality();
@@ -125,7 +123,6 @@ void CSCTMBHeader2020_Run2::addCLCT1(const CSCCLCTDigi& digi) {
   bits.clct1_key_high = (halfStrip >> 7) & (0x1);
   // There is just one BX field common for CLCT0 and CLCT1 (since both
   // are latched at the same BX); set it in addCLCT0().
-  //bits.clct_bxn = digi.getBX();
   bits.bxnPreTrigger = digi.getFullBX();
 }
 

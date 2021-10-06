@@ -33,17 +33,17 @@ public:
   /// == Run 3 CSC-GEM Trigger Format
   virtual uint16_t clct0_ComparatorCode() const = 0;
   virtual uint16_t clct1_ComparatorCode() const = 0;
-  virtual uint16_t CLCT0_xky() const = 0;
-  virtual uint16_t CLCT1_xky() const = 0;
-  virtual uint16_t HMT_nhits() const = 0;
-  virtual uint16_t HMT_ALCTMatchTime() const = 0;
-  virtual uint16_t GEM_enabled_fibers() const = 0;
-  virtual uint16_t GEM_fifo_tbins() const = 0;
-  virtual uint16_t GEM_fifo_pretrig() const = 0;
-  virtual uint16_t GEM_zero_suppress() const = 0;
-  virtual uint16_t GEM_sync_dataword() const = 0;
-  virtual uint16_t GEM_timing_dataword() const = 0;
-  virtual uint16_t Run3_CLCT_patternID() const = 0;
+  virtual uint16_t clct0_xky() const = 0;
+  virtual uint16_t clct1_xky() const = 0;
+  virtual uint16_t hmt_nhits() const = 0;
+  virtual uint16_t hmt_ALCTMatchTime() const = 0;
+  virtual uint16_t gem_enabled_fibers() const = 0;
+  virtual uint16_t gem_fifo_tbins() const = 0;
+  virtual uint16_t gem_fifo_pretrig() const = 0;
+  virtual uint16_t gem_zero_suppress() const = 0;
+  virtual uint16_t gem_sync_dataword() const = 0;
+  virtual uint16_t gem_timing_dataword() const = 0;
+  virtual uint16_t run3_CLCT_patternID() const = 0;
 
   uint16_t sizeInBytes() const { return sizeInWords() * 2; }
   virtual uint16_t NTBins() const = 0;
@@ -55,7 +55,7 @@ public:
   ///returns CorrelatedLCT digis
   virtual std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const = 0;
   ///returns Run3 HMT Shower digi
-  virtual CSCShowerDigi ShowerDigi(uint32_t idlayer) const = 0;
+  virtual CSCShowerDigi showerDigi(uint32_t idlayer) const = 0;
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags

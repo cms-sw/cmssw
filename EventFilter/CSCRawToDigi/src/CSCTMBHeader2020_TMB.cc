@@ -92,7 +92,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
   result.push_back(digi);
   /// for the first MPC word:
   strip = bits.MPC_Muon1_clct_key_halfstrip;  //this goes from 0-223
-  // strip = (strip & 0xFF) | (bits.MPC_Muon1_clct_QuarterStrip << 8) | (bits.MPC_Muon1_clct_EighthStrip << 9);
   slope = (bits.MPC_Muon1_clct_bend_low & 0x7) | (bits.MPC_Muon1_clct_bend_bit4 << 3);
   run2_pattern = run2_pattern_lookup_tbl[bits.MPC_Muon1_clct_LR][slope];
   run3_pattern = run3_pattern_pair.first & 0x7;
@@ -117,46 +116,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
   digi.setHMT(hmt);
   result.push_back(digi);
 
-  /* /// Run2 Correlated LCTs
-  /// for the zeroth MPC word:
-  unsigned strip = bits.MPC_Muon0_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
-  CSCCorrelatedLCTDigi digi(1,
-                            bits.MPC_Muon0_vpf_,
-                            bits.MPC_Muon0_quality_,
-                            bits.MPC_Muon0_wire_,
-                            strip,
-                            bits.MPC_Muon0_clct_pattern_,
-                            bits.MPC_Muon0_bend_,
-                            bits.MPC_Muon0_bx_,
-                            0,
-                            bits.MPC_Muon0_bc0_,
-                            bits.MPC_Muon0_SyncErr_,
-                            bits.MPC_Muon0_cscid_low | (bits.MPC_Muon0_cscid_bit4 << 3));
-  result.push_back(digi);
-  /// for the first MPC word:
-  strip = bits.MPC_Muon1_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
-  digi = CSCCorrelatedLCTDigi(2,
-                              bits.MPC_Muon1_vpf_,
-                              bits.MPC_Muon1_quality_,
-                              bits.MPC_Muon1_wire_,
-                              strip,
-                              bits.MPC_Muon1_clct_pattern_,
-                              bits.MPC_Muon1_bend_,
-                              bits.MPC_Muon1_bx_,
-                              0,
-                              bits.MPC_Muon1_bc0_,
-                              bits.MPC_Muon1_SyncErr_,
-                              bits.MPC_Muon1_cscid_low | (bits.MPC_Muon1_cscid_bit4 << 3));
-  result.push_back(digi);
-*/
   return result;
 }
 
-CSCShowerDigi CSCTMBHeader2020_TMB::ShowerDigi(uint32_t idlayer) const {
+CSCShowerDigi CSCTMBHeader2020_TMB::showerDigi(uint32_t idlayer) const {
   unsigned hmt_bits = bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1);  // HighMultiplicityTrigger bits
-  uint16_t cscid = 0;                                                  // ??? What is 4-bits CSC Id in CSShowerDigi
+  uint16_t cscid = 0;                                                  // ??? What is 4-bits CSC Id in CSshowerDigi
   CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid);  // 2-bits intime, 2-bits out of time
   return result;
 }
@@ -172,7 +137,6 @@ void CSCTMBHeader2020_TMB::addALCT1(const CSCALCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addCLCT0(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //unsigned bend = digi.getBend();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct0_valid = digi.isValid();
   bits.clct0_quality = digi.getQuality();
@@ -188,7 +152,6 @@ void CSCTMBHeader2020_TMB::addCLCT0(const CSCCLCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addCLCT1(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //unsigned bend = digi.getBend();
   //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct1_valid = digi.isValid();
   bits.clct1_quality = digi.getQuality();
@@ -199,7 +162,6 @@ void CSCTMBHeader2020_TMB::addCLCT1(const CSCCLCTDigi& digi) {
   bits.clct1_key_high = (halfStrip >> 7) & (0x1);
   // There is just one BX field common for CLCT0 and CLCT1 (since both
   // are latched at the same BX); set it in addCLCT0().
-  //bits.clct_bxn = digi.getBX();
   bits.bxnPreTrigger = digi.getFullBX();
 }
 
@@ -257,42 +219,6 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
   bits.MPC_Muon1_clct_bx0 = digi.getBX0();
 }
 
-/* // Run2 Correlated LCTs
-void CSCTMBHeader2020_TMB::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
-  unsigned halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
-  bits.MPC_Muon0_vpf_ = digi.isValid();
-  bits.MPC_Muon0_wire_ = digi.getKeyWG();
-  bits.MPC_Muon0_clct_pattern_ = digi.getPattern();
-  bits.MPC_Muon0_quality_ = digi.getQuality();
-  bits.MPC_Muon0_halfstrip_clct_pattern = halfStrip;
-  bits.MPC_Muon0_bend_ = digi.getBend();
-  bits.MPC_Muon0_SyncErr_ = digi.getSyncErr();
-  bits.MPC_Muon0_bx_ = digi.getBX();
-  bits.MPC_Muon0_bc0_ = digi.getBX0();
-  bits.MPC_Muon0_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon0_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
-}
-
-void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
-  unsigned halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
-  bits.MPC_Muon1_vpf_ = digi.isValid();
-  bits.MPC_Muon1_wire_ = digi.getKeyWG();
-  bits.MPC_Muon1_clct_pattern_ = digi.getPattern();
-  bits.MPC_Muon1_quality_ = digi.getQuality();
-  bits.MPC_Muon1_halfstrip_clct_pattern = halfStrip;
-  bits.MPC_Muon1_bend_ = digi.getBend();
-  bits.MPC_Muon1_SyncErr_ = digi.getSyncErr();
-  bits.MPC_Muon1_bx_ = digi.getBX();
-  bits.MPC_Muon1_bc0_ = digi.getBX0();
-  bits.MPC_Muon1_cscid_low = digi.getCSCID() & 0x7;
-  bits.MPC_Muon1_cscid_bit4 = (digi.getCSCID() >> 3) & 0x1;
-}
-*/
-
 void CSCTMBHeader2020_TMB::addShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
@@ -344,14 +270,4 @@ void CSCTMBHeader2020_TMB::print(std::ostream& os) const {
 
   os << " clct_5bit_pattern_id = " << (bits.MPC_Muon_clct_pattern_low | (bits.MPC_Muon_clct_pattern_bit5 << 4))
      << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << "\n";
-  /* // Run2 MPC LCT words
-  os << "MPC Words:\n"
-     << " LCT0 valid = " << bits.MPC_Muon0_vpf_ << " key WG = " << bits.MPC_Muon0_wire_
-     << " key halfstrip = " << bits.MPC_Muon0_halfstrip_clct_pattern << " pattern = " << bits.MPC_Muon0_clct_pattern_
-     << " quality = " << bits.MPC_Muon0_quality_ << "\n";
-
-  os << " LCT1 valid = " << bits.MPC_Muon1_vpf_ << " key WG = " << bits.MPC_Muon1_wire_
-     << " key halfstrip = " << bits.MPC_Muon1_halfstrip_clct_pattern << " pattern = " << bits.MPC_Muon1_clct_pattern_
-     << " quality = " << bits.MPC_Muon1_quality_ << "\n";
- */
 }

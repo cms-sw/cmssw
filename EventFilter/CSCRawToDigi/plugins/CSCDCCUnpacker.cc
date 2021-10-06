@@ -565,7 +565,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
               /// fill Run3 HMT Shower digi
               if (useCSCShowers_) {
-                CSCShowerDigi showerDigi = cscData[iCSC].tmbHeader()->ShowerDigi(layer.rawId());
+                CSCShowerDigi showerDigi = cscData[iCSC].tmbHeader()->showerDigi(layer.rawId());
                 if (showerDigi.isValid()) {
                   std::vector<CSCShowerDigi> showerDigis;
                   showerDigis.push_back(showerDigi);
