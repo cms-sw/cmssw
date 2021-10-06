@@ -1459,7 +1459,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - [PayloadCreation] SetCreationTime: "
                                          << creationTime << " [epoch in microseconds]";
     try {
-      onlineDbService_->writeForNextLumisection(BSOnline, recordName_);
+      onlineDbService_->writeIOVForNextLumisection(BSOnline, recordName_);
       onlineDbService_->logger().logInfo()
           << "FakeBeamMonitor::FitAndFill - [PayloadCreation] writeForNextLumisection executed correctly";
     } catch (const std::exception& e) {

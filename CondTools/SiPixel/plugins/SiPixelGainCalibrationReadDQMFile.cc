@@ -450,20 +450,20 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
       edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
           << "now doing SiPixelGainCalibrationForHLTRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
+        mydbservice->createOneIOV<SiPixelGainCalibrationForHLT>(
             *theGainCalibrationDbInputHLT, mydbservice->beginOfTime(), "SiPixelGainCalibrationForHLTRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
+        mydbservice->appendOneIOV<SiPixelGainCalibrationForHLT>(
             *theGainCalibrationDbInputHLT, mydbservice->currentTime(), "SiPixelGainCalibrationForHLTRcd");
       }
     } else if (record_ == "SiPixelGainCalibrationOfflineRcd") {
       edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
           << "now doing SiPixelGainCalibrationOfflineRcd payload..." << std::endl;
       if (mydbservice->isNewTagRequest(record_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
+        mydbservice->createOneIOV<SiPixelGainCalibrationOffline>(
             *theGainCalibrationDbInputOffline, mydbservice->beginOfTime(), "SiPixelGainCalibrationOfflineRcd");
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
+        mydbservice->appendOneIOV<SiPixelGainCalibrationOffline>(
             *theGainCalibrationDbInputOffline, mydbservice->currentTime(), "SiPixelGainCalibrationOfflineRcd");
       }
     }
