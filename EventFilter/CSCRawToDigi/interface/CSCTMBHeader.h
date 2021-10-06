@@ -27,7 +27,6 @@ struct CSCTMBHeader2020_TMB;
 struct CSCTMBHeader2020_CCLUT;
 struct CSCTMBHeader2020_GEM;
 struct CSCTMBHeader2020_Run2;
-struct CSCTMBHeader2020_rev0;
 
 class CSCTMBHeader {
 public:
@@ -63,7 +62,6 @@ public:
   CSCTMBHeader2020_CCLUT tmbHeader2020_CCLUT() const;
   CSCTMBHeader2020_GEM tmbHeader2020_GEM() const;
   CSCTMBHeader2020_Run2 tmbHeader2020_Run2() const;
-  CSCTMBHeader2020_rev0 tmbHeader2020_rev0() const;
 
   uint16_t NTBins() const { return theHeaderFormat->NTBins(); }
   uint16_t NCFEBs() const { return theHeaderFormat->NCFEBs(); }
@@ -76,8 +74,8 @@ public:
   void setNCFEBs(uint16_t ncfebs) { theHeaderFormat->setNCFEBs(ncfebs); }
 
   /// == Run 3 CSC-GEM Trigger Format
-  uint16_t CLCT0_ComparatorCode() const { return theHeaderFormat->CLCT0_ComparatorCode(); }
-  uint16_t CLCT1_ComparatorCode() const { return theHeaderFormat->CLCT1_ComparatorCode(); }
+  uint16_t clct0_ComparatorCode() const { return theHeaderFormat->clct0_ComparatorCode(); }
+  uint16_t clct1_ComparatorCode() const { return theHeaderFormat->clct1_ComparatorCode(); }
   uint16_t CLCT0_xky() const { return theHeaderFormat->CLCT0_xky(); }
   uint16_t CLCT1_xky() const { return theHeaderFormat->CLCT1_xky(); }
   uint16_t HMT_nhits() const { return theHeaderFormat->HMT_nhits(); }

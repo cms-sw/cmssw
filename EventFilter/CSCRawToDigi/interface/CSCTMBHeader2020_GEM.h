@@ -27,8 +27,8 @@ struct CSCTMBHeader2020_GEM : public CSCVTMBHeaderFormat {
   uint16_t syncErrorMPC1() const override { return 0; }
 
   // == Run 3 CSC-GEM Trigger Format
-  uint16_t CLCT0_ComparatorCode() const override { return bits.clct0_comparator_code; }
-  uint16_t CLCT1_ComparatorCode() const override { return bits.clct1_comparator_code; }
+  uint16_t clct0_ComparatorCode() const override { return bits.clct0_comparator_code; }
+  uint16_t clct1_ComparatorCode() const override { return bits.clct1_comparator_code; }
   uint16_t CLCT0_xky() const override { return bits.clct0_xky; }
   uint16_t CLCT1_xky() const override { return bits.clct1_xky; }
   uint16_t HMT_nhits() const override {

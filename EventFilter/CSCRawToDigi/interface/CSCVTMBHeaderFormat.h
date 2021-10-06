@@ -31,8 +31,8 @@ public:
   virtual uint16_t syncErrorMPC1() const = 0;
 
   /// == Run 3 CSC-GEM Trigger Format
-  virtual uint16_t CLCT0_ComparatorCode() const = 0;
-  virtual uint16_t CLCT1_ComparatorCode() const = 0;
+  virtual uint16_t clct0_ComparatorCode() const = 0;
+  virtual uint16_t clct1_ComparatorCode() const = 0;
   virtual uint16_t CLCT0_xky() const = 0;
   virtual uint16_t CLCT1_xky() const = 0;
   virtual uint16_t HMT_nhits() const = 0;
