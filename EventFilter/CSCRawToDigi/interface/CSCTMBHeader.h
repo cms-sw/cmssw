@@ -76,19 +76,19 @@ public:
   /// == Run 3 CSC-GEM Trigger Format
   uint16_t clct0_ComparatorCode() const { return theHeaderFormat->clct0_ComparatorCode(); }
   uint16_t clct1_ComparatorCode() const { return theHeaderFormat->clct1_ComparatorCode(); }
-  uint16_t CLCT0_xky() const { return theHeaderFormat->CLCT0_xky(); }
-  uint16_t CLCT1_xky() const { return theHeaderFormat->CLCT1_xky(); }
-  uint16_t HMT_nhits() const { return theHeaderFormat->HMT_nhits(); }
-  uint16_t HMT_ALCTMatchTime() const { return theHeaderFormat->HMT_ALCTMatchTime(); }
-  uint16_t GEM_enabled_fibers() const { return theHeaderFormat->GEM_enabled_fibers(); }
-  uint16_t GEM_fifo_tbins() const { return theHeaderFormat->GEM_fifo_tbins(); }
-  uint16_t GEM_fifo_pretrig() const { return theHeaderFormat->GEM_fifo_pretrig(); }
-  uint16_t GEM_zero_suppress() const { return theHeaderFormat->GEM_zero_suppress(); }
-  uint16_t GEM_sync_dataword() const { return theHeaderFormat->GEM_sync_dataword(); }
-  uint16_t GEM_timing_dataword() const { return theHeaderFormat->GEM_timing_dataword(); }
-  uint16_t Run3_CLCT_patternID() const { return theHeaderFormat->Run3_CLCT_patternID(); }
+  uint16_t clct0_xky() const { return theHeaderFormat->clct0_xky(); }
+  uint16_t clct1_xky() const { return theHeaderFormat->clct1_xky(); }
+  uint16_t hmt_nhits() const { return theHeaderFormat->hmt_nhits(); }
+  uint16_t hmt_ALCTMatchTime() const { return theHeaderFormat->hmt_ALCTMatchTime(); }
+  uint16_t gem_enabled_fibers() const { return theHeaderFormat->gem_enabled_fibers(); }
+  uint16_t gem_fifo_tbins() const { return theHeaderFormat->gem_fifo_tbins(); }
+  uint16_t gem_fifo_pretrig() const { return theHeaderFormat->gem_fifo_pretrig(); }
+  uint16_t gem_zero_suppress() const { return theHeaderFormat->gem_zero_suppress(); }
+  uint16_t gem_sync_dataword() const { return theHeaderFormat->gem_sync_dataword(); }
+  uint16_t gem_timing_dataword() const { return theHeaderFormat->gem_timing_dataword(); }
+  uint16_t run3_CLCT_patternID() const { return theHeaderFormat->run3_CLCT_patternID(); }
   ///returns Run3 Shower Digi for HMT
-  CSCShowerDigi ShowerDigi(uint32_t idlayer) const { return theHeaderFormat->ShowerDigi(idlayer); }
+  CSCShowerDigi showerDigi(uint32_t idlayer) const { return theHeaderFormat->showerDigi(idlayer); }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) { return theHeaderFormat->CLCTDigis(idlayer); }

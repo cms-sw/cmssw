@@ -29,24 +29,24 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   /// == Run 3 CSC-GEM Trigger Format
   uint16_t clct0_ComparatorCode() const override { return 0; }
   uint16_t clct1_ComparatorCode() const override { return 0; }
-  uint16_t CLCT0_xky() const override { return 0; }
-  uint16_t CLCT1_xky() const override { return 0; }
-  uint16_t HMT_nhits() const override { return 0; }
-  uint16_t HMT_ALCTMatchTime() const override { return 0; }
-  uint16_t GEM_enabled_fibers() const override { return 0; }
-  uint16_t GEM_fifo_tbins() const override { return 0; }
-  uint16_t GEM_fifo_pretrig() const override { return 0; }
-  uint16_t GEM_zero_suppress() const override { return 0; }
-  uint16_t GEM_sync_dataword() const override { return 0; }
-  uint16_t GEM_timing_dataword() const override { return 0; }
-  uint16_t Run3_CLCT_patternID() const override { return 0; }
+  uint16_t clct0_xky() const override { return 0; }
+  uint16_t clct1_xky() const override { return 0; }
+  uint16_t hmt_nhits() const override { return 0; }
+  uint16_t hmt_ALCTMatchTime() const override { return 0; }
+  uint16_t gem_enabled_fibers() const override { return 0; }
+  uint16_t gem_fifo_tbins() const override { return 0; }
+  uint16_t gem_fifo_pretrig() const override { return 0; }
+  uint16_t gem_zero_suppress() const override { return 0; }
+  uint16_t gem_sync_dataword() const override { return 0; }
+  uint16_t gem_timing_dataword() const override { return 0; }
+  uint16_t run3_CLCT_patternID() const override { return 0; }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
   ///returns HMT Shower digi
-  CSCShowerDigi ShowerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
+  CSCShowerDigi showerDigi(uint32_t idlayer) const override { return CSCShowerDigi(); }
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
