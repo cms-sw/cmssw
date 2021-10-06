@@ -219,12 +219,16 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
                                     << " Global " << glob;
 #endif
     } else {
-      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true);
-      const HepGeom::Point3D<float> lcoord(xy.first, xy.second, 0);
-      glob = m_cellVec[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex << " Local " << lcoord.x() << ":"
-                                    << lcoord.y() << " ID " << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":"
+      edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay << " Wafer " << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":" << id.iCell2;
+#endif
+      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true);
+      double xx = id.zSide * xy.first;
+      double zz = id.zSide * m_topology.dddConstants().waferZ(id.iLay, true);
+      glob = GlobalPoint(xx, xy.second, zz);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex << " Local " << xy.first << ":"
+                                    << xy.second << " ID " << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":"
                                     << id.iCell1 << ":" << id.iCell2 << " Global " << glob;
 #endif
     }
@@ -497,6 +501,9 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       id.iType = kxy[2];
     } else {
       id.iLay = m_topology.dddConstants().getLayer(r.z(), true);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << " Layer " << id.iLay << " Global " << r << "  Local " << local;
+#endif
       const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), id.iLay, true);
       id.iSec1 = kxy[0];
       id.iSec2 = kxy[1];

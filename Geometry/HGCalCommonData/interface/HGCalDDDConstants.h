@@ -30,7 +30,7 @@ public:
   ~HGCalDDDConstants();
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
-  std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco) const;
+  std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco, bool debug=false) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, bool reco) const;
@@ -219,7 +219,7 @@ private:
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   int32_t waferIndex(int wafer, int index) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
-  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
+  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco, bool rotx) const;
 
   HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
@@ -230,6 +230,7 @@ private:
   constexpr static double tan30deg_ = 0.5773502693;
   const double sqrt3_;
   double rmax_, hexside_;
+  double rmaxT_, hexsideT_;
   HGCalGeometryMode::GeometryMode mode_;
   bool fullAndPart_;
   int32_t tot_wafers_, modHalf_;

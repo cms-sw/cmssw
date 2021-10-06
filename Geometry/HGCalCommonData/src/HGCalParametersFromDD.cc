@@ -502,6 +502,27 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
     php.cellCoarseIndex_ = cellIndex;
   else
     php.cellFineIndex_ = cellIndex;
+
+  double cth = cos(php.layerRotation_);
+  double sth = sin(php.layerRotation_);
+  if (type == 1) {
+    for (unsigned int k = 0; k < php.cellCoarseX_.size(); ++k) {
+      php.cellCoarseXRot_.emplace_back(php.cellCoarseX_[k] * cth - php.cellCoarseY_[k] * sth);
+      php.cellCoarseYRot_.emplace_back(php.cellCoarseY_[k] * cth + php.cellCoarseX_[k] * sth);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Rotated Coarse Cell[" << k << "] X " << php.cellCoarseXRot_.back() << ":" << php.cellCoarseYRot_.back() << " Original " << php.cellCoarseX_[k] << ":" << php.cellCoarseY_[k];
+#endif
+    }
+  } else {
+    for (unsigned int k = 0; k < php.cellFineX_.size(); ++k) {
+      php.cellFineXRot_.emplace_back(php.cellFineX_[k] * cth - php.cellFineY_[k] * sth);
+      php.cellFineYRot_.emplace_back(php.cellFineY_[k] * cth + php.cellFineX_[k] * sth);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Rotated Cell Fine[" << k << "] X " << php.cellFineXRot_.back() << ":" << php.cellFineYRot_.back() << " Original " << php.cellFineX_[k] << ":" << php.cellFineY_[k];
+#endif
+    }
+  }
+
 #ifdef EDM_ML_DEBUG
   if (type == 1) {
     edm::LogVerbatim("HGCalGeom") << "CellPosition for  type " << type << " for " << php.cellCoarseX_.size()
