@@ -119,7 +119,7 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
     float radius = 0;
     auto detIdOnLayer = layerCluster.seed();
 
-    const auto * parameters = item()->getGeom()->getParameters(detIdOnLayer);
+    const auto *parameters = item()->getGeom()->getParameters(detIdOnLayer);
     const int layer = parameters[1];
     const int zside = parameters[2];
     const bool isSilicon = parameters[3];
@@ -127,15 +127,15 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
     const int lastLayerEE = parameters[5];
 
     auto const z_selection_is_on = z_plus_ ^ z_minus_;
-    auto const z_plus_selection_ok = z_plus_ && (zside ==1);
-    auto const z_minus_selection_ok = z_minus_ && (zside ==-1);
+    auto const z_plus_selection_ok = z_plus_ && (zside == 1);
+    auto const z_minus_selection_ok = z_minus_ && (zside == -1);
     if (!z_minus_ && !z_plus_)
-        continue;
+      continue;
     if (z_selection_is_on && !(z_plus_selection_ok || z_minus_selection_ok))
       continue;
 
     if (layer_ > 0 && (layer != layer_))
-        continue;
+      continue;
 
     if (displayMode_ == 0) {
       radius = sqrt(nHits);
@@ -171,10 +171,10 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
     setupAddElement(eveCircle, &oItemHolder);
     // Apply heatmap color coding **after** the call to setupAddElement, that will internally setup the color.
     if (heatmap_) {
-      const float normalized_energy =
-          fmin(energy/saturation_energy_, 1.0f);
+      const float normalized_energy = fmin(energy / saturation_energy_, 1.0f);
       const uint8_t colorFactor = gradient_steps * normalized_energy;
-      eveCircle->SetFillColor(TColor::GetColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]));
+      eveCircle->SetFillColor(
+          TColor::GetColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]));
     }
 
     // seed and cluster position

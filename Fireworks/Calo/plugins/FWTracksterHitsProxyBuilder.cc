@@ -127,7 +127,6 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
     for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
          it != itEnd;
          ++it) {
-
       const float *corners = item()->getGeom()->getCorners(it->first);
       if (corners == nullptr)
         continue;
@@ -150,8 +149,8 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
       // discard everything that's not at the side that we are intersted in
       auto const z_selection_is_on = z_plus_ ^ z_minus_;
-      auto const z_plus_selection_ok = z_plus_ && (zside ==1);
-      auto const z_minus_selection_ok = z_minus_ && (zside ==-1);
+      auto const z_plus_selection_ok = z_plus_ && (zside == 1);
+      auto const z_minus_selection_ok = z_minus_ && (zside == -1);
       if (!z_minus_ && !z_plus_)
         break;
       if (z_selection_is_on && !(z_plus_selection_ok || z_minus_selection_ok))
