@@ -204,8 +204,7 @@ void UETableProducer::endJob() {
       if (pool->isNewTagRequest("JetCorrectionsRecord")) {
         pool->createOneIOV<JetCorrectorParametersCollection>(*jme_payload, pool->beginOfTime(), "JetCorrectionsRecord");
       } else {
-        pool->appendOneIOV<JetCorrectorParametersCollection>(
-            *jme_payload, pool->currentTime(), "JetCorrectionsRecord");
+        pool->appendOneIOV<JetCorrectorParametersCollection>(*jme_payload, pool->currentTime(), "JetCorrectionsRecord");
       }
     } else {
       ue_predictor_pf->values = ue_vec;
