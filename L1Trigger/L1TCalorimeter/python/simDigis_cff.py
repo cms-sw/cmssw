@@ -43,17 +43,3 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
 from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
 stage2L1Trigger.toReplaceWith(SimL1TCalorimeterTask, cms.Task( simCaloStage2Layer1Digis, simCaloStage2Digis ))
-
-def _modifyStage2L1TriggerCaloParams(process):
-    from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-    process.l1conddb = cms.ESSource("PoolDBESSource",
-       CondDB,
-       toGet   = cms.VPSet(
-            cms.PSet(
-                 record = cms.string('L1TCaloParamsO2ORcd'),
-                 tag = cms.string("L1TCaloParams_static_CMSSW_9_2_10_2017_v1_8_2_updateHFSF_v6MET")
-            )
-       )
-    )
-modifySimDigis_stage2L1TriggerCaloPArams = stage2L1Trigger.makeProcessModifier(_modifyStage2L1TriggerCaloParams)
