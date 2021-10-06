@@ -12,6 +12,7 @@
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "TrackingTools/GsfTools/interface/GetComponents.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   inline void dump(TrackingRecHit const& hit, int hitcounter, const std::string& msgCat) {
