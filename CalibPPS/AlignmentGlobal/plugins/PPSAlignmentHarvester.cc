@@ -101,10 +101,10 @@ private:
 
   // ------------ y alignment ------------
   static double findMax(TF1* ff_fit);
-  TGraphErrors* buildModeGraph(DQMStore::IBooker& iBooker,
-                               MonitorElement* h2_y_vs_x,
-                               const PPSAlignmentConfiguration& cfg,
-                               const PPSAlignmentConfiguration::RPConfig& rpc);
+  TH1D* buildModeGraph(DQMStore::IBooker& iBooker,
+                       MonitorElement* h2_y_vs_x,
+                       const PPSAlignmentConfiguration& cfg,
+                       const PPSAlignmentConfiguration::RPConfig& rpc);
 
   void yAlignment(DQMStore::IBooker& iBooker,
                   DQMStore::IGetter& iGetter,
@@ -809,17 +809,15 @@ double PPSAlignmentHarvester::findMax(TF1* ff_fit) {
   return x_max;
 }
 
-TGraphErrors* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
-                                                    MonitorElement* h2_y_vs_x,
-                                                    const PPSAlignmentConfiguration& cfg,
-                                                    const PPSAlignmentConfiguration::RPConfig& rpc) {
+TH1D* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
+                                            MonitorElement* h2_y_vs_x,
+                                            const PPSAlignmentConfiguration& cfg,
+                                            const PPSAlignmentConfiguration::RPConfig& rpc) {
   TDirectory* d_top = nullptr;
   if (debug_)
     d_top = gDirectory;
 
   TF1* ff_fit = new TF1("ff_fit", "[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + [4]*x");
-
-  TGraphErrors* g_y_mode_vs_x = new TGraphErrors();
 
   int h_n = h2_y_vs_x->getNbinsX();
   double diff = h2_y_vs_x->getTH2D()->GetXaxis()->GetBinWidth(1) / 2.;
@@ -831,7 +829,6 @@ TGraphErrors* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
 
   for (int bix = 1; bix <= h_n; bix++) {
     const double x = h2_y_vs_x->getTH2D()->GetXaxis()->GetBinCenter(bix);
-    const double x_unc = h2_y_vs_x->getTH2D()->GetXaxis()->GetBinWidth(bix) / 2.;
 
     char buf[100];
     sprintf(buf, "h_y_x=%.3f", x);
@@ -892,15 +889,11 @@ TGraphErrors* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
     if (!valid)
       continue;
 
-    int idx = g_y_mode_vs_x->GetN();
-    g_y_mode_vs_x->SetPoint(idx, x, y_mode);
-    g_y_mode_vs_x->SetPointError(idx, x_unc, y_mode_unc);
-
     h_mode->Fill(x, y_mode);
     h_mode->setBinError(bix, y_mode_unc);
   }
 
-  return g_y_mode_vs_x;
+  return h_mode->getTH1D();
 }
 
 void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
@@ -932,11 +925,11 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       }
 
       iBooker.setCurrentFolder(folder_ + "/harvester/y alignment/" + rpc.name_);
-      auto* g_y_cen_vs_x = buildModeGraph(iBooker, h2_y_vs_x, cfg, rpc);
+      auto* h_y_cen_vs_x = buildModeGraph(iBooker, h2_y_vs_x, cfg, rpc);
 
-      if ((unsigned int)g_y_cen_vs_x->GetN() < cfg.modeGraphMinN()) {
+      if ((unsigned int)h_y_cen_vs_x->GetEntries() < cfg.modeGraphMinN()) {
         edm::LogWarning("PPS") << "[y_alignment] " << rpc.name_ << ": insufficient data, skipping (mode graph "
-                               << g_y_cen_vs_x->GetN() << "/" << cfg.modeGraphMinN() << ")";
+                               << h_y_cen_vs_x->GetEntries() << "/" << cfg.modeGraphMinN() << ")";
         continue;
       }
 
@@ -949,7 +942,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff->SetParameters(0., 0., 0.);
       ff->FixParameter(2, -sh_x);
       ff->SetLineColor(2);
-      g_y_cen_vs_x->Fit(ff, "Q", "", x_min, x_max);
+      h_y_cen_vs_x->Fit(ff, "Q", "", x_min, x_max);
 
       const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);
       const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);
@@ -966,7 +959,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff_sl_fix->FixParameter(1, slope);
       ff_sl_fix->FixParameter(2, -sh_x);
       ff_sl_fix->SetLineColor(4);
-      g_y_cen_vs_x->Fit(ff_sl_fix, "Q+", "", x_min, x_max);
+      h_y_cen_vs_x->Fit(ff_sl_fix, "Q+", "", x_min, x_max);
 
       const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);
 
@@ -981,8 +974,8 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       if (debug_) {
         gDirectory = rpDir;
 
-        g_y_cen_vs_x->SetTitle(";x (mm); mode of y (mm)");
-        g_y_cen_vs_x->Write("g_y_cen_vs_x");
+        h_y_cen_vs_x->SetTitle(";x (mm); mode of y (mm)");
+        h_y_cen_vs_x->Write("h_y_cen_vs_x");
 
         TGraph* g_results = new TGraph();
         g_results->SetPoint(0, sh_x, 0.);
