@@ -17,15 +17,15 @@ namespace reco::mlpf {
   std::array<float, NUM_ELEMENT_FEATURES> getElementProperties(const reco::PFBlockElement& orig) {
     const auto type = orig.type();
     float pt = 0.0;
-    //these are placeholders for the the future
-    [[maybe_unused]] float deltap = 0.0;
-    [[maybe_unused]] float sigmadeltap = 0.0;
-    [[maybe_unused]] float px = 0.0;
-    [[maybe_unused]] float py = 0.0;
-    [[maybe_unused]] float pz = 0.0;
+    float deltap = 0.0;
+    float sigmadeltap = 0.0;
+    float px = 0.0;
+    float py = 0.0;
+    float pz = 0.0;
     float eta = 0.0;
     float phi = 0.0;
     float energy = 0.0;
+    float corr_energy = 0.0;
     float trajpoint = 0.0;
     float eta_ecal = 0.0;
     float phi_ecal = 0.0;
@@ -37,7 +37,8 @@ namespace reco::mlpf {
     float muon_dt_hits = 0.0;
     float muon_csc_hits = 0.0;
     float muon_type = 0.0;
-    float gsf_brem_sc_energy = 0.0;
+    float cluster_flags = 0.0;
+    float gsf_electronseed_trkorecal = 0.0;
     float num_hits = 0.0;
 
     if (type == reco::PFBlockElement::TRACK) {
@@ -78,6 +79,7 @@ namespace reco::mlpf {
     } else if (type == reco::PFBlockElement::BREM) {
       const auto* orig2 = (const reco::PFBlockElementBrem*)&orig;
       const auto& ref = orig2->GsftrackRef();
+      trajpoint = orig2->indTrajPoint();
       if (ref.isNonnull()) {
         deltap = orig2->DeltaP();
         sigmadeltap = orig2->SigmaDeltaP();
@@ -88,20 +90,21 @@ namespace reco::mlpf {
         eta = ref->eta();
         phi = ref->phi();
         energy = ref->p();
-        trajpoint = orig2->indTrajPoint();
         charge = ref->charge();
       }
 
       const auto& gsfextraref = ref->extra();
       if (gsfextraref.isAvailable() && gsfextraref->seedRef().isAvailable()) {
         reco::ElectronSeedRef seedref = gsfextraref->seedRef().castTo<reco::ElectronSeedRef>();
-        if (seedref.isAvailable() && seedref->isEcalDriven()) {
-          reco::SuperClusterRef scref = seedref->caloCluster().castTo<reco::SuperClusterRef>();
-          if (scref.isNonnull()) {
-            gsf_brem_sc_energy = scref->energy();
+        if (seedref.isAvailable()) {
+          if (seedref->isEcalDriven()) {
+            gsf_electronseed_trkorecal = 1.0;
+          }
+          else if (seedref->isTrackerDriven()) {
+            gsf_electronseed_trkorecal = 2.0;
           }
         }
-      };
+      }
 
     } else if (type == reco::PFBlockElement::GSF) {
       //requires to keep GsfPFRecTracks
@@ -129,10 +132,12 @@ namespace reco::mlpf {
       const auto& gsfextraref = ref->extra();
       if (gsfextraref.isAvailable() && gsfextraref->seedRef().isAvailable()) {
         reco::ElectronSeedRef seedref = gsfextraref->seedRef().castTo<reco::ElectronSeedRef>();
-        if (seedref.isAvailable() && seedref->isEcalDriven()) {
-          reco::SuperClusterRef scref = seedref->caloCluster().castTo<reco::SuperClusterRef>();
-          if (scref.isNonnull()) {
-            gsf_brem_sc_energy = scref->energy();
+        if (seedref.isAvailable()) {
+          if (seedref->isEcalDriven()) {
+            gsf_electronseed_trkorecal = 1.0;
+          }
+          else if (seedref->isTrackerDriven()) {
+            gsf_electronseed_trkorecal = 2.0;
           }
         }
       };
@@ -143,12 +148,15 @@ namespace reco::mlpf {
                type == reco::PFBlockElement::HFEM) {
       const auto& ref = ((const reco::PFBlockElementCluster*)&orig)->clusterRef();
       if (ref.isNonnull()) {
+        cluster_flags = ref->flags();
         eta = ref->eta();
         phi = ref->phi();
+        pt = ref->pt();
         px = ref->position().x();
         py = ref->position().y();
         pz = ref->position().z();
         energy = ref->energy();
+        corr_energy = ref->correctedEnergy();
         layer = ref->layer();
         depth = ref->depth();
         num_hits = ref->recHitFractions().size();
@@ -156,6 +164,7 @@ namespace reco::mlpf {
     } else if (type == reco::PFBlockElement::SC) {
       const auto& clref = ((const reco::PFBlockElementSuperCluster*)&orig)->superClusterRef();
       if (clref.isNonnull()) {
+        cluster_flags = clref->flags();
         eta = clref->eta();
         phi = clref->phi();
         px = clref->position().x();
@@ -169,24 +178,12 @@ namespace reco::mlpf {
     float typ_idx = static_cast<float>(elem_type_encoding.at(orig.type()));
 
     //Must be the same order as in tf_model.py
-    return std::array<float, NUM_ELEMENT_FEATURES>({{typ_idx,
-                                                     pt,
-                                                     eta,
-                                                     phi,
-                                                     energy,
-                                                     layer,
-                                                     depth,
-                                                     charge,
-                                                     trajpoint,
-                                                     eta_ecal,
-                                                     phi_ecal,
-                                                     eta_hcal,
-                                                     phi_hcal,
-                                                     muon_dt_hits,
-                                                     muon_csc_hits,
-                                                     muon_type,
-                                                     gsf_brem_sc_energy,
-                                                     num_hits}});
+    return {{
+      typ_idx, pt, eta, phi, energy,
+      layer, depth, charge, trajpoint,
+      eta_ecal, phi_ecal, eta_hcal, phi_hcal, muon_dt_hits, muon_csc_hits, muon_type,
+      px, py, pz, deltap, sigmadeltap, gsf_electronseed_trkorecal, num_hits, cluster_flags, corr_energy
+    }};
   }
 
   //to make sure DNN inputs are within numerical bounds, use the same in training
