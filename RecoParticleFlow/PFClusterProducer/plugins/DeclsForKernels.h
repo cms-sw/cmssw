@@ -11,11 +11,11 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace hcal {
-  namespace reconstruction {
+namespace pf {
+  namespace rechit {
     
     struct OutputPFRecHitDataGPU {
-      PFRecHitCollection<::calo::common::DevStoragePolicy> PFRecHits;
+      ::hcal::PFRecHitCollection<::calo::common::DevStoragePolicy> PFRecHits;
 
       void allocate(size_t Num_rechits, cudaStream_t cudaStream) {
         PFRecHits.pfrh_depth = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);
@@ -34,8 +34,30 @@ namespace hcal {
     };
 
   
-  } // namespace reconstruction
-} //  namespace hcal
+
+    struct PersistentDataCPU {
+        cms::cuda::host::unique_ptr<float3[]> rh_pos;
+        cms::cuda::host::unique_ptr<uint32_t[]> rh_detId;
+                
+        void allocate(uint32_t length, cudaStream_t cudaStream) {
+            rh_pos = cms::cuda::make_host_unique<float3[]>(sizeof(float3)*length, cudaStream);
+            rh_detId = cms::cuda::make_host_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
+        }
+    };
+
+    struct PersistentDataGPU {
+        cms::cuda::device::unique_ptr<float3[]> rh_pos;
+        cms::cuda::device::unique_ptr<uint32_t[]> rh_detId;
+        cms::cuda::device::unique_ptr<uint32_t[]> rh_detIdMap; // Used to build map from rechit detId to lookup table index
+
+        void allocate(uint32_t length, cudaStream_t cudaStream) {
+            rh_pos = cms::cuda::make_device_unique<float3[]>(sizeof(float3)*length, cudaStream);
+            rh_detId = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
+            rh_detIdMap = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
+        }
+    };
+  } // namespace rechit 
+} //  namespace pf 
 
 
 #endif

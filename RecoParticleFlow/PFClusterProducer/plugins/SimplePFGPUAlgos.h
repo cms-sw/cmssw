@@ -4,13 +4,17 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/DeclsForKernels.h"
 #include "RecoLocalCalo/HcalRecProducers/src/DeclsForKernels.h"
 
-namespace hcal {
-  namespace reconstruction {
+namespace pf {
+  namespace rechit {
+    void initializeCudaConstants(const uint32_t in_nValidRHBarrel,
+                                 const uint32_t in_nValidRHEndcap,
+                                 const float in_qTestThresh);
 
-    //void entryPoint_for_PFComputation(hcal::reconstruction::OutputDataGPU const&,
-    void entryPoint_for_PFComputation(::hcal::RecHitCollection<calo::common::DevStoragePolicy> const&,
-				      OutputPFRecHitDataGPU&,
-				      cudaStream_t);
+    void entryPoint(
+                  ::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
+                  OutputPFRecHitDataGPU&,
+                  PersistentDataGPU&,
+                  cudaStream_t);
 
   }
 }
