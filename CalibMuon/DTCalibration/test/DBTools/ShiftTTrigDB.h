@@ -11,6 +11,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <map>
 #include <string>
@@ -40,11 +43,12 @@ private:
   const DTTtrig* tTrigMap;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::string dbLabel;
-
   std::vector<std::vector<int> > chambers;
   std::vector<double> shifts;
   std::map<std::vector<int>, double> mapShiftsByChamber;
   bool debug;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

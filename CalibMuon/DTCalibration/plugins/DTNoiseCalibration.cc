@@ -48,12 +48,12 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
       useAbsoluteRate_(pset.getParameter<bool>("useAbsoluteRate")),
       readDB_(true),
       defaultTtrig_(0),
-      dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
       //fastAnalysis_( pset.getParameter<bool>("fastAnalysis", true) ),
       wireIdWithHisto_(std::vector<DTWireId>()),
       lumiMax_(3000),
-      dtGeomToken_(esConsumes()),
-      ttrigToken_(esConsumes(edm::ESInputTag("", pset.getParameter<string>("dbLabel")))) {
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      ttrigToken_(
+          esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")))) {
   // Get the debug parameter for verbose output
   //debug = ps.getUntrackedParameter<bool>("debug");
   /*// The analysis type

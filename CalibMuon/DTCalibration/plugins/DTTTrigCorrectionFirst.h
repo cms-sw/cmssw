@@ -43,8 +43,6 @@ private:
   const DTTtrig* tTrigMap;
   const edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
 
-  std::string dbLabel;
-
   bool debug;
   double ttrigMin, ttrigMax, rmsLimit;
 };

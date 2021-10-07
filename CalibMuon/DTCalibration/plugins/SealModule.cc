@@ -37,6 +37,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTT0FillChamberFromDB.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0WireInChamberReferenceCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0AbsoluteReferenceCorrection.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0FEBPathCorrection.h"
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
@@ -78,6 +79,7 @@ DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,
                   dtCalibration::DTT0AbsoluteReferenceCorrection,
                   "DTT0AbsoluteReferenceCorrection");
+DEFINE_EDM_PLUGIN(DTT0CorrectionFactory, dtCalibration::DTT0FEBPathCorrection, "DTT0FEBPathCorrection");
 
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory, dtCalibration::DTVDriftMeanTimer, "DTVDriftMeanTimer");
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory, dtCalibration::DTVDriftSegment, "DTVDriftSegment");
