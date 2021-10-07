@@ -111,7 +111,6 @@ namespace cond {
         if (!payloadPtr)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
         std::unique_ptr<const T> payload(payloadPtr);
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         return writeOneIOV<T>(*payload, time, recordName);
       }
 
@@ -174,7 +173,6 @@ namespace cond {
       template <typename T>
       void createOneIOV(const T& payload, cond::Time_t firstSinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
         Record& myrecord = this->lookUpRecord(recordName);
         if (!myrecord.m_isNewTag) {
           cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");

@@ -281,9 +281,9 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   if (poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd"))
-    poolDbService->writeOne(&obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOneIOV(obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
   else
-    poolDbService->writeOne(&obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOneIOV(obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
 }
 
 void SiPixelTemplateDBObjectUploader::endJob() {}
