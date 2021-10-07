@@ -46,6 +46,8 @@ public:
   typedef SeedingLayerSetsHits::Hits Hits;
 
 public:
+  TrackingRegion() {}
+
   TrackingRegion(const GlobalVector& direction,
                  const GlobalPoint& originPos,
                  const Range& invPtRange,
