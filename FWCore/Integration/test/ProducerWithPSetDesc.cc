@@ -471,9 +471,7 @@ namespace edmtest {
     produces<ThingCollection>();
   }
 
-  ProducerWithPSetDesc::~ProducerWithPSetDesc() {}
-
-  void ProducerWithPSetDesc::produce(edm::Event& e, edm::EventSetup const&) {
+  void ProducerWithPSetDesc::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // This serves no purpose, I just put it here so the module does something
     // Probably could just make this method do nothing and it would not
     // affect the test.
