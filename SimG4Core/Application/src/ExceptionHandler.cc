@@ -25,8 +25,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
           << description;
 
   G4ExceptionSeverity localSeverity = severity;
-  G4String code = G4String(*exceptionCode); 
-  if(code == "GeomNav0003") {
+  G4String code = G4String(*exceptionCode);
+  if (code == "GeomNav0003") {
     localSeverity = JustWarning;
   }
 
