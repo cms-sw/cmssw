@@ -34,6 +34,7 @@
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrajectoryState"/>
   <use name="TrackingTools/TransientTrack"/>
+  <use name="PhysicsTools/TensorFlow" />
   <use name="roothistmatrix"/>
   <flags EDM_PLUGIN="1"/>
 </library>
