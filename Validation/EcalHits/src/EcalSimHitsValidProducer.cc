@@ -435,7 +435,9 @@ void EcalSimHitsValidProducer::update(const G4Step *aStep) {
     float r = sqrt(x * x + y * y);
     float detr = r - 1290;
     int x0 = (int)floor(detr / 8.9);
-    eBX0[x0] += Edeposit;
+    if (x0 < 26) {
+      eBX0[x0] += Edeposit;
+    }
   }
 }
 
