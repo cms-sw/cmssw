@@ -128,7 +128,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
       emtf_assert(tp_subsector == 2);
     }
   }
-  
+
   // Calculate Pattern
   unsigned pattern = tp_data.pattern;
   const auto& detid(conv_hit.CreateCSCDetId());
@@ -188,7 +188,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
   conv_hit.set_clct_quality(tp_data.clct_quality);
 
   conv_hit.set_pattern(pattern);
-  
+
   // Run-3
   conv_hit.set_strip_quart(tp_data.strip_quart);
   conv_hit.set_strip_eighth(tp_data.strip_eighth);
