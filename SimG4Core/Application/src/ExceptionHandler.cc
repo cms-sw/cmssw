@@ -24,8 +24,14 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
           << "      issued by : " << exceptionOrigin << "\n"
           << description;
 
+  G4ExceptionSeverity localSeverity = severity;
+  G4String code = G4String(*exceptionCode);
+  if (code == "GeomNav0003") {
+    localSeverity = JustWarning;
+  }
+
   std::stringstream ss;
-  switch (severity) {
+  switch (localSeverity) {
     case FatalException:
     case FatalErrorInArgument:
     case RunMustBeAborted:
