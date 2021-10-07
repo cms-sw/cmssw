@@ -33,6 +33,7 @@
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>
 </iftool>
 
+<test name="import-anyio" command="python3 -c 'import anyio'"/>
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
 <test name="import-keras" command="python3 -c 'import keras'"/>
 <test name="import-markupsafe" command="python3 -c 'import markupsafe'"/>
@@ -121,6 +122,7 @@
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
+<test name="import-sniffio" command="python3 -c 'import sniffio'"/>
 <test name="import-sqlalchemy" command="python3 -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python3 -c 'import sympy'"/>
 <test name="import-tables" command="python3 -c 'import tables'"/>
