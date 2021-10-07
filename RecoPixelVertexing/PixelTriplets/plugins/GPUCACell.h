@@ -359,7 +359,11 @@ __device__ inline void GPUCACell::find_ntuplets<0>(Hits const& hh,
                                                    const unsigned int minHitsPerNtuplet,
                                                    bool startAt0) const {
   printf("ERROR: GPUCACell::find_ntuplets reached full depth!\n");
-  assert(false);  // on GPU is compiled away in NDEBUG mode
+#ifdef __CUDA_ARCH__
+  __trap();
+#else
+  abort();
+#endif
 }
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
