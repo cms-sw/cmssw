@@ -262,8 +262,8 @@ CTPPSDiamondDQMSource::SectorPlots::SectorPlots(DQMStore::IBooker& ibooker, unsi
                                     -1,
                                     18);
   trackCorrelationLowMultiplicity =
-      ibooker.book2D("tracks correlation low multiplicity<3 near-far",
-                     title + " tracks correlation low multiplicity<3 near-far;x (mm);x (mm)",
+      ibooker.book2D("tracks correlation with low multiplicity near-far",
+                     title + " tracks correlation with low multiplicity near-far;x (mm);x (mm)",
                      19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
                      -1,
                      18,
