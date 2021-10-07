@@ -23,8 +23,10 @@
 using namespace geant_units::operators;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
-  : hgpar_(hp), sqrt3_(std::sqrt(3.0)), mode_(hgpar_->mode_),
-    fullAndPart_(((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module))) {
+    : hgpar_(hp),
+      sqrt3_(std::sqrt(3.0)),
+      mode_(hgpar_->mode_),
+      fullAndPart_(((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module))) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Mode " << mode_ << " FullAndPart " << fullAndPart_;
 #endif
@@ -648,7 +650,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
+  bool rotx =
+      ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
 #ifdef EDM_ML_DEBUG
   if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx << ":"
@@ -1185,7 +1188,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   double xx = xy.first - hgpar_->xLayerHex_[ll];
   double yy = xy.second - hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
-  bool rotx = ((!hgpar_->layerType_.empty()) &&(hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xy.first << ":" << xx << " Y " << y << ":" << xy.second << ":" << yy;
