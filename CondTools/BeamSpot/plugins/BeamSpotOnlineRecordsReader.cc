@@ -1,11 +1,11 @@
 // -*- C++ -*-
 //
 // Package:    CondTools/BeamSpot
-// Class:      BeamSpotOnlineHLTRcdReader
+// Class:      BeamSpotOnlineRecordsReader
 //
-/**\class BeamSpotOnlineHLTRcdReader BeamSpotOnlineHLTRcdReader.cc CondTools/BeamSpot/plugins/BeamSpotOnlineHLTRcdReader.cc
+/**\class BeamSpotOnlineRecordsReader BeamSpotOnlineRecordsReader.cc CondTools/BeamSpot/plugins/BeamSpotOnlineRecordsReader.cc
 
- Description: EDAnalyzer to create a BeamSpotOnlineHLTObjectsRcd payload from a txt file and dump it in a db file
+ Description: EDAnalyzer to read the BeamSpotOnlineHLTObjectsRcd or BeamSpotOnlineLegacyObjectsRcd and dump it into a txt and root file
 
  Implementation:
      [Notes on implementation]
@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
+#include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 
@@ -46,17 +47,18 @@
 // class declaration
 //
 
-class BeamSpotOnlineHLTRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class BeamSpotOnlineRecordsReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
-  explicit BeamSpotOnlineHLTRcdReader(const edm::ParameterSet&);
-  ~BeamSpotOnlineHLTRcdReader() override;
+  explicit BeamSpotOnlineRecordsReader(const edm::ParameterSet&);
+  ~BeamSpotOnlineRecordsReader() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  template <class Record>
+  void dump(const edm::Event&, const edm::EventSetup&, const edm::ESGetToken<BeamSpotOnlineObjects, Record>&);
 
   struct theBSOfromDB {
     int ls;
@@ -77,20 +79,27 @@ private:
   edm::Service<TFileService> tFileService;
   TTree* bstree_;
 
+  const edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> hltToken;
+  const edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> legacyToken;
+
   // ----------member data ---------------------------
-  edm::ESWatcher<BeamSpotOnlineHLTObjectsRcd> watcher_;
+  bool isHLT_;
+  edm::ESWatcher<BeamSpotOnlineHLTObjectsRcd> hlt_watcher_;
+  edm::ESWatcher<BeamSpotOnlineLegacyObjectsRcd> legacy_watcher_;
   std::unique_ptr<std::ofstream> output_;
 };
 
 //
 // constructors and destructor
 //
-BeamSpotOnlineHLTRcdReader::BeamSpotOnlineHLTRcdReader(const edm::ParameterSet& iConfig) : bstree_(nullptr) {
+BeamSpotOnlineRecordsReader::BeamSpotOnlineRecordsReader(const edm::ParameterSet& iConfig)
+    : bstree_(nullptr), hltToken(esConsumes()), legacyToken(esConsumes()) {
   //now do what ever initialization is needed
+  isHLT_ = iConfig.getParameter<bool>("isHLT");
   usesResource("TFileService");
   std::string fileName(iConfig.getUntrackedParameter<std::string>("rawFileName"));
   if (!fileName.empty()) {
-    output_.reset(new std::ofstream(fileName.c_str()));
+    output_ = std::make_unique<std::ofstream>(fileName.c_str());
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";
       output_.reset();
@@ -98,16 +107,13 @@ BeamSpotOnlineHLTRcdReader::BeamSpotOnlineHLTRcdReader(const edm::ParameterSet& 
   }
 }
 
-BeamSpotOnlineHLTRcdReader::~BeamSpotOnlineHLTRcdReader() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+BeamSpotOnlineRecordsReader::~BeamSpotOnlineRecordsReader() = default;
 
 //
 // member functions
 //
 
-void BeamSpotOnlineHLTRcdReader::theBSOfromDB::init() {
+void BeamSpotOnlineRecordsReader::theBSOfromDB::init() {
   float dummy_float = -999.0;
   int dummy_int = -999;
 
@@ -126,49 +132,59 @@ void BeamSpotOnlineHLTRcdReader::theBSOfromDB::init() {
 }
 
 // ------------ method called for each event  ------------
-void BeamSpotOnlineHLTRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void BeamSpotOnlineRecordsReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::ostringstream output;
 
+  if (isHLT_) {
+    if (hlt_watcher_.check(iSetup)) {
+      dump<BeamSpotOnlineHLTObjectsRcd>(iEvent, iSetup, hltToken);
+    }  // check for new IOV for this run / LS
+  } else {
+    if (legacy_watcher_.check(iSetup)) {
+      dump<BeamSpotOnlineLegacyObjectsRcd>(iEvent, iSetup, legacyToken);
+    }  // check for new IOV for this run / LS
+  }
+}
+
+template <class Record>
+void BeamSpotOnlineRecordsReader::dump(const edm::Event& iEvent,
+                                       const edm::EventSetup& iSetup,
+                                       const edm::ESGetToken<BeamSpotOnlineObjects, Record>& token) {
+  std::ostringstream output;
   // initialize the ntuple
   theBSOfromDB_.init();
+  output << " for runs: " << iEvent.id().run() << " - " << iEvent.id().luminosityBlock() << std::endl;
 
-  if (watcher_.check(iSetup)) {  // check for new IOV for this run / LS
+  // Get BeamSpot from EventSetup:
+  const BeamSpotOnlineObjects* mybeamspot = &iSetup.getData(token);
 
-    output << " for runs: " << iEvent.id().run() << " - " << iEvent.id().luminosityBlock() << std::endl;
+  theBSOfromDB_.run = iEvent.id().run();
+  theBSOfromDB_.ls = iEvent.id().luminosityBlock();
+  theBSOfromDB_.BSx0_ = mybeamspot->GetX();
+  theBSOfromDB_.BSy0_ = mybeamspot->GetY();
+  theBSOfromDB_.BSz0_ = mybeamspot->GetZ();
+  theBSOfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
+  theBSOfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
+  theBSOfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
+  theBSOfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
+  theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->GetLastAnalyzedLumi();
+  theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->GetLastAnalyzedRun();
+  theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->GetLastAnalyzedFill();
 
-    // Get BeamSpot from EventSetup:
-    edm::ESHandle<BeamSpotOnlineObjects> beamhandle;
-    iSetup.get<BeamSpotOnlineHLTObjectsRcd>().get(beamhandle);
-    const BeamSpotOnlineObjects* mybeamspot = beamhandle.product();
+  bstree_->Fill();
 
-    theBSOfromDB_.run = iEvent.id().run();
-    theBSOfromDB_.ls = iEvent.id().luminosityBlock();
-    theBSOfromDB_.BSx0_ = mybeamspot->GetX();
-    theBSOfromDB_.BSy0_ = mybeamspot->GetY();
-    theBSOfromDB_.BSz0_ = mybeamspot->GetZ();
-    theBSOfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
-    theBSOfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
-    theBSOfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
-    theBSOfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
-    theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->GetLastAnalyzedLumi();
-    theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->GetLastAnalyzedRun();
-    theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->GetLastAnalyzedFill();
-
-    bstree_->Fill();
-
-    output << *mybeamspot << std::endl;
-  }
+  output << *mybeamspot << std::endl;
 
   // Final output - either message logger or output file:
-  if (output_.get())
+  if (output_.get()) {
     *output_ << output.str();
-  else
-    edm::LogInfo("") << output.str();
+  } else {
+    edm::LogInfo("BeamSpotOnlineRecordsReader") << output.str();
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void BeamSpotOnlineHLTRcdReader::beginJob() {
+void BeamSpotOnlineRecordsReader::beginJob() {
   bstree_ = tFileService->make<TTree>("BSONtuple", "BeamSpotOnline analyzer ntuple");
 
   //Tree Branches
@@ -186,17 +202,13 @@ void BeamSpotOnlineHLTRcdReader::beginJob() {
   bstree_->Branch("LastAnalyzedFill", &theBSOfromDB_.lastAnalyzedFill_, "LastAnalyzedFill/I");
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void BeamSpotOnlineHLTRcdReader::endJob() {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void BeamSpotOnlineHLTRcdReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+void BeamSpotOnlineRecordsReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<bool>("isHLT", true);
+  desc.addUntracked<std::string>("rawFileName", "");
   descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(BeamSpotOnlineHLTRcdReader);
+DEFINE_FWK_MODULE(BeamSpotOnlineRecordsReader);
