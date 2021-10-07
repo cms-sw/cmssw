@@ -5,17 +5,17 @@
  * \author Luca Lista, INFN
  *
  */
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorLegacy.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 template <typename Selector,
           typename SizeSelector = NonNullNumberSelector,
           typename PostProcessor = helper::NullPostProcessor<reco::CandidateCollection> >
-class ObjectShallowCloneSelector : public ObjectSelector<Selector, reco::CandidateCollection, SizeSelector> {
+class ObjectShallowCloneSelector : public ObjectSelectorLegacy<Selector, reco::CandidateCollection, SizeSelector> {
 public:
   explicit ObjectShallowCloneSelector(const edm::ParameterSet& cfg)
-      : ObjectSelector<Selector, reco::CandidateCollection, SizeSelector, PostProcessor>(cfg) {}
+      : ObjectSelectorLegacy<Selector, reco::CandidateCollection, SizeSelector, PostProcessor>(cfg) {}
 };
 
 #endif
