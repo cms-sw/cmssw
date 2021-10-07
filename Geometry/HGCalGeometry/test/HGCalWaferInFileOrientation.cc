@@ -57,8 +57,9 @@ private:
 };
 
 HGCalWaferInFileOrientation::HGCalWaferInFileOrientation(const edm::ParameterSet& iC)
-  : nameDetector_(iC.getParameter<std::string>("detectorName")),
-      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
+    : nameDetector_(iC.getParameter<std::string>("detectorName")),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       layers_(iC.getParameter<std::vector<int>>("layers")),
       waferU_(iC.getParameter<std::vector<int>>("waferUs")),
       waferV_(iC.getParameter<std::vector<int>>("waferVs")),
@@ -107,19 +108,23 @@ void HGCalWaferInFileOrientation::beginRun(edm::Run const&, edm::EventSetup cons
         bool rotnOK = (rotn1 == rotn2);
         if (!partOK)
           ++badP;
-        if (!rotnOK) 
-	  ++badR;
+        if (!rotnOK)
+          ++badR;
         if ((!partOK) || (!rotnOK)) {
           ++badG;
           std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
           std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
           std::string partx3 = (part3 < static_cast<int>(types.size())) ? types[part3] : "X";
           const auto& xy = hgdc.waferPosition(layer, waferU_[k], waferV_[k], true, false);
-          edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: " << id << " (" << partx1 << ":" << partx2 << ":" << partx3 << ", " << rotn1 << ":" << rotn2 << ":" << rotn3 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK;
+          edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: " << id << " (" << partx1 << ":" << partx2 << ":" << partx3
+                                        << ", " << rotn1 << ":" << rotn2 << ":" << rotn3 << ") at ("
+                                        << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+                                        << hgdc.waferZ(layer, true) << ") failure flag " << partOK << ":" << rotnOK;
         }
       }
     }
-    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badG << " (" << badP << ":" << badR << ") mismatch among " << allG << ":" << layers_.size() << " wafers\n";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badG << " (" << badP << ":" << badR << ") mismatch among " << allG
+                                  << ":" << layers_.size() << " wafers\n";
   }
 }
 
