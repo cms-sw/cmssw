@@ -1,18 +1,18 @@
 
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 using namespace edm;
 
-class TestMod : public EDProducer {
+class TestMod : public global::EDProducer<> {
 public:
   explicit TestMod(ParameterSet const& p);
 
-  void produce(Event& e, EventSetup const&);
+  void produce(StreamID, Event& e, EventSetup const&) const final;
 };
 
 TestMod::TestMod(ParameterSet const& p) {
@@ -21,7 +21,7 @@ TestMod::TestMod(ParameterSet const& p) {
   //    << std::endl;
 }
 
-void TestMod::produce(Event&, EventSetup const&) {
+void TestMod::produce(StreamID, Event&, EventSetup const&) const {
   //std::cerr << "Hi" << std::endl;
 }
 
