@@ -302,8 +302,8 @@ class ConfigBuilder(object):
             profilerFormat = "%s___%s___%%I.gz" % (
                 self._options.evt_type.replace("_cfi", ""),
                 hashlib.md5(
-                    str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
-                    str(self._options.datatier) + str(self._options.profileTypeLabel)
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
                 ).hexdigest()
             )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
