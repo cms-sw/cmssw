@@ -23,9 +23,8 @@
 using namespace geant_units::operators;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
-    : hgpar_(hp), sqrt3_(std::sqrt(3.0)) {
-  mode_ = hgpar_->mode_;
-  fullAndPart_ = ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
+  : hgpar_(hp), sqrt3_(std::sqrt(3.0)), mode_(hgpar_->mode_),
+    fullAndPart_(((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module))) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Mode " << mode_ << " FullAndPart " << fullAndPart_;
 #endif
@@ -444,7 +443,7 @@ int HGCalDDDConstants::getTypeHex(int layer, int waferU, int waferV) const {
 std::pair<double, double> HGCalDDDConstants::getXY(int layer, double x, double y, bool forwd) const {
   int ll = layer - hgpar_->firstLayer_;
   double x0(x), y0(y);
-  if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
+  if ((!hgpar_->layerType_.empty()) && (ll < static_cast<int>(hgpar_->layerRotV_.size()))) {
     if (forwd) {
       x0 = x * hgpar_->layerRotV_[ll].first + y * hgpar_->layerRotV_[ll].second;
       y0 = y * hgpar_->layerRotV_[ll].first - x * hgpar_->layerRotV_[ll].second;
@@ -649,7 +648,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  bool rotx = (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR);
+  bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
 #ifdef EDM_ML_DEBUG
   if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx << ":"
@@ -1177,7 +1176,6 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           double& wt,
                                           bool debug) const {
   waferU = waferV = 1 + hgpar_->waferUVMax_;
-  debug = true;
   cellU = cellV = celltype = 0;
   if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
     return;
@@ -1187,7 +1185,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   double xx = xy.first - hgpar_->xLayerHex_[ll];
   double yy = xy.second - hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
-  bool rotx = (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR);
+  bool rotx = ((!hgpar_->layerType_.empty()) &&(hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xy.first << ":" << xx << " Y " << y << ":" << xy.second << ":" << yy;
@@ -1288,7 +1286,7 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(int wafer, bool reco)
 std::pair<double, double> HGCalDDDConstants::waferPosition(
     int lay, int waferU, int waferV, bool reco, bool debug) const {
   int ll = lay - hgpar_->firstLayer_;
-  bool rotx = (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR);
+  bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
   double x = hgpar_->xLayerHex_[ll];
   double y = hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
@@ -1301,8 +1299,8 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
   }
-  auto xy0 = getXY(lay, x, y, false);
-  const auto& xy = waferPosition(waferU, waferV, reco, rotx);
+  std::pair<double, double> xy0 = getXY(lay, x, y, false);
+  const auto& xy = waferPositionUV(waferU, waferV, reco, rotx);
   xy0.first += xy.first;
   xy0.second += xy.second;
 #ifdef EDM_ML_DEBUG
@@ -1717,7 +1715,7 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   return in;
 }
 
-std::pair<double, double> HGCalDDDConstants::waferPosition(int waferU, int waferV, bool reco, bool rotx) const {
+std::pair<double, double> HGCalDDDConstants::waferPositionUV(int waferU, int waferV, bool reco, bool rotx) const {
   double xx(0), yy(0);
   int indx = HGCalWaferIndex::waferIndex(0, waferU, waferV);
   auto itr = hgpar_->wafersInLayers_.find(indx);

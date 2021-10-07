@@ -219,7 +219,7 @@ private:
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   int32_t waferIndex(int wafer, int index) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
-  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco, bool rotx) const;
+  std::pair<double, double> waferPositionUV(int waferU, int waferV, bool reco, bool rotx) const;
 
   HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
@@ -229,10 +229,10 @@ private:
   const HGCalParameters* hgpar_;
   constexpr static double tan30deg_ = 0.5773502693;
   const double sqrt3_;
+  const HGCalGeometryMode::GeometryMode mode_;
+  const bool fullAndPart_;
   double rmax_, hexside_;
   double rmaxT_, hexsideT_;
-  HGCalGeometryMode::GeometryMode mode_;
-  bool fullAndPart_;
   int32_t tot_wafers_, modHalf_;
   std::array<uint32_t, 2> tot_layers_;
   Simrecovecs max_modules_layer_;
