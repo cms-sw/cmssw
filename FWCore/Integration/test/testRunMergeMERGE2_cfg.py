@@ -115,18 +115,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
     ),
 
     expectedDroppedEvent1 = cms.untracked.vint32(13, 13, -1, -1, -1, 13),
-
-    expectedRespondToOpenInputFile = cms.untracked.int32(6),
-    expectedRespondToCloseInputFile = cms.untracked.int32(6),
-
-    expectedInputFileNames = cms.untracked.vstring(
-        'file:testRunMerge0.root', 
-        'file:testRunMerge1.root', 
-        'file:testRunMerge2extra.root', 
-        'file:testRunMerge3extra.root',
-        'file:testRunMerge4.root',
-        'file:testRunMerge5.root'
-    ),
+    expectedDroppedEvent1NEvents = cms.untracked.vint32(1,10,10,10,1,99),
 
     verbose = cms.untracked.bool(False),
     testAlias = cms.untracked.bool(True)

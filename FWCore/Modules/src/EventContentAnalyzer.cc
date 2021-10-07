@@ -17,7 +17,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -256,7 +256,7 @@ namespace edm {
     }
   }  // namespace
 
-  class EventContentAnalyzer : public EDAnalyzer {
+  class EventContentAnalyzer : public one::EDAnalyzer<> {
   public:
     explicit EventContentAnalyzer(ParameterSet const&);
     ~EventContentAnalyzer() override;
