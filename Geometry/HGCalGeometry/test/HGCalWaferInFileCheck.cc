@@ -73,7 +73,8 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
   const HGCalGeometry* geom = &geomR;
   const auto& hgdc = geom->topology().dddConstants();
 
-  edm::LogVerbatim("HGCalGeom") << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_ << "\n";
+  edm::LogVerbatim("HGCalGeom") << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_
+                                << "\n";
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "am", "bm", "X"};
@@ -90,11 +91,14 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         int part = std::get<1>(hgdc.waferFileInfoFromIndex(indx));
         std::string typex = (part < static_cast<int>(types.size())) ? types[part] : "X";
         const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-        edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", " << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true) << ") not valid";
+        edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU
+                                      << ", " << waferV << ", " << typex << ") at (" << std::setprecision(4) << xy.first
+                                      << ", " << xy.second << ", " << hgdc.waferZ(layer, true) << ") not valid";
         ++bad1;
       }
     }
-    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list\n";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize()
+                                  << " wafers in the list\n";
 
     // See if some of the valid wafers are missing
     auto const& ids = geom->getValidGeomDetIds();
@@ -109,7 +113,10 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
           if (part != HGCalTypes::WaferOut) {
             std::string typex = (part < static_cast<int>(types.size())) ? types[part] : "X";
             const auto& xy = hgdc.waferPosition(id.layer(), id.waferU(), id.waferV(), true, false);
-            edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + id.layer()) << ", " << id.waferU() << ", " << id.waferV() << ", " << typex << ")  at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", " << hgdc.waferZ(id.layer(), true) << ") not in wafer-list";
+            edm::LogVerbatim("HGCalGeom")
+                << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + id.layer()) << ", " << id.waferU() << ", "
+                << id.waferV() << ", " << typex << ")  at (" << std::setprecision(4) << xy.first << ", " << xy.second
+                << ", " << hgdc.waferZ(id.layer(), true) << ") not in wafer-list";
             ++bad2;
           } else {
             ++xtra;
@@ -117,7 +124,8 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         }
       }
     }
-    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << bad2 << " missing wafers among " << all << " valid wafers and " << xtra << " extra ones\n";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << bad2 << " missing wafers among " << all << " valid wafers and "
+                                  << xtra << " extra ones\n";
 
     // Now cross check the content
     int allG(0), badT(0), badP(0), badP2(0), badR(0), badG(0), badT1(0), badT2(0);
@@ -156,11 +164,18 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
           std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
           std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
           const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-          edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", " << type1 << ":" << type2 << ", " << partx1 << ":" << partx2 << ", " << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK << ":" << (part1 >= part2);
+          edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU
+                                        << ", " << waferV << ", " << type1 << ":" << type2 << ", " << partx1 << ":"
+                                        << partx2 << ", " << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4)
+                                        << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true)
+                                        << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK << ":"
+                                        << (part1 >= part2);
         }
       }
     }
-    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2 << "]:" << badP << ":" << badP2 << ":" << badR << ") mismatch among " << allG << " wafers with the same indices";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badG << " (" << badT << "[" << badT1 << ":" << badT2
+                                  << "]:" << badP << ":" << badP2 << ":" << badR << ") mismatch among " << allG
+                                  << " wafers with the same indices";
   }
 }
 
