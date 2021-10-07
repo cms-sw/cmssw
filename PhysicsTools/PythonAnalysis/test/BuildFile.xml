@@ -106,6 +106,7 @@
 <test name="import-pycodestyle" command="python3 -c 'import pycodestyle'"/>
 <test name="import-pycurl" command="python3 -c 'import pycurl'"/>
 <test name="import-pyparsing" command="python3 -c 'import pyparsing'"/>
+<test name="import-pytest" command="python3 -m pytest --version"/>
 <test name="import-sqlite3" command="python3 -c 'import sqlite3'"/>
 <test name="import-pytz" command="python3 -c 'import pytz'"/>
 <test name="import-zmq" command="python3 -c 'import zmq'"/>
