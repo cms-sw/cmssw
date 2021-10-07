@@ -33,7 +33,7 @@ commonParam = cms.PSet(
     # CCLUT for TMB is NOT planned for startup Run-3
     runCCLUT_TMB = cms.bool(False),
     # CCLUT for OTMB is planned for startup Run-3
-    runCCLUT_OTMB = cms.bool(True),
+    runCCLUT_OTMB = cms.bool(False),
 
     ## Phase-2 version is not needed for Run-3
     enableAlctPhase2 = cms.bool(False)
