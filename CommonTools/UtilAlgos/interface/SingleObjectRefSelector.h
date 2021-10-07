@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  */
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorLegacy.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionRefSelector.h"
@@ -20,7 +20,7 @@ template <typename InputType,
           typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
           typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
 class SingleObjectRefSelector
-    : public ObjectSelector<
+    : public ObjectSelectorLegacy<
           SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
           OutputCollection,
           NonNullNumberSelector,
@@ -29,7 +29,7 @@ class SingleObjectRefSelector
           Base> {
 public:
   explicit SingleObjectRefSelector(const edm::ParameterSet& cfg)
-      : ObjectSelector<
+      : ObjectSelectorLegacy<
             SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
             OutputCollection,
             NonNullNumberSelector,
