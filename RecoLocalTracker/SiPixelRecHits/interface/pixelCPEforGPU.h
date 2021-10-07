@@ -369,11 +369,11 @@ namespace pixelCPEforGPU {
     auto xoff = -float(phase1PixelTopology::xOffset) * comParams.thePitchX;
     int low_value = 0;
     int high_value = CPEFastParametrisation::kNumErrorBins - 1;
-    int bin_value = float(CPEFastParametrisation::kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
+    int bin_value = float(CPEFastParametrisation::kNumErrorBins) * (cp.xpos[ic] + xoff) / (2.f * xoff);
     // return estimated bin value truncated to [0, 15]
     int jx = std::clamp(bin_value, low_value, high_value);
 
-    auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
+    auto toCM = [](uint8_t x) { return float(x) * 1.e-4f; };
 
     if (not isEdgeX) {
       cp.xerr[ic] = isOneX ? toCM(isBigX ? detParams.sx2 : detParams.sigmax1[jx])
