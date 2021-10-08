@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,7 +9,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include <iostream>
 
-class MFProducer : public edm::EDProducer {
+class MFProducer : public edm::one::EDProducer<> {
 public:
   explicit MFProducer(const edm::ParameterSet&);
   ~MFProducer(void) override;
@@ -32,10 +32,11 @@ private:
   double m_yBaseDir;
   double m_zBaseDir;
   bool m_valid;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_mfToken;
   edm::ESHandle<MagneticField> m_mf;
 };
 
-MFProducer::MFProducer(const edm::ParameterSet& iPset) : m_valid(false) {
+MFProducer::MFProducer(const edm::ParameterSet& iPset) : m_valid(false), m_mfToken(esConsumes()) {
   m_mapDensityX = iPset.getUntrackedParameter<unsigned>("mapDensityX", 10);
   m_mapDensityY = iPset.getUntrackedParameter<unsigned>("mapDensityY", 10);
   m_mapDensityZ = iPset.getUntrackedParameter<unsigned>("mapDensityY", 10);
@@ -54,7 +55,7 @@ MFProducer::MFProducer(const edm::ParameterSet& iPset) : m_valid(false) {
 MFProducer::~MFProducer(void) {}
 
 void MFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(m_mf);
+  m_mf = iSetup.getHandle(m_mfToken);
   m_mf.isValid() ? m_valid = true : m_valid = false;
 
   for (unsigned i = 0; i <= m_mapDensityX; ++i) {
