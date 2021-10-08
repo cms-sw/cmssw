@@ -1208,11 +1208,11 @@ void HGCalDDDConstants::waferFromPosition(const double x,
           edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << layer << ":" << ll << ":"
                                         << hgpar_->firstLayer_ << ":" << rotx << ":" << x << ":" << y << ":"
                                         << hgpar_->xLayerHex_[ll] << ":" << hgpar_->yLayerHex_[ll] << ":" << xx << ":"
-                                        << yy  << " compared with "
-                                        << hgpar_->waferPosX_[k] << ":" << hgpar_->waferPosY_[k] << " difference "
-                                        << dx << ":" << dy << ":" << dx * tan30deg_ << ":" << (hexside_ - dy)
-                                        << " comparator " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
-                                        << hexsideT_ << " wafer " << waferU << ":" << waferV << ":" << celltype;
+                                        << yy << " compared with " << hgpar_->waferPosX_[k] << ":"
+                                        << hgpar_->waferPosY_[k] << " difference " << dx << ":" << dy << ":"
+                                        << dx * tan30deg_ << ":" << (hexside_ - dy) << " comparator " << rmax_ << ":"
+                                        << rmaxT_ << ":" << hexside_ << ":" << hexsideT_ << " wafer " << waferU << ":"
+                                        << waferV << ":" << celltype;
 #endif
         xx -= hgpar_->waferPosX_[k];
         yy -= hgpar_->waferPosY_[k];
@@ -1285,14 +1285,15 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
   bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Rotation " << rotx << " U:V " << waferU << ":" << waferV;
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Rotation " << rotx << " U:V " << waferU << ":"
+                                  << waferV;
 #endif
   auto xy = waferPositionNoRot(lay, waferU, waferV, reco, debug);
   std::pair<double, double> xy0 = (rotx) ? getXY(lay, xy.first, xy.second, false) : xy;
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "Without and with rotation " << xy.first << ":" << xy.second << ":" << xy0.first << ":"
-                                  << xy0.second;
+    edm::LogVerbatim("HGCalGeom") << "Without and with rotation " << xy.first << ":" << xy.second << ":" << xy0.first
+                                  << ":" << xy0.second;
 #endif
   return xy0;
 }
@@ -1708,9 +1709,8 @@ std::pair<double, double> HGCalDDDConstants::waferPositionNoRot(
   double y = hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift "
-                                  << hgpar_->xLayerHex_[ll] << ":" << hgpar_->yLayerHex_[ll] << " U:V " << waferU << ":"
-                                  << waferV;
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
+                                  << hgpar_->yLayerHex_[ll] << " U:V " << waferU << ":" << waferV;
 #endif
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -1721,8 +1721,7 @@ std::pair<double, double> HGCalDDDConstants::waferPositionNoRot(
   y += xy.second;
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":"
-                                  << xy.second;
+    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":" << xy.second;
 #endif
   return std::make_pair(x, y);
 }
