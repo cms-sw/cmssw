@@ -142,7 +142,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
   for (const auto& p : mapping->ROCMapping)
     v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
-	p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
+        p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
   fedIds_ = mapping->fedIds();
 
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
