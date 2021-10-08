@@ -15,7 +15,7 @@ public:
   HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCDigis() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void simhits(const edm::Event& e,
@@ -63,13 +63,12 @@ private:
   std::vector<std::vector<uint32_t>> bhdigi_data_;
   std::vector<std::vector<int>> bhdigi_isadc_;
   std::vector<float> bhdigi_simenergy_;
-
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCDigis, "HGCalTriggerNtupleHGCDigis");
 
 HGCalTriggerNtupleHGCDigis::HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
   is_Simhit_comp_ = conf.getParameter<bool>("isSimhitComp");
   digiBXselect_ = conf.getParameter<std::vector<unsigned int>>("digiBXselect");
 
@@ -149,9 +148,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
     tree.Branch("bhdigi_simenergy", &bhdigi_simenergy_);
 }
 
-void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
-
+void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   edm::Handle<HGCalDigiCollection> ee_digis_h;
   e.getByToken(ee_token_, ee_digis_h);
   const HGCalDigiCollection& ee_digis = *ee_digis_h;
@@ -162,7 +159,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   e.getByToken(bh_token_, bh_digis_h);
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(es.geometry.product());
 
   // sim hit association
   std::unordered_map<uint32_t, double> simhits_ee;
@@ -215,7 +212,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_subdet_.emplace_back(id.det());
     hgcdigi_side_.emplace_back(triggerTools_.zside(id));
     hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = triggerGeometry_->eeGeometry()->getPosition(id.rawId());
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->eeGeometry()->getPosition(id.rawId());
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
@@ -244,7 +241,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_subdet_.emplace_back(id.det());
     hgcdigi_side_.emplace_back(triggerTools_.zside(id));
     hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = triggerGeometry_->hsiGeometry()->getPosition(id.rawId());
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->hsiGeometry()->getPosition(id.rawId());
     hgcdigi_eta_.emplace_back(cellpos.eta());
     hgcdigi_phi_.emplace_back(cellpos.phi());
     hgcdigi_z_.emplace_back(cellpos.z());
@@ -273,7 +270,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     bhdigi_subdet_.emplace_back(id.det());
     bhdigi_side_.emplace_back(triggerTools_.zside(id));
     bhdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-    GlobalPoint cellpos = triggerGeometry_->hscGeometry()->getPosition(id.rawId());
+    GlobalPoint cellpos = triggerTools_.getTriggerGeometry()->hscGeometry()->getPosition(id.rawId());
     bhdigi_eta_.emplace_back(cellpos.eta());
     bhdigi_phi_.emplace_back(cellpos.phi());
     bhdigi_z_.emplace_back(cellpos.z());
@@ -310,7 +307,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
 
   //EE
   for (const auto& simhit : ee_simhits) {
-    DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->eeTopology());
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->eeTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_ee.emplace(id, 0.);
@@ -318,7 +315,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
   }
   //  FH
   for (const auto& simhit : fh_simhits) {
-    DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->fhTopology());
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->fhTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_fh.emplace(id, 0.);
@@ -326,7 +323,7 @@ void HGCalTriggerNtupleHGCDigis::simhits(const edm::Event& e,
   }
   //  BH
   for (const auto& simhit : bh_simhits) {
-    DetId id = triggerTools_.simToReco(simhit.id(), triggerGeometry_->hscTopology());
+    DetId id = triggerTools_.simToReco(simhit.id(), triggerTools_.getTriggerGeometry()->hscTopology());
     if (id.rawId() == 0)
       continue;
     auto itr_insert = simhits_bh.emplace(id, 0.);

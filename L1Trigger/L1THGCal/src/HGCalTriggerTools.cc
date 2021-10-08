@@ -30,11 +30,15 @@ namespace {
   }
 }  // namespace
 
+// Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
 void HGCalTriggerTools::eventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
-  geom_ = triggerGeometry_.product();
+  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry;
+  es.get<CaloGeometryRecord>().get(triggerGeometry);
+  setGeometry(triggerGeometry.product());
+}
 
+void HGCalTriggerTools::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  geom_ = geom;
   eeLayers_ = geom_->eeTopology().dddConstants().layers(true);
   fhLayers_ = geom_->fhTopology().dddConstants().layers(true);
   if (geom_->isWithNoseGeometry())

@@ -13,10 +13,10 @@ public:
 
   void coarsen(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
                std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput);
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    coarseTCmapping_.eventSetup(es);
-    calibration_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    coarseTCmapping_.setGeometry(geom);
+    calibration_.setGeometry(geom);
   }
 
 private:

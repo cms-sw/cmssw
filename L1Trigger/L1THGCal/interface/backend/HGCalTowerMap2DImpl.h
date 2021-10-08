@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -49,9 +48,9 @@ public:
     }
   }
 
-  void eventSetup(const edm::EventSetup& es) {
-    triggerTools_.eventSetup(es);
-    towerGeometryHelper_.eventSetup(es);
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    towerGeometryHelper_.setGeometry(geom);
   }
 
 private:
