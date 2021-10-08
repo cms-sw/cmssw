@@ -1186,7 +1186,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   double xx(0), yy(0);
   if (rotx) {
     std::pair<double, double> xy =
-      getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, true);
+        getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, true);
     xx = xy.first - hgpar_->xLayerHex_[ll];
     yy = xy.second - hgpar_->yLayerHex_[ll];
   } else {
