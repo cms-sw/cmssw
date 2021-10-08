@@ -14,7 +14,7 @@ public:
               std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput,
               std::vector<l1t::HGCalTriggerCell>& trigCellVecNotSelected);
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
 private:
   double threshold_silicon_;

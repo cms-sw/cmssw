@@ -9,7 +9,7 @@ public:
   HGCalTriggerNtupleGenJet(const edm::ParameterSet&);
 
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event&, const edm::EventSetup&) final;
+  void fill(const edm::Event&, const HGCalTriggerNtupleEventSetup&) final;
 
 private:
   void clear() final;
@@ -25,7 +25,9 @@ private:
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleGenJet, "HGCalTriggerNtupleGenJet");
 
-HGCalTriggerNtupleGenJet::HGCalTriggerNtupleGenJet(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {}
+HGCalTriggerNtupleGenJet::HGCalTriggerNtupleGenJet(const edm::ParameterSet& conf) : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleGenJet::initialize(TTree& tree,
                                           const edm::ParameterSet& conf,
@@ -38,7 +40,7 @@ void HGCalTriggerNtupleGenJet::initialize(TTree& tree,
   tree.Branch("genjet_phi", &genjet_phi_);
 }
 
-void HGCalTriggerNtupleGenJet::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleGenJet::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   edm::Handle<reco::GenJetCollection> genjets_h;
   e.getByToken(genjet_token_, genjets_h);
   const reco::GenJetCollection& genjets = *genjets_h;
