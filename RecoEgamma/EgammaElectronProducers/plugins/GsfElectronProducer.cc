@@ -115,7 +115,7 @@ public:
     return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
   }
 
-  void endJob();
+  void endStream();
 
   static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
@@ -546,7 +546,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   }
 }
 
-void GsfElectronProducer::endJob() {
+void GsfElectronProducer::endStream() {
   for (auto session : tfSessions_) {
     tensorflow::closeSession(session);
   }
