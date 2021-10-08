@@ -215,9 +215,8 @@ AlCaHcalHBHEMuonProducer::AlCaHcalHBHEMuonProducer(const edm::ParameterSet& iCon
     }
   }
   useMyCorr_ = (!corrValue_.empty());
-  edm::LogVerbatim("HBHEMuon") << "Flags used: ollapseDepth " << collapseDepth_ << ":"
-                               << mergedDepth_ << " IsItPlan1 " << isItPlan1_ << " IsItPreRecHit " << isItPreRecHit_
-                               << " UseMyCorr " << useMyCorr_;
+  edm::LogVerbatim("HBHEMuon") << "Flags used: ollapseDepth " << collapseDepth_ << ":" << mergedDepth_ << " IsItPlan1 "
+                               << isItPlan1_ << " IsItPreRecHit " << isItPreRecHit_ << " UseMyCorr " << useMyCorr_;
 
   //create the objects for HcalHBHEMuonVariables which has information of isolated muons
   produces<HcalHBHEMuonVariablesCollection>(labelHBHEMuon_);
@@ -475,48 +474,12 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           iphi = hcidt.iphi();
           bool hborhe = (std::abs(ieta) == 16);
 
-          hbheMuon.hcal1x1Energy_ = spr::eHCALmatrix(theHBHETopology_,
-                                                     closestCell,
-                                                     hbhe,
-                                                     0,
-                                                     0,
-                                                     false,
-                                                     true,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -500.,
-                                                     500.,
-                                                     0);
-          hbheMuon.hcal1x1EnergyAux_ = spr::eHCALmatrix(theHBHETopology_,
-                                                     closestCell,
-                                                     hbhe,
-                                                     0,
-                                                     0,
-                                                     false,
-                                                     true,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -500.,
-                                                     500.,
-                                                     1);
-          hbheMuon.hcal1x1EnergyRaw_ = spr::eHCALmatrix(theHBHETopology_,
-                                                     closestCell,
-                                                     hbhe,
-                                                     0,
-                                                     0,
-                                                     false,
-                                                     true,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -500.,
-                                                     500.,
-                                                     2);
+          hbheMuon.hcal1x1Energy_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 0);
+          hbheMuon.hcal1x1EnergyAux_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 1);
+          hbheMuon.hcal1x1EnergyRaw_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 2);
           std::vector<std::pair<double, int>> ehdepth, ehdepthAux, ehdepthRaw;
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
@@ -767,11 +730,11 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                   cHcalDepthHotAux[depth] += chgAux;
 #ifdef EDM_ML_DEBUG
                   if ((verbosity_ % 10) > 0)
-                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneAux << ":" << enecAux << " C "
-                                                 << chgAux << " L " << actL << " Match " << tmpC;
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneAux << ":" << enecAux
+                                                 << " C " << chgAux << " L " << actL << " Match " << tmpC;
 #endif
                 }
-	      }
+              }
               double eneRaw = ehdepthRaw[i].first;
               if (eneRaw > 0.0) {
                 if (theHBHETopology_->validHcal(hcid0)) {
@@ -792,11 +755,11 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                   cHcalDepthHotRaw[depth] += chgRaw;
 #ifdef EDM_ML_DEBUG
                   if ((verbosity_ % 10) > 0)
-                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneRaw << ":" << enecRaw << " C "
-                                                 << chgRaw << " L " << actL << " Match " << tmpC;
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneRaw << ":" << enecRaw
+                                                 << " C " << chgRaw << " L " << actL << " Match " << tmpC;
 #endif
                 }
-	      }
+              }
             }
 
             HcalDetId oppCell(subdet, -ieta, iphi, HcalDetId(hotCell).depth());

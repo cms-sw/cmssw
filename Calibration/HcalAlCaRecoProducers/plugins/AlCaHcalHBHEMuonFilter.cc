@@ -56,7 +56,8 @@ AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter(edm::ParameterSet const& iConfig)
       minimumMuonP_(iConfig.getParameter<double>("minimumMuonP")),
       labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale " << prescale_ << "\t minimumMuonP " << minimumMuonP_ << "\n\t Labels " << labelHBHEMuonVar_;
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale " << prescale_ << "\t minimumMuonP "
+                               << minimumMuonP_ << "\n\t Labels " << labelHBHEMuonVar_;
 }  // AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter  constructor
 
 //
@@ -80,13 +81,13 @@ bool AlCaHcalHBHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::Even
       ++(runCache(iEvent.getRun().index())->nGood_);
       bool ok(false);
       for (auto const& muon : *hbheMuon)
-	if (muon.pMuon_ >= minimumMuonP_)
-	  ok = true;
+        if (muon.pMuon_ >= minimumMuonP_)
+          ok = true;
       if (ok) {
-	if (prescale_ <= 1)
-	  accept = true;
-	else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
-	  accept = true;
+        if (prescale_ <= 1)
+          accept = true;
+        else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
+          accept = true;
       }
     }
   } else {
