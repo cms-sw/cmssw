@@ -144,7 +144,7 @@ class OfflineConverter:
 def help():
     sys.stdout.write("""Usage: %s OPTIONS
 
-        --v1|--v2|--v3|--v3-beta|--v3-test  (specify the ConfDB version [default: v2])
+        --v1|--v2|--v3|--v3-beta|--v3-test  (specify the ConfDB version [default: v3])
 
         --run3|--run2|--dev|--online|--adg    (specify the target db [default: run3], online will only work inside p5 network)
 
@@ -211,7 +211,7 @@ def main():
 
     arg_count = Counter(args)
     db_count = arg_count['--v1'] + arg_count['--v2'] + arg_count['--v3'] + arg_count['--v3-beta'] + arg_count['--v3-test']
-    if db_count>1 in args:
+    if db_count>1:
         sys.stderr.write( 'ERROR: conflicting database version specifications: "--v1", "--v2", "--v3", "--v3-beta", and "--v3-test" are mutually exclusive options' )
         sys.exit(1)
 

@@ -156,5 +156,7 @@ class HLTProcessOptions(object):
       # '--timing' implies '--profiling'
       object.__setattr__(self, 'timing',    True)
       object.__setattr__(self, 'profiling', True)
+    elif name == 'setup' and value and value.find(":")!=-1:
+      raise Exception('you can not specify a converter/database in the setup option.\nIt takes the converter database specified by the primary config.\nPlease remove the text upto and including the ":" in\n  {} '.format(value))      
     else:
       object.__setattr__(self, name, value)

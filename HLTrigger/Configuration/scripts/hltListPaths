@@ -53,7 +53,7 @@ parser.add_argument('menu',
                     action  = 'store', 
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible database schemas are "v1" and "v2" (default).\nThe possible databases are "offline" (default, used for offline development), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.' )
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
 
 # options
 group = parser.add_mutually_exclusive_group()
