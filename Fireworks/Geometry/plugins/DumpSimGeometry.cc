@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@
 // class declaration
 //
 
-class DumpSimGeometry : public edm::EDAnalyzer {
+class DumpSimGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit DumpSimGeometry(const edm::ParameterSet&);
   ~DumpSimGeometry() override;
@@ -56,12 +56,13 @@ private:
 
   std::string m_tag;
   std::string m_outputFileName;
+  const edm::ESGetToken<TGeoManager, DisplayGeomRecord> m_geomToken;
 };
 
 //
 // constructors and destructor
 //
-DumpSimGeometry::DumpSimGeometry(const edm::ParameterSet& ps) {
+DumpSimGeometry::DumpSimGeometry(const edm::ParameterSet& ps) : m_geomToken(esConsumes()) {
   m_tag = ps.getUntrackedParameter<std::string>("tag", "unknown");
   m_outputFileName = ps.getUntrackedParameter<std::string>("outputFileName", "cmsSimGeom.root");
 }
@@ -76,8 +77,7 @@ void DumpSimGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::cout << "In the DumpSimGeometry::analyze method..." << std::endl;
   using namespace edm;
 
-  ESTransientHandle<TGeoManager> geoh;
-  iSetup.get<DisplayGeomRecord>().get(geoh);
+  ESTransientHandle<TGeoManager> geoh = iSetup.getTransientHandle(m_geomToken);
   const TGeoManager* geom = geoh.product();  // const_cast<TGeoManager*>(geoh.product());
 
   int level = 1 + geom->GetTopVolume()->CountNodes(100, 3);
