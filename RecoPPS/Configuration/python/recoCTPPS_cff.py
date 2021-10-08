@@ -28,7 +28,6 @@ ctpps_2018.toReplaceWith(
 	    totemRPLocalReconstructionTask ,
 	    ctppsDiamondLocalReconstructionTask ,
 	    totemTimingLocalReconstructionTask ,
-	    diamondSampicLocalReconstructionTask ,
 	    ctppsPixelLocalReconstructionTask ,
 	    ctppsLocalTrackLiteProducer ,
 	    ctppsProtons
