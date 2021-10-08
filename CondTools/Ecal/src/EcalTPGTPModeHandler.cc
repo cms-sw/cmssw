@@ -70,7 +70,7 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
     edm::LogVerbatim("EcalTPGTPModeHandler") << "Retrieving run list from ONLINE DB ... ";
 
     edm::LogVerbatim("EcalTPGTPModeHandler") << "Making connection...";
-    econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
+    auto econn = std::make_shared<EcalCondDBInterface>(m_sid, m_user, m_pass);
     edm::LogVerbatim("EcalTPGTPModeHandler") << "Done.";
 
     if (!econn) {
@@ -242,6 +242,7 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
               m_i_TPMode = wId;
 
               writeFile("last_tpg_TPMode_settings.txt");
+              delete tpMode;
 
             } else {
               m_i_run_number = irun;
@@ -260,7 +261,6 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
             throw cms::Exception("FileReadError") << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" << the_config_tag
                                                   << " version=" << the_config_version << "\n"
                                                   << e.what();
-            m_i_run_number = irun;
           }
           edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
 
@@ -280,7 +280,6 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
       }
     }
 
-    delete econn;
   }  // usual way
   edm::LogVerbatim("EcalTPGTPModeHandler") << "Ecal - > end of getNewObjects -----------";
 }
@@ -325,6 +324,7 @@ void popcon::EcalTPGTPModeHandler::readtxtFile() {
     throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what();
   }
   edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
+  delete tpMode;
 }
 
 void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
