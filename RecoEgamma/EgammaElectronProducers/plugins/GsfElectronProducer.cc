@@ -115,7 +115,7 @@ public:
     return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
   }
 
-  void endStream();
+  void endStream() override;
 
   static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
