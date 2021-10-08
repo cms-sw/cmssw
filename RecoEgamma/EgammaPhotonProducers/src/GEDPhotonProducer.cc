@@ -80,7 +80,7 @@ public:
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(const CacheData*){};
 
-  void endStream();
+  void endStream() override;
 
 private:
   class RecoStepInfo {

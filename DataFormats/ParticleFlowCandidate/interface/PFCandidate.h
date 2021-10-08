@@ -345,27 +345,27 @@ namespace reco {
 
     // set DNN for electron PFID
     // mva for ele PFID DNN sigIsolated class
-    float dnn_e_sigIsolated() { return dnn_e_sigIsolated_; }
+    float dnn_e_sigIsolated() const { return dnn_e_sigIsolated_; }
     void set_dnn_e_sigIsolated(float mva) { dnn_e_sigIsolated_ = mva; }
 
     // mva for ele PFID DNN sigNonIsolated class
-    float dnn_e_sigNonIsolated() { return dnn_e_sigNonIsolated_; }
+    float dnn_e_sigNonIsolated() const { return dnn_e_sigNonIsolated_; }
     void set_dnn_e_sigNonIsolated(float mva) { dnn_e_sigNonIsolated_ = mva; }
 
     // mva for ele PFID DNN bkgNonIsolated class
-    float dnn_e_bkgNonIsolated() { return dnn_e_bkgNonIsolated_; }
+    float dnn_e_bkgNonIsolated() const { return dnn_e_bkgNonIsolated_; }
     void set_dnn_e_bkgNonIsolated(float mva) { dnn_e_bkgNonIsolated_ = mva; }
 
     // mva for ele PFID DNN bkgTau class
-    float dnn_e_bkgTau() { return dnn_e_bkgTau_; }
+    float dnn_e_bkgTau() const { return dnn_e_bkgTau_; }
     void set_dnn_e_bkgTau(float mva) { dnn_e_bkgTau_ = mva; }
 
     // mva for ele PFID DNN bkgPhoton class
-    float dnn_e_bkgPhoton() { return dnn_e_bkgPhoton_; }
+    float dnn_e_bkgPhoton() const { return dnn_e_bkgPhoton_; }
     void set_dnn_e_bkgPhoton(float mva) { dnn_e_bkgPhoton_ = mva; }
 
     // set DNN for gamma PFID
-    float dnn_gamma() { return dnn_gamma_; }
+    float dnn_gamma() const { return dnn_gamma_; }
     void set_dnn_gamma(float mva) { dnn_gamma_ = mva; }
 
     /// mva for neutral hadron - gamma discrimination
