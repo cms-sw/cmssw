@@ -219,7 +219,8 @@ private:
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   int32_t waferIndex(int wafer, int index) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
-  std::pair<double, double> waferPositionUV(int waferU, int waferV, bool reco, bool rotx) const;
+  std::pair<double, double> waferPositionNoRot(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
+  std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 
   HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
