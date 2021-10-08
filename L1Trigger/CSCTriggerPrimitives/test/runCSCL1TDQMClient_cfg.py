@@ -4,11 +4,16 @@ from Configuration.Eras.Era_Run3_cff import Run3
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 options = VarParsing('analysis')
-options.register ("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
-options.register ("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using Run-3 data.")
+options.register("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when running on MC.")
+options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data.")
+options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
+options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
 options.register ("useGEMs", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 options.inputFiles = "file:step_DQM.root"
