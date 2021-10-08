@@ -8,4 +8,4 @@ TARGET="/dev/CMSSW_12_0_0/TABLE"         # directory where to store the sub-tabl
 TABLES="GRun HIon PIon PRef"             # which sub-tables to create
 
 source subtables.sh
-createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v3/run3" "$MASTER" "$TARGET" "$TABLES"
