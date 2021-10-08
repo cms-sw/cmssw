@@ -162,18 +162,29 @@ void EcalFenixStrip::process_part1(int identif,
   }
 
   if (debug_) {
-    edm::LogVerbatim("EcalTPG") << "output of linearizer is a vector of size: " << lin_out_.size() << " of which used "
-                                << nrXtals;
+    edm::LogVerbatim("EcalTPG") << "output of linearizer is a vector of size: " << lin_out_.size() << " of which "
+                                << nrXtals << " are used";
+
     for (int ix = 0; ix < nrXtals; ix++) {
       edm::LogVerbatim("EcalTPG") << "crystal " << std::to_string(ix) << " values per clock (linearized): ";
       std::string Lin_Vals;
+      std::string Lin_Vals_in_time = "[";
 
       for (unsigned int i = 0; i < lin_out_[ix].size(); i++) {
         Lin_Vals.append(" ");
+        if (i >= 2 && i < 7) {
+          Lin_Vals_in_time.append(
+              std::to_string((lin_out_[ix])[i]));  // Save in time vals separately for nicely formatted digis
+          if (i < 6)
+            Lin_Vals_in_time.append(", ");
+          else
+            Lin_Vals_in_time.append("]");
+        }
         Lin_Vals.append(std::to_string((lin_out_[ix])[i]));
       }
+      Lin_Vals.append("]");
 
-      edm::LogVerbatim("EcalTPG") << Lin_Vals << "\n";
+      edm::LogVerbatim("EcalTPG") << Lin_Vals << " --> In time digis: " << Lin_Vals_in_time << "\n";
     }
   }
 

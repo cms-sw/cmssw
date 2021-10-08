@@ -48,8 +48,9 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
         edm::LogVerbatim("EcalTPG") << i << " " << stripid_ << " " << weights_[0] << " " << weights_[1] << " "
                                     << weights_[2] << " " << weights_[3] << " " << weights_[4] << " "
                                     << weights_[0] / 64.0 << " " << weights_[1] / 64.0 << " " << weights_[2] / 64.0
-                                    << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 << " " << buffer_[0]
-                                    << " " << buffer_[1] << " " << buffer_[2] << " " << buffer_[3] << " " << buffer_[4]
+                                    << " " << weights_[3] / 64.0 << " " << weights_[4] / 64.0 << " [" << buffer_[0]
+                                    << ", " << buffer_[1] << ", " << buffer_[2] << ", " << buffer_[3] << ", "
+                                    << buffer_[4] << "]"
                                     << " --> output: " << processedOutput_ << " EVEN";
       }
     }
