@@ -31,7 +31,9 @@ Usage:
   MENU is the HLT menu to test.
 
   -s | --setup SETUP          Use the Services and EventSetup modules from a different menu
-                              (usefull when testing a ConfDB area with only some new paths)
+                              (usefull when testing a ConfDB area with only some new paths).
+                              Note it is an error to specify the converter/db here, 
+                              it uses the same as set by the HLT menu
   -d | --dir      WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
   -i | --input    INPUT       Use the specified RAW data file as input
   -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
@@ -47,13 +49,14 @@ Usage:
 
   The supported formats for both menu specifications are:
     - /path/to/configuration[/Vn]
-    - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]
+    - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]
     - run:runnumber
-  The possible database schemas are \"v1\" and \"v2\" (default).
-  The possible databases are \"offline\" (default, used for offline development), \"online\" (used to
+  The possible converters are \"v1\", \"v2\", and \"v3\" (default).
+  The possible databases are \"run3\" (default, used for offline run3 development), \"run2\" (previously used for run2 development), \"online\" (used to
   extract online menus within Point 5) and \"adg\" (used to extract the online menus outside Point 5).
   If no menu version is specified, the latest one is automatically used.
   If \"run:\" is used instead, the HLT menu used for the given run number is looked up and used.
+  Note other converters and databases exist but they are for expert/special use only.
 
   It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
   To pass multiple options, enclose them in quotes, or use \"-x\" more than once.
