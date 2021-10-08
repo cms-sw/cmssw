@@ -123,7 +123,11 @@ def customisePixelLocalReconstruction(process):
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone()
+    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+        # use the same thresholds as the legacy module
+        clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+        clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+    )
     # use the pixel channel calibrations scheme for Run 3
     run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
@@ -179,6 +183,9 @@ def customisePixelLocalReconstruction(process):
             src = "hltSiPixelDigisSoA",
             produceDigis = False,
             storeDigis = False,
+            # use the same thresholds as the legacy module
+            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
         )
     )
 
