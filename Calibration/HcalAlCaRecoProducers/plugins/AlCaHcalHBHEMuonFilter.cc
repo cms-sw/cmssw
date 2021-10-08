@@ -56,7 +56,7 @@ AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter(edm::ParameterSet const& iConfig)
       minimumMuonP_(iConfig.getParameter<double>("minimumMuonP")),
       labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale " << prescale_ << "\t minimumMuonP "
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale_ " << prescale_ << "\t minimumMuonP_ "
                                << minimumMuonP_ << "\n\t Labels " << labelHBHEMuonVar_;
 }  // AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter  constructor
 
