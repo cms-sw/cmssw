@@ -35,9 +35,10 @@ private:
   // ----------member data ---------------------------
   edm::Service<TFileService> fs;
   const edm::InputTag labelHBHEMuonVar_;
+  const int useRaw_;
   int maxDepth_, kount_;
 
-  edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
+  const edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
@@ -82,6 +83,7 @@ private:
 
 HcalHBHENewMuonAnalyzer::HcalHBHENewMuonAnalyzer(const edm::ParameterSet& iConfig)
     : labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
+      useRaw_(iConfig.getParameter<int>("useRaw")),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
@@ -165,21 +167,42 @@ void HcalHBHENewMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       matchedId_ = itr->matchedId_;
       hcalHot_ = itr->hcalHot_;
       ecal3x3Energy_ = itr->ecal3x3Energy_;
-      hcal1x1Energy_ = itr->hcal1x1Energy_;
       ecalDetId_ = itr->ecalDetId_;
       hcalDetId_ = itr->hcalDetId_;
       ehcalDetId_ = itr->ehcalDetId_;
       hcal_ieta_ = itr->hcalIeta_;
       hcal_iphi_ = itr->hcalIphi_;
+      if (useRaw_ == 1)
+	hcal1x1Energy_ = itr->hcal1x1EnergyAux_;
+      else if (useRaw_ == 2)
+	hcal1x1Energy_ = itr->hcal1x1EnergyRaw_;
+      else
+	hcal1x1Energy_ = itr->hcal1x1Energy_;
       for (unsigned int i = 0; i < itr->hcalDepthEnergy_.size(); ++i) {
-        hcalDepthEnergy_[i] = itr->hcalDepthEnergy_[i];
         hcalDepthActiveLength_[i] = itr->hcalDepthActiveLength_[i];
-        hcalDepthEnergyHot_[i] = itr->hcalDepthEnergyHot_[i];
         hcalDepthActiveLengthHot_[i] = itr->hcalDepthActiveLengthHot_[i];
-        hcalDepthChargeHot_[i] = itr->hcalDepthChargeHot_[i];
-        hcalDepthChargeHotBG_[i] = itr->hcalDepthChargeHotBG_[i];
-        hcalDepthEnergyCorr_[i] = itr->hcalDepthEnergyCorr_[i];
-        hcalDepthEnergyHotCorr_[i] = itr->hcalDepthEnergyHotCorr_[i];
+	if (useRaw_ == 1) {
+	  hcalDepthEnergy_[i] = itr->hcalDepthEnergyAux_[i];
+	  hcalDepthEnergyHot_[i] = itr->hcalDepthEnergyHotAux_[i];
+	  hcalDepthEnergyCorr_[i] = itr->hcalDepthEnergyCorrAux_[i];
+	  hcalDepthEnergyHotCorr_[i] = itr->hcalDepthEnergyHotCorrAux_[i];
+	  hcalDepthChargeHot_[i] = itr->hcalDepthChargeHotAux_[i];
+	  hcalDepthChargeHotBG_[i] = itr->hcalDepthChargeHotBGAux_[i];
+	} else if (useRaw_ == 2) {
+	  hcalDepthEnergy_[i] = itr->hcalDepthEnergyRaw_[i];
+	  hcalDepthEnergyHot_[i] = itr->hcalDepthEnergyHotRaw_[i];
+	  hcalDepthEnergyCorr_[i] = itr->hcalDepthEnergyCorrRaw_[i];
+	  hcalDepthEnergyHotCorr_[i] = itr->hcalDepthEnergyHotCorrRaw_[i];
+	  hcalDepthChargeHot_[i] = itr->hcalDepthChargeHotRaw_[i];
+	  hcalDepthChargeHotBG_[i] = itr->hcalDepthChargeHotBGRaw_[i];
+	} else {
+	  hcalDepthEnergy_[i] = itr->hcalDepthEnergy_[i];
+	  hcalDepthEnergyHot_[i] = itr->hcalDepthEnergyHot_[i];
+	  hcalDepthEnergyCorr_[i] = itr->hcalDepthEnergyCorr_[i];
+	  hcalDepthEnergyHotCorr_[i] = itr->hcalDepthEnergyHotCorr_[i];
+	  hcalDepthChargeHot_[i] = itr->hcalDepthChargeHot_[i];
+	  hcalDepthChargeHotBG_[i] = itr->hcalDepthChargeHotBG_[i];
+	}
         hcalDepthMatch_[i] = itr->hcalDepthMatch_[i];
         hcalDepthMatchHot_[i] = itr->hcalDepthMatchHot_[i];
       }
@@ -296,6 +319,7 @@ void HcalHBHENewMuonAnalyzer::beginJob() {
 void HcalHBHENewMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hbheMuonLabel", edm::InputTag("alcaHcalHBHEMuonProducer", "hbheMuon"));
+  desc.add<int>("useRaw", 0);
   desc.addUntracked<int>("maxDepth", 4);
   descriptions.add("hcalHBHEMuonAnalysis", desc);
 }
