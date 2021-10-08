@@ -137,9 +137,8 @@ std::pair<int, int> HGCalDDDConstants::assignCell(float x, float y, int lay, int
       return std::make_pair(-1, -1);
     } else {
       // Now the cell
-      std::pair<double, double> xy = getXY(lay, xx, yy, true);
-      xx = xy.first - hgpar_->waferPosX_[wafer];
-      yy = xy.second - hgpar_->waferPosY_[wafer];
+      xx -= hgpar_->waferPosX_[wafer];
+      yy -= hgpar_->waferPosY_[wafer];
       if (hgpar_->waferTypeT_[wafer] == 1)
         return std::make_pair(wafer,
                               cellHex(xx,
@@ -641,7 +640,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
       y *= HGCalParameters::k_ScaleToDDD;
     }
   }
-  return getXY(lay, x, y, false);
+  return std::make_pair(x, y);
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCell(
@@ -1183,12 +1182,18 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
     return;
   int ll = layer - hgpar_->firstLayer_;
-  std::pair<double, double> xy =
-      getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, true);
-  double xx = xy.first - hgpar_->xLayerHex_[ll];
-  double yy = xy.second - hgpar_->yLayerHex_[ll];
-#ifdef EDM_ML_DEBUG
   bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  double xx(0), yy(0);
+  if (rotx) {
+    std::pair<double, double> xy =
+      getXY(layer, HGCalParameters::k_ScaleFromDDD * x, HGCalParameters::k_ScaleFromDDD * y, true);
+    xx = xy.first - hgpar_->xLayerHex_[ll];
+    yy = xy.second - hgpar_->yLayerHex_[ll];
+  } else {
+    xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
+    yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
+  }
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xy.first << ":" << xx << " Y " << y << ":" << xy.second << ":" << yy;
@@ -1302,7 +1307,7 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
   }
-  std::pair<double, double> xy0 = getXY(lay, x, y, false);
+  std::pair<double, double> xy0 = (rotx) ? getXY(lay, x, y, false) : std::make_pair(x, y);
   const auto& xy = waferPositionUV(waferU, waferV, reco, rotx);
   xy0.first += xy.first;
   xy0.second += xy.second;
