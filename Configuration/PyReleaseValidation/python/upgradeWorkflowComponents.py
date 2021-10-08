@@ -150,7 +150,9 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
-        if era is not None: stepDict[stepName][k]['--era']=era
+        if era is not None: 
+            stepDict[stepName][k]['--era']=era
+            if 'RecNan' in stepName: stepDict[stepName][k]['--era'] += ',run3_nanoAOD_devel'
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
@@ -168,12 +170,14 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'RecoGlobal',
         'HARVEST',
         'HARVESTFakeHLT',
+        'HARVESTRecNan',
         'FastSim',
         'HARVESTFast',
         'HARVESTGlobal',
         'ALCA',
         'Nano',
         'MiniAOD',
+        'RecNan',
     ],
     PU =  [
         'DigiTrigger',
@@ -184,9 +188,11 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'RecoFakeHLT',
         'HARVEST',
         'HARVESTFakeHLT',
+        'HARVESTRecNan',
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'RecNan',
     ],
     suffix = '',
     offset = 0.0,
@@ -660,7 +666,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             # remove step
             stepDict[stepName][k] = None
         if 'Nano' in step:
-            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
