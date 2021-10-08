@@ -103,6 +103,13 @@ function loadConfiguration() {
       DBUSER="cms_hlt_gdr_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
+     "v3/run3")
+      # v3 run3
+      DBHOST="cmsr1-s.cern.ch"
+      DBNAME="cms_hlt.cern.ch"
+      DBUSER="cms_hlt_v3_w"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
+      ;;
     *)
       # see https://github.com/fwyzard/hlt-confdb/blob/confdbv2/test/runCreateConfig
       echo "Error, unnown database \"$1\", exiting."
