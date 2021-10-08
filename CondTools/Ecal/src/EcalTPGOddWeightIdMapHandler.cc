@@ -247,8 +247,7 @@ void popcon::EcalTPGOddWeightIdMapHandler::readtxtFile() {
   std::ifstream fInput;
   fInput.open(m_file_name);
   if (!fInput.is_open()) {
-    edm::LogVerbatim("EcalTPGOddWeightIdMapHandler") << "ERROR : cannot open file " << m_file_name;
-    exit(1);
+    throw cms::Exception("FileReadError") << "ERROR : cannot open file " << m_file_name;
   }
   unsigned int wloc[5];
   EcalTPGWeights w;
