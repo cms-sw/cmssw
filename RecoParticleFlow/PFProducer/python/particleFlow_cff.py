@@ -36,6 +36,6 @@ egamma_lowPt_exclusive.toModify(particleFlowTmp.PFEGammaFiltersParameters,photon
 # Activate Egamma PFID with DNN for Run3
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(particleFlowTmp.PFEGammaFiltersParameters,
-    useElePFidDnn = False,    # deactivate the PFID until 12_1_0_pre5
-    usePhotonPFidDnn = False  # deactivate the PFID until 12_1_0_pre5
+    useElePFidDnn = True,  
+    usePhotonPFidDnn = True
 )

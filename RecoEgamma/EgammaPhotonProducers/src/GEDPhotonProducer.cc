@@ -80,7 +80,7 @@ public:
   static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
   static void globalEndJob(const CacheData*){};
 
-  void endJob();
+  void endStream();
 
 private:
   class RecoStepInfo {
@@ -455,7 +455,7 @@ std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::P
   return std::make_unique<CacheData>(config);
 }
 
-void GEDPhotonProducer::endJob() {
+void GEDPhotonProducer::endStream() {
   for (auto session : tfSessions_) {
     tensorflow::closeSession(session);
   }
