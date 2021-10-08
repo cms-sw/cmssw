@@ -68,12 +68,6 @@ private:
   bool dataVsEmulatorPlots_;
   void makeDataVsEmulatorPlots();
 
-  // plots of efficiencies in MC
-  bool mcEfficiencyPlots_;
-
-  // plots of resolution in MC
-  bool mcResolutionPlots_;
-
   /*
     When set to True, we assume that the data comes from
     the Building 904 CSC test-stand. This test-stand is a single
@@ -96,8 +90,6 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       clctVars_(conf.getParameter<std::vector<std::string>>("clctVars")),
       lctVars_(conf.getParameter<std::vector<std::string>>("lctVars")),
       dataVsEmulatorPlots_(conf.getParameter<bool>("dataVsEmulatorPlots")),
-      mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
-      mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
       useB904ME11_(conf.getParameter<bool>("useB904ME11")),
       useB904ME21_(conf.getParameter<bool>("useB904ME21")),
       useB904ME234s2_(conf.getParameter<bool>("useB904ME234s2")),
@@ -106,9 +98,7 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
   useB904_ = useB904ME11_ or useB904ME21_ or useB904ME234s2_;
 }
 
-void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
-  // efficiency and resolution analysis is done here
-}
+void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {}
 
 void CSCTriggerPrimitivesAnalyzer::endJob() {
   if (dataVsEmulatorPlots_)
