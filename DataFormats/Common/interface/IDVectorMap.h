@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_IDVectorMap_h
 #define DataFormats_Common_IDVectorMap_h
 #include <map>
+#include <cstddef>
 
 namespace edm {
 
