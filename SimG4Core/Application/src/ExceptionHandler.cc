@@ -46,9 +46,10 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
             << "; stepLength(mm)=" << track->GetStepLength() / CLHEP::mm << "; weight=" << track->GetWeight();
     const G4VProcess* proc = track->GetCreatorProcess();
     if (nullptr != proc) {
-      message << "; creatorProcess: " << proc->GetProcessName() << "; modeID=" << track->GetCreatorModelID();
+      message << "; creatorProcess: " << proc->GetProcessName() << "; modelID=" << track->GetCreatorModelID();
     }
   }
+  message << "\n";
 
   G4ExceptionSeverity localSeverity = severity;
   G4String code = G4String(*exceptionCode);
