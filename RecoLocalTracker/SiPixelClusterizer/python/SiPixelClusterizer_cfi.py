@@ -24,7 +24,8 @@ run3_common.toModify(siPixelClusters,
   VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
   VCaltoElectronGain_L1   = 1,   
   VCaltoElectronOffset    = 0,   
-  VCaltoElectronOffset_L1 = 0  
+  VCaltoElectronOffset_L1 = 0,  
+  ClusterThreshold_L1     = 4000
 )
 
 # customize phase2 clusters for bricked pixels
