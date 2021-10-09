@@ -256,7 +256,6 @@ void AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::string>("processName", "HLT");
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonLabel", edm::InputTag("muons"));
-  desc.add<double>("minimumMuonP", 10.0);
   desc.add<std::vector<std::string> >("triggers", triggers);
   desc.add<double>("muonPtCut", 20.0);
   desc.add<double>("muonEtaCut", 1.305);
