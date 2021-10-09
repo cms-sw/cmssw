@@ -332,7 +332,7 @@ private:
 
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " << Record_ << " in since mode " << std::endl;
 
-    mydbservice->writeOne<T>(*objPointer, since, Record_);
+    mydbservice->writeOneIOV<T>(*objPointer, since, Record_);
   }
 
   void setTime() {
