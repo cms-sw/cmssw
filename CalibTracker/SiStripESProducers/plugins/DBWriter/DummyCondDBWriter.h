@@ -68,7 +68,7 @@ void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, 
     else
       Time_ = iConfig_.getUntrackedParameter<uint32_t>("OpenIovAtTime", 1);
 
-    dbservice->writeOne(*obj, Time_, rcdName);
+    dbservice->writeOneIOV(*obj, Time_, rcdName);
   } else {
     edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
   }
