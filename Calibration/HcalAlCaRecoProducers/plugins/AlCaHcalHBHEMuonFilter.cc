@@ -78,12 +78,12 @@ bool AlCaHcalHBHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::Even
   if (hbheMuonColl.isValid()) {
     auto hbheMuon = hbheMuonColl.product();
     if (!hbheMuon->empty()) {
-      ++(runCache(iEvent.getRun().index())->nGood_);
       bool ok(false);
       for (auto const& muon : *hbheMuon)
         if (muon.pMuon_ >= minimumMuonP_)
           ok = true;
       if (ok) {
+	++(runCache(iEvent.getRun().index())->nGood_);
         if (prescale_ <= 1)
           accept = true;
         else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
