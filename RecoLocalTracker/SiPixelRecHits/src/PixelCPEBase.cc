@@ -53,7 +53,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
       lorentzAngle_ = lorentzAngle;
   lorentzAngleWidth_ = lorentzAngleWidth;
 
-  //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
+  //-- GenError Calibration Object from DB
   genErrorDBObject_ = genErrorDBObject;
 
   //-- Template Calibration Object from DB
