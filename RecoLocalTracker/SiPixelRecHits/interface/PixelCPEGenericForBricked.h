@@ -31,7 +31,6 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // The template header files
 //#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"

@@ -31,7 +31,6 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // The template header files
 //#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
@@ -93,7 +92,6 @@ protected:
 
   //--- DB Error Parametrization object, new light templates
   std::vector<SiPixelGenErrorStore> thePixelGenError_;
-  //SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
 };
 
 #endif
