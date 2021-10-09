@@ -38,7 +38,7 @@ options.register('runNumber',
                  "Run number. This run number has to be present in the dataset configured with the dataset option.")
 
 options.register('dataset',
-                 '/ExpressCosmics/Commissioning2019-Express-v1/FEVT',
+                 '/ExpressCosmics/Commissioning2021-Express-v1/FEVT',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Dataset name like '/ExpressCosmics/Commissioning2021-Express-v1/FEVT'")
