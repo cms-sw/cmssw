@@ -39,7 +39,7 @@ process.ALCARECOStreamHcalCalHBHEMuon = cms.OutputModule("PoolOutputModule",
         ),
                                                          eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
                                                          outputCommands = process.OutALCARECOHcalCalHBHEMuonProducerFilter.outputCommands,
-                                                         fileName = cms.untracked.string('OutputBHEMuonProducerFilter.root'),
+                                                         fileName = cms.untracked.string('OutputHBHEMuonProducerFilter.root'),
                                       )
 
 process.alcaHcalHBHEMuonProducer.triggers = []
