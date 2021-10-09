@@ -70,9 +70,8 @@ bool AlCaHcalHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
   bool accept(false);
   ++(runCache(iEvent.getRun().index())->nAll_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HBHEMuon") << "AlCaHcalHEMuonFilter::Run " << iEvent.id().run() << " Event "
-                               << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-                               << iEvent.bunchCrossing();
+  edm::LogVerbatim("HBHEMuon") << "AlCaHcalHEMuonFilter::Run " << iEvent.id().run() << " Event " << iEvent.id().event()
+                               << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
 
   auto const& hbheMuonColl = iEvent.getHandle(tokHBHEMuonVar_);
@@ -84,14 +83,15 @@ bool AlCaHcalHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
         if ((muon.ptGlob_ >= muonptCut_) && (std::abs(muon.etaGlob_) > muonetaCut_))
           ok = true;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HBHEMuon") << "AlCaHcalHEMuonFilter::Flag for finding a muon with pt > " << muonptCut_ << " and |eta| > " << muonetaCut_ << " is " << ok;
+      edm::LogVerbatim("HBHEMuon") << "AlCaHcalHEMuonFilter::Flag for finding a muon with pt > " << muonptCut_
+                                   << " and |eta| > " << muonetaCut_ << " is " << ok;
 #endif
       if (ok) {
-	++(runCache(iEvent.getRun().index())->nGood_);
-	if (prescale_ <= 1)
-	  accept = true;
-	else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
-	  accept = true;
+        ++(runCache(iEvent.getRun().index())->nGood_);
+        if (prescale_ <= 1)
+          accept = true;
+        else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
+          accept = true;
       }
     }
   } else {
@@ -113,7 +113,7 @@ bool AlCaHcalHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
 
 // ------------ method called when starting to processes a run  ------------
 std::shared_ptr<alcaHcalHBHEMuon::Counters> AlCaHcalHEMuonFilter::globalBeginRun(edm::Run const& iRun,
-                                                                                   edm::EventSetup const&) const {
+                                                                                 edm::EventSetup const&) const {
   edm::LogVerbatim("HBHEMuon") << "Start the Run " << iRun.run();
   return std::make_shared<alcaHcalHBHEMuon::Counters>();
 }
