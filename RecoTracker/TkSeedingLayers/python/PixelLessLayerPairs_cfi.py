@@ -4,8 +4,10 @@ from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
 
 PixelLessLayerPairs = seedingLayersEDProducer.clone(
     layerList = ['TIB1+TIB2', 
-                 'TIB1+TID1_pos', #    'TIB1+TID2_pos', 
-                 'TIB1+TID1_neg', #    'TIB1+TID2_neg', 
+                 'TIB1+TID1_pos', 
+#                 'TIB1+TID2_pos', 
+                 'TIB1+TID1_neg', 
+#                 'TIB1+TID2_neg', 
                  'TID1_pos+TID2_pos', 
                  'TID2_pos+TID3_pos', 
                  'TID3_pos+TEC1_pos', 
