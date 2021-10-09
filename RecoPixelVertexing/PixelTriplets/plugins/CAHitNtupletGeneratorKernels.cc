@@ -1,13 +1,12 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAHitNtupletGeneratorKernelsImpl.h"
 
-
 #include <mutex>
 
 namespace {
   // cuda atomics are NOT atomics on CPU so protect stat update with a mutex
   // waiting for a more general solution (incuding multiple devices) to be proposed and implemented
   std::mutex lock_stat;
-}
+}  // namespace
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::printCounters(Counters const *counters) {
@@ -143,13 +142,11 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   if (nhits > 1 && params_.lateFishbone_) {
     gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
   }
-
 }
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
-
-  int32_t nhits = hh.nHits();  
+  int32_t nhits = hh.nHits();
 
   auto const *tuples_d = &tracks_d->hitIndices;
   auto *quality_d = tracks_d->qualityData();
@@ -208,7 +205,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     }
   }
 
- if (params_.doStats_) {
+  if (params_.doStats_) {
     std::lock_guard guard(lock_stat);
     kernel_checkOverflows(tuples_d,
                           device_tupleMultiplicity_.get(),

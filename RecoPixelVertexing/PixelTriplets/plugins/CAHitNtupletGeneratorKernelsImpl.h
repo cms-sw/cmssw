@@ -109,7 +109,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
       atomicAdd(&c.nKilledCells, 1);
     if (!thisCell.unused())
       atomicAdd(&c.nEmptyCells, 1);
-    if ( (0 == hitToTuple->size(thisCell.inner_hit_id())) && (0 == hitToTuple->size(thisCell.outer_hit_id())) )
+    if ((0 == hitToTuple->size(thisCell.inner_hit_id())) && (0 == hitToTuple->size(thisCell.outer_hit_id())))
       atomicAdd(&c.nZeroTrackCells, 1);
   }
 
