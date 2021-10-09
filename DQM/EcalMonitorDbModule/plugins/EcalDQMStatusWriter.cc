@@ -36,8 +36,8 @@ void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es
   if (firstRun_ == dbOutput.endOfTime())
     return;
 
-  dbOutput.writeOne(channelStatus_, firstRun_, "EcalDQMChannelStatusRcd");
-  dbOutput.writeOne(towerStatus_, firstRun_, "EcalDQMTowerStatusRcd");
+  dbOutput.writeOneIOV(channelStatus_, firstRun_, "EcalDQMChannelStatusRcd");
+  dbOutput.writeOneIOV(towerStatus_, firstRun_, "EcalDQMTowerStatusRcd");
 
   firstRun_ = dbOutput.endOfTime();  // avoid accidentally re-writing the conditions
 }
