@@ -912,8 +912,8 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
   assert(ids.size() == 1 || ids.size() == 2);
   IntegerCaloSamples samples1(ids[0], int(frame.samples()));
   samples1.setPresamples(frame.presamples());
-  incoder_->adc2Linear(frame, samples1);  // use linearization LUT
-  std::vector<unsigned short> bits12_15 = incoder_->group0FGbits(frame); // get 4 energy bits (12-15) from group 0 LUT
+  incoder_->adc2Linear(frame, samples1);                                  // use linearization LUT
+  std::vector<unsigned short> bits12_15 = incoder_->group0FGbits(frame);  // get 4 energy bits (12-15) from group 0 LUT
 
   auto it = fgUpgradeTDCMap_.find(id);
   if (it == fgUpgradeTDCMap_.end()) {

@@ -54,10 +54,10 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
 
   for (size_t i = 0; i < 7; i++) {
     int bit12_15set = tower[i].first;
-    int bit12 = (bit12_15set & 0b0001); // low depth 1,2 energy
-    int bit13 = (bit12_15set & 0b0010) >> 1; // high depth 3+ energy
-    int bit14 = (bit12_15set & 0b0100) >> 2; // prompt energy passed
-    int bit15 = (bit12_15set & 0b1000) >> 3; // delayed energy passed
+    int bit12 = (bit12_15set & 0b0001);       // low depth 1,2 energy
+    int bit13 = (bit12_15set & 0b0010) >> 1;  // high depth 3+ energy
+    int bit14 = (bit12_15set & 0b0100) >> 2;  // prompt energy passed
+    int bit15 = (bit12_15set & 0b1000) >> 3;  // delayed energy passed
     int TDC = tower[i].second.first;
     int ADC = tower[i].second.second;
 
@@ -85,9 +85,11 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
 
     // depth bit
     if (ADC > 0 && bit12 == 0)
-      EarlyEnergy += 1;  // early layers, depth 1 and 2. If bit12 = 0, too much energy in early layers. Require ADC > 0 to ensure valid hit in cell
+      EarlyEnergy +=
+          1;  // early layers, depth 1 and 2. If bit12 = 0, too much energy in early layers. Require ADC > 0 to ensure valid hit in cell
     if (ADC > 0 && bit13 == 1)
-      DeepEnergy += 1;  // deep layers, 3+. If bit13 = 1, energy in deep layers. Require ADC > 0 to ensure valid hit in cell
+      DeepEnergy +=
+          1;  // deep layers, 3+. If bit13 = 1, energy in deep layers. Require ADC > 0 to ensure valid hit in cell
   }
 
   // very delayed (100000), slightly delayed (010000), prompt (001000), 2 reserved bits (000110), depth flag (000001)
