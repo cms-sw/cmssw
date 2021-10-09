@@ -2000,7 +2000,7 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
-            self.assertEquals(p2.aValue.value(),2)
+            self.assertEqual(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
@@ -2008,7 +2008,7 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
-            self.assertEquals(p2.aValue.value(),2)
+            self.assertEqual(p2.aValue.value(),2)
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
