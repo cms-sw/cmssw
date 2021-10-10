@@ -74,8 +74,6 @@ namespace gpuClustering {
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         charge[i] = 0;
       }
-      __shared__ bool sameClus;
-      sameClus = true;
       __syncthreads();
 
       for (auto i = first; i < numElements; i += blockDim.x) {
@@ -89,24 +87,25 @@ namespace gpuClustering {
 
       auto chargeCut =
           clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
+
+      bool good  = true;
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
         newclusId[i] = ok[i] = charge[i] >= chargeCut ? 1 : 0;
-        if (!ok[i])
-          sameClus = false;
+        if (0==ok[i])
+          good  = false;
       }
 
-      __syncthreads();
-
-      if (sameClus)
-        continue;
+      // if all clusters above threashold do nothing
+      if (__syncthreads_and(good)) continue;
 
       // renumber
       __shared__ uint16_t ws[32];
       cms::cuda::blockPrefixScan(newclusId, nclus, ws);
 
-      assert(nclus > newclusId[nclus - 1]);
+      if (!(nclus > newclusId[nclus - 1])) printf("BIG MESS");
 
       nClustersInModule[thisModuleId] = newclusId[nclus - 1];
+      __syncthreads();
 
       // reassign id
       for (auto i = first; i < numElements; i += blockDim.x) {
