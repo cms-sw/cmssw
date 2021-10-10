@@ -28,7 +28,7 @@ void SiPixelGainCalibrationServiceBase::calibrate(
     else {
       float DBgain = getGain(detID, col, row);
       float DBpedestal = getPedestal(detID, col, row) * DBgain;
-      float vcal = di->adc() * DBgain - DBpedestal;
+      float vcal = float(di->adc()) * DBgain - DBpedestal;
       //    float vcal = (di->adc()  - DBpedestal) * DBgain;
       electron[i++] = int(vcal * conversionFactor + offset);
     }

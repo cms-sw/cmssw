@@ -331,7 +331,7 @@ public:
 
   __device__ __forceinline__ int16_t layerPairId() const { return theLayerPairId_; }
 
-  __device__ __forceinline__ bool unused() const { return !theUsed_; }
+  __device__ __forceinline__ bool unused() const { return 0 == theUsed_; }
   __device__ __forceinline__ void setUsedBit(uint16_t bit) { theUsed_ |= bit; }
 
 private:

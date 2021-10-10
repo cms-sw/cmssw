@@ -107,8 +107,8 @@ public:
 private:
   float encodeGain(const float& gain);
   float encodePed(const float& ped);
-  float decodeGain(unsigned int gain) const { return gain * gainPrecision + minGain_; }
-  float decodePed(unsigned int ped) const { return ped * pedPrecision + minPed_; }
+  float decodeGain(unsigned int gain) const { return float(gain) * gainPrecision + minGain_; }
+  float decodePed(unsigned int ped) const { return float(ped) * pedPrecision + minPed_; }
 
   std::vector<char> v_pedestals;  //@@@ blob streaming doesn't work with uint16_t and with classes
   std::vector<DetRegistry> indexes;
