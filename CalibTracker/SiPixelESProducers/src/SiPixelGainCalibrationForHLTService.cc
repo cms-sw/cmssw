@@ -39,7 +39,6 @@ void SiPixelGainCalibrationForHLTService::calibrate(
       electron[i++] = 0;
     else {
       float vcal = float(di->adc()) * gain - pedestal * gain;
-      //    float vcal = (di->adc()  - DBpedestal) * DBgain;
       electron[i++] = int(vcal * conversionFactor + offset);
     }
   }
