@@ -111,7 +111,6 @@ private:
   const edm::InputTag triggerResults_;
   const edm::InputTag labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
   const std::string labelVtx_, labelMuon_, labelHBHEMuon_;
-  const int useRaw_;
   const bool collapseDepth_, isItPlan1_;
   const int verbosity_;
   const bool isItPreRecHit_, writeRespCorr_;
@@ -161,7 +160,6 @@ AlCaHcalHBHEMuonProducer::AlCaHcalHBHEMuonProducer(const edm::ParameterSet& iCon
       labelVtx_(iConfig.getParameter<std::string>("labelVertex")),
       labelMuon_(iConfig.getParameter<std::string>("labelMuon")),
       labelHBHEMuon_(iConfig.getParameter<std::string>("labelHBHEMuon")),
-      useRaw_(iConfig.getParameter<int>("useRaw")),
       collapseDepth_(iConfig.getParameter<bool>("collapseDepth")),
       isItPlan1_(iConfig.getParameter<bool>("isItPlan1")),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
@@ -217,9 +215,8 @@ AlCaHcalHBHEMuonProducer::AlCaHcalHBHEMuonProducer(const edm::ParameterSet& iCon
     }
   }
   useMyCorr_ = (!corrValue_.empty());
-  edm::LogVerbatim("HBHEMuon") << "Flags used: UseRaw " << useRaw_ << " CollapseDepth " << collapseDepth_ << ":"
-                               << mergedDepth_ << " IsItPlan1 " << isItPlan1_ << " IsItPreRecHit " << isItPreRecHit_
-                               << " UseMyCorr " << useMyCorr_;
+  edm::LogVerbatim("HBHEMuon") << "Flags used: ollapseDepth " << collapseDepth_ << ":" << mergedDepth_ << " IsItPlan1 "
+                               << isItPlan1_ << " IsItPreRecHit " << isItPreRecHit_ << " UseMyCorr " << useMyCorr_;
 
   //create the objects for HcalHBHEMuonVariables which has information of isolated muons
   produces<HcalHBHEMuonVariablesCollection>(labelHBHEMuon_);
@@ -400,6 +397,12 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
         double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
         double eHcalDepthC[depthMax_], eHcalDepthHotC[depthMax_];
         double cHcalDepthHot[depthMax_], cHcalDepthHotBG[depthMax_];
+        double eHcalDepthRaw[depthMax_], eHcalDepthHotRaw[depthMax_];
+        double eHcalDepthCRaw[depthMax_], eHcalDepthHotCRaw[depthMax_];
+        double cHcalDepthHotRaw[depthMax_], cHcalDepthHotBGRaw[depthMax_];
+        double eHcalDepthAux[depthMax_], eHcalDepthHotAux[depthMax_];
+        double eHcalDepthCAux[depthMax_], eHcalDepthHotCAux[depthMax_];
+        double cHcalDepthHotAux[depthMax_], cHcalDepthHotBGAux[depthMax_];
         double activeL[depthMax_], activeHotL[depthMax_];
         bool matchDepth[depthMax_], matchDepthHot[depthMax_];
         HcalDetId eHcalDetId[depthMax_];
@@ -409,6 +412,12 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           eHcalDepth[i] = eHcalDepthHot[i] = 0;
           eHcalDepthC[i] = eHcalDepthHotC[i] = 0;
           cHcalDepthHot[i] = cHcalDepthHotBG[i] = 0;
+          eHcalDepthRaw[i] = eHcalDepthHotRaw[i] = 0;
+          eHcalDepthCRaw[i] = eHcalDepthHotCRaw[i] = 0;
+          cHcalDepthHotRaw[i] = cHcalDepthHotBGRaw[i] = 0;
+          eHcalDepthAux[i] = eHcalDepthHotAux[i] = 0;
+          eHcalDepthCAux[i] = eHcalDepthHotCAux[i] = 0;
+          cHcalDepthHotAux[i] = cHcalDepthHotBGAux[i] = 0;
           activeL[i] = activeHotL[i] = 0;
           matchDepth[i] = matchDepthHot[i] = true;
         }
@@ -465,21 +474,13 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           iphi = hcidt.iphi();
           bool hborhe = (std::abs(ieta) == 16);
 
-          hbheMuon.hcal1x1Energy_ = spr::eHCALmatrix(theHBHETopology_,
-                                                     closestCell,
-                                                     hbhe,
-                                                     0,
-                                                     0,
-                                                     false,
-                                                     true,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -100.0,
-                                                     -500.,
-                                                     500.,
-                                                     useRaw_);
-          std::vector<std::pair<double, int>> ehdepth;
+          hbheMuon.hcal1x1Energy_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 0);
+          hbheMuon.hcal1x1EnergyAux_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 1);
+          hbheMuon.hcal1x1EnergyRaw_ = spr::eHCALmatrix(
+              theHBHETopology_, closestCell, hbhe, 0, 0, false, true, -100.0, -100.0, -100.0, -100.0, -500., 500., 2);
+          std::vector<std::pair<double, int>> ehdepth, ehdepthAux, ehdepthRaw;
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
                               ehdepth,
@@ -490,17 +491,45 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                               -100.0,
                               -500.0,
                               500.0,
-                              useRaw_,
+                              0,
                               depth16HE(ieta, iphi),
                               (((verbosity_ / 1000) % 10) > 0));
           for (int i = 0; i < depthMax_; ++i)
             eHcalDetId[i] = HcalDetId();
+          spr::energyHCALCell((HcalDetId)closestCell,
+                              hbhe,
+                              ehdepthAux,
+                              maxDepth_,
+                              -100.0,
+                              -100.0,
+                              -100.0,
+                              -100.0,
+                              -500.0,
+                              500.0,
+                              1,
+                              depth16HE(ieta, iphi),
+                              (((verbosity_ / 1000) % 10) > 0));
+          spr::energyHCALCell((HcalDetId)closestCell,
+                              hbhe,
+                              ehdepthRaw,
+                              maxDepth_,
+                              -100.0,
+                              -100.0,
+                              -100.0,
+                              -100.0,
+                              -500.0,
+                              500.0,
+                              2,
+                              depth16HE(ieta, iphi),
+                              (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             HcalSubdetector subdet0 =
                 (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
             HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
             double actL = activeLength(DetId(hcid0));
             double ene = ehdepth[i].first;
+            double eneAux = ehdepthAux[i].first;
+            double eneRaw = ehdepthRaw[i].first;
             bool tmpC(false);
             if (ene > 0.0) {
               if (!(theHBHETopology_->validHcal(hcid0))) {
@@ -535,6 +564,46 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 #endif
               }
             }
+            if (eneAux > 0.0) {
+              if (theHBHETopology_->validHcal(hcid0)) {
+                double enecAux(eneAux);
+                double corr = respCorr(DetId(hcid0));
+                if (corr != 0)
+                  eneAux /= corr;
+                int depth = ehdepthAux[i].second - 1;
+                if (collapseDepth_) {
+                  HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                  depth = id.depth() - 1;
+                }
+                eHcalDepthAux[depth] += eneAux;
+                eHcalDepthCAux[depth] += enecAux;
+#ifdef EDM_ML_DEBUG
+                if ((verbosity_ % 10) > 0)
+                  edm::LogVerbatim("HBHEMuon")
+                      << hcid0 << " E " << eneAux << ":" << enecAux << " L " << actL << " Match " << tmpC;
+#endif
+              }
+            }
+            if (eneRaw > 0.0) {
+              if (theHBHETopology_->validHcal(hcid0)) {
+                double enecRaw(eneRaw);
+                double corr = respCorr(DetId(hcid0));
+                if (corr != 0)
+                  eneRaw /= corr;
+                int depth = ehdepthRaw[i].second - 1;
+                if (collapseDepth_) {
+                  HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                  depth = id.depth() - 1;
+                }
+                eHcalDepthRaw[depth] += eneRaw;
+                eHcalDepthCRaw[depth] += enecRaw;
+#ifdef EDM_ML_DEBUG
+                if ((verbosity_ % 10) > 0)
+                  edm::LogVerbatim("HBHEMuon")
+                      << hcid0 << " E " << eneRaw << ":" << enecRaw << " L " << actL << " Match " << tmpC;
+#endif
+              }
+            }
           }
 #ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0) {
@@ -544,14 +613,14 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           }
 #endif
           HcalDetId hotCell;
-          spr::eHCALmatrix(geo_, theHBHETopology_, closestCell, hbhe, 1, 1, hotCell, false, useRaw_, false);
+          spr::eHCALmatrix(geo_, theHBHETopology_, closestCell, hbhe, 1, 1, hotCell, false, 0, false);
           isHot = matchId(closestCell, hotCell);
           if (hotCell != HcalDetId()) {
             subdet = HcalDetId(hotCell).subdet();
             ieta = HcalDetId(hotCell).ieta();
             iphi = HcalDetId(hotCell).iphi();
             hborhe = (std::abs(ieta) == 16);
-            std::vector<std::pair<double, int>> ehdepth;
+            std::vector<std::pair<double, int>> ehdepth, ehdepthAux, ehdepthRaw;
             spr::energyHCALCell(hotCell,
                                 hbhe,
                                 ehdepth,
@@ -562,9 +631,35 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -100.0,
                                 -500.0,
                                 500.0,
-                                useRaw_,
+                                0,
                                 depth16HE(ieta, iphi),
-                                false);  //(((verbosity_/1000)%10)>0    ));
+                                false);
+            spr::energyHCALCell(hotCell,
+                                hbhe,
+                                ehdepthAux,
+                                maxDepth_,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -500.0,
+                                500.0,
+                                1,
+                                depth16HE(ieta, iphi),
+                                false);
+            spr::energyHCALCell(hotCell,
+                                hbhe,
+                                ehdepthRaw,
+                                maxDepth_,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -500.0,
+                                500.0,
+                                2,
+                                depth16HE(ieta, iphi),
+                                false);
             for (int i = 0; i < depthMax_; ++i)
               eHcalDetId[i] = HcalDetId();
             for (unsigned int i = 0; i < ehdepth.size(); ++i) {
@@ -615,10 +710,60 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 #endif
                 }
               }
+              double eneAux = ehdepthAux[i].first;
+              if (eneAux > 0.0) {
+                if (theHBHETopology_->validHcal(hcid0)) {
+                  double chgAux(eneAux), enecAux(eneAux);
+                  double corr = respCorr(DetId(hcid0));
+                  if (corr != 0)
+                    eneAux /= corr;
+                  double gain = gainFactor(conditions, hcid0);
+                  if (gain != 0)
+                    chgAux /= gain;
+                  int depth = ehdepthAux[i].second - 1;
+                  if (collapseDepth_) {
+                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    depth = id.depth() - 1;
+                  }
+                  eHcalDepthHotAux[depth] += eneAux;
+                  eHcalDepthHotCAux[depth] += enecAux;
+                  cHcalDepthHotAux[depth] += chgAux;
+#ifdef EDM_ML_DEBUG
+                  if ((verbosity_ % 10) > 0)
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneAux << ":" << enecAux
+                                                 << " C " << chgAux << " L " << actL << " Match " << tmpC;
+#endif
+                }
+              }
+              double eneRaw = ehdepthRaw[i].first;
+              if (eneRaw > 0.0) {
+                if (theHBHETopology_->validHcal(hcid0)) {
+                  double chgRaw(eneRaw), enecRaw(eneRaw);
+                  double corr = respCorr(DetId(hcid0));
+                  if (corr != 0)
+                    eneRaw /= corr;
+                  double gain = gainFactor(conditions, hcid0);
+                  if (gain != 0)
+                    chgRaw /= gain;
+                  int depth = ehdepthRaw[i].second - 1;
+                  if (collapseDepth_) {
+                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    depth = id.depth() - 1;
+                  }
+                  eHcalDepthHotRaw[depth] += eneRaw;
+                  eHcalDepthHotCRaw[depth] += enecRaw;
+                  cHcalDepthHotRaw[depth] += chgRaw;
+#ifdef EDM_ML_DEBUG
+                  if ((verbosity_ % 10) > 0)
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << eneRaw << ":" << enecRaw
+                                                 << " C " << chgRaw << " L " << actL << " Match " << tmpC;
+#endif
+                }
+              }
             }
 
             HcalDetId oppCell(subdet, -ieta, iphi, HcalDetId(hotCell).depth());
-            std::vector<std::pair<double, int>> ehdeptho;
+            std::vector<std::pair<double, int>> ehdeptho, ehdepthoAux, ehdepthoRaw;
             spr::energyHCALCell(oppCell,
                                 hbhe,
                                 ehdeptho,
@@ -629,9 +774,35 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
                                 -100.0,
                                 -500.0,
                                 500.0,
-                                useRaw_,
+                                0,
                                 depth16HE(-ieta, iphi),
-                                false);  //(((verbosity_/1000)%10)>0));
+                                false);
+            spr::energyHCALCell(oppCell,
+                                hbhe,
+                                ehdepthoAux,
+                                maxDepth_,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -500.0,
+                                500.0,
+                                1,
+                                depth16HE(-ieta, iphi),
+                                false);
+            spr::energyHCALCell(oppCell,
+                                hbhe,
+                                ehdepthoRaw,
+                                maxDepth_,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -100.0,
+                                -500.0,
+                                500.0,
+                                2,
+                                depth16HE(-ieta, iphi),
+                                false);
             for (unsigned int i = 0; i < ehdeptho.size(); ++i) {
               HcalSubdetector subdet0 =
                   (hborhe) ? ((ehdeptho[i].second >= depth16HE(-ieta, iphi)) ? HcalEndcap : HcalBarrel) : subdet;
@@ -671,6 +842,50 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
 #endif
                 }
               }
+              double eneAux = ehdepthoAux[i].first;
+              if (eneAux > 0.0) {
+                if (theHBHETopology_->validHcal(hcid0)) {
+                  double chgAux(eneAux);
+                  double corr = respCorr(DetId(hcid0));
+                  if (corr != 0)
+                    eneAux /= corr;
+                  double gain = gainFactor(conditions, hcid0);
+                  if (gain != 0)
+                    chgAux /= gain;
+                  int depth = ehdepthoAux[i].second - 1;
+                  if (collapseDepth_) {
+                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    depth = id.depth() - 1;
+                  }
+                  cHcalDepthHotBGAux[depth] += chgAux;
+#ifdef EDM_ML_DEBUG
+                  if ((verbosity_ % 10) > 0)
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " Depth " << depth << " E " << eneAux << " C " << chgAux;
+#endif
+                }
+              }
+              double eneRaw = ehdepthoRaw[i].first;
+              if (eneRaw > 0.0) {
+                if (theHBHETopology_->validHcal(hcid0)) {
+                  double chgRaw(eneRaw);
+                  double corr = respCorr(DetId(hcid0));
+                  if (corr != 0)
+                    eneRaw /= corr;
+                  double gain = gainFactor(conditions, hcid0);
+                  if (gain != 0)
+                    chgRaw /= gain;
+                  int depth = ehdepthoRaw[i].second - 1;
+                  if (collapseDepth_) {
+                    HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+                    depth = id.depth() - 1;
+                  }
+                  cHcalDepthHotBGRaw[depth] += chgRaw;
+#ifdef EDM_ML_DEBUG
+                  if ((verbosity_ % 10) > 0)
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " Depth " << depth << " E " << eneRaw << " C " << chgRaw;
+#endif
+                }
+              }
             }
           }
         }
@@ -691,6 +906,18 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
           hbheMuon.hcalDepthChargeHotBG_.push_back(cHcalDepthHotBG[i]);
           hbheMuon.hcalDepthMatch_.push_back(matchDepth[i]);
           hbheMuon.hcalDepthMatchHot_.push_back(matchDepthHot[i]);
+          hbheMuon.hcalDepthEnergyAux_.push_back(eHcalDepthAux[i]);
+          hbheMuon.hcalDepthEnergyHotAux_.push_back(eHcalDepthHotAux[i]);
+          hbheMuon.hcalDepthEnergyCorrAux_.push_back(eHcalDepthCAux[i]);
+          hbheMuon.hcalDepthEnergyHotCorrAux_.push_back(eHcalDepthHotCAux[i]);
+          hbheMuon.hcalDepthChargeHotAux_.push_back(cHcalDepthHotAux[i]);
+          hbheMuon.hcalDepthChargeHotBGAux_.push_back(cHcalDepthHotBGAux[i]);
+          hbheMuon.hcalDepthEnergyRaw_.push_back(eHcalDepthRaw[i]);
+          hbheMuon.hcalDepthEnergyHotRaw_.push_back(eHcalDepthHotRaw[i]);
+          hbheMuon.hcalDepthEnergyCorrRaw_.push_back(eHcalDepthCRaw[i]);
+          hbheMuon.hcalDepthEnergyHotCorrRaw_.push_back(eHcalDepthHotCRaw[i]);
+          hbheMuon.hcalDepthChargeHotRaw_.push_back(cHcalDepthHotRaw[i]);
+          hbheMuon.hcalDepthChargeHotBGRaw_.push_back(cHcalDepthHotBGRaw[i]);
         }
         hbheMuon.hcalActiveLength_ = activeLengthTot;
         hbheMuon.hcalHot_ = isHot;
@@ -719,7 +946,6 @@ void AlCaHcalHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<std::string>("labelVertex", "offlinePrimaryVertices");
   desc.add<std::string>("labelMuon", "muons");
   desc.add<std::string>("labelHBHEMuon", "hbheMuon");
-  desc.add<int>("useRaw", 0);
   desc.add<bool>("collapseDepth", false);
   desc.add<bool>("isItPlan1", false);
   desc.addUntracked<int>("verbosity", 0);
