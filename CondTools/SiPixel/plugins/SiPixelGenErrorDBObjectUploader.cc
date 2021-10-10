@@ -180,8 +180,6 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       //Barrel Pixels first
       if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
           (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXB)) {
-        edm::LogPrint("SiPixelGenErrorDBObjectUploader") << "--- IN THE BARREL ---\n";
-
         //Get the layer, ladder, and module corresponding to this DetID
         layer = tTopo->pxbLayer(detid.rawId());
         ladder = tTopo->pxbLadder(detid.rawId());
@@ -215,17 +213,12 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         if (thisID == 10000 || (!(*obj).putGenErrorID(detid.rawId(), thisID)))
           edm::LogPrint("SiPixelGenErrorDBObjectUploader")
               << " Could not fill barrel layer " << layer << ", module " << module << "\n";
-        // ----- debug:
         edm::LogPrint("SiPixelGenErrorDBObjectUploader")
-            << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module " << module
-            << ".\n";  //Uncomment to read out exact position of each element.
-                       // -----
+            << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module " << module;
       }
       //Now endcaps
       else if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ||
                (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXEC)) {
-        edm::LogPrint("SiPixelGenErrorDBObjectUploader") << "--- IN AN ENDCAP ---\n";
-
         //Get the DetID's disk, blade, side, panel, and module
         disk = tTopo->pxfDisk(detid.rawId());    //1,2,3
         blade = tTopo->pxfBlade(detid.rawId());  //1-56 (Ring 1 is 1-22, Ring 2 is 23-56)
@@ -265,20 +258,17 @@ void SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const ed
           edm::LogPrint("SiPixelGenErrorDBObjectUploader")
               << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade << ", panel "
               << panel << ".\n";
-        // ----- debug:
-        edm::LogPrint("SiPixelGenErrorDBObjectUploader")
-            << "This is an endcap element with: side " << side << ", disk " << disk << ", blade " << blade << ", panel "
-            << panel << ".\n";  //Uncomment to read out exact position of each element.
+        edm::LogPrint("SiPixelGenErrorDBObjectUploader") << "This is an endcap element with: side " << side << ", disk "
+                                                         << disk << ", blade " << blade << ", panel " << panel;
       } else {
         continue;
       }
 
       //Print out the assignment of this DetID
       short mapnum;
-      edm::LogPrint("SiPixelGenErrorDBObjectUploader") << "checking map:\n";
       mapnum = (*obj).getGenErrorID(detid.rawId());
       edm::LogPrint("SiPixelGenErrorDBObjectUploader")
-          << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << ".\n\n";
+          << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << "\n";
     }
   }
 
