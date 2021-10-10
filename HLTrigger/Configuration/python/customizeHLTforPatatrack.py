@@ -216,6 +216,32 @@ def customisePixelLocalReconstruction(process):
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
 
 
+    # workaround for AlCa paths
+
+    if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
+            process.HLTBeginSequenceRandom +
+            process.hltScalersRawToDigi +
+            process.hltPreAlCaLumiPixelsCountsRandom +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
+
+    if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
+            process.HLTBeginSequence +
+            process.hltScalersRawToDigi +
+            process.hltL1sZeroBias +
+            process.hltPreAlCaLumiPixelsCountsZeroBias +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
+
+
     # done
     return process
 
