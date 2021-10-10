@@ -43,6 +43,7 @@ public:
 private:
   // ----------member data ---------------------------
   int prescale_;
+  double minimumMuonP_;
   edm::InputTag labelHBHEMuonVar_;
   edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
 };
@@ -52,10 +53,11 @@ private:
 //
 AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter(edm::ParameterSet const& iConfig)
     : prescale_(iConfig.getParameter<int>("prescale")),
+      minimumMuonP_(iConfig.getParameter<double>("minimumMuonP")),
       labelHBHEMuonVar_(iConfig.getParameter<edm::InputTag>("hbheMuonLabel")),
       tokHBHEMuonVar_(consumes<HcalHBHEMuonVariablesCollection>(labelHBHEMuonVar_)) {
-  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale_ " << prescale_ << "\n\t Labels "
-                               << labelHBHEMuonVar_;
+  edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \n\t prescale_ " << prescale_ << "\t minimumMuonP_ "
+                               << minimumMuonP_ << "\n\t Labels " << labelHBHEMuonVar_;
 }  // AlCaHcalHBHEMuonFilter::AlCaHcalHBHEMuonFilter  constructor
 
 //
@@ -76,11 +78,17 @@ bool AlCaHcalHBHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::Even
   if (hbheMuonColl.isValid()) {
     auto hbheMuon = hbheMuonColl.product();
     if (!hbheMuon->empty()) {
-      ++(runCache(iEvent.getRun().index())->nGood_);
-      if (prescale_ <= 1)
-        accept = true;
-      else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
-        accept = true;
+      bool ok(false);
+      for (auto const& muon : *hbheMuon)
+        if (muon.pMuon_ >= minimumMuonP_)
+          ok = true;
+      if (ok) {
+        ++(runCache(iEvent.getRun().index())->nGood_);
+        if (prescale_ <= 1)
+          accept = true;
+        else if (runCache(iEvent.getRun().index())->nGood_ % prescale_ == 1)
+          accept = true;
+      }
     }
   } else {
     edm::LogVerbatim("HBHEMuon") << "AlCaHcalHBHEMuonFilter::Cannot find the collection for HcalHBHEMuonVariables";
@@ -117,6 +125,7 @@ void AlCaHcalHBHEMuonFilter::globalEndRun(edm::Run const& iRun, edm::EventSetup 
 void AlCaHcalHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("prescale", 1);
+  desc.add<double>("minimumMuonP", 10.0);
   desc.add<edm::InputTag>("hbheMuonLabel", edm::InputTag("alcaHcalHBHEMuonProducer", "hbheMuon"));
   descriptions.add("alcaHcalHBHEMuonFilter", desc);
 }
