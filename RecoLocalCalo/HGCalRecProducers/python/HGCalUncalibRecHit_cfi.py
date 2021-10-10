@@ -4,6 +4,8 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
 
 fCPerMIP_v10 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
+fCPerMIP_v16 = fCPerMIP_v10
+
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
     "HGCalUncalibRecHitProducer",
@@ -74,6 +76,10 @@ HGCalUncalibRecHit = cms.EDProducer(
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v10 ) 
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v10 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV12_cff import phase2_hgcalV12
+phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v16 ) 
+phase2_hgcalV12.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v16 )
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig ,
