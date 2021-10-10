@@ -142,7 +142,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
 
   // write the object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->writeOne(&calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+  poolDbService->writeOneIOV(calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
 }
 
 //------------------------------------------------------------------------------
