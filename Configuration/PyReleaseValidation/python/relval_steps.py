@@ -2126,6 +2126,16 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCal
                         '--triggerResultsProcess':'RECO',
                         }
 
+steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSAlignment',
+                           '--scenario':'pp',
+                           '--data':'',
+                           '--era':'Run2_2017',
+                           '--datatier':'ALCARECO',
+                           '--eventcontent':'ALCARECO',
+                           '--conditions':'121X_dataRun3_Prompt_Candidate_2021_10_09_12_20_39',
+                           '--triggerResultsProcess':'RECO',
+                           }
+
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
                         '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
@@ -2164,6 +2174,13 @@ steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
                         '--data':'',
                         '--era':'Run2_2017',
                         '--filein':'file:PPSTimingCalib.root'}
+
+steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlig']),
+                           '--conditions':'121X_dataRun3_Prompt_Candidate_2021_10_09_12_20_39',
+                           '--scenario':'pp',
+                           '--data':'',
+                           '--era':'Run2_2017',
+                           '--filein':'file:PPSAlignment.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM',
