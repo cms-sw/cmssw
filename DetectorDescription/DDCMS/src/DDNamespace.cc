@@ -3,6 +3,7 @@
 #include "DataFormats/Math/interface/Rounding.h"
 #include "DD4hep/Path.h"
 #include "DD4hep/Printout.h"
+#include "Evaluator/Evaluator.h"
 #include "XML/XML.h"
 
 #include <TClass.h>
@@ -136,6 +137,10 @@ void DDNamespace::addConstant(const string& name, const string& val, const strin
   addConstantNS(prepend(name), val, type);
 }
 
+namespace dd4hep {
+  dd4hep::tools::Evaluator& evaluator();
+}
+
 void DDNamespace::addConstantNS(const string& name, const string& val, const string& type) const {
   const string& v = val;
   const string& n = name;
@@ -145,7 +150,14 @@ void DDNamespace::addConstantNS(const string& name, const string& val, const str
                    n.c_str(),
                    v.c_str(),
                    type.c_str());
-  dd4hep::_toDictionary(n, v, type);
+  const dd4hep::tools::Evaluator& eval(dd4hep::evaluator());
+  bool constExists = eval.findVariable(n);
+  dd4hep::printout(
+      m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "findVariable result = %d", constExists);
+  if (constExists == false) {
+    // Only add it to the dictionary if it is not yet defined
+    dd4hep::_toDictionary(n, v, type);
+  }
   dd4hep::Constant c(n, v, type);
 
   m_context->description.addConstant(c);
