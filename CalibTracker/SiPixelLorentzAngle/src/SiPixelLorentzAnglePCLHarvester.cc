@@ -29,6 +29,7 @@
 class SiPixelLorentzAnglePCLHarvester : public DQMEDHarvester {
 public:
   SiPixelLorentzAnglePCLHarvester(const edm::ParameterSet&);
+  ~SiPixelLorentzAnglePCLHarvester() override = default;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -249,7 +250,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
                                 << "\t"
                                 << "newDetId" << std::endl;
 
-  SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
+  std::unique_ptr<SiPixelLorentzAngle> LorentzAngle = std::make_unique<SiPixelLorentzAngle>();
 
   f1 = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
   f1->SetParName(0, "offset");
@@ -444,7 +445,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     try {
-      mydbservice->writeOne(LorentzAngle, mydbservice->currentTime(), recordName_);
+      mydbservice->writeOneIOV(LorentzAngle.get(), mydbservice->currentTime(), recordName_);
     } catch (const cond::Exception& er) {
       edm::LogError("SiPixelLorentzAngleDB") << er.what() << std::endl;
     } catch (const std::exception& er) {
@@ -453,7 +454,6 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   } else {
     edm::LogError("SiPixelLorentzAngleDB") << "Service is unavailable" << std::endl;
   }
-  delete LorentzAngle;
 }
 
 void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc_slice_, int i, int i_ring) {
