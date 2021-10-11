@@ -166,9 +166,9 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal'],
 
-            'allForPrompt': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma',
+            'allForPrompt': ['@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma',
                              'PostDQMOffline',
-                             '@common+@muon+@hcal+@jetmet+@ecal+@egamma'],
+                             '@common+@muon+@L1TMon+@hcal+@jetmet+@ecal+@egamma'],
 
             'rerecoCommon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                              'PostDQMOffline',
