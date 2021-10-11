@@ -149,7 +149,7 @@ const vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(
 const vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) const {
   vector<const reco::GenJet*> out;
 
-  for (auto const& j : *jets ){
+  for (auto const& j : *jets) {
     if (j.p4().pt() > ptMin && j.p4().eta() > etaMin && j.p4().eta() < etaMax) {
       out.push_back(&j);
     } else {
@@ -186,24 +186,22 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
   //const vector<reco::GenJet>* genJets = handleGenJets.product();
   auto const& genJets = iEvent.get(m_GenJetCollection);
 
-
   vector<const reco::GenJet*> filGenJets = filterGenJets(&genJets);
   // Getting p4 of jet with no lepton
   vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
   unsigned int nGoodJets = 0;
-  for (auto const& j : filGenJets){
+  for (auto const& j : filGenJets) {
     bool cleanJet = true;
     const math::XYZTLorentzVector& p4J = j->p4();
-    for( auto const& p : filGenLep)
-      if(reco::deltaR2(p->p4() , p4J) < deltaRJetLep*deltaRJetLep)
-	cleanJet = false;
-    
-    if(cleanJet){
-      if( genJetsWithoutLeptonsP4.size() < 2 )
-	genJetsWithoutLeptonsP4.push_back( p4J );
+    for (auto const& p : filGenLep)
+      if (reco::deltaR2(p->p4(), p4J) < deltaRJetLep * deltaRJetLep)
+        cleanJet = false;
+
+    if (cleanJet) {
+      if (genJetsWithoutLeptonsP4.size() < 2)
+        genJetsWithoutLeptonsP4.push_back(p4J);
       nGoodJets++;
     }
-      
   }
 
   //If we do not find at least 2 jets veto the event
