@@ -122,10 +122,28 @@ public:
     return tmp;
   }
 
+  template<class T>
+  T extractDataFromBytesMSB(const uint8_t* array, int start, int size) const{
+    T result=array[start];
+    for(int i=start+1;i<start+size;i++)
+      result=(result<<8)|array[i];
+    return result;
+
+  }
+  template<class T>
+  T extractDataFromBytesLSB(const uint8_t* array, int start, int size) const{
+    T result=array[start];
+    for(int i=start+size-1;i>=start;i--)
+      result=(result<<8)|array[i];
+    return result;
+
+  }
+
   inline uint64_t getFPGATimestamp() const {
     uint64_t tmp = 0;
     if (status_) {
-      tmp = *((const uint64_t*)(totemSampicInfoPtr_ + TotemSampicConstant::fpgaTime_Position)) & 0xFFFFFFFFFF;
+      tmp = extractDataFromBytesMSB<uint64_t>(totemSampicInfoPtr_,TotemSampicConstant::fpgaTime_Position,5);
+      //*((const uint64_t*)(totemSampicInfoPtr_ + TotemSampicConstant::fpgaTime_Position)) & 0xFFFFFFFFFF;
     }
     return tmp;
   }
@@ -133,7 +151,8 @@ public:
   inline uint16_t getTimestampA() const {
     uint16_t tmp = 0;
     if (status_) {
-      tmp = *((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::timestampA_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicInfoPtr_,TotemSampicConstant::timestampA_Position,2);
+      //*((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::timestampA_Position));
     }
     tmp = 0xFFF - tmp;
     return grayToBinary<uint16_t>(tmp);
@@ -142,7 +161,8 @@ public:
   inline uint16_t getTimestampB() const {
     uint16_t tmp = 0;
     if (status_) {
-      tmp = *((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::timestampB_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicInfoPtr_,TotemSampicConstant::timestampB_Position,2);
+      //*((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::timestampB_Position));
     }
     return grayToBinary<uint16_t>(tmp);
   }
@@ -150,7 +170,8 @@ public:
   inline uint16_t getCellInfo() const {
     uint16_t tmp = 0;
     if (status_)
-      tmp = *((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::cellInfo_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicInfoPtr_,TotemSampicConstant::cellInfo_Position,2);
+      //*((const uint16_t*)(totemSampicInfoPtr_ + TotemSampicConstant::cellInfo_Position));
     return tmp & TotemSampicConstant::cellInfo_Mask;
   }
 
@@ -191,7 +212,8 @@ public:
   inline uint64_t getL1ATimestamp() const {
     uint64_t tmp = 0;
     if (status_) {
-      tmp = *((const uint64_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::l1ATimestamp_Position)) & 0xFFFFFFFFFF;
+      tmp = extractDataFromBytesMSB<uint64_t>(totemSampicEventInfoPtr_,TotemSampicConstant::l1ATimestamp_Position,5);
+      //*((const uint64_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::l1ATimestamp_Position)) & 0xFFFFFFFFFF;
     }
     return tmp;
   }
@@ -199,35 +221,40 @@ public:
   inline uint16_t getBunchNumber() const {
     uint16_t tmp = 0;
     if (status_)
-      tmp = *((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::bunchNumber_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicEventInfoPtr_,TotemSampicConstant::bunchNumber_Position,2);
+      //*((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::bunchNumber_Position));
     return tmp;
   }
 
   inline uint32_t getOrbitNumber() const {
     uint32_t tmp = 0;
     if (status_)
-      tmp = *((const uint32_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::orbitNumber_Position));
+      tmp = extractDataFromBytesMSB<uint32_t>(totemSampicEventInfoPtr_,TotemSampicConstant::orbitNumber_Position,4);
+      //*((const uint32_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::orbitNumber_Position));
     return tmp;
   }
 
   inline uint32_t getEventNumber() const {
     uint32_t tmp = 0;
     if (status_)
-      tmp = *((const uint32_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::eventNumber_Position));
+      tmp = extractDataFromBytesMSB<uint32_t>(totemSampicEventInfoPtr_,TotemSampicConstant::eventNumber_Position,4);
+      //*((const uint32_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::eventNumber_Position));
     return tmp;
   }
 
   inline uint16_t getChannelMap() const {
     uint16_t tmp = 0;
     if (status_)
-      tmp = *((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::channelMap_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicEventInfoPtr_,TotemSampicConstant::channelMap_Position,2);
+      //*((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::channelMap_Position));
     return tmp;
   }
 
   inline uint16_t getL1ALatency() const {
     uint16_t tmp = 0;
     if (status_)
-      tmp = *((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::l1ALatency_Position));
+      tmp = extractDataFromBytesMSB<uint16_t>(totemSampicEventInfoPtr_,TotemSampicConstant::l1ALatency_Position,2);
+      //*((const uint16_t*)(totemSampicEventInfoPtr_ + TotemSampicConstant::l1ALatency_Position));
     return tmp;
   }
 
