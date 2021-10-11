@@ -1,31 +1,26 @@
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleCalibrationStruct.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include <fmt/format.h>
 #include <fmt/printf.h>
 #include <fstream>
 
-//------------------------------------------------------------------------------
+#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleCalibrationStruct.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+//------------------------------------------------------------------------------
 class SiPixelLorentzAnglePCLHarvester : public DQMEDHarvester {
 public:
   SiPixelLorentzAnglePCLHarvester(const edm::ParameterSet&);
@@ -56,7 +51,6 @@ private:
 };
 
 //------------------------------------------------------------------------------
-
 SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::ParameterSet& iConfig)
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoEsToken_(esConsumes<edm::Transition::BeginRun>()),
@@ -73,7 +67,6 @@ SiPixelLorentzAnglePCLHarvester::SiPixelLorentzAnglePCLHarvester(const edm::Para
 }
 
 //------------------------------------------------------------------------------
-
 void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // geometry
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
@@ -129,7 +122,6 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 }
 
 //------------------------------------------------------------------------------
-
 void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
   // go in the right directory
   iGetter.cd();
@@ -212,43 +204,18 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   MonitorElement* h_drift_depth_adc_slice_ =
       iBooker.book1D("h_drift_depth_adc_slice", "slice of adc histogram", hist_drift_, min_drift_, max_drift_);
 
-  edm::LogPrint("LorentzAngle") << "module"
-                                << "\t"
-                                << "layer"
-                                << "\t"
-                                << "offset"
-                                << "\t"
-                                << "e0"
-                                << "\t"
-                                << "slope"
-                                << "\t"
-                                << "e1"
-                                << "\t"
-                                   "rel.err"
-                                << "\t"
-                                   "pull"
-                                << "\t"
-                                << "p2"
-                                << "\t"
-                                << "e2"
-                                << "\t"
-                                << "p3"
-                                << "\t"
-                                << "e3"
-                                << "\t"
-                                << "p4"
-                                << "\t"
-                                << "e4"
-                                << "\t"
-                                << "p5"
-                                << "\t"
-                                << "e5"
-                                << "\t"
-                                << "chi2"
-                                << "\t"
-                                << "prob"
-                                << "\t"
+  // clang-format off
+  edm::LogPrint("LorentzAngle") << "module" << "\t" << "layer" << "\t"
+                                << "offset" << "\t" << "e0" << "\t"
+                                << "slope"  << "\t" << "e1" << "\t"
+                                << "rel.err" << "\t" << "pull" << "\t"
+                                << "p2" << "\t" << "e2" << "\t"
+                                << "p3" << "\t" << "e3" << "\t"
+                                << "p4" << "\t" << "e4" << "\t"
+                                << "p5" << "\t" << "e5" << "\t"
+                                << "chi2" << "\t" << "prob" << "\t"
                                 << "newDetId" << std::endl;
+  // clang-format on
 
   std::unique_ptr<SiPixelLorentzAngle> LorentzAngle = std::make_unique<SiPixelLorentzAngle>();
 
@@ -456,6 +423,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   }
 }
 
+//------------------------------------------------------------------------------
 void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc_slice_, int i, int i_ring) {
   double nentries = 0;
   h_drift_depth_adc_slice_->Reset();
@@ -495,12 +463,11 @@ void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc
 //------------------------------------------------------------------------------
 void SiPixelLorentzAnglePCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<std::string>>(
-      "newmodulelist",
-      {"BPix_BmO_SEC3_LYR2_LDR5F_MOD2", "BPix_BpO_SEC1_LYR2_LDR1F_MOD1"});  // the layer 2 new module names
-  desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle");          // the directory of PCL Worker output
-  desc.add<double>("fitProbCut", 0.5);
-  desc.add<std::string>("record", "SiPixelLorentzAngleRcd");
+  desc.setComment("Harvester module of the SiPixel Lorentz Angle PCL monitoring workflow");
+  desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
+  desc.add<std::string>("dqmDir", "AlCaReco/SiPixelLorentzAngle")->setComment("the directory of PCL Worker output");
+  desc.add<double>("fitProbCut", 0.5)->setComment("cut on fit chi2 probabiblity to accept measurement");
+  desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
 }
 
