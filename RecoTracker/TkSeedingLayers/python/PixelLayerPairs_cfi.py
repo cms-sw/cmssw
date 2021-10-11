@@ -16,11 +16,11 @@ PixelLayerPairs = seedingLayersEDProducer.clone(
                  'BPix2+FPix2_neg', 
                  'FPix1_pos+FPix2_pos', 
                  'FPix1_neg+FPix2_neg'],
-    BPix = cms.PSet(
+    BPix = dict(
 	TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
     ),
