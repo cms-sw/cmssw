@@ -136,7 +136,7 @@ public:
                          int& cellV,
                          int& celltype,
                          double& wt,
-			 bool extend = false,
+                         bool extend = false,
                          bool debug = false) const;
   bool waferHexagon6() const {
     return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
@@ -213,7 +213,8 @@ private:
               const double& cellR,
               const std::vector<double>& posX,
               const std::vector<double>& posY) const;
-  void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend = false, bool debug = false) const;
+  void cellHex(
+      double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend = false, bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;

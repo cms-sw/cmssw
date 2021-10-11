@@ -159,7 +159,8 @@ std::pair<int, int> HGCalDDDConstants::assignCell(float x, float y, int lay, int
   }
 }
 
-std::array<int, 5> HGCalDDDConstants::assignCellHex(float x, float y, int lay, bool reco, bool extend, bool debug) const {
+std::array<int, 5> HGCalDDDConstants::assignCellHex(
+    float x, float y, int lay, bool reco, bool extend, bool debug) const {
   int waferU(0), waferV(0), waferType(-1), cellU(0), cellV(0);
   if (waferHexagon8()) {
     double xx = (reco) ? HGCalParameters::k_ScaleToDDD * x : x;
@@ -1166,7 +1167,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           int& cellV,
                                           int& celltype,
                                           double& wt,
-					  bool extend,
+                                          bool extend,
                                           bool debug) const {
   waferU = waferV = 1 + hgpar_->waferUVMax_;
   cellU = cellV = celltype = 0;
@@ -1499,7 +1500,8 @@ int HGCalDDDConstants::cellHex(
   return num;
 }
 
-void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend, bool debug) const {
+void HGCalDDDConstants::cellHex(
+    double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend, bool debug) const {
   int N = (cellType == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   double Rc = 2 * rmax_ / (3 * N);
   double rc = 0.5 * Rc * sqrt3_;
