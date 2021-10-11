@@ -53,6 +53,7 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     edm::Handle<std::vector <pat::Jet> > jetCollection;
     iEvent.getByToken(jetToken_, jetCollection);
 
+    const float jec = 1.; // JEC not implemented!
     float numerator = 0;
     float denominator = 0;
 
@@ -77,9 +78,12 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
             denominator = 1;
         }
 
-
+        // check Pt/Eta bin
         reco::Jet recoJet = *jet;
-        jetTagPlotter_->analyzeTag(recoJet, 1, numerator/denominator, 0); //TODO jetflavour
+        if(jetTagPlotter_->etaPtBin().inBin(recoJet, jec))
+        {
+            jetTagPlotter_->analyzeTag(recoJet, jec, numerator/denominator, 0); //TODO jetflavour
+        }
     }
 }
 
