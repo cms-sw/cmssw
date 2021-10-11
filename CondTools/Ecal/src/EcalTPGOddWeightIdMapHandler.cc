@@ -203,7 +203,6 @@ void popcon::EcalTPGOddWeightIdMapHandler::getNewObjects() {
               m_i_oddweightIdMap = weightId;
 
               writeFile("last_tpg_OddweightIdMap_settings.txt");
-              delete weightMap;
 
             } else {
               m_i_run_number = irun;
@@ -274,7 +273,6 @@ void popcon::EcalTPGOddWeightIdMapHandler::readtxtFile() {
     throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readtxtFile error : " << e.what();
   }
   edm::LogVerbatim("EcalTPGOddWeightIdMapHandler") << " **************** ";
-  delete weightMap;
 }
 
 void popcon::EcalTPGOddWeightIdMapHandler::readxmlFile() {
@@ -332,7 +330,6 @@ void popcon::EcalTPGOddWeightIdMapHandler::readxmlFile() {
     throw cms::Exception("FileReadError") << "EcalTPGOddWeightIdMapHandler::readxmlFile error : " << e.what();
   }
   edm::LogVerbatim("EcalTPGOddWeightIdMapHandler") << " **************** ";
-  delete weightMap;
 }
 
 void popcon::EcalTPGOddWeightIdMapHandler::readFromFile(const char* inputFile) {
