@@ -18,15 +18,16 @@
 #include "StripDataView.cuh"
 
 //#define GPU_DEBUG
-//#define GPU_CHECK
-//#define CENTERBARY
-#ifdef GPU_CHECK
+#ifdef EDM_ML_DEBUG
+#define GPU_CHECK
 #include <stdio.h>
 #endif
 
 namespace stripgpu {
+  using ConditionsDeviceView = SiStripClusterizerConditionsGPU::Data::DeviceView;
+
   __global__ static void unpackChannels(const ChannelLocsView *chanlocs,
-                                        const SiStripClusterizerConditionsGPU::Data *conditions,
+                                        const ConditionsDeviceView *conditions,
                                         uint8_t *alldata,
                                         uint16_t *channel,
                                         stripgpu::stripId_t *stripId) {
@@ -70,8 +71,7 @@ namespace stripgpu {
 
   __device__ constexpr int maxseeds() { return kMaxSeedStrips; }
 
-  __global__ static void setSeedStripsGPU(StripDataView *sst_data_d,
-                                          const SiStripClusterizerConditionsGPU::Data *conditions) {
+  __global__ static void setSeedStripsGPU(StripDataView *sst_data_d, const ConditionsDeviceView *conditions) {
     const int nStrips = sst_data_d->nStrips;
     const auto __restrict__ chanlocs = sst_data_d->chanlocs;
     const uint8_t *__restrict__ adc = sst_data_d->adc;
@@ -96,14 +96,14 @@ namespace stripgpu {
         const fedCh_t channel = chanlocs->fedCh(chan);
         const float noise_i = conditions->noise(fed, channel, strip);
         const uint8_t adc_i = adc[i];
+
         seedStripsMask[i] = (adc_i >= static_cast<uint8_t>(noise_i * seedThreshold)) ? 1 : 0;
         seedStripsNCMask[i] = seedStripsMask[i];
       }
     }
   }
 
-  __global__ static void setNCSeedStripsGPU(StripDataView *sst_data_d,
-                                            const SiStripClusterizerConditionsGPU::Data *conditions) {
+  __global__ static void setNCSeedStripsGPU(StripDataView *sst_data_d, const ConditionsDeviceView *conditions) {
     const int nStrips = sst_data_d->nStrips;
     const auto __restrict__ chanlocs = sst_data_d->chanlocs;
     const uint16_t *__restrict__ channels = sst_data_d->channel;
@@ -145,7 +145,7 @@ namespace stripgpu {
   }
 
   __global__ static void findLeftRightBoundaryGPU(StripDataView *sst_data_d,
-                                                  const SiStripClusterizerConditionsGPU::Data *conditions,
+                                                  const ConditionsDeviceView *conditions,
                                                   SiStripClustersCUDADevice::DeviceView *clust_data_d) {
     const int nStrips = sst_data_d->nStrips;
     const int *__restrict__ seedStripsNCIndex = sst_data_d->seedStripsNCIndex;
@@ -198,7 +198,7 @@ namespace stripgpu {
         auto testDet = chanlocs->detID(testchan);
         auto sameDetLeft = det == testDet;
 
-        while (sameDetLeft && rangeLeft >= 0 && rangeLeft <= maxSequentialHoles && size < clusterSizeLimit) {
+        while (sameDetLeft && rangeLeft >= 0 && rangeLeft <= maxSequentialHoles && size < clusterSizeLimit + 1) {
           testchan = channels[testIndex];
           const auto testFed = chanlocs->fedID(testchan);
           const auto testChannel = chanlocs->fedCh(testchan);
@@ -241,7 +241,7 @@ namespace stripgpu {
         auto testDet = chanlocs->detID(testchan);
         auto sameDetRight = det == testDet;
 
-        while (sameDetRight && rangeRight >= 0 && rangeRight <= maxSequentialHoles && size < clusterSizeLimit) {
+        while (sameDetRight && rangeRight >= 0 && rangeRight <= maxSequentialHoles && size < clusterSizeLimit + 1) {
           testchan = channels[testIndex];
           const auto testFed = chanlocs->fedID(testchan);
           const auto testChannel = chanlocs->fedCh(testchan);
@@ -282,21 +282,18 @@ namespace stripgpu {
   }
 
   __global__ static void checkClusterConditionGPU(StripDataView *sst_data_d,
-                                                  const SiStripClusterizerConditionsGPU::Data *conditions,
+                                                  const ConditionsDeviceView *conditions,
                                                   SiStripClustersCUDADevice::DeviceView *clust_data_d) {
     const uint16_t *__restrict__ stripId = sst_data_d->stripId;
     const auto __restrict__ chanlocs = sst_data_d->chanlocs;
     const uint16_t *__restrict__ channels = sst_data_d->channel;
     const uint8_t *__restrict__ adc = sst_data_d->adc;
     const float minGoodCharge = sst_data_d->minGoodCharge;  //1620.0;
-    const int nSeedStripsNC = clust_data_d->nClusters_;
+    const auto nSeedStripsNC = clust_data_d->nClusters_;
+    const auto __restrict__ clusterIndexLeft = clust_data_d->clusterIndex_;
 
-    auto __restrict__ clusterIndexLeft = clust_data_d->clusterIndex_;
     auto __restrict__ clusterSize = clust_data_d->clusterSize_;
     auto __restrict__ clusterADCs = clust_data_d->clusterADCs_;
-#ifdef CENTERBARY
-    auto __restrict__ firstStrip = clust_data_d->firstStrip_;
-#endif
     auto __restrict__ trueCluster = clust_data_d->trueCluster_;
     auto __restrict__ barycenter = clust_data_d->barycenter_;
     auto __restrict__ charge = clust_data_d->charge_;
@@ -341,86 +338,29 @@ namespace stripgpu {
               if (adc_j < 254) {
                 adc_j = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
               }
+              clusterADCs[j * nSeedStripsNC + i] = adc_j;
+
               adcSum += static_cast<float>(adc_j);
               sumx += j * adc_j;
               suma += adc_j;
               j++;
             }
-          }
+          }  // loop over cluster strips
+          charge[i] = adcSum;
           const auto chan = channels[left];
           const fedId_t fed = chanlocs->fedID(chan);
           const fedCh_t channel = chanlocs->fedCh(chan);
-          clusterSize[i] = j;
-          charge[i] = adcSum;
           trueCluster[i] = (adcSum * conditions->invthick(fed, channel)) > minGoodCharge;
+          const auto det = chanlocs->detID(chan);
           const auto bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
           barycenter[i] = static_cast<float>(stripId[left] & stripIndexMask) + bary_i + 0.5f;
-
-#ifdef CENTERBARY
-          int low = left;
-          int high = left + size;
-          if (size > kClusterMaxStrips) {
-            low = std::max(static_cast<int>(left + bary_i - kClusterMaxStrips / 2 - 0.5f), left);
-            while (stripId[low] == stripgpu::invalidStrip) {
-              low++;
-            }
-            high = low + kClusterMaxStrips;
-            if (high > left + size) {
-              high = left + size;
-              low = high - kClusterMaxStrips;
-            }
-#ifdef GPU_CHECK
-            if (not(low >= left && high <= (left + size))) {
-              printf("left %d low %d center %f %f high %d right %d\n",
-                     left,
-                     low,
-                     barycenter[i],
-                     left + bary_i,
-                     high,
-                     left + size);
-              assert(low >= left && high <= (left + size));
-            }
-#endif
-            clusterIndexLeft[i] = low;
-            firstStrip[i] = stripId[low];
-          }
-#else
-          int low = left;
-          int high = left + size;
-#endif
-          j = 0;
-          for (int index = low; index < high; index++) {
-            const auto chan = channels[index];
-            const auto fed = chanlocs->fedID(chan);
-            const auto channel = chanlocs->fedCh(chan);
-            const auto strip = stripId[index];
-#ifdef GPU_CHECK
-            if (fed == stripgpu::invalidFed) {
-              printf("Invalid fed index %d\n", index);
-            }
-#endif
-            if (strip != stripgpu::invalidStrip) {
-              const float gain_j = conditions->gain(fed, channel, strip);
-
-              uint8_t adc_j = adc[index];
-              const int charge = static_cast<int>(static_cast<float>(adc_j) / gain_j + 0.5f);
-
-              if (adc_j < 254)
-                adc_j = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
-              if (j < kClusterMaxStrips) {
-                clusterADCs[j * nSeedStripsNC + i] = adc_j;
-              }
-              j++;
-            }
-          }
-          clusterSize[i] = size;
-        }  // not a duplicate
-      }    // trueCluster[i]
+          clusterSize[i] = j;
+        }  // not a duplicate cluster
+      }    // trueCluster[i] is true
     }      // i < nSeedStripsNC
   }
 
-  void SiStripRawToClusterGPUKernel::unpackChannelsGPU(const SiStripClusterizerConditionsGPU::Data *conditions,
-                                                       cudaStream_t stream) {
+  void SiStripRawToClusterGPUKernel::unpackChannelsGPU(const ConditionsDeviceView *conditions, cudaStream_t stream) {
     constexpr int nthreads = 128;
     const auto channels = chanlocsGPU_->size();
     const auto nblocks = (channels + nthreads - 1) / nthreads;
@@ -453,14 +393,13 @@ namespace stripgpu {
     sst_data_d_->maxSequentialBad = maxSequentialBad_;
     sst_data_d_->maxAdjacentBad = maxAdjacentBad_;
     sst_data_d_->minGoodCharge = minGoodCharge_;
-    sst_data_d_->clusterSizeLimit = keepLargeClusters_ ? 256 : kClusterMaxStrips;
+    sst_data_d_->clusterSizeLimit = maxClusterSize_;
 
     pt_sst_data_d_ = cms::cuda::make_device_unique<stripgpu::StripDataView>(stream);
     cms::cuda::copyAsync(pt_sst_data_d_, sst_data_d_, stream);
   }
 
-  void SiStripRawToClusterGPUKernel::findClusterGPU(const SiStripClusterizerConditionsGPU::Data *conditions,
-                                                    cudaStream_t stream) {
+  void SiStripRawToClusterGPUKernel::findClusterGPU(const ConditionsDeviceView *conditions, cudaStream_t stream) {
     const int nthreads = 128;
     const int nStrips = sst_data_d_->nStrips;
     const int nSeeds = std::min(kMaxSeedStrips, nStrips);
@@ -470,7 +409,6 @@ namespace stripgpu {
     auto cpu_index = cms::cuda::make_host_unique<int[]>(nStrips, stream);
     auto cpu_strip = cms::cuda::make_host_unique<uint16_t[]>(nStrips, stream);
     auto cpu_adc = cms::cuda::make_host_unique<uint8_t[]>(nStrips, stream);
-    auto cpu_noise = cms::cuda::make_host_unique<float[]>(nStrips, stream);
 
     cudaCheck(cudaMemcpyAsync(
         cpu_strip.get(), sst_data_d_->stripId, nStrips * sizeof(uint16_t), cudaMemcpyDeviceToHost, stream));
@@ -494,8 +432,11 @@ namespace stripgpu {
     cudaCheck(cudaGetLastError());
 #endif
 
-    cudaCheck(cudaMemcpyAsync(
-        clusters_d_.nClustersHostPtr(), &(clust_data_d->nClusters_), sizeof(int), cudaMemcpyDeviceToHost, stream));
+    cudaCheck(cudaMemcpyAsync(clusters_d_.nClustersHostPtr(),
+                              &(clust_data_d->nClusters_),
+                              sizeof(clust_data_d->nClusters_),
+                              cudaMemcpyDeviceToHost,
+                              stream));
 
     checkClusterConditionGPU<<<nblocks, nthreads, 0, stream>>>(pt_sst_data_d_.get(), conditions, clust_data_d);
     cudaCheck(cudaGetLastError());
@@ -507,26 +448,27 @@ namespace stripgpu {
 
 #ifdef GPU_DEBUG
     cudaStreamSynchronize(stream);
-    auto clust_data =
-        std::make_unique<SiStripClustersCUDAHost>(clusters_d_, SiStripClustersCUDAHost::kClusterMaxStrips, stream);
+    auto clust_data = std::make_unique<SiStripClustersCUDAHost>(clusters_d_, stream);
     cudaStreamSynchronize(stream);
 
-    auto clusterIndexLeft = clust_data->clusterIndex().get();
-    auto clusterSize = clust_data->clusterSize().get();
-    auto trueCluster = clust_data->trueCluster().get();
-    auto clusterADCs = clust_data->clusterADCs().get();
-    auto detids = clust_data->clusterDetId().get();
+    const auto clusterIndexLeft = clust_data->clusterIndex().get();
+    const auto clusterSize = clust_data->clusterSize().get();
+    const auto trueCluster = clust_data->trueCluster().get();
+    const auto clusterADCs = clust_data->clusterADCs().get();
+    const auto detids = clust_data->clusterDetId().get();
+    const auto charge = clust_data->charge().get();
 
-    const int nSeedStripsNC = clusters_d_.nClusters_h;
+    const auto nSeedStripsNC = clusters_d_.nClustersHost();
     std::cout << "findClusterGPU nSeedStripsNC=" << nSeedStripsNC << std::endl;
 
-    for (int i = 0; i < nSeedStripsNC; i++) {
+    for (auto i = 0U; i < nSeedStripsNC; i++) {
       if (trueCluster[i]) {
         int left = clusterIndexLeft[i];
         uint32_t size = clusterSize[i];
         const auto detid = detids[i];
-        std::cout << "i=" << i << " detId " << detid << " left " << left << " size " << size << " : ";
-        size = std::min(size, kClusterMaxStrips);
+        std::cout << "i=" << i << " detId " << detid << " left " << left << " size " << size << " charge " << charge[i]
+                  << ": ";
+        size = std::min(size, maxClusterSize_);
         for (uint32_t j = 0; j < size; j++) {
           std::cout << (unsigned int)clusterADCs[j * nSeedStripsNC + i] << " ";
         }
@@ -536,7 +478,7 @@ namespace stripgpu {
 #endif
   }
 
-  void SiStripRawToClusterGPUKernel::setSeedStripsNCIndexGPU(const SiStripClusterizerConditionsGPU::Data *conditions,
+  void SiStripRawToClusterGPUKernel::setSeedStripsNCIndexGPU(const ConditionsDeviceView *conditions,
                                                              cudaStream_t stream) {
 #ifdef GPU_DEBUG
     int nStrips = sst_data_d_->nStrips;

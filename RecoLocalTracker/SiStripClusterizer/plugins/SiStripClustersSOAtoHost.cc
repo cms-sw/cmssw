@@ -23,8 +23,7 @@ class SiStripSOAtoHost {
 public:
   SiStripSOAtoHost() = default;
   void makeAsync(const SiStripClustersCUDADevice& clusters_d, cudaStream_t stream) {
-    hostView_ =
-        std::make_unique<SiStripClustersCUDAHost>(clusters_d, SiStripClustersCUDAHost::kClusterMaxStrips, stream);
+    hostView_ = std::make_unique<SiStripClustersCUDAHost>(clusters_d, stream);
   }
   std::unique_ptr<SiStripClustersCUDAHost> getResults() { return std::move(hostView_); }
 

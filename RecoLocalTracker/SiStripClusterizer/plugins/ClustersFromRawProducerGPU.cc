@@ -124,7 +124,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> inputToken_;
   edm::EDPutTokenT<cms::cuda::Product<SiStripClustersCUDADevice>> outputToken_;
 
-  edm::ESGetToken<SiStripClusterizerConditionsGPU, SiStripClusterizerConditionsGPURcd> conditionsToken_;
+  edm::ESGetToken<stripgpu::SiStripClusterizerConditionsGPU, SiStripClusterizerConditionsGPURcd> conditionsToken_;
   edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> cpuConditionsToken_;
 };
 
@@ -142,7 +142,7 @@ void SiStripClusterizerFromRawGPU::fillDescriptions(edm::ConfigurationDescriptio
   clusterizer.add("MaxSequentialHoles", 0U);
   clusterizer.add("MaxSequentialBad", 1U);
   clusterizer.add("MaxAdjacentBad", 0U);
-  clusterizer.add("KeepLargeClusters", false);
+  clusterizer.add("MaxClusterSize", 16U);
 
   edm::ParameterSetDescription clusterChargeCut;
   clusterChargeCut.add("value", -1.0);

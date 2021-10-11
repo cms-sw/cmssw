@@ -18,6 +18,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditionsGPU.h"
 
+using namespace stripgpu;
+
 class SiStripClusterizerConditionsGPUESProducer : public edm::ESProducer {
 public:
   SiStripClusterizerConditionsGPUESProducer(const edm::ParameterSet&);

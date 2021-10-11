@@ -9,10 +9,10 @@
 template <template <typename> class T>
 class SiStripClustersSOABase {
 public:
-  static constexpr uint32_t kClusterMaxStrips = 16;
+  //static constexpr uint32_t kClusterMaxStrips = 16;
 
   SiStripClustersSOABase() = default;
-  //explicit SiStripClustersSOABase(size_t maxClusters, int clustersPerStrip);
+  //explicit SiStripClustersSOABase(uint32_t maxClusters, uint32_t maxStripsPerCluster);
   virtual ~SiStripClustersSOABase() = default;
 
   SiStripClustersSOABase(const SiStripClustersSOABase&) = delete;
@@ -22,6 +22,9 @@ public:
 
   void setNClusters(uint32_t nClusters) { nClusters_ = nClusters; }
   uint32_t nClusters() const { return nClusters_; }
+
+  void setMaxClusterSize(uint32_t maxClusterSize) { maxClusterSize_ = maxClusterSize; }
+  uint32_t maxClusterSize() const { return maxClusterSize_; }
 
   const auto& clusterIndex() const { return clusterIndex_; }
   const auto& clusterSize() const { return clusterSize_; }
@@ -51,5 +54,6 @@ protected:
   T<float[]> barycenter_;
   T<float[]> charge_;
   uint32_t nClusters_;
+  uint32_t maxClusterSize_;
 };
 #endif

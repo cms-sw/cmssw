@@ -19,6 +19,8 @@ siStripClusterizerFromRaw = cms.EDProducer("SiStripClusterizerFromRaw",
                                             HybridZeroSuppressed = cms.bool(False),
                                             ProductLabel = cms.InputTag('rawDataCollector'))
 
+siStripClusterizerFromRaw.Clusterizer.MaxClusterSize = cms.uint32(16)
+
 siStripClusters = SwitchProducerCUDA(
     cpu = siStripClusterizerFromRaw,
 )

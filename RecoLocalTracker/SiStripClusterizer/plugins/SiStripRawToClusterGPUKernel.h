@@ -48,13 +48,15 @@ namespace stripgpu {
     SiStripClustersCUDADevice getResults(cudaStream_t stream);
 
   private:
+    using ConditionsDeviceView = SiStripClusterizerConditionsGPU::Data::DeviceView;
+
     void reset();
-    void unpackChannelsGPU(const SiStripClusterizerConditionsGPU::Data* conditions, cudaStream_t stream);
+    void unpackChannelsGPU(const ConditionsDeviceView* conditions, cudaStream_t stream);
     void allocateSSTDataGPU(int max_strips, cudaStream_t stream);
     void freeSSTDataGPU(cudaStream_t stream);
 
-    void setSeedStripsNCIndexGPU(const SiStripClusterizerConditionsGPU::Data* conditions, cudaStream_t stream);
-    void findClusterGPU(const SiStripClusterizerConditionsGPU::Data* conditions, cudaStream_t stream);
+    void setSeedStripsNCIndexGPU(const ConditionsDeviceView* conditions, cudaStream_t stream);
+    void findClusterGPU(const ConditionsDeviceView* conditions, cudaStream_t stream);
 
     std::vector<stripgpu::fedId_t> fedIndex_;
     std::vector<size_t> fedRawDataOffsets_;
@@ -71,8 +73,8 @@ namespace stripgpu {
     SiStripClustersCUDADevice clusters_d_;
     float channelThreshold_, seedThreshold_, clusterThresholdSquared_;
     uint8_t maxSequentialHoles_, maxSequentialBad_, maxAdjacentBad_;
+    uint32_t maxClusterSize_;
     float minGoodCharge_;
-    bool keepLargeClusters_;
   };
 }  // namespace stripgpu
 #endif

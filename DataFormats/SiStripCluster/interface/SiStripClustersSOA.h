@@ -13,7 +13,7 @@ namespace detail {
 class SiStripClustersSOA : public SiStripClustersSOABase<detail::unique_ptr> {
 public:
   SiStripClustersSOA() = default;
-  explicit SiStripClustersSOA(size_t maxClusters, int clustersPerStrip);
+  explicit SiStripClustersSOA(uint32_t maxClusters, uint32_t maxStripsPerCluster);
   ~SiStripClustersSOA() override = default;
 
   SiStripClustersSOA(const SiStripClustersSOA &) = delete;

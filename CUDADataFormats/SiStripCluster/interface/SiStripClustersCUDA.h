@@ -16,7 +16,7 @@ namespace cms {
 class SiStripClustersCUDADevice : public SiStripClustersSOABase<cms::cuda::device::unique_ptr> {
 public:
   SiStripClustersCUDADevice() = default;
-  explicit SiStripClustersCUDADevice(size_t maxClusters, int clustersPerStrip, cudaStream_t stream);
+  explicit SiStripClustersCUDADevice(uint32_t maxClusters, uint32_t maxStripsPerCluster, cudaStream_t stream);
   ~SiStripClustersCUDADevice() override = default;
 
   SiStripClustersCUDADevice(const SiStripClustersCUDADevice &) = delete;
@@ -34,23 +34,25 @@ public:
     float *barycenter_;
     float *charge_;
     uint32_t nClusters_;
+    uint32_t maxClusterSize_;
   };
 
   DeviceView *view() const { return view_d.get(); }
-  int nClustersHost() const { return nClusters_h; }
-  int *nClustersHostPtr() { return &nClusters_h; }
+  uint32_t nClustersHost() const { return nClustersHost_; }
+  uint32_t *nClustersHostPtr() { return &nClustersHost_; }
+  uint32_t maxClusterSizeHost() const { return maxClusterSizeHost_; }
+  uint32_t *maxClusterSizeHostPtr() { return &maxClusterSizeHost_; }
 
 private:
   cms::cuda::device::unique_ptr<DeviceView> view_d;  // "me" pointer
-  int nClusters_h;
+  uint32_t nClustersHost_;
+  uint32_t maxClusterSizeHost_;
 };
 
 class SiStripClustersCUDAHost : public SiStripClustersSOABase<cms::cuda::host::unique_ptr> {
 public:
   SiStripClustersCUDAHost() = default;
-  explicit SiStripClustersCUDAHost(const SiStripClustersCUDADevice &clusters_d,
-                                   int clustersPerStrip,
-                                   cudaStream_t stream);
+  explicit SiStripClustersCUDAHost(const SiStripClustersCUDADevice &clusters_d, cudaStream_t stream);
   ~SiStripClustersCUDAHost() override = default;
 
   SiStripClustersCUDAHost(const SiStripClustersCUDAHost &) = delete;

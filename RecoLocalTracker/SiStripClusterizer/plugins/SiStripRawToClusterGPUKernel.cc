@@ -21,12 +21,12 @@ namespace stripgpu {
       : fedIndex_(stripgpu::kFedCount, stripgpu::invalidFed),
         channelThreshold_(conf.getParameter<double>("ChannelThreshold")),
         seedThreshold_(conf.getParameter<double>("SeedThreshold")),
-        clusterThresholdSquared_(conf.getParameter<double>("ClusterThreshold")),
+        clusterThresholdSquared_(std::pow(conf.getParameter<double>("ClusterThreshold"), 2.0f)),
         maxSequentialHoles_(conf.getParameter<unsigned>("MaxSequentialHoles")),
         maxSequentialBad_(conf.getParameter<unsigned>("MaxSequentialBad")),
         maxAdjacentBad_(conf.getParameter<unsigned>("MaxAdjacentBad")),
-        minGoodCharge_(clusterChargeCut(conf)),
-        keepLargeClusters_(conf.getParameter<bool>("KeepLargeClusters")) {
+        maxClusterSize_(conf.getParameter<unsigned>("MaxClusterSize")),
+        minGoodCharge_(clusterChargeCut(conf)) {
     fedRawDataOffsets_.reserve(stripgpu::kFedCount);
   }
 
@@ -118,14 +118,11 @@ namespace stripgpu {
     stripdata_ = std::make_unique<StripDataGPU>(max_strips, stream);
     const int max_seedstrips = kMaxSeedStrips;
 
-    auto condGPU = conditions.getGPUProductAsync(stream);
+    const auto& condGPU = conditions.getGPUProductAsync(stream);
 
-    unpackChannelsGPU(condGPU, stream);
+    unpackChannelsGPU(condGPU.deviceView(), stream);
 
-    fedRawDataGPU.reset();
-
-//#define VERIFY
-#ifdef VERIFY
+#ifdef EDM_ML_DEBUG
     auto outdata = cms::cuda::make_host_unique<uint8_t[]>(max_strips, stream);
     cms::cuda::copyAsync(outdata, stripdata_->alldataGPU_, max_strips, stream);
     cudaCheck(cudaStreamSynchronize(stream));
@@ -145,8 +142,9 @@ namespace stripgpu {
           aoff += 2;
           for (auto k = 0; k < groupLength; ++k, ++choff, ++aoff) {
             if (data[choff ^ 7] != outdata[aoff]) {
-              std::cout << "i:k " << i << ":" << k << " " << (uint32_t)data[choff ^ 7]
-                        << " != " << (uint32_t)outdata[aoff] << std::endl;
+              LogDebug("SiStripRawToClusterGPUKernel")
+                  << "Strip mismatch " << stripIndex << " i:k " << i << ":" << k << " " << (uint32_t)data[choff ^ 7]
+                  << " != " << (uint32_t)outdata[aoff] << std::endl;
             }
           }
         }
@@ -155,11 +153,12 @@ namespace stripgpu {
     outdata.reset(nullptr);
 #endif
 
+    fedRawDataGPU.reset();
     allocateSSTDataGPU(max_strips, stream);
-    setSeedStripsNCIndexGPU(condGPU, stream);
+    setSeedStripsNCIndexGPU(condGPU.deviceView(), stream);
 
-    clusters_d_ = SiStripClustersCUDADevice(max_seedstrips, kClusterMaxStrips, stream);
-    findClusterGPU(condGPU, stream);
+    clusters_d_ = SiStripClustersCUDADevice(max_seedstrips, maxClusterSize_, stream);
+    findClusterGPU(condGPU.deviceView(), stream);
 
     stripdata_.reset();
     chanlocsGPU_.reset();

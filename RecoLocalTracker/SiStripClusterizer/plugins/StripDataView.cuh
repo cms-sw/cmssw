@@ -9,7 +9,6 @@ struct ChannelLocsView;
 
 namespace stripgpu {
   static constexpr auto kMaxSeedStrips = 200000;
-  static constexpr uint32_t kClusterMaxStrips = SiStripClustersCUDADevice::kClusterMaxStrips;
 
   struct StripDataView {
     const ChannelLocsView *chanlocs;

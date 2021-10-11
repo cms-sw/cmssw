@@ -250,7 +250,6 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl, edmNew:
 
     if (record.empty())
       record.abort();
-
   }  // end loop over dets
 }
 

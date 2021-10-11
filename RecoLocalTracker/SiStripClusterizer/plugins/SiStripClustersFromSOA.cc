@@ -56,7 +56,7 @@ private:
 
       while (i < nSeedStripsNC && detIDs[i] == detid) {
         if (trueCluster[i]) {
-          const auto size = std::min(clusterSize[i], SiStripClustersCUDADevice::kClusterMaxStrips);
+          const auto size = clusterSize[i];
           const auto firstStrip = stripIDs[i];
 
           adcs.clear();
@@ -69,19 +69,6 @@ private:
         }
         i++;
       }
-      //#define DSRDEBUG
-#ifdef DSRDEBUG
-      if (detid == 369120277) {
-        std::cout << "Printing clusters for detid " << detid << std::endl;
-        for (const auto& cluster : record) {
-          std::cout << "Cluster " << cluster.firstStrip() << ": ";
-          for (const auto& ampl : cluster.amplitudes()) {
-            std::cout << (int)ampl << " ";
-          }
-          std::cout << std::endl;
-        }
-      }
-#endif
     }
 
     output->shrink_to_fit();
