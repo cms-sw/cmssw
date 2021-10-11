@@ -9,7 +9,5 @@ OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop = cms.PSet(
         'keep *_MEtoEDMConvertSiPixelLorentzAngle_*_*',
     )
 )
-
-import copy
-OutALCARECOPromptCalibProdSiPixelLorentzAngle=copy.deepcopy(OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop)
+OutALCARECOPromptCalibProdSiPixelLorentzAngle=OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop.clone()
 OutALCARECOPromptCalibProdSiPixelLorentzAngle.outputCommands.insert(0, "drop *")
