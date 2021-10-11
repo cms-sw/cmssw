@@ -132,7 +132,7 @@ public:
   }
   template<class T>
   T extractDataFromBytesLSB(const uint8_t* array, int start, int size) const{
-    T result=array[start];
+    T result=0;
     for(int i=start+size-1;i>=start;i--)
       result=(result<<8)|array[i];
     return result;
