@@ -17,44 +17,40 @@
 #include <string>
 
 // user include files
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleCalibrationStruct.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleCalibrationStruct.h"
 #include <TTree.h>
 #include <TFile.h>
 #include <fstream>
@@ -203,14 +199,6 @@ private:
   // event consumes
   edm::EDGetTokenT<TrajTrackAssociationCollection> t_trajTrack;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -811,22 +799,22 @@ const std::pair<LocalPoint, LocalPoint> SiPixelLorentzAnglePCLWorker::surface_de
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SiPixelLorentzAnglePCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("folder", "AlCaReco/SiPixelLorentzAngle");  // directory of PCL Worker output
-  desc.add<bool>("notInPCL", false);                                // create TTree (true) or not (false)
-  desc.add<std::string>("fileName", "testrun.root");                // name of the TTree file if notInPCL = true
-  desc.add<std::vector<std::string>>(
-      "newmodulelist",
-      {"BPix_BmO_SEC3_LYR2_LDR5F_MOD2", "BPix_BpO_SEC1_LYR2_LDR1F_MOD1"});  // list of layer 2 new module names
-  desc.add<edm::InputTag>("src", edm::InputTag("TrackRefitter"));
-  desc.add<double>("ptMin", 3.);                       // minimum pt on tracks
-  desc.add<double>("normChi2Max", 2.);                 // maximum reduced chi squared
-  desc.add<int>("clustSizeYMin", 4);                   // minimum cluster size on Y axis for Layer 1-3
-  desc.add<int>("clustSizeYMinL4", 3);                 // minimum cluster size on Y axis for Layer 4
-  desc.add<int>("clustSizeXMax", 5);                   // maximum cluster size on X axis
-  desc.add<double>("residualMax", 0.005);              // maximum residual
-  desc.add<double>("clustChargeMaxPerLength", 50000);  // maximum cluster charge per unit length of pixel depth (z)
-  desc.add<int>("binsDepth", 50);                      // # bins for electron production depth axis
-  desc.add<int>("binsDrift", 200);                     // # bins for electron drift axis
+  desc.setComment("Worker module of the SiPixel Lorentz Angle PCL monitoring workflow");
+  desc.add<std::string>("folder", "AlCaReco/SiPixelLorentzAngle")->setComment("directory of PCL Worker output");
+  desc.add<bool>("notInPCL", false)->setComment("create TTree (true) or not (false)");
+  desc.add<std::string>("fileName", "testrun.root")->setComment("name of the TTree file if notInPCL = true");
+  desc.add<std::vector<std::string>>("newmodulelist", {})->setComment("the list of DetIds for new sensors");
+  desc.add<edm::InputTag>("src", edm::InputTag("TrackRefitter"))->setComment("input track collections");
+  desc.add<double>("ptMin", 3.)->setComment("minimum pt on tracks");
+  desc.add<double>("normChi2Max", 2.)->setComment("maximum reduced chi squared");
+  desc.add<int>("clustSizeYMin", 4)->setComment("minimum cluster size on Y axis for Layer 1-3");
+  desc.add<int>("clustSizeYMinL4", 3)->setComment("minimum cluster size on Y axis for Layer 4");
+  desc.add<int>("clustSizeXMax", 5)->setComment("maximum cluster size on X axis");
+  desc.add<double>("residualMax", 0.005)->setComment("maximum residual");
+  desc.add<double>("clustChargeMaxPerLength", 50000)
+      ->setComment("maximum cluster charge per unit length of pixel depth (z)");
+  desc.add<int>("binsDepth", 50)->setComment("# bins for electron production depth axis");
+  desc.add<int>("binsDrift", 200)->setComment("# bins for electron drift axis");
   descriptions.addWithDefaultLabel(desc);
 }
 
