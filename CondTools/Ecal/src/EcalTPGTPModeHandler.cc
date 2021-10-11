@@ -242,7 +242,6 @@ void popcon::EcalTPGTPModeHandler::getNewObjects() {
               m_i_TPMode = wId;
 
               writeFile("last_tpg_TPMode_settings.txt");
-              delete tpMode;
 
             } else {
               m_i_run_number = irun;
@@ -324,7 +323,6 @@ void popcon::EcalTPGTPModeHandler::readtxtFile() {
     throw cms::Exception("FileReadError") << "EcalTPGTPModeHandler::readtxtFile error : " << e.what();
   }
   edm::LogVerbatim("EcalTPGTPModeHandler") << " **************** ";
-  delete tpMode;
 }
 
 void popcon::EcalTPGTPModeHandler::readFromFile(const char* inputFile) {
