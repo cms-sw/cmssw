@@ -135,7 +135,7 @@ const vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(
     int absPdgId = std::abs(p.pdgId());
 
     if ((absPdgId == 22) && p.isHardProcess()) {
-      if (abs(p.eta()) < maxPhotonEta && p.pt() > minPhotonPt && p.pt() <= maxPhotonPt) {
+      if (std::abs(p.eta()) < maxPhotonEta && p.pt() > minPhotonPt && p.pt() <= maxPhotonPt) {
         out.push_back(&p);
       } else {
         edm::LogInfo("AJJPhoton") << "photon rejected, pt:" << p.pt() << " , eta:" << p.eta();
@@ -149,13 +149,11 @@ const vector<const reco::GenParticle*> AJJGenJetFilter::filterGenPhotons(
 const vector<const reco::GenJet*> AJJGenJetFilter::filterGenJets(const vector<reco::GenJet>* jets) const {
   vector<const reco::GenJet*> out;
 
-  for (unsigned i = 0; i < jets->size(); i++) {
-    const reco::GenJet* j = &((*jets)[i]);
-
-    if (j->p4().pt() > ptMin && j->p4().eta() > etaMin && j->p4().eta() < etaMax) {
-      out.push_back(j);
+  for (auto const& j : *jets ){
+    if (j.p4().pt() > ptMin && j.p4().eta() > etaMin && j.p4().eta() < etaMax) {
+      out.push_back(&j);
     } else {
-      edm::LogInfo("AJJJets") << "Jet rejected, pt:" << j->p4().pt() << " eta:" << j->p4().eta();
+      edm::LogInfo("AJJJets") << "Jet rejected, pt:" << j.p4().pt() << " eta:" << j.p4().eta();
     }
   }
 
@@ -167,12 +165,13 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
   using namespace edm;
   // Getting filtered generator jets
 
-  Handle<reco::GenParticleCollection> genParticelesCollection;
-  iEvent.getByToken(m_GenParticleCollection, genParticelesCollection);
-  const vector<reco::GenParticle>* genParticles = genParticelesCollection.product();
-  vector<const reco::GenParticle*> filGenLep = filterGenLeptons(genParticles);
+  //Handle<reco::GenParticleCollection> genParticelesCollection;
+  //iEvent.getByToken(m_GenParticleCollection, genParticelesCollection);
+  //const vector<reco::GenParticle>* genParticles = genParticelesCollection.product();
+  auto const& genParticles = iEvent.get(m_GenParticleCollection);
+  vector<const reco::GenParticle*> filGenLep = filterGenLeptons(&genParticles);
 
-  vector<const reco::GenParticle*> filGenPhotons = filterGenPhotons(genParticles);
+  vector<const reco::GenParticle*> filGenPhotons = filterGenPhotons(&genParticles);
 
   if (filGenPhotons.size() != 1) {
     edm::LogInfo("AJJPhoton") << "Events rejected, number of photons:" << filGenPhotons.size();
@@ -182,30 +181,29 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
   if (ptMin < 0)
     return true;
 
-  Handle<vector<reco::GenJet> > handleGenJets;
-  iEvent.getByToken(m_GenJetCollection, handleGenJets);
-  const vector<reco::GenJet>* genJets = handleGenJets.product();
+  //Handle<vector<reco::GenJet> > handleGenJets;
+  //iEvent.getByToken(m_GenJetCollection, handleGenJets);
+  //const vector<reco::GenJet>* genJets = handleGenJets.product();
+  auto const& genJets = iEvent.get(m_GenJetCollection);
 
-  vector<const reco::GenJet*> filGenJets = filterGenJets(genJets);
+
+  vector<const reco::GenJet*> filGenJets = filterGenJets(&genJets);
   // Getting p4 of jet with no lepton
   vector<math::XYZTLorentzVector> genJetsWithoutLeptonsP4;
-  unsigned int jetIdx = 0;
   unsigned int nGoodJets = 0;
-  while (jetIdx < filGenJets.size()) {
-    bool jetWhitoutLep = true;
-
-    const math::XYZTLorentzVector& p4J = (filGenJets[jetIdx])->p4();
-    for (unsigned int i = 0; i < filGenLep.size() && jetWhitoutLep; ++i) {
-      if (reco::deltaR2((filGenLep[i])->p4(), p4J) < deltaRJetLep * deltaRJetLep)
-        jetWhitoutLep = false;
-    }
-    if (jetWhitoutLep) {
-      if (genJetsWithoutLeptonsP4.size() < 2) {
-        genJetsWithoutLeptonsP4.push_back(p4J);
-      }
+  for (auto const& j : filGenJets){
+    bool cleanJet = true;
+    const math::XYZTLorentzVector& p4J = j->p4();
+    for( auto const& p : filGenLep)
+      if(reco::deltaR2(p->p4() , p4J) < deltaRJetLep*deltaRJetLep)
+	cleanJet = false;
+    
+    if(cleanJet){
+      if( genJetsWithoutLeptonsP4.size() < 2 )
+	genJetsWithoutLeptonsP4.push_back( p4J );
       nGoodJets++;
-    };
-    ++jetIdx;
+    }
+      
   }
 
   //If we do not find at least 2 jets veto the event
@@ -214,7 +212,7 @@ bool AJJGenJetFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Event
     return false;
   }
 
-  double dEta = fabs(genJetsWithoutLeptonsP4[0].eta() - genJetsWithoutLeptonsP4[1].eta());
+  double dEta = std::abs(genJetsWithoutLeptonsP4[0].eta() - genJetsWithoutLeptonsP4[1].eta());
   float invMassLeadingJet = (genJetsWithoutLeptonsP4[0] + genJetsWithoutLeptonsP4[1]).M();
 
   if (dEta >= minDeltaEta && dEta <= maxDeltaEta && invMassLeadingJet > mininvmass) {
