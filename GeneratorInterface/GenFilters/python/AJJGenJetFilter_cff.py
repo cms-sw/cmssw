@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from GeneratorInterface.GenFilters.VJJGenJetFilter_cfi import *
+from GeneratorInterface.GenFilters.AJJGenJetFilter_cfi import *
 from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 
