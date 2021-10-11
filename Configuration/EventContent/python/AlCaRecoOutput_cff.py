@@ -115,6 +115,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonProducerFilter_Out
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalLowPUHBHEMuonFilter_Output_cff import *
 # HCAL calibration with muons (HE)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHEMuonFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHEMuonProducerFilter_Output_cff import *
 ###############################################################
 # Muon Alignment (incl. stream for calibration)
 ###############################################################
