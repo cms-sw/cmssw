@@ -30,7 +30,7 @@ public:
   ~HGCalDDDConstants();
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
-  std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco, bool debug = false) const;
+  std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco, bool extend = false, bool debug = false) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, bool reco) const;
@@ -136,6 +136,7 @@ public:
                          int& cellV,
                          int& celltype,
                          double& wt,
+			 bool extend = false,
                          bool debug = false) const;
   bool waferHexagon6() const {
     return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
@@ -212,7 +213,7 @@ private:
               const double& cellR,
               const std::vector<double>& posX,
               const std::vector<double>& posY) const;
-  void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool debug = false) const;
+  void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend = false, bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
