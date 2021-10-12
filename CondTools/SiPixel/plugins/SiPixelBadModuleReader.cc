@@ -32,11 +32,15 @@ SiPixelBadModuleReader::SiPixelBadModuleReader(const edm::ParameterSet& iConfig)
 SiPixelBadModuleReader::~SiPixelBadModuleReader() = default;
 
 void SiPixelBadModuleReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  const SiPixelQuality* SiPixelBadModule_;
-  if (whichRcd == "SiPixelQualityRcd")
+  const SiPixelQuality* SiPixelBadModule_ = nullptr;
+  if (whichRcd == "SiPixelQualityRcd") {
     SiPixelBadModule_ = &iSetup.getData(badModuleToken);
-  if (whichRcd == "SiPixelQualityFromDbRcd")
+  } else if (whichRcd == "SiPixelQualityFromDbRcd") {
     SiPixelBadModule_ = &iSetup.getData(badModuleFromDBToken);
+  } else {
+    throw cms::Exception("LogicalError") << "SiPixelBadModuleReader::analyze, unsupported RcdName value " << whichRcd
+                                         << ".\n Please check the configuration." << std::endl;
+  }
 
   edm::ESHandle<SiPixelFedCablingMap> map = iSetup.getHandle(siPixelFedCablingToken);
   edm::LogInfo("SiPixelBadModuleReader") << "[SiPixelBadModuleReader::analyze] End Reading SiPixelBadModule"
