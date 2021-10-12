@@ -5,11 +5,6 @@ from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 process = cms.Process('RECO2',Run2_2016)
 
 options = VarParsing.VarParsing('analysis')
-options.register('inputFile',
-                 '/store/mc/RunIISummer20UL16MiniAOD/DYJetsToMuMu_M-50_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos/MINIAODSIM/106X_mcRun2_asymptotic_v13-v2/00000/01916D91-A314-D947-A420-388891D62FEA.root', # default value
-                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                 VarParsing.VarParsing.varType.string, # string, int, or float
-                 "input file name")
 options.register('globalTag',
                  "auto:run2_mc", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -30,7 +25,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(options.inputFile),
+                            fileNames = cms.untracked.vstring(options.inputFiles),
                             secondaryFileNames = cms.untracked.vstring()
                             )
 
