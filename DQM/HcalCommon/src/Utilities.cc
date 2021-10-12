@@ -36,9 +36,21 @@ namespace hcaldqm {
             ++fed;
           }
         } else {
-          if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
-                           constants::crateListuTCA.end())) {  // needed to handle dual fed readout
-            ++fed;
+          if (crate == 22 || crate == 29 || crate == 32 || crate == 23 || crate == 27 || crate == 26 ||
+              crate == 38) {  // needed to handle dual fed readout for HF and HO
+            if (slot > 6 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                             constants::crateListuTCA.end())) {
+              ++fed;  // hard coded mid slot FED numbering
+            }
+          } else {  // needed to handle  3-FED readout for HBHE
+            if (slot > 8 && (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                             constants::crateListuTCA.end())) {
+              fed = (fed + 1100) / 2 + 40;  // hard coded right slot FED numbering, no better way
+            } else if (slot > 4 &&
+                       (std::find(constants::crateListuTCA.begin(), constants::crateListuTCA.end(), crate) !=
+                        constants::crateListuTCA.end())) {
+              ++fed;  // hard coded mid slot FED numbering
+            }
           }
         }
       }
