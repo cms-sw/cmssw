@@ -1190,11 +1190,13 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xx << " Y " << y << ":" << yy;
 #endif
+  double rmax = extend ? rmaxT_ : rmax_;
+  double hexside = extend ? hexsideT_ : hexside_;
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
     double dx = std::abs(xx - hgpar_->waferPosX_[k]);
     double dy = std::abs(yy - hgpar_->waferPosY_[k]);
-    if (dx <= rmaxT_ && dy <= hexsideT_) {
-      if ((dy <= 0.5 * hexsideT_) || (dx * tan30deg_ <= (hexsideT_ - dy))) {
+    if (dx <= rmax && dy <= hexside) {
+      if ((dy <= 0.5 * hexside) || (dx * tan30deg_ <= (hexside - dy))) {
         waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
         waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
         if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
@@ -1241,8 +1243,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       double dy = std::abs(y1 - hgpar_->waferPosY_[k]);
       edm::LogVerbatim("HGCalGeom") << "Wafer [" << k << "] Position (" << hgpar_->waferPosX_[k] << ", "
                                     << hgpar_->waferPosY_[k] << ") difference " << dx << ":" << dy << ":"
-                                    << dx * tan30deg_ << ":" << hexsideT_ - dy << " Paramerers " << rmaxT_ << ":"
-                                    << hexsideT_;
+                                    << dx * tan30deg_ << ":" << hexside - dy << " Paramerers " << rmax << ":"
+                                    << hexside;
     }
   }
 }
