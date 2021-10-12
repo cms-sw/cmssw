@@ -38,7 +38,7 @@ void MiniAODTaggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
     jetTagPlotter_ = std::make_unique<JetTagPlotter>(folder_,
                                                      EtaPtBin(etaActive_, etaMin_, etaMax_, ptActive_, ptMin_, ptMax_),
                                                      disrParameters_,
-                                                     0, //TODO MC + jetflavour (see below)
+                                                     0, //TODO MC
                                                      false,
                                                      ibook,
                                                      doCTagPlots_,
@@ -82,7 +82,7 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
         reco::Jet recoJet = *jet;
         if(jetTagPlotter_->etaPtBin().inBin(recoJet, jec))
         {
-            jetTagPlotter_->analyzeTag(recoJet, jec, numerator/denominator, 0); //TODO jetflavour
+            jetTagPlotter_->analyzeTag(recoJet, jec, numerator/denominator, jet->partonFlavour());
         }
     }
 }
