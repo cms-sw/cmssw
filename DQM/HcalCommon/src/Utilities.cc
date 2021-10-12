@@ -156,7 +156,7 @@ namespace hcaldqm {
         return false;
       } else {
         int fed = crate2fed(eid.crateId(), eid.slot());
-        if (fed >= 1100 && fed < 1118)
+        if ((fed >= 1100 && fed < 1118) || (fed >= 1140 && fed <= 1148))
           return true;
         else
           return false;
@@ -166,17 +166,6 @@ namespace hcaldqm {
     }
 
     bool isFEDHF(HcalElectronicsId const &eid) {
-      /*
-  if (eid.isVMEid())
-  {
-          int fed = eid.dccid()+FED_VME_MIN;
-          if (fed>=718 && fed<=723)
-                  return true;
-          else
-                  return false;
-  }*/
-      //			else
-      //			{
       if (eid.isVMEid())
         return false;
       int fed = crate2fed(eid.crateId(), eid.slot());
@@ -184,17 +173,15 @@ namespace hcaldqm {
         return true;
       else
         return false;
-      //			}
 
       return false;
     }
 
     bool isFEDHO(HcalElectronicsId const &eid) {
-      if (!eid.isVMEid())
+      if (eid.isVMEid())
         return false;
-
-      int fed = eid.dccid() + FED_VME_MIN;
-      if (fed >= 724 && fed <= 731)
+      int fed = crate2fed(eid.crateId(), eid.slot());
+      if (fed >= 1124 && fed <= 1135)
         return true;
       else
         return false;
