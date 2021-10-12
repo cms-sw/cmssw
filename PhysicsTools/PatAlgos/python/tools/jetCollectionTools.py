@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
+from CommonTools.ParticleFlow.pfCHS_cff     import pfCHS, packedPrimaryVertexAssociationJME
 from CommonTools.PileupAlgos.Puppi_cff      import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 
@@ -274,6 +275,13 @@ class RecoJetAdder(object):
       #
       if pfCand not in self.prerequisites:
         #
+        # Setup PrimaryVertexAssociationJME to be used by CHS and PUPPI
+        #
+        if recoJetInfo.jetPUMethod == "chs" or recoJetInfo.jetPUMethod == "puppi":
+          if "packedPrimaryVertexAssociationJME" not in self.prerequisites:
+            self.addProcessAndTask(proc, "packedPrimaryVertexAssociationJME", packedPrimaryVertexAssociationJME.clone())
+            self.prerequisites.append("packedPrimaryVertexAssociationJME")
+        #
         # Skip if no PU Method or CS specified
         #
         if recoJetInfo.jetPUMethod in [ "", "cs" ]:
@@ -282,9 +290,6 @@ class RecoJetAdder(object):
         # CHS
         #
         elif recoJetInfo.jetPUMethod == "chs":
-          from CommonTools.ParticleFlow.pfCHS_cff import pfCHS, packedPrimaryVertexAssociationJME
-          self.addProcessAndTask(proc, "packedPrimaryVertexAssociationJME", packedPrimaryVertexAssociationJME.clone())
-          self.prerequisites.append("packedPrimaryVertexAssociationJME")
           self.addProcessAndTask(proc, pfCand, pfCHS.clone())
           self.prerequisites.append(pfCand)
         #
@@ -294,6 +299,7 @@ class RecoJetAdder(object):
           self.addProcessAndTask(proc, pfCand, puppi.clone(
               candName = self.pfLabel,
               vertexName = self.pvLabel,
+              vertexAssociation = 'packedPrimaryVertexAssociationJME:original'
             )
           )
           self.prerequisites.append(pfCand)
