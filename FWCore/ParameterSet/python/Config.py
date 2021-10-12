@@ -504,6 +504,9 @@ class Process(object):
                 if s is not None:
                     raise ValueError(msg1+"endpath "+s.label_()+msg2)
 
+            if not self.__InExtendCall and (Schedule._itemIsValid(newValue) or isinstance(newValue, Task)):
+                self._replaceInScheduleDirectly(name, newValue)
+
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -561,6 +564,8 @@ class Process(object):
                     self._replaceInSchedule(name, None)
                 if isinstance(obj, _Sequenceable) or obj._isTaskComponent():
                     self._replaceInSequences(name, None)
+                if Schedule._itemIsValid(obj) or isinstance(obj, Task):
+                    self._replaceInScheduleDirectly(name, None)
         # now remove it from the process itself
         try:
             del self.__dict__[name]
@@ -1088,6 +1093,11 @@ class Process(object):
         old = getattr(self,label)
         for task in self.schedule_()._tasks:
             task.replace(old, new)
+    def _replaceInScheduleDirectly(self, label, new):
+        if self.schedule_() == None:
+            return
+        old = getattr(self,label)
+        self.schedule_()._replaceIfHeldDirectly(old, new)
     def globalReplace(self,label,new):
         """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths/tasks"""
         if not hasattr(self,label):
@@ -2339,6 +2349,16 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             listOfTasks[0].visit(visitor6)
             self.assertTrue(visitor6.modules == set([new2]))
 
+            p.d2 = EDProducer("YourProducer")
+            p.schedule = Schedule(p.p, p.p2, p.e3, tasks=[p.t1])
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.p = Path(p.c+s)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.e3 = EndPath(p.c)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+            p.t1 = Task(p.d2)
+            self.assertEqual(p.schedule.dumpPython()[:-1], "cms.Schedule(*[ process.p, process.p2, process.e3 ], tasks=[process.t1])")
+
         def testSequence(self):
             p = Process('test')
             p.a = EDAnalyzer("MyAnalyzer")
@@ -3284,10 +3304,13 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.t1 = Task(p.g, p.h)
             t2 = Task(p.g, p.h)
             t3 = Task(p.g, p.h)
+            p.t4 = Task(p.h)
             p.s = Sequence(p.d+p.e)
             p.path1 = Path(p.a+p.f+p.s,t2)
+            p.path2 = Path(p.a)
+            p.endpath2 = EndPath(p.b)
             p.endpath1 = EndPath(p.b+p.f)
-            p.schedule = Schedule(tasks=[t3])
+            p.schedule = Schedule(p.path2, p.endpath2, tasks=[t3, p.t4])
             self.assertTrue(hasattr(p, 'f'))
             self.assertTrue(hasattr(p, 'g'))
             del p.e
@@ -3301,6 +3324,12 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.endpath1.dumpPython(), 'cms.EndPath(process.b)\n')
             del p.s
             self.assertEqual(p.path1.dumpPython(), 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(*[ process.path2, process.endpath2 ], tasks=[cms.Task(process.h), process.t4])\n')
+            del p.path2
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(*[ process.endpath2 ], tasks=[cms.Task(process.h), process.t4])\n')
+            del p.endpath2
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h), process.t4])\n')
+            del p.t4
             self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
