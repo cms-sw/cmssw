@@ -3295,13 +3295,13 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             del p.g
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
-            self.assertTrue(p.t1.dumpPython() == 'cms.Task(process.h)\n')
-            self.assertTrue(p.s.dumpPython() == 'cms.Sequence(process.d)\n')
-            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
-            self.assertTrue(p.endpath1.dumpPython() == 'cms.EndPath(process.b)\n')
+            self.assertEqual(p.t1.dumpPython(), 'cms.Task(process.h)\n')
+            self.assertEqual(p.s.dumpPython(), 'cms.Sequence(process.d)\n')
+            self.assertEqual(p.path1.dumpPython(), 'cms.Path(process.a+process.s, cms.Task(process.h))\n')
+            self.assertEqual(p.endpath1.dumpPython(), 'cms.EndPath(process.b)\n')
             del p.s
-            self.assertTrue(p.path1.dumpPython() == 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
-            self.assertTrue(p.schedule_().dumpPython() == 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
+            self.assertEqual(p.path1.dumpPython(), 'cms.Path(process.a+(process.d), cms.Task(process.h))\n')
+            self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
             p = Process("test",m1)
