@@ -83,6 +83,11 @@ __global__ void verify(uint32_t const *v, uint32_t n) {
     printf("verify\n");
 }
 
+template<typename T>
+__global__ void doCoop(T const* ici, T* ico, int32_t size, T * ipsum) {
+   coopBlockPrefixScan(ici,ico,size,ipsum);
+}
+
 int main() {
   cms::cudatest::requireDevices();
 
@@ -113,9 +118,9 @@ int main() {
   int num_items = 200;
   for (int ksize = 1; ksize < 4; ++ksize) {
     // test multiblock
-    std::cout << "multiblok" << std::endl;
     // Declare, allocate, and initialize device-accessible pointers for input and output
     num_items *= 10;
+    std::cout << "multiblok " << num_items << std::endl;
     uint32_t *d_in;
     uint32_t *d_out1;
     uint32_t *d_out2;
@@ -141,7 +146,35 @@ int main() {
     cudaCheck(cudaGetLastError());
     verify<<<nblocks, nthreads, 0>>>(d_out1, num_items);
     cudaCheck(cudaGetLastError());
-    cudaDeviceSynchronize();
+    cudaCheck(cudaDeviceSynchronize());
+    cudaCheck(cudaGetLastError());
+
+    uint32_t *d_psum;
+    cudaCheck(cudaMalloc(&d_psum, nblocks*sizeof(uint32_t)));
+    std::cout << "launch coopBlockPrefixScan " << num_items << ' ' << nblocks << std::endl;
+    int numBlocksPerSm = 0;
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, 0);
+    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, (void*)doCoop<uint32_t>, nthreads, 0);
+    std::cout << "max number of blocks is " << deviceProp.multiProcessorCount*numBlocksPerSm << std::endl;
+    auto ncoopblocks = std::min(nblocks,deviceProp.multiProcessorCount*numBlocksPerSm);
+    void *kernelArgs[] = { &d_in, &d_out2, &num_items, &d_psum };
+    dim3 dimBlock(nthreads, 1, 1);
+    dim3 dimGrid(ncoopblocks, 1, 1);
+    // launch
+    cudaLaunchCooperativeKernel((void*)doCoop<uint32_t>, dimGrid, dimBlock, kernelArgs);
+    cudaCheck(cudaGetLastError());
+    verify<<<nblocks, nthreads, 0>>>(d_out2, num_items);
+    cudaCheck(cudaGetLastError());
+    cudaCheck(cudaDeviceSynchronize());
+    cudaCheck(cudaGetLastError());
+
+    std::cout << "Free" << std::endl;
+    cudaCheck(cudaFree(d_psum));
+    cudaCheck(cudaFree(d_out2));
+    cudaCheck(cudaFree(d_out1));
+    cudaCheck(cudaFree(d_in));
+
 
   }  // ksize
   return 0;

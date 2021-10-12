@@ -122,6 +122,21 @@ namespace cms {
 
     namespace cooperative_groups {
 
+      // This class represents the grid group
+     class grid_group {
+     private: 
+       grid_group() = default;
+
+       friend grid_group this_grid();
+
+      public:
+        // Synchronize the threads named in the group.
+        // On the serial CPU implementation, do nothing.
+        static void sync() {}
+     };
+
+     inline grid_group this_grid() { return grid_group{};}
+
       // This class represents the thread block
       class thread_block {
       private:
