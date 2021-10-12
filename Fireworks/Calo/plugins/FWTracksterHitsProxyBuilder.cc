@@ -116,20 +116,20 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
   boxset->SetPickable(true);
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
 
-  TEveStraightLineSet * seed_marker = nullptr;
+  TEveStraightLineSet *seed_marker = nullptr;
   if (enableSeedLines_) {
     seed_marker = new TEveStraightLineSet("seeds");
     seed_marker->SetLineWidth(2);
-    seed_marker->SetLineColor(kOrange+10);
-    seed_marker->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 2*N);
+    seed_marker->SetLineColor(kOrange + 10);
+    seed_marker->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 2 * N);
   }
 
-  TEveStraightLineSet * position_marker = nullptr;
+  TEveStraightLineSet *position_marker = nullptr;
   if (enablePositionLines_) {
     position_marker = new TEveStraightLineSet("positions");
     position_marker->SetLineWidth(2);
     position_marker->SetLineColor(kOrange);
-    position_marker->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 2*N);
+    position_marker->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 2 * N);
   }
 
   for (size_t i = 0; i < N; ++i) {
@@ -173,15 +173,16 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
       if (layerCluster.seed().rawId() == it->first.rawId()) {
         const float crossScale = 0.2f + fmin(layerCluster.energy(), 5.0f);
         if (enableSeedLines_) {
-
           // center of RecHit
           const float center[3] = {corners[total_points * 3 + 0],
                                    corners[total_points * 3 + 1],
                                    corners[total_points * 3 + 2] + shapes[3] * 0.5f};
 
           // draw 3D cross
-          seed_marker->AddLine(center[0] - crossScale, center[1], center[2], center[0] + crossScale, center[1], center[2]);
-          seed_marker->AddLine(center[0], center[1] - crossScale, center[2], center[0], center[1] + crossScale, center[2]);
+          seed_marker->AddLine(
+              center[0] - crossScale, center[1], center[2], center[0] + crossScale, center[1], center[2]);
+          seed_marker->AddLine(
+              center[0], center[1] - crossScale, center[2], center[0], center[1] + crossScale, center[2]);
         }
 
         if (enablePositionLines_) {
@@ -191,10 +192,8 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
               pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
           position_marker->AddLine(
               pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
-
         }
       }
-
 
       const float energy =
           fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap->at(it->first)->energy()
@@ -203,7 +202,7 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
                1.0f);
       const uint8_t colorFactor = gradient_steps * energy;
       auto transparency = item()->modelInfo(iIndex).displayProperties().transparency();
-      UChar_t alpha = (255*(100 - transparency))/100;
+      UChar_t alpha = (255 * (100 - transparency)) / 100;
 
       // Scintillator
       if (!isSilicon) {
@@ -221,8 +220,9 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
         }
         boxset->AddBox(&pnts[0]);
         if (heatmap_) {
-          energy ? boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor], alpha)
-                 : boxset->DigitColor(64, 64, 64, alpha);
+          energy
+              ? boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor], alpha)
+              : boxset->DigitColor(64, 64, 64, alpha);
         }
       }
       // Silicon
@@ -234,7 +234,8 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
         float radius = fabs(corners[6] - corners[6 + offset]) / 2;
         hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, 90.0, shapes[3]);
         if (heatmap_) {
-          energy ? hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor], alpha)
+          energy ? hex_boxset->DigitColor(
+                       gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor], alpha)
                  : hex_boxset->DigitColor(64, 64, 64, alpha);
         } else {
           hex_boxset->CSCApplyMainColorToMatchingChildren();
@@ -244,7 +245,7 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
         }
       }
     }  // End of loop over rechits of a single layercluster
-  } // End loop over the layerclusters of the trackster
+  }    // End loop over the layerclusters of the trackster
 
   hex_boxset->RefitPlex();
   boxset->RefitPlex();
@@ -282,24 +283,23 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
       if (layer_ == 0 || std::abs(layerIn - layer_) == 0 || std::abs(layerOut - layer_) == 0) {
         if (isAdjacent)
           adjacent_marker->AddLine(doublet.first.x(),
-              doublet.first.y(),
-              doublet.first.z(),
-              doublet.second.x(),
-              doublet.second.y(),
-              doublet.second.z());
+                                   doublet.first.y(),
+                                   doublet.first.z(),
+                                   doublet.second.x(),
+                                   doublet.second.y(),
+                                   doublet.second.z());
         else
           non_adjacent_marker->AddLine(doublet.first.x(),
-              doublet.first.y(),
-              doublet.first.z(),
-              doublet.second.x(),
-              doublet.second.y(),
-              doublet.second.z());
+                                       doublet.first.y(),
+                                       doublet.first.z(),
+                                       doublet.second.x(),
+                                       doublet.second.y(),
+                                       doublet.second.z());
       }
-    } // End of loop over all edges of the trackster
+    }  // End of loop over all edges of the trackster
     oItemHolder.AddElement(adjacent_marker);
     oItemHolder.AddElement(non_adjacent_marker);
   }
-
 }
 
 REGISTER_FWPROXYBUILDER(FWTracksterHitsProxyBuilder, ticl::Trackster, "Trackster hits", FWViewType::kISpyBit);
