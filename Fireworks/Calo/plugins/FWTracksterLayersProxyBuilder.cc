@@ -110,12 +110,12 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
   const ticl::Trackster &trackster = iData;
   const size_t N = trackster.vertices().size();
   const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle_;
-  TEveStraightLineSet * position_marker = nullptr;
+  TEveStraightLineSet *position_marker = nullptr;
 
   if (enablePositionLines_) {
-      position_marker = new TEveStraightLineSet;
-      position_marker->SetLineWidth(2);
-      position_marker->SetLineColor(kWhite);
+    position_marker = new TEveStraightLineSet;
+    position_marker->SetLineWidth(2);
+    position_marker->SetLineColor(kWhite);
   }
 
   for (size_t i = 0; i < N; ++i) {
@@ -168,7 +168,7 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       radius = sqrt(nHits * area) / M_PI;
     }
 
-    auto * eveCircle = new TEveGeoShape("Circle");
+    auto *eveCircle = new TEveGeoShape("Circle");
     auto tube = new TGeoTube(0., proportionalityFactor_ * radius, 0.1);
     eveCircle->SetShape(tube);
     eveCircle->InitMainTrans();
@@ -194,12 +194,11 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
           pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
       position_marker->AddLine(
           pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
-
     }
   }
 
   if (enablePositionLines_)
-      oItemHolder.AddElement(position_marker);
+    oItemHolder.AddElement(position_marker);
 
   if (enableEdges_) {
     auto &edges = trackster.edges();
@@ -224,18 +223,18 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       if (layer_ == 0 || fabs(layerIn - layer_) == 0 || fabs(layerOut - layer_) == 0) {
         if (isAdjacent)
           adjacent_marker->AddLine(doublet.first.x(),
-              doublet.first.y(),
-              doublet.first.z(),
-              doublet.second.x(),
-              doublet.second.y(),
-              doublet.second.z());
+                                   doublet.first.y(),
+                                   doublet.first.z(),
+                                   doublet.second.x(),
+                                   doublet.second.y(),
+                                   doublet.second.z());
         else
           non_adjacent_marker->AddLine(doublet.first.x(),
-              doublet.first.y(),
-              doublet.first.z(),
-              doublet.second.x(),
-              doublet.second.y(),
-              doublet.second.z());
+                                       doublet.first.y(),
+                                       doublet.first.z(),
+                                       doublet.second.x(),
+                                       doublet.second.y(),
+                                       doublet.second.z());
       }
     }
     oItemHolder.AddElement(adjacent_marker);
