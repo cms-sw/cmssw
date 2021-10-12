@@ -1,8 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
-
 process = cms.Process('RECO2',Run2_2016)
+
+options = VarParsing.VarParsing('analysis')
+options.register('inputFile',
+                 "/store/mc/RunIISummer20UL16RECO/DYJetsToMuMu_M-50_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos/AODSIM/106X_mcRun2_asymptotic_v13-v2/00000/1D4FBF4B-7B8D-A04F-A108-B1BEB60558FA.root", # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "input file name")
+options.register('globalTag',
+                 "auto:run2_mc", # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.string, # string, int, or float
+                 "input file name")
+options.parseArguments()
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -16,17 +29,16 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-    
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-        '/store/mc/RunIISummer20UL16RECO/DYJetsToMuMu_M-50_TuneCP5_13TeV-powhegMiNNLO-pythia8-photos/AODSIM/106X_mcRun2_asymptotic_v13-v2/00000/1D4FBF4B-7B8D-A04F-A108-B1BEB60558FA.root',
-    ),
-    secondaryFileNames = cms.untracked.vstring()
+                            fileNames = cms.untracked.vstring(options.inputFile),
+                            secondaryFileNames = cms.untracked.vstring()
+                            )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(options.maxEvents)
 )
 
-process.options = cms.untracked.PSet(
-
-)
+process.options = cms.untracked.PSet()
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -53,19 +65,20 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring("keep *_myRefittedT
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
-process.trackExtraRekeyer = cms.EDProducer("TrackExtraRekeyer",
-                                         src = cms.InputTag("generalTracks"),
-                                         association = cms.InputTag("muonReducedTrackExtras"),
-                                         )
+import RecoTracker.TrackProducer.trackExtraRekeyer_cfi
+process.trackExtraRekeyer = RecoTracker.TrackProducer.trackExtraRekeyer_cfi.trackExtraRekeyer.clone(
+    src = "generalTracks",
+    association = "muonReducedTrackExtras"
+)
 
 import RecoTracker.TrackProducer.TrackRefitter_cfi
-process.myRefittedTracks = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.myRefittedTracks.src= 'trackExtraRekeyer'
-process.myRefittedTracks.NavigationSchool = ''
-process.myRefittedTracks.Fitter = 'FlexibleKFFittingSmoother'
-                                         
+process.myRefittedTracks = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(
+    src= 'trackExtraRekeyer',
+    NavigationSchool = '',
+    Fitter = 'FlexibleKFFittingSmoother'
+)
 
 # Path and EndPath definitions
 process.reconstruction_step = cms.Path(process.trackExtraRekeyer*process.myRefittedTracks)
@@ -74,5 +87,3 @@ process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.reconstruction_step,process.endjob_step,process.RECOSIMoutput_step)
-
-
