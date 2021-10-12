@@ -7,11 +7,12 @@ from DQMOffline.RecoB.bTagGenericAnalysis_cff import bTagGenericAnalysisBlock
 
 bTagMiniAnalyzerGlobal = cms.PSet(
     JetTag = cms.InputTag('slimmedJets'),
+    MCplots = cms.bool(True),
     differentialPlots = cms.bool(True),
 
     ptActive = cms.bool(False),
-    ptMin = cms.double(0.),
-    ptMax = cms.double(0.),
+    ptMin = cms.double(30.),
+    ptMax = cms.double(40000.),
 )
 
 globalEta = cms.PSet(

@@ -36,6 +36,7 @@ private:
     vstring discrDenominator_;
 
 
+    bool isMC_;
     bool doCTagPlots_;
     bool dodifferentialPlots_;
     double discrCut_;
