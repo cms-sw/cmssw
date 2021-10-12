@@ -15,6 +15,8 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
                    'standardValidation' : ['prevalidation','validation','validationHarvesting'],
                    'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT'],
+                   'standardValidationHiMix' : ['prevalidation','validationHiMix','validationHarvesting'],
+                   'standardValidationNoHLTHiMix' : ['prevalidationNoHLT','validationNoHLTHiMix','validationHarvestingNoHLT'],
                    'HGCalValidation' : ['globalPrevalidationHGCal', 'globalValidationHGCal', 'hgcalValidatorPostProcessor'],
                    'MTDValidation' : ['', 'globalValidationMTD', 'mtdValidationPostProcessor'],
                    'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'],

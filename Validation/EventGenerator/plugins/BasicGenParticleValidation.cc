@@ -18,7 +18,8 @@ BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& 
       genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection")),
       genjetCollection_(iPSet.getParameter<edm::InputTag>("genjetsCollection")),
       matchPr_(iPSet.getParameter<double>("matchingPrecision")),
-      verbosity_(iPSet.getUntrackedParameter<unsigned int>("verbosity", 0)) {
+      verbosity_(iPSet.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      signalParticlesOnly_(iPSet.getParameter<bool>("signalParticlesOnly")) {
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
   genparticleCollectionToken_ = consumes<reco::GenParticleCollection>(genparticleCollection_);
   genjetCollectionToken_ = consumes<reco::GenJetCollection>(genjetCollection_);
@@ -147,6 +148,13 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   unsigned int nReco = particles.size();
   unsigned int nHepMC = hepmcGPCollection.size();
+
+  if (signalParticlesOnly_) {
+    for (unsigned int i = 0; i < particles.size(); ++i) {
+      if (particles[i]->collisionId() != 0)
+        nReco -= 1;
+    }
+  }
 
   genPMultiplicity->Fill(std::log10(nReco), weight);
 
