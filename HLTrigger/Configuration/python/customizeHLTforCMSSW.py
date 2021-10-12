@@ -20,17 +20,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-# Eta Extended Electrons 
-def customiseFor35309(process):
-    for pset in process._Process__psets.values():
-        if hasattr(pset,'ComponentType'):
-            if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
-                if not hasattr(pset, 'highEtaSwitch'):
-                    pset.highEtaSwitch = cms.double(5.0)
-                if not hasattr(pset, 'minHitsAtHighEta'):
-                    pset.minHitsAtHighEta = cms.int32(5)
-
-    return process
 
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
@@ -152,28 +141,6 @@ def customiseFor2018Input(process):
     return process
 
 
-def customiseFor35315(process):
-    """Update the HLT configuration for the changes in #35315"""
-    for module in filters_by_type(process, "HLTHcalCalibTypeFilter"):
-        if hasattr(module, "FilterSummary"):
-            delattr(module, "FilterSummary")
-
-    return process
-
-# MultipleScatteringParametrisationMakerESProducer
-def customiseFor35269(process):
-    process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
-    return process
-
-# Increase L1 cluster threshold from 2000 to 4000e making it the same as all other layers
-def customiseFor35518(process):
-    for producer in producers_by_type(process, "SiPixelClusterProducer"):
-        if hasattr(producer,"ClusterThreshold_L1"):
-            producer.ClusterThreshold_L1 = 4000
-        if hasattr(producer,"ChannelThreshold"):
-            producer.ChannelThreshold = 10
-    return process
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     
@@ -183,10 +150,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor35309(process)
-    process = customiseFor35315(process)
-    process = customiseFor35269(process)
-    process = customiseFor35518(process)
 
     return process
