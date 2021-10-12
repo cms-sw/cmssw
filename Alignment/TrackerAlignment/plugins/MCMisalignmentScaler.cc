@@ -226,7 +226,7 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
   }
   edm::LogInfo("Alignment") << "Writing rescaled tracker-alignment record.";
   const auto& since = cond::timeTypeSpecs[cond::runnumber].beginValue;
-  poolDb->writeOne(&rescaledAlignments, since, "TrackerAlignmentRcd");
+  poolDb->writeOneIOV(rescaledAlignments, since, "TrackerAlignmentRcd");
 }
 
 MCMisalignmentScaler::ScalerMap MCMisalignmentScaler::decodeSubDetectors(const edm::VParameterSet& psets) {
