@@ -298,7 +298,7 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
   if (writeSQLiteResults_) {
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOne(&finalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
+      poolDbService->writeOneIOV(finalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
     } else {
       edm::LogWarning("PPS") << "Could not store the results in a DB object. PoolDBService not available.";
     }
