@@ -160,20 +160,6 @@ private:
   float qScaleF_;
   float rQmQtF_;
 
-  // histogram etc
-  int hist_x_;
-  int hist_y_;
-  double min_x_;
-  double max_x_;
-  double min_y_;
-  double max_y_;
-  double width_;
-  double min_depth_;
-  double max_depth_;
-  double min_drift_;
-  double max_drift_;
-  int bufsize;
-
   // parameters from config file
   double ptmin_;
   double normChi2Max_;
@@ -225,19 +211,7 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
   t_trajTrack = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("src"));
 
   // now do what ever initialization is needed
-  hist_x_ = 50;
-  hist_y_ = 100;
-  min_x_ = -500.;
-  max_x_ = 500.;
-  min_y_ = -1500.;
-  max_y_ = 500.;
-  width_ = 0.0285;
-  min_depth_ = -100.;
-  max_depth_ = 400.;
-  min_drift_ = -1000.;  //-200.;(iConfig.getParameter<double>("residualMax"))
-  max_drift_ = 1000.;   //400.;
-
-  bufsize = 64000;
+  int bufsize = 64000;
 
   //    create tree structure
   //    Barrel pixel
@@ -405,6 +379,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           const PixelTopology* topol = &(theGeomDet->specificTopology());
 
           float ypitch_ = topol->pitch().second;
+          float width_ = 0.0285;
 
           if (!topol)
             continue;
@@ -514,23 +489,19 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
             }
           }
 
-          double residual = TMath::Sqrt((trackhitCorrX_ - rechitCorr_.x) * (trackhitCorrX_ - rechitCorr_.x) +
-                                        (trackhitCorrY_ - rechitCorr_.y) * (trackhitCorrY_ - rechitCorr_.y));
+          double residualsq = (trackhitCorrX_ - rechitCorr_.x) * (trackhitCorrX_ - rechitCorr_.x) +
+                              (trackhitCorrY_ - rechitCorr_.y) * (trackhitCorrY_ - rechitCorr_.y);
 
           double xlim1 = trackhitCorrX_ - width_ * cotalpha / 2.;
           double hypitch_ = ypitch_ / 2.;
           double ylim1 = trackhitCorrY_ - width_ * cotbeta / 2.;
           double ylim2 = trackhitCorrY_ + width_ * cotbeta / 2.;
 
-          int clustSizeY_cut;
-          if (layer_ < 4) {
-            clustSizeY_cut = clustSizeYMin_;
-          } else {
-            clustSizeY_cut = clustSizeYMinL4_;
-          }
+          int clustSizeY_cut = layer_ < 4 ? clustSizeYMin_ : clustSizeYMinL4_;
 
           if (!large_pix && (chi2_ / ndof_) < normChi2Max_ && cluster->sizeY() >= clustSizeY_cut &&
-              residual < residualMax_ && cluster->charge() < clusterCharge_cut && cluster->sizeX() < clustSizeXMax_) {
+              residualsq < residualMax_ * residualMax_ && cluster->charge() < clusterCharge_cut &&
+              cluster->sizeX() < clustSizeXMax_) {
             // iterate over pixels in hit
             for (int j = 0; j < pixinfo_.npix; j++) {
               // use trackhits and include bowing correction
@@ -700,6 +671,11 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                   edm::EventSetup const& iSetup) {
   iBooker.setCurrentFolder(folder_);
   iHists.h_tracks_ = iBooker.book1D("h_tracks", "h_tracks", 2, 0., 2.);
+
+  double min_depth_ = -100.;
+  double max_depth_ = 400.;
+  double min_drift_ = -1000.;
+  double max_drift_ = 1000.;
 
   //book histograms
   char name[128];
