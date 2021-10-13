@@ -281,15 +281,15 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
       if (i_layer == 1)
         p1_simul[i_layer - 1][i_module - 1] = 0.436848;
-      if (i_layer == 2)
+      else if (i_layer == 2)
         p1_simul[i_layer - 1][i_module - 1] = 0.25802;
-      if (i_layer == 3 && i_module <= 4)
+      else if (i_layer == 3 && i_module <= 4)
         p1_simul[i_layer - 1][i_module - 1] = 0.29374;
-      if (i_layer == 3 && i_module >= 5)
+      else if (i_layer == 3 && i_module >= 5)
         p1_simul[i_layer - 1][i_module - 1] = 0.31084;
-      if (i_layer == 4 && i_module <= 4)
+      else if (i_layer == 4 && i_module <= 4)
         p1_simul[i_layer - 1][i_module - 1] = 0.29944;
-      if (i_layer == 4 && i_module >= 5)
+      else
         p1_simul[i_layer - 1][i_module - 1] = 0.31426;
     }
   }
