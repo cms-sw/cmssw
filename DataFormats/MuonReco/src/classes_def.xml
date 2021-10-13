@@ -164,6 +164,12 @@ initial version number of a class which has never been stored before.
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonShower> >"/>
 
+  <class name="reco::MuonRecHitCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2080298867"/>
+  </class>
+  <class name="std::vector<reco::MuonRecHitCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonRecHitCluster>>"/>
+
   <class name="std::vector<reco::MuonRef>"/>
   <class name="std::vector<reco::MuonRef>::const_iterator"/>
   <class name="edm::ValueMap<reco::MuonRef>"/>
