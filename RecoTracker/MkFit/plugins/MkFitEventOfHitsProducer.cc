@@ -177,14 +177,8 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   mkfit::StdSeq::Cmssw_LoadHits_End(*eventOfHits);
 
   auto const bs = iEvent.get(beamSpotToken_);
-  eventOfHits->SetBeamSpot({.x = float(bs.x0()),
-                            .y = float(bs.y0()),
-                            .z = float(bs.z0()),
-                            .sigmaZ = float(bs.sigmaZ()),
-                            .beamWidthX = float(bs.BeamWidthX()),
-                            .beamWidthY = float(bs.BeamWidthY()),
-                            .dxdz = float(bs.dxdz()),
-                            .dydz = float(bs.dydz())});
+  eventOfHits->SetBeamSpot(
+      mkfit::BeamSpot(bs.x0(), bs.y0(), bs.z0(), bs.sigmaZ(), bs.BeamWidthX(), bs.BeamWidthY(), bs.dxdz(), bs.dydz()));
 
   iEvent.emplace(putToken_, std::move(eventOfHits));
 }
