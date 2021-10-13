@@ -42,19 +42,19 @@
 using namespace geant_units::operators;
 
 class MaterialBudgetHcalProducer : public SimProducer,
-				   public Observer<const BeginOfJob*>,
-				   public Observer<const BeginOfEvent*>,
-				   public Observer<const BeginOfTrack*>,
-				   public Observer<const G4Step*>,
-				   public Observer<const EndOfTrack*> {
+                                   public Observer<const BeginOfJob*>,
+                                   public Observer<const BeginOfEvent*>,
+                                   public Observer<const BeginOfTrack*>,
+                                   public Observer<const G4Step*>,
+                                   public Observer<const EndOfTrack*> {
 public:
   MaterialBudgetHcalProducer(const edm::ParameterSet&);
-  ~MaterialBudgetHcalProducer() = default;
+  ~MaterialBudgetHcalProducer() override = default;
 
-  MaterialBudgetHcalProducer(const MaterialBudgetHcalProducer&) = delete; // stop default
+  MaterialBudgetHcalProducer(const MaterialBudgetHcalProducer&) = delete;                   // stop default
   const MaterialBudgetHcalProducer& operator=(const MaterialBudgetHcalProducer&) = delete;  // stop default
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   void update(const BeginOfJob*) override;
@@ -64,12 +64,12 @@ private:
   void update(const EndOfTrack*) override;
 
   bool stopAfter(const G4Step*);
-  std::vector<std::string> getNames(DDFilteredView &fv);
-  std::vector<std::string> getNames(cms::DDFilteredView &fv);
-  std::vector<double> getDDDArray(const std::string &str, const DDsvalues_type &sv);
-  bool isSensitive(const std::string &);
-  bool isItHF(const G4VTouchable *);
-  bool isItEC(const std::string &);
+  std::vector<std::string> getNames(DDFilteredView& fv);
+  std::vector<std::string> getNames(cms::DDFilteredView& fv);
+  std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv);
+  bool isSensitive(const std::string&);
+  bool isItHF(const G4VTouchable*);
+  bool isItEC(const std::string&);
 
   static const int maxSet_ = 25, maxSet2_ = 9;
   double rMax_, zMax_, etaMinP_, etaMaxP_;
@@ -87,7 +87,6 @@ private:
   int nlayHB_, nlayHE_, nlayHO_, nlayHF_;
 };
 
-
 MaterialBudgetHcalProducer::MaterialBudgetHcalProducer(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcalProducer");
   rMax_ = m_p.getUntrackedParameter<double>("RMax", 4.5) * CLHEP::m;
@@ -97,12 +96,14 @@ MaterialBudgetHcalProducer::MaterialBudgetHcalProducer(const edm::ParameterSet& 
   fromdd4hep_ = m_p.getUntrackedParameter<bool>("Fromdd4hep", false);
   printSum_ = m_p.getUntrackedParameter<bool>("PrintSummary", false);
   name_ = m_p.getUntrackedParameter<std::string>("Name", "Hcal");
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer initialized with rMax " << rMax_ << " mm and zMax " << zMax_  << " mm printSummary is set to " << printSum_ << " and Fromdd4hep to " << fromdd4hep_;
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer initialized with rMax " << rMax_ << " mm and zMax "
+                                     << zMax_ << " mm printSummary is set to " << printSum_ << " and Fromdd4hep to "
+                                     << fromdd4hep_;
 
   produces<MaterialAccountingCaloCollection>(Form("%sMatBCalo", name_.c_str()));
 }
 
-void MaterialBudgetHcalProducer::produce(edm::Event &e, const edm::EventSetup &) {
+void MaterialBudgetHcalProducer::produce(edm::Event& e, const edm::EventSetup&) {
   std::unique_ptr<MaterialAccountingCaloCollection> hgc(new MaterialAccountingCaloCollection);
   for (auto const& mbc : matcoll_) {
     hgc->emplace_back(mbc);
@@ -128,8 +129,8 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
         sensitives_.emplace_back(namx);
     }
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute << " = "
-                                           << value << " has " << sensitives_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute
+                                           << " = " << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalProducer: sensitives[" << i << "] = " << sensitives_[i];
@@ -139,8 +140,8 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
     cms::DDFilteredView fv2(cpv, filter2);
     std::vector<int> temp = fv2.get<std::vector<int> >("hf", "Levels");
     hfNames_ = getNames(fv2);
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute << " = "
-                                           << value << " has " << hfNames_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute
+                                           << " = " << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       hfLevels_.push_back(temp[i] + addLevel);
       edm::LogVerbatim("MaterialBudgetFull")
@@ -180,8 +181,8 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
         sensitives_.emplace_back(namx);
     }
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute << " = "
-                                           << value << " has " << sensitives_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute
+                                           << " = " << value << " has " << sensitives_.size() << " elements";
     for (unsigned int i = 0; i < sensitives_.size(); i++)
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalProducer: sensitives[" << i << "] = " << sensitives_[i];
@@ -193,8 +194,8 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
     fv2.firstChild();
     DDsvalues_type sv(fv2.mergedSpecifics());
     std::vector<double> temp = getDDDArray("Levels", sv);
-    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute << " = "
-                                           << value << " has " << hfNames_.size() << " elements";
+    edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Names to be tested for " << attribute
+                                           << " = " << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       int level = static_cast<int>(temp[i]);
       hfLevels_.push_back(level + addLevel);
@@ -223,9 +224,7 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
   }
 }
 
-void MaterialBudgetHcalProducer::update(const BeginOfEvent*) {
-  matcoll_.clear();
-}
+void MaterialBudgetHcalProducer::update(const BeginOfEvent*) { matcoll_.clear(); }
 
 void MaterialBudgetHcalProducer::update(const BeginOfTrack* trk) {
   const G4Track* aTrack = (*trk)();  // recover G4 pointer if wanted
@@ -234,7 +233,7 @@ void MaterialBudgetHcalProducer::update(const BeginOfTrack* trk) {
   radLen_ = intLen_ = stepLen_ = 0;
   nlayHB_ = nlayHE_ = nlayHF_ = nlayHO_ = 0;
   for (int i = 0; i < maxSet_; ++i)
-   stepLens_[i] = radLens_[i] = intLens_[i] = 0;
+    stepLens_[i] = radLens_[i] = intLens_[i] = 0;
 
   const G4ThreeVector& dir = aTrack->GetMomentum();
   if (dir.theta() != 0) {
@@ -243,7 +242,9 @@ void MaterialBudgetHcalProducer::update(const BeginOfTrack* trk) {
     eta_ = -99;
   }
   phi_ = dir.phi();
-  edm::LogVerbatim("MaterialBudget") << "Start track with (eta, phi) = (" << eta_ << ", " << phi_ << " Energy " << aTrack->GetTotalEnergy() << " and ID " << (aTrack->GetDefinition()->GetPDGEncoding());
+  edm::LogVerbatim("MaterialBudget") << "Start track with (eta, phi) = (" << eta_ << ", " << phi_ << " Energy "
+                                     << aTrack->GetTotalEnergy() << " and ID "
+                                     << (aTrack->GetDefinition()->GetPDGEncoding());
 
   if (printSum_) {
     matList_.clear();
@@ -301,7 +302,11 @@ void MaterialBudgetHcalProducer::update(const G4Step* aStep) {
 
   int det = 0, lay = 0;
   double abseta = std::abs(eta_);
-  edm::LogVerbatim("MaterialBudgetFull") << "Volume " << name << ":" << matName << " EC:Sensitive:HF " << isItEC(name) << ":" << isSensitive(name) << ":"  << isItHF(touch) << " Eta " << abseta << " HC " << ((touch->GetReplicaNumber(1)) / 1000) << ":" << ((touch->GetReplicaNumber(0) / 10) % 100 + 3) << " X0 " << (radLen_ + (step / radl)) << " Lambda " << (intLen_ + (step / intl));
+  edm::LogVerbatim("MaterialBudgetFull") << "Volume " << name << ":" << matName << " EC:Sensitive:HF " << isItEC(name)
+                                         << ":" << isSensitive(name) << ":" << isItHF(touch) << " Eta " << abseta
+                                         << " HC " << ((touch->GetReplicaNumber(1)) / 1000) << ":"
+                                         << ((touch->GetReplicaNumber(0) / 10) % 100 + 3) << " X0 "
+                                         << (radLen_ + (step / radl)) << " Lambda " << (intLen_ + (step / intl));
 
   if (isItEC(name)) {
     det = 1;
@@ -309,34 +314,35 @@ void MaterialBudgetHcalProducer::update(const G4Step* aStep) {
   } else {
     if (isSensitive(name)) {
       if (isItHF(touch)) {
-	det = 5;
-	lay = 21;
-	if (lay != layer_)
-	  ++nlayHF_;
+        det = 5;
+        lay = 21;
+        if (lay != layer_)
+          ++nlayHF_;
       } else {
-	det = (touch->GetReplicaNumber(1)) / 1000;
-	lay = (touch->GetReplicaNumber(0) / 10) % 100 + 3;
-	if (det == 4) {
-	  if (abseta < 1.479)
-	    lay = layer_ + 1;
-	  else
-	    lay--;
-	  if (lay < 3)
-	    lay = 3;
-	  if (lay == layer_)
-	    lay++;
-	  if (lay > 20)
-	    lay = 20;
-	  if (lay != layer_)
-	    ++nlayHE_;
-	} else if (lay != layer_) {
-	  if (lay >= 20)
-	    ++nlayHO_;
-	  else
-	    ++nlayHB_;
-	}
+        det = (touch->GetReplicaNumber(1)) / 1000;
+        lay = (touch->GetReplicaNumber(0) / 10) % 100 + 3;
+        if (det == 4) {
+          if (abseta < 1.479)
+            lay = layer_ + 1;
+          else
+            lay--;
+          if (lay < 3)
+            lay = 3;
+          if (lay == layer_)
+            lay++;
+          if (lay > 20)
+            lay = 20;
+          if (lay != layer_)
+            ++nlayHE_;
+        } else if (lay != layer_) {
+          if (lay >= 20)
+            ++nlayHO_;
+          else
+            ++nlayHB_;
+        }
       }
-      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Det " << det << " Layer " << lay << " Eta " << eta_ << " Phi " << convertRadToDeg(phi_);
+      edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalProducer: Det " << det << " Layer " << lay << " Eta "
+                                             << eta_ << " Phi " << convertRadToDeg(phi_);
     } else if (layer_ == 1) {
       det = -1;
       lay = 2;
@@ -351,7 +357,8 @@ void MaterialBudgetHcalProducer::update(const G4Step* aStep) {
 
   if (id_ > idOld) {
     if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
-      edm::LogVerbatim("MaterialBudget")  << "MaterialBudgetHcalProducer: Step at " << name << " calls filHisto with " << (id_ - 1);
+      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer: Step at " << name << " calls filHisto with "
+                                         << (id_ - 1);
     stepLens_[id_ - 1] = stepLen_;
     radLens_[id_ - 1] = radLen_;
     intLens_[id_ - 1] = intLen_;
@@ -363,7 +370,10 @@ void MaterialBudgetHcalProducer::update(const G4Step* aStep) {
   if (id_ == 21) {
     if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
       if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
-	edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer: After HF in " << name << ":" << static_cast<std::string>(dd4hep::dd::noNamespace(aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName())) << " calls fillHisto with " << id_;
+        edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalProducer: After HF in " << name << ":"
+                                           << static_cast<std::string>(dd4hep::dd::noNamespace(
+                                                  aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName()))
+                                           << " calls fillHisto with " << id_;
       stepLens_[idOld] = stepLen_;
       radLens_[idOld] = radLen_;
       intLens_[idOld] = intLen_;
