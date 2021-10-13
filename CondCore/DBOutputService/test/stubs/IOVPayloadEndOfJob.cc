@@ -37,7 +37,7 @@ void IOVPayloadEndOfJob::endJob() {
       //create
       cond::Time_t firstSinceTime = mydbservice->beginOfTime();
       std::cout << "firstSinceTime is begin of time " << firstSinceTime << std::endl;
-      mydbservice->writeOne(&myped, firstSinceTime, m_record);
+      mydbservice->writeOneIOV(myped, firstSinceTime, m_record);
     } else {
       //append
       cond::Time_t current = mydbservice->currentTime();
@@ -52,7 +52,7 @@ void IOVPayloadEndOfJob::endJob() {
         }
         cond::Time_t thisPayload_valid_since = current;
         std::cout << "appeding since time " << thisPayload_valid_since << std::endl;
-        mydbservice->writeOne(&myped, thisPayload_valid_since, m_record);
+        mydbservice->writeOneIOV(myped, thisPayload_valid_since, m_record);
         std::cout << "done" << std::endl;
         //std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
       }
