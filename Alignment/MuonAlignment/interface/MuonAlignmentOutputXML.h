@@ -24,17 +24,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // user include files
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // forward declarations
 class AlignableObjectId;
 
 class MuonAlignmentOutputXML {
 public:
-  MuonAlignmentOutputXML(const edm::ParameterSet &iConfig);
+  MuonAlignmentOutputXML(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC);
   virtual ~MuonAlignmentOutputXML();
 
   // ---------- const member functions ---------------------
@@ -65,7 +66,12 @@ private:
   bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers,
       m_suppressDTLayers;
   bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
-  std::string idealGeometryLabel;
+
+  const std::string idealGeometryLabel;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 #endif

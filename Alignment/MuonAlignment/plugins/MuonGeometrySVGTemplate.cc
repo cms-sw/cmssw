@@ -52,6 +52,8 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &iConfig) override;
 
   std::string m_wheelTemplateName;
+
+  edm::ConsumesCollector m_cc;
   //       std::string m_disk1TemplateName;
   //       std::string m_disk23TemplateName;
   //       std::string m_diskp4TemplateName;
@@ -71,14 +73,14 @@ private:
 //
 
 MuonGeometrySVGTemplate::MuonGeometrySVGTemplate(const edm::ParameterSet &iConfig)
-    : m_wheelTemplateName(iConfig.getParameter<std::string>("wheelTemplateName")) {}
+    : m_wheelTemplateName(iConfig.getParameter<std::string>("wheelTemplateName")), m_cc(consumesCollector()) {}
 
 MuonGeometrySVGTemplate::~MuonGeometrySVGTemplate() {}
 
 // ------------ method called to for each event  ------------
 void MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // loads ideal geometry
-  MuonAlignmentInputMethod inputMethod;
+  MuonAlignmentInputMethod inputMethod(m_cc);
   MuonAlignment muonAlignment(iSetup, inputMethod);
   AlignableNavigator *alignableNavigator = muonAlignment.getAlignableNavigator();
 

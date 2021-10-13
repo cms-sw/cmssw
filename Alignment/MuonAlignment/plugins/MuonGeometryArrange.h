@@ -170,7 +170,9 @@ private:
 
   bool firstEvent_;
 
-  std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a;
+  const std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a;
+
+  edm::ConsumesCollector m_cc;
 };
 
 #endif

@@ -25,6 +25,8 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 //
 // constants, enums and typedefs
@@ -37,17 +39,44 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputDB::MuonAlignmentInputDB()
-    : m_dtLabel(""), m_cscLabel(""), m_gemLabel(""), idealGeometryLabel("idealForInputDB"), m_getAPEs(false) {}
+MuonAlignmentInputDB::MuonAlignmentInputDB(edm::ConsumesCollector iC)
+    : m_dtLabel(""),
+      m_cscLabel(""),
+      m_gemLabel(""),
+      idealGeometryLabel("idealForInputDB"),
+      m_getAPEs(false),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      dtAliToken_(iC.esConsumes()),
+      cscAliToken_(iC.esConsumes()),
+      gemAliToken_(iC.esConsumes()),
+      dtAliErrToken_(iC.esConsumes()),
+      cscAliErrToken_(iC.esConsumes()),
+      gemAliErrToken_(iC.esConsumes()),
+      gprToken_(iC.esConsumes()) {}
 
-MuonAlignmentInputDB::MuonAlignmentInputDB(
-    std::string dtLabel, std::string cscLabel, std::string gemLabel, std::string idealLabel, bool getAPEs)
+MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel,
+                                           std::string cscLabel,
+                                           std::string gemLabel,
+                                           std::string idealLabel,
+                                           bool getAPEs,
+                                           edm::ConsumesCollector iC)
     : m_dtLabel(dtLabel),
       m_cscLabel(cscLabel),
       m_gemLabel(gemLabel),
       idealGeometryLabel(idealLabel),
-      m_getAPEs(getAPEs) {}
-
+      m_getAPEs(getAPEs),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      dtAliToken_(iC.esConsumes()),
+      cscAliToken_(iC.esConsumes()),
+      gemAliToken_(iC.esConsumes()),
+      dtAliErrToken_(iC.esConsumes()),
+      cscAliErrToken_(iC.esConsumes()),
+      gemAliErrToken_(iC.esConsumes()),
+      gprToken_(iC.esConsumes()) {}
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)
 // {
 //    // do actual copying here;
@@ -75,10 +104,6 @@ AlignableMuon* MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
   edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
   edm::ESHandle<Alignments> dtAlignments;
   edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
   edm::ESHandle<Alignments> cscAlignments;
@@ -86,16 +111,18 @@ AlignableMuon* MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
   edm::ESHandle<Alignments> gemAlignments;
   edm::ESHandle<AlignmentErrorsExtended> gemAlignmentErrorsExtended;
   edm::ESHandle<Alignments> globalPositionRcd;
-
-  iSetup.get<DTAlignmentRcd>().get(m_dtLabel, dtAlignments);
-  iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
-  iSetup.get<GEMAlignmentRcd>().get(m_gemLabel, gemAlignments);
-  iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+  dtGeometry = iSetup.getHandle(dtGeomToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  gemGeometry = iSetup.getHandle(gemGeomToken_);
+  dtAlignments = iSetup.getHandle(dtAliToken_);
+  cscAlignments = iSetup.getHandle(cscAliToken_);
+  gemAlignments = iSetup.getHandle(gemAliToken_);
+  globalPositionRcd = iSetup.getHandle(gprToken_);
 
   if (m_getAPEs) {
-    iSetup.get<DTAlignmentErrorExtendedRcd>().get(m_dtLabel, dtAlignmentErrorsExtended);
-    iSetup.get<CSCAlignmentErrorExtendedRcd>().get(m_cscLabel, cscAlignmentErrorsExtended);
-    iSetup.get<GEMAlignmentErrorExtendedRcd>().get(m_gemLabel, gemAlignmentErrorsExtended);
+    dtAlignmentErrorsExtended = iSetup.getHandle(dtAliErrToken_);
+    cscAlignmentErrorsExtended = iSetup.getHandle(cscAliErrToken_);
+    gemAlignmentErrorsExtended = iSetup.getHandle(gemAliErrToken_);
 
     GeometryAligner aligner;
     aligner.applyAlignments<DTGeometry>(&(*dtGeometry),

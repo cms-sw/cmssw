@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -57,7 +57,7 @@
 // class decleration
 //
 
-class StandAloneTest : public edm::EDAnalyzer {
+class StandAloneTest : public edm::one::EDAnalyzer<> {
 public:
   explicit StandAloneTest(const edm::ParameterSet &);
   ~StandAloneTest();
@@ -71,6 +71,13 @@ private:
 
   edm::InputTag m_Tracks;
 
+  edm::ConsumesCollector m_cc;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+  const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> muonDetIdAssToken_;
   // declare the TTree
   TTree *m_ttree;
   Int_t m_ttree_station;
@@ -95,7 +102,13 @@ private:
 // constructors and destructor
 //
 StandAloneTest::StandAloneTest(const edm::ParameterSet &iConfig)
-    : m_Tracks(iConfig.getParameter<edm::InputTag>("Tracks")) {
+    : m_Tracks(iConfig.getParameter<edm::InputTag>("Tracks")),
+      m_cc(consumesCollector()),
+      cscGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      trackingGeometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      magToken_(esConsumes<edm::Transition::BeginRun>()),
+      propToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      muonDetIdAssToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MuonDetIdAssociator"))) {
   edm::Service<TFileService> tFileService;
 
   // book the TTree
@@ -123,7 +136,7 @@ StandAloneTest::~StandAloneTest() {
 void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // create a muon alignment object ONCE (not used for much, only a formalilty for MuonResidualsFromTrack)
   if (m_muonAlignment == NULL) {
-    m_muonAlignment = new MuonAlignment(iSetup);
+    m_muonAlignment = new MuonAlignment(iSetup, m_cc);
   }
 
   // get tracks and refitted from the Event
@@ -134,17 +147,15 @@ void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   // get all tracking and CSC geometries from the EventSetup
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
   edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-
-  edm::ESHandle<Propagator> prop;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", prop);
   edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  edm::ESHandle<Propagator> prop;
   edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
-
+  globalGeometry = iSetup.getHandle(trackingGeometryToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  magneticField = iSetup.getHandle(magToken_);
+  prop = iSetup.getHandle(propToken_);
+  muonDetIdAssociator_ = iSetup.getHandle(muonDetIdAssToken_);
   // loop over tracks
   for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
     // find the corresponding refitted trajectory

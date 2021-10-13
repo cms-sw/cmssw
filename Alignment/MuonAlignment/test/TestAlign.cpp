@@ -12,8 +12,7 @@
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
@@ -28,7 +27,7 @@
 // class declaration
 //
 
-class TestAlign : public edm::EDAnalyzer {
+class TestAlign : public edm::one::EDAnalyzer<> {
 public:
   explicit TestAlign(const edm::ParameterSet&);
 
@@ -37,6 +36,7 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  edm::ConsumesCollector m_cc;
   //typedef Surface::RotationType    RotationType;
   //typedef Surface::PositionType    PositionType;
 };
@@ -44,13 +44,15 @@ private:
 //
 // constructors and destructor
 //
-TestAlign::TestAlign(const edm::ParameterSet& iConfig) { edm::LogInfo("MuonAlignment") << "Starting!"; }
+TestAlign::TestAlign(const edm::ParameterSet& iConfig) : m_cc(consumesCollector()) {
+  edm::LogInfo("MuonAlignment") << "Starting!";
+}
 
 TestAlign::~TestAlign() { edm::LogInfo("MuonAlignment") << "Ending!"; }
 
 void TestAlign::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Instantiate the helper class
-  MuonAlignment align(iSetup);
+  MuonAlignment align(iSetup, m_cc);
 
   // Get the AlignableMuon pointer
   AlignableMuon* theAlignableMuon = align.getAlignableMuon();

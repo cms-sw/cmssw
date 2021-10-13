@@ -11,11 +11,8 @@
 //$Id: MuonAlignmentInputXML.cc,v 1.16 2011/03/22 09:49:50 innocent Exp $
 //
 
-// system include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Utilities/Xerces/interface/Xerces.h"
-
-// Xerces include files
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/dom/DOM.hpp"
 #include "xercesc/sax/HandlerBase.hpp"
@@ -23,8 +20,6 @@
 #include "xercesc/util/PlatformUtils.hpp"
 #include "xercesc/util/XercesDefs.hpp"
 XERCES_CPP_NAMESPACE_USE
-
-// user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputXML.h"
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
@@ -45,8 +40,14 @@ XERCES_CPP_NAMESPACE_USE
 //
 // constructors and destructor
 //
-MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel)
-    : m_fileName(fileName), idealGeometryLabel(idealLabel) {
+MuonAlignmentInputXML::MuonAlignmentInputXML(const std::string &fileName,
+                                             std::string idealLabel,
+                                             edm::ConsumesCollector iC)
+    : m_fileName(fileName),
+      idealGeometryLabel(idealLabel),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))) {
   cms::concurrency::xercesInitialize();
   str_operation = XMLString::transcode("operation");
   str_collection = XMLString::transcode("collection");
@@ -257,9 +258,9 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iS
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
   edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
+  dtGeometry = iSetup.getHandle(dtGeomToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  gemGeometry = iSetup.getHandle(gemGeomToken_);
 
   AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
   std::map<unsigned int, Alignable *> alignableNavigator;  // real AlignableNavigators don't have const methods

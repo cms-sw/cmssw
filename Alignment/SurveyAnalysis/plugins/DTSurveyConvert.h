@@ -34,6 +34,8 @@ private:
 
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeoToken_;
 
+  edm::ConsumesCollector m_cc;
+
   std::vector<DTSurvey *> wheelList;
   std::string nameWheel_m2;
   std::string nameWheel_m1;

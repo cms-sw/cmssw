@@ -23,18 +23,17 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 // user include files
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 // forward declarations
 
 class MuonAlignmentInputMethod {
 public:
   MuonAlignmentInputMethod();
-  MuonAlignmentInputMethod(std::string idealLabel);
+  MuonAlignmentInputMethod(edm::ConsumesCollector iC);
+  MuonAlignmentInputMethod(std::string idealLabel, edm::ConsumesCollector iC);
   virtual ~MuonAlignmentInputMethod();
 
   // ---------- const member functions ---------------------
@@ -51,7 +50,11 @@ public:
 
 private:
   // ---------- member data --------------------------------
-  std::string idealGeometryLabel;
+  const std::string idealGeometryLabel;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 #endif

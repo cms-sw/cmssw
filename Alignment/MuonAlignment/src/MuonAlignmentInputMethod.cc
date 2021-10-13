@@ -14,13 +14,10 @@
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -33,8 +30,17 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputMethod::MuonAlignmentInputMethod() : idealGeometryLabel("idealForInputMethod") {}
-MuonAlignmentInputMethod::MuonAlignmentInputMethod(std::string idealLabel) : idealGeometryLabel(idealLabel) {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod() {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod(edm::ConsumesCollector iC)
+    : idealGeometryLabel("idealForInputMethod"),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))) {}
+MuonAlignmentInputMethod::MuonAlignmentInputMethod(std::string idealLabel, edm::ConsumesCollector iC)
+    : idealGeometryLabel(idealLabel),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))) {}
 
 // MuonAlignmentInputMethod::MuonAlignmentInputMethod(const MuonAlignmentInputMethod& rhs)
 // {
@@ -63,9 +69,9 @@ AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup&
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
   edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
+  dtGeometry = iSetup.getHandle(dtGeomToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  gemGeometry = iSetup.getHandle(gemGeomToken_);
   return new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 }
 

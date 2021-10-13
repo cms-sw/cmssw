@@ -40,7 +40,8 @@ void MuonAlignment::init() {
   theAlignableNavigator = nullptr;
 }
 
-MuonAlignment::MuonAlignment(const edm::EventSetup& iSetup) {
+MuonAlignment::MuonAlignment(const edm::EventSetup& iSetup, edm::ConsumesCollector iC)
+    : esTokenDT_(iC.esConsumes()), esTokenCSC_(iC.esConsumes()), esTokenGEM_(iC.esConsumes()) {
   init();
 
   edm::ESHandle<DTGeometry> dtGeometry = iSetup.getHandle(esTokenDT_);
@@ -238,8 +239,10 @@ void MuonAlignment::copySurveyToAlignment() { recursiveCopySurveyToAlignment(the
 //____________________________________________________________________________________
 // Code needed to store alignments to DB
 
-void MuonAlignment::writeXML(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup) {
-  MuonAlignmentOutputXML(iConfig).write(theAlignableMuon, iSetup);
+void MuonAlignment::writeXML(const edm::ParameterSet& iConfig,
+                             const edm::EventSetup& iSetup,
+                             edm::ConsumesCollector iC) {
+  MuonAlignmentOutputXML(iConfig, iC).write(theAlignableMuon, iSetup);
 }
 
 void MuonAlignment::saveDTSurveyToDB(void) {

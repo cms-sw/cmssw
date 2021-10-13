@@ -25,14 +25,15 @@
 #include "xercesc/util/XercesDefs.hpp"
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 // forward declarations
 
 class MuonAlignmentInputXML : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel);
+  MuonAlignmentInputXML(const std::string &fileName, std::string idealLabel, edm::ConsumesCollector iC);
   ~MuonAlignmentInputXML() override;
 
   // ---------- const member functions ---------------------
@@ -96,7 +97,11 @@ private:
                            std::map<Alignable *, Alignable *> &alitoideal) const;
 
   // ---------- member data --------------------------------
-  std::string m_fileName, idealGeometryLabel;
+  const std::string m_fileName, idealGeometryLabel;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 
   XMLCh *str_operation;
   XMLCh *str_collection;

@@ -20,7 +20,7 @@
 
 class MuonAlignment {
 public:
-  MuonAlignment(const edm::EventSetup& iSetup);
+  MuonAlignment(const edm::EventSetup& iSetup, edm::ConsumesCollector iC);
 
   MuonAlignment(const edm::EventSetup& iSetup, const MuonAlignmentInputMethod& input);
 
@@ -45,7 +45,7 @@ public:
   void fillGapsInSurvey(double shiftErr, double angleErr);
   void copySurveyToAlignment();
 
-  void writeXML(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup);
+  void writeXML(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector);
 
   void saveDTSurveyToDB();
   void saveCSCSurveyToDB();
@@ -66,9 +66,9 @@ private:
   std::string theDTSurveyRecordName, theDTSurveyErrorRecordName;
   std::string theCSCSurveyRecordName, theCSCSurveyErrorRecordName;
 
-  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
-  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
-  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 
   align::Scalars displacements;
 

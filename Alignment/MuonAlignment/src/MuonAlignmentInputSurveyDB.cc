@@ -16,12 +16,6 @@
 
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
-#include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //
 // constants, enums and typedefs
@@ -34,13 +28,32 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB()
-    : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputSurveyDB") {}
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(edm::ConsumesCollector iC)
+    : m_dtLabel(""),
+      m_cscLabel(""),
+      idealGeometryLabel("idealForInputSurveyDB"),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      dtSurveyToken_(iC.esConsumes()),
+      dtSurvErrorToken_(iC.esConsumes()),
+      cscSurveyToken_(iC.esConsumes()),
+      cscSurvErrorToken_(iC.esConsumes()) {}
 
 MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel,
                                                        std::string cscLabel,
-                                                       std::string idealLabel)
-    : m_dtLabel(dtLabel), m_cscLabel(cscLabel), idealGeometryLabel(idealLabel) {}
+                                                       std::string idealLabel,
+                                                       edm::ConsumesCollector iC)
+    : m_dtLabel(dtLabel),
+      m_cscLabel(cscLabel),
+      idealGeometryLabel(idealLabel),
+      dtGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      dtSurveyToken_(iC.esConsumes()),
+      dtSurvErrorToken_(iC.esConsumes()),
+      cscSurveyToken_(iC.esConsumes()),
+      cscSurvErrorToken_(iC.esConsumes()) {}
 
 // MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB& rhs)
 // {
@@ -69,18 +82,17 @@ AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetu
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
   edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
   edm::ESHandle<Alignments> dtSurvey;
   edm::ESHandle<SurveyErrors> dtSurveyError;
   edm::ESHandle<Alignments> cscSurvey;
   edm::ESHandle<SurveyErrors> cscSurveyError;
-  iSetup.get<DTSurveyRcd>().get(m_dtLabel, dtSurvey);
-  iSetup.get<DTSurveyErrorExtendedRcd>().get(m_dtLabel, dtSurveyError);
-  iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
-  iSetup.get<CSCSurveyErrorExtendedRcd>().get(m_cscLabel, cscSurveyError);
+  dtGeometry = iSetup.getHandle(dtGeomToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  gemGeometry = iSetup.getHandle(gemGeomToken_);
+  dtSurvey = iSetup.getHandle(dtSurveyToken_);
+  dtSurveyError = iSetup.getHandle(dtSurvErrorToken_);
+  cscSurvey = iSetup.getHandle(cscSurveyToken_);
+  cscSurveyError = iSetup.getHandle(cscSurvErrorToken_);
 
   AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
