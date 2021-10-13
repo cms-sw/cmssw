@@ -10,8 +10,8 @@ public:
   // see the const definitions below for the meaning of the bit towers.
   // Each bit is replicated for each depth level
   typedef std::array<std::bitset<6>, 2> Tower;
-  // Each pair contains energy and TDC of the cell in that depth of the trigger tower
-  typedef std::array<std::pair<int, int>, 7> TowerTDC;
+  // Each pair contains uHTR group 0 LUT bits 12-15, TDC, and ADC of the cell in that depth of the trigger tower
+  typedef std::array<std::pair<int, std::pair<int, int>>, 7> TowerTDC;
 
   HcalFinegrainBit(int version) : version_(version){};
 
