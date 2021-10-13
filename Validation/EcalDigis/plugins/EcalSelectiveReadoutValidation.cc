@@ -446,7 +446,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
         eventError = true;
         ++nEeZsErrors_;
         pair<int, int> ru = dccCh(frame.id());
-        if (isRuComplete_[ru.first][ru.second - 1])
+        if (isRuComplete_[ru.first - 1][ru.second - 1])
           ++nEeZsErrorsType1_;
         if (nEeZsErrors_ < 3) {
           srApplicationErrorLog_ << event.id() << ", "
@@ -706,7 +706,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
         eventError = true;
         ++nEbZsErrors_;
         pair<int, int> ru = dccCh(frame.id());
-        if (isRuComplete_[ru.first][ru.second - 1])
+        if (isRuComplete_[ru.first - 1][ru.second - 1])
           ++nEbZsErrorsType1_;
         if (nEbZsErrors_ < 3) {
           srApplicationErrorLog_ << event.id() << ", "
