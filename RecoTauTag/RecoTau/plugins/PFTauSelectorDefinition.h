@@ -130,7 +130,6 @@ struct PFTauSelectorDefinition {
           // This else statement was added in the update of the HLT paths to use DeepTauId instead of charged isolation. Because the DeepTauId module is shared
           // with offline and its psetsFromProvenance do not contain any of the above but only VSxWP, this selector would automatically go to the else statement
           // that follows this one and fail. It is left empty because at HLT the raw values are not used and no action is needed here.
-          ;
         } else
           throw cms::Exception("Configuration") << "PFTauSelector: No suitable ID list found in provenace config!\n";
         // find working point indices

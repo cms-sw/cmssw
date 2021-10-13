@@ -12,7 +12,7 @@ from RecoTauTag.RecoTau.DeepTau_cfi import *
 
 from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 ## DeltaBeta correction factor
-ak4dBetaCorrection = 0.20
+_ak4dBetaCorrection = 0.20
 
 def update(process):
     process.options.wantSummary = cms.untracked.bool(True)
@@ -44,7 +44,7 @@ def update(process):
         vertexSrc = PFTauQualityCuts.primaryVertexSrc,
         customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
         isoConeSizeForDeltaBeta = 0.8,
-        deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
+        deltaBetaFactor = "%0.4f"%(_ak4dBetaCorrection),
         qualityCuts = dict(isolationQualityCuts = dict(minTrackHits = 3, minGammaEt = 1.0, minTrackPt = 0.5)),
         IDdefinitions = [
             cms.PSet(
