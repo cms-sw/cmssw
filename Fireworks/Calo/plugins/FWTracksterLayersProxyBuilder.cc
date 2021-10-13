@@ -110,6 +110,13 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
   const ticl::Trackster &trackster = iData;
   const size_t N = trackster.vertices().size();
   const std::vector<reco::CaloCluster> &layerClusters = *layerClustersHandle_;
+  TEveStraightLineSet *position_marker = nullptr;
+
+  if (enablePositionLines_) {
+    position_marker = new TEveStraightLineSet;
+    position_marker->SetLineWidth(2);
+    position_marker->SetLineColor(kWhite);
+  }
 
   for (size_t i = 0; i < N; ++i) {
     const reco::CaloCluster layerCluster = layerClusters[trackster.vertices(i)];
@@ -161,7 +168,7 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       radius = sqrt(nHits * area) / M_PI;
     }
 
-    auto eveCircle = new TEveGeoShape("Circle");
+    auto *eveCircle = new TEveGeoShape("Circle");
     auto tube = new TGeoTube(0., proportionalityFactor_ * radius, 0.1);
     eveCircle->SetShape(tube);
     eveCircle->InitMainTrans();
@@ -173,27 +180,36 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       const uint8_t colorFactor = gradient_steps * normalized_energy;
       eveCircle->SetFillColor(
           TColor::GetColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]));
+    } else {
+      eveCircle->SetMainColor(item()->modelInfo(iIndex).displayProperties().color());
+      eveCircle->SetMainTransparency(item()->defaultDisplayProperties().transparency());
     }
 
     // seed and cluster position
     const float crossScale = 1.0f + fmin(energy, 5.0f);
     if (enablePositionLines_) {
-      TEveStraightLineSet *position_marker = new TEveStraightLineSet;
-      position_marker->SetLineWidth(2);
-      position_marker->SetLineColor(kWhite);
       auto const &pos = layerCluster.position();
       const float position_crossScale = crossScale * 0.5;
       position_marker->AddLine(
           pos.x() - position_crossScale, pos.y(), pos.z(), pos.x() + position_crossScale, pos.y(), pos.z());
       position_marker->AddLine(
           pos.x(), pos.y() - position_crossScale, pos.z(), pos.x(), pos.y() + position_crossScale, pos.z());
-
-      oItemHolder.AddElement(position_marker);
     }
   }
 
+  if (enablePositionLines_)
+    oItemHolder.AddElement(position_marker);
+
   if (enableEdges_) {
     auto &edges = trackster.edges();
+
+    TEveStraightLineSet *adjacent_marker = new TEveStraightLineSet;
+    adjacent_marker->SetLineWidth(2);
+    adjacent_marker->SetLineColor(kYellow);
+
+    TEveStraightLineSet *non_adjacent_marker = new TEveStraightLineSet;
+    non_adjacent_marker->SetLineWidth(2);
+    non_adjacent_marker->SetLineColor(kRed);
 
     for (auto edge : edges) {
       auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
@@ -201,28 +217,28 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       int layerIn = item()->getGeom()->getParameters(doublet.first.seed())[1];
       int layerOut = item()->getGeom()->getParameters(doublet.second.seed())[1];
 
-      const bool isAdjacent = (layerOut - layerIn) == 1;
-
-      TEveStraightLineSet *marker = new TEveStraightLineSet;
-      marker->SetLineWidth(2);
-      if (isAdjacent) {
-        marker->SetLineColor(kYellow);
-      } else {
-        marker->SetLineColor(kRed);
-      }
+      const bool isAdjacent = std::abs(layerOut - layerIn) == 1;
 
       // draw 3D cross
       if (layer_ == 0 || fabs(layerIn - layer_) == 0 || fabs(layerOut - layer_) == 0) {
-        marker->AddLine(doublet.first.x(),
-                        doublet.first.y(),
-                        doublet.first.z(),
-                        doublet.second.x(),
-                        doublet.second.y(),
-                        doublet.second.z());
+        if (isAdjacent)
+          adjacent_marker->AddLine(doublet.first.x(),
+                                   doublet.first.y(),
+                                   doublet.first.z(),
+                                   doublet.second.x(),
+                                   doublet.second.y(),
+                                   doublet.second.z());
+        else
+          non_adjacent_marker->AddLine(doublet.first.x(),
+                                       doublet.first.y(),
+                                       doublet.first.z(),
+                                       doublet.second.x(),
+                                       doublet.second.y(),
+                                       doublet.second.z());
       }
-
-      oItemHolder.AddElement(marker);
     }
+    oItemHolder.AddElement(adjacent_marker);
+    oItemHolder.AddElement(non_adjacent_marker);
   }
 }
 

@@ -372,7 +372,7 @@ void FW3DViewBase::updateClipPlanes(bool resetCamera) {
     bmarker->SetMarkerSize(0.2);
     for (int i = 0; i < 8; ++i)
         bmarker->SetPoint(i, bbox[i].X(), bbox[i].Y(), bbox[i].Z());
-    eventScene()->AddElement(bmarker); 
+    eventScene()->AddElement(bmarker);
       */
 
       TGLCamera& cam = viewerGL()->CurrentCamera();
@@ -411,7 +411,7 @@ void FW3DViewBase::updateHGCalVisibility(bool) {
   if (HGCalHSi) {
     for (const auto& it : HGCalHSi->RefChildren()) {
       std::string title(it->GetElementTitle());
-      int layer = stoi(title.substr(title.length() - 2)) + 28;
+      int layer = stoi(title.substr(title.length() - 2));
       it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
     }
   }
@@ -420,7 +420,7 @@ void FW3DViewBase::updateHGCalVisibility(bool) {
   if (HGCalHSc) {
     for (const auto& it : HGCalHSc->RefChildren()) {
       std::string title(it->GetElementTitle());
-      int layer = stoi(title.substr(title.length() - 2)) + 28;
+      int layer = stoi(title.substr(title.length() - 2));
       it->SetRnrState(layer >= r_lmin && layer <= r_lmax);
     }
   }
