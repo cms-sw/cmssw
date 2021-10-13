@@ -100,6 +100,7 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
     : eventCounter_(0),
       allDigiCounter_(0),
       allWordCounter_(0),
+      debug_(false),
       mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")) {
   //register your products
   tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
@@ -137,13 +138,13 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   allDigiCounter_ += digiCounter;
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-  if (recordWatcher_.check(iSetup)) {
-    mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
-    for (const auto& p : mapping->ROCMapping)
-      v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
-          p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
-    fedIds_ = mapping->fedIds();
-  }
+
+  mapping = iSetup.getHandle(tCTPPSPixelDAQMapping_);
+  for (const auto& p : mapping->ROCMapping)
+    v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{
+        p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()});
+  fedIds_ = mapping->fedIds();
+
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   // create product (raw data)
