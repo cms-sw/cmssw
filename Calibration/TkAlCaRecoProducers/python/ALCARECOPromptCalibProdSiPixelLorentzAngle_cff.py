@@ -29,9 +29,9 @@ from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
-ALCARECOPixelLACalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOPixelLACalibrationTracks"),
-                                                            TrajectoryInEvent = cms.bool(True),
-                                                            NavigationSchool = cms.string("")
+ALCARECOPixelLACalibrationTracksRefit = TrackRefitter.clone(src = "ALCARECOPixelLACalibrationTracks",
+                                                            TrajectoryInEvent = True,
+                                                            NavigationSchool = ""
                                                             )
 
 # refit and BS can be dropped if done together with RECO.
