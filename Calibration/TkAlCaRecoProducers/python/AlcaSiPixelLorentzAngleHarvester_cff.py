@@ -3,9 +3,10 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cfi import *
 from DQMServices.Components.EDMtoMEConverter_cfi import *
 
-EDMtoMEConvertSiPixelLorentzAngle = EDMtoMEConverter.clone()
-EDMtoMEConvertSiPixelLorentzAngle.lumiInputTag = cms.InputTag("MEtoEDMConvertSiPixelLorentzAngle","MEtoEDMConverterLumi")
-EDMtoMEConvertSiPixelLorentzAngle.runInputTag = cms.InputTag("MEtoEDMConvertSiPixelLorentzAngle","MEtoEDMConverterRun")
+EDMtoMEConvertSiPixelLorentzAngle = EDMtoMEConverter.clone(
+    lumiInputTag = ("MEtoEDMConvertSiPixelLorentzAngle","MEtoEDMConverterLumi"),
+    runInputTag = ("MEtoEDMConvertSiPixelLorentzAngle","MEtoEDMConverterRun")
+)
 
 DQMStore = cms.Service("DQMStore")
 
