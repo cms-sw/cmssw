@@ -72,7 +72,12 @@ void go() {
 
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
+#ifdef COOP
+    fillManyFromVectorCoop(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, nullptr, 0);
+#else
     fillManyFromVector(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, nullptr, 0);
+#endif
+
     cudaCheck(cudaMemcpy(&h, h_d.get(), sizeof(Hist), cudaMemcpyDeviceToHost));
     assert(0 == h.off[0]);
     assert(offsets[10] == h.size());
