@@ -29,6 +29,25 @@ namespace cms {
       index_type *contentStorage = nullptr;
       int32_t offSize = -1;
       int32_t contentSize = -1;
+
+      constexpr Counter * offsets() const {
+        Counter *poff = (Counter *)((char *)(assoc) + offsetof(Assoc, off));
+        if constexpr (Assoc::ctNOnes() < 0) {
+          assert(offStorage);
+          poff = offStorage; 
+        }
+        return poff;
+      }
+
+      constexpr int32_t size() const {
+        auto nOnes = Assoc::ctNOnes();
+        if constexpr (Assoc::ctNOnes() < 0) {
+          nOnes = offSize;
+        }
+        assert(nOnes > 0);
+        return nOnes; 
+      }      
+
     };
 
     // this MUST BE DONE in a single block (or in two kernels!)
@@ -49,6 +68,29 @@ namespace cms {
         h->off[i] = 0;
       }
     }
+
+
+    template <typename Assoc>
+    __device__ void zeroAndInitCoop(OneToManyAssocView<Assoc> view) {
+      namespace cg = cooperative_groups;
+      auto grid = cg::this_grid();
+
+      auto h = view.assoc;
+
+      auto first = blockDim.x * blockIdx.x + threadIdx.x;
+
+      if (0 == first) {
+        h->psws = 0;
+        h->initStorage(view);
+      }
+
+      grid.sync();
+      for (int i = first, nt = h->totOnes(); i < nt; i += gridDim.x * blockDim.x) {
+        h->off[i] = 0;
+      }
+
+    }
+
 
     template <typename Assoc>
     inline __attribute__((always_inline)) void launchZero(Assoc *h,
@@ -111,22 +153,27 @@ namespace cms {
       auto h = view.assoc;
       assert(h);
 #ifdef __CUDACC__
-      using Counter = typename Assoc::Counter;
-      Counter *poff = (Counter *)((char *)(h) + offsetof(Assoc, off));
-      auto nOnes = Assoc::ctNOnes();
-      if constexpr (Assoc::ctNOnes() < 0) {
-        assert(view.offStorage);
-        assert(view.offSize > 0);
-        nOnes = view.offSize;
-        poff = view.offStorage;
-      }
-      assert(nOnes > 0);
+      auto poff = view.offsets();
+      auto nOnes = view.size();
       int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(Assoc, psws));
       auto nthreads = 1024;
       auto nblocks = (nOnes + nthreads - 1) / nthreads;
       multiBlockPrefixScan<<<nblocks, nthreads, sizeof(int32_t) * nblocks, stream>>>(poff, poff, nOnes, ppsws);
       cudaCheck(cudaGetLastError());
 #else
+      h->finalize();
+#endif
+    }
+
+    template <typename Assoc>
+    __device__ __inline__ void finalizeCoop(OneToManyAssocView<Assoc> view, typename Assoc::Counter * ws) {
+#ifdef __CUDACC__
+      auto poff = view.offsets();
+      auto nOnes = view.size();
+      coopBlockPrefixScan(poff, poff, nOnes, ws);
+#else
+      auto h = view.assoc;
+      assert(h);
       h->finalize();
 #endif
     }

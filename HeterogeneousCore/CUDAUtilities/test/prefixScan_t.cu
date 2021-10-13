@@ -3,6 +3,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/maxCoopBlocks.h"
 
 using namespace cms::cuda;
 
@@ -152,12 +153,9 @@ int main() {
     uint32_t *d_psum;
     cudaCheck(cudaMalloc(&d_psum, nblocks*sizeof(uint32_t)));
     std::cout << "launch coopBlockPrefixScan " << num_items << ' ' << nblocks << std::endl;
-    int numBlocksPerSm = 0;
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, 0);
-    cudaOccupancyMaxActiveBlocksPerMultiprocessor(&numBlocksPerSm, (void*)doCoop<uint32_t>, nthreads, 0);
-    std::cout << "max number of blocks is " << deviceProp.multiProcessorCount*numBlocksPerSm << std::endl;
-    auto ncoopblocks = std::min(nblocks,deviceProp.multiProcessorCount*numBlocksPerSm);
+    int maxBlocks =  maxCoopBlocks(doCoop<uint32_t>, nthreads, 0,0);
+    std::cout << "max number of blocks is " << maxBlocks << std::endl;
+    auto ncoopblocks = std::min(nblocks,maxBlocks);
     void *kernelArgs[] = { &d_in, &d_out2, &num_items, &d_psum };
     dim3 dimBlock(nthreads, 1, 1);
     dim3 dimGrid(ncoopblocks, 1, 1);
