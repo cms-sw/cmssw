@@ -85,7 +85,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_currentRun = nullptr;
 
   m_kernel = new G4MTRunManagerKernel();
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+  double th = p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler(th));
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
