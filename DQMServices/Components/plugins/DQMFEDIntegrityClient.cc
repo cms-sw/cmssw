@@ -178,16 +178,21 @@ void DQMFEDIntegrityClient::fillHistograms() {
     }
 
     MonitorElement* me = dbe_->get(*ent);
-
+    //std::cout<<"ME: "<<(*ent)<<std::endl;
     if (TH1F* rootHisto = me->getTH1F()) {
       int Nbins = me->getNbinsX();
+      //std::cout<<"Nbins: "<<Nbins<<std::endl;
       float entry = 0.;
       int xmin = (int)rootHisto->GetXaxis()->GetXmin();
       if (*ent == "L1T/" + fedFolderName + "/FEDEntries")
         xmin = xmin + 800;
+      if (*ent == "DT/" + fedFolderName + "/FEDEntries")
+        xmin = 770;  //Real DT FEDIDs are 1369-1371
+                     //std::cout<<"xmin: "<<xmin<<std::endl;
 
       for (int bin = 1; bin <= Nbins; ++bin) {
         int id = xmin + bin;
+        //std::cout<<"Id: "<<id<<std::endl;
         entry = rootHisto->GetBinContent(bin);
         if (entry > 0.)
           FedEntries->setBinContent(id, entry);
@@ -239,9 +244,8 @@ void DQMFEDIntegrityClient::fillHistograms() {
         int xmin = (int)rootHisto->GetXaxis()->GetXmin();
         if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
           xmin = xmin + 800;
-        //        int xmax = (int)rootHisto->GetXaxis()->GetXmax();
-        //        if (*fat == "L1T/" + fedFolderName + "/FEDFatal")
-        //          xmax = xmax + 800;
+        if (*fat == "DT/" + fedFolderName + "/FEDFatal")
+          xmin = 770;  //Real DT FED IDs are 1369-1371
         //        cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
         float binentry = 0.;
