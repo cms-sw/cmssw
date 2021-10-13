@@ -23,7 +23,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   // zero tuples
   cms::cuda::launchZero(tuples_d, cudaStream);
 
-  auto nhits = hh.nHits();
+  int32_t nhits = hh.nHits();
 
 #ifdef NTUPLE_DEBUG
   std::cout << "start tuple building. N hits " << nhits << std::endl;
@@ -63,7 +63,8 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
       params_.dcaCutOuterTriplet_);
   cudaCheck(cudaGetLastError());
 
-  if (nhits > 1 && params_.earlyFishbone_) {
+  // do not run the fishbone if there are hits only in BPIX1
+  if (nhits > isOuterHitOfCell_.offset && params_.earlyFishbone_) {
     auto nthTot = 128;
     auto stride = 16;
     auto blockSize = nthTot / stride;
@@ -115,7 +116,8 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
       tuples_d, quality_d, device_tupleMultiplicity_.get());
   cudaCheck(cudaGetLastError());
 
-  if (nhits > 1 && params_.lateFishbone_) {
+  // do not run the fishbone if there are hits only in BPIX1
+  if (nhits > isOuterHitOfCell_.offset && params_.lateFishbone_) {
     auto nthTot = 128;
     auto stride = 16;
     auto blockSize = nthTot / stride;
