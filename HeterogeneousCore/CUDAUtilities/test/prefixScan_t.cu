@@ -84,9 +84,9 @@ __global__ void verify(uint32_t const *v, uint32_t n) {
     printf("verify\n");
 }
 
-template<typename T>
-__global__ void doCoop(T const* ici, T* ico, int32_t size, T * ipsum) {
-   coopBlockPrefixScan(ici,ico,size,ipsum);
+template <typename T>
+__global__ void doCoop(T const *ici, T *ico, int32_t size, T *ipsum) {
+  coopBlockPrefixScan(ici, ico, size, ipsum);
 }
 
 int main() {
@@ -151,16 +151,16 @@ int main() {
     cudaCheck(cudaGetLastError());
 
     uint32_t *d_psum;
-    cudaCheck(cudaMalloc(&d_psum, nblocks*sizeof(uint32_t)));
+    cudaCheck(cudaMalloc(&d_psum, nblocks * sizeof(uint32_t)));
     std::cout << "launch coopBlockPrefixScan " << num_items << ' ' << nblocks << std::endl;
-    int maxBlocks =  maxCoopBlocks(doCoop<uint32_t>, nthreads, 0,0);
+    int maxBlocks = maxCoopBlocks(doCoop<uint32_t>, nthreads, 0, 0);
     std::cout << "max number of blocks is " << maxBlocks << std::endl;
-    auto ncoopblocks = std::min(nblocks,maxBlocks);
-    void *kernelArgs[] = { &d_in, &d_out2, &num_items, &d_psum };
+    auto ncoopblocks = std::min(nblocks, maxBlocks);
+    void *kernelArgs[] = {&d_in, &d_out2, &num_items, &d_psum};
     dim3 dimBlock(nthreads, 1, 1);
     dim3 dimGrid(ncoopblocks, 1, 1);
     // launch
-    cudaLaunchCooperativeKernel((void*)doCoop<uint32_t>, dimGrid, dimBlock, kernelArgs);
+    cudaLaunchCooperativeKernel((void *)doCoop<uint32_t>, dimGrid, dimBlock, kernelArgs);
     cudaCheck(cudaGetLastError());
     verify<<<nblocks, nthreads, 0>>>(d_out2, num_items);
     cudaCheck(cudaGetLastError());
@@ -172,7 +172,6 @@ int main() {
     cudaCheck(cudaFree(d_out2));
     cudaCheck(cudaFree(d_out1));
     cudaCheck(cudaFree(d_in));
-
 
   }  // ksize
   return 0;

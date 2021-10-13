@@ -185,9 +185,8 @@ namespace cms {
       }
     }
 
-
     template <typename T>
-    __device__ void coopBlockPrefixScan(T const* ici, T* ico, int32_t size, T * ipsum) {
+    __device__ void coopBlockPrefixScan(T const* ici, T* ico, int32_t size, T* ipsum) {
       namespace cg = cooperative_groups;
       auto grid = cg::this_grid();
       volatile T const* ci = ici;
@@ -198,34 +197,36 @@ namespace cms {
 
       //   assert(blockDim.x * gridDim.x >= size);
 
-     int nChunks = size/blockDim.x + 1;
+      int nChunks = size / blockDim.x + 1;
 
       // first each block does a scan
-      for (int ib=blockIdx.x; ib<nChunks; ib+=gridDim.x) {
+      for (int ib = blockIdx.x; ib < nChunks; ib += gridDim.x) {
         int off = blockDim.x * ib;
         if (size - off > 0) {
-         int ls = std::min(int(blockDim.x), size - off);
-         blockPrefixScan(ci + off, co + off, ls, ws);
-         psum[ib] = co[off+ls-1];
-         __syncthreads();
+          int ls = std::min(int(blockDim.x), size - off);
+          blockPrefixScan(ci + off, co + off, ls, ws);
+          psum[ib] = co[off + ls - 1];
+          __syncthreads();
         }
       }
       grid.sync();
 
       // good each block has done his work
       // let's get the partial sums from each block
-      if (0==blockIdx.x) {
+      if (0 == blockIdx.x) {
         blockPrefixScan(psum, psum, nChunks, ws);
       }
 
       grid.sync();
 
-      for (int ib=blockIdx.x; ib<nChunks; ib+=gridDim.x) {
+      for (int ib = blockIdx.x; ib < nChunks; ib += gridDim.x) {
         // now each block updates its piece (but for chunk 0)
         int k = ib;
-        if (0==k) continue;
-        int i = threadIdx.x + k*blockDim.x;
-        if (i<size) co[i] += psum[k-1];
+        if (0 == k)
+          continue;
+        int i = threadIdx.x + k * blockDim.x;
+        if (i < size)
+          co[i] += psum[k - 1];
       }
     }
 

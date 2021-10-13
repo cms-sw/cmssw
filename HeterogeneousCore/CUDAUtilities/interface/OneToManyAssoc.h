@@ -30,11 +30,11 @@ namespace cms {
       int32_t offSize = -1;
       int32_t contentSize = -1;
 
-      constexpr Counter * offsets() const {
+      constexpr Counter *offsets() const {
         Counter *poff = (Counter *)((char *)(assoc) + offsetof(Assoc, off));
         if constexpr (Assoc::ctNOnes() < 0) {
           assert(offStorage);
-          poff = offStorage; 
+          poff = offStorage;
         }
         return poff;
       }
@@ -45,9 +45,8 @@ namespace cms {
           nOnes = offSize;
         }
         assert(nOnes > 0);
-        return nOnes; 
-      }      
-
+        return nOnes;
+      }
     };
 
     // this MUST BE DONE in a single block (or in two kernels!)
@@ -69,7 +68,6 @@ namespace cms {
       }
     }
 
-
     template <typename Assoc>
     __device__ void zeroAndInitCoop(OneToManyAssocView<Assoc> view) {
       namespace cg = cooperative_groups;
@@ -88,9 +86,7 @@ namespace cms {
       for (int i = first, nt = h->totOnes(); i < nt; i += gridDim.x * blockDim.x) {
         h->off[i] = 0;
       }
-
     }
-
 
     template <typename Assoc>
     inline __attribute__((always_inline)) void launchZero(Assoc *h,
@@ -166,7 +162,7 @@ namespace cms {
     }
 
     template <typename Assoc>
-    __device__ __inline__ void finalizeCoop(OneToManyAssocView<Assoc> view, typename Assoc::Counter * ws) {
+    __device__ __inline__ void finalizeCoop(OneToManyAssocView<Assoc> view, typename Assoc::Counter *ws) {
 #ifdef __CUDACC__
       auto poff = view.offsets();
       auto nOnes = view.size();

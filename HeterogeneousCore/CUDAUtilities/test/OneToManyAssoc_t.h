@@ -71,10 +71,7 @@ __device__ __inline__ void count(TK const* __restrict__ tk, Assoc* __restrict__ 
       assoc->count(tk[k][j]);
   }
 }
-__global__ void countKernel(TK const* __restrict__ tk, Assoc* __restrict__ assoc, int32_t n) {
-  count(tk,assoc,n);
-}
-
+__global__ void countKernel(TK const* __restrict__ tk, Assoc* __restrict__ assoc, int32_t n) { count(tk, assoc, n); }
 
 __device__ __inline__ void fill(TK const* __restrict__ tk, Assoc* __restrict__ assoc, int32_t n) {
   int first = blockDim.x * blockIdx.x + threadIdx.x;
@@ -89,22 +86,19 @@ __device__ __inline__ void fill(TK const* __restrict__ tk, Assoc* __restrict__ a
   }
 }
 
-__global__ void fillKernel(TK const* __restrict__ tk, Assoc* __restrict__ assoc, int32_t n) {
-  fill(tk,assoc,n);
-}
+__global__ void fillKernel(TK const* __restrict__ tk, Assoc* __restrict__ assoc, int32_t n) { fill(tk, assoc, n); }
 
-
-__global__ void populate(TK const* __restrict__ tk, Assoc::View view, int32_t n, Assoc::View::Counter * ws) {
+__global__ void populate(TK const* __restrict__ tk, Assoc::View view, int32_t n, Assoc::View::Counter* ws) {
   namespace cg = cooperative_groups;
   auto grid = cg::this_grid();
   auto h = view.assoc;
   zeroAndInitCoop(view);
   grid.sync();
-  count(tk,h,n);
+  count(tk, h, n);
   grid.sync();
   finalizeCoop(view, ws);
   grid.sync();
-  fill(tk,h,n);
+  fill(tk, h, n);
 }
 
 __global__ void verify(Assoc* __restrict__ assoc) { assert(int(assoc->size()) < assoc->capacity()); }
@@ -285,22 +279,21 @@ int main() {
   // now with cooperative gropus
 
   auto nOnes = aView.size();
-  auto nchunks = nOnes/nThreads + 1;
-  auto ws =  cms::cuda::make_device_unique<Assoc::Counter[]>(nchunks,0);
+  auto nchunks = nOnes / nThreads + 1;
+  auto ws = cms::cuda::make_device_unique<Assoc::Counter[]>(nchunks, 0);
 
-  int maxBlocks =  maxCoopBlocks(populate, nThreads, 0,0);
+  int maxBlocks = maxCoopBlocks(populate, nThreads, 0, 0);
   std::cout << "max number of blocks is " << maxBlocks << std::endl;
-  auto ncoopblocks = std::min(nBlocks,maxBlocks);
-  auto a1 =  v_d.get();
-  auto a4 =  ws.get();
-  void *kernelArgs[] = { &a1, &aView, &N, &a4 };
+  auto ncoopblocks = std::min(nBlocks, maxBlocks);
+  auto a1 = v_d.get();
+  auto a4 = ws.get();
+  void* kernelArgs[] = {&a1, &aView, &N, &a4};
   dim3 dimBlock(nThreads, 1, 1);
   dim3 dimGrid(ncoopblocks, 1, 1);
   // launch
   cudaCheck(cudaLaunchCooperativeKernel((void*)populate, dimGrid, dimBlock, kernelArgs));
   verifyFill<<<1, 1>>>(a_d.get(), n);
   cudaCheck(cudaGetLastError());
-
 
 #else
   countKernel(v_d, a_d.get(), N);
