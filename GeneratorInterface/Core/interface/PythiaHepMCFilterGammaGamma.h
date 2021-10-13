@@ -11,7 +11,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
