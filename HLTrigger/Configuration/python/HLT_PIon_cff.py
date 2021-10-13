@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_0_0/PIon --type PIon
 
-# /dev/CMSSW_12_0_0/PIon/V6 (CMSSW_12_0_0)
+# /dev/CMSSW_12_0_0/PIon/V2 (CMSSW_12_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V6')
+  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V2')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4890,7 +4890,7 @@ fragment.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   Upgrade = cms.bool( False ),
   SmallPitch = cms.bool( False ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
-  MagneticFieldRecord = cms.ESInputTag( "" ),
+  MagneticFieldRecord = cms.ESInputTag( "","" ),
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
@@ -5495,7 +5495,7 @@ fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hlt
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 
 
-fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v7, fragment.HLT_Random_v3, fragment.HLT_ZeroBias_v6, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
+fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v7, fragment.HLT_Random_v3, fragment.HLT_ZeroBias_v6, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath, ))
 
 
 # dummify hltGetConditions in cff's

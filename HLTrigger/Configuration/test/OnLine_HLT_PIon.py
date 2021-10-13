@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_0_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_0_0/PIon/V6 (CMSSW_12_0_0)
+# /dev/CMSSW_12_0_0/PIon/V2 (CMSSW_12_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V6')
+  tableName = cms.string('/dev/CMSSW_12_0_0/PIon/V2')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3762,7 +3762,7 @@ process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilter
 process.DTGeometryESModule = cms.ESProducer( "DTGeometryESModule",
   fromDDD = cms.bool( False ),
   fromDD4hep = cms.bool( False ),
-  DDDetector = cms.ESInputTag( "" ),
+  DDDetector = cms.ESInputTag( "","" ),
   alignmentsLabel = cms.string( "" ),
   appendToDataLabel = cms.string( "" ),
   attribute = cms.string( "MuStructure" ),
@@ -5063,7 +5063,7 @@ process.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   Upgrade = cms.bool( False ),
   SmallPitch = cms.bool( False ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
-  MagneticFieldRecord = cms.ESInputTag( "" ),
+  MagneticFieldRecord = cms.ESInputTag( "","" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
@@ -5839,7 +5839,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtStage2Digis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v7, process.HLT_Random_v3, process.HLT_ZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v7, process.HLT_Random_v3, process.HLT_ZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.DQMOutput, ))
 
 
 process.source = cms.Source( "PoolSource",
