@@ -24,7 +24,7 @@ private:
     std::string folder_;
     edm::ParameterSet disrParameters_;
 
-    bool isMC_;
+    int mclevel_;
     bool doCTagPlots_;
     bool dodifferentialPlots_;
     double discrCut_;

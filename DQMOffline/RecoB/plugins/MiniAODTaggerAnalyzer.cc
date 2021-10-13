@@ -12,7 +12,7 @@ folder_(pSet.getParameter<std::string>("folder")),
 discrNumerator_(pSet.getParameter<vstring>("numerator")),
 discrDenominator_(pSet.getParameter<vstring>("denominator")),
 
-isMC_(pSet.getParameter<bool>("MCplots")),
+mclevel_(pSet.getParameter<int>("MClevel")),
 doCTagPlots_(pSet.getParameter<bool>("CTagPlots")),
 dodifferentialPlots_(pSet.getParameter<bool>("differentialPlots")),
 discrCut_(pSet.getParameter<double>("discrCut")),
@@ -36,16 +36,10 @@ void MiniAODTaggerAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
                                            edm::Run const& run,
                                            edm::EventSetup const& es)
 {
-    int MClevel = 0;
-    if(isMC_)
-    {
-        MClevel = 4;
-    }
-
     jetTagPlotter_ = std::make_unique<JetTagPlotter>(folder_,
                                                      EtaPtBin(etaActive_, etaMin_, etaMax_, ptActive_, ptMin_, ptMax_),
                                                      disrParameters_,
-                                                     MClevel,
+                                                     mclevel_,
                                                      false,
                                                      ibook,
                                                      doCTagPlots_,
