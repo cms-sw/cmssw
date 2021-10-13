@@ -83,6 +83,7 @@ private:
 
   // standard ME for monitoring of FED integrity
   MonitorElement* hFEDEntry;
+  MonitorElement* hFEDFatal;
 
   //time histos for FEDs/uROS
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
@@ -97,6 +98,9 @@ private:
 
   int FEDIDmin;
   int FEDIDmax;
+
+  int errorX[6][12][5] = {{{0}}};  //5th is notOK flag and 6th is TDC Fatal; Second index is ROS. Last index is wheel
+  int nROSfatal;  //Minumum number of ROS/wheel with notOKFlag or TDC fatal errors to consider a FEDfatal event
 
   // Number of uROS per FED
   const int NuROS = 12;
