@@ -45,7 +45,7 @@
 #include <map>
 #include <utility>
 
-template < class T > 
+template <class T>
 class ParticleTowerProducer : public edm::stream::EDProducer<> {
 public:
   explicit ParticleTowerProducer(const edm::ParameterSet&);
@@ -59,7 +59,7 @@ private:
   double iphi2phi(int iphi, int ieta) const;
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT< typename edm::View<T> > src_;
+  edm::EDGetTokenT<typename edm::View<T> > src_;
   const bool useHF_;
 
   // tower edges from fast sim, used starting at index 30 for the HF
@@ -70,8 +70,8 @@ private:
 //
 template <class T>
 ParticleTowerProducer<T>::ParticleTowerProducer(const edm::ParameterSet& iConfig)
-  : src_(consumes< typename edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-    useHF_(iConfig.getParameter<bool>("useHF")) {
+    : src_(consumes<typename edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+      useHF_(iConfig.getParameter<bool>("useHF")) {
   produces<CaloTowerCollection>();
 }
 
