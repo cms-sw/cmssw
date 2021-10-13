@@ -1539,10 +1539,7 @@ private:
         // were random. k == 2 corresponds to the tau score and all other k values to e, mu and jets. By defining in this way
         // the final score is -1.
         for (int k = 0; k < deep_tau::NumberOfOutputs; ++k) {
-          if (k == 2)
-            predictions.matrix<float>()(tau_index, k) = -1.;
-          else
-            predictions.matrix<float>()(tau_index, k) = 2.;
+          predictions.matrix<float>()(tau_index, k) = (k == 2) ? -1.f : 2.f;
         }
       }
     }

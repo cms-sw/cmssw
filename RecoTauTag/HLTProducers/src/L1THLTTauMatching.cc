@@ -51,12 +51,8 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
           a = myJet.leadChargedHadrCand()->vertex();
         }
 
-        PFTau myPFTau;
-        if (reduceTauContent) {
-          myPFTau = PFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), myJet.vertex());
-        } else {
-          myPFTau = PFTau(myJet);
-        }
+        auto myPFTau =
+            reduceTauContent ? PFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), myJet.vertex()) : PFTau(myJet);
 
         if (!keepOriginalVertex) {
           myPFTau.setVertex(a);
