@@ -53,12 +53,6 @@ void L1TdeCSCTPGClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
-  // do not analyze Run-3 properties in Run-1 and Run-2 eras
-  if (!isRun3_) {
-    clctVars_.resize(4);
-    lctVars_.resize(5);
-  }
-
   // remove the non-ME1/1 chambers from the list when useB904ME11 is set to true
   if (useB904ME11_) {
     chambers_.resize(1);
@@ -75,10 +69,15 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
     chambers_.resize(1);
     chambers_[0] = temp;
   }
-  // do not analyze the 1/4-strip bit, 1/8-strip bit
-  else {
+  // collision data in Run-3
+  else if (isRun3_) {
     clctVars_.resize(9);
     lctVars_.resize(9);
+  }
+  // do not analyze Run-3 properties in Run-1 and Run-2 eras
+  else {
+    clctVars_.resize(4);
+    lctVars_.resize(5);
   }
 
   // chamber type
