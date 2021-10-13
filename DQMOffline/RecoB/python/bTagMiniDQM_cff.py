@@ -8,7 +8,7 @@ from DQMOffline.RecoB.bTagMiniDQMDeepCSV import *
 
 bTagMiniDQMGlobal = cms.PSet(
     JetTag = cms.InputTag('slimmedJets'),
-    MClevel = cms.int32(0),
+    MClevel = cms.int32(4),
     differentialPlots = cms.bool(True),
 
     ptActive = cms.bool(False),
@@ -68,25 +68,6 @@ DeepCSVAnalyzer, DeepCSVHarvester         = getSequences(discriminators=DeepCSVD
                                                          globalPSet=bTagMiniDQMGlobal,
                                                          label='bTagDeepCSVDQM')
 
-
-
-bTagMiniDQMGlobalMC = bTagMiniDQMGlobal.clone(MClevel = 4)
-
-DeepFlavourMCAnalyzer, DeepFlavourMCHarvester = getSequences(discriminators=DeepFlavourDiscriminators,
-                                                             regions=Etaregions,
-                                                             globalPSet=bTagMiniDQMGlobalMC,
-                                                             label='bTagDeepFlavourMC')
-
-DeepCSVMCAnalyzer, DeepCSVMCHarvester         = getSequences(discriminators=DeepCSVDiscriminators,
-                                                             regions=Etaregions,
-                                                             globalPSet=bTagMiniDQMGlobalMC,
-                                                             label='bTagDeepCSVMC')
-
-
-
-
-# data Sequences
-
 bTagMiniDQMSource = cms.Sequence(
     DeepFlavourAnalyzer
     #* DeepCSVAnalyzer
@@ -95,17 +76,4 @@ bTagMiniDQMSource = cms.Sequence(
 bTagMiniDQMHarvesting = cms.Sequence(
     DeepFlavourHarvester
     #* DeepCSVHarvester
-)
-
-
-# MC Sequences
-
-bTagMiniDQMSourceMC = cms.Sequence(
-    DeepFlavourMCAnalyzer
-    #* DeepFlavourMCHarvester
-)
-
-bTagMiniDQMHarvestingMC = cms.Sequence(
-    DeepFlavourMCHarvester
-    #* DeepCSVMCHarvester
 )
