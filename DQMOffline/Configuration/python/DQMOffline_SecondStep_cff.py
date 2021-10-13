@@ -220,8 +220,8 @@ DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
-from DQMOffline.RecoB.dqmMiniAnalyzer_cff import *
+from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagHarvester_mini)
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 
