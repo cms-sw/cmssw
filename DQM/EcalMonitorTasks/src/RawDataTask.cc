@@ -22,7 +22,14 @@ namespace ecaldqm {
 
   void RawDataTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&, bool const& ByLumiResetSwitch, bool&) {
     orbit_ = _evt.orbitNumber() & 0xffffffff;
+
     bx_ = _evt.bunchCrossing() & 0xfff;
+    // There's no agreement in CMS on how to label the last/first BX
+    // TCDS calls it always 3564, but some subsystems call it 0.
+    // From testing: bx_ is labeled 0, dccBX and FEBxs[iFE] labeled 3564
+    // Setting bx_ to 0 to match the other two
+    if (bx_ == 3564) bx_ = 0;
+
     triggerType_ = _evt.experimentType() & 0xf;
     l1A_ = 0;
     feL1Offset_ = _evt.isRealData() ? 1 : 0;
