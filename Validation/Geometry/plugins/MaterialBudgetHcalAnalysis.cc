@@ -26,10 +26,10 @@ public:
   MaterialBudgetHcalAnalysis(const edm::ParameterSet &p);
   ~MaterialBudgetHcalAnalysis() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
   void beginJob() override;
 
   static const uint32_t maxSet_ = 25, maxSet2_ = 9;
@@ -49,35 +49,34 @@ private:
   TProfile2D *me900_[maxSet_], *me1000_[maxSet_], *me1100_[maxSet_];
 };
 
-MaterialBudgetHcalAnalysis::MaterialBudgetHcalAnalysis(const edm::ParameterSet& p) :
-  binEta_(p.getParameter<int>("nBinEta")), 
-  binPhi_(p.getParameter<int>("nBinPhi")),
-  maxEta_(p.getParameter<double>("maxEta")),
-  etaLow_(p.getParameter<double>("etaLow")),
-  etaHigh_(p.getParameter<double>("etaHigh")),
-  etaLowMin_(p.getParameter<double>("etaLowMin")),
-  etaLowMax_(p.getParameter<double>("etaLowMax")),
-  etaMidMin_(p.getParameter<double>("etaMidMin")),
-  etaMidMax_(p.getParameter<double>("etaMidMax")),
-  etaHighMin_(p.getParameter<double>("etaHighMin")),
-  etaHighMax_(p.getParameter<double>("etaHighMax")),
-  etaMinP_(p.getParameter<double>("etaMinP")),
-  etaMaxP_(p.getParameter<double>("etaMaxP")),
-  labelMBCalo_(p.getParameter<edm::InputTag>("labelMBCaloLabel")),
-  tokMBCalo_(consumes<MaterialAccountingCaloCollection>(labelMBCalo_)) {
-  
+MaterialBudgetHcalAnalysis::MaterialBudgetHcalAnalysis(const edm::ParameterSet &p)
+    : binEta_(p.getParameter<int>("nBinEta")),
+      binPhi_(p.getParameter<int>("nBinPhi")),
+      maxEta_(p.getParameter<double>("maxEta")),
+      etaLow_(p.getParameter<double>("etaLow")),
+      etaHigh_(p.getParameter<double>("etaHigh")),
+      etaLowMin_(p.getParameter<double>("etaLowMin")),
+      etaLowMax_(p.getParameter<double>("etaLowMax")),
+      etaMidMin_(p.getParameter<double>("etaMidMin")),
+      etaMidMax_(p.getParameter<double>("etaMidMax")),
+      etaHighMin_(p.getParameter<double>("etaHighMin")),
+      etaHighMax_(p.getParameter<double>("etaHighMax")),
+      etaMinP_(p.getParameter<double>("etaMinP")),
+      etaMaxP_(p.getParameter<double>("etaMaxP")),
+      labelMBCalo_(p.getParameter<edm::InputTag>("labelMBCaloLabel")),
+      tokMBCalo_(consumes<MaterialAccountingCaloCollection>(labelMBCalo_)) {
   usesResource(TFileService::kSharedResource);
-  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalAnalysis: == Eta plot: NX " << binEta_ << " Range " << -maxEta_ << ":"
-                                     << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi << ":" << 1._pi
-                                     << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
+  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalAnalysis: == Eta plot: NX " << binEta_ << " Range "
+                                     << -maxEta_ << ":" << maxEta_ << " Phi plot: NX " << binPhi_ << " Range " << -1._pi
+                                     << ":" << 1._pi << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
                                      << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_
                                      << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_;
 }
 
-void MaterialBudgetHcalAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MaterialBudgetHcalAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<int>("nBinEta", 260); 
+  desc.add<int>("nBinEta", 260);
   desc.add<int>("nBinPhi", 180);
   desc.add<double>("maxEta", 5.2);
   desc.add<double>("etaLow", -5.2);
@@ -131,199 +130,202 @@ void MaterialBudgetHcalAnalysis::beginJob() {
     me800_[i] =
         tfile->make<TH1F>(std::to_string(i + 800).c_str(), ("Phi in region " + iter).c_str(), binPhi_, -maxPhi, maxPhi);
     me900_[i] = tfile->make<TProfile2D>(std::to_string(i + 900).c_str(),
-                                       ("MB(X0) prof Eta Phi in region " + iter).c_str(),
-                                       binEta_ / 2,
-                                       -maxEta_,
-                                       maxEta_,
-                                       binPhi_ / 2,
+                                        ("MB(X0) prof Eta Phi in region " + iter).c_str(),
+                                        binEta_ / 2,
+                                        -maxEta_,
+                                        maxEta_,
+                                        binPhi_ / 2,
+                                        -maxPhi,
+                                        maxPhi);
+    me1000_[i] = tfile->make<TProfile2D>(std::to_string(i + 1000).c_str(),
+                                         ("MB(L0) prof Eta Phi in region " + iter).c_str(),
+                                         binEta_ / 2,
+                                         -maxEta_,
+                                         maxEta_,
+                                         binPhi_ / 2,
+                                         -maxPhi,
+                                         maxPhi);
+    me1100_[i] = tfile->make<TProfile2D>(std::to_string(i + 1100).c_str(),
+                                         ("MB(Step) prof Eta Phi in region " + iter).c_str(),
+                                         binEta_ / 2,
+                                         -maxEta_,
+                                         maxEta_,
+                                         binPhi_ / 2,
+                                         -maxPhi,
+                                         maxPhi);
+    me1200_[i] = tfile->make<TH2F>(std::to_string(i + 1200).c_str(),
+                                   ("Eta vs Phi in region " + iter).c_str(),
+                                   binEta_ / 2,
+                                   -maxEta_,
+                                   maxEta_,
+                                   binPhi_ / 2,
+                                   -maxPhi,
+                                   maxPhi);
+    me1600_[i] = tfile->make<TProfile>(std::to_string(i + 1600).c_str(),
+                                       ("MB(X0) prof Ph in region " + range0 + iter).c_str(),
+                                       binPhi_,
                                        -maxPhi,
                                        maxPhi);
-    me1000_[i] = tfile->make<TProfile2D>(std::to_string(i + 1000).c_str(),
-                                        ("MB(L0) prof Eta Phi in region " + iter).c_str(),
-                                        binEta_ / 2,
-                                        -maxEta_,
-                                        maxEta_,
-                                        binPhi_ / 2,
-                                        -maxPhi,
-                                        maxPhi);
-    me1100_[i] = tfile->make<TProfile2D>(std::to_string(i + 1100).c_str(),
-                                        ("MB(Step) prof Eta Phi in region " + iter).c_str(),
-                                        binEta_ / 2,
-                                        -maxEta_,
-                                        maxEta_,
-                                        binPhi_ / 2,
-                                        -maxPhi,
-                                        maxPhi);
-    me1200_[i] = tfile->make<TH2F>(std::to_string(i + 1200).c_str(),
-                                  ("Eta vs Phi in region " + iter).c_str(),
-                                  binEta_ / 2,
-                                  -maxEta_,
-                                  maxEta_,
-                                  binPhi_ / 2,
-                                  -maxPhi,
-                                  maxPhi);
-    me1600_[i] = tfile->make<TProfile>(std::to_string(i + 1600).c_str(),
-                                      ("MB(X0) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
     me1700_[i] = tfile->make<TProfile>(std::to_string(i + 1700).c_str(),
-                                      ("MB(L0) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(L0) prof Ph in region " + range0 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me1800_[i] = tfile->make<TProfile>(std::to_string(i + 1800).c_str(),
-                                      ("MB(Step) prof Ph in region " + range0 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(Step) prof Ph in region " + range0 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me1900_[i] = tfile->make<TProfile>(std::to_string(i + 1900).c_str(),
-                                      ("MB(X0) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(X0) prof Ph in region " + range1 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me2000_[i] = tfile->make<TProfile>(std::to_string(i + 2000).c_str(),
-                                      ("MB(L0) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(L0) prof Ph in region " + range1 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me2100_[i] = tfile->make<TProfile>(std::to_string(i + 2100).c_str(),
-                                      ("MB(Step) prof Ph in region " + range1 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(Step) prof Ph in region " + range1 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me2200_[i] = tfile->make<TProfile>(std::to_string(i + 2200).c_str(),
-                                      ("MB(X0) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(X0) prof Ph in region " + range2 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me2300_[i] = tfile->make<TProfile>(std::to_string(i + 2300).c_str(),
-                                      ("MB(L0) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(L0) prof Ph in region " + range2 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
     me2400_[i] = tfile->make<TProfile>(std::to_string(i + 2400).c_str(),
-                                      ("MB(Step) prof Ph in region " + range2 + iter).c_str(),
-                                      binPhi_,
-                                      -maxPhi,
-                                      maxPhi);
+                                       ("MB(Step) prof Ph in region " + range2 + iter).c_str(),
+                                       binPhi_,
+                                       -maxPhi,
+                                       maxPhi);
   }
   for (uint32_t i = 0; i < maxSet2_; i++) {
     iter = std::to_string(i);
     me1300_[i] = tfile->make<TH1F>(std::to_string(i + 1300).c_str(),
-                                  ("Events with layers Hit (0 all, 1 HB, ..) for " + iter).c_str(),
-                                  binEta_,
-                                  -maxEta_,
-                                  maxEta_);
+                                   ("Events with layers Hit (0 all, 1 HB, ..) for " + iter).c_str(),
+                                   binEta_,
+                                   -maxEta_,
+                                   maxEta_);
     me1400_[i] = tfile->make<TH2F>(std::to_string(i + 1400).c_str(),
-                                  ("Eta vs Phi for layers hit in " + iter).c_str(),
-                                  binEta_ / 2,
-                                  -maxEta_,
-                                  maxEta_,
-                                  binPhi_ / 2,
-                                  -maxPhi,
-                                  maxPhi);
+                                   ("Eta vs Phi for layers hit in " + iter).c_str(),
+                                   binEta_ / 2,
+                                   -maxEta_,
+                                   maxEta_,
+                                   binPhi_ / 2,
+                                   -maxPhi,
+                                   maxPhi);
     me1500_[i] = tfile->make<TProfile>(std::to_string(i + 1500).c_str(),
-                                      ("Number of layers crossed (0 all, 1 HB, ..) for " + iter).c_str(),
-                                      binEta_,
-                                      -maxEta_,
-                                      maxEta_);
+                                       ("Number of layers crossed (0 all, 1 HB, ..) for " + iter).c_str(),
+                                       binEta_,
+                                       -maxEta_,
+                                       maxEta_);
   }
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalAnalysis: Booking user histos done ===";
 }
 
-void MaterialBudgetHcalAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-
+void MaterialBudgetHcalAnalysis::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
 
   // Fill from the MB collection
-  auto const& hcalMBColl = iEvent.getHandle(tokMBCalo_);
+  auto const &hcalMBColl = iEvent.getHandle(tokMBCalo_);
   if (hcalMBColl.isValid()) {
     auto hcalMB = hcalMBColl.product();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << hcalMB->size() << " entries";
+    edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << hcalMB->size()
+                                     << " entries";
 #endif
 
     for (auto itr = hcalMB->begin(); itr != hcalMB->end(); ++itr) {
       for (uint32_t ii = 0; ii < itr->m_stepLen.size(); ++ii) {
 #ifdef EDM_ML_DEBUG
-	if ((std::abs(itr->m_eta) >= etaMinP_) && (std::abs(itr->m_eta) <= etaMaxP_))
-	  edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalAnalysis:FillHisto called with index " << ii << " integrated  step " << itr->m_stepLen[ii] << " X0 " << itr->m_radLen[ii] << " Lamda " << itr->m_intLen[ii];
+        if ((std::abs(itr->m_eta) >= etaMinP_) && (std::abs(itr->m_eta) <= etaMaxP_))
+          edm::LogVerbatim("MaterialBudget")
+              << "MaterialBudgetHcalAnalysis:FillHisto called with index " << ii << " integrated  step "
+              << itr->m_stepLen[ii] << " X0 " << itr->m_radLen[ii] << " Lamda " << itr->m_intLen[ii];
 #endif
-	if (ii < maxSet_) {
-	  me100_[ii]->Fill(itr->m_eta, itr->m_radLen[ii]);
-	  me200_[ii]->Fill(itr->m_eta, itr->m_intLen[ii]);
-	  me300_[ii]->Fill(itr->m_eta, itr->m_stepLen[ii]);
-	  me400_[ii]->Fill(itr->m_eta);
+        if (ii < maxSet_) {
+          me100_[ii]->Fill(itr->m_eta, itr->m_radLen[ii]);
+          me200_[ii]->Fill(itr->m_eta, itr->m_intLen[ii]);
+          me300_[ii]->Fill(itr->m_eta, itr->m_stepLen[ii]);
+          me400_[ii]->Fill(itr->m_eta);
 
-	  if (itr->m_eta >= etaLow_ && itr->m_eta <= etaHigh_) {
-	    me500_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
-	    me600_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
-	    me700_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
-	    me800_[ii]->Fill(itr->m_phi);
-	  }
+          if (itr->m_eta >= etaLow_ && itr->m_eta <= etaHigh_) {
+            me500_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
+            me600_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
+            me700_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
+            me800_[ii]->Fill(itr->m_phi);
+          }
 
-	  me900_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_radLen[ii]);
-	  me1000_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_intLen[ii]);
-	  me1100_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_stepLen[ii]);
-	  me1200_[ii]->Fill(itr->m_eta, itr->m_phi);
+          me900_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_radLen[ii]);
+          me1000_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_intLen[ii]);
+          me1100_[ii]->Fill(itr->m_eta, itr->m_phi, itr->m_stepLen[ii]);
+          me1200_[ii]->Fill(itr->m_eta, itr->m_phi);
 
-	  if ((std::abs(itr->m_eta) >= etaMidMin_) && (std::abs(itr->m_eta) <= etaMidMax_)) {
-	    me1600_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
-	    me1700_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
-	    me1800_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
-	  }
+          if ((std::abs(itr->m_eta) >= etaMidMin_) && (std::abs(itr->m_eta) <= etaMidMax_)) {
+            me1600_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
+            me1700_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
+            me1800_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
+          }
 
-	  if ((std::abs(itr->m_eta) >= etaHighMin_) && (std::abs(itr->m_eta) <= etaHighMax_)) {
-	    me1900_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
-	    me2000_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
-	    me2100_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
-	  }
+          if ((std::abs(itr->m_eta) >= etaHighMin_) && (std::abs(itr->m_eta) <= etaHighMax_)) {
+            me1900_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
+            me2000_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
+            me2100_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
+          }
 
-	  if ((std::abs(itr->m_eta) >= etaLowMin_) && (std::abs(itr->m_eta) <= etaLowMax_)) {
-	    me2200_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
-	    me2300_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
-	    me2400_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
-	  }
-	}
+          if ((std::abs(itr->m_eta) >= etaLowMin_) && (std::abs(itr->m_eta) <= etaLowMax_)) {
+            me2200_[ii]->Fill(itr->m_phi, itr->m_radLen[ii]);
+            me2300_[ii]->Fill(itr->m_phi, itr->m_intLen[ii]);
+            me2400_[ii]->Fill(itr->m_phi, itr->m_stepLen[ii]);
+          }
+        }
       }
 
       me1300_[0]->Fill(itr->m_eta);
       me1400_[0]->Fill(itr->m_eta, itr->m_phi);
       if (itr->m_layers[0] > 0) {
-	me1300_[1]->Fill(itr->m_eta);
-	me1400_[1]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[1]->Fill(itr->m_eta);
+        me1400_[1]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[0] >= 16) {
-	me1300_[2]->Fill(itr->m_eta);
-	me1400_[2]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[2]->Fill(itr->m_eta);
+        me1400_[2]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[1] > 0) {
-	me1300_[3]->Fill(itr->m_eta);
-	me1400_[3]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[3]->Fill(itr->m_eta);
+        me1400_[3]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[1] >= 16) {
-	me1300_[4]->Fill(itr->m_eta);
-	me1400_[4]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[4]->Fill(itr->m_eta);
+        me1400_[4]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[2] > 0) {
-	me1300_[5]->Fill(itr->m_eta);
-	me1400_[5]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[5]->Fill(itr->m_eta);
+        me1400_[5]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[2] >= 2) {
-	me1300_[6]->Fill(itr->m_eta);
-	me1400_[6]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[6]->Fill(itr->m_eta);
+        me1400_[6]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[3] > 0) {
-	me1300_[7]->Fill(itr->m_eta);
-	me1400_[7]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[7]->Fill(itr->m_eta);
+        me1400_[7]->Fill(itr->m_eta, itr->m_phi);
       }
       if (itr->m_layers[0] > 0 || itr->m_layers[1] > 0 || (itr->m_layers[3] > 0 && std::abs(itr->m_eta) > 3.0)) {
-	me1300_[8]->Fill(itr->m_eta);
-	me1400_[8]->Fill(itr->m_eta, itr->m_phi);
+        me1300_[8]->Fill(itr->m_eta);
+        me1400_[8]->Fill(itr->m_eta, itr->m_phi);
       }
       me1500_[0]->Fill(itr->m_eta, (double)(itr->m_layers[0] + itr->m_layers[1] + itr->m_layers[2] + itr->m_layers[3]));
       me1500_[1]->Fill(itr->m_eta, (double)(itr->m_layers[0]));
@@ -335,4 +337,3 @@ void MaterialBudgetHcalAnalysis::analyze(edm::Event const& iEvent, edm::EventSet
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MaterialBudgetHcalAnalysis);
-

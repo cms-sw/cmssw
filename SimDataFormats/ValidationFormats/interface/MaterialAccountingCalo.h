@@ -7,9 +7,7 @@
 // struct to keep material accounting information along a track
 class MaterialAccountingCalo {
 public:
-  MaterialAccountingCalo(void) {
-    clear();
-  }
+  MaterialAccountingCalo(void) { clear(); }
 
   void clear(void) {
     m_eta = m_phi = 0.;
