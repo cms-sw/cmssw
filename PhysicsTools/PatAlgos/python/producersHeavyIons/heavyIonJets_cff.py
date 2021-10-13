@@ -52,7 +52,6 @@ from RecoBTag.ImpactParameter.trackCounting3D3rdComputer_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 
 recoPFJetsHIpostAODTask = cms.Task(
-    #PFTowers,
     PackedPFTowers,
     pfEmptyCollection,
     ak4PFJetsForFlow,
