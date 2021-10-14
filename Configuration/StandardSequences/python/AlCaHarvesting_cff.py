@@ -5,6 +5,7 @@ from Calibration.TkAlCaRecoProducers.AlcaBeamSpotHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripQualityHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
@@ -156,6 +157,15 @@ ALCAHARVESTSiPixelAli_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentR
                                           )
 
 # --------------------------------------------------------------------------------------
+# SiPixel Lorentz Angle
+ALCAHARVESTSiPixelLA_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcd'))
+
+ALCAHARVESTSiPixelLA_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
+                                         tag = cms.string('SiPixelLA_pcl'),
+                                         timetype   = cms.untracked.string('runnumber')
+                                         )
+
+# --------------------------------------------------------------------------------------
 # ECAL Pedestals
 ALCAHARVESTEcalPedestals_metadata = cms.PSet(record = cms.untracked.string('EcalPedestalsRcd'))
 
@@ -239,6 +249,7 @@ BeamSpotHPLowPUByLumi = cms.Path(ALCAHARVESTBeamSpotHPLowPUByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
+SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
