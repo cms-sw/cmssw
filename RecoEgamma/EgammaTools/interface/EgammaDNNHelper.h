@@ -41,7 +41,6 @@ namespace egammaTools {
   class EgammaDNNHelper {
   public:
     EgammaDNNHelper(const DNNConfiguration&, const ModelSelector& sel, const std::vector<std::string>& availableVars);
-    ~EgammaDNNHelper();
 
     std::vector<tensorflow::Session*> getSessions() const;
     // Function getting the input vector for a specific electron, already scaled
@@ -64,7 +63,7 @@ namespace egammaTools {
     // Number of inputs for each loaded model
     std::vector<uint> nInputs_;
 
-    std::vector<std::atomic<tensorflow::GraphDef*>> graphDefs_;
+    std::vector<std::unique_ptr<const tensorflow::GraphDef>> graphDefs_;
 
     // List of input variables for each of the model;
     std::vector<std::vector<ScalerConfiguration>> featuresMap_;

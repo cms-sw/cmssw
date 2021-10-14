@@ -14,19 +14,13 @@ EgammaDNNHelper::EgammaDNNHelper(const DNNConfiguration& cfg,
   initScalerFiles(availableVars);
 }
 
-EgammaDNNHelper::~EgammaDNNHelper() {
-  for (size_t i = 0; i < graphDefs_.size(); i++)
-    if (graphDefs_[i] != nullptr)
-      delete graphDefs_[i];
-}
-
 void EgammaDNNHelper::initTensorFlowGraphs() {
   // load the graph definition
   LogDebug("EgammaDNNHelper") << "Loading " << nModels_ << " graphs";
   size_t i = 0;
-  // Put std::atomic graphs in a vector without push_back
   for (const auto& model_file : cfg_.modelsFiles) {
-    graphDefs_[i] = tensorflow::loadGraphDef(edm::FileInPath(model_file).fullPath());
+    graphDefs_[i] =
+        std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(edm::FileInPath(model_file).fullPath()));
     i++;
   }
 }
@@ -35,7 +29,7 @@ std::vector<tensorflow::Session*> EgammaDNNHelper::getSessions() const {
   std::vector<tensorflow::Session*> sessions;
   LogDebug("EgammaDNNHelper") << "Starting " << nModels_ << " TF sessions";
   for (const auto& graphDef : graphDefs_) {
-    sessions.push_back(tensorflow::createSession(graphDef));
+    sessions.push_back(tensorflow::createSession(graphDef.get()));
   }
   LogDebug("EgammaDNNHelper") << "TF sessions started";
   return sessions;
