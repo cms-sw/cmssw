@@ -230,11 +230,6 @@ private:
     return (paramsMaxDoubletes3Quarters_ + blockSize - 1) / blockSize;
   }
 
-  /// Compute the number of quadruplet blocks for block size
-  inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
-    // caConstants::maxNumberOfQuadruplets is a constexpr, so the compiler will pre compute the 3*max/4
-    return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
-  }
 };
 
 using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits>;
