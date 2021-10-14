@@ -4,7 +4,6 @@ from SimG4Core.Application.hectorParameter_cfi import *
 
 baseHectorParameters = cms.PSet(
                 TransportMethod = cms.string('Hector'),
-                produceHitsRelativeToBeam = cms.bool(True),
                 ApplyZShift = cms.bool(True)
 )
 
