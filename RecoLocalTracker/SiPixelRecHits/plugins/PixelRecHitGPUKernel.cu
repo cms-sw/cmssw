@@ -9,6 +9,7 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainerAlgo.h"
 
 #include "PixelRecHitGPUKernel.h"
 #include "gpuPixelRecHits.h"

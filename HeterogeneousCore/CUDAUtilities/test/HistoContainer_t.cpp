@@ -4,7 +4,7 @@
 #include <limits>
 #include <random>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainerAlgo.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 using namespace cms::cuda;

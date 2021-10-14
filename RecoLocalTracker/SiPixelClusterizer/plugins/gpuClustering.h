@@ -6,7 +6,7 @@
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainerAlgo.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 namespace gpuClustering {
