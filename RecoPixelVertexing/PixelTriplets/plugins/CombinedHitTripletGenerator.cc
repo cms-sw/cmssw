@@ -13,7 +13,7 @@ CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string generatorName = generatorPSet.getParameter<std::string>("ComponentName");
   theGenerator = HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet, iC);
-  theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache), &theLayerCache);
+  theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(iC, 0, 1, &theLayerCache), &theLayerCache);
 }
 
 CombinedHitTripletGenerator::~CombinedHitTripletGenerator() {}

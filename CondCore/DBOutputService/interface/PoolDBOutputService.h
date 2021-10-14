@@ -59,7 +59,7 @@ namespace cond {
       bool isNewTagRequest(const std::string& recordName);
 
       template <typename T>
-      Hash writeOne(const T& payload, Time_t time, const std::string& recordName) {
+      Hash writeOneIOV(const T& payload, Time_t time, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
@@ -85,7 +85,7 @@ namespace cond {
             }
           }
           thePayloadHash = m_session.storePayload(payload);
-          std::string payloadType = cond::demangledName(typeid(T));
+          std::string payloadType = cond::demangledName(typeid(payload));
           if (newTag) {
             createNewIOV(thePayloadHash, payloadType, time, myrecord);
           } else {
@@ -111,8 +111,7 @@ namespace cond {
         if (!payloadPtr)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
         std::unique_ptr<const T> payload(payloadPtr);
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        return writeOne<T>(*payload, time, recordName);
+        return writeOneIOV<T>(*payload, time, recordName);
       }
 
       template <typename T>
@@ -172,9 +171,8 @@ namespace cond {
       void closeIOV(Time_t lastTill, const std::string& recordName);
 
       template <typename T>
-      void createNewIOV(const T& payload, cond::Time_t firstSinceTime, const std::string& recordName) {
+      void createOneIOV(const T& payload, cond::Time_t firstSinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
         Record& myrecord = this->lookUpRecord(recordName);
         if (!myrecord.m_isNewTag) {
           cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
@@ -184,7 +182,7 @@ namespace cond {
         try {
           this->initDB();
           Hash payloadId = m_session.storePayload(payload);
-          createNewIOV(payloadId, cond::demangledName(typeid(T)), firstSinceTime, myrecord);
+          createNewIOV(payloadId, cond::demangledName(typeid(payload)), firstSinceTime, myrecord);
         } catch (const std::exception& er) {
           cond::throwException(std::string(er.what()), "PoolDBOutputService::createNewIov");
         }
@@ -197,11 +195,11 @@ namespace cond {
         if (!payloadPtr)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::createNewIOV");
         std::unique_ptr<const T> payload(payloadPtr);
-        this->createNewIOV<T>(*payload, firstSinceTime, recordName);
+        this->createOneIOV<T>(*payload, firstSinceTime, recordName);
       }
 
       template <typename T>
-      void appendSinceTime(const T& payload, cond::Time_t sinceTime, const std::string& recordName) {
+      void appendOneIOV(const T& payload, cond::Time_t sinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
         Record& myrecord = this->lookUpRecord(recordName);
         if (myrecord.m_isNewTag) {
@@ -224,7 +222,7 @@ namespace cond {
         if (!payloadPtr)
           throwException("Provided payload pointer is invalid.", "PoolDBOutputService::appendSinceTime");
         std::unique_ptr<const T> payload(payloadPtr);
-        this->appendSinceTime<T>(*payload, sinceTime, recordName);
+        this->appendOneIOV<T>(*payload, sinceTime, recordName);
       }
 
       void createNewIOV(const std::string& firstPayloadId, cond::Time_t firstSinceTime, const std::string& recordName);

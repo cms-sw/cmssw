@@ -88,7 +88,7 @@ namespace gpuClustering {
       auto chargeCut =
           clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
-        newclusId[i] = ok[i] = charge[i] > chargeCut ? 1 : 0;
+        newclusId[i] = ok[i] = charge[i] >= chargeCut ? 1 : 0;
       }
 
       __syncthreads();

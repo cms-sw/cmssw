@@ -17,14 +17,14 @@ public:
     towermap3D_ = std::make_unique<HGCalTowerMap3DImpl>();
   }
 
-  void eventSetup(const edm::EventSetup& es) override { towermap2D_->eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) override {
+    HGCalTowerProcessorBase::setGeometry(geom);
+    towermap2D_->setGeometry(geom);
+  }
 
   void run(const std::pair<edm::Handle<l1t::HGCalTowerMapBxCollection>, edm::Handle<l1t::HGCalClusterBxCollection>>&
                collHandle,
-           l1t::HGCalTowerBxCollection& collTowers,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
-
+           l1t::HGCalTowerBxCollection& collTowers) override {
     auto& towerMapCollHandle = collHandle.first;
     auto& unclTCsCollHandle = collHandle.second;
 
@@ -65,7 +65,6 @@ public:
   }
 
 private:
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
   bool includeTrigCells_;
 
   /* algorithms instances */

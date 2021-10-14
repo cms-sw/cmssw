@@ -13,6 +13,9 @@ qie11Task = DQMEDAnalyzer(
 	#	tag
 	tagQIE11 = cms.untracked.InputTag("hcalDigis"),
 
+        #       folder
+        subsystem  = cms.untracked.string("HcalCalib"),
+
 	#	cuts, 
 	cut = cms.untracked.double(20),
 	ped = cms.untracked.int32(4),

@@ -53,3 +53,5 @@
 <bin file="test_Poisson.cpp">
   <use name="PhysicsTools/Utilities"/>
 </bin>
+
+<test name="test_edmPickEvents" command="test_edmPickEvents.sh"/>

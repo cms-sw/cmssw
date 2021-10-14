@@ -18,22 +18,16 @@ Calibration/HcalIsolatedTrackReco/src/SubdetFEDSelector.cc
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -53,6 +47,8 @@ Calibration/HcalIsolatedTrackReco/src/SubdetFEDSelector.cc
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "EventFilter/RawDataCollector/interface/RawDataFEDSelector.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //
 // class decleration
@@ -61,9 +57,10 @@ Calibration/HcalIsolatedTrackReco/src/SubdetFEDSelector.cc
 class AlCaHcalNoiseProducer : public edm::one::EDProducer<> {
 public:
   explicit AlCaHcalNoiseProducer(const edm::ParameterSet&);
-  ~AlCaHcalNoiseProducer() override;
+  ~AlCaHcalNoiseProducer() override = default;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----------member data ---------------------------
@@ -88,7 +85,7 @@ private:
 
   edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection>> toks_ecal_;
 };
 
 AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
@@ -104,7 +101,7 @@ AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-  ecalLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
+  ecalLabels_ = iConfig.getParameter<std::vector<edm::InputTag>>("ecalInputs");
   tok_ps_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalPSInput"));
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInput"));
 
@@ -123,8 +120,6 @@ AlCaHcalNoiseProducer::AlCaHcalNoiseProducer(const edm::ParameterSet& iConfig) {
   produces<FEDRawDataCollection>("HcalFEDsFHN");
 }
 
-AlCaHcalNoiseProducer::~AlCaHcalNoiseProducer() {}
-
 // ------------ method called to produce the data  ------------
 void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool acceptEvent = false;
@@ -135,8 +130,7 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   bool isAnomalous_BasedOnEnergyFraction = false;
 
   if (useMet_) {
-    edm::Handle<reco::CaloMETCollection> metHandle;
-    iEvent.getByToken(tok_met_, metHandle);
+    edm::Handle<reco::CaloMETCollection> metHandle = iEvent.getHandle(tok_met_);
     const reco::CaloMETCollection* metCol = metHandle.product();
     const reco::CaloMET met = metCol->front();
 
@@ -145,11 +139,8 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   if (useJet_) {
-    edm::Handle<reco::CaloJetCollection> calojetHandle;
-    iEvent.getByToken(tok_jets_, calojetHandle);
-
-    edm::Handle<CaloTowerCollection> towerHandle;
-    iEvent.getByToken(tok_tower_, towerHandle);
+    edm::Handle<reco::CaloJetCollection> calojetHandle = iEvent.getHandle(tok_jets_);
+    edm::Handle<CaloTowerCollection> towerHandle = iEvent.getHandle(tok_tower_);
 
     std::vector<CaloTower> TowerContainer;
     std::vector<reco::CaloJet> JetContainer;
@@ -197,25 +188,19 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // if good event get and save all colletions
   if (acceptEvent) {
-    edm::Handle<HBHERecHitCollection> hbhe;
-    edm::Handle<HORecHitCollection> ho;
-    edm::Handle<HFRecHitCollection> hf;
+    edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
+    edm::Handle<HORecHitCollection> ho = iEvent.getHandle(tok_ho_);
+    edm::Handle<HFRecHitCollection> hf = iEvent.getHandle(tok_hf_);
 
-    iEvent.getByToken(tok_hbhe_, hbhe);
-    iEvent.getByToken(tok_ho_, ho);
-    iEvent.getByToken(tok_hf_, hf);
-
-    edm::Handle<EcalRecHitCollection> pRecHits;
-    iEvent.getByToken(tok_ps_, pRecHits);
+    edm::Handle<EcalRecHitCollection> pRecHits = iEvent.getHandle(tok_ps_);
 
     // temporary collection of EB+EE recHits
 
     auto tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
 
-    std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+    std::vector<edm::EDGetTokenT<EcalRecHitCollection>>::const_iterator i;
     for (i = toks_ecal_.begin(); i != toks_ecal_.end(); i++) {
-      edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByToken(*i, ec);
+      edm::Handle<EcalRecHitCollection> ec = iEvent.getHandle(*i);
       for (EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
         tmpEcalRecHitCollection->push_back(*recHit);
       }
@@ -255,8 +240,7 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // get HCAL FEDs
-    edm::Handle<FEDRawDataCollection> rawIn;
-    iEvent.getByToken(tok_raw_, rawIn);
+    edm::Handle<FEDRawDataCollection> rawIn = iEvent.getHandle(tok_raw_);
 
     std::vector<int> selFEDs;
     for (int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) {
@@ -308,6 +292,27 @@ void AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(std::move(outputEColl), "EcalRecHitCollectionFHN");
   iEvent.put(std::move(outputESColl), "PSEcalRecHitCollectionFHN");
   iEvent.put(std::move(outputFEDs), "HcalFEDsFHN");
+}
+
+void AlCaHcalNoiseProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("JetSource", edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("MetSource", edm::InputTag("met"));
+  desc.add<edm::InputTag>("TowerSource", edm::InputTag("towerMaker"));
+  desc.add<bool>("UseJet", true);
+  desc.add<bool>("UseMET", false);
+  desc.add<double>("MetCut", 0);
+  desc.add<double>("JetMinE", 20);
+  desc.add<double>("JetHCALminEnergyFraction", 0.98);
+  desc.add<edm::InputTag>("hbheInput", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("hfInput", edm::InputTag("hfreco"));
+  desc.add<edm::InputTag>("hoInput", edm::InputTag("horeco"));
+  std::vector<edm::InputTag> inputs = {edm::InputTag("ecalRecHit", "EcalRecHitsEB"),
+                                       edm::InputTag("ecalRecHit", "EcalRecHitsEE")};
+  desc.add<std::vector<edm::InputTag>>("ecalInputs", inputs);
+  desc.add<edm::InputTag>("ecalPSInput", edm::InputTag("ecalPreshowerRecHit", "EcalRecHitsES"));
+  desc.add<edm::InputTag>("rawInput", edm::InputTag("rawDataCollector"));
+  descriptions.add("alcaHcalNoiseProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

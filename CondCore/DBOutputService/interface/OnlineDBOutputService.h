@@ -37,11 +37,11 @@ namespace cond {
 
       //
       template <typename PayloadType>
-      bool writeForNextLumisection(const PayloadType& payload, const std::string& recordName) {
+      bool writeIOVForNextLumisection(const PayloadType& payload, const std::string& recordName) {
         cond::Time_t targetTime = getLastLumiProcessed() + m_latencyInLumisections;
         auto t0 = std::chrono::high_resolution_clock::now();
         logger().logInfo() << "Updating lumisection " << targetTime;
-        cond::Hash payloadId = PoolDBOutputService::writeOne<PayloadType>(payload, targetTime, recordName);
+        cond::Hash payloadId = PoolDBOutputService::writeOneIOV<PayloadType>(payload, targetTime, recordName);
         bool ret = true;
         if (payloadId.empty()) {
           return false;

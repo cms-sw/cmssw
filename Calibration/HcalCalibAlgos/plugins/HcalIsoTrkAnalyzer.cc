@@ -791,25 +791,27 @@ void HcalIsoTrkAnalyzer::beginJob() {
 void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   hdc_ = &iSetup.getData(tok_ddrec_);
 
-  bool changed_(true);
-  bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
-  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " process " << processName_
-                                   << " init flag " << flag << " change flag " << changed_;
-  // check if trigger names in (new) config
-  if (changed_) {
+  if (!ignoreTrigger_) {
+    bool changed_(true);
+    bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
+    edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " process " << processName_
+                                     << " init flag " << flag << " change flag " << changed_;
+    // check if trigger names in (new) config
+    if (changed_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
+      edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
-    const unsigned int n(hltConfig_.size());
-    for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
-      if (triggerindx >= n) {
-        edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
-                                        << "the current menu";
+      const unsigned int n(hltConfig_.size());
+      for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
+        unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
+        if (triggerindx >= n) {
+          edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
+                                          << "the current menu";
 #ifdef EDM_ML_DEBUG
-      } else {
-        edm::LogVerbatim("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " exists";
+        } else {
+          edm::LogVerbatim("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " exists";
 #endif
+        }
       }
     }
   }

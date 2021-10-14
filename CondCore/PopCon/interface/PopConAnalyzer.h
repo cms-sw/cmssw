@@ -9,12 +9,12 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace popcon {
   template <typename S>
-  class PopConAnalyzer : public edm::EDAnalyzer {
+  class PopConAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     typedef S SourceHandler;
 

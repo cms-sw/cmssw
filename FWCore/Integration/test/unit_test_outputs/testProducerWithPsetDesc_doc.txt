@@ -1,4 +1,4 @@
-1  ProducerWithPSetDesc  (EDProducer)  "pluginTestProducerWithPSetDesc.so"
+1  ProducerWithPSetDesc  (global::EDProducer)  "pluginTestProducerWithPSetDesc.so"
 
 This plugin has 4 PSet descriptions. The description used to validate a 
 configuration is selected by matching the module labels. If none match, then 
@@ -536,6 +536,14 @@ generated for each configuration with a module label.
     plugin1
                         type: PSet 
                         see Section 1.1.23
+
+    plugin2
+                        type: VPSet 
+                        see Section 1.1.24
+
+    plugin3
+                        type: VPSet 
+                        see Section 1.1.25
 
     mightGet
                         type: untracked vstring optional
@@ -2031,6 +2039,72 @@ generated for each configuration with a module label.
         type
                         type: string 
                         default: none
+
+    Section 1.1.24 plugin2 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.24.1.
+        The default VPSet is empty.
+
+    Section 1.1.24.1 description of PSet used to validate elements of VPSet:
+
+        Section 1.1.24.1.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+
+        Section 1.1.24.1.1.1 edmtestAnotherOneMaker Plugin description:
+
+        type
+                        type: string 
+                        default: none
+
+        Section 1.1.24.1.1.2 edmtestAnotherValueMaker Plugin description:
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
+                        default: none
+
+    Section 1.1.25 plugin3 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.25.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.25.2
+        [1]: see Section 1.1.25.3
+
+    Section 1.1.25.1 description of PSet used to validate elements of VPSet:
+
+        Section 1.1.25.1.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+
+        Section 1.1.25.1.1.1 edmtestAnotherOneMaker Plugin description:
+
+        type
+                        type: string 
+                        default: none
+
+        Section 1.1.25.1.1.2 edmtestAnotherValueMaker Plugin description:
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
+                        default: none
+
+    Section 1.1.25.2 PSet description of default VPSet element [0]
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherOneMaker'
+
+    Section 1.1.25.3 PSet description of default VPSet element [1]
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherValueMaker'
+
+        value
+                        type: int32 
+                        default: 11
 
   1.2 module label: testLabel1
   A comment for a ParameterSetDescription

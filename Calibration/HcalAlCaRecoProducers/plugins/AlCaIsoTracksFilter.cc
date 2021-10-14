@@ -237,16 +237,14 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     triggerSatisfied = true;
   } else {
     trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    auto const& triggerEventHandle = iEvent.getHandle(tok_trigEvt_);
     if (!triggerEventHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else {
       triggerEvent = *(triggerEventHandle.product());
 
       /////////////////////////////TriggerResults
-      edm::Handle<edm::TriggerResults> triggerResults;
-      iEvent.getByToken(tok_trigRes_, triggerResults);
+      auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
       if (triggerResults.isValid()) {
         std::vector<std::string> modules;
         const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
@@ -280,18 +278,15 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     //Also relevant information to extrapolate tracks to Hcal surface
     bool foundCollections(true);
     //Get track collection
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
+    auto trkCollection = iEvent.getHandle(tok_genTrack_);
     if (!trkCollection.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
       foundCollections = false;
     }
 
     //Define the best vertex and the beamspot
-    edm::Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByToken(tok_recVtx_, recVtxs);
-    edm::Handle<reco::BeamSpot> beamSpotH;
-    iEvent.getByToken(tok_bs_, beamSpotH);
+    auto const& recVtxs = iEvent.getHandle(tok_recVtx_);
+    auto const& beamSpotH = iEvent.getHandle(tok_bs_);
     math::XYZPoint leadPV(0, 0, 0);
     if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(), (*recVtxs)[0].y(), (*recVtxs)[0].z());
@@ -301,20 +296,17 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV;
 
     // RecHits
-    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-    iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+    auto barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
     if (!barrelRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
       foundCollections = false;
     }
-    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-    iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+    auto endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
     if (!endcapRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
       foundCollections = false;
     }
-    edm::Handle<HBHERecHitCollection> hbhe;
-    iEvent.getByToken(tok_hbhe_, hbhe);
+    auto hbhe = iEvent.getHandle(tok_hbhe_);
     if (!hbhe.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
       foundCollections = false;

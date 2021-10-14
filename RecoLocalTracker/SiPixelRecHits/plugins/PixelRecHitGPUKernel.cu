@@ -38,7 +38,7 @@ namespace pixelgpudetails {
                                                           pixelCPEforGPU::ParamsOnGPU const* cpeParams,
                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
-    TrackingRecHit2DGPU hits_d(nHits, cpeParams, clusters_d.clusModuleStart(), stream);
+    TrackingRecHit2DGPU hits_d(nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
 
     int threadsPerBlock = 128;
     int blocks = digis_d.nModules();  // active modules (with digis)

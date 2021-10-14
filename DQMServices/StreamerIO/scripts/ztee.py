@@ -31,7 +31,7 @@ class GZipLog(object):
         self.file_truncate_state = None
 
     def write_block(self, data):
-        self.file.write(self.zstream.compress(data))
+        self.file.write(self.zstream.compress( data.encode("utf-8") ))
         self.file.write(self.zstream.flush(zlib.Z_FULL_FLUSH))
 
     def flush_block(self):

@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,10 +21,10 @@ class SiStripLorentzAngle;
 //
 // class decleration
 //
-class SiStripLorentzAngleReader : public edm::EDAnalyzer {
+class SiStripLorentzAngleReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripLorentzAngleReader(const edm::ParameterSet&);
-  ~SiStripLorentzAngleReader() override;
+  ~SiStripLorentzAngleReader() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

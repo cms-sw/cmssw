@@ -6,6 +6,7 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigCokeInfo.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -41,7 +42,7 @@ int FEConfigCokeInfo::fetchNextId() noexcept(false) {
     return result;
 
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::fetchNextId():  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::fetchNextId():  " << e.getMessage();
   }
 }
 
@@ -63,7 +64,7 @@ void FEConfigCokeInfo::prepareWrite() noexcept(false) {
     m_ID = next_id;
 
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::prepareWrite():  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -91,7 +92,7 @@ void FEConfigCokeInfo::writeDB() noexcept(false) {
     m_writeStmt->executeUpdate();
 
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::writeDB():  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::writeDB():  " << e.getMessage();
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -127,7 +128,7 @@ void FEConfigCokeInfo::fetchData(FEConfigCokeInfo* result) noexcept(false) {
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::fetchData():  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::fetchData():  " << e.getMessage();
   }
 }
 
@@ -150,7 +151,7 @@ void FEConfigCokeInfo::fetchLastData(FEConfigCokeInfo* result) noexcept(false) {
     result->setDBTime(dh.dateToTm(dbdate));
 
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::fetchData():  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::fetchData():  " << e.getMessage();
   }
 }
 
@@ -178,7 +179,7 @@ int FEConfigCokeInfo::fetchID() noexcept(false) {
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::fetchID:  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::fetchID:  " << e.getMessage();
   }
 
   return m_ID;
@@ -209,6 +210,6 @@ void FEConfigCokeInfo::setByID(int id) noexcept(false) {
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException& e) {
-    throw(std::runtime_error(std::string("FEConfigCokeInfo::setByID:  ") + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigCokeInfo::setByID:  " << e.getMessage();
   }
 }

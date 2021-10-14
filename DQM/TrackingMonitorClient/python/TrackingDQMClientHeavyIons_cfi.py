@@ -7,8 +7,8 @@ hiTrackingDqmClientHI = DQMEDHarvester("TrackingDQMClientHeavyIons",
 
 from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import TrackerMapFoldedClient
 
-TrackerMapFoldedClient_heavyionTk=TrackerMapFoldedClient.clone(
-    AlgoName = cms.string('HeavyIonTk'),
-    TrackQuality = cms.string('')
+TrackerMapFoldedClient_heavyionTk = TrackerMapFoldedClient.clone(
+    AlgoName = 'HeavyIonTk',
+    TrackQuality = ''
 )
 hiTrackingDqmClientHeavyIons=cms.Sequence(hiTrackingDqmClientHI*TrackerMapFoldedClient_heavyionTk)

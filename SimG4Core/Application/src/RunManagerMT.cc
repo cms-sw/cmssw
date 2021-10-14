@@ -1,4 +1,3 @@
-
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
@@ -86,8 +85,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
 
   m_kernel = new G4MTRunManagerKernel();
   m_stateManager = G4StateManager::GetStateManager();
-  m_stateManager->SetExceptionHandler(new ExceptionHandler());
-
+  double th = p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
+  m_stateManager->SetExceptionHandler(new ExceptionHandler(th));
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 

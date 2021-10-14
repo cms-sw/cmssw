@@ -530,7 +530,7 @@ public:
 
   //...................................................... methods that will (should) be private
 
-  void Init();
+  void Init(TEcnaObject*);
 
   void SetEcalSubDetector(const TString&);
 

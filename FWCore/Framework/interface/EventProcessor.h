@@ -305,7 +305,7 @@ namespace edm {
     std::shared_ptr<EDLooperBase const> looper() const { return get_underlying_safe(looper_); }
     std::shared_ptr<EDLooperBase>& looper() { return get_underlying_safe(looper_); }
 
-    void warnAboutModulesRequiringLuminosityBLockSynchronization() const;
+    void throwAboutModulesRequiringLuminosityBlockSynchronization() const;
     void warnAboutLegacyModules() const;
     //------------------------------------------------------------------
     //

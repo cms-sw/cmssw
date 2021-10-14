@@ -138,8 +138,7 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
+  edm::Handle<edm::TriggerResults> triggerResults = iEvent.getHandle(tok_trigRes_);
   if (triggerResults.isValid()) {
     bool ok(false);
     std::vector<std::string> modules;
@@ -166,13 +165,13 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
       const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
       // Relevant blocks from iEvent
-      edm::Handle<reco::MuonCollection> _Muon;
-      iEvent.getByToken(tok_Muon_, _Muon);
+      edm::Handle<reco::MuonCollection> muonHandle = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
+      edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon Handle " << muonHandle.isValid();
 #endif
-      if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+      if (muonHandle.isValid()) {
+        for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+             ++RecMuon) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HEMuon") << "AlCaHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                      << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "
@@ -257,7 +256,6 @@ void AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::string>("processName", "HLT");
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonLabel", edm::InputTag("muons"));
-  desc.add<double>("minimumMuonP", 10.0);
   desc.add<std::vector<std::string> >("triggers", triggers);
   desc.add<double>("muonPtCut", 20.0);
   desc.add<double>("muonEtaCut", 1.305);

@@ -29,13 +29,11 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
-           l1t::HGCalClusterBxCollection& collCluster2D,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+           l1t::HGCalClusterBxCollection& collCluster2D) override {
     if (clustering_)
-      clustering_->eventSetup(es);
+      clustering_->setGeometry(geometry());
     if (clusteringDummy_)
-      clusteringDummy_->eventSetup(es);
+      clusteringDummy_->setGeometry(geometry());
 
     /* create a persistent vector of pointers to the trigger-cells */
     std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
@@ -56,10 +54,10 @@ public:
         clustering_->clusterizeDR(triggerCellsPtrs, collCluster2D);
         break;
       case NNC2d:
-        clustering_->clusterizeNN(triggerCellsPtrs, collCluster2D, *triggerGeometry_);
+        clustering_->clusterizeNN(triggerCellsPtrs, collCluster2D, *geometry());
         break;
       case dRNNC2d:
-        clustering_->clusterizeDRNN(triggerCellsPtrs, collCluster2D, *triggerGeometry_);
+        clustering_->clusterizeDRNN(triggerCellsPtrs, collCluster2D, *geometry());
         break;
       case dummyC2d:
         clusteringDummy_->clusterizeDummy(triggerCellsPtrs, collCluster2D);
@@ -72,8 +70,6 @@ public:
 
 private:
   enum ClusterType { dRC2d, NNC2d, dRNNC2d, dummyC2d };
-
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
   /* algorithms instances */
   std::unique_ptr<HGCalClusteringImpl> clustering_;

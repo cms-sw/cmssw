@@ -21,7 +21,7 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -38,12 +38,11 @@
 
 namespace edmtest {
 
-  class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
+  class WhatsItWatcherAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
-    ~WhatsItWatcherAnalyzer();
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     // ----------member data ---------------------------
@@ -74,11 +73,6 @@ namespace edmtest {
         watchBool_(),
         token_(esConsumes()) {
     //now do what ever initialization is needed
-  }
-
-  WhatsItWatcherAnalyzer::~WhatsItWatcherAnalyzer() {
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
   }
 
   //

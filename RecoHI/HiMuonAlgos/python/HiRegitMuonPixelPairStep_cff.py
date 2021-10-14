@@ -26,7 +26,8 @@ hiRegitMuPixelPairStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDPro
 )
 
 ###################################
-from RecoTracker.IterativeTracking.PixelPairStep_cff import *
+import RecoTracker.IterativeTracking.PixelPairStep_cff
+from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepTrajectoryBuilder,pixelPairStepTrajectoryFilter,pixelPairStepTrajectoryFilterBase,pixelPairStepTrajectoryFilterInOut,pixelPairStepTrajectoryFilterShape,pixelPairStepChi2Est
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuPixelPairStepClusters = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.clone(
@@ -76,7 +77,7 @@ hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPai
 )
 
 # trackign candidate
-hiRegitMuPixelPairStepTrackCandidates = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
+hiRegitMuPixelPairStepTrackCandidates = RecoTracker.IterativeTracking.PixelPairStep_cff._pixelPairStepTrackCandidatesCkf.clone(
     src               = 'hiRegitMuPixelPairStepSeeds',
     TrajectoryBuilder = 'hiRegitMuPixelPairStepTrajectoryBuilder',
     clustersToSkip    = "hiRegitMuPixelPairStepClusters",

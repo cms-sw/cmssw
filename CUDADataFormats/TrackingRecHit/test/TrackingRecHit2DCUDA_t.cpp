@@ -18,11 +18,11 @@ int main() {
   auto nHits = 200;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DGPU tkhit(nHits, nullptr, nullptr, stream);
+    TrackingRecHit2DGPU tkhit(nHits, 0, nullptr, nullptr, stream);
 
     testTrackingRecHit2D::runKernels(tkhit.view());
 
-    TrackingRecHit2DHost tkhitH(nHits, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHost tkhitH(nHits, 0, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));

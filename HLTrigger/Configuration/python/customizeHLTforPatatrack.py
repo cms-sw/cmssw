@@ -123,7 +123,11 @@ def customisePixelLocalReconstruction(process):
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone()
+    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+        # use the same thresholds as the legacy module
+        clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+        clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+    )
     # use the pixel channel calibrations scheme for Run 3
     run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
@@ -161,7 +165,9 @@ def customisePixelLocalReconstruction(process):
     )
 
     # reconstruct the pixel clusters on the cpu
-    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone()
+    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
+        src = "hltSiPixelDigisLegacy"
+    )
 
     # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
     from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
@@ -177,6 +183,9 @@ def customisePixelLocalReconstruction(process):
             src = "hltSiPixelDigisSoA",
             produceDigis = False,
             storeDigis = False,
+            # use the same thresholds as the legacy module
+            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
         )
     )
 
@@ -216,6 +225,32 @@ def customisePixelLocalReconstruction(process):
           process.hltSiPixelRecHits)                        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
 
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
+
+
+    # workaround for AlCa paths
+
+    if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
+            process.HLTBeginSequenceRandom +
+            process.hltScalersRawToDigi +
+            process.hltPreAlCaLumiPixelsCountsRandom +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
+
+    if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
+            process.HLTBeginSequence +
+            process.hltScalersRawToDigi +
+            process.hltL1sZeroBias +
+            process.hltPreAlCaLumiPixelsCountsZeroBias +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
 
 
     # done
@@ -544,6 +579,7 @@ def customiseHcalLocalReconstruction(process):
 
     process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
 
+    process.load("RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")

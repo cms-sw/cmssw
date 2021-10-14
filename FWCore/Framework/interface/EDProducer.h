@@ -16,6 +16,7 @@ EDProducts into an Event.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 #include <string>
 #include <vector>
@@ -32,7 +33,7 @@ namespace edm {
     class ModuleHolderT;
   }
 
-  class EDProducer : public ProducerBase, public EDConsumerBase {
+  class CMS_DEPRECATED EDProducer : public ProducerBase, public EDConsumerBase {
   public:
     template <typename T>
     friend class maker::ModuleHolderT;
