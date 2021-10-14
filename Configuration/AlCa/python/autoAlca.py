@@ -35,7 +35,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
                   "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
                   "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
-                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias+SiPixelCalSingleMuon",
                   "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias"
                   }
 
