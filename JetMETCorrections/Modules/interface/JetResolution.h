@@ -8,9 +8,12 @@
 #include <CondFormats/JetMETObjects/interface/JetResolutionObject.h>
 
 #ifndef STANDALONE
+#include "FWCore/Utilities/interface/ESGetToken.h"
 namespace edm {
   class EventSetup;
 }
+class JetResolutionObject;
+class JetResolutionRcd;
 #endif
 
 namespace JME {
@@ -23,7 +26,8 @@ namespace JME {
     }
 
 #ifndef STANDALONE
-    static const JetResolution get(const edm::EventSetup&, const std::string&);
+    using Token = edm::ESGetToken<JetResolutionObject, JetResolutionRcd>;
+    static const JetResolution get(const edm::EventSetup&, const Token&);
 #endif
 
     float getResolution(const JetParameters& parameters) const;
@@ -46,7 +50,8 @@ namespace JME {
     }
 
 #ifndef STANDALONE
-    static const JetResolutionScaleFactor get(const edm::EventSetup&, const std::string&);
+    using Token = edm::ESGetToken<JetResolutionObject, JetResolutionRcd>;
+    static const JetResolutionScaleFactor get(const edm::EventSetup&, const Token&);
 #endif
 
     float getScaleFactor(const JetParameters& parameters,
