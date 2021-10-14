@@ -39,7 +39,7 @@ namespace tau_hlt {
       desc.add<edm::InputTag>("L1TauSrc", edm::InputTag(""))
           ->setComment("Which trigger should the L1 Taus collection pass");
       desc.add<edm::InputTag>("L2Outcomes", edm::InputTag(""))->setComment("L2 CNN outcomes");
-      desc.add<double>("DiscrWP", 0.12267940863785043)->setComment("value of discriminator threshold");
+      desc.add<double>("DiscrWP", 0.1227)->setComment("value of discriminator threshold");
       descriptions.addWithDefaultLabel(desc);
     }
 
