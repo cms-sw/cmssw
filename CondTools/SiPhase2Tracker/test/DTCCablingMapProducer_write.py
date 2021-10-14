@@ -33,7 +33,7 @@ process.otdtccablingmap_producer = cms.EDAnalyzer("DTCCablingMapProducer",
     #dummy_fill_mode = cms.string("DUMMY_FILL_DISABLED"),
     #dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID"),
     modulesToDTCCablingCSVFileNames = cms.vstring(
-      "CondTools/SiPhase2Tracker/TrackerDetToDTCELinkCablingMap__OT614_200_IT404_layer2_10G__T6__OTOnly.csv"
+        "CondTools/SiPhase2Tracker/data/TrackerModuleToDTCCablingMap__OT616_200_IT613__T14__OTOnly.csv"
     ),
     dummy_fill_mode = cms.string("DUMMY_FILL_ELINK_ID_AND_GBT_ID"),
     csvFormat_ncolumns   = cms.uint32( 2),
