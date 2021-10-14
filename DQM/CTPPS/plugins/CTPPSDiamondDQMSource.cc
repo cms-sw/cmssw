@@ -1191,15 +1191,15 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           // Check dropped trailing edges
           if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
             ++channelPlots_[detId].HitCounter;
-            if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
+            if (digi.trailingEdge() == 0) {
               ++channelPlots_[detId].LeadingOnlyCounter;
               channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
             }
-            if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
+            else if (digi.leadingEdge() == 0) {
               ++channelPlots_[detId].TrailingOnlyCounter;
               channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
             }
-            if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
+            else {
               ++channelPlots_[detId].CompleteCounter;
               // channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
               //                                                                 HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
