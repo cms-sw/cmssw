@@ -51,7 +51,7 @@ else:
 #################################
 # Produce a SQLITE FILE
 #################################
-CondDBBeamSpotObjects = CondDB.clone(connect = cms.string('sqlite_file:test.db')) # choose an output name
+CondDBBeamSpotObjects = CondDB.clone(connect = cms.string('sqlite_file:test_%s.db' % tag_name)) # choose an output name
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           CondDBBeamSpotObjects,
                                           timetype = cms.untracked.string('lumiid'), #('lumiid'), #('runnumber')
