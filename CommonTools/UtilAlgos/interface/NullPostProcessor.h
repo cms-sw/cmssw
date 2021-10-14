@@ -8,18 +8,18 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 namespace edm {
-  class EDFilter;
   class Event;
   class ParameterSet;
 }  // namespace edm
 
 namespace helper {
 
-  template <typename OutputCollection, typename EdmFilter = edm::EDFilter>
+  template <typename OutputCollection>
   struct NullPostProcessor {
     NullPostProcessor(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) : NullPostProcessor(iConfig) {}
     NullPostProcessor(const edm::ParameterSet& iConfig) {}
-    void init(EdmFilter&) {}
+    template <typename F>
+    void init(F&) {}
     void process(edm::OrphanHandle<OutputCollection>, edm::Event&) {}
   };
 
