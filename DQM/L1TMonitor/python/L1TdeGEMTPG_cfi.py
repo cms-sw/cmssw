@@ -7,9 +7,9 @@ l1tdeGEMTPGCommon = cms.PSet(
     chambers = cms.vstring("GE11"),
     dataEmul = cms.vstring("data","emul"),
     clusterVars = cms.vstring("size", "pad", "bx"),
-    clusterNBin = cms.vuint32(20,384,-5),
-    clusterMinBin = cms.vdouble(0,0,5),
-    clusterMaxBin = cms.vdouble(20,384,10),
+    clusterNBin = cms.vuint32(20,384,10),
+    clusterMinBin = cms.vdouble(0,0,-5),
+    clusterMaxBin = cms.vdouble(20,384,5),
     ## GEM VFAT data is not captured in BX's other than BX0
     ## For a good comparison, leave out those data clusters
     useDataClustersOnlyInBX0 = cms.bool(True),
