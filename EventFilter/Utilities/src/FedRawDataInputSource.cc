@@ -931,7 +931,7 @@ void FedRawDataInputSource::readSupervisor() {
                 //look at last LS file on disk to start from that lumisection (only within first 100 LS)
                 unsigned int lsToStart = daqDirector_->getLumisectionToStart();
 
-                for (unsigned int nextLS = lsToStart; nextLS <= ls; nextLS++) {
+                for (unsigned int nextLS = std::min(lsToStart, ls); nextLS <= ls; nextLS++) {
                   std::unique_ptr<InputFile> inf(new InputFile(evf::EvFDaqDirector::newLumi, nextLS));
                   fileQueue_.push(std::move(inf));
                 }
