@@ -229,7 +229,6 @@ private:
     // We want (3 * params_.maxNumberOfDoublets_ / 4 + blockSize - 1) / blockSize, but first part is pre-computed.
     return (paramsMaxDoubletes3Quarters_ + blockSize - 1) / blockSize;
   }
-
 };
 
 using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits>;

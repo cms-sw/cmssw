@@ -1,43 +1,37 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAHitNtupletGeneratorKernelsImpl.h"
 
-  /// Compute the number of quadruplet blocks for block size
-  inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
-    // caConstants::maxNumberOfQuadruplets is a constexpr, so the compiler will pre compute the 3*max/4
-    return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
-  }
+/// Compute the number of quadruplet blocks for block size
+inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
+  // caConstants::maxNumberOfQuadruplets is a constexpr, so the compiler will pre compute the 3*max/4
+  return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
+}
 
-__inline__  void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
-                                        Quality const *__restrict__ quality_d,
-                                        caConstants::TupleMultiplicity *tupleMultiplicity_d, cudaStream_t cudaStream) {
-
+__inline__ void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
+                                     Quality const *__restrict__ quality_d,
+                                     caConstants::TupleMultiplicity *tupleMultiplicity_d,
+                                     cudaStream_t cudaStream) {
   cms::cuda::launchZero(tupleMultiplicity_d, cudaStream);
-  auto  blockSize = 128;
+  auto blockSize = 128;
   auto numberOfBlocks = (3 * caConstants::maxTuples / 4 + blockSize - 1) / blockSize;
-  kernel_countMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      tuples_d, quality_d, tupleMultiplicity_d);
+  kernel_countMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
   cms::cuda::launchFinalize(tupleMultiplicity_d, cudaStream);
-  kernel_fillMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      tuples_d, quality_d, tupleMultiplicity_d);
-
+  kernel_fillMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
 }
 
-
-__inline__  void populateHitInTracks(HitContainer const *__restrict__ tuples_d, 
-                                        Quality const *__restrict__ quality_d,
-                                        CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple_d, HitToTuple::View hitToTupleView, cudaStream_t cudaStream) {
-
-    cms::cuda::launchZero(hitToTupleView, cudaStream);
-    auto  blockSize = 64;
-    auto numberOfBlocks = nQuadrupletBlocks(blockSize);
-    kernel_countHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-        tuples_d, quality_d, hitToTuple_d);
-    cudaCheck(cudaGetLastError());
-    cms::cuda::launchFinalize(hitToTupleView, cudaStream);
-    cudaCheck(cudaGetLastError());
-    kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
+__inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
+                                    Quality const *__restrict__ quality_d,
+                                    CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple_d,
+                                    HitToTuple::View hitToTupleView,
+                                    cudaStream_t cudaStream) {
+  cms::cuda::launchZero(hitToTupleView, cudaStream);
+  auto blockSize = 64;
+  auto numberOfBlocks = nQuadrupletBlocks(blockSize);
+  kernel_countHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
+  cudaCheck(cudaGetLastError());
+  cms::cuda::launchFinalize(hitToTupleView, cudaStream);
+  cudaCheck(cudaGetLastError());
+  kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
 }
-
-
 
 template <>
 void CAHitNtupletGeneratorKernelsGPU::fillHitDetIndices(HitsView const *hv, TkSoA *tracks_d, cudaStream_t cudaStream) {
@@ -145,8 +139,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
       device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
   cudaCheck(cudaGetLastError());
 
-  
-  populateMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get(),cudaStream);
+  populateMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get(), cudaStream);
   cudaCheck(cudaGetLastError());
 
   if (nhits > 1 && params_.lateFishbone_) {
@@ -294,7 +287,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   if (params_.doSharedHitCut_ || params_.doStats_) {
     // populate hit->track "map"
-    populateHitInTracks(tuples_d, quality_d, device_hitToTuple_.get(),hitToTupleView_,cudaStream);
+    populateHitInTracks(tuples_d, quality_d, device_hitToTuple_.get(), hitToTupleView_, cudaStream);
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
     cudaCheck(cudaDeviceSynchronize());
