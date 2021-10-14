@@ -33,6 +33,8 @@ private:
   std::vector<double> clusterMinBin_;
   std::vector<double> clusterMaxBin_;
 
+  bool useDataClustersOnlyInBX0_;
+
   // first key is the chamber number
   // second key is the variable
   std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
