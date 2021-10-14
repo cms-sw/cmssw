@@ -21,6 +21,7 @@ public:
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+
 private:
   bool showRings_, autoIneffModTagging_;
   unsigned int nTEClayers_;
@@ -29,17 +30,17 @@ private:
   int nModsMin_;
   double tkMapMin_;
   std::string title_;
-  edm::ESGetToken<TrackerTopology,TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   std::unique_ptr<TrackerTopology> tTopo_;
-  edm::ESGetToken<TkDetMap,TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
   std::unique_ptr<TkDetMap> tkDetMap_;
-  edm::ESGetToken<SiStripQuality,SiStripQualityRcd> stripQualityToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
   std::unique_ptr<SiStripQuality> stripQuality_;
 };
 
 SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::ParameterSet& conf) {
   showRings_ = conf.getUntrackedParameter<bool>("ShowRings", false);
-  nTEClayers_ = (showRings_ ? 7 : 9); // number of rings or wheels
+  nTEClayers_ = (showRings_ ? 7 : 9);  // number of rings or wheels
   threshold_ = conf.getParameter<double>("Threshold");
   nModsMin_ = conf.getParameter<int>("nModsMin");
   tkMapMin_ = conf.getUntrackedParameter<double>("TkMapMin", 0.9);
@@ -77,7 +78,7 @@ namespace {
         return 0;
     }
   }
-}
+}  // namespace
 
 std::string SiStripHitEfficiencyHarvester::layerName(unsigned int k) const {
   const std::string ringlabel{showRings_ ? "R" : "D"};
@@ -113,7 +114,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       if (htotal->GetBinContent(i) == 0)
         htotal->SetBinContent(i, 1);
     }
-    LogDebug("SiStripHitEfficiency:HitEff") << "Total hits for layer " << iLayer << " (vs lumi): " << htotal->GetEntries() << ", found " << hfound->GetEntries();
+    LogDebug("SiStripHitEfficiency:HitEff")
+        << "Total hits for layer " << iLayer << " (vs lumi): " << htotal->GetEntries() << ", found "
+        << hfound->GetEntries();
   }
 
   // TODO list
@@ -131,13 +134,16 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
   h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
-  LogDebug("SiStripHitEfficiency:HitEff") << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found " << h_module_found->getMap(3)->getEntries();
+  LogDebug("SiStripHitEfficiency:HitEff")
+      << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
+      << h_module_found->getMap(3)->getEntries();
 
   edm::Service<TFileService> fs;
   std::vector<TH1F*> hEffInLayer(std::size_t(1), nullptr);
   hEffInLayer.reserve(23);
   for (std::size_t i = 1; i != 23; ++i) {
-    hEffInLayer.push_back(fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
+    hEffInLayer.push_back(
+        fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
   }
   std::array<long, 23> layertotal{};
   std::array<long, 23> layerfound{};
@@ -155,7 +161,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   TrackerMap tkMapDen{" Detector denominator "};
   std::map<unsigned int, double> badModules;
 
-  SiStripDetInfoFileReader reader{edm::FileInPath{"CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"}.fullPath()}; // FIXME update to new version, if needed at all (should also be possible to get from quality ?)
+  SiStripDetInfoFileReader reader{
+      edm::FileInPath{"CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"}
+          .fullPath()};  // FIXME update to new version, if needed at all (should also be possible to get from quality ?)
   for (auto det : reader.getAllDetIds()) {
     // TODO probably need a way to exclude bad modules (cache sistripquality and federrids, or list of bad module DetIds directly - may be easier)
 
@@ -169,15 +177,15 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
         // We have a bad module, put it in the list!
         badModules[det] = eff;
         tkMapBad.fillc(det, 255, 0, 0);
-        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det
-                  << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
+        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
+                  << " , " << num << "/" << denom << std::endl;
       } else {
         //Fill the bad list with empty results for every module
         tkMapBad.fillc(det, 255, 255, 255);
       }
       if (denom && (denom < nModsMin_)) {
-        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det
-                  << " is under occupancy at " << denom << std::endl;
+        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " is under occupancy at "
+                  << denom << std::endl;
       }
     }
     if (denom) {
@@ -212,15 +220,15 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             //We have a bad module, put it in the list!
             badModules[det] = eff;
             tkMapBad.fillc(det, 255, 0, 0);
-            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det
-                      << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
+            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
+                      << " , " << num << "/" << denom << std::endl;
           } else {
             //Fill the bad list with empty results for every module
             tkMapBad.fillc(det, 255, 255, 255);
           }
           if (denom && (denom < nModsMin_)) {
-            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det
-                      << " layer " << layer << " is under occupancy at " << denom << std::endl;
+            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " layer " << layer
+                      << " is under occupancy at " << denom << std::endl;
           }
         }
       }
