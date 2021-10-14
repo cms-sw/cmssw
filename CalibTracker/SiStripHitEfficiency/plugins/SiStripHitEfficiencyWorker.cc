@@ -126,14 +126,14 @@ private:
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
-  edm::ESGetToken<TrackerTopology,TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> stripCPEToken_;
-  edm::ESGetToken<SiStripQuality,SiStripQualityRcd> stripQualityToken_;
-  edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> magFieldToken_;
-  edm::ESGetToken<MeasurementTracker,CkfComponentsRecord> measTrackerToken_;
-  edm::ESGetToken<Chi2MeasurementEstimatorBase,TrackingComponentsRecord> chi2EstimatorToken_;
-  edm::ESGetToken<Propagator,TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measTrackerToken_;
+  edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2EstimatorToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   int events, EventTrackCKF;
 
@@ -447,14 +447,8 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        auto ihhotcold = booker.book2D(Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12)),
-                                       part,
-                                       100,
-                                       -axMax,
-                                       axMax,
-                                       100,
-                                       -axMax,
-                                       axMax);
+        auto ihhotcold = booker.book2D(
+            Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12)), part, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
         ihhotcold->setBinLabel(1, "+Y", 1);
         ihhotcold->setBinLabel(50, "0", 1);
@@ -750,7 +744,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
   const bool withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if (// (TKlayers > 0) && // FIXME confirm this
+  if (                                            // (TKlayers > 0) && // FIXME confirm this
       ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << std::endl;
     unsigned int ModIsBad = 2;
@@ -1010,7 +1004,9 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         }
       }
       if (!badquality) {
-        LogDebug("SiStripHitEfficiency:HitEff") << "Filling measurement for " << iidd << " in layer " << layer << " histograms with bx=" << bunchCrossing << ", lumi=" << instLumi << ", PU=" << PU << "; bad flag=" << badflag;
+        LogDebug("SiStripHitEfficiency:HitEff")
+            << "Filling measurement for " << iidd << " in layer " << layer << " histograms with bx=" << bunchCrossing
+            << ", lumi=" << instLumi << ", PU=" << PU << "; bad flag=" << badflag;
 
         // hot/cold maps of hits that are expected but not found
         if (badflag) {
@@ -1067,7 +1063,8 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
     }
     LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << std::endl;
   }
-  LogDebug("SiStripHitEfficiency:HitEff") << "After layers=TKLayers if with TKlayers=" << TKlayers << ", layers=" << layers << std::endl;
+  LogDebug("SiStripHitEfficiency:HitEff")
+      << "After layers=TKLayers if with TKlayers=" << TKlayers << ", layers=" << layers << std::endl;
 }
 
 void SiStripHitEfficiencyWorker::endJob() {
