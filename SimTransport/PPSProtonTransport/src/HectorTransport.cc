@@ -12,9 +12,9 @@
 HectorTransport::~HectorTransport(){};
 
 HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
-    : BaseProtonTransport(iConfig),m_beamline45(nullptr), m_beamline56(nullptr), beamspotToken_(iC.esConsumes()) {
+    : BaseProtonTransport(iConfig), m_beamline45(nullptr), m_beamline56(nullptr), beamspotToken_(iC.esConsumes()) {
   // Create LHC beam line
-  
+
   MODE = TransportMode::HECTOR;  // defines the MODE for the transport
   beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
   beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
@@ -79,20 +79,20 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double mass = gpart->generatedMass();
   double charge = 1.;
 
-// remove the CMS vertex shift
+  // remove the CMS vertex shift
   double vtxXoffset_;
   double vtxYoffset_;
   double vtxZoffset_;
   if (useBeamPositionFromLHCInfo_) {
-     vtxXoffset_ = beamParameters_->getVtxOffsetX45()*10.;
-     vtxYoffset_ = beamParameters_->getVtxOffsetY45()*10.;
-     vtxZoffset_ = beamParameters_->getVtxOffsetZ45()*10.;
+    vtxXoffset_ = beamParameters_->getVtxOffsetX45() * 10.;
+    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * 10.;
+    vtxZoffset_ = beamParameters_->getVtxOffsetZ45() * 10.;
   } else {
-     vtxXoffset_ = beamspot_->GetX()*10.;
-     vtxYoffset_ = beamspot_->GetY()*10.;
-     vtxZoffset_ = beamspot_->GetZ()*10.;
+    vtxXoffset_ = beamspot_->GetX() * 10.;
+    vtxYoffset_ = beamspot_->GetY() * 10.;
+    vtxZoffset_ = beamspot_->GetZ() * 10.;
   }
-  vtxZoffset_*=1; // to avoid compilation error, should be used in the future
+  vtxZoffset_ *= 1;  // to avoid compilation error, should be used in the future
   // Momentum in LHC ref. frame
   px = -gpart->momentum().px();
   py = gpart->momentum().py();
@@ -106,15 +106,15 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double ZforPosition = -gpart->production_vertex()->position().z();  //mm
   double fCrossingAngleX = (pz < 0) ? fCrossingAngleX_45 : fCrossingAngleX_56;
   double fCrossingAngleY = (pz < 0) ? fCrossingAngleY_45 : fCrossingAngleY_56;
-//
+  //
   H_BeamParticle h_p(mass, charge);
   h_p.set4Momentum(px, py, pz, e);
   //
   // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
   XforPosition = XforPosition - ZforPosition * (px / pz + fCrossingAngleX * urad);  // theta ~=tan(theta)
   YforPosition = YforPosition - ZforPosition * (py / pz + fCrossingAngleY * urad);
-  XforPosition-=(-vtxXoffset_);   // X was already in the LHC ref. frame
-  YforPosition-=vtxYoffset_;
+  XforPosition -= (-vtxXoffset_);  // X was already in the LHC ref. frame
+  YforPosition -= vtxYoffset_;
   ZforPosition = 0.;
 
   // set position, but do not invert the coordinate for the angles (TX,TY) because it is done by set4Momentum
@@ -165,7 +165,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
     x1_ctpps -= p_beam.getX();
     y1_ctpps -= p_beam.getY();
     edm::LogInfo("HectorTransportEventProcessing")
-            << "Shifting the hit relative to beam :  X = "<<p_beam.getX() << "(mm)      Y = " << p_beam.getY()<<"(mm)";
+        << "Shifting the hit relative to beam :  X = " << p_beam.getX() << "(mm)      Y = " << p_beam.getY() << "(mm)";
   }
 
   double partP = sqrt(pow(h_p.getE(), 2) - ProtonMassSQ);
@@ -192,11 +192,9 @@ bool HectorTransport::setBeamLine() {
 
   // construct beam line for PPS (forward 1 backward 2):
   if (fPPSBeamLineLength_ > 0.) {
-    m_beamline45 = std::make_unique<H_BeamLine>(
-        -1, fPPSBeamLineLength_ + 0.1);
+    m_beamline45 = std::make_unique<H_BeamLine>(-1, fPPSBeamLineLength_ + 0.1);
     m_beamline45->fill(b2.fullPath(), 1, "IP5");
-    m_beamline56 = std::make_unique<H_BeamLine>(
-        1, fPPSBeamLineLength_ + 0.1);
+    m_beamline56 = std::make_unique<H_BeamLine>(1, fPPSBeamLineLength_ + 0.1);
     m_beamline56->fill(b1.fullPath(), 1, "IP5");
   } else {
     if (verbosity_)

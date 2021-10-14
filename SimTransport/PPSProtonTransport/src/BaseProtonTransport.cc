@@ -14,9 +14,8 @@ BaseProtonTransport::BaseProtonTransport(const edm::ParameterSet& iConfig)
       fPPSRegionStart_56(iConfig.getParameter<double>("PPSRegionStart_56")),
       beamEnergy_(iConfig.getParameter<double>("BeamEnergy")),
       etaCut_(iConfig.getParameter<double>("EtaCut")),
-      momentumCut_(iConfig.getParameter<double>("MomentumCut"))
-{
-   setBeamEnergy(beamEnergy_);
+      momentumCut_(iConfig.getParameter<double>("MomentumCut")) {
+  setBeamEnergy(beamEnergy_);
 }
 void BaseProtonTransport::ApplyBeamCorrection(HepMC::GenParticle* p) {
   TLorentzVector p_out;
@@ -116,4 +115,3 @@ void BaseProtonTransport::clear() {
   m_yAtTrPoint.clear();
   m_CorrespondenceMap.clear();
 }
-

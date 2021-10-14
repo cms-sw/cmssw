@@ -64,7 +64,7 @@ private:
   std::unique_ptr<H_BeamLine> m_beamline56;
 
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
-  edm::ESGetToken<BeamSpotObjects,BeamSpotObjectsRcd> beamspotToken_;
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
 
   const CTPPSBeamParameters* beamParameters_;
   const BeamSpotObjects* beamspot_;
