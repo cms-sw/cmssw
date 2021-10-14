@@ -6,6 +6,7 @@
 
 // Class for holding muon information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
+
 class Run3ScoutingMuon {
 public:
   //constructor with values for all data fields
@@ -63,7 +64,7 @@ public:
                    float trk_vx,
                    float trk_vy,
                    float trk_vz,
-                   reco::HitPattern trk_hitPattern,
+                   Run3ScoutingHitPattern trk_run3ScoutingHitPattern,
                    std::vector<int> vtxIndx)
       : pt_(pt),
         eta_(eta),
@@ -119,7 +120,7 @@ public:
         trk_vx_(trk_vx),
         trk_vy_(trk_vy),
         trk_vz_(trk_vz),
-        trk_hitPattern_(trk_hitPattern),
+        trk_run3ScoutingHitPattern_(trk_run3ScoutingHitPattern),
         vtxIndx_(std::move(vtxIndx)) {}
   //default constructor
   Run3ScoutingMuon()
@@ -237,8 +238,10 @@ public:
   float trk_vx() const { return trk_vx_; }
   float trk_vy() const { return trk_vy_; }
   float trk_vz() const { return trk_vz_; }
-  reco::HitPattern const& trk_hitPattern() const { return trk_hitPattern_; }
+  Run3ScoutingHitPattern const& trk_hitPattern() const { return trk_run3ScoutingHitPattern_; }
   std::vector<int> const& vtxIndx() const { return vtxIndx_; }
+
+  friend class Run3ScoutingHitPattern;
 
 private:
   float pt_;
@@ -295,7 +298,7 @@ private:
   float trk_vx_;
   float trk_vy_;
   float trk_vz_;
-  reco::HitPattern trk_hitPattern_;
+  Run3ScoutingHitPattern trk_run3ScoutingHitPattern_;
   std::vector<int> vtxIndx_;
 };
 

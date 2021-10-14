@@ -140,10 +140,14 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
   std::vector<int> vtxInd;
   float minDR2 = 1e-06;
   int index = 0;
+  Run3ScoutingHitPattern run3ScoutingHitPattern;
 
   for (auto& muon : *ChargedCandidateCollection) {
     reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
     ++index;
+
+    run3ScoutingHitPattern.clear();
+
     if (muonRef.isNull() || !muonRef.isAvailable())
       continue;
 
@@ -222,6 +226,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
       trackiso = (*TrackIsoMap)[muonRef];
     }
 
+    run3ScoutingHitPattern.fillRun3ScoutingHitPatternWithHitPattern(track->hitPattern());
+
     vtxInd.reserve(vtxMuPair.size());
     for (unsigned int i = 0; i < vtxMuPair.size(); i++) {
       float dr2_1 = reco::deltaR2(((vtxMuPair[i]).first), muon);
@@ -284,8 +290,9 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
                            track->vx(),
                            track->vy(),
                            track->vz(),
-                           track->hitPattern(),
+                           run3ScoutingHitPattern,
                            vtxInd);
+
     vtxInd.clear();
   }
 

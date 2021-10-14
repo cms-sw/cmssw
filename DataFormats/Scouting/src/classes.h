@@ -12,6 +12,7 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHitPattern.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Common/interface/Wrapper.h"

@@ -39,6 +39,7 @@ Description: Producer for Run3ScoutingMuon
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/Scouting/interface/Run3ScoutingHitPattern.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 

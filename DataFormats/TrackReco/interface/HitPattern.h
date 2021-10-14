@@ -126,6 +126,7 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHitPattern.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
 #include <utility>
@@ -135,6 +136,7 @@
 #include <memory>
 
 class TrackerTopology;
+class Run3ScoutingHitPattern;
 
 namespace test {
   namespace TestHitPattern {
@@ -423,6 +425,8 @@ namespace reco {
     int numberOfDTStationsWithRPhiView() const;
     int numberOfDTStationsWithRZView() const;
     int numberOfDTStationsWithBothViews() const;
+
+    friend class ::Run3ScoutingHitPattern;
 
     //only used by ROOT IO rule to read v12 HitPatterns
     static bool fillNewHitPatternWithOldHitPattern_v12(const uint16_t oldHitPattern[],

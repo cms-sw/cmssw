@@ -42,8 +42,9 @@
   <class name="Run3ScoutingElectron" ClassVersion="3">
       <version ClassVersion="3" checksum="1086011373"/>
   </class>
-  <class name="Run3ScoutingMuon" ClassVersion="3">
+  <class name="Run3ScoutingMuon" ClassVersion="4">
       <version ClassVersion="3" checksum="3882497397"/>
+      <version ClassVersion="4" checksum="1012593148"/>
   </class>
   <class name="Run3ScoutingPhoton" ClassVersion="3">
       <version ClassVersion="3" checksum="1683146807"/>
@@ -51,6 +52,21 @@
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>
   </class>
+  <class name="Run3ScoutingHitPattern"/>
+  <ioread
+      sourceClass="Run3ScoutingMuon"
+      source="reco::HitPattern trk_hitPattern_"
+      version="[3]"
+      targetClass="Run3ScoutingMuon"
+      target="trk_run3ScoutingHitPattern_"
+      include="DataFormats/Scouting/interface/Run3ScoutingHitPattern.h"
+      >
+    <![CDATA[
+	     Run3ScoutingHitPattern nhp;
+	     nhp.fillRun3ScoutingHitPatternWithHitPattern(onfile.trk_hitPattern_);
+	     trk_run3ScoutingHitPattern_ = nhp;
+    ]]>
+  </ioread>
   <class name="std::vector<ScoutingCaloJet>"/>
   <class name="std::vector<ScoutingPFJet>"/>
   <class name="std::vector<ScoutingParticle>"/>
