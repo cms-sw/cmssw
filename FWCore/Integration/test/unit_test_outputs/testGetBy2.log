@@ -22,11 +22,6 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 ++++ finished: constructing module with label 'intVectorProducer' id = 7
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
-The following legacy modules are configured. Support for legacy modules
-is going to end soon. These modules need to be converted to have type
-edm::global, edm::stream, edm::one, or in rare cases edm::limited.
-  IntVectorProducer intVectorProducer
-%MSG
 ++++ starting: begin job for module with label 'intProducerU' id = 6
 ++++ finished: begin job for module with label 'intProducerU' id = 6
 ++++ starting: begin job for module with label 'intVectorProducer' id = 7
@@ -128,8 +123,6 @@ GlobalContext: transition = BeginRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: global begin run for module: label = 'intVectorProducer' id = 7
-++++++ finished: global begin run for module: label = 'intVectorProducer' id = 7
 ++++ finished: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -182,8 +175,6 @@ GlobalContext: transition = BeginLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: global begin lumi for module: label = 'intVectorProducer' id = 7
-++++++ finished: global begin lumi for module: label = 'intVectorProducer' id = 7
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -716,8 +707,6 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: global end lumi for module: label = 'intVectorProducer' id = 7
-++++++ finished: global end lumi for module: label = 'intVectorProducer' id = 7
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -782,8 +771,6 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++ starting: global end run for module: label = 'intVectorProducer' id = 7
-++++++ finished: global end run for module: label = 'intVectorProducer' id = 7
 ++++ finished: global end run 1 : time = 15000001
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0

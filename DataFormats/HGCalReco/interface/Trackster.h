@@ -73,7 +73,6 @@ namespace ticl {
     inline void setRawPt(float value) { raw_pt_ = value; }
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
     inline void setBarycenter(Vector value) { barycenter_ = value; }
-    inline void setEigenValuesVectors();
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,
                                  Eigen::Vector3d &sigmas,

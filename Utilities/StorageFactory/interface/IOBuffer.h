@@ -3,34 +3,36 @@
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 
-/** Buffer for I/O operations. */
-class IOBuffer {
-public:
-  IOBuffer(void);
-  IOBuffer(void *data, IOSize length);
-  IOBuffer(const void *data, IOSize length);
+namespace edm::storage {
 
-  void *data(void) const;
-  IOSize size(void) const;
+  /** Buffer for I/O operations. */
+  class IOBuffer {
+  public:
+    IOBuffer();
+    IOBuffer(void *data, IOSize length);
+    IOBuffer(const void *data, IOSize length);
 
-private:
-  void *m_data;     //< Data
-  IOSize m_length;  //< Length of data in bytes.
-};
+    void *data() const;
+    IOSize size() const;
 
-/** Construct a null I/O buffer.  */
-inline IOBuffer::IOBuffer(void) : m_data(nullptr), m_length(0) {}
+  private:
+    void *m_data;     //< Data
+    IOSize m_length;  //< Length of data in bytes.
+  };
 
-/** Construct a I/O buffer for reading.  */
-inline IOBuffer::IOBuffer(void *data, IOSize length) : m_data(data), m_length(length) {}
+  /** Construct a null I/O buffer.  */
+  inline IOBuffer::IOBuffer(void) : m_data(nullptr), m_length(0) {}
 
-/** Construct a I/O buffer for writing.  */
-inline IOBuffer::IOBuffer(const void *data, IOSize length) : m_data(const_cast<void *>(data)), m_length(length) {}
+  /** Construct a I/O buffer for reading.  */
+  inline IOBuffer::IOBuffer(void *data, IOSize length) : m_data(data), m_length(length) {}
 
-/** Return a pointer to the beginning of the buffer's data area.  */
-inline void *IOBuffer::data(void) const { return m_data; }
+  /** Construct a I/O buffer for writing.  */
+  inline IOBuffer::IOBuffer(const void *data, IOSize length) : m_data(const_cast<void *>(data)), m_length(length) {}
 
-/** Return the buffer's size.  */
-inline IOSize IOBuffer::size(void) const { return m_length; }
+  /** Return a pointer to the beginning of the buffer's data area.  */
+  inline void *IOBuffer::data(void) const { return m_data; }
 
+  /** Return the buffer's size.  */
+  inline IOSize IOBuffer::size(void) const { return m_length; }
+}  // namespace edm::storage
 #endif  // STORAGE_FACTORY_IO_BUFFER_H

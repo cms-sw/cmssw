@@ -109,14 +109,14 @@ namespace XrdAdaptor {
     XrdReadStatistics &operator=(const XrdReadStatistics &) = delete;
 
   private:
-    XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, IOSize size, size_t count);
+    XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, edm::storage::IOSize size, size_t count);
 
     uint64_t elapsedNS() const;
     int readCount() const { return m_count; }
     int size() const { return m_size; }
 
     size_t m_size;
-    IOSize m_count;
+    edm::storage::IOSize m_count;
     edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_parent;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
   };

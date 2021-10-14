@@ -441,10 +441,5 @@ void SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::Ev
   vecFillerWordsEventNumber1.erase(vecFillerWordsEventNumber1.begin(), vecFillerWordsEventNumber1.end());
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelFedFillerWordEventNumber ::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPixelFedFillerWordEventNumber ::endJob() {}
 //===== define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelFedFillerWordEventNumber);

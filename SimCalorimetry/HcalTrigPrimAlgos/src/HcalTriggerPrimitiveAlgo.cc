@@ -499,8 +499,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       output[ibin] = 0;
     }
     // peak-finding is not applied for FG bits
-    // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 2 reserved, 1 prompt, 1 delayed 01, 1 delayed 10)
-    finegrain[ibin] = fg_algo.compute(timingTDC[idx], ids[0]).to_ulong() | fg_algo.compute(msb[idx]).to_ulong() << 1;
+    // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 1 prompt, 1 delayed 01, 1 delayed 10, 2 reserved)
+    finegrain[ibin] = fg_algo.compute(timingTDC[idx], ids[0]).to_ulong() | fg_algo.compute(msb[idx]).to_ulong() << 4;
   }
   outcoder_->compress(output, finegrain, result);
 }
@@ -912,7 +912,8 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
   assert(ids.size() == 1 || ids.size() == 2);
   IntegerCaloSamples samples1(ids[0], int(frame.samples()));
   samples1.setPresamples(frame.presamples());
-  incoder_->adc2Linear(frame, samples1);  // use linearization LUT
+  incoder_->adc2Linear(frame, samples1);                                  // use linearization LUT
+  std::vector<unsigned short> bits12_15 = incoder_->group0FGbits(frame);  // get 4 energy bits (12-15) from group 0 LUT
 
   auto it = fgUpgradeTDCMap_.find(id);
   if (it == fgUpgradeTDCMap_.end()) {
@@ -921,7 +922,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
     it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
   }
   for (int i = 0; i < frame.samples(); i++) {
-    it->second[i][detId.depth() - 1] = std::make_pair(samples1[i], frame[i].tdc());
+    it->second[i][detId.depth() - 1] = std::make_pair(bits12_15[i], std::make_pair(frame[i].tdc(), samples1[i]));
   }
 }
 

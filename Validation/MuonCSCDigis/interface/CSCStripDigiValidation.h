@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 
@@ -15,7 +14,6 @@ public:
 
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
-  void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
   void plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType);
 
 private:
@@ -36,7 +34,6 @@ private:
   MonitorElement *theNDigisPerLayerPlot;
   MonitorElement *theNDigisPerChamberPlot;
   MonitorElement *theNDigisPerEventPlot;
-  MonitorElement *theResolutionPlots[10];
 };
 
 #endif

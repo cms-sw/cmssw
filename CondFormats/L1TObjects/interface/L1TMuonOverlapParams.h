@@ -98,7 +98,8 @@ public:
     GENERAL = 5,
     SECTORS_START = 6,
     SECTORS_END = 7,
-    NUM_OMTFPARAMNODES = 8
+    DIST_PHI_SHIFT = 8,
+    NUM_OMTFPARAMNODES = 9
   };
 
   // General configuration parameters indexes
@@ -205,6 +206,17 @@ public:
   const l1t::LUT *pdfLUT() const { return &pnodes_[PDF].LUT_; }
   const l1t::LUT *meanDistPhiLUT() const { return &pnodes_[MEANDISTPHI].LUT_; }
 
+  /**
+   * return nullptr if the DistPhiShiftLUT is not available in the given L1TMuonOverlapParamsRcd,
+   * which is the case for the fwVersion <= 0x6
+   */
+  const l1t::LUT *distPhiShiftLUT() const {
+    if (pnodes_.size() >= (DIST_PHI_SHIFT + 1))
+      return &pnodes_[DIST_PHI_SHIFT].LUT_;
+    else
+      return nullptr;
+  }
+
   void setChargeLUT(const l1t::LUT &lut) {
     pnodes_[CHARGE].type_ = "LUT";
     pnodes_[CHARGE].LUT_ = lut;
@@ -224,6 +236,10 @@ public:
   void setMeanDistPhiLUT(const l1t::LUT &lut) {
     pnodes_[MEANDISTPHI].type_ = "LUT";
     pnodes_[MEANDISTPHI].LUT_ = lut;
+  }
+  void setDistPhiShiftLUT(const l1t::LUT &lut) {
+    pnodes_[DIST_PHI_SHIFT].type_ = "LUT";
+    pnodes_[DIST_PHI_SHIFT].LUT_ = lut;
   }
 
 private:

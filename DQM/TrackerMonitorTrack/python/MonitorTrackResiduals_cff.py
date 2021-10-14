@@ -9,20 +9,21 @@ TrackRefitter.TrajectoryInEvent = True
 # ... but matching for strip stereo should be redone: 
 #ttrhbwor.Matcher = 'StandardMatcher'
 
-import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsTier0 = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsTier0.OutputMEsInRootFile = False
-MonitorTrackResidualsTier0.Mod_On = False
+from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
+MonitorTrackResidualsTier0 = MonitorTrackResiduals.clone(
+    OutputMEsInRootFile = False,
+    Mod_On = False
+)
 
-import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsDQM = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsDQM.OutputMEsInRootFile = False
-MonitorTrackResidualsDQM.Mod_On = True
+MonitorTrackResidualsDQM = MonitorTrackResiduals.clone(
+    OutputMEsInRootFile = False,
+    Mod_On = True
+)
 
-import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsStandAlone = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResidualsStandAlone.OutputMEsInRootFile = True
-MonitorTrackResidualsStandAlone.Mod_On = False
+MonitorTrackResidualsStandAlone = MonitorTrackResiduals.clone(
+    OutputMEsInRootFile = True,
+    Mod_On = False
+)
 
 # Sequences
 DQMMonitorTrackResidualsTier0 = cms.Sequence(TrackRefitter*MonitorTrackResidualsTier0)

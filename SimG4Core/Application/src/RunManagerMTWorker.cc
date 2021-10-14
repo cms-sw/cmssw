@@ -254,7 +254,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
 
   // Define G4 exception handler
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+  double th = m_p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler(th));
 
   // Set the geometry for the worker, share from master
   auto worldPV = runManagerMaster->world().GetWorldVolume();

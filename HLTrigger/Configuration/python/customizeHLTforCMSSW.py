@@ -20,6 +20,7 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
 
@@ -123,27 +124,22 @@ def customisePixelGainForRun2Input(process):
 
     return process
 
+def customisePixelL1ClusterThresholdForRun2Input(process):
+    # revert the pixel Layer 1 cluster threshold to be compatible with Run2:
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        if hasattr(producer,"ClusterThreshold_L1"):
+            producer.ClusterThreshold_L1 = 2000
+
+    return process
 
 def customiseFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC"""
     process = customisePixelGainForRun2Input(process)
+    process = customisePixelL1ClusterThresholdForRun2Input(process)
     process = customiseHCALFor2018Input(process)
 
     return process
 
-
-def customiseFor35315(process):
-    """Update the HLT configuration for the changes in #35315"""
-    for module in filters_by_type(process, "HLTHcalCalibTypeFilter"):
-        if hasattr(module, "FilterSummary"):
-            delattr(module, "FilterSummary")
-
-    return process
-
-# MultipleScatteringParametrisationMakerESProducer
-def customiseFor35269(process):
-    process.load("RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi")
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -154,8 +150,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor35315(process)
-    process = customiseFor35269(process)
 
     return process

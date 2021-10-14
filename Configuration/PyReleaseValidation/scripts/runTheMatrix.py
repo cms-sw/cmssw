@@ -370,8 +370,7 @@ if __name__ == '__main__':
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
-      try:from commands import getstatusoutput as run_cmd
-      except:from subprocess import getstatusoutput as run_cmd
+      from subprocess import getstatusoutput as run_cmd
 
       ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
       if not os.path.exists(ibeos_cache):
@@ -442,6 +441,7 @@ if __name__ == '__main__':
                 self.matrices_ = {}
                 tmp = MatrixReader(self.opt_)
                 for what in tmp.files:
+                    what = what.replace('relval_','')
                     self.opt_.what = what
                     self.matrices_[what] = MatrixReader(self.opt_)
                     self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
@@ -572,7 +572,7 @@ if __name__ == '__main__':
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
-                    for key, mrd in self.matrices_.iteritems():
+                    for key, mrd in self.matrices_.items():
                         for wfl in mrd.workFlows:
                             if wfl.numId == float(wflid):
                                 wfName, stepNames = wfl.nameId.split('+',1)

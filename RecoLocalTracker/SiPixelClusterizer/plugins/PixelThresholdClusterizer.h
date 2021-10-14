@@ -54,7 +54,7 @@
 
 #include <vector>
 
-class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
+class dso_hidden PixelThresholdClusterizer : public PixelClusterizerBase {
 public:
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
   ~PixelThresholdClusterizer() override;
@@ -77,7 +77,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
-private:
+protected:
   template <typename T>
   void clusterizeDetUnitT(const T& input,
                           const PixelGeomDetUnit* pixDet,

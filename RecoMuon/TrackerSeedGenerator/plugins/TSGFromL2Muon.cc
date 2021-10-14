@@ -67,7 +67,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
   if (theRegionBuilder)
-    theRegionBuilder->setEvent(ev);
+    theRegionBuilder->setEvent(ev, es);
   if (theSeedCleaner)
     theSeedCleaner->setEvent(ev);
 
@@ -90,6 +90,8 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
     std::unique_ptr<RectangularEtaPhiTrackingRegion> region;
     if (theRegionBuilder) {
       region = theRegionBuilder->region(muRef);
+    } else {
+      region = std::make_unique<RectangularEtaPhiTrackingRegion>();
     }
 
     //Make seeds container

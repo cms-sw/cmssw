@@ -21,6 +21,8 @@ TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilte
     maxConsecLostHits = 1,
     nSigmaMinPt = 5.0,
     minimumNumberOfHits = 5,
+    highEtaSwitch = 2.5,
+    minHitsAtHighEta = 3,
     maxCCCLostHits = 9999,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
 )

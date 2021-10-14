@@ -3,7 +3,6 @@
 
 #include <utility>
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"

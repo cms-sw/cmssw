@@ -32,6 +32,7 @@ class Eras (object):
                  'Run2_2018_pp_on_AA_noHCALmitigation',
                  'Run2_2018_highBetaStar',
                  'Run3',
+                 'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
                  'Run3_dd4hep',
                  'Phase2',
@@ -51,7 +52,8 @@ class Eras (object):
                  'Phase2C11I13T22M9',
                  'Phase2C11I13T23M9',
                  'Phase2C11I13T25M9',
-                 'Phase2C11I13T26M9'
+                 'Phase2C11I13T26M9',
+                 'Phase2C11I13T27M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -68,7 +70,7 @@ class Eras (object):
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
                            'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
                            'phase2_trigger',
-                           'phase2_squarePixels', 'phase2_3DPixels',
+                           'phase2_squarePixels', 'phase2_3DPixels', 'phase2_brickedPixels',
                            'trackingLowPU', 'trackingPhase1', 'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2021', 'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
@@ -76,7 +78,7 @@ class Eras (object):
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']
-        internalUseModChains = ['run2_2017_noTrackingModifier']
+        internalUseModChains = ['run2_2017_noTrackingModifier', 'trackingMkFitProd']
 
         self.pythonCfgLines = {}
 

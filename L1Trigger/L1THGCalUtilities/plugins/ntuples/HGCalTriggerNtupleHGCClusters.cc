@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
@@ -12,7 +11,7 @@ public:
   HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCClusters() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -40,7 +39,9 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCClusters, "HGC
 
 HGCalTriggerNtupleHGCClusters::HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
-      filter_clusters_in_multiclusters_(conf.getParameter<bool>("FilterClustersInMulticlusters")) {}
+      filter_clusters_in_multiclusters_(conf.getParameter<bool>("FilterClustersInMulticlusters")) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCClusters::initialize(TTree& tree,
                                                const edm::ParameterSet& conf,
@@ -73,7 +74,7 @@ void HGCalTriggerNtupleHGCClusters::initialize(TTree& tree,
   tree.Branch(withPrefix("multicluster_pt"), &cl_multicluster_pt_);
 }
 
-void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve clusters
   edm::Handle<l1t::HGCalClusterBxCollection> clusters_h;
   e.getByToken(clusters_token_, clusters_h);
@@ -82,11 +83,7 @@ void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSe
   e.getByToken(multiclusters_token_, multiclusters_h);
   const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
 
-  // retrieve geometry
-  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<CaloGeometryRecord>().get(geometry);
-
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(es.geometry.product());
 
   // Associate cells to clusters
   std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cluster2multicluster;

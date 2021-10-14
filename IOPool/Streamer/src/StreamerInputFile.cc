@@ -83,6 +83,7 @@ namespace edm {
 
     logFileAction("  Initiating request to open file ");
 
+    using namespace edm::storage;
     IOOffset size = -1;
     if (StorageFactory::get()->check(name, &size)) {
       try {
@@ -110,8 +111,8 @@ namespace edm {
     currentFileOpen_ = false;
   }
 
-  IOSize StreamerInputFile::readBytes(char* buf, IOSize nBytes) {
-    IOSize n = 0;
+  storage::IOSize StreamerInputFile::readBytes(char* buf, storage::IOSize nBytes) {
+    storage::IOSize n = 0;
     try {
       n = storage_->read(buf, nBytes);
     } catch (cms::Exception& ce) {
@@ -122,12 +123,12 @@ namespace edm {
     return n;
   }
 
-  IOOffset StreamerInputFile::skipBytes(IOSize nBytes) {
-    IOOffset n = 0;
+  storage::IOOffset StreamerInputFile::skipBytes(storage::IOSize nBytes) {
+    storage::IOOffset n = 0;
     try {
       // We wish to return the number of bytes skipped, not the final offset.
-      n = storage_->position(0, Storage::CURRENT);
-      n = storage_->position(nBytes, Storage::CURRENT) - n;
+      n = storage_->position(0, storage::Storage::CURRENT);
+      n = storage_->position(nBytes, storage::Storage::CURRENT) - n;
     } catch (cms::Exception& ce) {
       Exception ex(errors::FileReadError, "", ce);
       ex.addContext("Calling StreamerInputFile::skipBytes()");
@@ -137,6 +138,7 @@ namespace edm {
   }
 
   void StreamerInputFile::readStartMessage() {
+    using namespace edm::storage;
     IOSize nWant = sizeof(HeaderView);
     IOSize nGot = readBytes(&headerBuf_[0], nWant);
     if (nGot != nWant) {
@@ -224,6 +226,7 @@ namespace edm {
     if (endOfFile_)
       return 0;
 
+    using namespace edm::storage;
     bool eventRead = false;
     while (!eventRead) {
       IOSize nWant = sizeof(EventHeader);

@@ -21,7 +21,6 @@ using namespace std;
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
-  const bool MYDEBUG = false;
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -77,8 +76,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
         throw cms::Exception("InvalidCalibrationLoaded")
             << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
             << (*genErrorDBObject_).version();
-      if (MYDEBUG)
-        cout << "Loaded genErrorDBObject v" << (*genErrorDBObject_).version() << endl;
+      edm::LogInfo("PixelCPEGeneric") << "Loaded genErrorDBObject v" << (*genErrorDBObject_).version();
     } else {  // From file
       if (!SiPixelGenError::pushfile(-999, thePixelGenError_))
         throw cms::Exception("InvalidCalibrationLoaded")
@@ -86,18 +84,19 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
     }  // if load from DB
 
   } else {
-    if (MYDEBUG)
-      cout << " Use simple parametrised errors " << endl;
+#ifdef EDM_ML_DEBUG
+    cout << " Use simple parametrised errors " << endl;
+#endif
   }  // if ( useErrorsFromTemplates_ )
 
-  if (MYDEBUG) {
-    cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
-    cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
-    cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
-    cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
-    cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
-    cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
-  }
+#ifdef EDM_ML_DEBUG
+  cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
+  cout << "(int)useErrorsFromTemplates_ = " << (int)useErrorsFromTemplates_ << endl;
+  cout << "truncatePixelCharge_         = " << (int)truncatePixelCharge_ << endl;
+  cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  cout << "(int)DoCosmics_              = " << (int)DoCosmics_ << endl;
+  cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_ << endl;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -170,11 +169,9 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     if (useLAWidthFromGenError) {
       chargeWidthX = (-micronsToCm * gtempl.lorxwidth());
       chargeWidthY = (-micronsToCm * gtempl.lorywidth());
-      if (MYDEBUG)
-        cout << " redefine la width (gen-error) " << chargeWidthX << " " << chargeWidthY << endl;
+      edm::LogInfo("PixelCPE localPosition():") << "redefine la width (gen-error)" << chargeWidthX << chargeWidthY;
     }
-    if (MYDEBUG)
-      cout << " GenError: " << gtemplID_ << endl;
+    edm::LogInfo("PixelCPE localPosition():") << "GenError:" << gtemplID_;
 
     // These numbers come in microns from the qbin(...) call. Transform them to cm.
     theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
@@ -378,19 +375,19 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
       useErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
   if (int(sizex) != (maxPixelRow - minPixelRow + 1))
-    LogDebug("PixelCPEGeneric") << " wrong x" << endl;
+    LogDebug("PixelCPEGeneric") << " wrong x";
   if (int(sizey) != (maxPixelCol - minPixelCol + 1))
-    LogDebug("PixelCPEGeneric") << " wrong y" << endl;
+    LogDebug("PixelCPEGeneric") << " wrong y";
 
-  LogDebug("PixelCPEGeneric") << " edge clus " << xerr << " " << yerr << endl;  //dk
+  LogDebug("PixelCPEGeneric") << " edge clus " << xerr << " " << yerr;  //dk
   if (bigInX || bigInY)
-    LogDebug("PixelCPEGeneric") << " big " << bigInX << " " << bigInY << endl;
+    LogDebug("PixelCPEGeneric") << " big " << bigInX << " " << bigInY;
   if (edgex || edgey)
-    LogDebug("PixelCPEGeneric") << " edge " << edgex << " " << edgey << endl;
-  LogDebug("PixelCPEGeneric") << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_ << endl;
+    LogDebug("PixelCPEGeneric") << " edge " << edgex << " " << edgey;
+  LogDebug("PixelCPEGeneric") << " before if " << useErrorsFromTemplates_ << " " << theClusterParam.qBin_;
   if (theClusterParam.qBin_ == 0)
     LogDebug("PixelCPEGeneric") << " qbin 0! " << edgex << " " << edgey << " " << bigInX << " " << bigInY << " "
-                                << sizex << " " << sizey << endl;
+                                << sizex << " " << sizey;
 
   // from PixelCPEGenericBase
   setXYErrors(xerr, yerr, edgex, edgey, sizex, sizey, bigInX, bigInY, useTempErrors, theDetParam, theClusterParam);
@@ -426,9 +423,9 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
     throw cms::Exception("PixelCPEGeneric::localError") << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
 #endif
 
-  LogDebug("PixelCPEGeneric") << " errors  " << xerr << " " << yerr << endl;  //dk
+  LogDebug("PixelCPEGeneric") << " errors  " << xerr << " " << yerr;  //dk
   if (theClusterParam.qBin_ == 0)
-    LogDebug("PixelCPEGeneric") << " qbin 0 " << xerr << " " << yerr << endl;
+    LogDebug("PixelCPEGeneric") << " qbin 0 " << xerr << " " << yerr;
 
   auto xerr_sq = xerr * xerr;
   auto yerr_sq = yerr * yerr;

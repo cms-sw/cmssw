@@ -19,13 +19,16 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPi
 siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
 
 run3_common.toModify(siPixelClustersPreSplittingCUDA,
-    # use the pixel channel calibrations scheme for Run 3
-    isRun2 = False
-)
+                     # use the pixel channel calibrations scheme for Run 3
+                     isRun2 = False,
+                     clusterThreshold_layer1 = 4000)
 
 # convert the pixel digis (except errors) and clusters to the legacy format
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
 siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
+
+run3_common.toModify(siPixelDigisClustersPreSplitting,
+                     clusterThreshold_layer1 = 4000)
 
 gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # conditions used *only* by the modules running on GPU

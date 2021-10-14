@@ -386,9 +386,9 @@ void CreateIdealTkAlRecords::writeToDB() {
   }
 
   edm::LogInfo("Alignment") << "Writing ideal tracker-alignment records.";
-  poolDb->writeOne(&alignments_, since, "TrackerAlignmentRcd");
-  poolDb->writeOne(&alignmentErrors_, since, "TrackerAlignmentErrorExtendedRcd");
-  poolDb->writeOne(&alignmentSurfaceDeformations_, since, "TrackerSurfaceDeformationRcd");
+  poolDb->writeOneIOV(alignments_, since, "TrackerAlignmentRcd");
+  poolDb->writeOneIOV(alignmentErrors_, since, "TrackerAlignmentErrorExtendedRcd");
+  poolDb->writeOneIOV(alignmentSurfaceDeformations_, since, "TrackerSurfaceDeformationRcd");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

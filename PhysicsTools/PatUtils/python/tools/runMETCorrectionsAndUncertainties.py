@@ -7,7 +7,8 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProce
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
 from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
-
+import JetMETCorrections.Type1MET.BadPFCandidateJetsEEnoiseProducer_cfi as _modbad
+import JetMETCorrections.Type1MET.UnclusteredBlobProducer_cfi as _modunc
 
 def isValidInputTag(input):
     input_str = input
@@ -1897,12 +1898,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         task = getPatAlgosToolsTask(process)
 
-        pfCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
+        pfCandidateJetsWithEEnoise = _modbad.BadPFCandidateJetsEEnoiseProducer.clone(
             jetsrc = jets,
-            userawPt = cms.bool(params["userawPt"]),
-            ptThreshold = cms.double(params["ptThreshold"]),
-            minEtaThreshold = cms.double(params["minEtaThreshold"]),
-            maxEtaThreshold = cms.double(params["maxEtaThreshold"]),
+            userawPt = params["userawPt"],
+            ptThreshold = params["ptThreshold"],
+            minEtaThreshold = params["minEtaThreshold"],
+            maxEtaThreshold = params["maxEtaThreshold"],
         )
         addToProcessAndTask("pfCandidateJetsWithEEnoise"+postfix, pfCandidateJetsWithEEnoise, process, task)
         patMetModuleSequence += getattr(process,"pfCandidateJetsWithEEnoise"+postfix)
@@ -1923,8 +1924,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
         patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
-        blobUnclustered = cms.EDProducer("UnclusteredBlobProducer",
-            candsrc = cms.InputTag("badUnclustered"+postfix),
+        blobUnclustered = _modunc.UnclusteredBlobProducer.clone(
+            candsrc = "badUnclustered"+postfix,
         )
         addToProcessAndTask("blobUnclustered"+postfix, blobUnclustered, process, task)
         patMetModuleSequence += getattr(process,"blobUnclustered"+postfix)

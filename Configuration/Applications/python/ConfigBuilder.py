@@ -302,8 +302,8 @@ class ConfigBuilder(object):
             profilerFormat = "%s___%s___%%I.gz" % (
                 self._options.evt_type.replace("_cfi", ""),
                 hashlib.md5(
-                    str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
-                    str(self._options.datatier) + str(self._options.profileTypeLabel)
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
                 ).hexdigest()
             )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
@@ -1151,9 +1151,9 @@ class ConfigBuilder(object):
         self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
     # for alca, skims, etc
-    def addExtraStream(self, name, stream, workflow='full', cppType="PoolOutputModule"):
+    def addExtraStream(self, name, stream, workflow='full'):
             # define output module and go from there
-        output = cms.OutputModule(cppType)
+        output = cms.OutputModule("PoolOutputModule")
         if stream.selectEvents.parameters_().__len__()!=0:
             output.SelectEvents = stream.selectEvents
         else:
@@ -1187,9 +1187,8 @@ class ConfigBuilder(object):
         if self._options.filtername:
             output.dataset.filterName= cms.untracked.string(self._options.filtername+"_"+stream.name)
 
-        if cppType == "PoolOutputModule":
-            #add an automatic flushing to limit memory consumption
-            output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+        #add an automatic flushing to limit memory consumption
+        output.eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 
         if workflow in ("producers,full"):
             if isinstance(stream.paths,tuple):
@@ -1288,12 +1287,10 @@ class ConfigBuilder(object):
                     print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
                     self._options.nConcurrentLumis = "1"
                     self._options.nConcurrentIOVs = "1"
-                isNano = (alcastream.dataTier == "NANOAOD")
-                output = self.addExtraStream(name, alcastream, workflow=workflow,
-                        cppType=("NanoAODOutputModule" if isNano else "PoolOutputModule"))
+                output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
-                if 'DQM' in alcaList and not isNano:
+                if 'DQM' in alcaList:
                     if not self._options.inlineEventContent and hasattr(self.process,name):
                         self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
                     else:
@@ -2137,7 +2134,9 @@ class ConfigBuilder(object):
         if hasattr(self._options,"procModifiers") and self._options.procModifiers:
             import importlib
             thingsImported=[]
-            for pm in self._options.procModifiers.split(','):
+            for c in self._options.procModifiers:
+                thingsImported.extend(c.split(","))
+            for pm in thingsImported:
                 modifierStrings.append(pm)
                 modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
                 modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))

@@ -36,10 +36,15 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
     gemDigiMatcher_.reset(new GEMDigiMatcher(pSet, std::move(iC)));
   cscDigiMatcher_.reset(new CSCDigiMatcher(pSet, std::move(iC)));
 
-  clctToken_ = iC.consumes<CSCCLCTDigiCollection>(cscCLCT.getParameter<edm::InputTag>("inputTag"));
-  alctToken_ = iC.consumes<CSCALCTDigiCollection>(cscALCT.getParameter<edm::InputTag>("inputTag"));
-  lctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscLCT.getParameter<edm::InputTag>("inputTag"));
-  mplctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(cscMPLCT.getParameter<edm::InputTag>("inputTag"));
+  clctInputTag_ = cscCLCT.getParameter<edm::InputTag>("inputTag");
+  alctInputTag_ = cscALCT.getParameter<edm::InputTag>("inputTag");
+  lctInputTag_ = cscLCT.getParameter<edm::InputTag>("inputTag");
+  mplctInputTag_ = cscMPLCT.getParameter<edm::InputTag>("inputTag");
+
+  clctToken_ = iC.consumes<CSCCLCTDigiCollection>(clctInputTag_);
+  alctToken_ = iC.consumes<CSCALCTDigiCollection>(alctInputTag_);
+  lctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(lctInputTag_);
+  mplctToken_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(mplctInputTag_);
 
   geomToken_ = iC.esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
@@ -72,10 +77,29 @@ void CSCStubMatcher::match(const SimTrack& t, const SimVertex& v) {
   // clear collections
   clear();
 
-  matchCLCTsToSimTrack(clcts);
-  matchALCTsToSimTrack(alcts);
-  matchLCTsToSimTrack(lcts);
-  matchMPLCTsToSimTrack(mplcts);
+  if (!alctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get ALCTs with label " << alctInputTag_.encode();
+  } else {
+    matchALCTsToSimTrack(alcts);
+  }
+
+  if (!clctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get CLCTs with label " << clctInputTag_.encode();
+  } else {
+    matchCLCTsToSimTrack(clcts);
+  }
+
+  if (!lctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get LCTs with label " << lctInputTag_.encode();
+  } else {
+    matchLCTsToSimTrack(lcts);
+  }
+
+  if (!mplctsH_.isValid()) {
+    edm::LogError("CSCStubMatcher") << "Cannot get MPLCTs with label " << mplctInputTag_.encode();
+  } else {
+    matchMPLCTsToSimTrack(mplcts);
+  }
 }
 
 void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {

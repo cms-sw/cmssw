@@ -139,7 +139,7 @@ class O2OJobMgr(object):
         if self.session is None:
             return False
         else:
-            self.db_connection = coral_tpl %(service[0],schema_name)
+            self.db_connection = coral_tpl %(service,schema_name)
             self.conf_dict['db']=self.db_connection
             return True
     def runManager( self ):
@@ -371,7 +371,7 @@ class O2ORunMgr(object):
             return started
         ret = -1
         try:
-            # replacing %([key])s placeholders... 
+            # replacing %([key])s placeholders...
             command = command %(self.conf_dict)
             #replacing {[key]} placeholders
             command = command.format(**self.conf_dict )

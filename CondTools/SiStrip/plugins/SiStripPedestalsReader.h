@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,10 +22,10 @@
 #include <cstdio>
 #include <sys/time.h>
 
-class SiStripPedestalsReader : public edm::EDAnalyzer {
+class SiStripPedestalsReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripPedestalsReader(const edm::ParameterSet&);
-  ~SiStripPedestalsReader() override;
+  ~SiStripPedestalsReader() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

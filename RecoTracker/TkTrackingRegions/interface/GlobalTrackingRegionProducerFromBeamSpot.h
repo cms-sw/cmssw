@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 class GlobalTrackingRegionProducerFromBeamSpot : public TrackingRegionProducer {
 public:
@@ -33,9 +35,12 @@ public:
     theUseMS =
         (regionPSet.existsAs<bool>("useMultipleScattering") ? regionPSet.getParameter<bool>("useMultipleScattering")
                                                             : false);
+    if (theUseMS) {
+      token_msmaker = iC.esConsumes();
+    }
   }
 
-  ~GlobalTrackingRegionProducerFromBeamSpot() override {}
+  ~GlobalTrackingRegionProducerFromBeamSpot() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     {
@@ -75,7 +80,8 @@ public:
     }
   }
 
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup&) const override {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+                                                        const edm::EventSetup& es) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
     edm::Handle<reco::BeamSpot> bsHandle;
     ev.getByToken(token_beamSpot, bsHandle);
@@ -84,12 +90,18 @@ public:
 
       GlobalPoint origin(bs.x0(), bs.y0(), bs.z0());
 
+      const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+      if (theUseMS) {
+        msmaker = &es.getData(token_msmaker);
+      }
+
       result.push_back(std::make_unique<GlobalTrackingRegion>(thePtMin,
                                                               origin,
                                                               theOriginRadius,
                                                               std::max(theNSigmaZ * bs.sigmaZ(), theOriginHalfLength),
                                                               thePrecise,
-                                                              theUseMS));
+                                                              theUseMS,
+                                                              msmaker));
     }
     return result;
   }
@@ -100,6 +112,7 @@ private:
   double theOriginHalfLength;
   double theNSigmaZ;
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool thePrecise;
   bool theUseMS;
 };

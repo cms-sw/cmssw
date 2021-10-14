@@ -3,13 +3,10 @@
 
 #include <sstream>
 
-SiStripCablingTrackerMap::SiStripCablingTrackerMap(edm::ParameterSet const& conf)
-    : conf_(conf), detCablingToken_(esConsumes()) {}
-
-SiStripCablingTrackerMap::~SiStripCablingTrackerMap() {}
+SiStripCablingTrackerMap::SiStripCablingTrackerMap(edm::ParameterSet const& conf) : detCablingToken_(esConsumes()) {}
 
 void SiStripCablingTrackerMap::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  tkMap_detCab = new TrackerMap("DetCabling");
+  tkMap_detCab = std::make_unique<TrackerMap>("DetCabling");
 }
 
 //------------------------------------------------------------------------------------------

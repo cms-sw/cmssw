@@ -15,7 +15,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_Candidate_2021_08_24_17_11_47')
 
 ################
 #digi converter
@@ -68,14 +68,49 @@ process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
 #load calibrations from json    
 #process.totemTimingRecHits.timingCalibrationTag= cms.string('ppsTimingCalibrationESSource:TotemTimingCalibration')
 #process.ppsTimingCalibrationESSource = cms.ESSource('PPSTimingCalibrationESSource',
-#  calibrationFile = cms.FileInPath('RecoPPS/Local/data/timing_offsets_ufsd_2018.dec18.cal.json'),#calibration file does not yet exist in db
+#  calibrationFile = cms.FileInPath('RecoPPS/Local/data/1plane_2.json'),#calibration file does not yet exist in db
 #  subDetector = cms.uint32(1),
 #  appendToDataLabel = cms.string('TotemTimingCalibration')
 #)
 
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.diamondSampicDQMSource = DQMEDAnalyzer('DiamondSampicDQMSource',
+    tagDigi = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
+    tagRecHits = cms.InputTag("totemTimingRecHits"),
+    tagTracks = cms.InputTag("diamondSampicLocalTracks"),
+    tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
+
+    minimumStripAngleForTomography = cms.double(0),
+    maximumStripAngleForTomography = cms.double(1),
+    samplesForNoise = cms.untracked.uint32(6),
+
+    verbosity = cms.untracked.uint32(10),
+    plotOnline=cms.untracked.bool(False)
+)
+# load DQM framework
+process.load("DQM.Integration.config.environment_cfi")
+process.dqmEnv.subSystemFolder = "CTPPS"
+process.dqmEnv.eventInfoFolder = "EventInfo"
+process.dqmSaver.path = ""
+process.dqmSaver.tag = "CTPPS"
 
 
 process.totemTimingRecHits.mergeTimePeaks= cms.bool(False)
+
+#process.load('CondCore.CondDB.CondDB_cfi')
+#process.CondDB.connect = 'sqlite_file:ppsDiamondSampicTiming_calibration.sqlite' # SQLite input
+#process.PoolDBESSource = cms.ESSource('PoolDBESSource',
+#        process.CondDB,
+#        DumpStats = cms.untracked.bool(True),
+#        toGet = cms.VPSet(
+#            cms.PSet(
+#                record = cms.string('PPSTimingCalibrationRcd'),
+#                tag = cms.string('DiamondSampicCalibration')
+#            )
+#        )
+#    )
+process.totemTimingRecHits.timingCalibrationTag= cms.string('GlobalTag:DiamondSampicCalibration')
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:diamondSampicReco.root')
@@ -83,9 +118,11 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.totemTimingRawToDigi*
-	process.diamondSampicLocalReconstruction
+	process.diamondSampicLocalReconstruction*
+	process.diamondSampicDQMSource
 )
 
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out* process.dqmEnv *
+    process.dqmSaver)
 
 
