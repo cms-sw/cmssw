@@ -28,21 +28,32 @@ namespace BeamSpotPI {
   }
 
   enum parameters {
-    X,
-    Y,
-    Z,
-    sigmaX,
-    sigmaY,
-    sigmaZ,
-    dxdz,
-    dydz,
-    lastLumi,
-    lastRun,
-    lastFill,
-    nTracks,
-    nPVs,
-    creationTime,
-    END_OF_TYPES
+    X = 0,                // 0  regular BS methods
+    Y = 1,                // 1
+    Z = 2,                // 2
+    sigmaX = 3,           // 3
+    sigmaY = 4,           // 4
+    sigmaZ = 5,           // 5
+    dxdz = 6,             // 6
+    dydz = 7,             // 7
+    lastLumi = 8,         // 8  additional int's
+    lastRun = 9,          // 9
+    lastFill = 10,        // 10
+    nTracks = 11,         // 11
+    nPVs = 12,            // 12
+    nUsedEvents = 13,     // 13
+    maxPVs = 14,          // 14
+    meanPV = 15,          // 15 additional float's
+    meanErrorPV = 16,     // 16
+    rmsPV = 17,           // 17
+    rmsErrorPV = 18,      // 18
+    creationTime = 19,    // 19 additional cond::Time_t
+    startTimeStamp = 20,  // 20
+    endTimeStamp = 21,    // 21
+    startTime = 22,       // 22 additional std::string
+    endTime = 23,         // 23
+    lumiRange = 24,       // 24
+    END_OF_TYPES = 25,
   };
 
   /************************************************/
@@ -233,7 +244,7 @@ namespace BeamSpotPI {
       canvas.cd(1)->SetTopMargin(0.05);
       canvas.cd(1)->SetBottomMargin(0.06);
       canvas.cd(1)->SetLeftMargin(0.15);
-      canvas.cd(1)->SetRightMargin(0.03);
+      canvas.cd(1)->SetRightMargin(0.01);
       canvas.cd(1)->Modified();
       canvas.cd(1)->SetGrid();
 
@@ -331,8 +342,8 @@ namespace BeamSpotPI {
         canvas.cd(2);
         canvas.cd(2)->SetTopMargin(0.05);
         canvas.cd(2)->SetBottomMargin(0.06);
-        canvas.cd(2)->SetLeftMargin(0.15);
-        canvas.cd(2)->SetRightMargin(0.03);
+        canvas.cd(2)->SetLeftMargin(0.25);
+        canvas.cd(2)->SetRightMargin(0.01);
         canvas.cd(2)->Modified();
         canvas.cd(2)->SetGrid();
 

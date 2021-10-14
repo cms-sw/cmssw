@@ -180,13 +180,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   }
 
   assert(theLayerCache);
-  hitSets(region, result, ev, es, doublets, thirdLayers, *theLayerCache, cache);
+  hitSets(region, result, doublets, thirdLayers, *theLayerCache, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
                                         OrderedMultiHits& result,
-                                        const edm::Event& ev,
-                                        const edm::EventSetup& es,
                                         const HitDoublets& doublets,
                                         const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
                                         LayerCacheType& layerCache,
@@ -195,26 +193,24 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   const RecHitsSortedInPhi* thirdHitMap[size];
   vector<const DetLayer*> thirdLayerDetLayer(size, nullptr);
   for (int il = 0; il < size; ++il) {
-    thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+    thirdHitMap[il] = &layerCache(thirdLayers[il], region);
 
     thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
   }
-  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
+  hitSets(region, result, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
 }
 
 void MultiHitGeneratorFromChi2::hitTriplets(const TrackingRegion& region,
                                             OrderedMultiHits& result,
-                                            const edm::EventSetup& es,
                                             const HitDoublets& doublets,
                                             const RecHitsSortedInPhi** thirdHitMap,
                                             const std::vector<const DetLayer*>& thirdLayerDetLayer,
                                             const int nThirdLayers) {
-  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
+  hitSets(region, result, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
                                         OrderedMultiHits& result,
-                                        const edm::EventSetup& es,
                                         const HitDoublets& doublets,
                                         const RecHitsSortedInPhi** thirdHitMap,
                                         const std::vector<const DetLayer*>& thirdLayerDetLayer,

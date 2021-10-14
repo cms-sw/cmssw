@@ -50,14 +50,14 @@ static int copy_files(const boost::program_options::variables_map& vm) {
     ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
     ofs.open(pathOut);
 
-    std::unique_ptr<Storage> s = StorageFactory::get()->open(filesIn[j]);
+    std::unique_ptr<edm::storage::Storage> s = edm::storage::StorageFactory::get()->open(filesIn[j]);
     assert(s);  // StorageFactory should throw if file open fails.
 
     static unsigned int const COPYBUFSIZE = 10 * 1024 * 1024;  // 10MB buffer
     std::vector<char> buffer;
     buffer.reserve(COPYBUFSIZE);
 
-    IOSize n;
+    edm::storage::IOSize n;
     while ((n = s->read(&buffer[0], COPYBUFSIZE))) {  // Note Storage throws on error
       ofs.write(&buffer[0], n);
     }

@@ -9,6 +9,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 //#include "RecoTracker/SpecialSeedGenerators/interface/SeedGeneratorFromLayerPairs.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -22,21 +23,28 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
 class PixelSeedLayerPairs;
+class GeometricSearchTracker;
+class TrackerRecoGeometryRecord;
 
 class SeedGeneratorForCosmics {
 public:
   typedef TrajectoryStateOnSurface TSOS;
-  SeedGeneratorForCosmics(const edm::ParameterSet &conf);
-  virtual ~SeedGeneratorForCosmics(){};
+  SeedGeneratorForCosmics(const edm::ParameterSet &conf, edm::ConsumesCollector);
+
+  void run(const SiStripRecHit2DCollection &collstereo,
+           const SiStripRecHit2DCollection &collrphi,
+           const SiStripMatchedRecHit2DCollection &collmatched,
+           const edm::EventSetup &c,
+           TrajectorySeedCollection &);
+
+private:
   void init(const SiStripRecHit2DCollection &collstereo,
             const SiStripRecHit2DCollection &collrphi,
             const SiStripMatchedRecHit2DCollection &collmatched,
             const edm::EventSetup &c);
 
-  void run(TrajectorySeedCollection &, const edm::EventSetup &c);
-  bool seeds(TrajectorySeedCollection &output, const edm::EventSetup &c, const TrackingRegion &region);
+  bool seeds(TrajectorySeedCollection &output, const TrackingRegion &region);
 
-private:
   int32_t maxSeeds_;
   GlobalTrackingRegion region;
   CosmicHitPairGenerator *thePairGenerator;
@@ -44,11 +52,14 @@ private:
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMagfieldToken;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theSearchTrackerToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTTopoToken;
+
   KFUpdator *theUpdator;
   PropagatorWithMaterial *thePropagatorAl;
   PropagatorWithMaterial *thePropagatorOp;
-  const TransientTrackingRecHitBuilder *TTTRHBuilder;
-  std::string builderName;
   std::string geometry;
   std::string hitsforseeds;
   float seedpt;

@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
@@ -217,11 +216,6 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (verbose_)
     edm::LogInfo("TritonService") << msg;
 
-  //randomize instance name
-  if (fallbackOpts_.instanceName.empty()) {
-    fallbackOpts_.instanceName = "triton_server_instance_" + edm::createGlobalIdentifier();
-  }
-
   //assemble server start command
   std::string command("cmsTriton -P -1 -p " + pid_);
   if (fallbackOpts_.debug)
@@ -308,6 +302,7 @@ void TritonService::fillDescriptions(edm::ConfigurationDescriptions& description
   fallbackDesc.addUntracked<bool>("useGPU", false);
   fallbackDesc.addUntracked<int>("retries", -1);
   fallbackDesc.addUntracked<int>("wait", -1);
+  fallbackDesc.addUntracked<std::string>("instanceBaseName", "triton_server_instance");
   fallbackDesc.addUntracked<std::string>("instanceName", "");
   fallbackDesc.addUntracked<std::string>("tempDir", "");
   fallbackDesc.addUntracked<std::string>("imageName", "");

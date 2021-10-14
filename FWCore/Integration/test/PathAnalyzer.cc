@@ -2,7 +2,7 @@
 #include <iterator>
 #include <sstream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,17 +12,17 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edmtest {
-  class PathAnalyzer : public edm::EDAnalyzer {
+  class PathAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit PathAnalyzer(edm::ParameterSet const&);
     virtual ~PathAnalyzer();
 
-    virtual void analyze(edm::Event const&, edm::EventSetup const&);
+    virtual void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const;
     virtual void beginJob();
     virtual void endJob();
 
   private:
-    void dumpTriggerNamesServiceInfo(char const* where);
+    void dumpTriggerNamesServiceInfo(char const* where) const;
   };  // class PathAnalyzer
 
   //--------------------------------------------------------------------
@@ -33,13 +33,15 @@ namespace edmtest {
 
   PathAnalyzer::~PathAnalyzer() {}
 
-  void PathAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) { dumpTriggerNamesServiceInfo("analyze"); }
+  void PathAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
+    dumpTriggerNamesServiceInfo("analyze");
+  }
 
   void PathAnalyzer::beginJob() { dumpTriggerNamesServiceInfo("beginJob"); }
 
   void PathAnalyzer::endJob() { dumpTriggerNamesServiceInfo("endJob"); }
 
-  void PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where) {
+  void PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where) const {
     edm::LogInfo("PathAnalyzer").log([&](auto& message) {
       edm::Service<edm::service::TriggerNamesService> tns;
       message << "TNS size: " << tns->size() << "\n";

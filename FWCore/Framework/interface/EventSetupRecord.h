@@ -49,6 +49,7 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 // system include files
 #include <exception>
@@ -108,37 +109,22 @@ namespace edm {
       }
 
       template <typename HolderT>
-      bool get(HolderT& iHolder) const {
-        return get("", iHolder);
+      CMS_DEPRECATED bool get(HolderT& iHolder) const {
+        return deprecated_get("", iHolder);
       }
 
       template <typename HolderT>
-      bool get(char const* iName, HolderT& iHolder) const {
-        if UNLIKELY (requireTokens_) {
-          throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
-        }
-        typename HolderT::value_type const* value = nullptr;
-        ComponentDescription const* desc = nullptr;
-        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-        impl_->getImplementation(
-            value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory, *context_, eventSetupImpl_);
-
-        if (value) {
-          iHolder = HolderT(value, desc);
-          return true;
-        } else {
-          iHolder = HolderT(std::move(whyFailedFactory));
-          return false;
-        }
+      CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+        return deprecated_get(iName, iHolder);
       }
 
       template <typename HolderT>
-      bool get(std::string const& iName, HolderT& iHolder) const {
-        return get(iName.c_str(), iHolder);
+      CMS_DEPRECATED bool get(std::string const& iName, HolderT& iHolder) const {
+        return deprecated_get(iName.c_str(), iHolder);
       }
 
       template <typename HolderT>
-      bool get(ESInputTag const& iTag, HolderT& iHolder) const {
+      CMS_DEPRECATED bool get(ESInputTag const& iTag, HolderT& iHolder) const {
         if UNLIKELY (requireTokens_) {
           throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
         }
@@ -258,6 +244,26 @@ namespace edm {
       bool requireTokens() const { return requireTokens_; }
 
     private:
+      template <typename HolderT>
+      bool deprecated_get(char const* iName, HolderT& iHolder) const {
+        if UNLIKELY (requireTokens_) {
+          throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
+        }
+        typename HolderT::value_type const* value = nullptr;
+        ComponentDescription const* desc = nullptr;
+        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+        impl_->getImplementation(
+            value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory, *context_, eventSetupImpl_);
+
+        if (value) {
+          iHolder = HolderT(value, desc);
+          return true;
+        } else {
+          iHolder = HolderT(std::move(whyFailedFactory));
+          return false;
+        }
+      }
+
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();

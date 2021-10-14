@@ -12,6 +12,7 @@
 <use name="Geometry/Records"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
 <use name="rootgeom"/>

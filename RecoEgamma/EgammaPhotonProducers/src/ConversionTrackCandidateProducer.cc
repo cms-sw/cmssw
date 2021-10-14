@@ -74,6 +74,10 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkEvtToken_;
 
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevlvToken_;
+
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
@@ -141,6 +145,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
       barrelecalCollection_{consumes(config.getParameter<edm::InputTag>("barrelEcalRecHitCollection"))},
       endcapecalCollection_{consumes(config.getParameter<edm::InputTag>("endcapEcalRecHitCollection"))},
       measurementTrkEvtToken_{consumes(edm::InputTag("MeasurementTrackerEvent"))},
+
+      navToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SimpleNavigationSchool"))),
+      theCaloGeomToken_(esConsumes()),
+      sevlvToken_(esConsumes()),
 
       theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(
           config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
@@ -212,9 +220,7 @@ void ConversionTrackCandidateProducer::setEventSetup(const edm::EventSetup& theE
 }
 
 void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
-  edm::ESHandle<NavigationSchool> nav;
-  theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  const NavigationSchool* navigation = nav.product();
+  const NavigationSchool* navigation = &theEventSetup.getData(navToken_);
   theTrajectoryBuilder_->setNavigationSchool(navigation);
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
@@ -274,16 +280,14 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   }
 
   // get the geometry from the event setup:
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(theCaloGeomToken_);
 
   hcalHelper_->beginEvent(theEvent, theEventSetup);
 
   auto const& ecalhitsCollEB = theEvent.get(barrelecalCollection_);
   auto const& ecalhitsCollEE = theEvent.get(endcapecalCollection_);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+  const EcalSeverityLevelAlgo* sevLevel = &theEventSetup.getData(sevlvToken_);
 
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();

@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process('CTPPSDQM', Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('CTPPSDQM', Run3)
 
 test = False
 unitTest = False
@@ -104,4 +104,5 @@ process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 # Process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

@@ -196,9 +196,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
 
     // hits
     edm::OwnVector<TrackingRecHit> recHits;
-    // nTotalHits() gives sum of valid hits (nFoundHits()) and
-    // invalid/missing hits (up to a maximum of 32 inside mkFit,
-    // restriction to be lifted in the future)
+    // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
     bool lastHitInvalid = false;
     for (int i = 0; i < nhits; ++i) {

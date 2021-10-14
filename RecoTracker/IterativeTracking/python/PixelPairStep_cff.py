@@ -17,15 +17,15 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 # SEEDING LAYERS
 pixelPairStepSeedLayers = _mod.seedingLayersEDProducer.clone(
     layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-        'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-        'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
-    BPix = cms.PSet(
+                 'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
+                 'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                 'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'],
+    BPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     ),
-    FPix = cms.PSet(
+    FPix = dict(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
@@ -68,12 +68,13 @@ trackingPhase2PU140.toModify(pixelPairStepSeedLayers,
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
-    ptMin        = 0.6,
-    originRadius = 0.015,
-    fixedError   = 0.03,
-    useMultipleScattering = True,
-))
+pixelPairStepTrackingRegions = _globalTrackingRegionWithVertices.clone(
+    RegionPSet = dict(
+        ptMin        = 0.6,
+        originRadius = 0.015,
+        fixedError   = 0.03,
+        useMultipleScattering = True)
+)
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(useMultipleScattering=False))
 _region_Phase1 = dict(
@@ -291,7 +292,8 @@ trackingPhase2PU140.toModify(pixelPairStepTrajectoryBuilder, **_seedExtension)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_pixelPairStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'pixelPairStepSeeds',
     clustersToSkip        = cms.InputTag('pixelPairStepClusters'),
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelPairStepTrajectoryBuilder')),
@@ -300,6 +302,7 @@ pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
 )
+pixelPairStepTrackCandidates = _pixelPairStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitPixelPairStep_cff import trackingMkFitPixelPairStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as _mkFitSeedConverter_cfi

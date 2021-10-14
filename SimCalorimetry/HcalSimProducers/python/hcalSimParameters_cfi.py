@@ -136,11 +136,13 @@ from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toModify( hcalSimParameters,
     hf1 = dict(
                readoutFrameSize = cms.int32(3), 
-               binOfMaximum     = cms.int32(2)
+               binOfMaximum     = cms.int32(2),
+               threshold_currentTDC = cms.double(3.),
               ),
     hf2 = dict(
                readoutFrameSize = cms.int32(3), 
-               binOfMaximum     = cms.int32(2)
+               binOfMaximum     = cms.int32(2),
+               threshold_currentTDC = cms.double(3.),
               )
 )
 

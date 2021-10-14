@@ -49,8 +49,7 @@ def _setStyle():
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
-        if verbose:
-            print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
+        print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
         return None
     return obj
 
@@ -1073,7 +1072,7 @@ class AggregateBins:
         return result
 
 class AggregateHistos:
-    """Class to create a histogram by aggregaging integrals of another histoggrams."""
+    """Class to create a histogram by aggregating integrals of another histogram."""
     def __init__(self, name, mapping, normalizeTo=None):
         """Constructor.
 
@@ -1935,7 +1934,7 @@ class Plot:
         if self._fallback is not None:
             self._histograms = list(map(_modifyHisto, self._histograms, profileX))
         else:
-            self._histograms =list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
+            self._histograms = list(map(lambda h: _modifyHisto(h, self._profileX), self._histograms))
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
@@ -2497,7 +2496,7 @@ class PlotGroup(object):
         # Save the canvas to file and clear
         name = self._name
         if not os.path.exists(directory+'/'+name):
-            os.makedirs(directory+'/'+name)
+            os.makedirs(directory+'/'+name, exist_ok=True)
         if prefix is not None:
             name = prefix+name
         if postfix is not None:

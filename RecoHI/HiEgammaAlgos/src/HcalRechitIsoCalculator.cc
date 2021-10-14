@@ -2,8 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,8 +11,7 @@
 using namespace edm;
 using namespace reco;
 
-HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent,
-                                                 const edm::EventSetup &iSetup,
+HcalRechitIsoCalculator::HcalRechitIsoCalculator(const CaloGeometry *geometry,
                                                  const edm::Handle<HBHERecHitCollection> hbhe,
                                                  const edm::Handle<HFRecHitCollection> hf,
                                                  const edm::Handle<HORecHitCollection> ho) {
@@ -33,12 +30,7 @@ HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent,
   else
     fHBHERecHits_ = nullptr;
 
-  ESHandle<CaloGeometry> geometryHandle;
-  iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-  if (geometryHandle.isValid())
-    geometry_ = geometryHandle.product();
-  else
-    geometry_ = nullptr;
+  geometry_ = geometry;
 }
 
 double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef cluster,

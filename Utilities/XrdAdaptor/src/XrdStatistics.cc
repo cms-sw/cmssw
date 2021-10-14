@@ -11,6 +11,8 @@
 
 #include <chrono>
 
+using namespace edm::storage;
+
 namespace xrd_adaptor {
   XrdStatistics::~XrdStatistics() {}
 }  // namespace xrd_adaptor

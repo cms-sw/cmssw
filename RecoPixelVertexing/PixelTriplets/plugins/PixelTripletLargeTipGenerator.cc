@@ -1,5 +1,6 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletLargeTipGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
@@ -14,8 +15,6 @@
 
 #include "MatchedHitRZCorrectionFromBending.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <algorithm>
 #include <iostream>
@@ -53,7 +52,12 @@ PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::Paramete
       useMScat(cfg.getParameter<bool>("useMultScattering")),
       useBend(cfg.getParameter<bool>("useBending")),
       dphi(useFixedPreFiltering ? cfg.getParameter<double>("phiPreFiltering") : 0),
-      trackerTopologyESToken_(iC.esConsumes()) {}
+      trackerTopologyESToken_(iC.esConsumes()),
+      fieldESToken_(iC.esConsumes()) {
+  if (useMScat) {
+    msmakerESToken_ = iC.esConsumes();
+  }
+}
 
 PixelTripletLargeTipGenerator::~PixelTripletLargeTipGenerator() {}
 
@@ -108,7 +112,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   const RecHitsSortedInPhi* thirdHitMap[size];
   vector<const DetLayer*> thirdLayerDetLayer(size, nullptr);
   for (int il = 0; il < size; ++il) {
-    thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+    thirdHitMap[il] = &layerCache(thirdLayers[il], region);
     thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
   }
   hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, tripletLastLayerIndex);
@@ -133,10 +137,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
                                                 const int nThirdLayers,
                                                 std::vector<int>* tripletLastLayerIndex) {
   const TrackerTopology* tTopo = &es.getData(trackerTopologyESToken_);
-
-  edm::ESHandle<MagneticField> hfield;
-  es.get<IdealMagneticFieldRecord>().get(hfield);
-  const auto& field = *hfield;
+  const auto& field = es.getData(fieldESToken_);
+  const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+  if (useMScat) {
+    msmaker = &es.getData(msmakerESToken_);
+  }
 
   auto outSeq = doublets.detLayer(HitDoublets::outer)->seqNum();
 
@@ -166,13 +171,14 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     predRZ.helix1.initTolerance(extraHitRZtolerance);
     predRZ.helix2.initTolerance(extraHitRZtolerance);
     predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer, tTopo);
-    predRZ.correction.init(es,
-                           region.ptMin(),
+    predRZ.correction.init(region.ptMin(),
                            *doublets.detLayer(HitDoublets::inner),
                            *doublets.detLayer(HitDoublets::outer),
                            *thirdLayerDetLayer[il],
                            useMScat,
-                           false);
+                           msmaker,
+                           false,
+                           nullptr);
 
     layerTree.clear();
     float minv = 999999.0;

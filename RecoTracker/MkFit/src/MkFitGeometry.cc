@@ -7,7 +7,6 @@
 
 #include "LayerNumberConverter.h"
 #include "TrackerInfo.h"
-#include "mkFit/IterationConfig.h"
 
 namespace {
   bool isPlusSide(const TrackerTopology& ttopo, DetId detid) {
@@ -18,12 +17,10 @@ namespace {
 MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
                              const GeometricSearchTracker& tracker,
                              const TrackerTopology& ttopo,
-                             std::unique_ptr<mkfit::TrackerInfo> trackerInfo,
-                             std::unique_ptr<mkfit::IterationsInfo> iterationsInfo)
+                             std::unique_ptr<mkfit::TrackerInfo> trackerInfo)
     : ttopo_(&ttopo),
       lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)},
-      trackerInfo_(std::move(trackerInfo)),
-      iterationsInfo_(std::move(iterationsInfo)) {
+      trackerInfo_(std::move(trackerInfo)) {
   if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
       geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
     throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";

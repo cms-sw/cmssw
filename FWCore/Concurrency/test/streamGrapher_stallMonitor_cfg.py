@@ -21,8 +21,9 @@ process.t = cms.Task(process.busy1, process.legacy1, process.adder1, process.bus
 
 process.p = cms.Path(process.strt, process.t)
 
-process.options = cms.untracked.PSet( numberOfStreams = cms.untracked.uint32(4),
-                                      numberOfThreads = cms.untracked.uint32(5))
+process.options = dict( numberOfStreams = 4,
+                        numberOfThreads = 5,
+                        numberOfConcurrentLuminosityBlocks = 1)
 
 process.add_(cms.Service("Tracer", printTimestamps = cms.untracked.bool(True)))
 process.add_(cms.Service("StallMonitor", fileName = cms.untracked.string("stallMonitor.log")))

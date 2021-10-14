@@ -44,6 +44,9 @@ struct TrajectoryStateTransform;
 class SimTrack;
 class TrackerGeometry;
 class TrackerTopology;
+class TransientRecHitRecord;
+class CkfComponentsRecord;
+class TrackerRecoGeometryRecord;
 
 class FastTSGFromPropagation : public TrackerSeedGenerator {
 public:
@@ -123,14 +126,9 @@ private:
     }
   };
 
-  unsigned long long theCacheId_MT;
   unsigned long long theCacheId_TG;
 
   std::string theCategory;
-
-  edm::ESHandle<GeometricSearchTracker> theTracker;
-
-  edm::ESHandle<MeasurementTracker> theMeasTracker;
 
   std::unique_ptr<const DirectTrackerNavigation> theNavigation;
 
@@ -175,6 +173,13 @@ private:
   edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
+
+  //from init
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGeometryToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTTRHBuilderToken;
+
+  //from setEvent
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theTrackerToken;
 };
 
 #endif

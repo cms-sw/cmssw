@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -43,11 +44,13 @@ public:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfieldToken_;
   TFile* rootFile;
   TH1F *hB1, *hB2, *hB3, *hF1, *hF2;
 };
 
-TestMS::TestMS(const edm::ParameterSet& conf) {
+TestMS::TestMS(const edm::ParameterSet& conf) : trackerToken_(esConsumes()), bfieldToken_(esConsumes()) {
   rootFile = new TFile("histos.root", "RECREATE");
   const int nch = 250;
   const float rmin = 0;
@@ -73,19 +76,21 @@ TestMS::~TestMS() {
 void TestMS::analyze(const edm::Event& ev, const edm::EventSetup& es) {}
 
 void TestMS::beginRun(edm::Run const& run, const edm::EventSetup& es) {
-  edm::ESHandle<GeometricSearchTracker> tracker;
-  es.get<TrackerRecoGeometryRecord>().get(tracker);
+  auto const& tracker = es.getData(trackerToken_);
+  auto const& bfield = es.getData(bfieldToken_);
 
-  vector<BarrelDetLayer const*> barrel = tracker->barrelLayers();
+  vector<BarrelDetLayer const*> barrel = tracker.barrelLayers();
   //  vector<ForwardDetLayer*> endcap=tracker->posForwardLayers();
-  vector<ForwardDetLayer const*> endcap = tracker->negForwardLayers();
+  vector<ForwardDetLayer const*> endcap = tracker.negForwardLayers();
 
-  MultipleScatteringParametrisation sb1(barrel[0], es);
-  MultipleScatteringParametrisation sb2(barrel[1], es);
-  MultipleScatteringParametrisation sb3(barrel[2], es);
+  MultipleScatteringParametrisationMaker maker(tracker, bfield);
 
-  MultipleScatteringParametrisation sf1(endcap[0], es);
-  MultipleScatteringParametrisation sf2(endcap[1], es);
+  MultipleScatteringParametrisation sb1 = maker.parametrisation(barrel[0]);
+  MultipleScatteringParametrisation sb2 = maker.parametrisation(barrel[1]);
+  MultipleScatteringParametrisation sb3 = maker.parametrisation(barrel[2]);
+
+  MultipleScatteringParametrisation sf1 = maker.parametrisation(endcap[0]);
+  MultipleScatteringParametrisation sf2 = maker.parametrisation(endcap[1]);
 
   const int nch = 250;
   const float rmin = 0;

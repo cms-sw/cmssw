@@ -9,7 +9,6 @@ Toy EDAnalyzers for testing purposes only.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
@@ -36,14 +35,14 @@ namespace edmtest {
   //
   // every call to NonAnalyzer::analyze does nothing.
   //
-  class NonAnalyzer : public edm::EDAnalyzer {
+  class NonAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {}
-    virtual ~NonAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~NonAnalyzer() override {}
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
   };
 
-  void NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {}
+  void NonAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {}
 
   //--------------------------------------------------------------------
   //
@@ -265,14 +264,14 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class SCSimpleAnalyzer : public edm::EDAnalyzer {
+  class SCSimpleAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     SCSimpleAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const final;
   };
 
-  void SCSimpleAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void SCSimpleAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     // Get the product back out; it should be sorted.
     edm::Handle<SCSimpleProduct> h;
     e.getByLabel("scs", h);
@@ -330,23 +329,23 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class DSVAnalyzer : public edm::EDAnalyzer {
+  class DSVAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     DSVAnalyzer(edm::ParameterSet const&) {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const final;
 
   private:
-    void do_sorted_stuff(edm::Event const& e);
-    void do_unsorted_stuff(edm::Event const& e);
+    void do_sorted_stuff(edm::Event const& e) const;
+    void do_unsorted_stuff(edm::Event const& e) const;
   };
 
-  void DSVAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
+  void DSVAnalyzer::analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const&) const {
     do_sorted_stuff(e);
     do_unsorted_stuff(e);
   }
 
-  void DSVAnalyzer::do_sorted_stuff(edm::Event const& e) {
+  void DSVAnalyzer::do_sorted_stuff(edm::Event const& e) const {
     typedef DSVSimpleProduct product_type;
     typedef product_type::value_type detset;
     typedef detset::value_type value_type;
@@ -370,7 +369,7 @@ namespace edmtest {
     }
   }
 
-  void DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) {
+  void DSVAnalyzer::do_unsorted_stuff(edm::Event const& e) const {
     typedef DSVWeirdProduct product_type;
     typedef product_type::value_type detset;
     typedef detset::value_type value_type;

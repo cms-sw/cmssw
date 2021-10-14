@@ -10,12 +10,12 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-113X_mcRun3_2021_realistic_v1-v3/GEN-SIM-DIGI-RAW", "QCD_noPU"),
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
-f    ("/RelValZEE_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU"),
-    ("/RelValZMM_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
-    ("/RelValTenTau_15_500/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU"),
-    ("/RelValNuGun/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_noPU2"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
+    ("/RelValZEE_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU"),
+    ("/RelValZMM_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
+    ("/RelValTenTau_15_500/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU"),
+    ("/RelValNuGun/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
 ]
 
 if __name__ == "__main__":
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
-        #conf.Data.ignoreLocality = True
+        conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
         conf.Site.storageSite = 'T3_US_Baylor'

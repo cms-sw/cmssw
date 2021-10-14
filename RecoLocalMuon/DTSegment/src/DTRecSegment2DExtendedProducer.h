@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 
@@ -31,7 +31,7 @@ class MuonGeometryRecord;
 
 /* Class DTRecSegment2DExtendedProducer Interface */
 
-class DTRecSegment2DExtendedProducer : public edm::EDProducer {
+class DTRecSegment2DExtendedProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   DTRecSegment2DExtendedProducer(const edm::ParameterSet&);

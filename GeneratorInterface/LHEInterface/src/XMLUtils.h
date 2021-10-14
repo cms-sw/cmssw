@@ -16,12 +16,16 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <lzma.h>
 
-class Storage;
+namespace edm::storage {
+  class Storage;
+}
 
 namespace lhef {
 
   class StorageWrap {
   public:
+    using Storage = edm::storage::Storage;
+
     StorageWrap(std::unique_ptr<Storage> storage);
     ~StorageWrap();
 

@@ -1,20 +1,12 @@
 #ifndef HiEgammaAlgos_EcalClusterIsoCalculator_h
 #define HiEgammaAlgos_EcalClusterIsoCalculator_h
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 class EcalClusterIsoCalculator {
 public:
-  EcalClusterIsoCalculator(const edm::Event &iEvent,
-                           const edm::EventSetup &iSetup,
-                           const edm::Handle<reco::BasicClusterCollection> barrel,
+  EcalClusterIsoCalculator(const edm::Handle<reco::BasicClusterCollection> barrel,
                            const edm::Handle<reco::BasicClusterCollection> endcap);
 
   /// Return the ecal cluster energy in a cone around the SC

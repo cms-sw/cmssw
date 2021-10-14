@@ -13,7 +13,7 @@ public:
   HGCalTriggerNtupleHGCTriggerSums(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCTriggerSums() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -45,7 +45,9 @@ private:
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTriggerSums, "HGCalTriggerNtupleHGCTriggerSums");
 
 HGCalTriggerNtupleHGCTriggerSums::HGCalTriggerNtupleHGCTriggerSums(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf) {}
+    : HGCalTriggerNtupleBase(conf) {
+  accessEventSetup_ = false;
+}
 
 void HGCalTriggerNtupleHGCTriggerSums::initialize(TTree& tree,
                                                   const edm::ParameterSet& conf,
@@ -79,13 +81,13 @@ void HGCalTriggerNtupleHGCTriggerSums::initialize(TTree& tree,
   tree.Branch(withPrefix("z"), &ts_z_);
 }
 
-void HGCalTriggerNtupleHGCTriggerSums::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCTriggerSums::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve trigger cells
   edm::Handle<l1t::HGCalTriggerSumsBxCollection> trigger_sums_h;
   e.getByToken(trigger_sums_token_, trigger_sums_h);
   const l1t::HGCalTriggerSumsBxCollection& trigger_sums = *trigger_sums_h;
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(es.geometry.product());
 
   clear();
   for (auto ts_itr = trigger_sums.begin(0); ts_itr != trigger_sums.end(0); ts_itr++) {

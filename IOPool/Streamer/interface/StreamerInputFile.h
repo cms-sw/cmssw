@@ -51,8 +51,8 @@ namespace edm {
 
   private:
     void openStreamerFile(std::string const& name, std::string const& LFN);
-    IOSize readBytes(char* buf, IOSize nBytes);
-    IOOffset skipBytes(IOSize nBytes);
+    storage::IOSize readBytes(char* buf, storage::IOSize nBytes);
+    storage::IOOffset skipBytes(storage::IOSize nBytes);
 
     void readStartMessage();
     int readEventMessage();
@@ -82,7 +82,7 @@ namespace edm {
 
     bool newHeader_;
 
-    edm::propagate_const<std::unique_ptr<Storage>> storage_;
+    edm::propagate_const<std::unique_ptr<edm::storage::Storage>> storage_;
 
     bool endOfFile_;
   };

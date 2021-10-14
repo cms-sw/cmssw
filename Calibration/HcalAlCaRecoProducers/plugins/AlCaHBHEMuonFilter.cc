@@ -144,8 +144,7 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   if (trigNames_.empty()) {
     ok = true;
   } else {
-    edm::Handle<edm::TriggerResults> triggerResults;
-    iEvent.getByToken(tok_trigRes_, triggerResults);
+    auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
     if (triggerResults.isValid()) {
       std::vector<std::string> modules;
       const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
@@ -172,16 +171,16 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     const CaloGeometry* geo = &(iSetup.getData(tok_geom_));
 
     // Relevant blocks from iEvent
-    edm::Handle<reco::MuonCollection> _Muon;
-    iEvent.getByToken(tok_Muon_, _Muon);
+    auto muonHandle = iEvent.getHandle(tok_Muon_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid();
+    edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << muonHandle.isValid();
 #endif
-    if (_Muon.isValid()) {
+    if (muonHandle.isValid()) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Size of collection " << _Muon->size();
+      edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Size of collection " << muonHandle->size();
 #endif
-      for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+      for (reco::MuonCollection::const_iterator RecMuon = muonHandle->begin(); RecMuon != muonHandle->end();
+           ++RecMuon) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                      << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "

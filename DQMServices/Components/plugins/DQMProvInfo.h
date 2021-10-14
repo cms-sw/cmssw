@@ -78,18 +78,20 @@ private:
   const static int VBIN_TE_M = 23;
   const static int VBIN_CASTOR = 24;
   const static int VBIN_ZDC = 25;
+  const static int VBIN_GEM_P = 26;
+  const static int VBIN_GEM_M = 27;
 
   // Highest DCS bin, used for the length of the corresponding array.
   // We will have the indexes to this array the same as the vbins numbers.
   // (I.e. value at index 0 will not be used.)
-  const static int MAX_DCS_VBINS = 25;
+  const static int MAX_DCS_VBINS = 27;
 
-  const static int VBIN_PHYSICS_DECLARED = 26;
-  const static int VBIN_MOMENTUM = 27;
-  const static int VBIN_STABLE_BEAM = 28;
-  const static int VBIN_VALID = 29;
+  const static int VBIN_PHYSICS_DECLARED = 28;
+  const static int VBIN_MOMENTUM = 29;
+  const static int VBIN_STABLE_BEAM = 30;
+  const static int VBIN_VALID = 31;
 
-  const static int MAX_VBINS = 29;
+  const static int MAX_VBINS = 31;
 
   // Beam momentum at flat top, used to determine if collisions are
   // occurring with the beams at the energy allowed for physics production.

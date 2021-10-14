@@ -50,7 +50,7 @@ void LumiBasedUpdateAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& l
   mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.GetBeamType();
   m_ret = 0;
   try {
-    mydbservice->writeForNextLumisection(&mybeamspot, m_record);
+    mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
   } catch (const std::exception& e) {
     std::cout << "Error:" << e.what() << std::endl;
     mydbservice->logger().logError() << e.what();
