@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCBeamHaloSelector.h"
 
 // the following include is necessary to clone all track branches
@@ -37,6 +37,6 @@ private:
   AlignmentCSCBeamHaloSelector theSelector;
 };
 
-typedef ObjectSelectorStream<CSCBeamHaloConfigSelector> AlignmentCSCBeamHaloSelectorModule;
+typedef ObjectSelector<CSCBeamHaloConfigSelector> AlignmentCSCBeamHaloSelectorModule;
 
 DEFINE_FWK_MODULE(AlignmentCSCBeamHaloSelectorModule);
