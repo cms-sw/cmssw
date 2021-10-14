@@ -1,6 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include <iostream>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalTPGTPMode::EcalTPGTPMode() {}
 

@@ -4,6 +4,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/FEConfigOddWeightGroupDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigOddWeightInfo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -36,7 +37,7 @@ void FEConfigOddWeightGroupDat::prepareWrite() noexcept(false) {
         "VALUES (:wei2_conf_id, :group_id, "
         ":w0, :w1, :w2, :w3, :w4, :w5 )");
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightGroupDat::prepareWrite():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightGroupDat::prepareWrite():  " << e.getMessage();
   }
 }
 
@@ -68,7 +69,7 @@ void FEConfigOddWeightGroupDat::writeDB(const EcalLogicID* ecid,
 
     m_writeStmt->executeUpdate();
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightGroupDat::writeDB():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightGroupDat::writeDB():  " << e.getMessage();
   }
 }
 
@@ -112,7 +113,7 @@ void FEConfigOddWeightGroupDat::fetchData(map<EcalLogicID, FEConfigOddWeightGrou
       fillMap->insert(p);
     }
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightGroupDat::fetchData:  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightGroupDat::fetchData:  " << e.getMessage();
   }
 }
 
@@ -223,6 +224,6 @@ void FEConfigOddWeightGroupDat::writeArrayDB(const std::map<EcalLogicID, FEConfi
     delete[] w_len;
 
   } catch (SQLException& e) {
-    throw(std::runtime_error("FEConfigOddWeightGroupDat::writeArrayDB():  " + e.getMessage()));
+    throw cms::Exception("SQLException") << "FEConfigOddWeightGroupDat::writeArrayDB():  " << e.getMessage();
   }
 }
