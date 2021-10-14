@@ -85,21 +85,21 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   double empiricalAperture_xi0_int, empiricalAperture_xi0_slp;
   double empiricalAperture_a_int, empiricalAperture_a_slp;
   unsigned int optFunctionId_;
-// get the beam position at the IP in mm and in the LHC ref. frame
+  // get the beam position at the IP in mm and in the LHC ref. frame
   double vtxXoffset_;
   double vtxYoffset_;
   double vtxZoffset_;
   if (useBeamPositionFromLHCInfo_) {
-     vtxXoffset_ = -beamParameters_->getVtxOffsetX45()*10.;
-     vtxYoffset_ = beamParameters_->getVtxOffsetY45()*10.;
-     vtxZoffset_ = -beamParameters_->getVtxOffsetZ45()*10.;
+    vtxXoffset_ = -beamParameters_->getVtxOffsetX45() * 10.;
+    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * 10.;
+    vtxZoffset_ = -beamParameters_->getVtxOffsetZ45() * 10.;
   } else {
-     vtxXoffset_ = -beamspot_->GetX()*10.;
-     vtxYoffset_ = beamspot_->GetY()*10.;
-     //vtxZoffset_ = -beamspot_->GetZ()*10.;
+    vtxXoffset_ = -beamspot_->GetX() * 10.;
+    vtxYoffset_ = beamspot_->GetY() * 10.;
+    vtxZoffset_ = -beamspot_->GetZ() * 10.;
   }
-  vtxZoffset_*=1.0; // just to avoid compilation error, should be used in the future
-//
+  vtxZoffset_ *= 1.0;   // just to avoid compilation error, should be used in the future
+                        //
   if (mom_lhc.z() < 0)  // sector 45
   {
     optFunctionId_ = optFunctionId45_;
@@ -123,10 +123,10 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   // calculate kinematics for optics parametrisation, avoid the aproximation for small angles xangle -> tan(xangle)
   const double p = mom_lhc.rho();
   const double xi = 1. - p / beamMomentum;
-  const double th_x_phys = mom_lhc.x() / abs(mom_lhc.z())-tan(xangle); //"-" in the LHC ref. frame
+  const double th_x_phys = mom_lhc.x() / abs(mom_lhc.z()) - tan(xangle);  //"-" in the LHC ref. frame
   const double th_y_phys = mom_lhc.y() / abs(mom_lhc.z());
-  const double vtx_lhc_eff_x = vtx_lhc.x() - vtx_lhc.z() * (mom_lhc.x() / mom_lhc.z() + tan(xangle))-(vtxXoffset_);
-  const double vtx_lhc_eff_y = vtx_lhc.y() - vtx_lhc.z() * (mom_lhc.y() / mom_lhc.z())-(vtxYoffset_);
+  const double vtx_lhc_eff_x = vtx_lhc.x() - vtx_lhc.z() * (mom_lhc.x() / mom_lhc.z() + tan(xangle)) - (vtxXoffset_);
+  const double vtx_lhc_eff_y = vtx_lhc.y() - vtx_lhc.z() * (mom_lhc.y() / mom_lhc.z()) - (vtxYoffset_);
 
   if (verbosity_) {
     LogDebug("OpticalFunctionsTransport")

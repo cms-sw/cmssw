@@ -33,7 +33,7 @@ private:
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsToken_;
-  edm::ESGetToken<BeamSpotObjects,BeamSpotObjectsRcd> beamspotToken_;
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
 
   const LHCInfo* lhcInfo_;
   const CTPPSBeamParameters* beamParameters_;
