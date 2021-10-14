@@ -83,7 +83,7 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
         reco::Jet recoJet = *jet;
         if(jetTagPlotter_->etaPtBin().inBin(recoJet, jec))
         {
-            jetTagPlotter_->analyzeTag(recoJet, jec, numerator/denominator, jet->hadronFlavour());
+            jetTagPlotter_->analyzeTag(recoJet, jec, numerator/denominator, jet->partonFlavour());
         }
     }
 }
