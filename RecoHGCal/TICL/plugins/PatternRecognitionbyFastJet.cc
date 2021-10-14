@@ -32,6 +32,7 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
     edm::ConsumesCollector iC)
   : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
   caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+  antikt_radius_(conf.getParameter<double>("antikt_radius")),
   minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
   eidInputName_(conf.getParameter<std::string>("eid_input_name")),
   eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
@@ -48,6 +49,43 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
     }
     eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
   }
+
+template<typename TILES>
+void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> & fjInputs,
+    std::vector<ticl::Trackster> & result) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+    edm::LogVerbatim("PatternRecogntionbyFastJet") << "Creating FastJet with "
+      << fjInputs.size() << " LayerClusters in input";
+  }
+  fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, antikt_radius_));
+  auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+    edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced "
+      << jets.size() << " jets/trackster";
+  }
+
+  auto trackster_idx = result.size();
+  result.resize(trackster_idx + jets.size());
+  for (const auto &pj : jets) {
+    if (pj.constituents().size() > static_cast<unsigned int>(minNumLayerCluster_)) {
+      for (const auto &component : pj.constituents()) {
+        result[trackster_idx].vertices().push_back(component.user_index());
+        result[trackster_idx].vertex_multiplicity().push_back(1);
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+          edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet has "
+            << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
+        }
+      }
+      trackster_idx++;
+    } else {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+        edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet with " << pj.constituents().size()
+          << " constituents discarded since too small wrt " << minNumLayerCluster_;
+      }
+    }
+  }
+  fjInputs.clear();
+}
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::makeTracksters(
@@ -73,32 +111,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   fjInputs.clear();
   for (unsigned int currentLayer = 0; currentLayer <= maxLayer ; ++currentLayer) {
     if (currentLayer == lastLayerPerSide) {
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-        edm::LogVerbatim("PatternRecogntionbyFastJet") << "Creating FastJet at later "
-          << currentLayer
-          << " with " << fjInputs.size() << " LayerClusters in input";
-      }
-      fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, 0.1));
-      auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-        edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced "
-          << jets.size() << " jets/trackster";
-      }
-
-      auto trackster_idx = result.size();
-      result.resize(trackster_idx + jets.size());
-      for (const auto &pj : jets) {
-        for (const auto &component : pj.constituents()) {
-          result[trackster_idx].vertices().push_back(component.user_index());
-          result[trackster_idx].vertex_multiplicity().push_back(1);
-          if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-            edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet has "
-              << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
-          }
-        }
-        trackster_idx++;
-      }
-      fjInputs.clear();
+      buildJetAndTracksters(fjInputs, result);
     }
     const auto &tileOnLayer = input.tiles[currentLayer];
     for (int ieta = 0; ieta <= nEtaBin; ++ieta) {
@@ -132,30 +145,9 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
       }  // End of loop over phi-bin region
     }  // End of loop over eta-bin region
   }  // End of loop over layers
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-    edm::LogVerbatim("PatternRecogntionbyFastJet") << "Creating FastJet for the opposite side with " << fjInputs.size() << " LayerClusters in input";
-  }
-  fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, 0.1));
-  auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-    edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced "
-      << jets.size() << " jets/trackster";
-  }
 
-  auto trackster_idx = result.size();
-  result.resize(trackster_idx + jets.size());
-  for (const auto &pj : jets) {
-    for (const auto &component : pj.constituents()) {
-      result[trackster_idx].vertices().push_back(component.user_index());
-      result[trackster_idx].vertex_multiplicity().push_back(1);
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-        edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet has "
-          << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
-      }
-    }
-    trackster_idx++;
-  }
-  fjInputs.clear();
+  // Collect the jet from the other side wrt to the one taken care of inside the main loop above.
+  buildJetAndTracksters(fjInputs, result);
 
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
@@ -317,6 +309,7 @@ void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
+  iDesc.add<double>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
   iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
   iDesc.add<std::string>("eid_input_name", "input");
   iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");

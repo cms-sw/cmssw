@@ -7,6 +7,10 @@
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+// fwd declaration
+
+namespace fastjet { class PseudoJet;};
+
 namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyFastJet final : public PatternRecognitionAlgoBaseT<TILES> {
@@ -25,6 +29,7 @@ namespace ticl {
   private:
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    const double antikt_radius_;
     const int minNumLayerCluster_;
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;
@@ -37,6 +42,8 @@ namespace ticl {
     tensorflow::Session* eidSession_;
 
     static const int eidNFeatures_ = 3;
+
+    void buildJetAndTracksters(std::vector<fastjet::PseudoJet> &, std::vector<ticl::Trackster> &);
   };
 
 }  // namespace ticl
