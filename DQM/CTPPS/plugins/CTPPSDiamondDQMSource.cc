@@ -1194,12 +1194,10 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
             if (digi.trailingEdge() == 0) {
               ++channelPlots_[detId].LeadingOnlyCounter;
               channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
-            }
-            else if (digi.leadingEdge() == 0) {
+            } else if (digi.leadingEdge() == 0) {
               ++channelPlots_[detId].TrailingOnlyCounter;
               channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
-            }
-            else {
+            } else {
               ++channelPlots_[detId].CompleteCounter;
               // channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
               //                                                                 HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
