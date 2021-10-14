@@ -300,8 +300,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   if (!_autoIneffModTagging)
     cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
   else
-    cout << "A module is bad if efficiency < the avg in layer - " << threshold << " and has at least " << nModsMin
-         << " nModsMin." << endl;
+    cout << "A module is bad if the upper limit on the efficiency is < to the avg in the layer - " << threshold
+         << " and has at least " << nModsMin << " nModsMin." << endl;
 
   unsigned int run, evt, bx{0};
   double instLumi, PU;
@@ -1006,8 +1006,8 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
   tkmapnum = new TrackerMap(" Detector numerator   ");
   tkmapden = new TrackerMap(" Detector denominator ");
 
-  double myeff, mynum, myden;
-  double eff_limit = 0;
+  double myeff, mynum, myden, myeff_up;
+  double layer_min_eff = 0;
 
   for (Long_t i = 1; i <= 22; i++) {
     //Loop over every layer, extracting the information from
@@ -1040,6 +1040,9 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
           //Fill the bad list with empty results for every module
           tkmapbad->fillc((*ih).first, 255, 255, 255);
         }
+        if (myeff < threshold)
+          cout << "Layer " << i << " (" << GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff
+               << " , " << mynum << "/" << myden << endl;
         if (myden < nModsMin) {
           cout << "Layer " << i << " (" << GetLayerName(i) << ")  module " << (*ih).first << " is under occupancy at "
                << myden << endl;
@@ -1060,8 +1063,13 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
     if (autoTagging) {
       //Compute threshold to use for each layer
       hEffInLayer->GetXaxis()->SetRange(3, hEffInLayer->GetNbinsX() + 1);  // Remove from the avg modules below 1%
-      eff_limit = hEffInLayer->GetMean() - threshold;
-      cout << "Layer " << i << " threshold for bad modules: " << eff_limit << endl;
+      layer_min_eff =
+          hEffInLayer->GetMean() - 2.5 * hEffInLayer->GetRMS();  // uses RMS in case the distribution is wide
+      if (threshold > 2.5 * hEffInLayer->GetRMS())
+        layer_min_eff = hEffInLayer->GetMean() - threshold;  // otherwise uses the parameter 'threshold'
+      cout << "Layer " << i << " threshold for bad modules: <" << layer_min_eff
+           << "  (layer mean: " << hEffInLayer->GetMean() << " rms: " << hEffInLayer->GetRMS() << ")" << endl;
+
       hEffInLayer->GetXaxis()->SetRange(1, hEffInLayer->GetNbinsX() + 1);
 
       for (ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
@@ -1072,16 +1080,19 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
           myeff = mynum / myden;
         else
           myeff = 0;
-        if ((myden >= nModsMin) && (myeff < eff_limit)) {
+        // upper limit on the efficiency
+        myeff_up = TEfficiency::Bayesian(myden, mynum, .99, 1, 1, true);
+        if ((myden >= nModsMin) && (myeff_up < layer_min_eff)) {
           //We have a bad module, put it in the list!
           BadModules[(*ih).first] = myeff;
           tkmapbad->fillc((*ih).first, 255, 0, 0);
-          cout << "Layer " << i << " (" << GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff
-               << " , " << mynum << "/" << myden << endl;
         } else {
           //Fill the bad list with empty results for every module
           tkmapbad->fillc((*ih).first, 255, 255, 255);
         }
+        if (myeff_up < layer_min_eff + 0.08)  // printing message also for modules slighly above (8%) the limit
+          cout << "Layer " << i << " (" << GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff
+               << " , " << mynum << "/" << myden << " , upper limit: " << myeff_up << endl;
         if (myden < nModsMin) {
           cout << "Layer " << i << " (" << GetLayerName(i) << ")  module " << (*ih).first << " layer " << i
                << " is under occupancy at " << myden << endl;
