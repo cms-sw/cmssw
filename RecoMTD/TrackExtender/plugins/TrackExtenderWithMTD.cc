@@ -139,13 +139,11 @@ namespace {
       return nSegment_;
     }
 
-    inline size_t removeLastSegment() {
-      if (nSegment_ > 0) {
-        segmentPathOvc_.pop_back();
-        segmentMom2_.pop_back();
-        nSegment_--;
+    inline const std::pair<double, double> getSegment(size_t iSegment) {
+      if (iSegment >= nSegment_) {
+        throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }
-      return nSegment_;
+      return std::make_pair(segmentPathOvc_[iSegment], segmentMom2_[iSegment]);
     }
 
     size_t nSegment_;
@@ -1215,9 +1213,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       thiterror = mtdhit->timeError();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      const auto& propresult =
-          thePropagator->propagateWithPath(ihit1->updatedState(), (ihit1 + 1)->updatedState().surface());
-      double etlpathlength = std::abs(propresult.second);
+      std::pair <double,double> lastStep = trs.getSegment(0);
+      double etlpathlength = std::abs(lastStep.first/c_inv);
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
       //
@@ -1228,8 +1225,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         trs.removeFirstSegment();
         const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
         const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
-        TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
-            p.mag2(), etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
+	TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
+	    lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
         //
         // Protect against incompatible times
         //
