@@ -135,12 +135,17 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   // CA Plugin
   edm::ParameterSetDescription pluginDesc;
   pluginDesc.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CA", true));
-
-  // CLUE3D Plugin
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCA", pluginDesc);
+  //
+  // CLUE3D Plugin
   edm::ParameterSetDescription pluginDescClue3D;
   pluginDescClue3D.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CLUE3D", true));
   desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCLUE3D", pluginDescClue3D);
+
+  // FastJet Plugin
+  edm::ParameterSetDescription pluginDescFastJet;
+  pluginDescFastJet.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "FastJet", true));
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByFastJet", pluginDescFastJet);
 
   descriptions.add("trackstersProducer", desc);
 }
