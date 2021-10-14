@@ -370,8 +370,7 @@ if __name__ == '__main__':
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
-      try:from commands import getstatusoutput as run_cmd
-      except:from subprocess import getstatusoutput as run_cmd
+      from subprocess import getstatusoutput as run_cmd
 
       ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
       if not os.path.exists(ibeos_cache):
