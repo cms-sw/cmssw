@@ -33,7 +33,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.TrackerDigiGeometryESModule.applyAlignment = False
 process.SiStripConnectivity = cms.ESProducer("SiStripConnectivity")
 process.SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",

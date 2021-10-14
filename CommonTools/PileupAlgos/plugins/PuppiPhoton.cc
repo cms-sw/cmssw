@@ -1,27 +1,63 @@
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/deltaR.h"
-//Main File
-#include "CommonTools/PileupAlgos/plugins/PuppiPhoton.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <memory>
+
+// ------------------------------------------------------------------------------------------
+class PuppiPhoton : public edm::stream::EDProducer<> {
+public:
+  explicit PuppiPhoton(const edm::ParameterSet &);
+  ~PuppiPhoton() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef std::vector<LorentzVector> LorentzVectorCollection;
+  typedef edm::View<reco::Candidate> CandidateView;
+  typedef std::vector<reco::PFCandidate> PFOutputCollection;
+  typedef edm::View<reco::PFCandidate> PFView;
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  bool matchPFCandidate(const reco::Candidate *iPF, const reco::Candidate *iPho);
+  edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
+  edm::EDGetTokenT<CandidateView> tokenPuppiCandidates_;
+  edm::EDGetTokenT<CandidateView> tokenPhotonCandidates_;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tokenWeights_;
+  edm::EDGetTokenT<edm::ValueMap<bool>> tokenPhotonId_;
+  double pt_;
+  double eta_;
+  bool usePFRef_;
+  bool usePFphotons_;
+  bool runOnMiniAOD_;
+  bool usePhotonId_;
+  std::vector<double> dRMatch_;
+  std::vector<int32_t> pdgIds_;
+  std::unique_ptr<PFOutputCollection> corrCandidates_;
+  double weight_;
+  bool useValueMap_;
+};
 
 // ------------------------------------------------------------------------------------------
 PuppiPhoton::PuppiPhoton(const edm::ParameterSet &iConfig) {

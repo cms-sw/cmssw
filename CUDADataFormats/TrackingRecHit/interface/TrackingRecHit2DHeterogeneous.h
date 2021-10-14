@@ -16,6 +16,7 @@ public:
 
   explicit TrackingRecHit2DHeterogeneous(
       uint32_t nHits,
+      int32_t offsetBPIX2,
       pixelCPEforGPU::ParamsOnGPU const* cpeParams,
       uint32_t const* hitsModuleStart,
       cudaStream_t stream,
@@ -32,6 +33,7 @@ public:
   TrackingRecHit2DSOAView const* view() const { return m_view.get(); }
 
   auto nHits() const { return m_nHits; }
+  auto offsetBPIX2() const { return m_offsetBPIX2; }
 
   auto hitsModuleStart() const { return m_hitsModuleStart; }
   auto hitsLayerStart() { return m_hitsLayerStart; }
@@ -60,6 +62,7 @@ private:
   unique_ptr<TrackingRecHit2DSOAView> m_view;  //!
 
   uint32_t m_nHits;
+  int32_t m_offsetBPIX2;
 
   uint32_t const* m_hitsModuleStart;  // needed for legacy, this is on GPU!
 
@@ -80,11 +83,12 @@ using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous<cms::cudacompat::Host
 template <typename Traits>
 TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(
     uint32_t nHits,
+    int32_t offsetBPIX2,
     pixelCPEforGPU::ParamsOnGPU const* cpeParams,
     uint32_t const* hitsModuleStart,
     cudaStream_t stream,
     TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits> const* input)
-    : m_nHits(nHits), m_hitsModuleStart(hitsModuleStart) {
+    : m_nHits(nHits), m_offsetBPIX2(offsetBPIX2), m_hitsModuleStart(hitsModuleStart) {
   auto view = Traits::template make_host_unique<TrackingRecHit2DSOAView>(stream);
 
   view->m_nHits = nHits;

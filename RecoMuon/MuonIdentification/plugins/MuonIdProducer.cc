@@ -89,6 +89,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   if (fillShowerDigis_ && fillMatching_) {
     edm::ParameterSet showerDigiParameters = iConfig.getParameter<edm::ParameterSet>("ShowerDigiFillerParameters");
     theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>(showerDigiParameters, consumesCollector());
+  } else {
+    theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>();  // to be used to call fillDefault only
   }
 
   if (fillCaloCompatibility_) {
@@ -137,11 +139,14 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     throw cms::Exception("ConfigurationError") << "Number of input collections should be from 1 to 7.";
 
   debugWithTruthMatching_ = iConfig.getParameter<bool>("debugWithTruthMatching");
-  if (debugWithTruthMatching_)
+  if (debugWithTruthMatching_) {
     edm::LogWarning("MuonIdentification")
         << "========================================================================\n"
         << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
         << "========================================================================\n";
+
+    globalGeomToken_ = esConsumes();
+  }
   if (fillGlobalTrackQuality_) {
     const auto& glbQualTag = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
     glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(glbQualTag);
@@ -526,6 +531,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     directions1.push_back(TrackDetectorAssociator::OutsideIn);
     directions2.push_back(TrackDetectorAssociator::Any);
 
+    const GlobalTrackingGeometry* geometry = nullptr;
+    if (debugWithTruthMatching_) {
+      geometry = &iSetup.getData(globalGeomToken_);
+    }
+
     for (unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i) {
       const reco::Track& track = innerTrackCollectionHandle_->at(i);
       if (!isGoodTrack(track))
@@ -543,7 +553,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         if (debugWithTruthMatching_) {
           // add MC hits to a list of matched segments.
           // Since it's debugging mode - code is slow
-          MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
+          MuonIdTruthInfo::truthMatchMuon(iEvent, *geometry, trackerMuon);
         }
 
         // check if this muon is already in the list
@@ -888,7 +898,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
     matchedChamber.id = chamber.id;
 
-    if (fillShowerDigis_) {
+    if (fillShowerDigis_ && fillMatching_) {
       theShowerDigiFiller_->fill(matchedChamber);
     } else {
       theShowerDigiFiller_->fillDefault(matchedChamber);

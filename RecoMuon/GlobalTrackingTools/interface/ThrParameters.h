@@ -20,7 +20,9 @@
 
 class ThrParameters {
 public:
-  ThrParameters(const edm::EventSetup*);
+  ThrParameters(edm::ESHandle<DYTThrObject>,
+                const AlignmentErrorsExtended& dtAlignmentErrors,
+                const AlignmentErrorsExtended& cscAlignmentErrors);
   ~ThrParameters();
 
   void setInitialThr(double thr0) { x0 = thr0; };

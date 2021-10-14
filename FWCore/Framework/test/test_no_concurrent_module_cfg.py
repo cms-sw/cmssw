@@ -4,12 +4,13 @@ process = cms.Process("NOCONCURRENT")
 
 process.source = cms.Source("EmptySource")
 
-process.options = cms.untracked.PSet(
-                            numberOfStreams = cms.untracked.uint32(4),
-                            numberOfThreads = cms.untracked.uint32(4)                            
+process.options = dict(
+    numberOfStreams = 4,
+    numberOfThreads = 4,
+    numberOfConcurrentLuminosityBlocks = 1
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20))
+process.maxEvents.input = 20
 
 process.i1 = cms.EDProducer("BusyWaitIntLegacyProducer", ivalue = cms.int32(1),
   iterations = cms.uint32(300*1000))

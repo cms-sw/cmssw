@@ -125,7 +125,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
       l1aOfTmax(0),
       triggerTowerMap_(nullptr),
       localReco_(ps.getParameter<bool>("LocalReco")),
-      weights_(ps.getParameter<vector<double> >("weights")),
+      weights_(ps.getParameter<vector<double>>("weights")),
       tpInGeV_(ps.getParameter<bool>("tpInGeV")),
       firstFIRSample_(ps.getParameter<int>("ecalDccZs1stSample")),
       useEventRate_(ps.getParameter<bool>("useEventRate")),
@@ -166,7 +166,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   logSrApplicationErrors_ = (!srApplicationErrorLogFileName_.empty());
 
   //FIR ZS weights
-  configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
+  configFirWeights(ps.getParameter<vector<double>>("dccWeights"));
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -182,7 +182,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
   // get hold of back-end interface
 
-  vector<string> hists(ps.getUntrackedParameter<vector<string> >("histograms", vector<string>(1, "all")));
+  vector<string> hists(ps.getUntrackedParameter<vector<string>>("histograms", vector<string>(1, "all")));
 
   for (vector<string>::iterator it = hists.begin(); it != hists.end(); ++it)
     histList_.insert(*it);
@@ -291,14 +291,20 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   nEeZsErrors_ = 0;
   nEeZsErrorsType1_ = 0;
 
+  /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
+   * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
+   * system.*/
+  std::unique_ptr<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>> eeEnergies =
+      std::make_unique<std::array<std::array<std::array<energiesEe_t, nEeY>, nEeX>, nEndcaps>>();
+
   for (int iZ0 = 0; iZ0 < nEndcaps; ++iZ0) {
     for (int iX0 = 0; iX0 < nEeX; ++iX0) {
       for (int iY0 = 0; iY0 < nEeY; ++iY0) {
-        eeEnergies[iZ0][iX0][iY0].noZsRecE = -numeric_limits<double>::max();
-        eeEnergies[iZ0][iX0][iY0].recE = -numeric_limits<double>::max();
-        eeEnergies[iZ0][iX0][iY0].simE = 0;  //must be set to zero.
-        eeEnergies[iZ0][iX0][iY0].simHit = 0;
-        eeEnergies[iZ0][iX0][iY0].gain12 = false;
+        (*eeEnergies)[iZ0][iX0][iY0].noZsRecE = -numeric_limits<double>::max();
+        (*eeEnergies)[iZ0][iX0][iY0].recE = -numeric_limits<double>::max();
+        (*eeEnergies)[iZ0][iX0][iY0].simE = 0;  //must be set to zero.
+        (*eeEnergies)[iZ0][iX0][iY0].simHit = 0;
+        (*eeEnergies)[iZ0][iX0][iY0].gain12 = false;
       }
     }
   }
@@ -324,19 +330,19 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
                                    << "[0," << nEeY - 1 << "]\n";
     }
     //    cout << "EE no ZS energy computation..." ;
-    eeEnergies[iZ0][iX0][iY0].noZsRecE = frame2Energy(frame);
+    (*eeEnergies)[iZ0][iX0][iY0].noZsRecE = frame2Energy(frame);
 
-    eeEnergies[iZ0][iX0][iY0].gain12 = true;
+    (*eeEnergies)[iZ0][iX0][iY0].gain12 = true;
     for (int i = 0; i < frame.size(); ++i) {
       const int gain12Code = 0x1;
       if (frame[i].gainId() != gain12Code)
-        eeEnergies[iZ0][iX0][iY0].gain12 = false;
+        (*eeEnergies)[iZ0][iX0][iY0].gain12 = false;
     }
 
     const GlobalPoint xtalPos = geometry_p->getGeometry(frame.id())->getPosition();
 
-    eeEnergies[iZ0][iX0][iY0].phi = rad2deg * ((double)xtalPos.phi());
-    eeEnergies[iZ0][iX0][iY0].eta = xtalPos.eta();
+    (*eeEnergies)[iZ0][iX0][iY0].phi = rad2deg * ((double)xtalPos.phi());
+    (*eeEnergies)[iZ0][iX0][iY0].eta = xtalPos.eta();
   }
 
   //EE rec hits:
@@ -356,7 +362,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
                                 << "[0," << nEeY - 1 << "]\n";
       }
       //    cout << "EE no ZS energy computation..." ;
-      eeEnergies[iZ0][iX0][iY0].recE = hit.energy();
+      (*eeEnergies)[iZ0][iX0][iY0].recE = hit.energy();
     }
   }
 
@@ -369,8 +375,8 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
     int iY = detId.iy();
     int iY0 = iXY2cIndex(iY);
     int iZ0 = detId.zside() > 0 ? 1 : 0;
-    eeEnergies[iZ0][iX0][iY0].simE += simHit.energy();
-    ++eeEnergies[iZ0][iX0][iY0].simHit;
+    (*eeEnergies)[iZ0][iX0][iY0].simE += simHit.energy();
+    ++(*eeEnergies)[iZ0][iX0][iY0].simHit;
   }
 
   bool EEcrystalShot[nEeX][nEeY][2];
@@ -409,14 +415,14 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
     }
 
     if (localReco_) {
-      eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
+      (*eeEnergies)[iZ0][iX0][iY0].recE = frame2Energy(frame);
     }
 
-    eeEnergies[iZ0][iX0][iY0].gain12 = true;
+    (*eeEnergies)[iZ0][iX0][iY0].gain12 = true;
     for (int i = 0; i < frame.size(); ++i) {
       const int gain12Code = 0x1;
       if (frame[i].gainId() != gain12Code) {
-        eeEnergies[iZ0][iX0][iY0].gain12 = false;
+        (*eeEnergies)[iZ0][iX0][iY0].gain12 = false;
       }
     }
 
@@ -440,7 +446,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
         eventError = true;
         ++nEeZsErrors_;
         pair<int, int> ru = dccCh(frame.id());
-        if (isRuComplete_[ru.first][ru.second - 1])
+        if (isRuComplete_[ru.first - 1][ru.second - 1])
           ++nEeZsErrorsType1_;
         if (nEeZsErrors_ < 3) {
           srApplicationErrorLog_ << event.id() << ", "
@@ -470,22 +476,22 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   for (int iZ0 = 0; iZ0 < nEndcaps; ++iZ0) {
     for (int iX0 = 0; iX0 < nEeX; ++iX0) {
       for (int iY0 = 0; iY0 < nEeY; ++iY0) {
-        double recE = eeEnergies[iZ0][iX0][iY0].recE;
+        double recE = (*eeEnergies)[iZ0][iX0][iY0].recE;
         if (recE == -numeric_limits<double>::max())
           continue;  //not a crystal or ZS
-        fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
+        fill(meEeRecE_, (*eeEnergies)[iZ0][iX0][iY0].recE);
 
-        fill(meEeEMean_, ievt_ + 1, eeEnergies[iZ0][iX0][iY0].recE);
+        fill(meEeEMean_, ievt_ + 1, (*eeEnergies)[iZ0][iX0][iY0].recE);
 
         if (withEeSimHit_) {
-          if (!eeEnergies[iZ0][iX0][iY0].simHit) {  //noise only crystal channel
-            fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          if (!(*eeEnergies)[iZ0][iX0][iY0].simHit) {  //noise only crystal channel
+            fill(meEeNoise_, (*eeEnergies)[iZ0][iX0][iY0].noZsRecE);
           } else {
-            fill(meEeSimE_, eeEnergies[iZ0][iX0][iY0].simE);
-            fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
+            fill(meEeSimE_, (*eeEnergies)[iZ0][iX0][iY0].simE);
+            fill(meEeRecEHitXtal_, (*eeEnergies)[iZ0][iX0][iY0].recE);
           }
-          fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE, eeEnergies[iZ0][iX0][iY0].recE);
-          fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE, eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          fill(meEeRecVsSimE_, (*eeEnergies)[iZ0][iX0][iY0].simE, (*eeEnergies)[iZ0][iX0][iY0].recE);
+          fill(meEeNoZsRecVsSimE_, (*eeEnergies)[iZ0][iX0][iY0].simE, (*eeEnergies)[iZ0][iX0][iY0].noZsRecE);
         }
       }
     }
@@ -558,16 +564,23 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   bool eventError = false;
   nEbZsErrors_ = 0;
   nEbZsErrorsType1_ = 0;
-  vector<pair<int, int> > xtalEtaPhi;
+  vector<pair<int, int>> xtalEtaPhi;
 
   xtalEtaPhi.reserve(nEbPhi * nEbEta);
+
+  /** Energy deposited in ECAL barrel crystals. Eta index starts from 0 at
+   * eta minimum and phi index starts at phi=0+ in CMS std coordinate system.
+   */
+  std::unique_ptr<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>> ebEnergies =
+      std::make_unique<std::array<std::array<energiesEb_t, nEbPhi>, nEbEta>>();
+
   for (int iEta0 = 0; iEta0 < nEbEta; ++iEta0) {
     for (int iPhi0 = 0; iPhi0 < nEbPhi; ++iPhi0) {
-      ebEnergies[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();
-      ebEnergies[iEta0][iPhi0].recE = -numeric_limits<double>::max();
-      ebEnergies[iEta0][iPhi0].simE = 0;  //must be zero.
-      ebEnergies[iEta0][iPhi0].simHit = 0;
-      ebEnergies[iEta0][iPhi0].gain12 = false;
+      (*ebEnergies)[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();
+      (*ebEnergies)[iEta0][iPhi0].recE = -numeric_limits<double>::max();
+      (*ebEnergies)[iEta0][iPhi0].simE = 0;  //must be zero.
+      (*ebEnergies)[iEta0][iPhi0].simHit = 0;
+      (*ebEnergies)[iEta0][iPhi0].gain12 = false;
       xtalEtaPhi.push_back(pair<int, int>(iEta0, iPhi0));
     }
   }
@@ -597,18 +610,18 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
       throw cms::Exception(s.str());
     }
 
-    ebEnergies[iEta0][iPhi0].noZsRecE = frame2Energy(frame);
-    ebEnergies[iEta0][iPhi0].gain12 = true;
+    (*ebEnergies)[iEta0][iPhi0].noZsRecE = frame2Energy(frame);
+    (*ebEnergies)[iEta0][iPhi0].gain12 = true;
     for (int i = 0; i < frame.size(); ++i) {
       const int gain12Code = 0x1;
       if (frame[i].gainId() != gain12Code)
-        ebEnergies[iEta0][iPhi0].gain12 = false;
+        (*ebEnergies)[iEta0][iPhi0].gain12 = false;
     }
 
     const GlobalPoint xtalPos = geometry_p->getGeometry(frame.id())->getPosition();
 
-    ebEnergies[iEta0][iPhi0].phi = rad2deg * ((double)xtalPos.phi());
-    ebEnergies[iEta0][iPhi0].eta = xtalPos.eta();
+    (*ebEnergies)[iEta0][iPhi0].phi = rad2deg * ((double)xtalPos.phi());
+    (*ebEnergies)[iEta0][iPhi0].eta = xtalPos.eta();
   }  //next non-zs digi
 
   //EB sim hits
@@ -619,8 +632,8 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
     int iEta0 = iEta2cIndex(iEta);
     int iPhi = detId.iphi();
     int iPhi0 = iPhi2cIndex(iPhi);
-    ebEnergies[iEta0][iPhi0].simE += simHit.energy();
-    ++ebEnergies[iEta0][iPhi0].simHit;
+    (*ebEnergies)[iEta0][iPhi0].simE += simHit.energy();
+    ++(*ebEnergies)[iEta0][iPhi0].simHit;
   }
 
   bool crystalShot[nEbEta][nEbPhi];
@@ -660,14 +673,14 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
       abort();
     }
     if (localReco_) {
-      ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
+      (*ebEnergies)[iEta0][iPhi0].recE = frame2Energy(frame);
     }
 
-    ebEnergies[iEta0][iPhi0].gain12 = true;
+    (*ebEnergies)[iEta0][iPhi0].gain12 = true;
     for (int i = 0; i < frame.size(); ++i) {
       const int gain12Code = 0x1;
       if (frame[i].gainId() != gain12Code) {
-        ebEnergies[iEta0][iPhi0].gain12 = false;
+        (*ebEnergies)[iEta0][iPhi0].gain12 = false;
       }
     }
 
@@ -693,7 +706,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
         eventError = true;
         ++nEbZsErrors_;
         pair<int, int> ru = dccCh(frame.id());
-        if (isRuComplete_[ru.first][ru.second - 1])
+        if (isRuComplete_[ru.first - 1][ru.second - 1])
           ++nEbZsErrorsType1_;
         if (nEbZsErrors_ < 3) {
           srApplicationErrorLog_ << event.id() << ", "
@@ -733,18 +746,18 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
         LogError("EcalSrValid") << "iPhi0 (= " << iPhi0 << ") is out of range ("
                                 << "[0," << nEbPhi - 1 << "]\n";
       }
-      ebEnergies[iEta0][iPhi0].recE = hit.energy();
+      (*ebEnergies)[iEta0][iPhi0].recE = hit.energy();
     }
   }
 
   for (unsigned int i = 0; i < xtalEtaPhi.size(); ++i) {
     int iEta0 = xtalEtaPhi[i].first;
     int iPhi0 = xtalEtaPhi[i].second;
-    energiesEb_t& energies = ebEnergies[iEta0][iPhi0];
+    energiesEb_t& energies = (*ebEnergies)[iEta0][iPhi0];
 
     double recE = energies.recE;
     if (recE != -numeric_limits<double>::max()) {  //not zero suppressed
-      fill(meEbRecE_, ebEnergies[iEta0][iPhi0].recE);
+      fill(meEbRecE_, (*ebEnergies)[iEta0][iPhi0].recE);
       fill(meEbEMean_, ievt_ + 1, recE);
     }  //not zero suppressed
 

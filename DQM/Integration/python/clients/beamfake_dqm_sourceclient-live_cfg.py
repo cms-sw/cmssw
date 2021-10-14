@@ -198,6 +198,11 @@ print("Configured frontierKey", options.runUniqueKey)
 
 #---------
 # Final path
+print("Final Source settings:", process.source)
+
 process.p = cms.Path(process.dqmcommon
                      * process.monitor
                     )
+
+
+

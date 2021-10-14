@@ -70,7 +70,7 @@ DetStatus::DetStatus(const edm::ParameterSet& pset) {
 //
 // -- Destructor
 //
-DetStatus::~DetStatus() {}
+DetStatus::~DetStatus() = default;
 
 //*********************************************************************//
 bool DetStatus::checkForDCSStatus(const DcsStatusCollection& dcsStatus)
@@ -116,9 +116,15 @@ bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord)
   }
 
   for (unsigned int detlist = 0; detlist < DcsStatus::nPartitions; detlist++) {
+    if (verbose_)
+      edm::LogInfo("DetStatus") << "testing " << DcsStatus::partitionName[detlist];
     if (requestedPartitions_.test(detlist)) {
+      if (verbose_)
+        edm::LogInfo("DetStatus") << " " << DcsStatus::partitionName[detlist] << "in the requested list" << std::endl;
       if (AndOr_) {
-        accepted = (accepted & dcsRecord.highVoltageReady(detlist));
+        accepted = dcsRecord.highVoltageReady(detlist);
+        if (!accepted)
+          break;
       } else {
         accepted = (accepted || dcsRecord.highVoltageReady(detlist));
       }
@@ -126,7 +132,7 @@ bool DetStatus::checkForDCSRecord(const DCSRecord& dcsRecord)
   }
 
   if (verbose_) {
-    edm::LogInfo("DetStatus") << "DCSStatus filter: " << accepted << "( AndOr: " << AndOr_ << ")" << std::endl;
+    edm::LogInfo("DetStatus") << "DCSStatus filter: " << accepted << " ( AndOr: " << AndOr_ << ")" << std::endl;
     edm::LogVerbatim("DetStatus") << "Partitions ON: ";
     for (unsigned int detlist = 0; detlist < DcsStatus::nPartitions; detlist++) {
       if ((dcsRecord.highVoltageReady(detlist))) {
@@ -154,11 +160,12 @@ bool DetStatus::filter(edm::Event& evt, edm::EventSetup const& es)
   edm::Handle<DCSRecord> dcsRecord;
   evt.getByToken(dcsRecordToken_, dcsRecord);
 
+  // if the old style DCS status is valid (Run1 + Run2)
   if (dcsStatus.isValid() && !dcsStatus->empty()) {
     accepted = checkForDCSStatus(*dcsStatus);
   } else if (dcsRecord.isValid()) {
     if (evt.eventAuxiliary().isRealData()) {
-      // in case of real data check for DCS
+      // in case of real data check for DCSRecord content (Run >=3)
       accepted = checkForDCSRecord(*dcsRecord);
     } else {
       // in case of MC accept in any case

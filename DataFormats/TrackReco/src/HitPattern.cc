@@ -882,16 +882,16 @@ uint16_t HitPattern::isStereo(DetId i, const TrackerTopology& ttopo) {
 }
 
 int HitPattern::muonStations(int subdet, int hitType) const {
-  int stations[4] = {0, 0, 0, 0};
+  int stations[5] = {0, 0, 0, 0, 0};
   for (int i = beginTrackHits; i < endTrackHits; ++i) {
     uint16_t pattern = getHitPatternByAbsoluteIndex(i);
     if (muonHitFilter(pattern) && (subdet == 0 || int(getSubStructure(pattern)) == subdet) &&
         (hitType == -1 || int(getHitType(pattern)) == hitType)) {
-      stations[getMuonStation(pattern) - 1] = 1;
+      stations[getMuonStation(pattern)] = 1;
     }
   }
 
-  return stations[0] + stations[1] + stations[2] + stations[3];
+  return stations[0] + stations[1] + stations[2] + stations[3] + stations[4];
 }
 
 int HitPattern::innermostMuonStationWithHits(int hitType) const {

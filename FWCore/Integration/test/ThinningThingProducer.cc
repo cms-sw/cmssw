@@ -40,6 +40,8 @@ namespace edmtest {
 
   private:
     edm::EDGetTokenT<TrackOfThingsCollection> trackToken_;
+    edm::ESGetToken<edmtest::WhatsIt, GadgetRcd> whatsItToken_;
+
     std::set<unsigned int> keysToSave_;
     unsigned int offsetToThinnedKey_;
     unsigned int offsetToValue_;
@@ -49,6 +51,7 @@ namespace edmtest {
 
   ThinningThingSelector::ThinningThingSelector(edm::ParameterSet const& pset, edm::ConsumesCollector&& cc) {
     trackToken_ = cc.consumes<TrackOfThingsCollection>(pset.getParameter<edm::InputTag>("trackTag"));
+    whatsItToken_ = cc.esConsumes();
     offsetToThinnedKey_ = pset.getParameter<unsigned int>("offsetToThinnedKey");
     offsetToValue_ = pset.getParameter<unsigned int>("offsetToValue");
     expectedCollectionSize_ = pset.getParameter<unsigned int>("expectedCollectionSize");
@@ -80,8 +83,7 @@ namespace edmtest {
     }
 
     // Just checking to see the EventSetup works from here. Not really using it for anything.
-    edm::ESHandle<edmtest::WhatsIt> pSetup;
-    es.get<GadgetRcd>().get(pSetup);
+    edm::ESHandle<edmtest::WhatsIt> pSetup = es.getHandle(whatsItToken_);
     pSetup.isValid();
   }
 

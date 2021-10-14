@@ -22,7 +22,9 @@ class DetLayer;
 class OrderedHitPair;
 class TrackingRecHit;
 
+class MagneticField;
 class TransientTrackingRecHitBuilder;
+class MultipleScatteringParametrisationMaker;
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,10 +40,10 @@ public:
   ThirdHitPrediction(const TrackingRegion& region,
                      GlobalPoint inner,
                      GlobalPoint outer,
-                     const edm::EventSetup& es,
+                     const MagneticField& magfield,
+                     const TransientTrackingRecHitBuilder& ttrhBuilder,
                      double nSigMultipleScattering,
-                     double maxAngleRatio,
-                     std::string builderName);
+                     double maxAngleRatio);
   ~ThirdHitPrediction();
 
   void getRanges(const DetLayer* layer, float phi[], float rz[]);
@@ -50,7 +52,7 @@ public:
   bool isCompatibleWithMultipleScattering(GlobalPoint g3,
                                           const std::vector<const TrackingRecHit*>& h,
                                           std::vector<GlobalVector>& localDirs,
-                                          const edm::EventSetup& es);
+                                          const MultipleScatteringParametrisationMaker& msmaker);
 
 private:
   void initLayer(const DetLayer* layer);

@@ -1,4 +1,14 @@
+<use name="CalibTracker/Records"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondCore/DBOutputService"/>
 <use name="CondTools/SiPixel"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="MagneticField/Records"/>
+<use name="RecoLocalTracker/SiPixelRecHits"/>
+<use name="boost"/>
+<use name="root"/>
 <library name="CondToolsSiPixelPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -1,5 +1,6 @@
 <use name="CalibCalorimetry/CastorCalib"/>
 <use name="CalibFormats/CastorObjects"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/CastorObjects"/>
 <use name="DataFormats/HcalDetId"/>

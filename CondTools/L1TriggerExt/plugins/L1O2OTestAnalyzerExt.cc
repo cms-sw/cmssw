@@ -1,9 +1,8 @@
-#include <iostream>
 #include <memory>
 #include <sstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +25,7 @@
 // class decleration
 //
 
-class L1O2OTestAnalyzerExt : public edm::EDAnalyzer {
+class L1O2OTestAnalyzerExt : public edm::one::EDAnalyzer<> {
 public:
   explicit L1O2OTestAnalyzerExt(const edm::ParameterSet&);
   ~L1O2OTestAnalyzerExt() override;
@@ -42,6 +41,7 @@ private:
   bool m_printESRecords;
   bool m_printPayloadTokens;
   std::vector<std::string> m_recordsToPrint;
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> l1TriggerKeyExtToken_;
 };
 
 L1O2OTestAnalyzerExt::L1O2OTestAnalyzerExt(const edm::ParameterSet& iConfig)
@@ -51,6 +51,7 @@ L1O2OTestAnalyzerExt::L1O2OTestAnalyzerExt(const edm::ParameterSet& iConfig)
       m_printPayloadTokens(iConfig.getParameter<bool>("printPayloadTokens")),
       m_recordsToPrint(iConfig.getParameter<std::vector<std::string> >("recordsToPrint")) {
   //now do what ever initialization is needed
+  l1TriggerKeyExtToken_ = esConsumes();
 }
 
 L1O2OTestAnalyzerExt::~L1O2OTestAnalyzerExt() {
@@ -71,65 +72,56 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogError("L1-O2O") << "Problem getting last L1TriggerKeyListExt";
     }
 
-    std::cout << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
+    edm::LogInfo("L1-O2O") << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:";
 
     L1TriggerKeyListExt::KeyToToken::const_iterator iTSCKey = pList.tscKeyToTokenMap().begin();
     L1TriggerKeyListExt::KeyToToken::const_iterator eTSCKey = pList.tscKeyToTokenMap().end();
     for (; iTSCKey != eTSCKey; ++iTSCKey) {
-      std::cout << iTSCKey->first;
+      edm::LogInfo("L1-O2O") << iTSCKey->first;
       if (m_printPayloadTokens) {
-        std::cout << " " << iTSCKey->second;
+        edm::LogInfo("L1-O2O") << " " << iTSCKey->second;
       }
-      std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     L1TriggerKeyListExt::RecordToKeyToToken::const_iterator iRec = pList.recordTypeToKeyToTokenMap().begin();
     L1TriggerKeyListExt::RecordToKeyToToken::const_iterator eRec = pList.recordTypeToKeyToTokenMap().end();
     for (; iRec != eRec; ++iRec) {
       const L1TriggerKeyListExt::KeyToToken& keyTokenMap = iRec->second;
-      std::cout << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:" << std::endl;
+      edm::LogInfo("L1-O2O") << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:";
 
       L1TriggerKeyListExt::KeyToToken::const_iterator iKey = keyTokenMap.begin();
       L1TriggerKeyListExt::KeyToToken::const_iterator eKey = keyTokenMap.end();
       for (; iKey != eKey; ++iKey) {
-        std::cout << iKey->first;
+        edm::LogInfo("L1-O2O") << iKey->first;
         if (m_printPayloadTokens) {
-          std::cout << " " << iKey->second;
+          edm::LogInfo("L1-O2O") << " " << iKey->second;
         }
-        std::cout << std::endl;
       }
-      std::cout << std::endl;
     }
   }
 
   if (m_printL1TriggerKeyExt) {
     try {
-      ESHandle<L1TriggerKeyExt> pKey;
-      iSetup.get<L1TriggerKeyExtRcd>().get(pKey);
+      ESHandle<L1TriggerKeyExt> pKey = iSetup.getHandle(l1TriggerKeyExtToken_);
 
-      std::cout << std::endl;
-      std::cout << "Current TSC key = " << pKey->tscKey() << std::endl << std::endl;
+      edm::LogInfo("L1-O2O") << "Current TSC key = " << pKey->tscKey();
 
-      std::cout << "Current subsystem keys:" << std::endl;
-      std::cout << "TSP0 " << pKey->subsystemKey(L1TriggerKeyExt::kuGT) << std::endl << std::endl;
+      edm::LogInfo("L1-O2O") << "Current subsystem keys:";
+      edm::LogInfo("L1-O2O") << "TSP0 " << pKey->subsystemKey(L1TriggerKeyExt::kuGT);
 
-      std::cout << "Object keys:" << std::endl;
+      edm::LogInfo("L1-O2O") << "Object keys:";
       const L1TriggerKeyExt::RecordToKey& recKeyMap = pKey->recordToKeyMap();
       L1TriggerKeyExt::RecordToKey::const_iterator iRec = recKeyMap.begin();
       L1TriggerKeyExt::RecordToKey::const_iterator eRec = recKeyMap.end();
       for (; iRec != eRec; ++iRec) {
-        std::cout << iRec->first << " " << iRec->second << std::endl;
+        edm::LogInfo("L1-O2O") << iRec->first << " " << iRec->second;
       }
     } catch (cms::Exception& ex) {
-      std::cout << "No L1TriggerKeyExt found." << std::endl;
+      edm::LogInfo("L1-O2O") << "No L1TriggerKeyExt found.";
     }
   }
 
   if (m_printESRecords) {
-    //        ESHandle< L1TriggerKeyListExt > pList ;
-    //        iSetup.get< L1TriggerKeyListExtRcd >().get( pList ) ;
-
     L1TriggerKeyListExt pList;
     l1t::DataWriterExt dataWriter;
     if (!dataWriter.fillLastTriggerKeyList(pList)) {
@@ -144,7 +136,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
 
     l1t::DataWriterExt writer;
 
-    std::cout << std::endl << "Run Settings keys:" << std::endl;
+    edm::LogInfo("L1-O2O") << "Run Settings keys:";
 
     std::vector<std::string>::const_iterator iRec = m_recordsToPrint.begin();
     std::vector<std::string>::const_iterator iEnd = m_recordsToPrint.end();
@@ -158,11 +150,10 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
         key = pList.objectKey(*iRec, payloadToken);
       }
 
-      std::cout << *iRec << " " << key;
+      edm::LogInfo("L1-O2O") << *iRec << " " << key;
       if (m_printPayloadTokens) {
-        std::cout << " " << payloadToken;
+        edm::LogInfo("L1-O2O") << " " << payloadToken;
       }
-      std::cout << std::endl;
 
       // Replace spaces in key with ?s.  Do reverse substitution when
       // making L1TriggerKeyExt.
@@ -170,7 +161,7 @@ void L1O2OTestAnalyzerExt::analyze(const edm::Event& iEvent, const edm::EventSet
       log += " " + *iRec + "Key=" + key;
     }
 
-    std::cout << std::endl << log << std::endl;
+    edm::LogInfo("L1-O2O") << log;
   }
 }
 

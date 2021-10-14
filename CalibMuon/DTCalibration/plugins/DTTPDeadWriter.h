@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 #include <string>
 
@@ -48,11 +51,13 @@ private:
 
   //The map of t0 to be read from event
   const DTT0* tZeroMap;
+  edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
 
   // The object to be written to DB
   DTDeadFlag* tpDeadList;
 
   //The DTGeometry
   edm::ESHandle<DTGeometry> muonGeom;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

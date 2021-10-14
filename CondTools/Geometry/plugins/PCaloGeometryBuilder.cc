@@ -21,14 +21,15 @@ public:
         m_ecalP(pset.getUntrackedParameter<bool>("EcalP", true)),
         m_hgcal(pset.getUntrackedParameter<bool>("HGCal", false)) {
     const std::string toDB("_toDB");
-    ebGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(EcalBarrelGeometry::producerTag() + toDB));
-    eeGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(EcalEndcapGeometry::producerTag() + toDB));
-    esGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(EcalPreshowerGeometry::producerTag() + toDB));
-    hgcalGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(HGCalGeometry::producerTag() + toDB));
-    hcalGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(HcalGeometry::producerTag() + toDB));
-    ctGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(CaloTowerGeometry::producerTag() + toDB));
-    zdcGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(ZdcGeometry::producerTag() + toDB));
-    castGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag(CastorGeometry::producerTag() + toDB));
+    ebGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", EcalBarrelGeometry::producerTag() + toDB));
+    eeGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", EcalEndcapGeometry::producerTag() + toDB));
+    esGeomToken_ =
+        esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", EcalPreshowerGeometry::producerTag() + toDB));
+    hgcalGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", HGCalGeometry::producerTag() + toDB));
+    hcalGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", HcalGeometry::producerTag() + toDB));
+    ctGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", CaloTowerGeometry::producerTag() + toDB));
+    zdcGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ZdcGeometry::producerTag() + toDB));
+    castGeomToken_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", CastorGeometry::producerTag() + toDB));
   }
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;

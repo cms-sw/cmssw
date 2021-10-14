@@ -84,7 +84,8 @@ namespace {
 InnerDeltaPhi::InnerDeltaPhi(const DetLayer& outlayer,
                              const DetLayer& layer,
                              const TrackingRegion& region,
-                             const edm::EventSetup& iSetup,
+                             const MagneticField& field,
+                             const MultipleScatteringParametrisationMaker& msmaker,
                              bool precise,
                              float extraTolerance)
     : innerIsBarrel(layer.isBarrel()),
@@ -100,14 +101,10 @@ InnerDeltaPhi::InnerDeltaPhi(const DetLayer& outlayer,
       theVtxZ(region.origin().z()),
       thePtMin(region.ptMin()),
       theVtx(region.origin().x(), region.origin().y()),
-      sigma(&layer, iSetup)
-
-{
+      sigma(msmaker.parametrisation(&layer)) {
   float zMinOrigin = theVtxZ - region.originZBound();
   float zMaxOrigin = theVtxZ + region.originZBound();
-  edm::ESHandle<MagneticField> hfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(hfield);
-  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, *hfield);
+  theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin, field);
 
   if (innerIsBarrel)
     initBarrelLayer(layer);

@@ -18,7 +18,7 @@
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -41,19 +41,16 @@ namespace edm {
 
 namespace edmtest {
 
-  class TestMergeResults : public edm::EDAnalyzer {
+  class TestMergeResults : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestMergeResults(edm::ParameterSet const&);
-    virtual ~TestMergeResults();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void respondToOpenInputFile(edm::FileBlock const& fb);
-    virtual void respondToCloseInputFile(edm::FileBlock const& fb);
-    void endJob();
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endJob() override;
 
   private:
     void checkExpectedLumiProducts(unsigned int index,
@@ -99,13 +96,7 @@ namespace edmtest {
 
     std::vector<int> expectedDroppedEvent_;
     std::vector<int> expectedDroppedEvent1_;
-
-    int nRespondToOpenInputFile_;
-    int nRespondToCloseInputFile_;
-    int expectedRespondToOpenInputFile_;
-    int expectedRespondToCloseInputFile_;
-
-    std::vector<std::string> expectedInputFileNames_;
+    std::vector<int> expectedDroppedEvent1NEvents_;
 
     bool verbose_;
 
@@ -113,6 +104,7 @@ namespace edmtest {
     unsigned int indexLumi_;
     unsigned int parentIndex_;
     unsigned int droppedIndex1_;
+    int droppedIndex1EventCount_;
     unsigned int processHistoryIndex_;
 
     edm::Handle<edmtest::Thing> h_thing;
@@ -148,14 +140,8 @@ namespace edmtest {
 
         expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
         expectedDroppedEvent1_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1", default_)),
-
-        nRespondToOpenInputFile_(0),
-        nRespondToCloseInputFile_(0),
-        expectedRespondToOpenInputFile_(ps.getUntrackedParameter<int>("expectedRespondToOpenInputFile", -1)),
-        expectedRespondToCloseInputFile_(ps.getUntrackedParameter<int>("expectedRespondToCloseInputFile", -1)),
-
-        expectedInputFileNames_(
-            ps.getUntrackedParameter<std::vector<std::string> >("expectedInputFileNames", defaultvstring_)),
+        expectedDroppedEvent1NEvents_(
+            ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1NEvents", default_)),
 
         verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
 
@@ -163,6 +149,7 @@ namespace edmtest {
         indexLumi_(0),
         parentIndex_(0),
         droppedIndex1_(0),
+        droppedIndex1EventCount_(0),
         processHistoryIndex_(0),
         testAlias_(ps.getUntrackedParameter<bool>("testAlias", false)) {
     auto ap_thing = std::make_unique<edmtest::Thing>();
@@ -193,6 +180,7 @@ namespace edmtest {
       mayConsume<edmtest::Thing>(edm::InputTag{parent, "event", "PROD"});
     }
     if (expectedDroppedEvent1_.size() > droppedIndex1_) {
+      assert(expectedDroppedEvent1_.size() == expectedDroppedEvent1NEvents_.size());
       consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped1", "event", "PROD"});
     }
     consumes<edmtest::Thing>(edm::InputTag{"thingWithMergeProducer", "event", "PROD"});
@@ -289,10 +277,6 @@ namespace edmtest {
 
   // -----------------------------------------------------------------
 
-  TestMergeResults::~TestMergeResults() {}
-
-  // -----------------------------------------------------------------
-
   void TestMergeResults::analyze(edm::Event const& e, edm::EventSetup const&) {
     assert(e.processHistory().id() == e.processHistoryID());
 
@@ -311,6 +295,14 @@ namespace edmtest {
     // This one is used to test the merging step when a specific product
     // has been dropped or not created in some of the input files.
     if (expectedDroppedEvent1_.size() > droppedIndex1_) {
+      ++droppedIndex1EventCount_;
+      if (droppedIndex1EventCount_ > expectedDroppedEvent1NEvents_[droppedIndex1_]) {
+        ++droppedIndex1_;
+        std::cout << "advance " << droppedIndex1_ << std::endl;
+        droppedIndex1EventCount_ = 1;
+      }
+      assert(droppedIndex1_ < expectedDroppedEvent1_.size());
+
       edm::InputTag tag("makeThingToBeDropped1", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
       if (expectedDroppedEvent1_[droppedIndex1_] == -1) {
@@ -510,44 +502,9 @@ namespace edmtest {
     indexLumi_ += 3;
   }
 
-  void TestMergeResults::respondToOpenInputFile(edm::FileBlock const& fb) {
-    if (verbose_)
-      edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
-
-    if (!expectedInputFileNames_.empty()) {
-      if (expectedInputFileNames_.size() <= static_cast<unsigned>(nRespondToOpenInputFile_) ||
-          expectedInputFileNames_[nRespondToOpenInputFile_] != fb.fileName()) {
-        std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-                  << "Unexpected input filename, expected name = " << expectedInputFileNames_[nRespondToOpenInputFile_]
-                  << "    actual name = " << fb.fileName() << std::endl;
-        abort();
-      }
-    }
-    ++nRespondToOpenInputFile_;
-  }
-
-  void TestMergeResults::respondToCloseInputFile(edm::FileBlock const&) {
-    if (verbose_)
-      edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
-    ++nRespondToCloseInputFile_;
-    ++droppedIndex1_;
-  }
-
   void TestMergeResults::endJob() {
     if (verbose_)
       edm::LogInfo("TestMergeResults") << "endJob";
-
-    if (expectedRespondToOpenInputFile_ > -1 && nRespondToOpenInputFile_ != expectedRespondToOpenInputFile_) {
-      std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-                << "Unexpected number of calls to the function respondToOpenInputFile" << std::endl;
-      abort();
-    }
-
-    if (expectedRespondToCloseInputFile_ > -1 && nRespondToCloseInputFile_ != expectedRespondToCloseInputFile_) {
-      std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-                << "Unexpected number of calls to the function respondToCloseInputFile" << std::endl;
-      abort();
-    }
   }
 
   void TestMergeResults::checkExpectedRunProducts(unsigned int index,

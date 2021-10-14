@@ -43,6 +43,7 @@ public:
   void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const override;
+  std::vector<unsigned short> group0FGbits(const QIE11DataFrame& df) const;
   void compress(const IntegerCaloSamples& ics,
                 const std::vector<bool>& featureBits,
                 HcalTriggerPrimitiveDigi& tp) const override;

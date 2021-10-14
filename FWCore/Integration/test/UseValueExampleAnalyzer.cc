@@ -21,7 +21,7 @@ Implementation:
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -32,12 +32,11 @@ Implementation:
 // class decleration
 //
 
-class UseValueExampleAnalyzer : public edm::EDAnalyzer {
+class UseValueExampleAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
-  ~UseValueExampleAnalyzer();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const final;
 
 private:
   // ----------member data ---------------------------
@@ -58,17 +57,14 @@ UseValueExampleAnalyzer::UseValueExampleAnalyzer(const edm::ParameterSet& /* iCo
   //now do what ever initialization is needed
 }
 
-UseValueExampleAnalyzer::~UseValueExampleAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup*/) {
+void UseValueExampleAnalyzer::analyze(edm::StreamID,
+                                      const edm::Event& /* iEvent */,
+                                      const edm::EventSetup& /* iSetup*/) const {
   std::cout << " value from service " << edm::Service<ValueExample>()->value() << std::endl;
 }
 

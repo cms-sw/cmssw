@@ -18,88 +18,84 @@ TrackMon.doSeedParameterHistos  = cms.bool(False)
 # ---------------------------------------------------------------------------#
 
 # generalTracks
-TrackMonGenTk = TrackMon.clone()
-TrackMonGenTk.TrackProducer         = cms.InputTag("generalTracks")
-TrackMonGenTk.beamSpot              = cms.InputTag("offlineBeamSpot")
-TrackMonGenTk.FolderName            = cms.string('Tracking/GenTk/GlobalParameters')
-TrackMonGenTk.BSFolderName          = cms.string('Tracking/GenTk/BeamSpotParameters')
-TrackMonGenTk.AlgoName              = cms.string('GenTk')
-TrackMonGenTk.doSeedParameterHistos = cms.bool(False)
+TrackMonGenTk = TrackMon.clone(
+    TrackProducer = "generalTracks",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/GenTk/GlobalParameters',
+    BSFolderName = 'Tracking/GenTk/BeamSpotParameters',
+    AlgoName = 'GenTk',
+    doSeedParameterHistos = False
+)
 
 
 
 # Step0 
-TrackMonStep0 = TrackMon.clone()
-TrackMonStep0.TrackProducer = cms.InputTag("zeroStepTracksWithQuality")
-TrackMonStep0.SeedProducer  = cms.InputTag("initialStepSeeds")
-TrackMonStep0.TCProducer    = cms.InputTag("initialStepTrackCandidates")
-TrackMonStep0.beamSpot      = cms.InputTag("offlineBeamSpot")
-TrackMonStep0.FolderName    = cms.string('Tracking/Step0/GlobalParameters')
-TrackMonStep0.BSFolderName  = cms.string('Tracking/Step0/BeamSpotParameters')
-TrackMonStep0.AlgoName      = cms.string('Step0')
-TrackMonStep0.doSeedParameterHistos = cms.bool(True)
-TrackMonStep0.doTrackCandHistos = cms.bool(True)
+TrackMonStep0 = TrackMon.clone(
+    TrackProducer = "zeroStepTracksWithQuality",
+    SeedProducer = "initialStepSeeds",
+    TCProducer = "initialStepTrackCandidates",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/Step0/GlobalParameters',
+    BSFolderName = 'Tracking/Step0/BeamSpotParameters',
+    AlgoName = 'Step0',
+    doSeedParameterHistos = True,
+    doTrackCandHistos = True
+)
 
 # Step1 
-TrackMonStep1 = TrackMon.clone()
-TrackMonStep1.TrackProducer = cms.InputTag("preMergingFirstStepTracksWithQuality")
-TrackMonStep1.SeedProducer  = cms.InputTag("newSeedFromPairs")
-TrackMonStep1.TCProducer    = cms.InputTag("stepOneTrackCandidateMaker")
-TrackMonStep1.beamSpot      = cms.InputTag("offlineBeamSpot")
-TrackMonStep1.FolderName    = cms.string('Tracking/Step1/GlobalParameters')
-TrackMonStep1.BSFolderName  = cms.string('Tracking/Step1/BeamSpotParameters')
-TrackMonStep1.AlgoName      = cms.string('Step1')
-TrackMonStep1.doSeedParameterHistos = cms.bool(True)
-TrackMonStep1.doTrackCandHistos = cms.bool(True)
+TrackMonStep1 = TrackMon.clone(
+    TrackProducer = "preMergingFirstStepTracksWithQuality",
+    SeedProducer = "newSeedFromPairs",
+    TCProducer = "stepOneTrackCandidateMaker",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/Step1/GlobalParameters',
+    BSFolderName = 'Tracking/Step1/BeamSpotParameters',
+    AlgoName = 'Step1',
+    doSeedParameterHistos = True,
+    doTrackCandHistos = True
+)
 
 # Step2 
-TrackMonStep2 = TrackMon.clone()
-TrackMonStep2.TrackProducer = cms.InputTag("secStep")
-TrackMonStep2.SeedProducer  = cms.InputTag("secTriplets")
-TrackMonStep2.TCProducer    = cms.InputTag("secTrackCandidates")
-TrackMonStep2.beamSpot      = cms.InputTag("offlineBeamSpot")
-TrackMonStep2.FolderName    = cms.string('Tracking/Step2/GlobalParameters')
-TrackMonStep2.BSFolderName  = cms.string('Tracking/Step2/BeamSpotParameters')
-TrackMonStep2.AlgoName      = cms.string('Step2')
-TrackMonStep2.doSeedParameterHistos = cms.bool(True)
-TrackMonStep2.doTrackCandHistos = cms.bool(True)
+TrackMonStep2 = TrackMon.clone(
+    TrackProducer = "secStep",
+    SeedProducer = "secTriplets",
+    TCProducer = "secTrackCandidates",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/Step2/GlobalParameters',
+    BSFolderName = 'Tracking/Step2/BeamSpotParameters',
+    AlgoName = 'Step2',
+    doSeedParameterHistos = True,
+    doTrackCandHistos = True
+)
 
 # Step4 
-TrackMonStep4 = TrackMon.clone()
-TrackMonStep4.TrackProducer = cms.InputTag("pixellessStep")
-TrackMonStep4.SeedProducer  = cms.InputTag("fourthPLSeeds")
-TrackMonStep4.TCProducer    = cms.InputTag("fourthTrackCandidates")
-TrackMonStep4.beamSpot      = cms.InputTag("offlineBeamSpot")
-TrackMonStep4.FolderName    = cms.string('Tracking/Step4/GlobalParameters')
-TrackMonStep4.BSFolderName  = cms.string('Tracking/Step4/BeamSpotParameters')
-TrackMonStep4.AlgoName      = cms.string('Step4')
-TrackMonStep4.doSeedParameterHistos = cms.bool(True)
-TrackMonStep4.doTrackCandHistos = cms.bool(True)
+TrackMonStep4 = TrackMon.clone(
+    TrackProducer = "pixellessStep",
+    SeedProducer = "fourthPLSeeds",
+    TCProducer = "fourthTrackCandidates",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/Step4/GlobalParameters',
+    BSFolderName = 'Tracking/Step4/BeamSpotParameters',
+    AlgoName = 'Step4',
+    doSeedParameterHistos = True,
+    doTrackCandHistos = True
+)
 
 # Step4 
-TrackMonStep5 = TrackMon.clone()
-TrackMonStep5.TrackProducer = cms.InputTag("tobtecStep")
-TrackMonStep5.SeedProducer  = cms.InputTag("fifthSeeds")
-TrackMonStep5.TCProducer    = cms.InputTag("fifthTrackCandidates")
-TrackMonStep5.beamSpot      = cms.InputTag("offlineBeamSpot")
-TrackMonStep5.FolderName    = cms.string('Tracking/Step5/GlobalParameters')
-TrackMonStep5.BSFolderName  = cms.string('Tracking/Step5/BeamSpotParameters')
-TrackMonStep5.AlgoName      = cms.string('Step5')
-TrackMonStep5.doSeedParameterHistos = cms.bool(True)
-TrackMonStep5.doTrackCandHistos = cms.bool(True)
+TrackMonStep5 = TrackMon.clone(
+    TrackProducer = "tobtecStep",
+    SeedProducer = "fifthSeeds",
+    TCProducer = "fifthTrackCandidates",
+    beamSpot = "offlineBeamSpot",
+    FolderName = 'Tracking/Step5/GlobalParameters',
+    BSFolderName = 'Tracking/Step5/BeamSpotParameters',
+    AlgoName = 'Step5',
+    doSeedParameterHistos = True,
+    doTrackCandHistos = True
+)
 
 # high Purity 
 # ---------------------------------------------------------------------------#
-
-
-
-
-
-
-
-
-
-
 
 
 

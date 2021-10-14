@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/stream/EDFilter.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
@@ -109,13 +109,16 @@ namespace edmtest {
   // constructor.
   // 4. It can be configured to get things from the Run, LuminosityBlock,
   // or Event.
-  class TestGetterOfProductsA : public edm::EDAnalyzer {
+  class TestGetterOfProductsA : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestGetterOfProductsA(edm::ParameterSet const&);
-    ~TestGetterOfProductsA();
-    virtual void analyze(edm::Event const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endRun(edm::Run const&, edm::EventSetup const&);
+    ~TestGetterOfProductsA() override;
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+    void beginRun(edm::Run const&, edm::EventSetup const&) override {}
 
   private:
     std::string processName_;

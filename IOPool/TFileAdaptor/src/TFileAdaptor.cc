@@ -80,6 +80,7 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
   if (!(enabled_ = pset.getUntrackedParameter<bool>("enable", enabled_)))
     return;
 
+  using namespace edm::storage;
   StorageFactory* f = StorageFactory::getToModify();
   doStats_ = pset.getUntrackedParameter<bool>("stats", doStats_);
 
@@ -229,7 +230,7 @@ void TFileAdaptor::stats(std::ostream& o) const {
     << " Prefetching:" << (enablePrefetching_ ? "true" : "false") << '\n'
     << " Cache hint:" << cacheHint_ << '\n'
     << " Read hint:" << readHint_ << '\n'
-    << "Storage statistics: " << StorageAccount::summaryText() << "; tfile/read=?/?/"
+    << "Storage statistics: " << edm::storage::StorageAccount::summaryText() << "; tfile/read=?/?/"
     << (TFile::GetFileBytesRead() / oneMeg) << "MB/?ms/?ms/?ms"
     << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / oneMeg) << "MB/?ms/?ms/?ms";
 }
@@ -244,7 +245,7 @@ void TFileAdaptor::statsXML(std::map<std::string, std::string>& data) const {
   data.insert(std::make_pair("Parameter-untracked-bool-prefetching", (enablePrefetching_ ? "true" : "false")));
   data.insert(std::make_pair("Parameter-untracked-string-cacheHint", cacheHint_));
   data.insert(std::make_pair("Parameter-untracked-string-readHint", readHint_));
-  StorageAccount::fillSummary(data);
+  edm::storage::StorageAccount::fillSummary(data);
   std::ostringstream r;
   std::ostringstream w;
   r << (TFile::GetFileBytesRead() / oneMeg);

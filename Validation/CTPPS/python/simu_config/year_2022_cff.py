@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
+import CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff as ac
+ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource,ac.p2022)
 
 from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as selected_optics
 
@@ -24,8 +26,7 @@ profile_base_2022 = profile_base.clone(
 # adjust basic settings
 generator.energy = profile_base_2022.ctppsLHCInfo.beamEnergy
 
-# geometry (NB: until a dedicated 2022 geometry is issued, it is OK to use 2021 one here)
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi import *
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2022_cfi import *
 ctppsCompositeESSource.compactViewTag = ctppsGeometryESModule.compactViewTag
 del ctppsGeometryESModule # this functionality is replaced by the composite ES source
 

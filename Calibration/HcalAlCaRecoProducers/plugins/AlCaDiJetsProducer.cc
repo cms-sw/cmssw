@@ -3,12 +3,13 @@
 #include <string>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -32,26 +33,36 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
+namespace alcaHcalDiJet {
+  struct Counters {
+    Counters() : nAll_(0), nSelect_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nSelect_;
+  };
+}  // namespace alcaHcalDiJet
+
 //
 // class declaration
 //
 
-class AlCaDiJetsProducer : public edm::EDProducer {
+class AlCaDiJetsProducer : public edm::global::EDProducer<edm::RunCache<alcaHcalDiJet::Counters>> {
 public:
   explicit AlCaDiJetsProducer(const edm::ParameterSet&);
-  ~AlCaDiJetsProducer() override;
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  ~AlCaDiJetsProducer() override = default;
+
+  std::shared_ptr<alcaHcalDiJet::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
+    return std::make_shared<alcaHcalDiJet::Counters>();
+  }
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool select(reco::PFJetCollection);
+  bool select(reco::PFJetCollection) const;
 
   // ----------member data ---------------------------
 
   edm::InputTag labelPFJet_, labelHBHE_, labelHF_, labelHO_, labelPFCandidate_, labelVertex_;  //labelTrigger_,
   double minPtJet_;
-  int nAll_, nSelect_;
 
   edm::EDGetTokenT<reco::PFJetCollection> tok_PFJet_;
   edm::EDGetTokenT<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> tok_HBHE_;
@@ -62,7 +73,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> tok_Vertex_;
 };
 
-AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig) : nAll_(0), nSelect_(0) {
+AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig) {
   // Take input
   labelPFJet_ = iConfig.getParameter<edm::InputTag>("PFjetInput");
   labelHBHE_ = iConfig.getParameter<edm::InputTag>("HBHEInput");
@@ -91,68 +102,60 @@ AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig) : nAll_
   produces<reco::VertexCollection>(labelVertex_.encode());
 }
 
-AlCaDiJetsProducer::~AlCaDiJetsProducer() {}
-
-void AlCaDiJetsProducer::beginJob() {}
-
-void AlCaDiJetsProducer::endJob() {
-  edm::LogVerbatim("AlcaDiJets") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
+void AlCaDiJetsProducer::globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const {
+  edm::LogVerbatim("AlcaDiJets") << "Accepts " << runCache(iRun.index())->nSelect_ << " events from a total of "
+                                 << runCache(iRun.index())->nAll_ << " events";
 }
 
-bool AlCaDiJetsProducer::select(reco::PFJetCollection jt) {
+bool AlCaDiJetsProducer::select(reco::PFJetCollection jt) const {
   if (jt.size() < 2)
     return false;
   if (((jt.at(0)).pt()) < minPtJet_)
     return false;
   return true;
 }
+
 // ------------ method called to produce the data  ------------
-void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  nAll_++;
+void AlCaDiJetsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  ++(runCache(iEvent.getRun().index())->nAll_);
 
   // Access the collections from iEvent
-  edm::Handle<reco::PFJetCollection> pfjet;
-  iEvent.getByToken(tok_PFJet_, pfjet);
+  edm::Handle<reco::PFJetCollection> pfjet = iEvent.getHandle(tok_PFJet_);
   if (!pfjet.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelPFJet_;
     return;
   }
   const reco::PFJetCollection pfjets = *(pfjet.product());
 
-  edm::Handle<reco::PFCandidateCollection> pfc;
-  iEvent.getByToken(tok_PFCand_, pfc);
+  edm::Handle<reco::PFCandidateCollection> pfc = iEvent.getHandle(tok_PFCand_);
   if (!pfc.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelPFCandidate_;
     return;
   }
   const reco::PFCandidateCollection pfcand = *(pfc.product());
 
-  edm::Handle<reco::VertexCollection> vt;
-  iEvent.getByToken(tok_Vertex_, vt);
+  edm::Handle<reco::VertexCollection> vt = iEvent.getHandle(tok_Vertex_);
   if (!vt.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelVertex_;
     return;
   }
   const reco::VertexCollection vtx = *(vt.product());
 
-  edm::Handle<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  auto hbhe = iEvent.getHandle(tok_HBHE_);
   if (!hbhe.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHBHE_;
     return;
   }
   const edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>> Hithbhe = *(hbhe.product());
 
-  edm::Handle<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> ho;
-  iEvent.getByToken(tok_HO_, ho);
+  auto ho = iEvent.getHandle(tok_HO_);
   if (!ho.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHO_;
     return;
   }
   const edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>> Hitho = *(ho.product());
 
-  edm::Handle<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> hf;
-  iEvent.getByToken(tok_HF_, hf);
+  auto hf = iEvent.getHandle(tok_HF_);
   if (!hf.isValid()) {
     edm::LogWarning("AlCaDiJets") << "AlCaDiJetsProducer: Error! can't get product " << labelHF_;
     return;
@@ -162,7 +165,7 @@ void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // See if this event is useful
   bool accept = select(pfjets);
   if (accept) {
-    nSelect_++;
+    ++(runCache(iEvent.getRun().index())->nSelect_);
 
     //Copy from standard place
     auto miniPFjetCollection = std::make_unique<reco::PFJetCollection>();
@@ -213,6 +216,18 @@ void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.put(std::move(miniVtxCollection), labelVertex_.encode());
   }
   return;
+}
+
+void AlCaDiJetsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFjetInput", edm::InputTag("ak4PFJetsCHS")),
+      desc.add<edm::InputTag>("HBHEInput", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("HFInput", edm::InputTag("hfreco"));
+  desc.add<edm::InputTag>("HOInput", edm::InputTag("horeco"));
+  desc.add<edm::InputTag>("particleFlowInput", edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("VertexInput", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<double>("MinPtJet", 20.0);
+  descriptions.add("alcaDiJetsProducer", desc);
 }
 
 DEFINE_FWK_MODULE(AlCaDiJetsProducer);

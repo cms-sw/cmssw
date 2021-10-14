@@ -3,9 +3,12 @@
 #include "DataFormats/Math/interface/Rounding.h"
 #include "DD4hep/Path.h"
 #include "DD4hep/Printout.h"
+#include "Evaluator/Evaluator.h"
 #include "XML/XML.h"
 
 #include <TClass.h>
+#include <iomanip>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
@@ -14,7 +17,7 @@ using namespace cms;
 
 double cms::rotation_utils::roundBinary(double value) {
   value = cms_rounding::roundIfNear0(value);
-  static constexpr double roundingVal = 1 << 14;
+  static constexpr double roundingVal = 1 << 24;
   value = (round(value * roundingVal) / roundingVal);
   // Set -0 to 0
   return (cms_rounding::roundIfNear0(value));
@@ -24,7 +27,10 @@ std::string cms::rotation_utils::rotHash(const Double_t* rot) {
   std::string hashVal;
   for (int row = 0; row <= 2; ++row) {
     for (int col = 0; col <= 2; ++col) {
-      hashVal += std::to_string(roundBinary(rot[(3 * row) + col]));
+      std::ostringstream numStream;
+      numStream << std::fixed << std::setprecision(7);
+      numStream << roundBinary(rot[(3 * row) + col]);
+      hashVal += numStream.str();
     }
   }
   return (hashVal);
@@ -36,7 +42,10 @@ std::string cms::rotation_utils::rotHash(const dd4hep::Rotation3D& rot) {
   matrix.assign(9, 0.);
   rot.GetComponents(matrix.begin());
   for (double val : matrix) {
-    hashVal += std::to_string(roundBinary(val));
+    std::ostringstream numStream;
+    numStream << std::fixed << std::setprecision(7);
+    numStream << roundBinary(val);
+    hashVal += numStream.str();
   }
   return (hashVal);
 }
@@ -128,6 +137,10 @@ void DDNamespace::addConstant(const string& name, const string& val, const strin
   addConstantNS(prepend(name), val, type);
 }
 
+namespace dd4hep {
+  dd4hep::tools::Evaluator& evaluator();
+}
+
 void DDNamespace::addConstantNS(const string& name, const string& val, const string& type) const {
   const string& v = val;
   const string& n = name;
@@ -137,7 +150,14 @@ void DDNamespace::addConstantNS(const string& name, const string& val, const str
                    n.c_str(),
                    v.c_str(),
                    type.c_str());
-  dd4hep::_toDictionary(n, v, type);
+  const dd4hep::tools::Evaluator& eval(dd4hep::evaluator());
+  bool constExists = eval.findVariable(n);
+  dd4hep::printout(
+      m_context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS", "findVariable result = %d", constExists);
+  if (constExists == false) {
+    // Only add it to the dictionary if it is not yet defined
+    dd4hep::_toDictionary(n, v, type);
+  }
   dd4hep::Constant c(n, v, type);
 
   m_context->description.addConstant(c);
@@ -152,7 +172,10 @@ void DDNamespace::addRotation(const string& name, const dd4hep::Rotation3D& rot)
   m_context->rotations[n] = rot;
   if (m_context->makePayload) {
     string hashVal = cms::rotation_utils::rotHash(rot);
-    m_context->rotRevMap[hashVal] = n;
+    if (m_context->rotRevMap.find(hashVal) == m_context->rotRevMap.end()) {
+      // Only set a rotation that is not already in the map
+      m_context->rotRevMap[hashVal] = n;
+    }
   }
 }
 

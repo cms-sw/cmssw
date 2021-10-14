@@ -248,6 +248,7 @@ private:
 
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomTokenRun_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
 
   MuonCaloCompatibility muonCaloCompatibility_;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;

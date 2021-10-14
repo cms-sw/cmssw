@@ -61,9 +61,12 @@ private:
   /*
     When set to True, we assume that the data comes from
     the Building 904 CSC test-stand. This test-stand is a single
-    ME1/1 chamber.
+    ME1/1 chamber or ME4/2 chamber.
   */
-  bool B904Setup_;
+  bool useB904_;
+  bool useB904ME11_;
+  bool useB904ME21_;
+  bool useB904ME234s2_;
 
   bool isRun3_;
 

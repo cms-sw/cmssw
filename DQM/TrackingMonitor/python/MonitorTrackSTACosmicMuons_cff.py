@@ -1,30 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.TrackingMonitor.MonitorTrackSTACosmicMuons_cfi import *
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackSTACosmicMuonsBarrel = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackSTACosmicMuonsEndCaps = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackSTACosmicMuons1LegBarrel = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackLHCStandAloneMuonsBarrelOnly = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackLHCStandAloneMuonsEndCapsOnly = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
-import DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi
-MonitorTrackSTACosmicMuonsNoDriftBarrel = DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi.MonitorTrackSTAMuons.clone()
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackSTACosmicMuonsBarrel = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/cosmicMuonsBarrelOnly',
+    TrackProducer = 'cosmicMuonsBarrelOnly'
+)
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackSTACosmicMuonsEndCaps = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/cosmicMuonsEndCapsOnly',
+    TrackProducer = 'cosmicMuonsEndCapsOnly'
+)
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackSTACosmicMuons1LegBarrel = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/cosmicMuons1LegBarrelOnly',
+    TrackProducer = 'cosmicMuons1LegBarrelOnly'
+)
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackLHCStandAloneMuonsBarrelOnly = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/standAloneMuonsBarrelOnly',
+    TrackProducer = 'lhcStandAloneMuonsBarrelOnly'
+)
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackLHCStandAloneMuonsEndCapsOnly = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/standAloneMuonsEndCapsOnly',
+    TrackProducer = 'lhcStandAloneMuonsEndCapsOnly'
+)
+from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
+MonitorTrackSTACosmicMuonsNoDriftBarrel = MonitorTrackSTAMuons.clone(
+    FolderName = 'Muons/cosmicMuonsNoDriftBarrelOnly',
+    TrackProducer = 'cosmicMuonsNoDriftBarrelOnly'
+)
 standAloneCosmicMuonsMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*MonitorTrackSTACosmicMuonsBarrel*MonitorTrackSTACosmicMuons1LegBarrel*MonitorTrackSTACosmicMuonsEndCaps*MonitorTrackLHCStandAloneMuonsBarrelOnly*MonitorTrackLHCStandAloneMuonsEndCapsOnly*MonitorTrackSTACosmicMuonsNoDriftBarrel)
-MonitorTrackSTACosmicMuonsBarrel.FolderName = 'Muons/cosmicMuonsBarrelOnly'
-MonitorTrackSTACosmicMuonsBarrel.TrackProducer = 'cosmicMuonsBarrelOnly'
-MonitorTrackSTACosmicMuonsEndCaps.FolderName = 'Muons/cosmicMuonsEndCapsOnly'
-MonitorTrackSTACosmicMuonsEndCaps.TrackProducer = 'cosmicMuonsEndCapsOnly'
-MonitorTrackSTACosmicMuons1LegBarrel.FolderName = 'Muons/cosmicMuons1LegBarrelOnly'
-MonitorTrackSTACosmicMuons1LegBarrel.TrackProducer = 'cosmicMuons1LegBarrelOnly'
-MonitorTrackLHCStandAloneMuonsBarrelOnly.FolderName = 'Muons/standAloneMuonsBarrelOnly'
-MonitorTrackLHCStandAloneMuonsBarrelOnly.TrackProducer = 'lhcStandAloneMuonsBarrelOnly'
-MonitorTrackLHCStandAloneMuonsEndCapsOnly.FolderName = 'Muons/standAloneMuonsEndCapsOnly'
-MonitorTrackLHCStandAloneMuonsEndCapsOnly.TrackProducer = 'lhcStandAloneMuonsEndCapsOnly'
-MonitorTrackSTACosmicMuonsNoDriftBarrel.FolderName = 'Muons/cosmicMuonsNoDriftBarrelOnly'
-MonitorTrackSTACosmicMuonsNoDriftBarrel.TrackProducer = 'cosmicMuonsNoDriftBarrelOnly'
-
-
