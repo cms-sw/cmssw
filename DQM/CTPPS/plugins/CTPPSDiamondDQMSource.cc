@@ -591,7 +591,7 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       centralOOT_(-999),
       verbosity_(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
       plotOnline_(ps.getUntrackedParameter<bool>("plotOnline", true)),
-      plotOffline_(ps.getUntrackedParameter<bool>("plotOffline", true)),
+      plotOffline_(ps.getUntrackedParameter<bool>("plotOffline", false)),
       windowsNum_(ps.getUntrackedParameter<unsigned int>("windowsNum", 3)),
       trackCorrelationThreshold_(ps.getUntrackedParameter<unsigned int>("trackCorrelationThreshold", 3)),
       EC_difference_56_(-500),
