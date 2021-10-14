@@ -363,7 +363,8 @@ expertSettings.add_option("--era",
 
 expertSettings.add_option("--procModifiers",
                           help="Specify any process Modifiers to include (in Configuration/ProcessModiers) - comma separated list",
-                          default=None,
+                          default=[],
+                          action="append",
                           dest="procModifiers")
 
 expertSettings.add_option("--evt_type",
