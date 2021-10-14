@@ -9,6 +9,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <vector>
 //----------------------------------------------------------------------------------------
 EcalFenixTcp::EcalFenixTcp(
@@ -106,22 +108,25 @@ void EcalFenixTcp::process(std::vector<EEDataFrame> &bid,  // dummy argument for
 }
 //-----------------------------------------------------------------------------------------
 void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow, int nStr, int bitMask, int bitOddEven) {
-  //     //call adder
-  //     this->getAdder()->process(bypasslin_out_, nStr, bitMask,adder_out_);
+  // call adder
   this->getAdder()->process(tpframetow, nStr, bitMask, bitOddEven, adder_even_out_, adder_odd_out_);
-  // this is a test:
   if (debug_) {
-    std::cout << "output of TCP adder is a vector of size: " << adder_even_out_.size() << std::endl;
-    std::cout << "even sum : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << "output of TCP adder is a vector of size: " << adder_even_out_.size();
+    edm::LogVerbatim("EcalTPG") << "EVEN sum : ";
+    std::string even_adder_outputs;
     for (unsigned int i = 0; i < adder_even_out_.size(); i++) {
-      std::cout << " " << adder_even_out_[i];
+      even_adder_outputs.append(" ");
+      even_adder_outputs.append(std::to_string(adder_even_out_[i]));
     }
-    std::cout << std::endl;
-    std::cout << "odd sum : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << even_adder_outputs << "\n";
+
+    edm::LogVerbatim("EcalTPG") << "ODD sum : ";
+    std::string odd_adder_outputs;
     for (unsigned int i = 0; i < adder_odd_out_.size(); i++) {
-      std::cout << " " << adder_odd_out_[i];
+      odd_adder_outputs.append(" ");
+      odd_adder_outputs.append(std::to_string(adder_odd_out_[i]));
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG") << odd_adder_outputs << "\n";
   }
   return;
 }
@@ -140,17 +145,18 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
                                         std::vector<EcalTriggerPrimitiveSample> &tcp_outTcc,
                                         EcalTrigTowerDetId towid) {
   // call maxof2
-  // this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
   // the oddEven flag is used to exclude "odd" strip from the computation of the maxof2 as in the fenix firmware
   this->getMaxOf2()->process(bypasslinout, nStr, bitMask, bitOddEven, maxOf2_out_);
 
   if (debug_) {
-    std::cout << "output of maxof2 is a vector of size: " << maxOf2_out_.size() << std::endl;
-    std::cout << "value : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << "output of maxof2 is a vector of size: " << maxOf2_out_.size();
+    edm::LogVerbatim("EcalTPG") << "value : ";
+    std::string maxOf2_outputs;
     for (unsigned int i = 0; i < maxOf2_out_.size(); i++) {
-      std::cout << " " << std::dec << maxOf2_out_[i];
+      maxOf2_outputs.append(" ");
+      maxOf2_outputs.append(std::to_string(maxOf2_out_[i]));
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG") << maxOf2_outputs << "\n";
   }
 
   // call fgvb
@@ -161,14 +167,15 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
   // Call sFGVB
   this->getsFGVBEB()->process(bypasslinout, nStr, bitMask, strip_fgvb_out_);
 
-  // this is a test:
   if (debug_) {
-    std::cout << "output of fgvb is a vector of size: " << fgvb_out_.size() << std::endl;
-    std::cout << "value : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << "output of fgvb is a vector of size: " << fgvb_out_.size();
+    edm::LogVerbatim("EcalTPG") << "value : ";
+    std::string fgvb_output;
     for (unsigned int i = 0; i < fgvb_out_.size(); i++) {
-      std::cout << " " << std::dec << fgvb_out_[i];
+      fgvb_output.append(" ");
+      fgvb_output.append(std::to_string(fgvb_out_[i]));
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG") << fgvb_output;
   }
 
   // call formatter
@@ -181,17 +188,17 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
 
   if (tpInfoPrintout_) {
     for (unsigned int i = 3; i < tcp_out.size(); i++) {
-      std::cout << " " << i << " " << std::dec << tcp_out[i] << std::endl;
+      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
     }
   }
 
   if (debug_) {
-    std::cout << "output of TCP formatter Barrel is a vector of size: " << std::dec << tcp_out.size() << std::endl;
-    std::cout << "value : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter Barrel is a vector of size: " << tcp_out.size();
+    edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
-      std::cout << " " << i << " " << std::dec << tcp_out[i] << std::endl;
+      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG");
   }
 
   return;
@@ -232,14 +239,13 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int>> &bypasslin
   // The feature can be implemented in the TCC in the future: the emulator is kept generic.
   this->getFormatterEE()->process(
       adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
-  // this is a test:
   if (debug_) {
-    std::cout << "output of TCP formatter(endcap) is a vector of size: " << std::dec << tcp_out.size() << std::endl;
-    std::cout << "value : " << std::endl;
+    edm::LogVerbatim("EcalTPG") << "\noutput of TCP formatter(endcap) is a vector of size: " << tcp_out.size();
+    edm::LogVerbatim("EcalTPG") << "value : ";
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
-      std::cout << " " << i << " " << std::dec << tcp_out[i] << std::endl;
+      edm::LogVerbatim("EcalTPG") << " " << i << " " << tcp_out[i];
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalTPG");
   }
   return;
 }
