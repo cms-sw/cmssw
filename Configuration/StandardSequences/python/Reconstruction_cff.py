@@ -90,7 +90,7 @@ ctpps.toReplaceWith(localreco_HcalNZSTask, _ctpps_localreco_HcalNZSTask)
 ###########################################
 _fastSim_localrecoTask = localrecoTask.copyAndExclude([
     castorreco,
-    totemRPLocalReconstructionTask,totemTimingLocalReconstructionTask,ctppsDiamondLocalReconstructionTask,
+    totemRPLocalReconstructionTask,totemTimingLocalReconstructionTask,diamondSampicLocalReconstructionTask,ctppsDiamondLocalReconstructionTask,
     ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstructionTask,ctppsProtons,
     trackerlocalrecoTask
 ])
