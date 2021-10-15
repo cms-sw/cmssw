@@ -124,10 +124,7 @@ void TrackletLUT::initTPlut(bool fillInner,
           } else {
             rinner = settings_.rmean(layerdisk1);
           }
-          double rinv1 = 20.0; //initialize to large, unphysical value
-	  if (rinner<router[i3]) {
-	    rinv1 = rinv(0.0, -dphi[i2], rinner, router[i3]);
-	  }
+          double rinv1 = (rinner<router[i3]) ? rinv(0.0, -dphi[i2], rinner, router[i3]) : 20.0;
           double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
           double pitchouter =
               (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
@@ -315,7 +312,7 @@ void TrackletLUT::initteptlut(bool fillInner,
               } else {
                 rinner = settings_.rmean(layerdisk1);
               }
-              double rinv1 = -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
+	      double rinv1 = (rinner<router[i3]) ? -rinv(phiinner[i1], phiouter[i2], rinner, router[i3]) : -20.0;
               double pitchinner =
                   (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
               double pitchouter =
