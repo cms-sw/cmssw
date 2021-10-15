@@ -8,7 +8,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/EcalMapping"/>
-<use name="Utilities/StorageFactory"/>
 <export>
   <lib name="1"/>
 </export>
