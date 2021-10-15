@@ -409,7 +409,7 @@ namespace trklet {
 
     double bendcut(int ibend, int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
-        layerdisk += (N_LAYER - 1);
+        layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
       if (bendcut <= 0.0)
         std::cout << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule << std::endl;
@@ -426,7 +426,7 @@ namespace trklet {
     double bendcutte(int ibend, int layerdisk, bool isPSmodule) const { return bendcut(ibend, layerdisk, isPSmodule); }
 
     double bendcutme(int ibend, int layerdisk, bool isPSmodule) const {
-      //FIXME temporary fix until phiprojderdisk bits adjusted. But requires coordinatin with HLS
+      //Should understand why larger cut needed in disks
       double fact = (layerdisk < N_LAYER) ? 1.0 : 1.8;
       return fact * bendcut(ibend, layerdisk, isPSmodule);
     }
@@ -751,7 +751,7 @@ namespace trklet {
     unsigned int maxstepoffset_{0};
 
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
-    std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
+    std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 108},  //IR will run at a higher clock speed to handle
                                                                          //input links running at 25 Gbits/s
                                                            {"VMR", 108},
                                                            {"TE", 107},
