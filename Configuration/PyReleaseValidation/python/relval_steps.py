@@ -2342,7 +2342,6 @@ steps['RECODR2_2018reHLT_skimDisplacedJet_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,R
 steps['RECODR2_2018reHLT_skimMET_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@common+@jetmet+@hcal'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMuOnia_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@common+@muon'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimCharmonium_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@common'},steps['RECODR2_2018reHLT']])
-steps['RECODR2_2018reHLT_skimParkingBPH_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SkimBPark,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign','--era':'Run2_2018,bParking'},steps['RECODR2_2018reHLT']])
 
 for sname in ['RECODR2_50nsreHLT','RECODR2_50nsreHLT_ZB',
               'RECODR2_25nsreHLT','RECODR2_25nsreHLT_ZB',
@@ -2424,7 +2423,6 @@ steps['RECODR2_2018reHLT_skimCharmonium_Offline']=merge([{'--conditions':'auto:r
 steps['RECODR2_2018reHLT_skimCharmonium_Offline_DQMM']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimCharmonium_DQMM']])
 steps['RECODR2_2018reHLT_skimParkingBPH_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimParkingBPH']])
 steps['RECODR2_2018reHLT_skimParkingBPH_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimParkingBPH']])
-steps['RECODR2_2018reHLT_skimParkingBPH_Offline_DQMM']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimParkingBPH_DQMM']])
 steps['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Prompt']])
 steps['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Offline']])
 steps['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi_DQMM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Offline_DQMM']])
@@ -2797,6 +2795,15 @@ steps['HARVEST2018_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVES
 steps['HARVEST2018_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_HEfail'}, steps['HARVEST2018'] ])
+
+steps['HARVEST2018_L1TEgDQM_DQMM'] = merge([ {'-s':'HARVESTING:common+@ecal+@egamma+@L1TEgamma'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_L1TMuDQM_DQMM'] = merge([ {'-s':'HARVESTING:@common+@muon+@lumi+@L1TMuon'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimJetHT_DQMM'] = merge([ {'-s':'HARVESTING:@common+@jetmet+@hcal'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimMET_DQMM'] = merge([ {'-s':'HARVESTING:@common+@jetmet+@hcal'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimMuonEG_DQMM'] = merge([ {'-s':'HARVESTING:@common'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimMuOnia_DQMM'] = merge([ {'-s':'HARVESTING:@common+@muon'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimDisplacedJet_DQMM'] = merge([ {'-s':'HARVESTING:@common'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_skimCharmonium_DQMM'] = merge([ {'-s':'HARVESTING:@common'}, steps['HARVEST2018'] ])
 
 steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
         '--customise':"Configuration/StandardSequences/DQMSaverAtJobEnd_cff",
