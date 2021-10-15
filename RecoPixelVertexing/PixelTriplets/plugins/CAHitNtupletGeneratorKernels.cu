@@ -6,6 +6,9 @@ inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
   return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
 }
 
+#define CMS_USE_COOP_GROUPS
+
+#ifndef CMS_USE_COOP_GROUPS
 __inline__ void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
                                      Quality const *__restrict__ quality_d,
                                      caConstants::TupleMultiplicity *tupleMultiplicity_d,
@@ -20,9 +23,9 @@ __inline__ void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
 
 __inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
                                     Quality const *__restrict__ quality_d,
-                                    CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple_d,
-                                    HitToTuple::View hitToTupleView,
+                                    CAHitNtupletGeneratorKernelsGPU::HitToTuple::View hitToTupleView,
                                     cudaStream_t cudaStream) {
+  auto hitToTuple_d = static_cast<CAHitNtupletGeneratorKernelsGPU::HitToTuple *>(hitToTupleView.assoc);
   cms::cuda::launchZero(hitToTupleView, cudaStream);
   auto blockSize = 64;
   auto numberOfBlocks = nQuadrupletBlocks(blockSize);
@@ -32,6 +35,95 @@ __inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
   cudaCheck(cudaGetLastError());
   kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
 }
+
+#else
+__global__ void kernel_populateHitInTracks(HitContainer const *__restrict__ tuples_d,
+                                           Quality const *__restrict__ quality_d,
+                                           HitToTuple::View view,
+                                           HitToTuple::View::Counter *ws) {
+  namespace cg = cooperative_groups;
+  auto grid = cg::this_grid();
+  auto tuple_d = static_cast<HitToTuple *>(view.assoc);
+  zeroAndInitCoop(view);
+  grid.sync();
+  countHitInTracks(tuples_d, quality_d, tuple_d);
+  grid.sync();
+  finalizeCoop(view, ws);
+  grid.sync();
+  fillHitInTracks(tuples_d, quality_d, tuple_d);
+}
+
+__inline__ void populateHitInTracks(HitContainer const *tuples_d,
+                                    Quality const *quality_d,
+                                    HitToTuple::View view,
+                                    cudaStream_t cudaStream) {
+  using View = HitToTuple::View;
+  int blockSize = 64;
+  int nblocks = nQuadrupletBlocks(blockSize);
+
+  auto kernel = kernel_populateHitInTracks;
+
+  assert(nblocks > 0);
+  auto nOnes = view.size();
+  auto nchunks = nOnes / blockSize + 1;
+  auto ws = cms::cuda::make_device_unique<View::Counter[]>(nchunks, cudaStream);
+  auto wsp = ws.get();
+  // FIXME: discuss with FW team: cuda calls are expensive and not needed for each event
+  // static int maxBlocks = maxCoopBlocks(kernel, blockSize, 0, 0);
+  static int maxBlocks = std::max(1, maxCoopBlocks(kernel, blockSize, 0, 0) / 10);
+  auto ncoopblocks = std::min(nblocks, maxBlocks);
+  assert(ncoopblocks > 0);
+  void *kernelArgs[] = {&tuples_d, &quality_d, &view, &wsp};
+  dim3 dimBlock(blockSize, 1, 1);
+  dim3 dimGrid(ncoopblocks, 1, 1);
+  // launch
+  cudaCheck(cudaLaunchCooperativeKernel((void *)kernel, dimGrid, dimBlock, kernelArgs, 0, cudaStream));
+}
+
+__global__ void kernel_populateMultiplicity(HitContainer const *__restrict__ tuples_d,
+                                            Quality const *__restrict__ quality_d,
+                                            caConstants::TupleMultiplicity::View view,
+                                            caConstants::TupleMultiplicity::View::Counter *ws) {
+  namespace cg = cooperative_groups;
+  auto grid = cg::this_grid();
+  auto tupleMultiplicity_d = static_cast<caConstants::TupleMultiplicity *>(view.assoc);
+  zeroAndInitCoop(view);
+  grid.sync();
+  countMultiplicity(tuples_d, quality_d, tupleMultiplicity_d);
+  grid.sync();
+  finalizeCoop(view, ws);
+  grid.sync();
+  fillMultiplicity(tuples_d, quality_d, tupleMultiplicity_d);
+}
+
+__inline__ void populateMultiplicity(HitContainer const *tuples_d,
+                                     Quality const *quality_d,
+                                     caConstants::TupleMultiplicity *tupleMultiplicity_d,
+                                     cudaStream_t cudaStream) {
+  auto kernel = kernel_populateMultiplicity;
+  using View = caConstants::TupleMultiplicity::View;
+  View view = {tupleMultiplicity_d, nullptr, nullptr, -1, -1};
+
+  int blockSize = 128;
+  int nblocks = (3 * caConstants::maxTuples / 4 + blockSize - 1) / blockSize;
+  assert(nblocks > 0);
+  auto nOnes = view.size();
+  auto nchunks = nOnes / blockSize + 1;
+  auto ws = cms::cuda::make_device_unique<View::Counter[]>(nchunks, cudaStream);
+  auto wsp = ws.get();
+  // FIXME: discuss with FW team: cuda calls are expensive and not needed for each event
+  // static int maxBlocks = maxCoopBlocks(kernel, blockSize, 0, 0);
+  static int maxBlocks = std::max(1, maxCoopBlocks(kernel, blockSize, 0, 0) / 10);
+  auto ncoopblocks = std::min(nblocks, maxBlocks);
+  assert(ncoopblocks > 0);
+  void *kernelArgs[] = {&tuples_d, &quality_d, &view, &wsp};
+  dim3 dimBlock(blockSize, 1, 1);
+  dim3 dimGrid(ncoopblocks, 1, 1);
+  // launch
+  cudaCheck(cudaLaunchCooperativeKernel((void *)kernel, dimGrid, dimBlock, kernelArgs, 0, cudaStream));
+}
+
+#endif
 
 template <>
 void CAHitNtupletGeneratorKernelsGPU::fillHitDetIndices(HitsView const *hv, TkSoA *tracks_d, cudaStream_t cudaStream) {
@@ -287,7 +379,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   if (params_.doSharedHitCut_ || params_.doStats_) {
     // populate hit->track "map"
-    populateHitInTracks(tuples_d, quality_d, device_hitToTuple_.get(), hitToTupleView_, cudaStream);
+    populateHitInTracks(tuples_d, quality_d, hitToTupleView_, cudaStream);
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
     cudaCheck(cudaDeviceSynchronize());
