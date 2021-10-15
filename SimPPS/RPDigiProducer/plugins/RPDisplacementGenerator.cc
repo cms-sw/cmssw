@@ -1,8 +1,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -27,22 +26,25 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
   
   unsigned int decId = rawToDecId(detId_);
 
+
   math::XYZVectorD S_m;
   RotationMatrix R_m;
 
   //get sensor alignment corrections
   //  if ((*alignments).isValid()) {
-  const CTPPSRPAlignmentCorrectionData &ac = alignments.getFullSensorCorrection(decId);
+  const CTPPSRPAlignmentCorrectionData &ac = alignments.getFullSensorCorrection(detId_);  //change from decId to detId_
   S_m = ac.getTranslation();
   R_m = ac.getRotationMatrix();
   //} else
   //    isOn_ = false;
+
 
   // transform shift and rotation to the local coordinate frame   
   const DetGeomDesc *g = geom.sensor(detId_);
   const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;
+
 
   LogDebug("RPDisplacementGenerator").log([&](auto &log) {
     log << " det id = " << decId << ", isOn = " << isOn_ << "\n";
