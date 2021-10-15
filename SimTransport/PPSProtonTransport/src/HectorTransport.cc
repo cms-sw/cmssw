@@ -12,7 +12,8 @@
 HectorTransport::~HectorTransport(){};
 
 HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
-    : BaseProtonTransport(iConfig), m_beamline45(nullptr), m_beamline56(nullptr), beamspotToken_(iC.esConsumes()) {
+    : BaseProtonTransport(iConfig), m_beamline45(nullptr), m_beamline56(nullptr),
+      beamParametersToken_(iC.esConsumes()), beamspotToken_(iC.esConsumes()) {
   // Create LHC beam line
 
   MODE = TransportMode::HECTOR;  // defines the MODE for the transport
