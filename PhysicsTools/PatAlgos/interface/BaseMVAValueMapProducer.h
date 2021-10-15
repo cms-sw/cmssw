@@ -213,28 +213,29 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
       fillAdditionalVariables(o);
       if (tmva_) {
         mvaOut[0].push_back(isClassifier_ ? reader_->EvaluateMVA(name_) : reader_->EvaluateRegression(name_)[0]);
-      }
-      std::vector<float> tmpOut;
-      if (tf_) {
-        //currently support only one input sensor to reuse the TMVA like config
-        tensorflow::TensorShape input_size{1, (long long int)positions_.size()};
-        tensorflow::NamedTensorList input_tensors;
-        input_tensors.resize(1);
-        input_tensors[0] =
-            tensorflow::NamedTensor(inputTensorName_, tensorflow::Tensor(tensorflow::DT_FLOAT, input_size));
-        for (size_t j = 0; j < values_.size(); j++) {
-          input_tensors[0].second.matrix<float>()(0, j) = values_[j];
+      } else {
+        std::vector<float> tmpOut;
+        if (tf_) {
+          //currently support only one input sensor to reuse the TMVA like config
+          tensorflow::TensorShape input_size{1, (long long int)positions_.size()};
+          tensorflow::NamedTensorList input_tensors;
+          input_tensors.resize(1);
+          input_tensors[0] =
+              tensorflow::NamedTensor(inputTensorName_, tensorflow::Tensor(tensorflow::DT_FLOAT, input_size));
+          for (size_t j = 0; j < values_.size(); j++) {
+            input_tensors[0].second.matrix<float>()(0, j) = values_[j];
+          }
+          std::vector<tensorflow::Tensor> outputs;
+          tensorflow::run(session_, input_tensors, {outputTensorName_}, &outputs, singleThreadPool_);
+          for (int k = 0; k < outputs.at(0).matrix<float>().dimension(1); k++)
+            tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));
+        } else if (onnx_) {
+          cms::Ort::FloatArrays inputs{values_};
+          tmpOut = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_})[0];
         }
-        std::vector<tensorflow::Tensor> outputs;
-        tensorflow::run(session_, input_tensors, {outputTensorName_}, &outputs, singleThreadPool_);
-        for (int k = 0; k < outputs.at(0).matrix<float>().dimension(1); k++)
-          tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));
-      } else if (onnx_) {
-        cms::Ort::FloatArrays inputs{values_};
-        tmpOut = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_})[0];
+        for (size_t k = 0; k < output_names_.size(); k++)
+          mvaOut[k].push_back(output_formulas_[k](tmpOut));
       }
-      for (size_t k = 0; k < output_names_.size(); k++)
-        mvaOut[k].push_back(output_formulas_[k](tmpOut));
     }
   }
 
