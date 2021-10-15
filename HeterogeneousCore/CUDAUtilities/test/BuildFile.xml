@@ -52,6 +52,14 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
+ <bin file="HistoContainer_t.cu" name="gpuHistoContainerCoop_t">
+    <flags CUDA_FLAGS="-g -DCOOP"/>
+  </bin>
+
+  <bin file="HistoContainer_t.cu" name="gpuHistoContainerCoop_debug">
+    <flags CUDA_FLAGS="-g -DCOOP -DGPU_DEBUG"/>
+  </bin>
+
  <bin file="HistoContainerRT_t.cu" name="gpuHistoContainerRT_t">
     <flags CUDA_FLAGS="-g"/>
   </bin>

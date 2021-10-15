@@ -3,93 +3,13 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/OneToManyAssoc.h"
 
+#ifdef __CUDACC__
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/maxCoopBlocks.h"
+#endif
+
 namespace cms {
   namespace cuda {
-
-    template <typename Histo, typename T>
-    __global__ void countFromVector(Histo *__restrict__ h,
-                                    uint32_t nh,
-                                    T const *__restrict__ v,
-                                    uint32_t const *__restrict__ offsets) {
-      int first = blockDim.x * blockIdx.x + threadIdx.x;
-      for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
-        auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
-        assert((*off) > 0);
-        int32_t ih = off - offsets - 1;
-        assert(ih >= 0);
-        assert(ih < int(nh));
-        (*h).count(v[i], ih);
-      }
-    }
-
-    template <typename Histo, typename T>
-    __global__ void fillFromVector(Histo *__restrict__ h,
-                                   uint32_t nh,
-                                   T const *__restrict__ v,
-                                   uint32_t const *__restrict__ offsets) {
-      int first = blockDim.x * blockIdx.x + threadIdx.x;
-      for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
-        auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
-        assert((*off) > 0);
-        int32_t ih = off - offsets - 1;
-        assert(ih >= 0);
-        assert(ih < int(nh));
-        (*h).fill(v[i], i, ih);
-      }
-    }
-
-    template <typename Histo, typename T>
-    inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
-                                                                  uint32_t nh,
-                                                                  T const *__restrict__ v,
-                                                                  uint32_t const *__restrict__ offsets,
-                                                                  int32_t totSize,
-                                                                  int nthreads,
-                                                                  typename Histo::index_type *mem,
-                                                                  cudaStream_t stream
-#ifndef __CUDACC__
-                                                                  = cudaStreamDefault
-#endif
-    ) {
-      typename Histo::View view = {h, nullptr, mem, -1, totSize};
-      launchZero(view, stream);
-#ifdef __CUDACC__
-      auto nblocks = (totSize + nthreads - 1) / nthreads;
-      assert(nblocks > 0);
-      countFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
-      cudaCheck(cudaGetLastError());
-      launchFinalize(view, stream);
-      fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
-      cudaCheck(cudaGetLastError());
-#else
-      countFromVector(h, nh, v, offsets);
-      h->finalize();
-      fillFromVector(h, nh, v, offsets);
-#endif
-    }
-
-    // iteratate over N bins left and right of the one containing "v"
-    template <typename Hist, typename V, typename Func>
-    __host__ __device__ __forceinline__ void forEachInBins(Hist const &hist, V value, int n, Func func) {
-      int bs = Hist::bin(value);
-      int be = std::min(int(Hist::nbins() - 1), bs + n);
-      bs = std::max(0, bs - n);
-      assert(be >= bs);
-      for (auto pj = hist.begin(bs); pj < hist.end(be); ++pj) {
-        func(*pj);
-      }
-    }
-
-    // iteratate over bins containing all values in window wmin, wmax
-    template <typename Hist, typename V, typename Func>
-    __host__ __device__ __forceinline__ void forEachInWindow(Hist const &hist, V wmin, V wmax, Func const &func) {
-      auto bs = Hist::bin(wmin);
-      auto be = Hist::bin(wmax);
-      assert(be >= bs);
-      for (auto pj = hist.begin(bs); pj < hist.end(be); ++pj) {
-        func(*pj);
-      }
-    }
 
     template <typename T,      // the type of the discretized input values
               uint32_t NBINS,  // number of bins

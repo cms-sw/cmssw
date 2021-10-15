@@ -9,6 +9,7 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainerAlgo.h"
 
 #include "PixelRecHitGPUKernel.h"
 #include "gpuPixelRecHits.h"
@@ -61,7 +62,7 @@ namespace pixelgpudetails {
       setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
       cudaCheck(cudaGetLastError());
 
-      cms::cuda::fillManyFromVector(
+      cms::cuda::fillManyFromVectorCoop(
           hits_d.phiBinner(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, hits_d.phiBinnerStorage(), stream);
       cudaCheck(cudaGetLastError());
 
