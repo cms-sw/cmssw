@@ -166,7 +166,7 @@ void MaterialBudgetHcalProducer::update(const BeginOfJob* job) {
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalProducer:sensitiveEC[" << i << "] = " << sensitiveEC_[i];
-  } else {          // if not from dd4hep --> ddd
+  } else {  // if not from dd4hep --> ddd
     edm::ESTransientHandle<DDCompactView> pDD;
     (*job)()->get<IdealGeometryRecord>().get(pDD);
     const DDCompactView& cpv = *pDD;
