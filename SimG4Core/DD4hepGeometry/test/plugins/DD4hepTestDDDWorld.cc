@@ -54,6 +54,9 @@ private:
   G4ProductionCuts* getProductionCuts(G4Region* region);
 
   const ESInputTag tag_;
+  const ESGetToken<DDVectorRegistry, DDVectorRegistryRcd> vecRegToken_;
+  const ESGetToken<DDDetector, IdealGeometryRecord> detectorToken_;
+  const ESGetToken<dd4hep::SpecParRegistry, DDSpecParRegistryRcd> registryToken_;
   const dd4hep::SpecParRegistry* specPars_;
   G4MTRunManagerKernel* kernel_;
   dd4hep::SpecParRefs specs_;
@@ -64,7 +67,11 @@ private:
 };
 
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
-    : tag_(iConfig.getParameter<ESInputTag>("DDDetector")), keywordRegion_("CMSCutsRegion") {
+    : tag_(iConfig.getParameter<ESInputTag>("DDDetector")),
+      vecRegToken_(esConsumes(tag_)),
+      detectorToken_(esConsumes(tag_)),
+      registryToken_(esConsumes(tag_)),
+      keywordRegion_("CMSCutsRegion") {
   verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
   kernel_ = new G4MTRunManagerKernel();
 }
@@ -72,17 +79,11 @@ DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
 void DD4hepTestDDDWorld::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "\nDD4hepTestDDDWorld::analyze: " << tag_;
 
-  const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
-  ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(tag_, reg);
+  ESTransientHandle<DDVectorRegistry> reg = iEventSetup.getTransientHandle(vecRegToken_);
 
-  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
-  ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(tag_, ddd);
+  ESTransientHandle<DDDetector> ddd = iEventSetup.getTransientHandle(detectorToken_);
 
-  const DDSpecParRegistryRcd& specParRecord = iEventSetup.get<DDSpecParRegistryRcd>();
-  ESTransientHandle<dd4hep::SpecParRegistry> registry;
-  specParRecord.get(tag_, registry);
+  ESTransientHandle<dd4hep::SpecParRegistry> registry = iEventSetup.getTransientHandle(registryToken_);
   specPars_ = registry.product();
 
   const dd4hep::Detector& detector = *ddd->description();
