@@ -1,7 +1,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -16,16 +15,12 @@ using namespace edm;
 
 RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
                                                  RPDetId _detId,
-						 const CTPPSRPAlignmentCorrectionsData &  alignments,
-						 const CTPPSGeometry &  geom
-						 )  
-  : detId_(_detId)
-{
+                                                 const CTPPSRPAlignmentCorrectionsData &alignments,
+                                                 const CTPPSGeometry &geom)
+    : detId_(_detId) {
   isOn_ = ps.getParameter<bool>("RPDisplacementOn");
 
-  
   unsigned int decId = rawToDecId(detId_);
-
 
   math::XYZVectorD S_m;
   RotationMatrix R_m;
@@ -38,13 +33,11 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
   //} else
   //    isOn_ = false;
 
-
-  // transform shift and rotation to the local coordinate frame   
+  // transform shift and rotation to the local coordinate frame
   const DetGeomDesc *g = geom.sensor(detId_);
   const RotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;
-
 
   LogDebug("RPDisplacementGenerator").log([&](auto &log) {
     log << " det id = " << decId << ", isOn = " << isOn_ << "\n";

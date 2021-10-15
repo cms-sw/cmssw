@@ -8,10 +8,10 @@
 
 RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
                                CLHEP::HepRandomEngine &eng,
-                               RPDetId det_id, 
-			       const CTPPSRPAlignmentCorrectionsData & alignments, 
-			       const CTPPSGeometry &  geom)   
-  : det_id_(det_id) {
+                               RPDetId det_id,
+                               const CTPPSRPAlignmentCorrectionsData &alignments,
+                               const CTPPSGeometry &geom)
+    : det_id_(det_id) {
   verbosity_ = params.getParameter<int>("RPVerbosity");
   numStrips_ = RPTopology().DetStripNo();
   theNoiseInElectrons = params.getParameter<double>("RPEquivalentNoiseCharge300um");

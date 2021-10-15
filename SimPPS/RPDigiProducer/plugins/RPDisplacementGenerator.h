@@ -31,11 +31,10 @@ public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-  RPDisplacementGenerator(const edm::ParameterSet &, 
-			  RPDetId,
-			  const CTPPSRPAlignmentCorrectionsData & alignments,
-			  const CTPPSGeometry &  geom
-			  );
+  RPDisplacementGenerator(const edm::ParameterSet &,
+                          RPDetId,
+                          const CTPPSRPAlignmentCorrectionsData &alignments,
+                          const CTPPSGeometry &geom);
 
   /// returns displaced PSimHit
   PSimHit displace(const PSimHit &);
@@ -55,7 +54,6 @@ private:
 
   /// displaces a point
   Local3DPoint displacePoint(const Local3DPoint &);
-  
 };
 
 #endif

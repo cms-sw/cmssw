@@ -25,9 +25,9 @@ class RPDetDigitizer {
 public:
   RPDetDigitizer(const edm::ParameterSet &params,
                  CLHEP::HepRandomEngine &eng,
-                 RPDetId det_id, 
-		 const CTPPSRPAlignmentCorrectionsData & alignments,
-		 const CTPPSGeometry & geom);
+                 RPDetId det_id,
+                 const CTPPSRPAlignmentCorrectionsData &alignments,
+                 const CTPPSGeometry &geom);
   void run(const std::vector<PSimHit> &input,
            const std::vector<int> &input_links,
            std::vector<TotemRPDigi> &output_digi,

@@ -56,13 +56,12 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public  edm::stream::EDProducer<> {
+class RPDigiProducer : public edm::stream::EDProducer<> {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
   ~RPDigiProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -96,17 +95,15 @@ private:
 
   //eventSetup tokens for esConsumes
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> esTotemAM_TokenBeginRun_;
-  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData,RPRealAlignmentRecord> esAlignments_real_token_;
+  edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> esAlignments_real_token_;
 
-  edm::ESGetToken<CTPPSGeometry,VeryForwardRealGeometryRecord> esGeometry_token_;
-
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> esGeometry_token_;
 };
 
-RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) 
-  : conf_(conf) ,
-    esAlignments_real_token_(esConsumes<CTPPSRPAlignmentCorrectionsData,RPRealAlignmentRecord>()),
-    esGeometry_token_(esConsumes<CTPPSGeometry,VeryForwardRealGeometryRecord>())
-{
+RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf)
+    : conf_(conf),
+      esAlignments_real_token_(esConsumes<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord>()),
+      esGeometry_token_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()) {
   //now do what ever other initialization is needed
   produces<edm::DetSetVector<TotemRPDigi>>();
 
@@ -117,11 +114,12 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf)
   verbosity_ = conf.getParameter<int>("RPVerbosity");
 
   simulateDeadChannels = false;
-  if (conf.exists("simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
+  if (conf.exists(
+          "simulateDeadChannels")) {  //check if "simulateDeadChannels" variable is defined in configuration file
     simulateDeadChannels = conf.getParameter<bool>("simulateDeadChannels");
   }
   if (simulateDeadChannels) {
-    esTotemAM_TokenBeginRun_= esConsumes<TotemAnalysisMask, TotemReadoutRcd,edm::Transition::BeginRun>();
+    esTotemAM_TokenBeginRun_ = esConsumes<TotemAnalysisMask, TotemReadoutRcd, edm::Transition::BeginRun>();
   }
 }
 
@@ -147,7 +145,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PSimHit>> cf;
-  iEvent.getByToken(tokenCrossingFrameTotemRP,cf);
+  iEvent.getByToken(tokenCrossingFrameTotemRP, cf);
 
   if (verbosity_) {
     edm::LogInfo("RPDigiProducer") << "\n\n=================== Starting SimHit access"
@@ -186,10 +184,10 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   DigiVector.reserve(400);
   DigiVector.clear();
 
-  //get here the alignments and geometry from EventSetup 
+  //get here the alignments and geometry from EventSetup
   // for esConsumes migration
-  auto const & alignments = iSetup.getData(esAlignments_real_token_);
-  auto const & geom       = iSetup.getData(esGeometry_token_);
+  auto const& alignments = iSetup.getData(esAlignments_real_token_);
+  auto const& geom = iSetup.getData(esGeometry_token_);
 
   for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
@@ -223,11 +221,9 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup& es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
-
     //set analysisMask in deadChannelsManager
     auto analysisMask = es.getData(esTotemAM_TokenBeginRun_);
     deadChannelsManager = DeadChannelsManager(&analysisMask);  //set analysisMask in deadChannelsManager
-
   }
 }
 
