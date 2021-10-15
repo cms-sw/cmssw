@@ -56,6 +56,7 @@ namespace pf {
 
     __global__ void convert_rechits_to_PFRechits(uint32_t size,
                          const float3* rh_pos,
+                         const uint32_t* rh_neighbours,
                          const uint32_t* rh_detIdMap,
                          float const* recHits_energy,
 						 float const* recHits_chi2,
@@ -79,18 +80,28 @@ namespace pf {
           pfrechits_time[i] = recHits_timeM0[i];
           pfrechits_energy[i] = recHits_energyM0[i];
           pfrechits_detId[i] = recHits_did[i];
-          
+
           uint32_t index = rh_detIdMap[i];  // Determine table index corresponding to this detId
           float3 pos = rh_pos[index];   // position vector of this rechit
           pfrechits_x[i] = pos.x; 
           pfrechits_y[i] = pos.y; 
           pfrechits_z[i] = pos.z;
+          
+          
+#ifdef DEBUG_ENABLE
+          if (pfrechits_detId[i] == 1158694936) {
+            printf("Cuda kernel found neighbours of 1158694936:\n\n");
+            for (int i = 0; i < 8; i++)
+                printf("\t%u\n", rh_neighbours[index*8+i]);
+          }
+#endif
       }
-#ifdef DEBUG_ENABLE      
-      if ((blockIdx.x * blockDim.x + threadIdx.x) < 5) {
-        uint32_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        printf("Rechit %u with detId %u has position: (%f, %f, %f)\n", i, pfrechits_detId[i], pfrechits_x[i], pfrechits_y[i], pfrechits_z[i]);
-      }
+
+#ifdef DEBUG_ENABLE
+//      if ((blockIdx.x * blockDim.x + threadIdx.x) < 5) {
+//        uint32_t i = blockIdx.x * blockDim.x + threadIdx.x;
+//        printf("Rechit %u with detId %u has position: (%f, %f, %f)\n", i, pfrechits_detId[i], pfrechits_x[i], pfrechits_y[i], pfrechits_z[i]);
+//      }
 #endif
     }
 
@@ -226,6 +237,7 @@ namespace pf {
       convert_rechits_to_PFRechits<<<(nRH+31)/32, 128, 0, cudaStream>>>(
 											 nRH,
                                              persistentDataGPU.rh_pos.get(),
+                                             persistentDataGPU.rh_neighbours.get(),
                                              persistentDataGPU.rh_detIdMap.get(),
                                              HBHERecHits_asInput.energy.get(),
 											 HBHERecHits_asInput.chi2.get(),

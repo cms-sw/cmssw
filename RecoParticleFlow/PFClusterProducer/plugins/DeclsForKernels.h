@@ -38,21 +38,25 @@ namespace pf {
     struct PersistentDataCPU {
         cms::cuda::host::unique_ptr<float3[]> rh_pos;
         cms::cuda::host::unique_ptr<uint32_t[]> rh_detId;
+        cms::cuda::host::unique_ptr<uint32_t[]> rh_neighbours;
                 
         void allocate(uint32_t length, cudaStream_t cudaStream) {
             rh_pos = cms::cuda::make_host_unique<float3[]>(sizeof(float3)*length, cudaStream);
             rh_detId = cms::cuda::make_host_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
+            rh_neighbours = cms::cuda::make_host_unique<uint32_t[]>(sizeof(uint32_t)*length*8, cudaStream);
         }
     };
 
     struct PersistentDataGPU {
         cms::cuda::device::unique_ptr<float3[]> rh_pos;
         cms::cuda::device::unique_ptr<uint32_t[]> rh_detId;
+        cms::cuda::device::unique_ptr<uint32_t[]> rh_neighbours;
         cms::cuda::device::unique_ptr<uint32_t[]> rh_detIdMap; // Used to build map from rechit detId to lookup table index
 
         void allocate(uint32_t length, cudaStream_t cudaStream) {
             rh_pos = cms::cuda::make_device_unique<float3[]>(sizeof(float3)*length, cudaStream);
             rh_detId = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
+            rh_neighbours = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t)*length*8, cudaStream);
             rh_detIdMap = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t)*length, cudaStream);
         }
     };
