@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 namespace edm {
   class Event;
@@ -39,6 +40,7 @@ class TrajectorySmoother;
 class ForwardDetLayer;
 class BarrelDetLayer;
 class TrackerTopology;
+class TransientRecHitRecord;
 
 class MuonTrackLoader {
 public:
@@ -98,8 +100,8 @@ private:
   bool theTrajectoryFlag;
 
   bool theSmoothingStep;
-  std::string theSmootherName;
-  std::string theTrackerRecHitBuilderName;
+  edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> theSmootherToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> theTrackerRecHitBuilderToken;
   std::unique_ptr<TrajectorySmoother> theSmoother;
   TkClonerImpl hitCloner;
 
