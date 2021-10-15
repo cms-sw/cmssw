@@ -13,28 +13,28 @@
 
 class MiniAODTaggerHarvester : public DQMEDHarvester {
 public:
-    explicit MiniAODTaggerHarvester(const edm::ParameterSet& pSet);
-    ~MiniAODTaggerHarvester() override;
+  explicit MiniAODTaggerHarvester(const edm::ParameterSet& pSet);
+  ~MiniAODTaggerHarvester() override;
 
 private:
-    void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
-    std::unique_ptr<JetTagPlotter> jetTagPlotter_;
+  std::unique_ptr<JetTagPlotter> jetTagPlotter_;
 
-    std::string folder_;
-    edm::ParameterSet disrParameters_;
+  std::string folder_;
+  edm::ParameterSet disrParameters_;
 
-    int mclevel_;
-    bool doCTagPlots_;
-    bool dodifferentialPlots_;
-    double discrCut_;
+  int mclevel_;
+  bool doCTagPlots_;
+  bool dodifferentialPlots_;
+  double discrCut_;
 
-    bool etaActive_;
-    double etaMin_;
-    double etaMax_;
-    bool ptActive_;
-    double ptMin_;
-    double ptMax_;
+  bool etaActive_;
+  double etaMin_;
+  double etaMax_;
+  bool ptActive_;
+  double ptMin_;
+  double ptMax_;
 };
 
 #endif
