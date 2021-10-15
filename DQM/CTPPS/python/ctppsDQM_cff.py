@@ -59,7 +59,7 @@ dqmPerLSsaving.toModify(ctppsCommonDQMSourceOffline, perLSsaving=True)
 
 _ctppsDQMOfflineSource = cms.Sequence(
   ctppsPixelDQMOfflineSource
-  + ctppsDiamondDQMSource
+  + ctppsDiamondDQMOfflineSource
   + diamondSampicDQMSourceOffline
   + ctppsCommonDQMSourceOffline
 )
@@ -72,7 +72,7 @@ ctpps_2018.toReplaceWith(
     _ctppsDQMOfflineSource,
     cms.Sequence(
 	  ctppsPixelDQMOfflineSource
-	  + ctppsDiamondDQMSource
+	  + ctppsDiamondDQMOfflineSource
 	  + totemTimingDQMSource
 	  + ctppsCommonDQMSourceOffline
     )
