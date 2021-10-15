@@ -101,7 +101,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // The seed transformer (used to refit the seed and get the seed transient state)
   //  ParameterSet seedTransformerPSet = par.getParameter<ParameterSet>("SeedTransformerParameters");
   ParameterSet seedTransformerParameters = par.getParameter<ParameterSet>("SeedTransformerParameters");
-  theSeedTransformer = new SeedTransformer(seedTransformerParameters);
+  theSeedTransformer = new SeedTransformer(seedTransformerParameters, iC);
 }
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event) {

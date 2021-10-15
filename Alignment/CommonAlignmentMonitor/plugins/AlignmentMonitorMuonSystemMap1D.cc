@@ -51,6 +51,7 @@ private:
   const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
+  const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
 
   // parameters
   edm::InputTag m_muonCollectionTag;
@@ -155,6 +156,7 @@ AlignmentMonitorMuonSystemMap1D::AlignmentMonitorMuonSystemMap1D(const edm::Para
       m_esTokenDetId(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
       m_esTokenProp(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
       m_esTokenMF(iC.esConsumes()),
+      m_esTokenBuilder(iC.esConsumes(MuonResidualsFromTrack::builderESInputTag())),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),
       m_maxTrackPt(cfg.getParameter<double>("maxTrackPt")),
@@ -271,6 +273,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
   const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
   const Propagator *prop = &iSetup.getData(m_esTokenProp);
   const MagneticField *magneticField = &iSetup.getData(m_esTokenMF);
+  auto builder = iSetup.getHandle(m_esTokenBuilder);
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
@@ -287,7 +290,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
           m_counter_trackdxy++;
 
           MuonResidualsFromTrack muonResidualsFromTrack(
-              iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
+              builder, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
           processMuonResidualsFromTrack(muonResidualsFromTrack, iEvent);
         }
       }  // end if track has acceptable momentum
