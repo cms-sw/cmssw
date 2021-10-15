@@ -11,7 +11,7 @@ C.Brown & C.Savard 07/2020
 
 TrackQuality::TrackQuality() {}
 
-TrackQuality::TrackQuality(const edm::ParameterSet& qualityParams) : setup_(), useHPH(false) {
+TrackQuality::TrackQuality(const edm::ParameterSet& qualityParams) {
   std::string AlgorithmString = qualityParams.getParameter<std::string>("qualityAlgorithm");
   // Unpacks EDM parameter set itself to save unecessary processing within TrackProducers
   if (AlgorithmString == "Cut") {
@@ -39,8 +39,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   // {"log_chi2","log_chi2rphi","log_chi2rz","log_bendchi2","nstubs","lay1_hits","lay2_hits",
   // "lay3_hits","lay4_hits","lay5_hits","lay6_hits","disk1_hits","disk2_hits","disk3_hits",
   // "disk4_hits","disk5_hits","rinv","tanl","z0","dtot","ltot","chi2","chi2rz","chi2rphi",
-  // "bendchi2","pt","eta","nlaymiss_interior","phi","bendchi2_bin","chi2rz_bin","chi2rphi_bin",
-  // "nlaymiss_PS","nlaymiss_2S"}
+  // "bendchi2","pt","eta","nlaymiss_interior","phi","bendchi2_bin","chi2rz_bin","chi2rphi_bin"}
 
   std::vector<float> transformedFeatures;
 
@@ -67,14 +66,16 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // iterate through bits of the hitpattern and compare to 1 filling the hitpattern binary vector
   int tmp_trk_hitpattern = aTrack.hitPattern();
+  for (int i = 6; i >= 0; i--) {
+    int k = tmp_trk_hitpattern >> i;
+    if (k & 1)
+      hitpattern_binary[i] = 1;
+  }
+
   // calculate number of missed interior layers from hitpattern
   int nbits = floor(log2(tmp_trk_hitpattern)) + 1;
   int lay_i = 0;
   int tmp_trk_nlaymiss_interior = 0;
-  int tmp_trk_nlaymiss_PS = 0;
-  int tmp_trk_nlaymiss_2S = 0;
-  double tmp_trk_tanL = aTrack.tanL();
-  double tmp_trk_z0 = aTrack.z0();
   bool seq = false;
   for (int i = 0; i < nbits; i++) {
     lay_i = ((1 << i) & tmp_trk_hitpattern) >> i;  //0 or 1 in ith bit (right to left)
@@ -85,29 +86,18 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
       tmp_trk_nlaymiss_interior++;
   }
 
-  if (useHPH) {
-    hph::HitPatternHelper hph(setup_, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
-    hitpattern_expanded_binary = hph.binary();
-    tmp_trk_nlaymiss_PS = hph.numMissingPS();
-    tmp_trk_nlaymiss_2S = hph.numMissing2S();
-  } else {
-    for (int i = 6; i >= 0; i--) {
-      int k = tmp_trk_hitpattern >> i;
-      if (k & 1)
-        hitpattern_binary[i] = 1;
-    }
-    float eta = abs(aTrack.eta());
-    int eta_size = static_cast<int>(eta_bins.size());
-    // First iterate through eta bins
-    for (int j = 1; j < eta_size; j++) {
-      if (eta < eta_bins[j] && eta >= eta_bins[j - 1])  // if track in eta bin
-      {
-        // Iterate through hitpattern binary
-        for (int k = 0; k <= 6; k++)
-          // Fill expanded binary entries using the expected hitmap table positions
-          hitpattern_expanded_binary[hitmap[j - 1][k]] = hitpattern_binary[k];
-        break;
-      }
+  float eta = abs(aTrack.eta());
+  int eta_size = static_cast<int>(eta_bins.size());
+  // First iterate through eta bins
+
+  for (int j = 1; j < eta_size; j++) {
+    if (eta < eta_bins[j] && eta >= eta_bins[j - 1])  // if track in eta bin
+    {
+      // Iterate through hitpattern binary
+      for (int k = 0; k <= 6; k++)
+        // Fill expanded binary entries using the expected hitmap table positions
+        hitpattern_expanded_binary[hitmap[j - 1][k]] = hitpattern_binary[k];
+      break;
     }
   }
 
@@ -172,8 +162,8 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   // fill the feature map
   feature_map["nstub"] = stubRefs.size();
   feature_map["rinv"] = ONNXInvRScaling_ * abs(aTrack.rInv());
-  feature_map["tanl"] = abs(tmp_trk_tanL);
-  feature_map["z0"] = tmp_trk_z0;
+  feature_map["tanl"] = abs(aTrack.tanL());
+  feature_map["z0"] = aTrack.z0();
   feature_map["phi"] = aTrack.phi();
   feature_map["pt"] = aTrack.momentum().perp();
   feature_map["eta"] = aTrack.eta();
@@ -213,10 +203,6 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
   feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
-
-  //Bonus features from hitpattern
-  feature_map["nlaymiss_PS"] = float(tmp_trk_nlaymiss_PS);
-  feature_map["nlaymiss_2S"] = float(tmp_trk_nlaymiss_2S);
 
   // fill tensor with track params
   transformedFeatures.reserve(featureNames.size());
@@ -317,9 +303,4 @@ void TrackQuality::setONNXModel(std::string const& AlgorithmString,
   ONNXmodel_ = ONNXmodel;
   ONNXInputName_ = ONNXInputName;
   featureNames_ = featureNames;
-}
-
-void TrackQuality::setHPHSetup(const hph::Setup* setup) {
-  setup_ = setup;
-  useHPH = true;
 }
