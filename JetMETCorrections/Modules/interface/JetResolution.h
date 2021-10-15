@@ -14,6 +14,7 @@ namespace edm {
 }
 class JetResolutionObject;
 class JetResolutionRcd;
+class JetResolutionScaleFactorRcd;
 #endif
 
 namespace JME {
@@ -50,7 +51,7 @@ namespace JME {
     }
 
 #ifndef STANDALONE
-    using Token = edm::ESGetToken<JetResolutionObject, JetResolutionRcd>;
+    using Token = edm::ESGetToken<JetResolutionObject, JetResolutionScaleFactorRcd>;
     static const JetResolutionScaleFactor get(const edm::EventSetup&, const Token&);
 #endif
 
