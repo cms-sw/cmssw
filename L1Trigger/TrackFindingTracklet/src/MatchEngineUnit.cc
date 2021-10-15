@@ -10,9 +10,7 @@ MatchEngineUnit::MatchEngineUnit(bool barrel, unsigned int layerdisk, const Trac
   barrel_ = barrel;
   layerdisk_ = layerdisk;
   goodpair_ = false;
-  goodpair__ = false;
   havepair_ = false;
-  havepair__ = false;
 }
 
 void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
@@ -29,7 +27,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            bool usesecondPlus,
                            bool isPSseed,
                            Tracklet* proj,
-                           bool) {
+                           bool print) {
   vmstubsmemory_ = vmstubsmemory;
   idle_ = false;
   nrzbins_ = nrzbins;
@@ -61,29 +59,25 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   //Even when you init a new projection you need to process the pipeline
   //This should be fixed to be done more cleanly - but require synchronizaton
   //with the HLS code
-  if (goodpair__) {
-    candmatches_.store(tmppair__);
+  if (goodpair_) {
+    if (print) 
+      std::cout << "Init have pair" << std::endl;
+    candmatches_.store(tmppair_);
   }
-
-  havepair__ = havepair_;
-  goodpair__ = goodpair_;
-  tmppair__ = tmppair_;
 
   havepair_ = false;
   goodpair_ = false;
 }
 
-void MatchEngineUnit::step(bool) {
+void MatchEngineUnit::step(bool print ) {
   bool almostfull = candmatches_.nearfull();
 
-  if (goodpair__) {
-    assert(havepair__);
-    candmatches_.store(tmppair__);
+  if (goodpair_) {
+    if (print) 
+      std::cout << "Step have pair" << std::endl;
+    assert(havepair_);
+    candmatches_.store(tmppair_);
   }
-
-  havepair__ = havepair_;
-  goodpair__ = goodpair_;
-  tmppair__ = tmppair_;
 
   havepair_ = false;
   goodpair_ = false;
@@ -141,7 +135,6 @@ void MatchEngineUnit::step(bool) {
   }
 
   // Detailed printout for comparison with HLS code
-  bool print = false;
   if (print)
     edm::LogVerbatim("Tracklet") << "MEU TrkId stubindex : " << 128 * proj_->TCIndex() + proj_->trackletIndex() << " "
                                  << vmstub.stubindex().value() << "   "
@@ -175,9 +168,7 @@ void MatchEngineUnit::reset() {
   idle_ = true;
   istub_ = 0;
   goodpair_ = false;
-  goodpair__ = false;
   havepair_ = false;
-  havepair__ = false;
 }
 
 int MatchEngineUnit::TCID() const {
@@ -185,12 +176,10 @@ int MatchEngineUnit::TCID() const {
     return peek().first->TCID();
   }
 
-  if (idle_ && !havepair_ && !havepair__) {
+  if (idle_ && !havepair_ ) {
     return 16383;
   }
-  if (havepair__) {
-    return tmppair__.first->TCID();
-  }
+
   if (havepair_) {
     return tmppair_.first->TCID();
   }

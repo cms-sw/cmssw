@@ -50,11 +50,10 @@ namespace trklet {
 
     bool idle() const { return idle_; }
 
-    bool active() const { return !idle_ || goodpair_ || goodpair__ || !empty(); }
+    bool active() const { return !idle_ || goodpair_ || !empty(); }
 
     //needed for consistency with HLS FW version ("_" vs "__" indicating different pipelining stages)
     bool have_() const { return havepair_; }
-    bool have__() const { return havepair__; }
 
     void reset();
 
@@ -90,9 +89,9 @@ namespace trklet {
     const TrackletLUT& luttable_;
 
     //Pipeline variables
-    std::pair<Tracklet*, const Stub*> tmppair_, tmppair__;
-    bool goodpair_, goodpair__;
-    bool havepair_, havepair__;
+    std::pair<Tracklet*, const Stub*> tmppair_;
+    bool goodpair_;
+    bool havepair_;
 
     //save the candidate matches
     CircularBuffer<std::pair<Tracklet*, const Stub*>> candmatches_;
