@@ -95,7 +95,7 @@ namespace gpuClustering {
           good = false;
       }
 
-      // if all clusters above threashold do nothing
+      // if all clusters above threshold do nothing
       if (__syncthreads_and(good))
         continue;
 
