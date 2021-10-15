@@ -249,6 +249,8 @@ namespace trklet {
     void setExtended(bool extended) { extended_ = extended; }
     bool combined() const { return combined_; }
     void setCombined(bool combined) { combined_ = combined; }
+    bool reduced() const { return reduced_; }
+    void setReduced(bool reduced) { reduced_ = reduced; }
 
     double bfield() const { return bfield_; }
     void setBfield(double bfield) { bfield_ = bfield; }
@@ -751,6 +753,7 @@ namespace trklet {
     unsigned int maxstepoffset_{0};
 
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
+    //IR should be set to 108 to match the FW for the summer chain, but ultimately should be at 156
     std::unordered_map<std::string, unsigned int> maxstep_{{"IR", 156},  //IR will run at a higher clock speed to handle
                                                                          //input links running at 25 Gbits/s
                                                            {"VMR", 108},
@@ -890,6 +893,7 @@ namespace trklet {
     unsigned int nHelixPar_{4};  // 4 or 5 param helix fit
     bool extended_{false};       // turn on displaced tracking
     bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
+    bool reduced_{false};        // use reduced (Summer Chain) config
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 
