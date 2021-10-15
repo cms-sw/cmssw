@@ -237,7 +237,7 @@ namespace tau_hlt {
     boost::property_tree::ptree loadPtreeRoot;
     std::string normalizationDict = cfg.getParameter<std::string>("normalizationDict");
     normalizationDict = edm::FileInPath(normalizationDict).fullPath();
-    boost::property_tree::read_json(cfg.getParameter<std::string>("normalizationDict"), loadPtreeRoot);
+    boost::property_tree::read_json(normalizationDict, loadPtreeRoot);
     for (const auto& [key, val] : L2TauTagNNv1::varNameMap) {
       boost::property_tree::ptree var = loadPtreeRoot.get_child(val);
       normDictElement current_element;
