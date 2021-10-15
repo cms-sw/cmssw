@@ -12,10 +12,11 @@ process = cms.Process("L1TrackNtuple")
 ############################################################
 
 GEOMETRY = "D76"
-# Set L1 tracking algorithm: 
-# 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit). 
+# Set L1 tracking algorithm:
+# 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
+# 'HYBRID_REDUCED' to use the "Summer Chain" configuration with reduced inputs
 # (Or legacy algos 'TMTT' or 'TRACKLET').
-L1TRKALGO = 'HYBRID'  
+L1TRKALGO = 'HYBRID'
 
 WRITE_DATA = False
 
@@ -32,11 +33,11 @@ process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
 process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
-if GEOMETRY == "D49": 
+if GEOMETRY == "D49":
     print("using geometry " + GEOMETRY + " (tilted)")
     process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-elif GEOMETRY == "D76": 
+elif GEOMETRY == "D76":
     print("using geometry " + GEOMETRY + " (tilted)")
     process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
@@ -84,8 +85,10 @@ elif GEOMETRY == "D76":
 else:
 
   print("this is not a valid geometry!!!")
-    
+
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
+# Use skipEvents to select particular single events for test vectors
+#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC), skipEvents = cms.untracked.uint32(11))
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('TTbar_PU200_'+GEOMETRY+'.root'), closeFileFast = cms.untracked.bool(True))
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
@@ -97,7 +100,7 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
-# remake stubs? 
+# remake stubs?
 #from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
 #process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 
@@ -105,7 +108,7 @@ process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 #TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
 #process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
-#process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs) 
+#process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
 
 # DTC emulation
@@ -145,8 +148,17 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     L1TRK_NAME  = "TTTracksFromExtendedTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
-    
-# LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET  
+
+# HYBRID: prompt tracking, reduced chain
+elif (L1TRKALGO == 'HYBRID_REDUCED'):
+    process.TTTracksEmulation = cms.Path(process.L1ReducedHybridTracks)
+    process.TTTracksEmulationWithTruth = cms.Path(process.L1ReducedHybridTracksWithAssociators)
+    NHELIXPAR = 4
+    L1TRK_NAME  = "TTTracksFromReducedTrackletEmulation"
+    L1TRK_LABEL = "Level1TTTracks"
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisReduced"
+
+# LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):
     print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!")
     print("\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n")
@@ -157,7 +169,7 @@ elif (L1TRKALGO == 'TRACKLET'):
     L1TRK_LABEL = "Level1TTTracks"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
 
-# LEGACY ALGORITHM (EXPERTS ONLY): TMTT  
+# LEGACY ALGORITHM (EXPERTS ONLY): TMTT
 elif (L1TRKALGO == 'TMTT'):
     print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED! \n")
     process.load("L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff")
@@ -183,7 +195,7 @@ else:
 # Define the track ntuple process, MyProcess is the (unsigned) PDGID corresponding to the process which is run
 # e.g. single electron/positron = 11
 #      single pion+/pion- = 211
-#      single muon+/muon- = 13 
+#      single muon+/muon- = 13
 #      pions in jets = 6
 #      taus = 15
 #      all TPs = 1
@@ -202,7 +214,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        TP_maxEta = cms.double(2.5),      # only save TPs with |eta| < X
                                        TP_maxZ0 = cms.double(30.0),      # only save TPs with |z0| < X cm
                                        L1TrackInputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL),         # TTTrack input
-                                       MCTruthTrackInputTag = cms.InputTag(L1TRUTH_NAME, L1TRK_LABEL),  # MCTruth input 
+                                       MCTruthTrackInputTag = cms.InputTag(L1TRUTH_NAME, L1TRK_LABEL),  # MCTruth input
                                        # other input collections
                                        L1StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
                                        MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
@@ -224,7 +236,7 @@ process.ana = cms.Path(process.L1TrackNtuple)
 # use this if you want to re-run the stub making
 # process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
-# use this if cluster/stub associators not available 
+# use this if cluster/stub associators not available
 # process.schedule = cms.Schedule(process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this to only run tracking + track associator
@@ -251,4 +263,4 @@ if (WRITE_DATA):
 
   process.pd = cms.EndPath(process.writeDataset)
   process.schedule.append(process.pd)
-  
+

@@ -165,6 +165,7 @@ private:
 
   unsigned int nHelixPar_;
   bool extended_;
+  bool reduced_;
 
   bool trackQuality_;
   std::unique_ptr<TrackQuality> trackQualityModel_;
@@ -227,6 +228,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   wiresFile = iConfig.getParameter<edm::FileInPath>("wiresFile");
 
   extended_ = iConfig.getParameter<bool>("Extended");
+  reduced_ = iConfig.getParameter<bool>("Reduced");
   nHelixPar_ = iConfig.getParameter<unsigned int>("Hnpar");
 
   if (extended_) {
@@ -243,6 +245,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   // --------------------------------------------------------------------------------
 
   settings.setExtended(extended_);
+  settings.setReduced(reduced_);
   settings.setNHelixPar(nHelixPar_);
 
   settings.setFitPatternFile(fitPatternFile.fullPath());
