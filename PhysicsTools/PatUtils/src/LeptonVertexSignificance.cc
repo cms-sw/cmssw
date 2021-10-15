@@ -16,22 +16,24 @@ edm::InputTag LeptonVertexSignificance::vertexCollectionTag() {
 
 // calculate the TrackIsoPt for the lepton object
 float LeptonVertexSignificance::calculate(const Electron& theElectron,
-                                          const reco::VertexCollection& vertex,
-                                          TransientTrackBuilder& builder) {
-  return this->calculate(*theElectron.gsfTrack(), vertex, builder);
+                                          const reco::VertexCollection& vertices,
+                                          const TransientTrackBuilder& builder) {
+  return this->calculate(*theElectron.gsfTrack(), vertices, builder);
 }
 
 float LeptonVertexSignificance::calculate(const Muon& theMuon,
-                                          const reco::VertexCollection& vertex,
-                                          TransientTrackBuilder& builder) {
-  return this->calculate(*theMuon.track(), vertex, builder);
+                                          const reco::VertexCollection& vertices,
+                                          const TransientTrackBuilder& builder) {
+  return this->calculate(*theMuon.track(), vertices, builder);
 }
 
 // calculate the TrackIsoPt for the lepton's track
 float LeptonVertexSignificance::calculate(const reco::Track& theTrack,
-                                          const reco::VertexCollection& vertex,
-                                          TransientTrackBuilder& builder) {
-  reco::Vertex const& theVertex = vertex.front();
+                                          const reco::VertexCollection& vertices,
+                                          const TransientTrackBuilder& builder) {
+  if (vertices.empty())
+    return 0;
+  reco::Vertex const& theVertex = vertices.front();
   // calculate the track-vertex association significance
   reco::TransientTrack theTrTrack = builder.build(&theTrack);
   GlobalPoint theVertexPoint(theVertex.position().x(), theVertex.position().y(), theVertex.position().z());
