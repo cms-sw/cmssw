@@ -27,42 +27,42 @@ def update(process):
         process = customizeHLTforPatatrackTriplets(process)
     process.hltL2TauTagNNProducer = l2TauNNProducer.clone(
         debugLevel = 0,
-        L1Taus= cms.VPSet(
+        L1Taus = [
             cms.PSet(
                 L1CollectionName = cms.string('DoubleTau'),
-                L1TauTrigger =cms.InputTag('hltL1sDoubleTauBigOR'),
+                L1TauTrigger = cms.InputTag('hltL1sDoubleTauBigOR'),
             ),
-        ),
-        hbheInput = cms.InputTag("hltHbhereco"),
-        hoInput = cms.InputTag("hltHoreco"),
-        ebInput =cms.InputTag("hltEcalRecHit:EcalRecHitsEB"),
-        eeInput =cms.InputTag("hltEcalRecHit:EcalRecHitsEE"),
-        pataVertices = cms.InputTag("hltPixelVerticesSoA"),
-        pataTracks = cms.InputTag("hltPixelTracksSoA"),
-        BeamSpot = cms.InputTag("hltOnlineBeamSpot"),
-        graphPath = cms.string(graphPath),
-        normalizationDict = cms.string(normalizationDict)
+        ],
+        hbheInput = "hltHbhereco",
+        hoInput = "hltHoreco",
+        ebInput = "hltEcalRecHit:EcalRecHitsEB",
+        eeInput = "hltEcalRecHit:EcalRecHitsEE",
+        pataVertices = "hltPixelVerticesSoA",
+        pataTracks = "hltPixelTracksSoA",
+        BeamSpot = "hltOnlineBeamSpot",
+        graphPath = graphPath,
+        normalizationDict = normalizationDict
     )
     process.hltL2DoubleTauTagNNFilter = l2TauTagFilter.clone(
         nExpected = 2,
-        L1TauSrc = cms.InputTag('hltL1sDoubleTauBigOR'),
-        L2Outcomes = ('hltL2TauTagNNProducer', 'DoubleTau'),
-        DiscrWP = cms.double(thWp[working_point])
+        L1TauSrc = 'hltL1sDoubleTauBigOR',
+        L2Outcomes = 'hltL2TauTagNNProducer:DoubleTau',
+        DiscrWP = thWp[working_point]
     )
     # L2 updated Sequence
     process.hltL2TauTagNNSequence = cms.Sequence(process.HLTDoCaloSequence + process.hltL1sDoubleTauBigOR + process.hltL2TauTagNNProducer)
 
 
     # Regional -> Global customization
-    process.hltHpsPFTauTrackPt1DiscriminatorReg.PFTauProducer = cms.InputTag("hltHpsPFTauProducer")
-    process.hltHpsDoublePFTau35Reg.inputTag = cms.InputTag( "hltHpsPFTauProducer")
-    process.hltHpsSelectedPFTausTrackPt1Reg.src = cms.InputTag( "hltHpsPFTauProducer")
-    process.hltHpsPFTauMediumAbsoluteChargedIsolationDiscriminatorReg.PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
-    process.hltHpsPFTauMediumAbsoluteChargedIsolationDiscriminatorReg.particleFlowSrc = cms.InputTag( "hltParticleFlow" )
-    process.hltHpsPFTauMediumRelativeChargedIsolationDiscriminatorReg.PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
-    process.hltHpsPFTauMediumRelativeChargedIsolationDiscriminatorReg.particleFlowSrc = cms.InputTag( "hltParticleFlow" )
-    process.hltHpsPFTauMediumAbsOrRelChargedIsolationDiscriminatorReg.PFTauProducer = cms.InputTag( "hltHpsPFTauProducer" )
-    process.hltHpsSelectedPFTausTrackPt1MediumChargedIsolationReg.src = cms.InputTag( "hltHpsPFTauProducer" )
+    process.hltHpsPFTauTrackPt1DiscriminatorReg.PFTauProducer = "hltHpsPFTauProducer"
+    process.hltHpsDoublePFTau35Reg.inputTag = "hltHpsPFTauProducer"
+    process.hltHpsSelectedPFTausTrackPt1Reg.src = "hltHpsPFTauProducer"
+    process.hltHpsPFTauMediumAbsoluteChargedIsolationDiscriminatorReg.PFTauProducer = "hltHpsPFTauProducer"
+    process.hltHpsPFTauMediumAbsoluteChargedIsolationDiscriminatorReg.particleFlowSrc = "hltParticleFlow"
+    process.hltHpsPFTauMediumRelativeChargedIsolationDiscriminatorReg.PFTauProducer = "hltHpsPFTauProducer"
+    process.hltHpsPFTauMediumRelativeChargedIsolationDiscriminatorReg.particleFlowSrc = "hltParticleFlow"
+    process.hltHpsPFTauMediumAbsOrRelChargedIsolationDiscriminatorReg.PFTauProducer = "hltHpsPFTauProducer"
+    process.hltHpsSelectedPFTausTrackPt1MediumChargedIsolationReg.src = "hltHpsPFTauProducer"
 
     process.HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v4.remove(process.HLTL2TauJetsL1TauSeededSequence)
     process.HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v4.remove(process.hltDoubleL2Tau26eta2p2)
@@ -74,9 +74,9 @@ def update(process):
 
 
     old_diTau_paths = ['HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v1', 'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v1','HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v1','HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v4','HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS30_Trk1_eta2p1_Reg_CrossL1_v1','HLT_DoubleMediumChargedIsoPFTauHPS30_L1MaxMass_Trk1_eta2p1_Reg_v1','HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v1','HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v1','HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v1','HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_eta2p1_Reg_v1','HLT_DoubleTightChargedIsoPFTauHPS40_Trk1_eta2p1_Reg_v1','HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v1','HLT_DoubleTightChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v1']
-    for i in old_diTau_paths:
-        if i in process.__dict__:
-            process.schedule.remove(getattr(process, i))
+    for path in old_diTau_paths:
+        if path in process.__dict__:
+            process.schedule.remove(getattr(process, path))
 
 
     return process
