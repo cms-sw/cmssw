@@ -30,6 +30,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
+process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
 if GEOMETRY == "D49": 
     print("using geometry " + GEOMETRY + " (tilted)")
