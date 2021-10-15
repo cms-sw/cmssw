@@ -32,17 +32,20 @@ namespace pat {
   public:
     LeptonVertexSignificance() = default;
     ~LeptonVertexSignificance() = default;
-    ;
 
     //NOTE: expects vertices from "offlinePrimaryVerticesFromCTFTracks"
     static edm::InputTag vertexCollectionTag();
 
     //NOTE: expects TransientTrackBuilder to be a copy of one from record TransientTrackRecord with label "TransientTrackBuilder"
-    float calculate(const Electron& anElectron, const reco::VertexCollection& vertex, TransientTrackBuilder& builder);
-    float calculate(const Muon& aMuon, const reco::VertexCollection& vertex, TransientTrackBuilder& builder);
+    float calculate(const Electron& anElectron,
+                    const reco::VertexCollection& vertices,
+                    const TransientTrackBuilder& builder);
+    float calculate(const Muon& aMuon, const reco::VertexCollection& vertices, const TransientTrackBuilder& builder);
 
   private:
-    float calculate(const reco::Track& track, const reco::VertexCollection& vertex, TransientTrackBuilder& builder);
+    float calculate(const reco::Track& track,
+                    const reco::VertexCollection& vertices,
+                    const TransientTrackBuilder& builder);
   };
 
 }  // namespace pat
