@@ -1,0 +1,7 @@
+<environment>
+  <bin file="runtestRecoTauTagHLTProducers.cpp">
+    <flags TEST_RUNNER_ARGS=" /bin/bash RecoTauTag/HLTProducers/test runtests.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
+</environment>
