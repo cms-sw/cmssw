@@ -52,10 +52,7 @@ void FullMatchMemory::writeMC(bool first, unsigned int iSector) {
 
   for (unsigned int j = 0; j < matches_.size(); j++) {
     string match = (layer_ > 0) ? matches_[j].first->fullmatchstr(layer_) : matches_[j].first->fullmatchdiskstr(disk_);
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << match << " " << trklet::hexFormat(match) << endl;
+    out_ << hexstr(j) << " " << match << " " << trklet::hexFormat(match) << endl;
   }
   out_.close();
 
