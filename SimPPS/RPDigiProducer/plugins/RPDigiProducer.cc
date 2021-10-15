@@ -56,7 +56,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public  edm::stream::EDProducer {
+class RPDigiProducer : public  edm::stream::EDProducer<> {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
   ~RPDigiProducer() override = default;
