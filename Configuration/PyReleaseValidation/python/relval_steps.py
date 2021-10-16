@@ -2796,7 +2796,7 @@ steps['HARVEST2018_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HA
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_HEfail'}, steps['HARVEST2018'] ])
 
-steps['HARVEST2018_L1TEgDQM_DQMM'] = merge([ {'-s':'HARVESTING:common+@ecal+@egamma+@L1TEgamma'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_L1TEgDQM_DQMM'] = merge([ {'-s':'HARVESTING:@common+@ecal+@egamma+@L1TEgamma'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TMuDQM_DQMM'] = merge([ {'-s':'HARVESTING:@common+@muon+@lumi+@L1TMuon'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_skimJetHT_DQMM'] = merge([ {'-s':'HARVESTING:@common+@jetmet+@hcal'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_skimMET_DQMM'] = merge([ {'-s':'HARVESTING:@common+@jetmet+@hcal'}, steps['HARVEST2018'] ])
