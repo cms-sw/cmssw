@@ -9,6 +9,8 @@
 template <typename F>
 inline int maxCoopBlocks(F kernel, int nthreads, int shmem, int device, int redFact = 10) {
 #define GET_COOP_RED_FACT_FROM_ENV
+
+// to drive performance assessment by envvar
 #ifdef GET_COOP_RED_FACT_FROM_ENV
   auto env = getenv("COOP_RED_FACT");
   int redFactFromEnv = env ? atoi(env) : 0;
