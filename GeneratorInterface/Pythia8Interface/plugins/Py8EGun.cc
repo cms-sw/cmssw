@@ -41,7 +41,8 @@ namespace gen {
     fMasterGen->event.reset();
 
     int NTotParticles = fPartIDs.size();
-    if(fAddAntiParticle) NTotParticles *= 2;
+    if (fAddAntiParticle)
+      NTotParticles *= 2;
 
     (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 14000., 14000.);
 
