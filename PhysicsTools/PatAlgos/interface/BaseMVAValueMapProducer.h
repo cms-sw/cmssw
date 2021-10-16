@@ -168,41 +168,43 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
     v.reserve(src->size());
 
   if (batch_eval_) {
-    std::vector<float> data;
-    data.reserve(src->size() * positions_.size());
-    for (auto const& o : *src) {
-      for (auto const& p : funcs_) {
-        setValue(p.first, p.second(o));
+    if (!src->empty()) {
+      std::vector<float> data;
+      data.reserve(src->size() * positions_.size());
+      for (auto const& o : *src) {
+        for (auto const& p : funcs_) {
+          setValue(p.first, p.second(o));
+        }
+        fillAdditionalVariables(o);
+        data.insert(data.end(), values_.begin(), values_.end());
       }
-      fillAdditionalVariables(o);
-      data.insert(data.end(), values_.begin(), values_.end());
-    }
 
-    std::vector<float> outputs;
-    if (tf_) {
-      tensorflow::TensorShape input_size{(long long int)src->size(), (long long int)positions_.size()};
-      tensorflow::NamedTensorList input_tensors;
-      input_tensors.resize(1);
-      input_tensors[0] =
-          tensorflow::NamedTensor(inputTensorName_, tensorflow::Tensor(tensorflow::DT_FLOAT, input_size));
-      for (unsigned i = 0; i < data.size(); ++i) {
-        input_tensors[0].second.flat<float>()(i) = data[i];
+      std::vector<float> outputs;
+      if (tf_) {
+        tensorflow::TensorShape input_size{(long long int)src->size(), (long long int)positions_.size()};
+        tensorflow::NamedTensorList input_tensors;
+        input_tensors.resize(1);
+        input_tensors[0] =
+            tensorflow::NamedTensor(inputTensorName_, tensorflow::Tensor(tensorflow::DT_FLOAT, input_size));
+        for (unsigned i = 0; i < data.size(); ++i) {
+          input_tensors[0].second.flat<float>()(i) = data[i];
+        }
+        std::vector<tensorflow::Tensor> output_tensors;
+        tensorflow::run(session_, input_tensors, {outputTensorName_}, &output_tensors, singleThreadPool_);
+        for (unsigned i = 0; i < output_tensors.at(0).NumElements(); ++i) {
+          outputs.push_back(output_tensors.at(0).flat<float>()(i));
+        }
+      } else if (onnx_) {
+        cms::Ort::FloatArrays inputs{data};
+        outputs = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_}, src->size())[0];
       }
-      std::vector<tensorflow::Tensor> output_tensors;
-      tensorflow::run(session_, input_tensors, {outputTensorName_}, &output_tensors, singleThreadPool_);
-      for (unsigned i = 0; i < output_tensors.at(0).NumElements(); ++i) {
-        outputs.push_back(output_tensors.at(0).flat<float>()(i));
-      }
-    } else if (onnx_) {
-      cms::Ort::FloatArrays inputs{data};
-      outputs = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_}, src->size())[0];
-    }
 
-    const unsigned outdim = outputs.size() / src->size();
-    for (unsigned i = 0; i < src->size(); ++i) {
-      std::vector<float> tmpOut(outputs.begin() + i * outdim, outputs.begin() + (i + 1) * outdim);
-      for (size_t k = 0; k < output_names_.size(); k++) {
-        mvaOut[k].push_back(output_formulas_[k](tmpOut));
+      const unsigned outdim = outputs.size() / src->size();
+      for (unsigned i = 0; i < src->size(); ++i) {
+        std::vector<float> tmpOut(outputs.begin() + i * outdim, outputs.begin() + (i + 1) * outdim);
+        for (size_t k = 0; k < output_names_.size(); k++) {
+          mvaOut[k].push_back(output_formulas_[k](tmpOut));
+        }
       }
     }
   } else {
