@@ -34,16 +34,16 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 				     # and it'll greatly affect the event multiplicity, 
 				     # whithout messing up too much the principle physics
 				     'HadronLevel:Hadronize = on',
-				     'PartonLevel:MI = on',            # D; mstp(81)=1
-				     ### Py6 mstp(82)=4 (MI model) does NOT have anything similar in Py8, 
+				     'PartonLevel:MPI = on',           # D; mstp(81)=1
+				     ### Py6 mstp(82)=4 (MPI model) does NOT have anything similar in Py8, 
 				     ### because it actually means a new model, and in Py8 old models went away 
 				     ### - only new remain
-				     'MultipleInteractions:pT0Ref=1.8387',    # parp(82)=1.8387 - pt cutoff for MI
-				     'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
-				     'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
-				     'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
+				     #'MultipleInteractions:pT0Ref=1.8387',    # parp(82)=1.8387 - pt cutoff for MI
+				     #'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
+				     #'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
+				     #'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
 				     ### parp(85) & parp(86) are N/A in Py8
-				     'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
+				     #'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
 				     'BeamRemnants:primordialKT=on',          # D; mstp(91)=1
 				     'BeamRemnants:primordialKThard=2.1',     # parp(91)=2.1
 				     'BeamRemnants:primordialKTremnant=15.',  # parp(93)=15.
