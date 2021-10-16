@@ -153,7 +153,7 @@ int main() {
     uint32_t *d_psum;
     cudaCheck(cudaMalloc(&d_psum, nblocks * sizeof(uint32_t)));
     std::cout << "launch coopBlockPrefixScan " << num_items << ' ' << nblocks << std::endl;
-    int maxBlocks = maxCoopBlocks(doCoop<uint32_t>, nthreads, 0, 0);
+    int maxBlocks = maxCoopBlocks(doCoop<uint32_t>, nthreads, 0, 0, 0);
     std::cout << "max number of blocks is " << maxBlocks << std::endl;
     auto ncoopblocks = std::min(nblocks, maxBlocks);
     void *kernelArgs[] = {&d_in, &d_out2, &num_items, &d_psum};

@@ -282,7 +282,7 @@ int main() {
   auto nchunks = nOnes / nThreads + 1;
   auto ws = cms::cuda::make_device_unique<Assoc::Counter[]>(nchunks, 0);
 
-  int maxBlocks = maxCoopBlocks(populate, nThreads, 0, 0);
+  int maxBlocks = maxCoopBlocks(populate, nThreads, 0, 0, 0);
   std::cout << "max number of blocks is " << maxBlocks << std::endl;
   auto ncoopblocks = std::min(nBlocks, maxBlocks);
   auto a1 = v_d.get();
