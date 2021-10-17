@@ -19,6 +19,9 @@
 namespace cms {
   namespace cuda {
 
+    enum class CountOrFill {count, fill};
+
+
     template <typename Assoc>
     struct OneToManyAssocView {
       using Counter = typename Assoc::Counter;

@@ -11,8 +11,8 @@
 namespace cms {
   namespace cuda {
 
-    template <typename Histo, typename T>
-    __device__ __inline__ void countFromVector(Histo *__restrict__ h,
+    template <typename Histo, typename T, CountOrFill cof>
+    __device__ __inline__ void countOrFillFromVector(Histo *__restrict__ h,
                                                uint32_t nh,
                                                T const *__restrict__ v,
                                                uint32_t const *__restrict__ offsets) {
@@ -23,40 +23,19 @@ namespace cms {
         int32_t ih = off - offsets - 1;
         assert(ih >= 0);
         assert(ih < int(nh));
-        (*h).count(v[i], ih);
+        if constexpr(CountOrFill::count==cof)
+          (*h).count(v[i], ih);
+        else
+          (*h).fill(v[i], i, ih);
       }
     }
 
-    template <typename Histo, typename T>
-    __global__ void countFromVectorKernel(Histo *__restrict__ h,
+    template <typename Histo, typename T,CountOrFill cof>
+    __global__ void countOrFillFromVectorKernel(Histo *__restrict__ h,
                                           uint32_t nh,
                                           T const *__restrict__ v,
                                           uint32_t const *__restrict__ offsets) {
-      countFromVector(h, nh, v, offsets);
-    }
-
-    template <typename Histo, typename T>
-    __device__ __inline__ void fillFromVector(Histo *__restrict__ h,
-                                              uint32_t nh,
-                                              T const *__restrict__ v,
-                                              uint32_t const *__restrict__ offsets) {
-      int first = blockDim.x * blockIdx.x + threadIdx.x;
-      for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
-        auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
-        assert((*off) > 0);
-        int32_t ih = off - offsets - 1;
-        assert(ih >= 0);
-        assert(ih < int(nh));
-        (*h).fill(v[i], i, ih);
-      }
-    }
-
-    template <typename Histo, typename T>
-    __global__ void fillFromVectorKernel(Histo *__restrict__ h,
-                                         uint32_t nh,
-                                         T const *__restrict__ v,
-                                         uint32_t const *__restrict__ offsets) {
-      fillFromVector(h, nh, v, offsets);
+      countOrFillFromVector<Histo,T,cof>(h, nh, v, offsets);
     }
 
     template <typename Histo, typename T>
@@ -77,15 +56,15 @@ namespace cms {
 #ifdef __CUDACC__
       auto nblocks = (totSize + nthreads - 1) / nthreads;
       assert(nblocks > 0);
-      countFromVectorKernel<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
+      countOrFillFromVectorKernel<Histo,T,CountOrFill::count><<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
       cudaCheck(cudaGetLastError());
       launchFinalize(view, stream);
-      fillFromVectorKernel<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
+      countOrFillFromVectorKernel<Histo,T,CountOrFill::fill><<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
       cudaCheck(cudaGetLastError());
 #else
-      countFromVectorKernel(h, nh, v, offsets);
+      countOrFillFromVectorKernel<Histo,T,CountOrFill::count>(h, nh, v, offsets);
       h->finalize();
-      fillFromVectorKernel(h, nh, v, offsets);
+      countOrFillFromVectorKernel<Histo,T,CountOrFill::fill>(h, nh, v, offsets);
 #endif
     }
 
@@ -102,11 +81,11 @@ namespace cms {
       auto h = static_cast<Histo *>(view.assoc);
       zeroAndInitCoop(view);
       grid.sync();
-      countFromVector(h, nh, v, offsets);
+      countOrFillFromVector<Histo,T,CountOrFill::count>(h, nh, v, offsets);
       grid.sync();
       finalizeCoop(view, ws);
       grid.sync();
-      fillFromVector(h, nh, v, offsets);
+      countOrFillFromVector<Histo,T,CountOrFill::fill>(h, nh, v, offsets);
     }
 #endif
 
