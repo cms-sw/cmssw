@@ -38,7 +38,7 @@ void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "S-link error", 2);
   h2Status->setBinLabel(unBinPos++, "Wrong FED ID", 2);
 
-  h2Status->setBinLabel(1, "GE11-N", 1);
+  h2Status->setBinLabel(1, "GE11-M", 1);
   h2Status->setBinLabel(2, "GE11-P", 1);
 }
 
@@ -107,8 +107,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
 
   h2AMC13Status_ =
       ibooker.book2D("amc13_status", "AMC13 Status;AMC13;", 2, 0.5, 2.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
-  h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-N",
-                                   "AMC Status GE11-N;AMC slot;",
+  h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-M",
+                                   "AMC Status GE11-M;AMC slot;",
                                    nAMCSlots_,
                                    -0.5,
                                    nAMCSlots_ - 0.5,
