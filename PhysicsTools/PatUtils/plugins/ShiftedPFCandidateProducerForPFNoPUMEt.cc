@@ -25,7 +25,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,10 +37,9 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer {
+class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::stream::EDProducer<> {
 public:
   explicit ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForPFNoPUMEt() override;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -52,9 +51,10 @@ private:
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jetCorrPayloadToken_;
   std::string jetCorrUncertaintyTag_;
-  JetCorrectorParameters* jetCorrParameters_;
-  JetCorrectionUncertainty* jecUncertainty_;
+  std::unique_ptr<JetCorrectorParameters> jetCorrParameters_;
+  std::unique_ptr<JetCorrectionUncertainty> jecUncertainty_;
 
   bool jecValidFileName_;
 
@@ -65,7 +65,9 @@ private:
   double unclEnUncertainty_;
 };
 
-const double dR2Match = 0.01 * 0.01;
+namespace {
+  constexpr double dR2Match = 0.01 * 0.01;
+}
 
 ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet& cfg)
     : srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"))),
@@ -81,12 +83,14 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
     edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")
         << "Reading JEC parameters = " << jetCorrUncertaintyTag_ << " from file = " << jetCorrInputFileName_.fullPath()
         << "." << std::endl;
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
-    jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
+    jetCorrParameters_ =
+        std::make_unique<JetCorrectorParameters>(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(*jetCorrParameters_);
   } else {
     edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")
         << "Reading JEC parameters = " << jetCorrUncertaintyTag_ << " from DB/SQLlite file." << std::endl;
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
+    jetCorrPayloadToken_ = esConsumes(edm::ESInputTag("", jetCorrPayloadName_));
   }
 
   minJetPt_ = cfg.getParameter<double>("minJetPt");
@@ -96,13 +100,6 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
   unclEnUncertainty_ = cfg.getParameter<double>("unclEnUncertainty");
 
   produces<reco::PFCandidateCollection>();
-}
-
-ShiftedPFCandidateProducerForPFNoPUMEt::~ShiftedPFCandidateProducerForPFNoPUMEt() {
-  if (jecValidFileName_) {
-    delete jetCorrParameters_;
-    delete jecUncertainty_;
-  }
 }
 
 void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -119,11 +116,9 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
   }
 
   if (!jetCorrPayloadName_.empty()) {
-    edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
-    es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
-    const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
-    delete jecUncertainty_;
-    jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
+    JetCorrectorParametersCollection const& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
+    const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
+    jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(jetCorrParameters);
   }
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
