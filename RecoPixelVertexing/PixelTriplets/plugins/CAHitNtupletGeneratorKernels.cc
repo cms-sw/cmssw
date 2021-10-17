@@ -127,9 +127,9 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   // remove duplicates (tracks that share a doublet)
   kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
 
-  kernel_countMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
+  kernel_countOrFillMultiplicity<CountOrFill::count>(tuples_d, quality_d, device_tupleMultiplicity_.get());
   cms::cuda::launchFinalize(device_tupleMultiplicity_.get(), cudaStream);
-  kernel_fillMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
+  kernel_countOrFillMultiplicity<CountOrFill::fill>(tuples_d, quality_d, device_tupleMultiplicity_.get());
 
   if (nhits > 1 && params_.lateFishbone_) {
     gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
@@ -169,9 +169,9 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   // fill hit->track "map"
   if (params_.doSharedHitCut_ || params_.doStats_) {
-    kernel_countHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+    kernel_countOrFillHitInTracks<CountOrFill::count>(tuples_d, quality_d, device_hitToTuple_.get());
     cms::cuda::launchFinalize(hitToTupleView_, cudaStream);
-    kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+    kernel_countOrFillHitInTracks<CountOrFill::fill>(tuples_d, quality_d, device_hitToTuple_.get());
   }
 
   // remove duplicates (tracks that share at least one hit)

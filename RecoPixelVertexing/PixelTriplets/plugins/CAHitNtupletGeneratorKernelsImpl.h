@@ -32,6 +32,8 @@ using Quality = pixelTrack::Quality;
 using TkSoA = pixelTrack::TrackSoA;
 using HitContainer = pixelTrack::HitContainer;
 
+using CountOrFill = cms::cuda::CountOrFill;
+
 namespace {
 
   constexpr uint16_t tkNotFound = std::numeric_limits<uint16_t>::max();
@@ -380,9 +382,10 @@ __global__ void kernel_mark_used(GPUCACell::Hits const *__restrict__ hhp,
   }
 }
 
-__device__ __inline__ void countMultiplicity(HitContainer const *__restrict__ foundNtuplets,
-                                             Quality const *__restrict__ quality,
-                                             caConstants::TupleMultiplicity *tupleMultiplicity) {
+template <CountOrFill cof>
+__device__ __inline__ void countOrFillMultiplicity(HitContainer const *__restrict__ foundNtuplets,
+                                                   Quality const *__restrict__ quality,
+                                                   caConstants::TupleMultiplicity *tupleMultiplicity) {
   auto first = blockIdx.x * blockDim.x + threadIdx.x;
   for (int it = first, nt = foundNtuplets->nOnes(); it < nt; it += gridDim.x * blockDim.x) {
     auto nhits = foundNtuplets->size(it);
@@ -394,38 +397,18 @@ __device__ __inline__ void countMultiplicity(HitContainer const *__restrict__ fo
     if (nhits > 5)
       printf("wrong mult %d %d\n", it, nhits);
     assert(nhits < 8);
-    tupleMultiplicity->count(nhits);
+    if constexpr (CountOrFill::count == cof)
+      tupleMultiplicity->count(nhits);
+    else
+      tupleMultiplicity->fill(nhits, it);
   }
 }
 
-__global__ void kernel_countMultiplicity(HitContainer const *__restrict__ foundNtuplets,
-                                         Quality const *__restrict__ quality,
-                                         caConstants::TupleMultiplicity *tupleMultiplicity) {
-  countMultiplicity(foundNtuplets, quality, tupleMultiplicity);
-}
-
-__device__ __inline__ void fillMultiplicity(HitContainer const *__restrict__ foundNtuplets,
-                                            Quality const *__restrict__ quality,
-                                            caConstants::TupleMultiplicity *tupleMultiplicity) {
-  auto first = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int it = first, nt = foundNtuplets->nOnes(); it < nt; it += gridDim.x * blockDim.x) {
-    auto nhits = foundNtuplets->size(it);
-    if (nhits < 3)
-      continue;
-    if (quality[it] == pixelTrack::Quality::edup)
-      continue;
-    assert(quality[it] == pixelTrack::Quality::bad);
-    if (nhits > 5)
-      printf("wrong mult %d %d\n", it, nhits);
-    assert(nhits < 8);
-    tupleMultiplicity->fill(nhits, it);
-  }
-}
-
-__global__ void kernel_fillMultiplicity(HitContainer const *__restrict__ foundNtuplets,
-                                        Quality const *__restrict__ quality,
-                                        caConstants::TupleMultiplicity *tupleMultiplicity) {
-  fillMultiplicity(foundNtuplets, quality, tupleMultiplicity);
+template <CountOrFill cof>
+__global__ void kernel_countOrFillMultiplicity(HitContainer const *__restrict__ foundNtuplets,
+                                               Quality const *__restrict__ quality,
+                                               caConstants::TupleMultiplicity *tupleMultiplicity) {
+  countOrFillMultiplicity<cof>(foundNtuplets, quality, tupleMultiplicity);
 }
 
 __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
@@ -532,40 +515,27 @@ __global__ void kernel_doStatsForTracks(HitContainer const *__restrict__ tuples,
   }
 }
 
-__device__ __inline__ void countHitInTracks(HitContainer const *__restrict__ tuples,
-                                            Quality const *__restrict__ quality,
-                                            CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
+template <CountOrFill cof>
+__device__ __inline__ void countOrFillHitInTracks(HitContainer const *__restrict__ tuples,
+                                                  Quality const *__restrict__ quality,
+                                                  CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
   int first = blockDim.x * blockIdx.x + threadIdx.x;
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
-      hitToTuple->count(*h);
+      if constexpr (CountOrFill::count == cof)
+        hitToTuple->count(*h);
+      else
+        hitToTuple->fill(*h, idx);
   }
 }
 
-__global__ void kernel_countHitInTracks(HitContainer const *__restrict__ tuples,
-                                        Quality const *__restrict__ quality,
-                                        CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
-  countHitInTracks(tuples, quality, hitToTuple);
-}
-
-__device__ __inline__ void fillHitInTracks(HitContainer const *__restrict__ tuples,
-                                           Quality const *__restrict__ quality,
-                                           CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
-  int first = blockDim.x * blockIdx.x + threadIdx.x;
-  for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
-    if (tuples->size(idx) == 0)
-      break;  // guard
-    for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
-      hitToTuple->fill(*h, idx);
-  }
-}
-
-__global__ void kernel_fillHitInTracks(HitContainer const *__restrict__ tuples,
-                                       Quality const *__restrict__ quality,
-                                       CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
-  fillHitInTracks(tuples, quality, hitToTuple);
+template <CountOrFill cof>
+__global__ void kernel_countOrFillHitInTracks(HitContainer const *__restrict__ tuples,
+                                              Quality const *__restrict__ quality,
+                                              CAHitNtupletGeneratorKernelsGPU::HitToTuple *hitToTuple) {
+  countOrFillHitInTracks<cof>(tuples, quality, hitToTuple);
 }
 
 __global__ void kernel_fillHitDetIndices(HitContainer const *__restrict__ tuples,

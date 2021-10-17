@@ -16,9 +16,11 @@ __inline__ void populateMultiplicity(HitContainer const *__restrict__ tuples_d,
   cms::cuda::launchZero(tupleMultiplicity_d, cudaStream);
   auto blockSize = 128;
   auto numberOfBlocks = (3 * caConstants::maxTuples / 4 + blockSize - 1) / blockSize;
-  kernel_countMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
+  kernel_countOrFillMultiplicity<CountOrFill::count>
+      <<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
   cms::cuda::launchFinalize(tupleMultiplicity_d, cudaStream);
-  kernel_fillMultiplicity<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
+  kernel_countOrFillMultiplicity<CountOrFill::fill>
+      <<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, tupleMultiplicity_d);
 }
 
 __inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
@@ -29,11 +31,13 @@ __inline__ void populateHitInTracks(HitContainer const *__restrict__ tuples_d,
   cms::cuda::launchZero(hitToTupleView, cudaStream);
   auto blockSize = 64;
   auto numberOfBlocks = nQuadrupletBlocks(blockSize);
-  kernel_countHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
+  kernel_countOrFillHitInTracks<CountOrFill::count>
+      <<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
   cudaCheck(cudaGetLastError());
   cms::cuda::launchFinalize(hitToTupleView, cudaStream);
   cudaCheck(cudaGetLastError());
-  kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
+  kernel__countOrFillHitInTracks<CountOrFill::fill>
+      <<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, hitToTuple_d);
 }
 
 #else
@@ -46,11 +50,11 @@ __global__ void kernel_populateHitInTracks(HitContainer const *__restrict__ tupl
   auto tuple_d = static_cast<HitToTuple *>(view.assoc);
   zeroAndInitCoop(view);
   grid.sync();
-  countHitInTracks(tuples_d, quality_d, tuple_d);
+  countOrFillHitInTracks<CountOrFill::count>(tuples_d, quality_d, tuple_d);
   grid.sync();
   finalizeCoop(view, ws);
   grid.sync();
-  fillHitInTracks(tuples_d, quality_d, tuple_d);
+  countOrFillHitInTracks<CountOrFill::fill>(tuples_d, quality_d, tuple_d);
 }
 
 __inline__ void populateHitInTracks(HitContainer const *tuples_d,
@@ -88,11 +92,11 @@ __global__ void kernel_populateMultiplicity(HitContainer const *__restrict__ tup
   auto tupleMultiplicity_d = static_cast<caConstants::TupleMultiplicity *>(view.assoc);
   zeroAndInitCoop(view);
   grid.sync();
-  countMultiplicity(tuples_d, quality_d, tupleMultiplicity_d);
+  countOrFillMultiplicity<CountOrFill::count>(tuples_d, quality_d, tupleMultiplicity_d);
   grid.sync();
   finalizeCoop(view, ws);
   grid.sync();
-  fillMultiplicity(tuples_d, quality_d, tupleMultiplicity_d);
+  countOrFillMultiplicity<CountOrFill::fill>(tuples_d, quality_d, tupleMultiplicity_d);
 }
 
 __inline__ void populateMultiplicity(HitContainer const *tuples_d,
