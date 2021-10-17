@@ -305,7 +305,8 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
 
   // Store CSC alignments and errors
   poolDbService->writeOneIOV<Alignments>((*cscAlignments), poolDbService->currentTime(), theCSCSurveyRecordName);
-  poolDbService->writeOneIOV<SurveyErrors>((*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
+  poolDbService->writeOneIOV<SurveyErrors>(
+      (*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
 }
 
 void MuonAlignment::saveSurveyToDB(void) {

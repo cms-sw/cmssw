@@ -922,7 +922,8 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
     //     else {
     //       poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     //     }
-    poolDbService->writeOneIOV<AlignmentErrorsExtended>(*alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        *alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
 
     std::cout << " [LaserAlignment::endRun] -- Storing done." << std::endl;
   }

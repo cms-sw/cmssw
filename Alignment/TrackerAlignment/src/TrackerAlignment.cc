@@ -256,5 +256,6 @@ void TrackerAlignment::saveToDB(void) {
   //     poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors,
   //                                                      poolDbService->currentTime(),
   //                                                      theErrorRecordName );
-  poolDbService->writeOneIOV<AlignmentErrorsExtended>(*alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      *alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
 }
