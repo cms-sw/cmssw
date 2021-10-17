@@ -132,17 +132,17 @@ void MuonMisalignedProducer::saveToDB(void) {
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Store DT alignments and errors
-  poolDbService->writeOne<Alignments>(&(*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*dt_AlignmentErrorsExtended), poolDbService->beginOfTime(), theDTErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*dt_AlignmentErrorsExtended), poolDbService->beginOfTime(), theDTErrorRecordName);
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>(&(*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
-  poolDbService->writeOne<Alignments>(&(*gem_Alignments), poolDbService->beginOfTime(), theGEMAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*gem_AlignmentErrorsExtended), poolDbService->beginOfTime(), theGEMErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*gem_Alignments), poolDbService->beginOfTime(), theGEMAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*gem_AlignmentErrorsExtended), poolDbService->beginOfTime(), theGEMErrorRecordName);
 }
 //____________________________________________________________________________________________
 DEFINE_FWK_MODULE(MuonMisalignedProducer);

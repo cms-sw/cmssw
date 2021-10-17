@@ -120,8 +120,8 @@ std::unique_ptr<TrackerGeometry> MisalignedTrackerESProducer::produce(const Trac
       alignments->clear();
       alignmentErrors->clear();
     }
-    poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
-    poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
+    poolDbService->writeOneIOV<Alignments>(*alignments, poolDbService->currentTime(), theAlignRecordName);
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(*alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
   } else {
     // poolDbService::writeOne takes over ownership
     // we have to delete in the case that containers are not written

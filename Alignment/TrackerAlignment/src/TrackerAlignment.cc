@@ -247,7 +247,7 @@ void TrackerAlignment::saveToDB(void) {
   //   else
   //     poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(),
   //                                                 theAlignRecordName );
-  poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
+  poolDbService->writeOneIOV<Alignments>(*alignments, poolDbService->currentTime(), theAlignRecordName);
   //   if ( poolDbService->isNewTagRequest(theErrorRecordName) )
   //     poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors,
   //                                                   poolDbService->endOfTime(),
@@ -256,5 +256,5 @@ void TrackerAlignment::saveToDB(void) {
   //     poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors,
   //                                                      poolDbService->currentTime(),
   //                                                      theErrorRecordName );
-  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(*alignmentErrors, poolDbService->currentTime(), theErrorRecordName);
 }

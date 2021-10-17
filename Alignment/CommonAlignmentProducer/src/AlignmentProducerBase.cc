@@ -917,14 +917,14 @@ void AlignmentProducerBase::writeDB(Alignments* alignments,
 
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments for run " << time << " to " << alignRcd << ".";
-    poolDb->writeOne<Alignments>(tempAlignments, time, alignRcd);
+    poolDb->writeOneIOV<Alignments>(*tempAlignments, time, alignRcd);
   } else {                  // poolDb->writeOne(..) takes over 'alignments' ownership,...
     delete tempAlignments;  // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrorsExtended for run " << time << " to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrorsExtended>(tempAlignmentErrorsExtended, time, errRcd);
+    poolDb->writeOneIOV<AlignmentErrorsExtended>(*tempAlignmentErrorsExtended, time, errRcd);
   } else {                               // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
     delete tempAlignmentErrorsExtended;  // ...otherwise we have to delete, as promised!
   }
@@ -944,7 +944,7 @@ void AlignmentProducerBase::writeDB(AlignmentSurfaceDeformations* alignmentSurfa
   if (saveDeformationsToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations for run " << time << " to "
                               << surfaceDeformationRcd << ".";
-    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, time, surfaceDeformationRcd);
+    poolDb->writeOneIOV<AlignmentSurfaceDeformations>(*alignmentSurfaceDeformations, time, surfaceDeformationRcd);
   } else {                                // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations;  // ...otherwise we have to delete, as promised!
   }

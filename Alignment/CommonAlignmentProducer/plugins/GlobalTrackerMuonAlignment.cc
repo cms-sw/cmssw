@@ -3435,7 +3435,7 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) {
   //    } else {
   //       poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
   //    }
-  poolDbService->writeOne<Alignments>(&(*globalPositions),
+  poolDbService->writeOneIOV<Alignments>((*globalPositions),
                                       poolDbService->currentTime(),
                                       //poolDbService->beginOfTime(),
                                       "GlobalPositionRcd");

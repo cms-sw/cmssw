@@ -271,8 +271,8 @@ void MuonAlignment::saveDTSurveyToDB(void) {
   }
 
   // Store DT alignments and errors
-  poolDbService->writeOne<Alignments>(&(*dtAlignments), poolDbService->currentTime(), theDTSurveyRecordName);
-  poolDbService->writeOne<SurveyErrors>(&(*dtSurveyErrors), poolDbService->currentTime(), theDTSurveyErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*dtAlignments), poolDbService->currentTime(), theDTSurveyRecordName);
+  poolDbService->writeOneIOV<SurveyErrors>((*dtSurveyErrors), poolDbService->currentTime(), theDTSurveyErrorRecordName);
 }
 
 void MuonAlignment::saveCSCSurveyToDB(void) {
@@ -304,8 +304,8 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
   }
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>(&(*cscAlignments), poolDbService->currentTime(), theCSCSurveyRecordName);
-  poolDbService->writeOne<SurveyErrors>(&(*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*cscAlignments), poolDbService->currentTime(), theCSCSurveyRecordName);
+  poolDbService->writeOneIOV<SurveyErrors>((*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
 }
 
 void MuonAlignment::saveSurveyToDB(void) {
@@ -324,9 +324,9 @@ void MuonAlignment::saveDTtoDB(void) {
   AlignmentErrorsExtended* dt_AlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
 
   // Store DT alignments and errors
-  poolDbService->writeOne<Alignments>(&(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*dt_AlignmentErrorsExtended), poolDbService->currentTime(), theDTErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*dt_AlignmentErrorsExtended), poolDbService->currentTime(), theDTErrorRecordName);
 }
 
 void MuonAlignment::saveCSCtoDB(void) {
@@ -340,9 +340,9 @@ void MuonAlignment::saveCSCtoDB(void) {
   AlignmentErrorsExtended* csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>(&(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*csc_AlignmentErrorsExtended), poolDbService->currentTime(), theCSCErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*csc_AlignmentErrorsExtended), poolDbService->currentTime(), theCSCErrorRecordName);
 }
 
 void MuonAlignment::saveGEMtoDB(void) {
@@ -356,9 +356,9 @@ void MuonAlignment::saveGEMtoDB(void) {
   AlignmentErrorsExtended* gem_AlignmentErrorsExtended = theAlignableMuon->gemAlignmentErrorsExtended();
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>(&(*gem_Alignments), poolDbService->currentTime(), theGEMAlignRecordName);
-  poolDbService->writeOne<AlignmentErrorsExtended>(
-      &(*gem_AlignmentErrorsExtended), poolDbService->currentTime(), theGEMErrorRecordName);
+  poolDbService->writeOneIOV<Alignments>((*gem_Alignments), poolDbService->currentTime(), theGEMAlignRecordName);
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      (*gem_AlignmentErrorsExtended), poolDbService->currentTime(), theGEMErrorRecordName);
 }
 
 void MuonAlignment::saveToDB(void) {

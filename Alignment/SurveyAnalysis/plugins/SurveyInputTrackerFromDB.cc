@@ -58,9 +58,9 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
     if (!poolDbService.isAvailable())  // Die if not available
       throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-    poolDbService->writeOne<Alignments>(myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd");
-    poolDbService->writeOne<AlignmentErrorsExtended>(
-        myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
+    poolDbService->writeOneIOV<Alignments>(*myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd");
+    poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+        *myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
 
     theFirstEvent = false;
   }

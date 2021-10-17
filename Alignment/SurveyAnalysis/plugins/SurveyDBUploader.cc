@@ -27,8 +27,8 @@ void SurveyDBUploader::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne<SurveyValues>(theValues, poolDbService->currentTime(), theValueRcd);
-    poolDbService->writeOne<SurveyErrors>(theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
+    poolDbService->writeOneIOV<SurveyValues>(*theValues, poolDbService->currentTime(), theValueRcd);
+    poolDbService->writeOneIOV<SurveyErrors>(*theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
   } else
     throw cms::Exception("ConfigError") << "PoolDBOutputService is not available";
 }
