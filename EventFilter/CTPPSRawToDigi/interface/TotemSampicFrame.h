@@ -27,28 +27,28 @@ enum TotemSampicConstant {
   controlBits3_Position = 4,
   controlBits4_Position = 5,
   controlBits5_Position = 6,
-  fpgaTime_Position = 7,         // fpgaTime_Size = 5,
-  timestampA_Position = 12,      // timestampA_Size = 2,
+  fpgaTime_Position = 7,     // fpgaTime_Size = 5,
+  timestampA_Position = 12,  // timestampA_Size = 2,
   fpgaTime_Size = timestampA_Position - fpgaTime_Position,
-  timestampB_Position = 14,      // timestampB_Size = 2,
+  timestampB_Position = 14,  // timestampB_Size = 2,
   timestampA_Size = timestampB_Position - timestampA_Position,
-  cellInfo_Position = 16,        // cellInfo_Size = 2,
+  cellInfo_Position = 16,  // cellInfo_Size = 2,
   timestampB_Size = cellInfo_Position - timestampB_Position,
   planeChannelId_Position = 18,  // planeChannelId_Size = 1,
   cellInfo_Size = planeChannelId_Position - cellInfo_Position,
-  reserved_Position = 19,        // reserved_Size = 5,
+  reserved_Position = 19,  // reserved_Size = 5,
 
-  boardId_Position = 0,           // boardId_Size = 1,
-  l1ATimestamp_Position = 1,      // l1ATimestamp_Size = 5,
-  bunchNumber_Position = 6,       // bunchNumber_Size = 2,
+  boardId_Position = 0,       // boardId_Size = 1,
+  l1ATimestamp_Position = 1,  // l1ATimestamp_Size = 5,
+  bunchNumber_Position = 6,   // bunchNumber_Size = 2,
   l1ATimestamp_Size = bunchNumber_Position - l1ATimestamp_Position,
-  orbitNumber_Position = 8,       // orbitNumber_Size = 4,
+  orbitNumber_Position = 8,  // orbitNumber_Size = 4,
   bunchNumber_Size = orbitNumber_Position - bunchNumber_Position,
-  eventNumber_Position = 12,      // eventNumber_Size = 4,
+  eventNumber_Position = 12,  // eventNumber_Size = 4,
   orbitNumber_Size = eventNumber_Position - orbitNumber_Position,
-  channelMap_Position = 16,       // channelMap_Size = 2,
+  channelMap_Position = 16,  // channelMap_Size = 2,
   eventNumber_Size = channelMap_Position - eventNumber_Position,
-  l1ALatency_Position = 18,       // l1ALatency_Size = 2,
+  l1ALatency_Position = 18,  // l1ALatency_Size = 2,
   channelMap_Size = l1ALatency_Position - channelMap_Position,
   numberOfSamples_Position = 20,  // numberOfSamples_Size = 1,
   l1ALatency_Size = numberOfSamples_Position - l1ALatency_Position,
@@ -132,20 +132,19 @@ public:
     return tmp;
   }
 
-  template<class T>
-  T extractDataFromBytesLSB(const uint8_t* array, int start, int size) const{
-    T result=0;
-    for(int i=start+size-1;i>=start;i--)
-      result=(result<<8)|array[i];
+  template <class T>
+  T extractDataFromBytesLSB(const uint8_t* array, int start, int size) const {
+    T result = 0;
+    for (int i = start + size - 1; i >= start; i--)
+      result = (result << 8) | array[i];
     return result;
-
   }
 
   inline uint64_t getFPGATimestamp() const {
     uint64_t tmp = 0;
     if (status_)
-      tmp = extractDataFromBytesLSB<uint64_t>(
-          totemSampicInfoPtr_, TotemSampicConstant::fpgaTime_Position, fpgaTime_Size);
+      tmp =
+          extractDataFromBytesLSB<uint64_t>(totemSampicInfoPtr_, TotemSampicConstant::fpgaTime_Position, fpgaTime_Size);
     return tmp;
   }
 
