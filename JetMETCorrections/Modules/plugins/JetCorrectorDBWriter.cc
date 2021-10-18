@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
-class JetCorrectorDBWriter : public edm::EDAnalyzer {
+class JetCorrectorDBWriter : public edm::one::EDAnalyzer<> {
 public:
   JetCorrectorDBWriter(const edm::ParameterSet&);
   void beginJob() override;

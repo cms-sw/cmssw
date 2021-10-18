@@ -1,6 +1,6 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,7 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
 
-class QGLikelihoodDBReader : public edm::EDAnalyzer {
+class QGLikelihoodDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit QGLikelihoodDBReader(const edm::ParameterSet&);
   ~QGLikelihoodDBReader() override{};
@@ -21,20 +21,20 @@ private:
   void endJob() override{};
 
   std::string mPayloadName;
+  edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> mPayloadToken;
   bool mCreateTextFile, mPrintScreen;
 };
 
 QGLikelihoodDBReader::QGLikelihoodDBReader(const edm::ParameterSet& iConfig) {
   mPayloadName = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mPayloadToken = esConsumes(edm::ESInputTag("", mPayloadName));
   mPrintScreen = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
 }
 
 void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogInfo("UserOutput") << "Inspecting QGLikelihood payload with label:" << mPayloadName << std::endl;
-  edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
-  QGLikelihoodRcd const& rcdhandle = iSetup.get<QGLikelihoodRcd>();
-  rcdhandle.get(mPayloadName, QGLParamsColl);
+  edm::ESHandle<QGLikelihoodObject> QGLParamsColl = iSetup.getHandle(mPayloadToken);
 
   edm::LogInfo("UserOutput") << "Ranges in which the QGTagger could be applied:"
                              << "  pt: " << QGLParamsColl->qgValidRange.PtMin << " --> "

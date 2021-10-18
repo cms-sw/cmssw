@@ -45,6 +45,7 @@ namespace {
     void endJob() override;
 
     std::string mPayloadName, mGlobalTag;
+    edm::ESGetToken<MEtXYcorrectParametersCollection, MEtXYcorrectRecord> mPayloadToken;
     bool mCreateTextFile, mPrintScreen;
   };
 
@@ -52,6 +53,7 @@ namespace {
 
 METCorrectorDBReader::METCorrectorDBReader(const edm::ParameterSet& iConfig) {
   mPayloadName = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mPayloadToken = esConsumes(edm::ESInputTag("", mPayloadName));
   mGlobalTag = iConfig.getUntrackedParameter<std::string>("globalTag");
   mPrintScreen = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
@@ -60,9 +62,8 @@ METCorrectorDBReader::METCorrectorDBReader(const edm::ParameterSet& iConfig) {
 METCorrectorDBReader::~METCorrectorDBReader() {}
 
 void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl;
+  edm::ESHandle<MEtXYcorrectParametersCollection> MEtXYcorParaColl = iSetup.getHandle(mPayloadToken);
   edm::LogInfo("METCorrectorDBReader") << "Inspecting MET payload with label: " << mPayloadName;
-  iSetup.get<MEtXYcorrectRecord>().get(mPayloadName, MEtXYcorParaColl);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
   std::vector<MEtXYcorrectParametersCollection::key_type> keys;
