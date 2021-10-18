@@ -8,7 +8,7 @@ from DQMOffline.RecoB.bTagMiniDQMDeepCSV import *
 
 bTagMiniDQMGlobal = cms.PSet(
     JetTag = cms.InputTag('slimmedJets'),
-    MClevel = cms.int32(4),
+    MClevel = cms.int32(0),
     differentialPlots = cms.bool(True),
 
     ptActive = cms.bool(False),
@@ -39,10 +39,7 @@ Etaregions = {
 }
 
 
-def getSequences(discriminators, regions, globalPSet, label='bTag'):
-    Analyzer = cms.Sequence()
-    Harvester = cms.Sequence()
-
+def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label='bTag'):
     for discr in discriminators.keys():
         for region in regions.keys():
             name = label + discr + region
@@ -53,27 +50,47 @@ def getSequences(discriminators, regions, globalPSet, label='bTag'):
             Analyzer.insert(-1, globals()[name + 'Analyzer'])
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
-    return Analyzer, Harvester
+
+
+bTagMiniDQMSource = cms.Sequence()
+bTagMiniDQMHarvesting = cms.Sequence()
+
+addSequences(bTagMiniDQMSource,
+             bTagMiniDQMHarvesting,
+             discriminators=DeepFlavourDiscriminators,
+             regions=Etaregions,
+             globalPSet=bTagMiniDQMGlobal,
+             label='bTagDeepFlavourDQM')
+
+#addSequences(bTagMiniDQMSource,
+             #bTagMiniDQMHarvesting,
+             #discriminators=DeepCSVDiscriminators,
+             #regions=Etaregions,
+             #globalPSet=bTagMiniDQMGlobal,
+             #label='bTagDeepCSVDQM')
 
 
 
+# Validation addSequences
 
-DeepFlavourAnalyzer, DeepFlavourHarvester = getSequences(discriminators=DeepFlavourDiscriminators,
-                                                         regions=Etaregions,
-                                                         globalPSet=bTagMiniDQMGlobal,
-                                                         label='bTagDeepFlavourDQM')
-
-DeepCSVAnalyzer, DeepCSVHarvester         = getSequences(discriminators=DeepCSVDiscriminators,
-                                                         regions=Etaregions,
-                                                         globalPSet=bTagMiniDQMGlobal,
-                                                         label='bTagDeepCSVDQM')
-
-bTagMiniDQMSource = cms.Sequence(
-    DeepFlavourAnalyzer
-    #* DeepCSVAnalyzer
+bTagMiniValidationGlobal = bTagMiniDQMGlobal.clone(
+    MClevel = cms.int32(1) # produce flavour plots for b, c ,light (dusg)
 )
 
-bTagMiniDQMHarvesting = cms.Sequence(
-    DeepFlavourHarvester
-    #* DeepCSVHarvester
-)
+bTagMiniValidationSource = cms.Sequence()
+bTagMiniValidationHarvesting = cms.Sequence()
+
+
+addSequences(bTagMiniValidationSource,
+             bTagMiniValidationHarvesting,
+             discriminators=DeepFlavourDiscriminators,
+             regions={'Global': Etaregions['Global']}, # only for global Eta range
+             globalPSet=bTagMiniValidationGlobal,
+             label='bTagDeepFlavourValidation')
+
+#addSequences(bTagMiniValidationSource,
+             #bTagMiniValidationHarvesting,
+             #discriminators=DeepCSVDiscriminators,
+             #regions={'Global': Etaregions['Global']}, # only for global Eta range
+             #globalPSet=bTagMiniValidationGlobal,
+             #label='bTagDeepCSVValidation')
