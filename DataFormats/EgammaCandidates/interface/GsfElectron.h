@@ -28,8 +28,8 @@ namespace reco {
  * Renamed from PixelMatchGsfElectron.
  * Originally adapted from the TRecElectron class in ORCA.
  *
- * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+ * \author Claude Charlot - Laboratoire Leprince-Ringuet - Ã‰cole polytechnique, CNRS/IN2P3
+ * \author David Chamont  - Laboratoire Leprince-Ringuet - Ã‰cole polytechnique, CNRS/IN2P3
  *
  ****************************************************************************/
 
@@ -701,12 +701,28 @@ namespace reco {
             etOutsideMustache(-std::numeric_limits<float>::max()) {}
     };
 
+    static constexpr float mvaPlaceholder = -999999999.;
+
     struct MvaOutput {
       int status;  // see PFCandidateElectronExtra::StatusFlag
       float mva_Isolated;
       float mva_e_pi;
       float mvaByPassForIsolated;  // complementary MVA used in preselection
-      MvaOutput() : status(-1), mva_Isolated(-999999999.), mva_e_pi(-999999999.), mvaByPassForIsolated(-999999999.) {}
+      float dnn_e_sigIsolated;
+      float dnn_e_sigNonIsolated;
+      float dnn_e_bkgNonIsolated;
+      float dnn_e_bkgTau;
+      float dnn_e_bkgPhoton;
+      MvaOutput()
+          : status(-1),
+            mva_Isolated(mvaPlaceholder),
+            mva_e_pi(mvaPlaceholder),
+            mvaByPassForIsolated(mvaPlaceholder),
+            dnn_e_sigIsolated(mvaPlaceholder),
+            dnn_e_sigNonIsolated(mvaPlaceholder),
+            dnn_e_bkgNonIsolated(mvaPlaceholder),
+            dnn_e_bkgTau(mvaPlaceholder),
+            dnn_e_bkgPhoton(mvaPlaceholder) {}
     };
 
     // accessors
@@ -726,6 +742,11 @@ namespace reco {
     // for backward compatibility
     float mva_Isolated() const { return mvaOutput_.mva_Isolated; }
     float mva_e_pi() const { return mvaOutput_.mva_e_pi; }
+    float dnn_signal_Isolated() const { return mvaOutput_.dnn_e_sigIsolated; }
+    float dnn_signal_nonIsolated() const { return mvaOutput_.dnn_e_sigNonIsolated; }
+    float dnn_bkg_nonIsolated() const { return mvaOutput_.dnn_e_bkgNonIsolated; }
+    float dnn_bkg_Tau() const { return mvaOutput_.dnn_e_bkgTau; }
+    float dnn_bkg_Photon() const { return mvaOutput_.dnn_e_bkgPhoton; }
 
   private:
     PflowIsolationVariables pfIso_;

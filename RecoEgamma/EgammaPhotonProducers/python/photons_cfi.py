@@ -5,6 +5,10 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
+
+from RecoEgamma.EgammaIsolationAlgos.egammaEcalPFClusterIsolationProducerRecoPhoton_cfi import egammaEcalPFClusterIsolationProducerRecoPhoton
+from RecoEgamma.EgammaIsolationAlgos.egammaHcalPFClusterIsolationProducerRecoPhoton_cfi import egammaHcalPFClusterIsolationProducerRecoPhoton
+
 #
 # producer for photons
 #
@@ -85,7 +89,49 @@ photons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
-    checkHcalStatus = cms.bool(True)
+    checkHcalStatus = cms.bool(True),
+    PhotonDNNPFid = cms.PSet(
+        enabled = cms.bool(False),
+        inputTensorName = cms.string("FirstLayer_input"),
+        outputTensorName = cms.string("sequential/LastLayer/Softmax"),
+        modelsFiles = cms.vstring(
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_barrel.pb',
+                                'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/model_endcap.pb'),
+        scalersFiles = cms.vstring(
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt',
+                    'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/PhotonDNNScaler.txt'
+        ),
+        outputDim = cms.uint32(1),
+        useEBModelInGap = cms.bool(True)
+    ),
+    pfECALClusIsolCfg = cms.PSet(
+        pfClusterProducer = egammaEcalPFClusterIsolationProducerRecoPhoton.pfClusterProducer,
+        drMax = egammaEcalPFClusterIsolationProducerRecoPhoton.drMax,
+        drVetoBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.drVetoBarrel,
+        drVetoEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.drVetoEndcap,
+        etaStripBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.etaStripBarrel,
+        etaStripEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.etaStripEndcap,
+        energyBarrel = egammaEcalPFClusterIsolationProducerRecoPhoton.energyBarrel,
+        energyEndcap = egammaEcalPFClusterIsolationProducerRecoPhoton.energyEndcap
+    ),
+
+    pfHCALClusIsolCfg = cms.PSet(
+
+        pfClusterProducerHCAL = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHCAL,
+        useHF = egammaHcalPFClusterIsolationProducerRecoPhoton.useHF,
+        pfClusterProducerHFEM = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHFEM,
+        pfClusterProducerHFHAD = egammaHcalPFClusterIsolationProducerRecoPhoton.pfClusterProducerHFHAD,
+        drMax = egammaHcalPFClusterIsolationProducerRecoPhoton.drMax,
+        drVetoBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.drVetoBarrel,
+        drVetoEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.drVetoEndcap,
+        etaStripBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.etaStripBarrel,
+        etaStripEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.etaStripEndcap,
+        energyBarrel = egammaHcalPFClusterIsolationProducerRecoPhoton.energyBarrel,
+        energyEndcap = egammaHcalPFClusterIsolationProducerRecoPhoton.energyEndcap,
+        useEt = egammaHcalPFClusterIsolationProducerRecoPhoton.useEt,
+
+    )
+
 )
 
 photonsHGC = photons.clone(
