@@ -30,7 +30,10 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
   shifts = pset.getParameter<vector<double> >("shifts");
   //Read the chambers to be shifted
   vector<ParameterSet> parameters = pset.getParameter<vector<ParameterSet> >("chambers");
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
+
+  ttrigToken_ =
+      esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+  dtGeomToken_ = esConsumes<edm::Transition::BeginRun>();
 
   int counter = 0;
   for (vector<ParameterSet>::iterator parameter = parameters.begin(); parameter != parameters.end(); ++parameter) {
@@ -55,12 +58,10 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
 ShiftTTrigDB::~ShiftTTrigDB() {}
 
 void ShiftTTrigDB::beginRun(const edm::Run&, const EventSetup& setup) {
-  ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
+  ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
   tTrigMap = &*tTrig;
   cout << "[ShiftTTrigDB]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
+  muonGeom = setup.getHandle(dtGeomToken_);
 }
 
 void ShiftTTrigDB::endJob() {

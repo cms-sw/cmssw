@@ -15,7 +15,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include <string>
 class DTGeometry;
 class DTSuperLayer;
@@ -47,8 +49,6 @@ private:
 
   double smearing;
 
-  std::string dbLabel;
-
   /// tTrig from the DB
   float tTrigRef;
   float tTrigRMSRef;
@@ -58,5 +58,8 @@ private:
   edm::ESHandle<DTTtrig> tTrigMapRef;
 
   bool dataBaseWriteWasDone;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif
