@@ -34,16 +34,16 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const DTGeometry* DTGeometry,
-                                                       const CSCGeometry* CSCGeometry,
-                                                       const GEMGeometry* GEMGeometry,
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const DTGeometry* dtGeometry,
+                                                       const CSCGeometry* cscGeometry,
+                                                       const GEMGeometry* gemGeometry,
                                                        const Alignments* dtSurvey,
                                                        const Alignments* cscSurvey,
                                                        const SurveyErrors* dtSurveyError,
                                                        const SurveyErrors* cscSurveyError)
-    : dtGeometry_(DTGeometry),
-      cscGeometry_(CSCGeometry),
-      gemGeometry_(GEMGeometry),
+    : dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry),
       dtSurvey_(dtSurvey),
       cscSurvey_(cscSurvey),
       dtSurveyError_(dtSurveyError),

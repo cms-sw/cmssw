@@ -47,7 +47,20 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg)
       firstEvent_(true),
       idealInputLabel1("MuonGeometryArrangeLabel1"),
       idealInputLabel2("MuonGeometryArrangeLabel2"),
-      idealInputLabel2a("MuonGeometryArrangeLabel2a") {
+      idealInputLabel2a("MuonGeometryArrangeLabel2a"),
+      geomIdeal("MuonGeometryArrangeGeomIdeal"),
+      dtGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      cscGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      gemGeomToken1_(esConsumes(edm::ESInputTag("", idealInputLabel1))),
+      dtGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      cscGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      gemGeomToken2_(esConsumes(edm::ESInputTag("", idealInputLabel2))),
+      dtGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      cscGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      gemGeomToken3_(esConsumes(edm::ESInputTag("", idealInputLabel2a))),
+      dtGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))),
+      cscGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))),
+      gemGeomIdealToken_(esConsumes(edm::ESInputTag("", geomIdeal))) {
   referenceMuon = nullptr;
   currentMuon = nullptr;
   // Input is XML
