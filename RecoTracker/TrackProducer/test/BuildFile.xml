@@ -29,3 +29,10 @@
   <use name="RecoTracker/TransientTrackingRecHit"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<environment>
+  <bin file="testMuonTrackRefitting.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/TrackProducer/test testMuonTrackRefitting.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+</environment>
