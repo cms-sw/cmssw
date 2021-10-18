@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcROCParameters_cfi import hgcROCSettings
-from SimCalorimetry.HGCalSimAlgos.hgcSensorOpParams_cfi.py import hgcSiSensorIleak,hgcSiSensorCCE
+from SimCalorimetry.HGCalSimAlgos.hgcSensorOpParams_cfi import hgcSiSensorIleak,hgcSiSensorCCE
 
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
