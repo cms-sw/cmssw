@@ -35,7 +35,6 @@ process.plotter_eol_nogain = process.plotter_eol.clone( ignoreGainSettings = cms
 
 process.plotter_start = process.plotter_eol.clone( doseMapAlgo=cms.uint32(3) )
 
-
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("dosemap_output.root")
 )
