@@ -231,7 +231,7 @@ namespace edm {
           input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
-        service->openingFile(lfn(), -1);
+        service->openingFile(lfn(), inputType, -1);
       }
       try {
         std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));
