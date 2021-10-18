@@ -74,7 +74,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   if (m_pGeoFromDD4hep) {
     tokDD4Hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   } else {
-  tokDDD_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+    tokDDD_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
   produces<int>();
 }
