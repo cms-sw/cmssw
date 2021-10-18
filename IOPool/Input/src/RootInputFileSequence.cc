@@ -247,7 +247,7 @@ namespace edm {
           input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
-        service->openingFile(lfn(), -1);
+        service->openingFile(lfn(), inputType, -1);
       }
       for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
         try {
