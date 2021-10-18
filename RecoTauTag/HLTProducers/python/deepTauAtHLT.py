@@ -111,7 +111,7 @@ def update(process):
     )
 
     chargedIsolationQualityCuts = PFTauQualityCuts.clone(
-        isolationQualityCuts = cms.PSet( 
+        isolationQualityCuts = cms.PSet(
             maxDeltaZ = cms.double( 0.2 ),
             minTrackPt = cms.double( 0.5 ),
             minGammaEt = cms.double( 0.5 ),
@@ -121,8 +121,8 @@ def update(process):
             maxTransverseImpactParameter = cms.double( 0.1 ),
             useTracksInsteadOfPFHadrons = cms.bool( False )
         ),
-        primaryVertexSrc = cms.InputTag( "hltPixelVertices" ),
-        signalQualityCuts = cms.PSet( 
+        primaryVertexSrc = "hltPixelVertices",
+        signalQualityCuts = cms.PSet(
             maxDeltaZ = cms.double( 0.2 ),
             minTrackPt = cms.double( 0.0 ),
             minGammaEt = cms.double( 0.5 ),
@@ -133,7 +133,7 @@ def update(process):
             useTracksInsteadOfPFHadrons = cms.bool( False ),
             minNeutralHadronEt = cms.double( 1.0 )
         ),
-        vxAssocQualityCuts = cms.PSet( 
+        vxAssocQualityCuts = cms.PSet(
             minTrackPt = cms.double( 0.0 ),
             minGammaEt = cms.double( 0.5 ),
             minTrackHits = cms.uint32( 3 ),
@@ -145,17 +145,17 @@ def update(process):
     )
 
     process.hltHpsL1JetsHLTForDeepTauInput = process.hltHpsL1JetsHLTDoublePFTauTrackPt1MediumChargedIsolationMatchReg.clone(
-        L1TauTrigger = cms.InputTag( "hltL1sTauVeryBigOR" ),
-        JetSrc = cms.InputTag('hltHpsPFTauProducerReg'),
-        ReduceTauContent = cms.bool(False),
-        KeepOriginalVertex = cms.bool(True),
+        L1TauTrigger = "hltL1sTauVeryBigOR",
+        JetSrc = "hltHpsPFTauProducerReg",
+        ReduceTauContent = False,
+        KeepOriginalVertex = True,
     )
 
     file_names = [
-    				'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
-    				'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
-    				'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
-    			]
+        'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
+        'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
+        'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
+    ]
 
     def getLinExpression(x1, x2, y1, y2):
         return "(((({3}-{2})/({1}-{0}))*(pt-{0}))+{2})".format(x1, x2, y1, y2)
@@ -169,8 +169,8 @@ def update(process):
         vertices = 'hltPixelVertices',
         rho = 'hltFixedGridRhoFastjetAllTau',
         graph_file = file_names,
-        disable_dxy_pca = cms.bool(True),
-        is_online = cms.bool(True),
+        disable_dxy_pca = True,
+        is_online = True,
         pfTauTransverseImpactParameters = 'hpsPFTauTransverseImpactParametersForDeepTau',
         basicTauDiscriminators = 'hpsPFTauBasicDiscriminatorsForDeepTau',
         basicTauDiscriminatorsdR03 = 'hpsPFTauBasicDiscriminatorsdR03ForDeepTau',
@@ -184,7 +184,7 @@ def update(process):
     process.HLTHPSDeepTau35IsoPFTauSequenceReg = cms.Sequence(process.hpsPFTauPrimaryVertexProducerForDeepTau + process.hpsPFTauSecondaryVertexProducerForDeepTau + process.hpsPFTauTransverseImpactParametersForDeepTau + process.hltFixedGridRhoFastjetAllTau + process.hltHpsL1JetsHLTForDeepTauInput + process.hpsPFTauBasicDiscriminatorsForDeepTau + process.hpsPFTauBasicDiscriminatorsdR03ForDeepTau + process.deepTauProducer)
     
     process.hltHpsSelectedPFTausTrackPt1DeepTau35IsolationReg = process.hltHpsSelectedPFTausTrackPt1MediumChargedIsolationReg.clone(
-        src = cms.InputTag( "hltHpsL1JetsHLTForDeepTauInput" ),
+        src = "hltHpsL1JetsHLTForDeepTauInput",
         discriminators = [
             # cms.PSet(  
             #     discriminator = cms.InputTag( "hltHpsPFTauTrackPt1DiscriminatorReg" ),
