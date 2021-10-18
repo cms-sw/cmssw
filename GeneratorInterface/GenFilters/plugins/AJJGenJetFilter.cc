@@ -226,8 +226,8 @@ void AJJGenJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("GenJetCollection", edm::InputTag("ak4GenJetsNoNu"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<double>("minPt", -1.0)->setComment("If this is negative, no cut on jets is applied");
-  desc.add<double>("minEta", -4.5);
-  desc.add<double>("maxEta", 4.5);
+  desc.add<double>("minEta", -5.0);
+  desc.add<double>("maxEta", 5.0);
   desc.add<double>("deltaRJetLep", 0.);
   desc.add<double>("minDeltaEta", 0.0);
   desc.add<double>("maxDeltaEta", 9999.0);
