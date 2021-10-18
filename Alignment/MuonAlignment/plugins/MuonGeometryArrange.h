@@ -171,6 +171,22 @@ private:
   bool firstEvent_;
 
   std::string idealInputLabel1, idealInputLabel2, idealInputLabel2a;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken1_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken1_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken1_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken2_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken2_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken2_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken3_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken3_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken3_;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomIdealToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomIdealToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomIdealToken_;
 };
 
 #endif

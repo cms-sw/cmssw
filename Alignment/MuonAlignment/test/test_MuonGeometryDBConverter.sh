@@ -18,6 +18,5 @@ mkdir -p ${TEST_DIR}
 
 check_for_success cmsRun ${TEST_CFG} input=ideal output=db outputFile=${TEST_DIR}/ideal.db
 check_for_success cmsRun ${TEST_CFG} input=db output=xml inputFile=${TEST_DIR}/ideal.db outputFile=${TEST_DIR}/ideal.xml
-check_for_success cmsRun ${TEST_CFG} input=xml output=none inputFile=${TEST_DIR}/ideal.xml
-
+check_for_success cmsRun ${TEST_CFG} input=xml output=db inputFile=${TEST_DIR}/ideal.xml outputFile=${TEST_DIR}/idealXML.db
 clean_up

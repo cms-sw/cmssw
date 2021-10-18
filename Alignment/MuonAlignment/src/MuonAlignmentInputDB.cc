@@ -37,16 +37,42 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputDB::MuonAlignmentInputDB()
-    : m_dtLabel(""), m_cscLabel(""), m_gemLabel(""), idealGeometryLabel("idealForInputDB"), m_getAPEs(false) {}
-
-MuonAlignmentInputDB::MuonAlignmentInputDB(
-    std::string dtLabel, std::string cscLabel, std::string gemLabel, std::string idealLabel, bool getAPEs)
-    : m_dtLabel(dtLabel),
-      m_cscLabel(cscLabel),
-      m_gemLabel(gemLabel),
-      idealGeometryLabel(idealLabel),
-      m_getAPEs(getAPEs) {}
+MuonAlignmentInputDB::MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                                           const CSCGeometry* cscGeometry,
+                                           const GEMGeometry* gemGeometry,
+                                           const Alignments* dtAlignments,
+                                           const Alignments* cscAlignments,
+                                           const Alignments* gemAlignments,
+                                           const Alignments* globalPositionRcd)
+    : dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry),
+      dtAlignments_(dtAlignments),
+      cscAlignments_(cscAlignments),
+      gemAlignments_(gemAlignments),
+      globalPositionRcd_(globalPositionRcd),
+      m_getAPEs(false) {}
+MuonAlignmentInputDB::MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                                           const CSCGeometry* cscGeometry,
+                                           const GEMGeometry* gemGeometry,
+                                           const Alignments* dtAlignments,
+                                           const Alignments* cscAlignments,
+                                           const Alignments* gemAlignments,
+                                           const Alignments* globalPositionRcd,
+                                           const AlignmentErrorsExtended* dtAlignmentErrorsExtended,
+                                           const AlignmentErrorsExtended* cscAlignmentErrorsExtended,
+                                           const AlignmentErrorsExtended* gemAlignmentErrorsExtended)
+    : dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry),
+      dtAlignments_(dtAlignments),
+      cscAlignments_(cscAlignments),
+      gemAlignments_(gemAlignments),
+      globalPositionRcd_(globalPositionRcd),
+      dtAlignmentErrorsExtended_(dtAlignmentErrorsExtended),
+      cscAlignmentErrorsExtended_(cscAlignmentErrorsExtended),
+      gemAlignmentErrorsExtended_(gemAlignmentErrorsExtended),
+      m_getAPEs(true) {}
 
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)
 // {
@@ -71,65 +97,41 @@ MuonAlignmentInputDB::~MuonAlignmentInputDB() {}
 // member functions
 //
 
-AlignableMuon* MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
-  edm::ESHandle<Alignments> dtAlignments;
-  edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
-  edm::ESHandle<Alignments> cscAlignments;
-  edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
-  edm::ESHandle<Alignments> gemAlignments;
-  edm::ESHandle<AlignmentErrorsExtended> gemAlignmentErrorsExtended;
-  edm::ESHandle<Alignments> globalPositionRcd;
-
-  iSetup.get<DTAlignmentRcd>().get(m_dtLabel, dtAlignments);
-  iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
-  iSetup.get<GEMAlignmentRcd>().get(m_gemLabel, gemAlignments);
-  iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
-
+AlignableMuon* MuonAlignmentInputDB::newAlignableMuon() const {
   if (m_getAPEs) {
-    iSetup.get<DTAlignmentErrorExtendedRcd>().get(m_dtLabel, dtAlignmentErrorsExtended);
-    iSetup.get<CSCAlignmentErrorExtendedRcd>().get(m_cscLabel, cscAlignmentErrorsExtended);
-    iSetup.get<GEMAlignmentErrorExtendedRcd>().get(m_gemLabel, gemAlignmentErrorsExtended);
-
     GeometryAligner aligner;
-    aligner.applyAlignments<DTGeometry>(&(*dtGeometry),
-                                        &(*dtAlignments),
-                                        &(*dtAlignmentErrorsExtended),
-                                        align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-    aligner.applyAlignments<CSCGeometry>(&(*cscGeometry),
-                                         &(*cscAlignments),
-                                         &(*cscAlignmentErrorsExtended),
-                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-    aligner.applyAlignments<GEMGeometry>(&(*gemGeometry),
-                                         &(*gemAlignments),
-                                         &(*gemAlignmentErrorsExtended),
-                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+    aligner.applyAlignments<DTGeometry>(dtGeometry_,
+                                        dtAlignments_,
+                                        dtAlignmentErrorsExtended_,
+                                        align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
+    aligner.applyAlignments<CSCGeometry>(cscGeometry_,
+                                         cscAlignments_,
+                                         cscAlignmentErrorsExtended_,
+                                         align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
+    aligner.applyAlignments<GEMGeometry>(gemGeometry_,
+                                         gemAlignments_,
+                                         gemAlignmentErrorsExtended_,
+                                         align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
 
   } else {
     AlignmentErrorsExtended dtAlignmentErrorsExtended2, cscAlignmentErrorsExtended2, gemAlignmentErrorsExtended2;
 
-    for (std::vector<AlignTransform>::const_iterator i = dtAlignments->m_align.begin();
-         i != dtAlignments->m_align.end();
+    for (std::vector<AlignTransform>::const_iterator i = dtAlignments_->m_align.begin();
+         i != dtAlignments_->m_align.end();
          ++i) {
       CLHEP::HepSymMatrix empty_matrix(3, 0);
       AlignTransformErrorExtended empty_error(empty_matrix, i->rawId());
       dtAlignmentErrorsExtended2.m_alignError.push_back(empty_error);
     }
-    for (std::vector<AlignTransform>::const_iterator i = cscAlignments->m_align.begin();
-         i != cscAlignments->m_align.end();
+    for (std::vector<AlignTransform>::const_iterator i = cscAlignments_->m_align.begin();
+         i != cscAlignments_->m_align.end();
          ++i) {
       CLHEP::HepSymMatrix empty_matrix(3, 0);
       AlignTransformErrorExtended empty_error(empty_matrix, i->rawId());
       cscAlignmentErrorsExtended2.m_alignError.push_back(empty_error);
     }
-    for (std::vector<AlignTransform>::const_iterator i = gemAlignments->m_align.begin();
-         i != gemAlignments->m_align.end();
+    for (std::vector<AlignTransform>::const_iterator i = gemAlignments_->m_align.begin();
+         i != gemAlignments_->m_align.end();
          ++i) {
       CLHEP::HepSymMatrix empty_matrix(3, 0);
       AlignTransformErrorExtended empty_error(empty_matrix, i->rawId());
@@ -137,21 +139,21 @@ AlignableMuon* MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
     }
 
     GeometryAligner aligner;
-    aligner.applyAlignments<DTGeometry>(&(*dtGeometry),
-                                        &(*dtAlignments),
-                                        &(dtAlignmentErrorsExtended2),
-                                        align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-    aligner.applyAlignments<CSCGeometry>(&(*cscGeometry),
-                                         &(*cscAlignments),
-                                         &(cscAlignmentErrorsExtended2),
-                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-    aligner.applyAlignments<GEMGeometry>(&(*gemGeometry),
-                                         &(*gemAlignments),
-                                         &(gemAlignmentErrorsExtended2),
-                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+    aligner.applyAlignments<DTGeometry>(dtGeometry_,
+                                        dtAlignments_,
+                                        &dtAlignmentErrorsExtended2,
+                                        align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
+    aligner.applyAlignments<CSCGeometry>(cscGeometry_,
+                                         cscAlignments_,
+                                         &cscAlignmentErrorsExtended2,
+                                         align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
+    aligner.applyAlignments<GEMGeometry>(gemGeometry_,
+                                         gemAlignments_,
+                                         &gemAlignmentErrorsExtended2,
+                                         align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
   }
 
-  return new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+  return new AlignableMuon(dtGeometry_, cscGeometry_, gemGeometry_);
 }
 
 //

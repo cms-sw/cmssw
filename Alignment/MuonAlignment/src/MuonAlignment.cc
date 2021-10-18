@@ -40,21 +40,20 @@ void MuonAlignment::init() {
   theAlignableNavigator = nullptr;
 }
 
-MuonAlignment::MuonAlignment(const edm::EventSetup& iSetup) {
+MuonAlignment::MuonAlignment(const DTGeometry* dtGeometry,
+                             const CSCGeometry* cscGeometry,
+                             const GEMGeometry* gemGeometry)
+    : dtGeometry_(dtGeometry), cscGeometry_(cscGeometry), gemGeometry_(gemGeometry) {
   init();
 
-  edm::ESHandle<DTGeometry> dtGeometry = iSetup.getHandle(esTokenDT_);
-  edm::ESHandle<CSCGeometry> cscGeometry = iSetup.getHandle(esTokenCSC_);
-  edm::ESHandle<GEMGeometry> gemGeometry = iSetup.getHandle(esTokenGEM_);
-
-  theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+  theAlignableMuon = new AlignableMuon(&*dtGeometry_, &*cscGeometry_, &*gemGeometry_);
   theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 }
 
 MuonAlignment::MuonAlignment(const edm::EventSetup& iSetup, const MuonAlignmentInputMethod& input) {
   init();
 
-  theAlignableMuon = input.newAlignableMuon(iSetup);
+  theAlignableMuon = input.newAlignableMuon();
   theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 }
 
@@ -238,8 +237,11 @@ void MuonAlignment::copySurveyToAlignment() { recursiveCopySurveyToAlignment(the
 //____________________________________________________________________________________
 // Code needed to store alignments to DB
 
-void MuonAlignment::writeXML(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup) {
-  MuonAlignmentOutputXML(iConfig).write(theAlignableMuon, iSetup);
+void MuonAlignment::writeXML(const edm::ParameterSet& iConfig,
+                             const DTGeometry* dtGeometryXML,
+                             const CSCGeometry* cscGeometryXML,
+                             const GEMGeometry* gemGeometryXML) {
+  MuonAlignmentOutputXML(iConfig, dtGeometryXML, cscGeometryXML, gemGeometryXML).write(theAlignableMuon);
 }
 
 void MuonAlignment::saveDTSurveyToDB(void) {
