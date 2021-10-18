@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 #include <fstream>
@@ -47,8 +48,6 @@ private:
   //The t0 map
   const DTTtrig* tTrigMap;
 
-  std::string dbLabel;
-
   //The k factor
   //double kfactor;
 
@@ -62,5 +61,7 @@ private:
   std::map<std::vector<int>, TH1D*> theTMeanDistribMap;
   std::map<std::vector<int>, TH1D*> theSigmaDistribMap;
   std::map<std::vector<int>, TH1D*> theKFactorDistribMap;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
 };
 #endif
