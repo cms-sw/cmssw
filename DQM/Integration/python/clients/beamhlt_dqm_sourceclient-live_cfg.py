@@ -227,3 +227,5 @@ if (process.runType.getRunType() == process.runType.pp_run or
                         * process.offlineBeamSpot
                         * process.monitor )
 
+print("Final Source settings:", process.source)
+
