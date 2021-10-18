@@ -494,7 +494,7 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) {
   // Get phi projection of tracklet
   int seedindex = curTracklet->seedIndex();
   // If this stub is a seed stub, set projection=phi, so that res=0
-  if ((seedindex == 0 && (Layer == 1 || Layer == 2)) || (seedindex == 1 && (Layer == 2 || abs(Disk) == 0)) ||
+  if ((seedindex == 0 && (Layer == 1 || Layer == 2)) || (seedindex == 1 && (Layer == 2 || Layer == 3)) ||
       (seedindex == 2 && (Layer == 3 || Layer == 4)) || (seedindex == 3 && (Layer == 5 || Layer == 6)) ||
       (seedindex == 4 && (abs(Disk) == 1 || abs(Disk) == 2)) ||
       (seedindex == 5 && (abs(Disk) == 3 || abs(Disk) == 4)) || (seedindex == 6 && (Layer == 1 || abs(Disk) == 1)) ||
