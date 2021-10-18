@@ -36,6 +36,7 @@ using namespace std;
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
   format = pset.getUntrackedParameter<string>("dbFormat", "Legacy");
+  ttrigToken_ = esConsumes<edm::Transition::BeginRun>();
 
   cout << "Writing DB: " << dbToDump << " with format: " << format << endl;
 
@@ -329,8 +330,7 @@ vector<int> DumpFileToDB::readChannelsMap(stringstream& linestr) {
 void DumpFileToDB::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if (diffMode) {
     if (dbToDump == "TTrigDB") {  // read the original DB
-      ESHandle<DTTtrig> tTrig;
-      setup.get<DTTtrigRcd>().get(tTrig);
+      ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
       tTrigMapOrig = &*tTrig;
       cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
     }

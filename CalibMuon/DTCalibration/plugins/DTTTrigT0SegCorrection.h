@@ -9,12 +9,15 @@
  */
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
 namespace edm {
   class ParameterSet;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class DTTtrig;
 
@@ -26,7 +29,7 @@ namespace dtCalibration {
   class DTTTrigT0SegCorrection : public DTTTrigBaseCorrection {
   public:
     // Constructor
-    DTTTrigT0SegCorrection(const edm::ParameterSet&);
+    DTTTrigT0SegCorrection(const edm::ParameterSet&, edm::ConsumesCollector);
 
     // Destructor
     ~DTTTrigT0SegCorrection() override;
@@ -40,9 +43,8 @@ namespace dtCalibration {
 
     TFile* rootFile_;
 
-    std::string dbLabel;
-
     const DTTtrig* tTrigMap_;
+    edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
   };
 
 }  // namespace dtCalibration

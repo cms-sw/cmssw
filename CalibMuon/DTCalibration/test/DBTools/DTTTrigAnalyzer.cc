@@ -26,14 +26,14 @@ DTTTrigAnalyzer::DTTTrigAnalyzer(const ParameterSet &pset) {
   theFile->cd();
   //The k factor to compute ttrig
   //kfactor = pset.getUntrackedParameter<double>("kfactor",0);
-  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
+  ttrigToken_ =
+      esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
 }
 
 DTTTrigAnalyzer::~DTTTrigAnalyzer() { theFile->Close(); }
 
 void DTTTrigAnalyzer::beginRun(const edm::Run &, const edm::EventSetup &eventSetup) {
-  ESHandle<DTTtrig> tTrig;
-  eventSetup.get<DTTtrigRcd>().get(dbLabel, tTrig);
+  ESHandle<DTTtrig> tTrig = eventSetup.getHandle(ttrigToken_);
   tTrigMap = &*tTrig;
   cout << "[DTTTrigAnalyzer] TTrig version: " << tTrig->version() << endl;
 }
