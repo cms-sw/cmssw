@@ -2132,7 +2132,7 @@ steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSAlignmen
                            '--era':'Run2_2017',
                            '--datatier':'ALCARECO',
                            '--eventcontent':'ALCARECO',
-                           '--conditions':'121X_dataRun3_Prompt_Candidate_2021_10_09_12_20_39',
+                           '--conditions':'auto:run3_data_express',
                            '--triggerResultsProcess':'RECO',
                            }
 
@@ -2176,7 +2176,7 @@ steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
                         '--filein':'file:PPSTimingCalib.root'}
 
 steps['ALCAHARVDPPSALIG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSAlig']),
-                           '--conditions':'121X_dataRun3_Prompt_Candidate_2021_10_09_12_20_39',
+                           '--conditions':'auto:run3_data_express',
                            '--scenario':'pp',
                            '--data':'',
                            '--era':'Run2_2017',
