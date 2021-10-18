@@ -94,6 +94,9 @@ private:
   std::string prefix;
   std::map<std::string, const MuonGeometrySanityCheckCustomFrame *> m_frames;
   std::vector<MuonGeometrySanityCheckPoint> m_points;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
 };
 
 //
@@ -108,7 +111,8 @@ private:
 // constructors and destructor
 //
 
-MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfig) {
+MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfig)
+    : dtGeomToken_(esConsumes<edm::Transition::BeginRun>()), cscGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   printout = iConfig.getParameter<std::string>("printout");
   if (printout != std::string("all") && printout != std::string("bad")) {
     throw cms::Exception("BadConfig") << "Printout must be \"all\" or \"bad\"." << std::endl;
@@ -581,10 +585,9 @@ std::string MuonGeometrySanityCheckPoint::detName() const {
 // ------------ method called to for each event  ------------
 void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::ESHandle<DTGeometry> dtGeometry;
-  iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-
   edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+  dtGeometry = iSetup.getHandle(dtGeomToken_);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
 
   int num_transformed = 0;
   int num_tested = 0;

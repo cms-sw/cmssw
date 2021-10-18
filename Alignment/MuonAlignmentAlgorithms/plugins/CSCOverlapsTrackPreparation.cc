@@ -73,6 +73,10 @@ private:
 
   // ----------member data ---------------------------
   edm::InputTag m_src;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
 };
 
 //
@@ -87,7 +91,10 @@ private:
 // constructors and destructor
 //
 CSCOverlapsTrackPreparation::CSCOverlapsTrackPreparation(const edm::ParameterSet& iConfig)
-    : m_src(iConfig.getParameter<edm::InputTag>("src")) {
+    : m_src(iConfig.getParameter<edm::InputTag>("src")),
+      cscGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      globalGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<std::vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
 }
@@ -107,13 +114,11 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(m_src, tracks);
 
   edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-
   edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
+  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  magneticField = iSetup.getHandle(magneticFieldToken_);
+  globalGeometry = iSetup.getHandle(globalGeomToken_);
 
   MuonTransientTrackingRecHitBuilder muonTransBuilder;
 

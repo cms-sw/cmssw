@@ -90,6 +90,9 @@ private:
   Float_t m_ttree_qoverpt;
 
   MuonAlignment *m_muonAlignment;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 //
@@ -141,7 +144,14 @@ StandAloneTest::~StandAloneTest() {
 void StandAloneTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // create a muon alignment object ONCE (not used for much, only a formalilty for MuonResidualsFromTrack)
   if (m_muonAlignment == NULL) {
-    m_muonAlignment = new MuonAlignment(iSetup);
+    edm::ESHandle<DTGeometry> dtGeometry;
+    edm::ESHandle<CSCGeometry> cscGeometry;
+    edm::ESHandle<GEMGeometry> gemGeometry;
+    dtGeometry = iSetup.getHandle(dtGeomToken_);
+    cscGeometry = iSetup.getHandle(cscGeomToken_);
+    gemGeometry = iSetup.getHandle(gemGeomToken_);
+
+    m_muonAlignment = new MuonAlignment(&*dtGeometry, &*cscGeometry, &*gemGeometry);
   }
 
   // get tracks and refitted from the Event
