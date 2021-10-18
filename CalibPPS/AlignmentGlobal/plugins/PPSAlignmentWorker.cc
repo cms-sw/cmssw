@@ -25,6 +25,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <memory>
 
 #include "TH2D.h"
 #include "TGraph.h"
@@ -156,9 +157,10 @@ PPSAlignmentWorker::SectorData::SlicePlots::SlicePlots(DQMStore::IBooker& iBooke
                                                        bool debug) {
   h_y = iBooker.book1DD(
       "h_y", ";y", cfg.binning().slice_n_bins_x_, cfg.binning().slice_x_min_, cfg.binning().slice_x_max_);
-  auto* tmp = new TProfile(
+
+  auto profilePtr = std::make_unique<TProfile>(
       "", ";y;y_{F} - y_{N}", cfg.binning().slice_n_bins_x_, cfg.binning().slice_x_min_, cfg.binning().slice_x_max_);
-  p_y_diffFN_vs_y = iBooker.bookProfile("p_y_diffFN_vs_y", tmp);
+  p_y_diffFN_vs_y = iBooker.bookProfile("p_y_diffFN_vs_y", profilePtr.get());
 
   if (debug)
     h2_y_diffFN_vs_y = iBooker.book2DD("h2_y_diffFN_vs_y",
@@ -229,12 +231,13 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
 
   // near-far plots
   iBooker.setCurrentFolder(folder + "/" + scfg_.name_ + "/near_far");
-  auto* tmp = new TProfile("",
-                           ";x_{N};x_{F} - x_{N}",
-                           cfg.binning().diffFN_n_bins_x_,
-                           cfg.binning().diffFN_x_min_,
-                           cfg.binning().diffFN_x_max_);
-  p_x_diffFN_vs_x_N = iBooker.bookProfile("p_x_diffFN_vs_x_N", tmp);
+
+  auto profilePtr = std::make_unique<TProfile>("",
+                                               ";x_{N};x_{F} - x_{N}",
+                                               cfg.binning().diffFN_n_bins_x_,
+                                               cfg.binning().diffFN_x_min_,
+                                               cfg.binning().diffFN_x_max_);
+  p_x_diffFN_vs_x_N = iBooker.bookProfile("p_x_diffFN_vs_x_N", profilePtr.get());
 
   for (int i = 0; i < scfg_.rp_N_.x_slice_n_; i++) {
     const double x_min = scfg_.rp_N_.x_slice_min_ + i * scfg_.rp_N_.x_slice_w_;

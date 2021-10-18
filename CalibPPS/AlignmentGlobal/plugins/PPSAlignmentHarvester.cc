@@ -68,12 +68,12 @@ private:
                         unsigned int fitProfileMinNReasonable,
                         double& sl,
                         double& sl_unc);
-  TGraphErrors* buildGraphFromVector(const std::vector<PPSAlignmentConfiguration::PointErrors>& pv);
-  TGraphErrors* buildGraphFromMonitorElements(DQMStore::IGetter& iGetter,
-                                              const PPSAlignmentConfiguration::RPConfig& rpc,
-                                              const std::vector<MonitorElement*>& mes,
-                                              unsigned int fitProfileMinBinEntries,
-                                              unsigned int fitProfileMinNReasonable);
+  std::unique_ptr<TGraphErrors> buildGraphFromVector(const std::vector<PPSAlignmentConfiguration::PointErrors>& pv);
+  std::unique_ptr<TGraphErrors> buildGraphFromMonitorElements(DQMStore::IGetter& iGetter,
+                                                              const PPSAlignmentConfiguration::RPConfig& rpc,
+                                                              const std::vector<MonitorElement*>& mes,
+                                                              unsigned int fitProfileMinBinEntries,
+                                                              unsigned int fitProfileMinNReasonable);
   void doMatch(DQMStore::IBooker& iBooker,
                const PPSAlignmentConfiguration& cfg,
                const PPSAlignmentConfiguration::RPConfig& rpc,
@@ -113,12 +113,12 @@ private:
 
   // ------------ other member data and methods ------------
   static void writeCutPlot(TH2D* h, double a, double c, double si, double n_si, const std::string& label);
-  static TH1D* getTH1DFromTGraphErrors(TGraphErrors* graph,
-                                       std::string title = "",
-                                       std::string labels = "",
-                                       int n = -1,
-                                       double binWidth = -1.,
-                                       double min = -1.);
+  static std::unique_ptr<TH1D> getTH1DFromTGraphErrors(TGraphErrors* graph,
+                                                       std::string title = "",
+                                                       std::string labels = "",
+                                                       int n = -1,
+                                                       double binWidth = -1.,
+                                                       double min = -1.);
 
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenTest_;
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenReference_;
@@ -133,7 +133,7 @@ private:
   const bool debug_;
 
   // other class variables
-  TFile* debugFile_;
+  std::unique_ptr<TFile> debugFile_;
   std::ofstream textResultsFile_;
 
   CTPPSRPAlignmentCorrectionsData xAliResults_;
@@ -164,7 +164,7 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
     textResultsFile_.open(textResultsPath, std::ios::out | std::ios::trunc);
   }
   if (debug_) {
-    debugFile_ = new TFile("debug_harvester.root", "recreate");
+    debugFile_ = std::make_unique<TFile>("debug_harvester.root", "recreate");
   }
 
   edm::LogInfo("PPS").log([&](auto& li) {
@@ -186,9 +186,6 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
 PPSAlignmentHarvester::~PPSAlignmentHarvester() {
   if (textResultsFile_.is_open()) {
     textResultsFile_.close();
-  }
-  if (debug_) {
-    delete debugFile_;
   }
 }
 
@@ -352,10 +349,10 @@ int PPSAlignmentHarvester::fitProfile(TProfile* p,
 
   double x_min = x_mean - x_rms, x_max = x_mean + x_rms;
 
-  TF1* ff_pol1 = new TF1("ff_pol1", "[0] + [1]*x");
+  auto ff_pol1 = std::make_unique<TF1>("ff_pol1", "[0] + [1]*x");
 
   ff_pol1->SetParameter(0., 0.);
-  p->Fit(ff_pol1, "Q", "", x_min, x_max);
+  p->Fit(ff_pol1.get(), "Q", "", x_min, x_max);
 
   sl = ff_pol1->GetParameter(1);
   sl_unc = ff_pol1->GetParError(1);
@@ -364,9 +361,9 @@ int PPSAlignmentHarvester::fitProfile(TProfile* p,
 }
 
 // Builds graph from a vector of points (with errors).
-TGraphErrors* PPSAlignmentHarvester::buildGraphFromVector(
+std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromVector(
     const std::vector<PPSAlignmentConfiguration::PointErrors>& pv) {
-  TGraphErrors* g = new TGraphErrors();
+  auto g = std::make_unique<TGraphErrors>();
 
   for (unsigned int i = 0; i < pv.size(); i++) {
     const auto& p = pv[i];
@@ -379,12 +376,13 @@ TGraphErrors* PPSAlignmentHarvester::buildGraphFromVector(
 }
 
 // Builds a TGraphErrors from slice plots represented as MonitorElements.
-TGraphErrors* PPSAlignmentHarvester::buildGraphFromMonitorElements(DQMStore::IGetter& iGetter,
-                                                                   const PPSAlignmentConfiguration::RPConfig& rpc,
-                                                                   const std::vector<MonitorElement*>& mes,
-                                                                   unsigned int fitProfileMinBinEntries,
-                                                                   unsigned int fitProfileMinNReasonable) {
-  TGraphErrors* g = new TGraphErrors();
+std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromMonitorElements(
+    DQMStore::IGetter& iGetter,
+    const PPSAlignmentConfiguration::RPConfig& rpc,
+    const std::vector<MonitorElement*>& mes,
+    unsigned int fitProfileMinBinEntries,
+    unsigned int fitProfileMinNReasonable) {
+  auto g = std::make_unique<TGraphErrors>();
 
   for (auto* me : mes) {
     if (me->getName() == "h_y")  // find "h_y"
@@ -451,16 +449,16 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker& iBooker,
                       << "test: x_min = " << range_test.x_min_ << ", x_max = " << range_test.x_max_;
 
   // make spline from g_ref
-  TSpline3* s_ref = new TSpline3("s_ref", g_ref->GetX(), g_ref->GetY(), g_ref->GetN());
+  auto s_ref = std::make_unique<TSpline3>("s_ref", g_ref->GetX(), g_ref->GetY(), g_ref->GetN());
 
   // book match-quality graphs
-  TGraph* g_n_points = new TGraph();
+  auto g_n_points = std::make_unique<TGraph>();
   g_n_points->SetName("g_n_points");
   g_n_points->SetTitle(";sh;N");
-  TGraph* g_chi_sq = new TGraph();
+  auto g_chi_sq = std::make_unique<TGraph>();
   g_chi_sq->SetName("g_chi_sq");
   g_chi_sq->SetTitle(";sh;S2");
-  TGraph* g_chi_sq_norm = new TGraph();
+  auto g_chi_sq_norm = std::make_unique<TGraph>();
   g_chi_sq_norm->SetName("g_chi_sq_norm");
   g_chi_sq_norm->SetTitle(";sh;S2 / N");
 
@@ -523,26 +521,25 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker& iBooker,
     g_chi_sq_norm->SetPoint(idx, sh, S2_norm);
   }
 
-  TF1* ff_pol2 = new TF1("ff_pol2", "[0] + [1]*x + [2]*x*x");
+  auto ff_pol2 = std::make_unique<TF1>("ff_pol2", "[0] + [1]*x + [2]*x*x");
 
   // determine uncertainty
   double fit_range = cfg.methOUncFitRange();
-  g_chi_sq->Fit(ff_pol2, "Q", "", sh_best - fit_range, sh_best + fit_range);
+  g_chi_sq->Fit(ff_pol2.get(), "Q", "", sh_best - fit_range, sh_best + fit_range);
   sh_best_unc = 1. / sqrt(ff_pol2->GetParameter(2));
 
   // print results
   edm::LogInfo("PPS") << std::fixed << std::setprecision(3) << "[x_alignment] "
                       << "sh_best = (" << sh_best << " +- " << sh_best_unc << ") mm";
 
-  TGraphErrors* g_test_shifted = new TGraphErrors(*g_test);
+  auto g_test_shifted = std::make_unique<TGraphErrors>(*g_test);
   for (int i = 0; i < g_test_shifted->GetN(); ++i) {
     g_test_shifted->GetX()[i] += sh_best;
   }
 
-  iBooker.book1DD(
-      "h_test_shifted",
-      getTH1DFromTGraphErrors(
-          g_test_shifted, "test_shifted", ";x (mm);S", rpc.x_slice_n_, rpc.x_slice_w_, rpc.x_slice_min_ + sh_best));
+  std::unique_ptr<TH1D> histPtr = getTH1DFromTGraphErrors(
+      g_test_shifted.get(), "test_shifted", ";x (mm);S", rpc.x_slice_n_, rpc.x_slice_w_, rpc.x_slice_min_ + sh_best);
+  iBooker.book1DD("h_test_shifted", histPtr.get());
 
   if (debug_) {
     // save graphs
@@ -553,7 +550,7 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker& iBooker,
     g_test_shifted->Write("g_test_shifted");
 
     // save results
-    TGraph* g_results = new TGraph();
+    auto g_results = std::make_unique<TGraph>();
     g_results->SetName("g_results");
     g_results->SetPoint(0, sh_best, sh_best_unc);
     g_results->SetPoint(1, range_ref.x_min_, range_ref.x_max_);
@@ -561,7 +558,7 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker& iBooker,
     g_results->Write();
 
     // save debug canvas
-    TCanvas* c_cmp = new TCanvas("c_cmp");
+    auto c_cmp = std::make_unique<TCanvas>("c_cmp");
     g_ref->SetLineColor(1);
     g_ref->SetName("g_ref");
     g_ref->Draw("apl");
@@ -575,12 +572,7 @@ void PPSAlignmentHarvester::doMatch(DQMStore::IBooker& iBooker,
 
     g_test_shifted->Draw("pl");
     c_cmp->Write();
-
-    delete c_cmp;
   }
-
-  // clean up
-  delete s_ref;
 }
 
 // method o
@@ -618,11 +610,11 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
         continue;
       }
 
-      TGraphErrors* g_ref = buildGraphFromVector(vec_ref);
+      std::unique_ptr<TGraphErrors> g_ref = buildGraphFromVector(vec_ref);
 
       if (debug_)
         gDirectory = rpDir->mkdir("fits_test");
-      TGraphErrors* g_test = buildGraphFromMonitorElements(
+      std::unique_ptr<TGraphErrors> g_test = buildGraphFromMonitorElements(
           iGetter, rpc, mes_test, cfg.fitProfileMinBinEntries(), cfg.fitProfileMinNReasonable());
 
       // require minimal number of points
@@ -634,12 +626,14 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
       }
 
       iBooker.setCurrentFolder(folder_ + "/harvester/x alignment/" + rpc.name_);
-      iBooker.book1DD("h_ref",
-                      getTH1DFromTGraphErrors(
-                          g_ref, "ref", ";x (mm);S", rpc_ref.x_slice_n_, rpc_ref.x_slice_w_, rpc_ref.x_slice_min_));
-      iBooker.book1DD(
-          "h_test",
-          getTH1DFromTGraphErrors(g_test, "test", ";x (mm);S", rpc.x_slice_n_, rpc.x_slice_w_, rpc.x_slice_min_));
+
+      std::unique_ptr<TH1D> histPtr = getTH1DFromTGraphErrors(
+          g_ref.get(), "ref", ";x (mm);S", rpc_ref.x_slice_n_, rpc_ref.x_slice_w_, rpc_ref.x_slice_min_);
+      iBooker.book1DD("h_ref", histPtr.get());
+
+      histPtr =
+          getTH1DFromTGraphErrors(g_test.get(), "test", ";x (mm);S", rpc.x_slice_n_, rpc.x_slice_w_, rpc.x_slice_min_);
+      iBooker.book1DD("h_test", histPtr.get());
 
       if (debug_) {
         gDirectory = rpDir;
@@ -656,8 +650,8 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
       doMatch(iBooker,
               cfg,
               rpc,
-              g_ref,
-              g_test,
+              g_ref.get(),
+              g_test.get(),
               cfg_ref.alignment_x_meth_o_ranges().at(rpc.id_),
               shiftRange.x_min_,
               shiftRange.x_max_,
@@ -693,8 +687,8 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
   if (debug_)
     xAliRelDir = debugFile_->mkdir((std::to_string(seqPos + 1) + ": x_alignment_relative").c_str());
 
-  TF1* ff = new TF1("ff", "[0] + [1]*(x - [2])");
-  TF1* ff_sl_fix = new TF1("ff_sl_fix", "[0] + [1]*(x - [2])");
+  auto ff = std::make_unique<TF1>("ff", "[0] + [1]*(x - [2])");
+  auto ff_sl_fix = std::make_unique<TF1>("ff_sl_fix", "[0] + [1]*(x - [2])");
 
   // processing
   for (const auto& sc : {cfg.sectorConfig45(), cfg.sectorConfig56()}) {
@@ -726,7 +720,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
     ff->SetParameters(0., slope, 0.);
     ff->FixParameter(2, -sh_x_N);
     ff->SetLineColor(2);
-    p_x_diffFN_vs_x_N->Fit(ff, "Q", "", x_min, x_max);
+    p_x_diffFN_vs_x_N->Fit(ff.get(), "Q", "", x_min, x_max);
 
     const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);
     const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);
@@ -745,7 +739,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
     ff_sl_fix->FixParameter(1, slope);
     ff_sl_fix->FixParameter(2, -sh_x_N);
     ff_sl_fix->SetLineColor(4);
-    p_x_diffFN_vs_x_N->Fit(ff_sl_fix, "Q+", "", x_min, x_max);
+    p_x_diffFN_vs_x_N->Fit(ff_sl_fix.get(), "Q+", "", x_min, x_max);
 
     const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);
 
@@ -766,7 +760,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
     if (debug_) {
       p_x_diffFN_vs_x_N->Write("p_x_diffFN_vs_x_N");
 
-      TGraph* g_results = new TGraph();
+      auto g_results = std::make_unique<TGraph>();
       g_results->SetPoint(0, sh_x_N, 0.);
       g_results->SetPoint(1, a, a_unc);
       g_results->SetPoint(2, b, b_unc);
@@ -817,7 +811,7 @@ TH1D* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
   if (debug_)
     d_top = gDirectory;
 
-  TF1* ff_fit = new TF1("ff_fit", "[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + [4]*x");
+  auto ff_fit = std::make_unique<TF1>("ff_fit", "[0] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3] + [4]*x");
 
   int h_n = h2_y_vs_x->getNbinsX();
   double diff = h2_y_vs_x->getTH2D()->GetXaxis()->GetBinWidth(1) / 2.;
@@ -855,19 +849,19 @@ TH1D* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
     ff_fit->FixParameter(4, 0.);
 
     double x_min = rpc.x_min_fit_mode_, x_max = rpc.x_max_fit_mode_;
-    h_y->Fit(ff_fit, "Q", "", x_min, x_max);
+    h_y->Fit(ff_fit.get(), "Q", "", x_min, x_max);
 
     ff_fit->ReleaseParameter(4);
     double w = std::min(4., 2. * ff_fit->GetParameter(2));
     x_min = ff_fit->GetParameter(1) - w;
     x_max = std::min(rpc.y_max_fit_mode_, ff_fit->GetParameter(1) + w);
 
-    h_y->Fit(ff_fit, "Q", "", x_min, x_max);
+    h_y->Fit(ff_fit.get(), "Q", "", x_min, x_max);
 
     if (debug_)
       h_y->Write("h_y");
 
-    double y_mode = findMax(ff_fit);
+    double y_mode = findMax(ff_fit.get());
     const double y_mode_fit_unc = ff_fit->GetParameter(2) / 10;
     const double y_mode_sys_unc = cfg.y_mode_sys_unc();
     double y_mode_unc = std::sqrt(y_mode_fit_unc * y_mode_fit_unc + y_mode_sys_unc * y_mode_sys_unc);
@@ -879,7 +873,7 @@ TH1D* PPSAlignmentHarvester::buildModeGraph(DQMStore::IBooker& iBooker,
           ff_fit->GetChisquare() / ff_fit->GetNDF() > chiSqThreshold);
 
     if (debug_) {
-      TGraph* g_data = new TGraph();
+      auto g_data = std::make_unique<TGraph>();
       g_data->SetPoint(0, y_mode, y_mode_unc);
       g_data->SetPoint(1, ff_fit->GetChisquare(), ff_fit->GetNDF());
       g_data->SetPoint(2, valid, 0.);
@@ -904,8 +898,8 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
   if (debug_)
     yAliDir = debugFile_->mkdir((std::to_string(seqPos + 1) + ": y_alignment").c_str());
 
-  TF1* ff = new TF1("ff", "[0] + [1]*(x - [2])");
-  TF1* ff_sl_fix = new TF1("ff_sl_fix", "[0] + [1]*(x - [2])");
+  auto ff = std::make_unique<TF1>("ff", "[0] + [1]*(x - [2])");
+  auto ff_sl_fix = std::make_unique<TF1>("ff_sl_fix", "[0] + [1]*(x - [2])");
 
   // processing
   for (const auto& sc : {cfg.sectorConfig45(), cfg.sectorConfig56()}) {
@@ -942,7 +936,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff->SetParameters(0., 0., 0.);
       ff->FixParameter(2, -sh_x);
       ff->SetLineColor(2);
-      h_y_cen_vs_x->Fit(ff, "Q", "", x_min, x_max);
+      h_y_cen_vs_x->Fit(ff.get(), "Q", "", x_min, x_max);
 
       const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);
       const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);
@@ -959,7 +953,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff_sl_fix->FixParameter(1, slope);
       ff_sl_fix->FixParameter(2, -sh_x);
       ff_sl_fix->SetLineColor(4);
-      h_y_cen_vs_x->Fit(ff_sl_fix, "Q+", "", x_min, x_max);
+      h_y_cen_vs_x->Fit(ff_sl_fix.get(), "Q+", "", x_min, x_max);
 
       const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);
 
@@ -977,7 +971,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
         h_y_cen_vs_x->SetTitle(";x (mm); mode of y (mm)");
         h_y_cen_vs_x->Write("h_y_cen_vs_x");
 
-        TGraph* g_results = new TGraph();
+        auto g_results = std::make_unique<TGraph>();
         g_results->SetPoint(0, sh_x, 0.);
         g_results->SetPoint(1, a, a_unc);
         g_results->SetPoint(2, b, b_unc);
@@ -1001,7 +995,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
 // -------------------------------- other methods --------------------------------
 
 void PPSAlignmentHarvester::writeCutPlot(TH2D* h, double a, double c, double n_si, double si, const std::string& label) {
-  TCanvas* canvas = new TCanvas();
+  auto canvas = std::make_unique<TCanvas>();
   canvas->SetName(label.c_str());
   canvas->SetLogz(1);
 
@@ -1010,14 +1004,14 @@ void PPSAlignmentHarvester::writeCutPlot(TH2D* h, double a, double c, double n_s
   double x_min = -30.;
   double x_max = 30.;
 
-  TGraph* g_up = new TGraph();
+  auto g_up = std::make_unique<TGraph>();
   g_up->SetName("g_up");
   g_up->SetPoint(0, x_min, -a * x_min - c + n_si * si);
   g_up->SetPoint(1, x_max, -a * x_max - c + n_si * si);
   g_up->SetLineColor(1);
   g_up->Draw("l");
 
-  TGraph* g_down = new TGraph();
+  auto g_down = std::make_unique<TGraph>();
   g_down->SetName("g_down");
   g_down->SetPoint(0, x_min, -a * x_min - c - n_si * si);
   g_down->SetPoint(1, x_max, -a * x_max - c - n_si * si);
@@ -1029,20 +1023,20 @@ void PPSAlignmentHarvester::writeCutPlot(TH2D* h, double a, double c, double n_s
 
 // Points in TGraph should be sorted (TGraph::Sort())
 // if n, binWidth, or min is set to -1, method will find it on its own
-TH1D* PPSAlignmentHarvester::getTH1DFromTGraphErrors(
+std::unique_ptr<TH1D> PPSAlignmentHarvester::getTH1DFromTGraphErrors(
     TGraphErrors* graph, std::string title, std::string labels, int n, double binWidth, double min) {
-  TH1D* hist;
+  std::unique_ptr<TH1D> hist;
   if (n == 0) {
-    hist = new TH1D(title.c_str(), labels.c_str(), 0, -10., 10.);
+    hist = std::make_unique<TH1D>(title.c_str(), labels.c_str(), 0, -10., 10.);
   } else if (n == 1) {
-    hist = new TH1D(title.c_str(), labels.c_str(), 1, graph->GetPointX(0) - 5., graph->GetPointX(0) + 5.);
+    hist = std::make_unique<TH1D>(title.c_str(), labels.c_str(), 1, graph->GetPointX(0) - 5., graph->GetPointX(0) + 5.);
   } else {
     n = n == -1 ? graph->GetN() : n;
     binWidth = binWidth == -1 ? graph->GetPointX(1) - graph->GetPointX(0) : binWidth;
     double diff = binWidth / 2.;
     min = min == -1 ? graph->GetPointX(0) - diff : min;
     double max = min + n * binWidth;
-    hist = new TH1D(title.c_str(), labels.c_str(), n, min, max);
+    hist = std::make_unique<TH1D>(title.c_str(), labels.c_str(), n, min, max);
   }
 
   for (int i = 0; i < graph->GetN(); i++) {
