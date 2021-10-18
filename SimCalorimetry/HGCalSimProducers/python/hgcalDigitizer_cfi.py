@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcROCParameters_cfi import hgcROCSettings
+from SimCalorimetery.HGCalSimAlgos.hgcSensorOpParams_cfi.py import hgcSiSensorIleak,hgcSiSensorCCE
 
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
@@ -10,40 +11,14 @@ nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
 nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
 thresholdTracksMIP = True
 
-ileakParam_600V     = [0.993,-42.668]
-ileakParam_800V     = [0.996,-42.464]
 HGCAL_ileakParam_toUse    = cms.PSet(
-    ileakParam = cms.vdouble(ileakParam_600V)
-    )
-
-#  line+log tdr 600V
-cceParamFine_tdr600  = [1.5e+15, -3.00394e-17, 0.318083]      #120
-cceParamThin_tdr600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
-cceParamThick_tdr600 = [6e+14,   -7.96539e-16, 0.251751]      #300
-#  line+log tdr 800V
-cceParamFine_tdr800  = [4.2e+15, 2.35482e-18,  0.553187]      #120
-cceParamThin_tdr800  = [1.5e+15, -1.98109e-16, 0.280567]      #200
-cceParamThick_tdr800 = [6e+14,   -5.24999e-16, 0.357616]      #300
-#  line+log ttu 600V
-cceParamFine_ttu600  = [1.5e+15,  9.98631e-18, 0.343774]      #120
-cceParamThin_ttu600  = [1.5e+15, -2.17083e-16, 0.304873]      #200
-cceParamThick_ttu600 = [6e+14,   -8.01557e-16, 0.157375]      #300
-#  line+log ttu 800V
-cceParamFine_ttu800  = [1.5e+15, 3.35246e-17,  0.251679]      #120
-cceParamThin_ttu800  = [1.5e+15, -1.62096e-16, 0.293828]      #200
-cceParamThick_ttu800 = [6e+14,   -5.95259e-16, 0.183929]      #300
-# scaling the ddfz curve to match Timo's 800V measuremetn at 3.5E15
-cceParamFine_epi800 = [3.5e+15, -1.4285714e-17, 0.263812]     #120
-#  line+log tdr 600V EPI
-cceParamFine_epi600  = [3.5e+15, -3.428571e-17, 0.263812]     #120 - scaling the ddfz curve to match Timo's 600V measurement at 3.5E15
-cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
-cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
-
+    ileakParam = cms.vdouble( hgcSensorIleak('TDR_600V') )
+)
 
 HGCAL_cceParams_toUse = cms.PSet(
-    cceParamFine  = cms.vdouble(cceParamFine_epi600),
-    cceParamThin  = cms.vdouble(cceParamThin_tdr600),
-    cceParamThick = cms.vdouble(cceParamThick_tdr600)
+    cceParamFine  = cms.vdouble(hgcSiSensorCCE(120,'TDR_600V')),
+    cceParamThin  = cms.vdouble(hgcSiSensorCCE(200,'TDR_600V')),
+    cceParamThick = cms.vdouble(hgcSiSensorCCE(300,'TDR_600V')),
     )
 
 HGCAL_noise_fC = cms.PSet(
@@ -228,23 +203,23 @@ def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseAlgoSci=2,byD
 
 def HGCal_setEndOfLifeNoise_4000(process):
     process.HGCAL_cceParams_toUse = cms.PSet(
-        cceParamFine  = cms.vdouble(cceParamFine_epi800),
-        cceParamThin  = cms.vdouble(cceParamThin_tdr800),
-        cceParamThick = cms.vdouble(cceParamThick_tdr800)
+        cceParamFine  = cms.vdouble(hgcSiSensorCCE(120,'TDR_800V')),
+        cceParamThin  = cms.vdouble(hgcSiSensorCCE(200,'TDR_800V')),
+        cceParamThick = cms.vdouble(hgcSiSensorCCE(300,'TDR_800V')),
     )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
-        ileakParam = cms.vdouble(ileakParam_800V)
+        ileakParam = cms.vdouble(hgcSensorIleak('TDR_800V'))
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
 
 def HGCal_setEndOfLifeNoise_1500(process):
     process.HGCAL_cceParams_toUse = cms.PSet(
-        cceParamFine  = cms.vdouble(cceParamFine_epi600),
-        cceParamThin  = cms.vdouble(cceParamThin_tdr600),
-        cceParamThick = cms.vdouble(cceParamThick_tdr600)
+        cceParamFine  = cms.vdouble(hgcSiSensorCCE(120,'TDR_600V')),
+        cceParamThin  = cms.vdouble(hgcSiSensorCCE(200,'TDR_600V')),
+        cceParamThick = cms.vdouble(hgcSiSensorCCE(300,'TDR_600V')),
     )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
-        ileakParam = cms.vdouble(ileakParam_600V)
+        ileakParam = cms.vdouble(hgcSensorIleak('TDR_800V'))
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=0.5)
 
