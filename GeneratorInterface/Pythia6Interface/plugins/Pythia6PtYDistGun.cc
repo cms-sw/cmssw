@@ -6,7 +6,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
