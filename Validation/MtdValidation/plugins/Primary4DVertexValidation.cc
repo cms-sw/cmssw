@@ -244,6 +244,8 @@ private:
   bool optionalPlots_;
 
   //histogram declaration
+  MonitorElement* meTrackResTot_;
+  MonitorElement* meTrackPullTot_;
   MonitorElement* meTrackRes_[3];
   MonitorElement* meTrackPull_[3];
   MonitorElement* meTrackResMass_[3];
@@ -275,6 +277,11 @@ private:
   MonitorElement* meSimPVZ_;
 
   //some tests
+  MonitorElement* meTrackResLowPTot_;
+  MonitorElement* meTrackResHighPTot_;
+  MonitorElement* meTrackPullLowPTot_;
+  MonitorElement* meTrackPullHighPTot_;
+
   MonitorElement* meTrackResLowP_[3];
   MonitorElement* meTrackResHighP_[3];
   MonitorElement* meTrackPullLowP_[3];
@@ -330,6 +337,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
+  meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackRes_[0] = ibook.book1D(
       "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
   meTrackRes_[1] = ibook.book1D(
@@ -359,6 +367,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                           -1.,
                                           1.);
   }
+  meTrackPullTot_ = ibook.book1D("TrackPull", "Pull for tracks; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPull_[0] =
       ibook.book1D("TrackPull-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPull_[1] = ibook.book1D(
@@ -412,7 +421,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
   meTimePull_ = ibook.book1D("TimePull", "Pull; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   meTimeSignalRes_ =
-      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
+      ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
   meTimeSignalPull_ =
       ibook.book1D("TimeSignalPull", "Pull for signal; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   mePUvsRealV_ =
@@ -447,6 +456,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVZ_ = ibook.book1D("simPVZ", "#Sim vertices/mm", 400, -20., 20.);
 
   //some tests
+  meTrackResLowPTot_ = ibook.book1D(
+      "TrackResLowP", "t_{rec} - t_{sim} for tracks with p < 2 GeV; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackResLowP_[0] =
       ibook.book1D("TrackResLowP-LowMVA",
                    "t_{rec} - t_{sim} for tracks with MVA < 0.5 and p < 2 GeV; t_{rec} - t_{sim} [ns] ",
@@ -465,6 +476,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -1.,
                    1.);
+  meTrackResHighPTot_ = ibook.book1D(
+      "TrackResHighP", "t_{rec} - t_{sim} for tracks with p > 2 GeV; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackResHighP_[0] =
       ibook.book1D("TrackResHighP-LowMVA",
                    "t_{rec} - t_{sim} for tracks with MVA < 0.5 and p > 2 GeV; t_{rec} - t_{sim} [ns] ",
@@ -483,6 +496,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -1.,
                    1.);
+  meTrackPullLowPTot_ =
+      ibook.book1D("TrackPullLowP", "Pull for tracks with p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPullLowP_[0] = ibook.book1D("TrackPullLowP-LowMVA",
                                      "Pull for tracks with MVA < 0.5 and p < 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
                                      100,
@@ -498,6 +513,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                      100,
                                      -10.,
                                      10.);
+  meTrackPullHighPTot_ =
+      ibook.book1D("TrackPullHighP", "Pull for tracks with p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPullHighP_[0] = ibook.book1D("TrackPullHighP-LowMVA",
                                       "Pull for tracks with MVA < 0.5 and p > 2 GeV; (t_{rec}-t_{sim})/#sigma_{t}",
                                       100,
@@ -1185,6 +1202,16 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
           if (sigmat0Safe[*iTrack] == -1)
             continue;
+
+          meTrackResTot_->Fill(t0Safe[*iTrack] - tsim);
+          meTrackPullTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+          if ((*iTrack)->p() <= 2) {
+            meTrackResLowPTot_->Fill(t0Safe[*iTrack] - tsim);
+            meTrackPullLowPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+          } else {
+            meTrackResHighPTot_->Fill(t0Safe[*iTrack] - tsim);
+            meTrackPullHighPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+          }
 
           if (mtdQualMVA[(*iTrack)] < mvaL_) {
             meTrackZposRes_[0]->Fill(dZ);
