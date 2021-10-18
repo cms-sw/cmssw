@@ -46,12 +46,41 @@
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonDNNEstimator.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
 
-class GEDPhotonProducer : public edm::stream::EDProducer<> {
+class CacheData {
 public:
-  GEDPhotonProducer(const edm::ParameterSet& ps);
+  CacheData(const edm::ParameterSet& conf) {
+    // Here we will have to load the DNN PFID if present in the config
+    egammaTools::DNNConfiguration config;
+    const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+    const auto dnnEnabled = pset_dnn.getParameter<bool>("enabled");
+    if (dnnEnabled) {
+      config.inputTensorName = pset_dnn.getParameter<std::string>("inputTensorName");
+      config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
+      config.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
+      config.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
+      config.outputDim = pset_dnn.getParameter<uint>("outputDim");
+      const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
+      photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
+    }
+  }
+  std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
+};
+
+class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
+public:
+  GEDPhotonProducer(const edm::ParameterSet& ps, const CacheData* gcache);
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const CacheData*){};
+
+  void endStream() override;
 
 private:
   class RecoStepInfo {
@@ -169,6 +198,38 @@ private:
   std::unique_ptr<ElectronHcalHelper> hcalHelperCone_;
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
   bool hcalRun2EffDepth_;
+
+  // DNN for PFID photon enabled
+  bool dnnPFidEnabled_;
+  std::vector<tensorflow::Session*> tfSessions_;
+
+  double ecaldrMax_;
+  double ecaldrVetoBarrel_;
+  double ecaldrVetoEndcap_;
+  double ecaletaStripBarrel_;
+  double ecaletaStripEndcap_;
+  double ecalenergyBarrel_;
+  double ecalenergyEndcap_;
+  typedef EcalPFClusterIsolation<reco::Photon> PhotonEcalPFClusterIsolation;
+  std::unique_ptr<PhotonEcalPFClusterIsolation> ecalisoAlgo = nullptr;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
+
+  bool useHF_;
+  double hcaldrMax_;
+  double hcaldrVetoBarrel_;
+  double hcaldrVetoEndcap_;
+  double hcaletaStripBarrel_;
+  double hcaletaStripEndcap_;
+  double hcalenergyBarrel_;
+  double hcalenergyEndcap_;
+  double hcaluseEt_;
+
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
+
+  typedef HcalPFClusterIsolation<reco::Photon> PhotonHcalPFClusterIsolation;
+  std::unique_ptr<PhotonHcalPFClusterIsolation> hcalisoAlgo = nullptr;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -196,7 +257,7 @@ GEDPhotonProducer::RecoStepInfo::RecoStepInfo(const std::string& step) : flags_(
   }
 }
 
-GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
+GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const CacheData* gcache)
     : photonProducer_{config.getParameter<edm::InputTag>("photonProducer")},
       ecalClusterESGetTokens_{consumesCollector()},
       recoStep_(config.getParameter<std::string>("reconstructionStep")),
@@ -228,6 +289,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
     if (config.exists("pfHCALClusIsolation")) {
       phoPFHCALClusIsolationToken_ = consumes(config.getParameter<edm::InputTag>("pfHCALClusIsolation"));
     }
+
   } else {
     photonCoreProducerT_ = consumes(photonProducer_);
   }
@@ -308,8 +370,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   hcalRun2EffDepth_ = config.getParameter<bool>("hcalRun2EffDepth");
 
-  //AA
-
   // cut values for pre-selection
   preselCutValuesBarrel_ = {config.getParameter<double>("minSCEtBarrel"),
                             config.getParameter<double>("maxHoverEBarrel"),
@@ -351,10 +411,53 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
     photonMIPHaloTagger_->setup(mipVariableSet, consumesCollector());
   }
 
+  ///Get the set for PF cluster isolation calculator
+  const edm::ParameterSet& pfECALClusIsolCfg = config.getParameter<edm::ParameterSet>("pfECALClusIsolCfg");
+  pfClusterProducer_ =
+      consumes<reco::PFClusterCollection>(pfECALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducer"));
+  ecaldrMax_ = pfECALClusIsolCfg.getParameter<double>("drMax");
+  ecaldrVetoBarrel_ = pfECALClusIsolCfg.getParameter<double>("drVetoBarrel");
+  ecaldrVetoEndcap_ = pfECALClusIsolCfg.getParameter<double>("drVetoEndcap");
+  ecaletaStripBarrel_ = pfECALClusIsolCfg.getParameter<double>("etaStripBarrel");
+  ecaletaStripEndcap_ = pfECALClusIsolCfg.getParameter<double>("etaStripEndcap");
+  ecalenergyBarrel_ = pfECALClusIsolCfg.getParameter<double>("energyBarrel");
+  ecalenergyEndcap_ = pfECALClusIsolCfg.getParameter<double>("energyEndcap");
+
+  const edm::ParameterSet& pfHCALClusIsolCfg = config.getParameter<edm::ParameterSet>("pfHCALClusIsolCfg");
+  pfClusterProducerHCAL_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
+  pfClusterProducerHFEM_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
+  pfClusterProducerHFHAD_ = consumes(pfHCALClusIsolCfg.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
+  useHF_ = pfHCALClusIsolCfg.getParameter<bool>("useHF");
+  hcaldrMax_ = pfHCALClusIsolCfg.getParameter<double>("drMax");
+  hcaldrVetoBarrel_ = pfHCALClusIsolCfg.getParameter<double>("drVetoBarrel");
+  hcaldrVetoEndcap_ = pfHCALClusIsolCfg.getParameter<double>("drVetoEndcap");
+  hcaletaStripBarrel_ = pfHCALClusIsolCfg.getParameter<double>("etaStripBarrel");
+  hcaletaStripEndcap_ = pfHCALClusIsolCfg.getParameter<double>("etaStripEndcap");
+  hcalenergyBarrel_ = pfHCALClusIsolCfg.getParameter<double>("energyBarrel");
+  hcalenergyEndcap_ = pfHCALClusIsolCfg.getParameter<double>("energyEndcap");
+  hcaluseEt_ = pfHCALClusIsolCfg.getParameter<bool>("useEt");
+
   // Register the product
   produces<reco::PhotonCollection>(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized()) {
     produces<edm::ValueMap<reco::PhotonRef>>(valueMapPFCandPhoton_);
+  }
+
+  const auto& pset_dnn = config.getParameter<edm::ParameterSet>("PhotonDNNPFid");
+  dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  if (dnnPFidEnabled_) {
+    tfSessions_ = gcache->photonDNNEstimator->getSessions();
+  }
+}
+
+std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {
+  // this method is supposed to create, initialize and return a CacheData instance
+  return std::make_unique<CacheData>(config);
+}
+
+void GEDPhotonProducer::endStream() {
+  for (auto session : tfSessions_) {
+    tensorflow::closeSession(session);
   }
 }
 
@@ -463,6 +566,24 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
     photonEnergyCorrector_->gedRegression()->setEvent(theEvent);
     photonEnergyCorrector_->gedRegression()->setEventContent(eventSetup);
   }
+
+  ///PF ECAL cluster based isolations
+  ecalisoAlgo = std::make_unique<PhotonEcalPFClusterIsolation>(ecaldrMax_,
+                                                               ecaldrVetoBarrel_,
+                                                               ecaldrVetoEndcap_,
+                                                               ecaletaStripBarrel_,
+                                                               ecaletaStripEndcap_,
+                                                               ecalenergyBarrel_,
+                                                               ecalenergyEndcap_);
+
+  hcalisoAlgo = std::make_unique<PhotonHcalPFClusterIsolation>(hcaldrMax_,
+                                                               hcaldrVetoBarrel_,
+                                                               hcaldrVetoEndcap_,
+                                                               hcaletaStripBarrel_,
+                                                               hcaletaStripEndcap_,
+                                                               hcalenergyBarrel_,
+                                                               hcalenergyEndcap_,
+                                                               hcaluseEt_);
 
   int iSC = 0;  // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
@@ -631,6 +752,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
+    float full5x5_sigmaIetaIphi = full5x5_locCov[1];
 
     // compute position of ECAL shower
     math::XYZPoint caloPosition = scRef->position();
@@ -673,6 +795,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
           (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
+
       showerShape.hcalOverEcalBc[id] =
           (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
     }
@@ -749,7 +872,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
     /// fill extra full5x5 shower shapes
     const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : std::sqrt(full5x5_locCov[2]));
-    const float full5x5_sep = full5x5_locCov[1];
+    const float full5x5_sep = full5x5_sigmaIetaIphi;
     full5x5_showerShape.sigmaIetaIphi = full5x5_sep;
     full5x5_showerShape.sigmaIphiIphi = full5x5_spp;
     full5x5_showerShape.e2nd = (hits != nullptr ? noZS::EcalClusterTools::e2nd(*(scRef->seed()), hits) : 0.f);
@@ -792,6 +915,27 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
     full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);
+
+    //get the pointer for the photon object
+    edm::Ptr<reco::PhotonCore> photonPtr(photonCoreHandle, lSC);
+
+    // New in CMSSW_12_1_0 for PFID with DNNs
+    // The PFIso values are computed in the first loop on gedPhotonsTmp to make them available as DNN inputs.
+    // They are computed with the same inputs and algo as the final PFiso variables computed in the second loop after PF.
+    // Get PFClusters for PFID only if the PFID DNN evaluation is enabled
+    if (dnnPFidEnabled_) {
+      auto clusterHandle = evt.getHandle(pfClusterProducer_);
+      std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles{evt.getHandle(pfClusterProducerHCAL_)};
+      if (useHF_) {
+        clusterHandles.push_back(evt.getHandle(pfClusterProducerHFEM_));
+        clusterHandles.push_back(evt.getHandle(pfClusterProducerHFHAD_));
+      }
+      reco::Photon::PflowIsolationVariables pfIso;
+      pfIso.sumEcalClusterEt = ecalisoAlgo->getSum(newCandidate, clusterHandle);
+      pfIso.sumHcalClusterEt = hcalisoAlgo->getSum(newCandidate, clusterHandles);
+
+      newCandidate.setPflowIsolationVariables(pfIso);
+    }
 
     /// get ecal photon specific corrected energy
     /// plus values from regressions     and store them in the Photon
@@ -854,6 +998,20 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (isLooseEM)
       outputPhotonCollection.push_back(newCandidate);
   }
+
+  if (dnnPFidEnabled_) {
+    // Here send the list of photons to the PhotonDNNEstimator and get back the values for all the photons in one go
+    LogDebug("GEDPhotonProducer") << "Getting DNN PFId for photons";
+    const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
+    size_t ipho = 0;
+    for (auto& photon : outputPhotonCollection) {
+      const auto& values = dnn_photon_pfid[ipho];
+      reco::Photon::PflowIDVariables pfID;
+      pfID.dnn = values[0];
+      photon.setPflowIDVariables(pfID);
+      ipho++;
+    }
+  }
 }
 
 void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
@@ -895,12 +1053,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (parentSCRef.isNonnull() &&
         ptFast(parentSCRef->energy(), parentSCRef->position(), {0, 0, 0}) <= preselCutValues[0])
       continue;
+
     reco::Photon newCandidate(*phoRef);
     iSC++;
 
-    // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
+    // Calculate the PF isolation
     reco::Photon::PflowIsolationVariables pfIso;
-    reco::Photon::PflowIDVariables pfID;
+    // The PFID are not recomputed since they have been already computed in the first loop with the DNN
 
     //get the pointer for the photon object
     edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
@@ -915,11 +1074,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     //OOT photons in legacy 80X reminiAOD workflow dont have pf cluster isolation embeded into them at this stage
+    // They have been already computed in the first loop on gedPhotonsTmp but better to compute them again here.
     pfIso.sumEcalClusterEt = !phoPFECALClusIsolationToken_.isUninitialized() ? (*pfEcalClusters)[photonPtr] : 0.;
     pfIso.sumHcalClusterEt = !phoPFHCALClusIsolationToken_.isUninitialized() ? (*pfHcalClusters)[photonPtr] : 0.;
-
     newCandidate.setPflowIsolationVariables(pfIso);
-    newCandidate.setPflowIDVariables(pfID);
 
     // do the regression
     photonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
