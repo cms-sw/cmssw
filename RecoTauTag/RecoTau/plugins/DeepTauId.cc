@@ -1532,6 +1532,15 @@ private:
                 << "invalid prediction = " << pred << " for tau_index = " << tau_index << ", pred_index = " << k;
           predictions.matrix<float>()(tau_index, k) = pred;
         }
+      } else {
+        // This else statement was added as a part of the DeepTau@HLT development. It does not affect the current state
+        // of offline DeepTauId code as there the preselection is not used (it was added in the DeepTau@HLT). It returns
+        // default values for deepTau score if the preselection failed. Before this statement the values given for this tau
+        // were random. k == 2 corresponds to the tau score and all other k values to e, mu and jets. By defining in this way
+        // the final score is -1.
+        for (int k = 0; k < deep_tau::NumberOfOutputs; ++k) {
+          predictions.matrix<float>()(tau_index, k) = (k == 2) ? -1.f : 2.f;
+        }
       }
     }
     return predictions;
