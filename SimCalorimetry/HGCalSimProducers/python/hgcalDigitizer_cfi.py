@@ -12,7 +12,7 @@ nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
 thresholdTracksMIP = True
 
 HGCAL_ileakParam_toUse    = cms.PSet(
-    ileakParam = cms.vdouble( hgcSensorIleak('TDR_600V') )
+    ileakParam = cms.vdouble( hgcSiSensorIleak('TDR_600V') )
 )
 
 HGCAL_cceParams_toUse = cms.PSet(
@@ -208,7 +208,7 @@ def HGCal_setEndOfLifeNoise_4000(process):
         cceParamThick = cms.vdouble(hgcSiSensorCCE(300,'TDR_800V')),
     )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
-        ileakParam = cms.vdouble(hgcSensorIleak('TDR_800V'))
+        ileakParam = cms.vdouble(hgcSiSensorIleak('TDR_800V'))
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=1.333)
 
@@ -219,7 +219,7 @@ def HGCal_setEndOfLifeNoise_1500(process):
         cceParamThick = cms.vdouble(hgcSiSensorCCE(300,'TDR_600V')),
     )
     process.HGCAL_ileakParam_toUse    = cms.PSet(
-        ileakParam = cms.vdouble(hgcSensorIleak('TDR_800V'))
+        ileakParam = cms.vdouble(hgcSiSensorIleak('TDR_800V'))
     )
     return HGCal_setEndOfLifeNoise(process,byDoseFactor=0.5)
 
