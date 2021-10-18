@@ -15,6 +15,7 @@
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 

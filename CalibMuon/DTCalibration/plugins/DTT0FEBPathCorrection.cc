@@ -26,7 +26,7 @@ using namespace edm;
 namespace dtCalibration {
 
   DTT0FEBPathCorrection::DTT0FEBPathCorrection(const ParameterSet& pset, edm::ConsumesCollector cc)
-      : calibChamber_(pset.getParameter<string>("calibChamber")), t0Token_(cc.esConsumes()) {
+      : calibChamber_(pset.getParameter<string>("calibChamber")), t0Token_(cc.esConsumes<edm::Transition::BeginRun>()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;

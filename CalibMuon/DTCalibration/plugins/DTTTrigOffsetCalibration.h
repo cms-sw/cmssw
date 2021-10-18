@@ -47,7 +47,6 @@ private:
   edm::InputTag theRecHits4DLabel_;
   bool doTTrigCorrection_;
   std::string theCalibChamber_;
-  std::string dbLabel_;
 
   TFile* rootFile_;
   const DTTtrig* tTrigMap_;
