@@ -70,7 +70,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, consumesCollector(), std::vector<std::string>());
-  tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord,edm::Transition::BeginRun>();
+  tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   tokDDD_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   tokDD4Hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
 
@@ -82,7 +82,7 @@ GeometryProducer::~GeometryProducer() { delete m_kernel; }
 void GeometryProducer::updateMagneticField(edm::EventSetup const &es) {
   if (m_pUseMagneticField) {
     // setup the magnetic field
-    auto const& pMF = &es.getData(tokMF_);
+    auto const &pMF = &es.getData(tokMF_);
     const GlobalPoint g(0., 0., 0.);
     edm::LogInfo("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g);
 
