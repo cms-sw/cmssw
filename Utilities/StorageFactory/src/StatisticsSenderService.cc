@@ -156,8 +156,14 @@ void StatisticsSenderService::FileStatistics::update() {
   m_read_vector_bytes = read_vector_bytes;
   m_start_time = time(nullptr);
 }
-StatisticsSenderService::FileInfo::FileInfo(std::string const &iLFN)
-    : m_filelfn(iLFN), m_serverhost("unknown"), m_serverdomain("unknown"), m_size(-1), m_id(0), m_openCount(1) {}
+StatisticsSenderService::FileInfo::FileInfo(std::string const &iLFN, edm::InputType iType)
+    : m_filelfn(iLFN),
+      m_serverhost("unknown"),
+      m_serverdomain("unknown"),
+      m_type(iType),
+      m_size(-1),
+      m_id(0),
+      m_openCount(1) {}
 
 StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const &iPSet, edm::ActivityRegistry &ar)
     : m_clienthost("unknown"),
@@ -237,9 +243,9 @@ void StatisticsSenderService::setCurrentServer(const std::string &url, const std
   }
 }
 
-void StatisticsSenderService::openingFile(std::string const &lfn, size_t size) {
+void StatisticsSenderService::openingFile(std::string const &lfn, edm::InputType type, size_t size) {
   m_urlToLfn.emplace(lfn, lfn);
-  auto attempt = m_lfnToFileInfo.emplace(lfn, lfn);
+  auto attempt = m_lfnToFileInfo.emplace(lfn, FileInfo{lfn, type});
   if (attempt.second) {
     attempt.first->second.m_size = size;
     attempt.first->second.m_id = m_counter++;
@@ -377,6 +383,23 @@ void StatisticsSenderService::fillUDP(const std::string &siteName,
   }
   if (usedFallback) {
     os << "\"fallback\": true, ";
+  } else {
+    os << "\"fallback\": false, ";
+  }
+  os << "\"type\": ";
+  switch (fileinfo.m_type) {
+    case edm::InputType::Primary: {
+      os << "\"primary\", ";
+      break;
+    }
+    case edm::InputType::SecondaryFile: {
+      os << "\"secondary\", ";
+      break;
+    }
+    case edm::InputType::SecondarySource: {
+      os << "\"embedded\", ";
+      break;
+    }
   }
   auto serverhost = fileinfo.m_serverhost;
   auto serverdomain = fileinfo.m_serverdomain;

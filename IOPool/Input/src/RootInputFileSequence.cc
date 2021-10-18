@@ -230,7 +230,7 @@ namespace edm {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
-        service->openingFile(lfn(), -1);
+        service->openingFile(lfn(), inputType, -1);
       }
       try {
         filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
