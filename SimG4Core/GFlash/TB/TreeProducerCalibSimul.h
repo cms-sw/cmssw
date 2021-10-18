@@ -29,7 +29,6 @@
 // my include files
 #include "SimG4Core/GFlash/TB/TreeMatrixCalib.h"
 
-
 // root includes
 #include "TROOT.h"
 #include "TSystem.h"
@@ -54,7 +53,6 @@
 #include <math.h>
 #include <stdexcept>
 
-
 class TreeProducerCalibSimul : public edm::one::EDAnalyzer<> {
 public:
   explicit TreeProducerCalibSimul(const edm::ParameterSet&);
@@ -63,9 +61,8 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
-private:
 
-      
+private:
   std::string rootfile_;
   std::string txtfile_;
   std::string EBRecHitCollection_;
@@ -88,7 +85,5 @@ private:
   int noTdc;
   int noHeader;
 };
-
-
 
 #endif
