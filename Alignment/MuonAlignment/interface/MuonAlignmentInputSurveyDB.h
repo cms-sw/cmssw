@@ -30,9 +30,9 @@
 
 class MuonAlignmentInputSurveyDB : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputSurveyDB(const DTGeometry* DTGeometry,
-                             const CSCGeometry* CSCGeometry,
-                             const GEMGeometry* GEMGeometry,
+  MuonAlignmentInputSurveyDB(const DTGeometry* dtGeometry,
+                             const CSCGeometry* cscGeometry,
+                             const GEMGeometry* gemGeometry,
                              const Alignments* dtSurvey,
                              const Alignments* cscSurvey,
                              const SurveyErrors* dtSurveyError,
