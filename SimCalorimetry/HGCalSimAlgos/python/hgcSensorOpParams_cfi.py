@@ -14,25 +14,21 @@ def hgcSiSensorIleak(version):
     elif version=='TDR_800V':
         return [0.996,-42.464]
     elif version=='CERN21_600V_10m':
-        return [3.639,0.]
+        return [1.0,-42.457]
     elif version=='CERN21_600V_30m':
-        return [3.256,0.]
+        return [1.0,-42.569]
     elif version=='CERN21_600V_90m':
-        return [2.811,0.]
+        return [1.0,-42.715]
     elif version=='CERN21_600V_120m':
-        return [2.742,0.]
-    elif version=='CERN21_600V_250m':
-        return [2.361,0.]
+        return [1.0,-42.741]
     elif version=='CERN21_800V_10m':
-        return [4.4,0.]
+        return [1.0,-42.267]
     elif version=='CERN21_800V_30m':
-        return [3.975,0.]
+        return [1.0,-42.369]
     elif version=='CERN21_800V_90m':
-        return [3.456,0.]
+        return [1.0,-42.509]
     elif version=='CERN21_800V_120m':
-        return [3.385,0.]
-    elif version=='CERN21_800V_250m':
-        return [2.658,0.]
+        return [1.0,-42.530]
 
     raise ValueError('version={} is unknown to retrieve Ileak parameterization for HGC Si sensors'.format(version))
 
@@ -50,13 +46,13 @@ def hgcSiSensorCCE(sensor,version):
     """
     
     if version=='TDR_600V':
-        if sensor==120  : return [3.5e+15, -3.428571e-17, 0.263812]
-        elif sensor==200: return [1.5e+15, -3.09878e-16, 0.211207]
-        elif sensor==300: return [6e+14,   -7.96539e-16, 0.251751]
+        if sensor==120  : return [3.5e+15,0.00675,0.6381]
+        elif sensor==200: return [1e+15,-0.2749,10.17]
+        elif sensor==300: return [3e+14,-0.2823,10.16]
     elif version=='TDR_800V':
-        if sensor==120  : return [3.5e+15, -1.4285714e-17, 0.263812]
-        elif sensor==200: return [1.5e+15, -1.98109e-16, 0.280567]
-        elif sensor==300: return [6e+14,   -5.24999e-16, 0.357616]
+        if sensor==120  : return [3.5e+15,0.008824,0.6342]
+        elif sensor==200: return [1.5e+15,-0.2705,10.15]
+        elif sensor==300: return [6e+14,-0.3535,12.71]
     elif version=='TTU_600V':
         if sensor==120  : return [1.5e+15,  9.98631e-18, 0.343774]
         elif sensor==200: return [1.5e+15, -2.17083e-16, 0.304873]
