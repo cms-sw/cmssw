@@ -2445,7 +2445,7 @@ steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,ALCA:SiStripCalZe
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},step3Up2015Defaults])
 steps['RECOAODUP15']=merge([{'--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
 
-steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
+steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@allForPrompt'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
@@ -2814,7 +2814,7 @@ steps['DQMHLTonRAWAOD_2017']={
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
 
-steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
+steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@allForPrompt'},steps['HARVESTD']])
 
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTDR1']])
 
