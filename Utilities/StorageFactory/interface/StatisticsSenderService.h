@@ -7,6 +7,7 @@
 #include <atomic>
 #include <mutex>
 #include <tbb/concurrent_unordered_map.h>
+#include "FWCore/Utilities/interface/InputType.h"
 
 namespace edm {
 
@@ -24,7 +25,7 @@ namespace edm {
       static const char* getJobID();
       static bool getX509Subject(std::string&);
 
-      void openingFile(std::string const& lfn, size_t size = -1);
+      void openingFile(std::string const& lfn, edm::InputType type, size_t size = -1);
       void closedFile(std::string const& lfn, bool usedFallback);
 
     private:
@@ -50,10 +51,20 @@ namespace edm {
       };
 
       struct FileInfo {
-        explicit FileInfo(std::string const& iLFN);
+        explicit FileInfo(std::string const& iLFN, edm::InputType);
+
+        FileInfo(FileInfo&& iInfo)
+            : m_filelfn(std::move(iInfo.m_filelfn)),
+              m_serverhost(std::move(iInfo.m_serverhost)),
+              m_serverdomain(std::move(iInfo.m_serverdomain)),
+              m_type(iInfo.m_type),
+              m_size(iInfo.m_size.load()),
+              m_id(iInfo.m_id),
+              m_openCount(iInfo.m_openCount.load()) {}
         std::string m_filelfn;
         std::string m_serverhost;
         std::string m_serverdomain;
+        edm::InputType m_type;
         std::atomic<ssize_t> m_size;
         size_t m_id;  //from m_counter
         std::atomic<int> m_openCount;
