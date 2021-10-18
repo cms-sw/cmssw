@@ -25,11 +25,14 @@ HiggsValidation::HiggsValidation(const edm::ParameterSet& iPSet)
       particle_name(iPSet.getParameter<std::string>("particleName")) {
   monitoredDecays = new MonitoredDecays(iPSet);
   hepmcCollectionToken_ = consumes<HepMCProduct>(hepmcCollection_);
+  fPDGTableToken = esConsumes<edm::Transition::BeginRun>();
 }
 
 HiggsValidation::~HiggsValidation() {}
 
-void HiggsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) { c.getData(fPDGTable); }
+void HiggsValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  fPDGTable = c.getHandle(fPDGTableToken);
+}
 
 void HiggsValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) {
   ///Setting the DQM top directories
