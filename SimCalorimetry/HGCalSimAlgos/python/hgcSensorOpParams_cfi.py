@@ -46,13 +46,13 @@ def hgcSiSensorCCE(sensor,version):
     """
     
     if version=='TDR_600V':
-        if sensor==120  : return [3.5e+15,0.00675,0.6381]
-        elif sensor==200: return [1e+15,-0.2749,10.17]
-        elif sensor==300: return [3e+14,-0.2823,10.16]
+        if sensor==120  : return [3.5e+15,10.31,-0.2635]
+        elif sensor==200: return [9e+14,8.99,-0.241]
+        elif sensor==300: return [3e+14,10.16,-0.2823]
     elif version=='TDR_800V':
-        if sensor==120  : return [3.5e+15,0.008824,0.6342]
-        elif sensor==200: return [1.5e+15,-0.2705,10.15]
-        elif sensor==300: return [6e+14,-0.3535,12.71]
+        if sensor==120  : return [3.5e+15,10.39,-0.2638]
+        elif sensor==200: return [1.5e+15,10.41,-0.2779]
+        elif sensor==300: return [5e+14,12.59,-0.3501]
     elif version=='TTU_600V':
         if sensor==120  : return [1.5e+15,  9.98631e-18, 0.343774]
         elif sensor==200: return [1.5e+15, -2.17083e-16, 0.304873]
@@ -62,36 +62,36 @@ def hgcSiSensorCCE(sensor,version):
         elif sensor==200: return [1.5e+15, -1.62096e-16, 0.293828]
         elif sensor==300: return [6e+14,   -5.95259e-16, 0.183929]
     elif version=='CERN21_600V_10m':
-        if sensor==120  : return [1.35e+15,-0.2452,9.591]
-        elif sensor==200: return [9e+14,-0.3186,11.95]
-        elif sensor==300: return [5.85e+14,-0.2668,9.701]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_600V_30m':
-        if sensor==120  : return [1.35e+15,-0.2105,8.362]
-        elif sensor==200: return [9e+14,-0.4191,15.48]
-        elif sensor==300: return [5.85e+14,-0.2699,9.89]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_600V_90m':
-        if sensor==120  : return [1.35e+15,-0.1954,7.769]
-        elif sensor==200: return [9e+14,-0.2354,8.983]
-        elif sensor==300: return [5.85e+14,-0.2377,8.79]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_600V_120m':
-        if sensor==120  : return [1.35e+15,-0.1775,7.119]
-        elif sensor==200: return [9e+14,-0.2257,8.647]
-        elif sensor==300: return [5.85e+14,-0.2544,9.369]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_800V_10m':
-        if sensor==120  : return [1.35e+15,-0.2031,8.148]
-        elif sensor==200: return [9e+14,-0.1833,7.32]
-        elif sensor==300: return [5.85e+14,-0.3131,11.45]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_800V_30m':
-        if sensor==120  : return [1.35e+15,-0.1731,7.097]
-        elif sensor==200: return [9e+14,-0.3653,13.68]
-        elif sensor==300: return [5.85e+14,-0.269,10]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_800V_90m':
-        if sensor==120  : return [1.35e+15,-0.155,6.387]
-        elif sensor==200: return [9e+14,-0.198,7.739]
-        elif sensor==300: return [5.85e+14,-0.2023,7.701]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
     elif version=='CERN21_800V_120m':
-        if sensor==120  : return [1.35e+15,-0.1443,5.997]
-        elif sensor==200: return [9e+14,-0.1821,7.172]
-        elif sensor==300: return [5.85e+14,-0.2068,7.855]
+        if sensor==120  : return []
+        elif sensor==200: return []
+        elif sensor==300: return []
 
     raise ValueError('sensor={} version={} is unknown to retrieve CCE parameterization for HGC Si sensors'.format(sensor,version))
