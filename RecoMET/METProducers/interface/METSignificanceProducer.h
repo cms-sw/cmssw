@@ -60,6 +60,9 @@ namespace cms {
     std::string jetSFType_;
     std::string jetResPtType_;
     std::string jetResPhiType_;
+    JME::JetResolutionScaleFactor::Token jetSFTypeToken_;
+    JME::JetResolution::Token jetResPtTypeToken_;
+    JME::JetResolution::Token jetResPhiTypeToken_;
     edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
 
     metsig::METSignificance* metSigAlgo_;

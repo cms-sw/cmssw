@@ -1,6 +1,6 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,7 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
-class QGLikelihoodSystematicsDBReader : public edm::EDAnalyzer {
+class QGLikelihoodSystematicsDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit QGLikelihoodSystematicsDBReader(const edm::ParameterSet&);
   ~QGLikelihoodSystematicsDBReader() override{};
@@ -21,20 +21,20 @@ private:
   void endJob() override{};
 
   std::string mPayloadName;
+  edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> mPayloadToken;
   bool mCreateTextFile, mPrintScreen;
 };
 
 QGLikelihoodSystematicsDBReader::QGLikelihoodSystematicsDBReader(const edm::ParameterSet& iConfig) {
   mPayloadName = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mPayloadToken = esConsumes(edm::ESInputTag("", mPayloadName));
   mPrintScreen = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
 }
 
 void QGLikelihoodSystematicsDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogInfo("UserOutput") << "Inspecting QGLikelihood payload with label:" << mPayloadName << std::endl;
-  edm::ESHandle<QGLikelihoodSystematicsObject> QGLSysPar;
-  QGLikelihoodSystematicsRcd const& rcdhandle = iSetup.get<QGLikelihoodSystematicsRcd>();
-  rcdhandle.get(mPayloadName, QGLSysPar);
+  edm::ESHandle<QGLikelihoodSystematicsObject> QGLSysPar = iSetup.getHandle(mPayloadToken);
 
   std::vector<QGLikelihoodSystematicsObject::Entry> const& data = QGLSysPar->data;
   edm::LogInfo("UserOutput") << "There are " << data.size()
