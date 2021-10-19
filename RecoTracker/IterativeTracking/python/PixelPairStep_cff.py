@@ -4,8 +4,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
@@ -372,11 +372,12 @@ pixelPairStep =  TrackMVAClassifierPrompt.clone(
 )
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(pixelPairStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=qualityCutDictionary['PixelPairStep']
+    qualityCuts=qualityCutDictionary.PixelPairStep.value()
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])

@@ -4,8 +4,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
@@ -375,11 +375,12 @@ trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone
     qualityCuts = [-0.5,0.0,0.5]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(mixedTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(mixedTripletStep, trackTfClassifier.clone(
     src = 'mixedTripletStepTracks',
-    qualityCuts = qualityCutDictionary['MixedTripletStep']
+    qualityCuts = qualityCutDictionary.MixedTripletStep.value()
 ))
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
