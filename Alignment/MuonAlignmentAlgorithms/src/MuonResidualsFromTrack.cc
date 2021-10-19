@@ -19,7 +19,9 @@
 #include "TDecompChol.h"
 #include <cmath>
 
-MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
+edm::ESInputTag MuonResidualsFromTrack::builderESInputTag() { return edm::ESInputTag("", "WithTrackAngle"); }
+
+MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRecHitBuilder> trackerRecHitBuilder,
                                                edm::ESHandle<MagneticField> magneticField,
                                                edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                                edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,
@@ -39,8 +41,6 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
 
   clear();
 
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  iSetup.get<TransientRecHitRecord>().get("WithTrackAngle", theTrackerRecHitBuilder);
   reco::TransientTrack track(*m_recoTrack, &*magneticField, globalGeometry);
   TransientTrackingRecHit::ConstRecHitContainer recHitsForRefit;
   int iT = 0, iM = 0;
@@ -52,7 +52,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
         if (m_debug)
           std::cout << "Tracker Hit " << iT << " is found. Add to refit. Dimension: " << hit->dimension() << std::endl;
 
-        recHitsForRefit.push_back(theTrackerRecHitBuilder->build(&*hit));
+        recHitsForRefit.push_back(trackerRecHitBuilder->build(&*hit));
       } else if (hitId.det() == DetId::Muon) {
         //        if ( hit->geographicalId().subdetId() == 3 && !theRPCInTheFit ) {
         //          LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged";

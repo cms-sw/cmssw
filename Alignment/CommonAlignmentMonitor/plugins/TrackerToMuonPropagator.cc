@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // products
@@ -105,7 +106,8 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
   m_globalMuonTracks = iConfig.getParameter<edm::InputTag>("globalMuonTracks");
   m_refitTracker = iConfig.getParameter<bool>("refitTrackerTrack");
   if (m_refitTracker) {
-    m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
+    m_trackTransformer =
+        new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"), consumesCollector());
   } else
     m_trackTransformer = nullptr;
 
