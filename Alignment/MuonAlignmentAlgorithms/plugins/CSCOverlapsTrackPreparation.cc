@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -59,7 +59,7 @@
 // class decleration
 //
 
-class CSCOverlapsTrackPreparation : public edm::EDProducer {
+class CSCOverlapsTrackPreparation : public edm::one::EDProducer<> {
 public:
   explicit CSCOverlapsTrackPreparation(const edm::ParameterSet&);
   ~CSCOverlapsTrackPreparation() override;

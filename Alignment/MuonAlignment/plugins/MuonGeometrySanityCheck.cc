@@ -19,7 +19,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -81,7 +81,7 @@ private:
   int number(std::string s);
 };
 
-class MuonGeometrySanityCheck : public edm::EDAnalyzer {
+class MuonGeometrySanityCheck : public edm::one::EDAnalyzer<> {
 public:
   explicit MuonGeometrySanityCheck(const edm::ParameterSet &iConfig);
   ~MuonGeometrySanityCheck() override;

@@ -635,60 +635,31 @@ void MuonGeometryArrange::createROOTGeometry(const edm::EventSetup& iSetup) {}
 //////////////////////////////////////////////////
 void MuonGeometryArrange::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (firstEvent_) {
-    // My stuff
-    edm::ESHandle<DTGeometry> dtGeometry1;
-    edm::ESHandle<CSCGeometry> cscGeometry1;
-    edm::ESHandle<GEMGeometry> gemGeometry1;
-    dtGeometry1 = iSetup.getHandle(dtGeomToken1_);
-    cscGeometry1 = iSetup.getHandle(cscGeomToken1_);
-    gemGeometry1 = iSetup.getHandle(gemGeomToken1_);
-
-    edm::ESHandle<DTGeometry> dtGeometry2;
-    edm::ESHandle<CSCGeometry> cscGeometry2;
-    edm::ESHandle<GEMGeometry> gemGeometry2;
-    dtGeometry2 = iSetup.getHandle(dtGeomToken2_);
-    cscGeometry2 = iSetup.getHandle(cscGeomToken2_);
-    gemGeometry2 = iSetup.getHandle(gemGeomToken2_);
-
-    edm::ESHandle<DTGeometry> dtGeometry3;
-    edm::ESHandle<CSCGeometry> cscGeometry3;
-    edm::ESHandle<GEMGeometry> gemGeometry3;
-    dtGeometry3 = iSetup.getHandle(dtGeomToken3_);
-    cscGeometry3 = iSetup.getHandle(cscGeomToken3_);
-    gemGeometry3 = iSetup.getHandle(gemGeomToken3_);
-
-    edm::ESHandle<DTGeometry> dtGeometryIdeal;
-    edm::ESHandle<CSCGeometry> cscGeometryIdeal;
-    edm::ESHandle<GEMGeometry> gemGeometryIdeal;
-    dtGeometryIdeal = iSetup.getHandle(dtGeomIdealToken_);
-    cscGeometryIdeal = iSetup.getHandle(cscGeomIdealToken_);
-    gemGeometryIdeal = iSetup.getHandle(gemGeomIdealToken_);
-
     MuonAlignmentInputXML inputMethod1(_inputXMLCurrent,
-                                       &*dtGeometry1,
-                                       &*cscGeometry1,
-                                       &*gemGeometry1,
-                                       &*dtGeometryIdeal,
-                                       &*cscGeometryIdeal,
-                                       &*gemGeometryIdeal);
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_),
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_));
     inputAlign1 = new MuonAlignment(iSetup, inputMethod1);
     inputAlign1->fillGapsInSurvey(0, 0);
     MuonAlignmentInputXML inputMethod2(_inputXMLReference,
-                                       &*dtGeometry2,
-                                       &*cscGeometry2,
-                                       &*gemGeometry2,
-                                       &*dtGeometryIdeal,
-                                       &*cscGeometryIdeal,
-                                       &*gemGeometryIdeal);
+                                       &iSetup.getData(dtGeomToken2_),
+                                       &iSetup.getData(cscGeomToken2_),
+                                       &iSetup.getData(gemGeomToken2_),
+                                       &iSetup.getData(dtGeomToken1_),
+                                       &iSetup.getData(cscGeomToken1_),
+                                       &iSetup.getData(gemGeomToken1_));
     inputAlign2 = new MuonAlignment(iSetup, inputMethod2);
     inputAlign2->fillGapsInSurvey(0, 0);
     MuonAlignmentInputXML inputMethod2a(_inputXMLReference,
-                                        &*dtGeometry3,
-                                        &*cscGeometry3,
-                                        &*gemGeometry3,
-                                        &*dtGeometryIdeal,
-                                        &*cscGeometryIdeal,
-                                        &*gemGeometryIdeal);
+                                        &iSetup.getData(dtGeomToken3_),
+                                        &iSetup.getData(cscGeomToken3_),
+                                        &iSetup.getData(gemGeomToken3_),
+                                        &iSetup.getData(dtGeomToken1_),
+                                        &iSetup.getData(cscGeomToken1_),
+                                        &iSetup.getData(gemGeomToken1_));
     inputAlign2a = new MuonAlignment(iSetup, inputMethod2a);
     inputAlign2a->fillGapsInSurvey(0, 0);
 
