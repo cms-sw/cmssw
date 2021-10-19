@@ -219,12 +219,17 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
                                     << " Global " << glob;
 #endif
     } else {
-      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true);
-      const HepGeom::Point3D<float> lcoord(xy.first, xy.second, 0);
-      glob = m_cellVec[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex << " Local " << lcoord.x() << ":"
-                                    << lcoord.y() << " ID " << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":"
+      edm::LogVerbatim("HGCalGeom") << "getPosition for " << HGCSiliconDetId(detid) << " Layer " << id.iLay << " Wafer "
+                                    << id.iSec1 << ":" << id.iSec2 << " Cell " << id.iCell1 << ":" << id.iCell2;
+#endif
+      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, true, true);
+      double xx = id.zSide * xy.first;
+      double zz = id.zSide * m_topology.dddConstants().waferZ(id.iLay, true);
+      glob = GlobalPoint(xx, xy.second, zz);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex << " Local " << xy.first << ":"
+                                    << xy.second << " ID " << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":"
                                     << id.iCell1 << ":" << id.iCell2 << " Global " << glob;
 #endif
     }
@@ -497,7 +502,51 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       id.iType = kxy[2];
     } else {
       id.iLay = m_topology.dddConstants().getLayer(r.z(), true);
-      const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), id.iLay, true);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << " Layer " << id.iLay << " Global " << r << "  Local " << local;
+#endif
+      const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), id.iLay, false, true);
+      id.iSec1 = kxy[0];
+      id.iSec2 = kxy[1];
+      id.iType = kxy[2];
+      id.iCell1 = kxy[3];
+      id.iCell2 = kxy[4];
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "getClosestCell: local " << local << " Id " << id.det << ":" << id.zSide << ":"
+                                  << id.iLay << ":" << id.iSec1 << ":" << id.iSec2 << ":" << id.iType << ":"
+                                  << id.iCell1 << ":" << id.iCell2;
+#endif
+
+    //check if returned cell is valid
+    if (id.iCell1 >= 0)
+      return m_topology.encode(id);
+  }
+
+  //if not valid or out of bounds return a null DetId
+  return DetId();
+}
+
+DetId HGCalGeometry::getClosestCellHex(const GlobalPoint& r, bool extend) const {
+  unsigned int cellIndex = getClosestCellIndex(r);
+  if (cellIndex < m_cellVec.size() && m_det != DetId::HGCalHSc) {
+    HGCalTopology::DecodedDetId id = m_topology.decode(m_validGeomIds[cellIndex]);
+    if (id.det == 0)
+      id.det = static_cast<int>(m_topology.detector());
+    HepGeom::Point3D<float> local;
+    if (r.z() > 0) {
+      local = HepGeom::Point3D<float>(r.x(), r.y(), 0);
+      id.zSide = 1;
+    } else {
+      local = HepGeom::Point3D<float>(-r.x(), r.y(), 0);
+      id.zSide = -1;
+    }
+    if (m_topology.waferHexagon8()) {
+      id.iLay = m_topology.dddConstants().getLayer(r.z(), true);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << " Layer " << id.iLay << " Global " << r << "  Local " << local;
+#endif
+      const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), id.iLay, extend, true);
       id.iSec1 = kxy[0];
       id.iSec2 = kxy[1];
       id.iType = kxy[2];
