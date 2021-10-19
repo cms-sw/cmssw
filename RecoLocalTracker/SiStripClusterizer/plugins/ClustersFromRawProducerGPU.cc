@@ -3,6 +3,8 @@
 #include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
 #include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsGPURcd.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
@@ -135,19 +137,7 @@ void SiStripClusterizerFromRawGPU::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("ConditionsLabel", "");
 
   edm::ParameterSetDescription clusterizer;
-  clusterizer.add<std::string>("Algorithm", "ThreeThresholdAlgorithm");
-  clusterizer.add("ChannelThreshold", 2.0);
-  clusterizer.add("SeedThreshold", 3.0);
-  clusterizer.add("ClusterThreshold", 5.0);
-  clusterizer.add("MaxSequentialHoles", 0U);
-  clusterizer.add("MaxSequentialBad", 1U);
-  clusterizer.add("MaxAdjacentBad", 0U);
-  clusterizer.add("MaxClusterSize", 16U);
-
-  edm::ParameterSetDescription clusterChargeCut;
-  clusterChargeCut.add("value", -1.0);
-
-  clusterizer.add("clusterChargeCut", clusterChargeCut);
+  StripClusterizerAlgorithmFactory::fillDescriptions(clusterizer);
   desc.add("Clusterizer", clusterizer);
 
   descriptions.addWithDefaultLabel(desc);

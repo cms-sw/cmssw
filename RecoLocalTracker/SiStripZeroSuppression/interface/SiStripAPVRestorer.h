@@ -22,6 +22,11 @@
 #include <vector>
 #include <cstdint>
 
+namespace edm {
+  class ParameterSet;
+  class ParameterSetDescription;
+}  // namespace edm
+
 class SiStripAPVRestorer {
   friend class SiStripRawProcessingFactory;
 
@@ -81,6 +86,8 @@ private:
 
   void createCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input);
   void createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input);
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
 private:  // members
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> siStripRawDigiToken_;

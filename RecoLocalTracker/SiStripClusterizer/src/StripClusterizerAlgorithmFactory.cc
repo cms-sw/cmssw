@@ -1,6 +1,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
@@ -30,4 +31,19 @@ std::unique_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::cre
 
   throw cms::Exception("[StripClusterizerAlgorithmFactory] Unregistered Algorithm")
       << algorithm << " is not a registered StripClusterizerAlgorithm";
+}
+
+void StripClusterizerAlgorithmFactory::fillDescriptions(edm::ParameterSetDescription& clusterizer) {
+  clusterizer.add<std::string>("Algorithm", "ThreeThresholdAlgorithm");
+  clusterizer.add<std::string>("ConditionsLabel", "");
+  clusterizer.add("ChannelThreshold", 2.0);
+  clusterizer.add("SeedThreshold", 3.0);
+  clusterizer.add("ClusterThreshold", 5.0);
+  clusterizer.add("MaxSequentialHoles", 0U);
+  clusterizer.add("MaxSequentialBad", 1U);
+  clusterizer.add("MaxAdjacentBad", 0U);
+  clusterizer.add("MaxClusterSize", 3U * 256U);
+  clusterizer.add("RemoveApvShots", true);
+  clusterizer.add("setDetId", true);
+  clusterizer.add("clusterChargeCut", getFilledConfigurationDescription4CCC());
 }

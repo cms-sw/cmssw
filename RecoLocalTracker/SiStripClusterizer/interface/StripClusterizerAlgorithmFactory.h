@@ -3,7 +3,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 class StripClusterizerAlgorithm;
 #include <memory>
 
@@ -12,5 +13,6 @@ class StripClusterizerAlgorithm;
 class StripClusterizerAlgorithmFactory {
 public:
   static std::unique_ptr<StripClusterizerAlgorithm> create(edm::ConsumesCollector&&, const edm::ParameterSet&);
+  static void fillDescriptions(edm::ParameterSetDescription& clusterizer);
 };
 #endif
