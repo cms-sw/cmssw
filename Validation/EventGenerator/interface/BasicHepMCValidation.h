@@ -46,6 +46,7 @@ private:
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 
   class ParticleMonitor {
   public:
