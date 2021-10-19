@@ -33,8 +33,8 @@ energyThresholdEEFwd = 6.7
 energyThresholdEB = 2.02
 timingVsBXThreshold = energyThresholdEB
 timeErrorThreshold = 3.
-timeWindow = 12.5
-summaryTimeWindow = 7.
+timeWindow = 30.
+summaryTimeWindow = 25.
 
 ecalTimingTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
