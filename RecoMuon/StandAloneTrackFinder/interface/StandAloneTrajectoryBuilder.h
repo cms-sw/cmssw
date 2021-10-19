@@ -42,13 +42,13 @@ public:
   CandidateContainer trajectories(const TrackCand&) override { return CandidateContainer(); }
 
   /// pre-filter
-  StandAloneMuonFilter* filter() const { return theFilter; }
+  StandAloneMuonFilter* filter() const { return theFilter.get(); }
 
   /// actual filter
-  StandAloneMuonFilter* bwfilter() const { return theBWFilter; }
+  StandAloneMuonFilter* bwfilter() const { return theBWFilter.get(); }
 
   /// refitter of the hits container
-  StandAloneMuonRefitter* refitter() const { return theRefitter; }
+  StandAloneMuonRefitter* refitter() const { return theRefitter.get(); }
 
   /// Pass the Event to the algo at each event
   void setEvent(const edm::Event& event) override;
@@ -67,12 +67,12 @@ private:
   /// Propagator for the seed extrapolation
   std::string theSeedPropagatorName;
 
-  StandAloneMuonFilter* theFilter;
-  StandAloneMuonFilter* theBWFilter;
+  std::unique_ptr<StandAloneMuonFilter> theFilter;
+  std::unique_ptr<StandAloneMuonFilter> theBWFilter;
   // FIXME
   //  StandAloneMuonBackwardFilter* theBWFilter;
-  StandAloneMuonRefitter* theRefitter;
-  SeedTransformer* theSeedTransformer;
+  std::unique_ptr<StandAloneMuonRefitter> theRefitter;
+  std::unique_ptr<SeedTransformer> theSeedTransformer;
 
   bool doBackwardFilter;
   bool doRefit;
