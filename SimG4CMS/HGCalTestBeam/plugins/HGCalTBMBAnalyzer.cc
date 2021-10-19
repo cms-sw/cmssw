@@ -21,9 +21,8 @@
 //#define EDM_ML_DEBUG
 
 class HGCalTBMBAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-
 public:
-  HGCalTBMBAnalyzer(const edm::ParameterSet&);
+  HGCalTBMBAnalyzer(const edm::ParameterSet &);
   ~HGCalTBMBAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
@@ -35,11 +34,11 @@ private:
   edm::InputTag labelMBCalo_;
   edm::EDGetTokenT<MaterialAccountingCaloCollection> tokMBCalo_;
   unsigned int nList_;
-  std::vector<TH1D*> me100_, me200_, me300_;
+  std::vector<TH1D *> me100_, me200_, me300_;
 };
 
-HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet& p) {
-  listNames_ = p.getParameter<std::vector<std::string> >("detectorNames");
+HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet &p) {
+  listNames_ = p.getParameter<std::vector<std::string>>("detectorNames");
   labelMBCalo_ = p.getParameter<edm::InputTag>("labelMBCalo");
   nList_ = listNames_.size();
   tokMBCalo_ = consumes<MaterialAccountingCaloCollection>(labelMBCalo_);
@@ -52,7 +51,7 @@ HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet& p) {
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
   char name[20], title[80];
-  TH1D* hist;
+  TH1D *hist;
   for (unsigned int i = 0; i <= nList_; i++) {
     std::string named = (i == nList_) ? "Total" : listNames_[i];
     sprintf(name, "RadL%d", i);
@@ -76,28 +75,28 @@ HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet& p) {
 
 void HGCalTBMBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> names = {"HGCalBeamWChamb",  
-				    "HGCalBeamS1",
-				    "HGCalBeamS2",
-				    "HGCalBeamS3",
-				    "HGCalBeamS4",
-				    "HGCalBeamS5",
-				    "HGCalBeamS6",
-				    "HGCalBeamCK3",
-				    "HGCalBeamHaloCounter",
-				    "HGCalBeamMuonCounter",
-				    "HGCalEE",
-				    "HGCalHE",
-				    "HGCalAH"};
+  std::vector<std::string> names = {"HGCalBeamWChamb",
+                                    "HGCalBeamS1",
+                                    "HGCalBeamS2",
+                                    "HGCalBeamS3",
+                                    "HGCalBeamS4",
+                                    "HGCalBeamS5",
+                                    "HGCalBeamS6",
+                                    "HGCalBeamCK3",
+                                    "HGCalBeamHaloCounter",
+                                    "HGCalBeamMuonCounter",
+                                    "HGCalEE",
+                                    "HGCalHE",
+                                    "HGCalAH"};
   desc.add<std::vector<std::string>>("detectorNames", names);
   desc.add<edm::InputTag>("labelMBCalo", edm::InputTag("g4SimHits", "HGCalTBMB"));
   descriptions.add("hgcalTBMBAnalyzer", desc);
 }
-  
 
 void HGCalTBMBAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  edm::LogVerbatim("HGCSim") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
+                             << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
 #endif
 
   // Fill from the MB collection
@@ -107,16 +106,17 @@ void HGCalTBMBAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Finds MaterialBudegetCollection with " << hgcalMB->size() << " entries";
 #endif
-    
+
     for (auto itr = hgcalMB->begin(); itr != hgcalMB->end(); ++itr) {
       for (uint32_t ii = 0; ii < itr->m_stepLen.size(); ++ii) {
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCSim") << "HGCalTBMBAnalyzer:index " << ii << " integrated  step " << itr->m_stepLen[ii] << " X0 " << itr->m_radLen[ii] << " Lamda " << itr->m_intLen[ii];
+        edm::LogVerbatim("HGCSim") << "HGCalTBMBAnalyzer:index " << ii << " integrated  step " << itr->m_stepLen[ii]
+                                   << " X0 " << itr->m_radLen[ii] << " Lamda " << itr->m_intLen[ii];
 #endif
-	if (ii < nList_) {
-	  me100_[ii]->Fill(itr->m_radLen[ii]);
-	  me200_[ii]->Fill(itr->m_intLen[ii]);
-	  me300_[ii]->Fill(itr->m_stepLen[ii]);
+        if (ii < nList_) {
+          me100_[ii]->Fill(itr->m_radLen[ii]);
+          me200_[ii]->Fill(itr->m_intLen[ii]);
+          me300_[ii]->Fill(itr->m_stepLen[ii]);
         }
       }
     }
