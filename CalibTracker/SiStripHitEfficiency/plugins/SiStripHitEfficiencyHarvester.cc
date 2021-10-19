@@ -14,7 +14,6 @@
 
 #include "TEfficiency.h"
 
-// FIXME TEMPORARY
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripHitEfficiencyHarvester : public DQMEDHarvester {
@@ -42,7 +41,7 @@ private:
 
   void writeBadStripPayload(const SiStripQuality& quality) const;
   void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
-  void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfoFileReader& reader) const;
+  void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const;
@@ -149,10 +148,8 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   TrackerMap tkMapDen{" Detector denominator "};
   std::map<unsigned int, double> badModules;
 
-  SiStripDetInfoFileReader reader{
-      edm::FileInPath{"CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"}
-          .fullPath()};  // FIXME update to new version, if needed at all (should also be possible to get from quality ?)
-  for (auto det : reader.getAllDetIds()) {
+  const auto detInfo = SiStripDetInfoFileReader::read(SiStripDetInfoFileReader::kDefaultFile);
+  for (auto det : detInfo.getAllDetIds()) {
     auto layer = checkLayer(det, tTopo_.get());
     const auto num = h_module_found->getValue(det);
     const auto denom = h_module_total->getValue(det);
@@ -201,7 +198,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
 
       hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
 
-      for (auto det : reader.getAllDetIds()) {
+      for (auto det : detInfo.getAllDetIds()) {
         const auto layer = checkLayer(det, tTopo_.get());
         if (layer == i) {
           const auto num = h_module_found->getValue(det);
@@ -237,7 +234,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   tkMapNum.save(true, 0, 0, "SiStripHitEffTKMapNum_NEW.png");
   tkMapDen.save(true, 0, 0, "SiStripHitEffTKMapDen_NEW.png");
 
-  SiStripQuality pQuality{reader.info()};
+  SiStripQuality pQuality{detInfo};
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!
@@ -246,7 +243,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
     std::vector<unsigned int> badStripList;
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
-    const auto nStrips = reader.getNumberOfApvsAndStripLength(det).first * 128;
+    const auto nStrips = detInfo.getNumberOfApvsAndStripLength(det).first * 128;
     std::cout << "Number of strips module " << det << " is " << nStrips << std::endl;
     badStripList.push_back(pQuality.encode(0, nStrips, 0));
     //Now compact into a single bad module
@@ -264,7 +261,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   printTotalStatistics(layerFound, layerTotal);  // statistics by layer and subdetector
   //std::cout << "\n-----------------\nNew IOV starting from run " << e.id().run() << " event " << e.id().event()
   //     << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << "\n-----------------\n";
-  printAndWriteBadModules(pQuality, reader);  // TODO
+  printAndWriteBadModules(pQuality, detInfo);  // TODO
 
   makeSummary(getter, *fs);        // TODO
   makeSummaryVsBX(getter, *fs);    // TODO
@@ -409,7 +406,7 @@ namespace {
 }  // namespace
 
 void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality& quality,
-                                                            const SiStripDetInfoFileReader& reader) const {
+                                                            const SiStripDetInfo& detInfo) const {
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
   /////////////////////////////////////////////////////////////////////////////
@@ -441,7 +438,7 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
     // single subsystem
     DetId det(bc.detid);
     if ((det.subdetId() >= SiStripSubdetector::TIB) && (det.subdetId() <= SiStripSubdetector::TEC)) {
-      const auto nAPV = reader.getNumberOfApvsAndStripLength(det).first;
+      const auto nAPV = detInfo.getNumberOfApvsAndStripLength(det).first;
       switch (det.subdetId()) {
         case SiStripSubdetector::TIB:
           setBadComponents(0, tTopo_->tibLayer(det), bc, ssV, nBadComp, nAPV);
@@ -507,7 +504,7 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
       percentage += range;
     }
     if (percentage != 0)
-      percentage /= 128. * reader.getNumberOfApvsAndStripLength(det).first;
+      percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
     if (percentage > 1)
       edm::LogError("SiStripQualityStatistics")
           << "PROBLEM detid " << det.rawId() << " value " << percentage << std::endl;
