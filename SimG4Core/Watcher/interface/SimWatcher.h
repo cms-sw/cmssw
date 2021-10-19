@@ -24,10 +24,17 @@ called by the dynamic loading code.
 //         Created:  Tue Nov 22 15:35:11 EST 2005
 //
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
+
 class SimWatcher {
 public:
   SimWatcher() {}
   virtual ~SimWatcher() {}
+
+  virtual void registerProducts(edm::ProducesCollector &&) {}
+  virtual void produce(edm::Event &, const edm::EventSetup &) {}
 
   SimWatcher(const SimWatcher &) = delete;
   const SimWatcher &operator=(const SimWatcher &) = delete;

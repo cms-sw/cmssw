@@ -133,7 +133,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
-  G4StateManager::GetStateManager()->SetNewState(G4State_PreInit);
+  m_stateManager->SetNewState(G4State_PreInit);
 
   // Create physics list
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: create PhysicsList";

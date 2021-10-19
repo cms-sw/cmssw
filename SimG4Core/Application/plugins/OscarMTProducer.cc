@@ -295,7 +295,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   auto& producers = m_runManagerWorker->producers();
   for (auto& prod : producers) {
-    prod.get()->produce(e, es);
+    prod->produce(e, es);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
   //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();

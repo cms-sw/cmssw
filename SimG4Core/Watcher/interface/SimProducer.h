@@ -65,7 +65,7 @@ class SimProducer : public SimWatcher {
 public:
   SimProducer() {}
 
-  virtual void produce(edm::Event &, const edm::EventSetup &) = 0;
+  void produce(edm::Event &, const edm::EventSetup &) override{};
 
   void registerProducts(edm::ProducesCollector producesCollector) {
     std::for_each(m_info.begin(),

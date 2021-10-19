@@ -70,7 +70,7 @@ public:
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
-  std::vector<std::shared_ptr<SimProducer>>& producers();
+  std::vector<SimWatcher*>& producers();
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
@@ -94,13 +94,13 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
-  const MagneticField* m_pMagField = nullptr;
+  const MagneticField* m_pMagField{nullptr};
 
-  bool m_nonBeam;
-  bool m_pUseMagneticField;
-  bool m_hasWatchers;
-  bool m_LHCTransport;
-  int m_EvtMgrVerbosity;
+  bool m_nonBeam{false};
+  bool m_pUseMagneticField{true};
+  bool m_hasWatchers{false};
+  bool m_LHCTransport{false};
+  int m_EvtMgrVerbosity{0};
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;

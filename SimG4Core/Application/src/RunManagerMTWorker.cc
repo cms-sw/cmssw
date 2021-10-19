@@ -71,14 +71,7 @@ namespace {
 
   int get_new_thread_index() { return thread_counter++; }
 
-  void createWatchers(const edm::ParameterSet& iP,
-                      SimActivityRegistry* iReg,
-                      std::vector<std::shared_ptr<SimWatcher>>& oWatchers,
-                      std::vector<std::shared_ptr<SimProducer>>& oProds) {
-    if (!iP.exists("Watchers")) {
-      return;
-    }
-
+  void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry* iReg, std::vector<SimWatcher*>& oWatchers) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
 
     for (auto& watcher : watchers) {
@@ -88,13 +81,9 @@ namespace {
         throw edm::Exception(edm::errors::Configuration)
             << "Unable to find the requested Watcher <" << watcher.getParameter<std::string>("type");
       }
-      std::shared_ptr<SimWatcher> watcherTemp;
-      std::shared_ptr<SimProducer> producerTemp;
-      maker->make(watcher, *(iReg), watcherTemp, producerTemp);
-      oWatchers.push_back(watcherTemp);
-      if (producerTemp) {
-        oProds.push_back(producerTemp);
-      }
+      auto ptr = maker->make(watcher, *(iReg));
+      //      ptr = std::make_unique<SimWatcher>(ptr);
+      oWatchers.push_back(ptr);
     }
   }
 }  // namespace
@@ -107,8 +96,7 @@ struct RunManagerMTWorker::TLSData {
   std::unique_ptr<SimTrackManager> trackManager;
   std::vector<SensitiveTkDetector*> sensTkDets;
   std::vector<SensitiveCaloDetector*> sensCaloDets;
-  std::vector<std::shared_ptr<SimWatcher>> watchers;
-  std::vector<std::shared_ptr<SimProducer>> producers;
+  std::vector<SimWatcher*> watchers;
   //G4Run can only be deleted if there is a G4RunManager
   // on the thread where the G4Run is being deleted,
   // else it causes a segmentation fault
@@ -123,12 +111,11 @@ struct RunManagerMTWorker::TLSData {
   ~TLSData() {}
 };
 
-//This can not be a smart pointer since we must delete some of the members
+// This can not be a smart pointer since we must delete some of the members
 // before leaving main() else we get a segmentation fault caused by accessing
 // other 'singletons' after those singletons have been deleted. Instead we
 // atempt to delete all TLS at RunManagerMTWorker destructor. If that fails for
 // some reason, it is better to leak than cause a crash.
-//thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -156,20 +143,21 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet>>("Watchers");
   m_hasWatchers = !watchers.empty();
   initializeTLS();
-  int thisID = getThreadIndex();
   if (m_LHCTransport) {
     m_LHCToken = iC.consumes<edm::HepMCProduct>(edm::InputTag("LHCTransport"));
   }
   if (m_pUseMagneticField) {
     m_MagField = iC.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
   unsigned int k = 0;
   for (std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>>::const_iterator itr =
            m_sdMakers.begin();
        itr != m_sdMakers.end();
        ++itr, ++k)
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
+
+  int thisID = getThreadIndex();
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() { resetTLS(); }
@@ -212,7 +200,7 @@ void RunManagerMTWorker::initializeTLS() {
     }
   }
   if (m_hasWatchers) {
-    createWatchers(m_p, m_tls->registry.get(), m_tls->watchers, m_tls->producers);
+    createWatchers(m_p, m_tls->registry.get(), m_tls->watchers);
   }
 }
 
@@ -401,9 +389,9 @@ std::vector<SensitiveCaloDetector*>& RunManagerMTWorker::sensCaloDetectors() {
   initializeTLS();
   return m_tls->sensCaloDets;
 }
-std::vector<std::shared_ptr<SimProducer>>& RunManagerMTWorker::producers() {
+std::vector<SimWatcher*>& RunManagerMTWorker::producers() {
   initializeTLS();
-  return m_tls->producers;
+  return m_tls->watchers;
 }
 
 void RunManagerMTWorker::initializeRun() {
