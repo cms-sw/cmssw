@@ -26,6 +26,7 @@ namespace edm {
 class Generator;
 class RunManagerMT;
 
+class G4RunManagerKernel;
 class G4Event;
 class G4SimEvent;
 class G4Run;
@@ -43,7 +44,9 @@ class SensitiveCaloDetector;
 class SensitiveDetectorMakerBase;
 
 class SimWatcher;
-class SimProducer;
+class SimRunInterface;
+class SimActivityRegistry;
+class SimTrackManager;
 
 class RunManagerMTWorker {
 public:
@@ -75,7 +78,6 @@ public:
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
 private:
-  void initializeTLS();
   void initializeUserActions();
 
   void initializeRun();
@@ -86,7 +88,6 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  void resetTLS();
   int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
@@ -100,7 +101,13 @@ private:
   bool m_pUseMagneticField{true};
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
+  bool m_threadInitialized{false};
+  bool m_runTerminated{false};
+  bool m_dumpMF{false};
   int m_EvtMgrVerbosity{0};
+
+  const int m_thread_index{-1};
+  edm::RunNumber_t m_currentRunNumber{0};
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
@@ -111,15 +118,22 @@ private:
   edm::ParameterSet m_pCustomUIsession;
   edm::ParameterSet m_p;
 
-  struct TLSData;
-  TLSData* m_tls{nullptr};
-  bool dumpMF{false};
+  std::unique_ptr<G4RunManagerKernel> m_kernel;
+  std::unique_ptr<RunAction> m_userRunAction;
+  std::unique_ptr<SimRunInterface> m_runInterface;
+  std::unique_ptr<SimActivityRegistry> m_registry;
+  std::unique_ptr<SimTrackManager> m_trackManager;
+  std::unique_ptr<G4Event> m_currentEvent;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose{nullptr};
 
-  G4SimEvent* m_simEvent;
-  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
+  G4Run* m_currentRun{nullptr};
+  G4SimEvent* m_simEvent{nullptr};
+
+  std::vector<SensitiveTkDetector*> m_sensTkDets;
+  std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+  std::vector<SimWatcher*> m_watchers;
+
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
-
-  const int m_thread_index{-1};
 };
 
 #endif

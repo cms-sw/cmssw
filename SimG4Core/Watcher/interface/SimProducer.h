@@ -67,7 +67,7 @@ public:
 
   void produce(edm::Event &, const edm::EventSetup &) override{};
 
-  void registerProducts(edm::ProducesCollector producesCollector) {
+  void registerProducts(edm::ProducesCollector &&producesCollector) override {
     std::for_each(m_info.begin(),
                   m_info.end(),
                   [&producesCollector](std::shared_ptr<simproducer::ProductInfoBase> const &ptr) mutable {
