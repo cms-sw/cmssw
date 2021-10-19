@@ -115,10 +115,10 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   int nLayers(maxLayer - minLayer + 1);
   int minIeta( *std::min_element(allIeta_.begin(),allIeta_.end()) );
   int maxIeta( *std::max_element(allIeta_.begin(),allIeta_.end()) );
-  int nIeta(maxLayer - minLayer + 1);
+  int nIeta(maxIeta - minIeta + 1);
   int minIphi( *std::min_element(allIphi_.begin(),allIphi_.end()) );
   int maxIphi( *std::max_element(allIphi_.begin(),allIphi_.end()) );
-  int nIphi(maxLayer - minLayer + 1);
+  int nIphi(maxIphi - minIphi + 1);
 
   TString hnames[] = {"count", "radius", "dose", "fluence", "s", "n", "sn", "lysf", "gain", "thr"};
   TString htitles[] = {"tiles",
@@ -245,15 +245,6 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
       hh.second->Divide( layerHistos_[lay]["count_"+pfix] );
     }
   }
-
-  for (auto& hit : histos_) {
-    TString name(hit.first);
-    if (name.Contains("count_"))
-      continue;
-    TString count_name(name.Contains("_ieta") ? "count_ieta" : "count_iphi");
-    hit.second->Divide(histos_[count_name]);
-  }
-
 }
 
 //
