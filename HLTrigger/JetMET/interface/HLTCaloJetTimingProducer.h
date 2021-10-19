@@ -1,5 +1,5 @@
-#ifndef  HLTCaloJetTimingProducer_h_
-#define  HLTCaloJetTimingProducer_h_
+#ifndef HLTCaloJetTimingProducer_h_
+#define HLTCaloJetTimingProducer_h_
 
 /** \class HLTCaloJetTimingProducer
  *
@@ -8,7 +8,6 @@
  *
  *
  */
-
 
 // system include files
 #include <memory>
@@ -53,7 +52,7 @@ private:
   bool barrelOnly_;
 
   edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEBToken;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEEToken;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEBToken;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEEToken;
 };
 #endif  // HLTCaloJetTimingProducer_h_

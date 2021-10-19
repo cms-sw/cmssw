@@ -1,5 +1,5 @@
-#ifndef  HLTCaloJetTimingFilter_h_
-#define  HLTCaloJetTimingFilter_h_
+#ifndef HLTCaloJetTimingFilter_h_
+#define HLTCaloJetTimingFilter_h_
 
 /** \class HLTCaloJetTimingFilter
  *
@@ -33,28 +33,29 @@ namespace edm {
 // class declaration
 //
 class HLTCaloJetTimingFilter : public HLTFilter {
-    public:
-	explicit HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig);
-	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs& filterproduct) const;
-    private:
+public:
+  explicit HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-	//Input collections
-	edm::InputTag jetLabel_;
-	edm::InputTag jetTimeLabel_;
-	edm::InputTag jetCellsForTimingLabel_;
-	edm::InputTag jetEcalEtForTimingLabel_;
-	//Thresholds for selection
-        unsigned int minJets_;
-        double jetTimeThresh_;
-        double jetEcalEtForTimingThresh_;
-        unsigned int jetCellsForTimingThresh_;
-        double minPt_;
+private:
+  //Input collections
+  edm::InputTag jetLabel_;
+  edm::InputTag jetTimeLabel_;
+  edm::InputTag jetCellsForTimingLabel_;
+  edm::InputTag jetEcalEtForTimingLabel_;
+  //Thresholds for selection
+  unsigned int minJets_;
+  double jetTimeThresh_;
+  double jetEcalEtForTimingThresh_;
+  unsigned int jetCellsForTimingThresh_;
+  double minPt_;
 
-	edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken;
-	edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken;
-	edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken;
-	edm::EDGetTokenT<edm::ValueMap<float>> jetEcalEtForTimingInputToken;
-
+  edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken;
+  edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken;
+  edm::EDGetTokenT<edm::ValueMap<float>> jetEcalEtForTimingInputToken;
 };
 #endif  // HLTCaloJetTimingFilter_h_
