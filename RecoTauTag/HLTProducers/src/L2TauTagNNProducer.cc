@@ -205,6 +205,7 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> ebToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> GeometryToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
   const edm::EDGetTokenT<ZVertexHeterogeneous> pataVerticesToken_;
   const edm::EDGetTokenT<PixelTrackHeterogeneous> pataTracksToken_;
   const edm::EDGetTokenT<reco::BeamSpot> BeamSpotToken_;
@@ -222,7 +223,7 @@ private:
 
 std::unique_ptr<L2TauNNProducerCacheData> L2TauNNProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
   std::unique_ptr<L2TauNNProducerCacheData> cacheData = std::make_unique<L2TauNNProducerCacheData>();
-  cacheData->normVec.reserve(L2TauTagNNv1::varNameMap.size());
+  cacheData->normVec.reserve(L2TauTagNNv1::nVars);
 
   std::string graphPath = cfg.getParameter<std::string>("graphPath");
   graphPath = edm::FileInPath(graphPath).fullPath();
@@ -290,6 +291,7 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
       ebToken_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebInput"))),
       eeToken_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeInput"))),
       GeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      bFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       pataVerticesToken_(consumes<ZVertexHeterogeneous>(cfg.getParameter<edm::InputTag>("pataVertices"))),
       pataTracksToken_(consumes<PixelTrackHeterogeneous>(cfg.getParameter<edm::InputTag>("pataTracks"))),
       BeamSpotToken_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("BeamSpot"))),
@@ -797,9 +799,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
   pixelTrack::TrackSoA patatracks_SoA = *(*pataTracks).get();
   ZVertexSoA vertices_SoA = *(*pataVertices).get();
 
-  edm::ESHandle<MagneticField> fieldESH;
-  eventsetup.get<IdealMagneticFieldRecord>().get(fieldESH);
-
+  edm::ESHandle<MagneticField> fieldESH = eventsetup.getHandle(bFieldToken_);
   edm::ESHandle<CaloGeometry> Geometry = eventsetup.getHandle(GeometryToken_);
 
   caloRecHitCollections caloRecHits;
