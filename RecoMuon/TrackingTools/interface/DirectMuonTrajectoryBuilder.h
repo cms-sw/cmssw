@@ -18,12 +18,13 @@ class TrajectorySeed;
 
 namespace edm {
   class ParameterSet;
-}
+  class ConsumesCollector;
+}  // namespace edm
 
 class DirectMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 public:
   /// constructor
-  DirectMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+  DirectMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector);
 
   /// destructor
   ~DirectMuonTrajectoryBuilder() override;

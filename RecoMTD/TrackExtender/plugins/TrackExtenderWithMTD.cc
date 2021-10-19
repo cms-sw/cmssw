@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
@@ -446,7 +447,7 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   }
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
-  theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"));
+  theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"), consumesCollector());
 
   btlMatchChi2Token = produces<edm::ValueMap<float>>("btlMatchChi2");
   etlMatchChi2Token = produces<edm::ValueMap<float>>("etlMatchChi2");
