@@ -80,12 +80,12 @@ namespace ecaldqm {
       float time(hit.time());
       float energy(hit.energy());
 
-      float chi2Threshold, energyThreshold;
+      float energyThreshold;
       if (id.subdetId() == EcalBarrel) {
-        chi2Threshold = chi2ThresholdEB_;
+        //chi2Threshold = chi2ThresholdEB_;
         energyThreshold = energyThresholdEB_;
       } else {
-        chi2Threshold = chi2ThresholdEE_;
+        //chi2Threshold = chi2ThresholdEE_;
         energyThreshold = (isForward(id)) ? energyThresholdEEFwd_ : energyThresholdEE_;
       }
 
@@ -103,8 +103,8 @@ namespace ecaldqm {
         meChi2.fill(getEcalDQMSetupObjects(), signedSubdet, hit.chi2());
 
       // Apply cut on chi2 of pulse shape fit
-      if (hit.chi2() > chi2Threshold)
-        return;
+      //if (hit.chi2() > chi2Threshold)
+      //  return;
 
       // Apply cut based on timing error of rechit
       if (hit.timeError() > timeErrorThreshold_)

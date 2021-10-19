@@ -72,7 +72,8 @@ namespace ecaldqm {
 
       DetId id(qItr->getId());
 
-      int minChannelEntries(minChannelEntries_);
+      //int minChannelEntries(minChannelEntries_);
+      int minChannelEntries(0);
       float meanThresh(toleranceMean_);
       float rmsThresh(toleranceRMS_);
 
