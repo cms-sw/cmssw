@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -155,9 +154,8 @@ associatePatAlgosToolsTask(process)
 
 if isData:
     # Customisation from command line
-    from HLTrigger.Configuration.customizeHLTforCMSSW import customisePixelGainForRun2Input,synchronizeHCALHLTofflineRun3on2018data
-    process = customisePixelGainForRun2Input(process)
-    process = synchronizeHCALHLTofflineRun3on2018data(process)
+    from HLTrigger.Configuration.customizeHLTforCMSSW import customiseFor2018Input
+    process = customiseFor2018Input(process)
 else:
     from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
     process = customizeHLTforMC(process)

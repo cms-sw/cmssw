@@ -13,7 +13,7 @@ scram b -j 8
 
 You also need the RecoTauTag-Training files. If you don't have it, run the command:
 ```
-git clone -b L2_CNN_v1 git@github.com:cms-tau-pog/RecoTauTag-TrainingFiles.git RecoTauTag/TrainingFiles
+git clone -b L2_CNN_v1 git@github.com:cms-tau-pog/RecoTauTag-TrainingFiles.git RecoTauTag/TrainingFiles/data
 ```
 
 ### L2TauNNTag test

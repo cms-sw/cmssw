@@ -18,10 +18,9 @@ def update(process):
     }
 
     working_point = "Tight"
-    graphPath = 'RecoTauTag/TrainingFiles/L2TauNNTag/L2TauTag_Run3v1.pb'
+    graphPath = 'RecoTauTag/TrainingFiles/data/L2TauNNTag/L2TauTag_Run3v1.pb'
 
-    normalizationDict = 'RecoTauTag/TrainingFiles/L2TauNNTag/NormalizationDict.json'
-
+    normalizationDict = 'RecoTauTag/TrainingFiles/data/L2TauNNTag/NormalizationDict.json'
 
     if 'statusOnGPU' not in process. __dict__:
         process = customizeHLTforPatatrackTriplets(process)
