@@ -265,9 +265,9 @@ private:
   MonitorElement* meDeltaZrealreal_;
   MonitorElement* meDeltaZfakefake_;
   MonitorElement* meDeltaZfakereal_;
-  MonitorElement* meDeltaZTrealreal_;
-  MonitorElement* meDeltaZTfakefake_;
-  MonitorElement* meDeltaZTfakereal_;
+  MonitorElement* meDeltaTrealreal_;
+  MonitorElement* meDeltaTfakefake_;
+  MonitorElement* meDeltaTfakereal_;
   MonitorElement* meRecoPosInSimCollection_;
   MonitorElement* meRecoPosInRecoOrigCollection_;
   MonitorElement* meSimPosInSimOrigCollection_;
@@ -434,9 +434,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meDeltaZrealreal_ = ibook.book1D("DeltaZrealreal", "#Delta Z real-real; |#Delta Z (r-r)| [cm]", 100, 0, 0.5);
   meDeltaZfakefake_ = ibook.book1D("DeltaZfakefake", "#Delta Z fake-fake; |#Delta Z (f-f)| [cm]", 100, 0, 0.5);
   meDeltaZfakereal_ = ibook.book1D("DeltaZfakereal", "#Delta Z fake-real; |#Delta Z (f-r)| [cm]", 100, 0, 0.5);
-  meDeltaZTrealreal_ = ibook.book1D("DeltaZTrealreal", "#Delta ZT real-real; |#Delta ZT (r-r)| [cm]", 100, 0, 2.);
-  meDeltaZTfakefake_ = ibook.book1D("DeltaZTfakefake", "#Delta ZT fake-fake; |#Delta ZT (f-f)| [cm]", 100, 0, 2.);
-  meDeltaZTfakereal_ = ibook.book1D("DeltaZTfakereal", "#Delta ZT fake-real; |#Delta ZT (f-r)| [cm]", 100, 0, 2.);
+  meDeltaTrealreal_ = ibook.book1D("DeltaTrealreal", "#Delta T real-real; |#Delta T (r-r)| [sigma]", 100, -10., 10.);
+  meDeltaTfakefake_ = ibook.book1D("DeltaTfakefake", "#Delta T fake-fake; |#Delta T (f-f)| [sigma]", 100, -10., 10.);
+  meDeltaTfakereal_ = ibook.book1D("DeltaTfakereal", "#Delta T fake-real; |#Delta T (f-r)| [sigma]", 100, -10., 10.);
   meRecoPosInSimCollection_ = ibook.book1D(
       "RecoPosInSimCollection", "Sim signal vertex index associated to Reco signal vertex; Sim PV index", 200, 0, 200);
   meRecoPosInRecoOrigCollection_ =
@@ -453,7 +453,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    200);
   meRecoVtxVsLineDensity_ =
       ibook.book1D("RecoVtxVsLineDensity", "#Reco vertices/mm/event; line density [#vtx/mm/event]", 160, 0., 4.);
-  meSimPVZ_ = ibook.book1D("simPVZ", "#Sim vertices/mm", 400, -20., 20.);
+  meSimPVZ_ = ibook.book1D("simPVZ", "Weighted #Sim vertices/mm", 400, -20., 20.);
 
   //some tests
   meTrackResLowPTot_ = ibook.book1D(
@@ -1366,7 +1366,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   //fill vertices histograms here in a new loop
   for (unsigned int is = 0; is < simpv.size(); is++) {
-    meSimPVZ_->Fill(simpv.at(is).z);
+    meSimPVZ_->Fill(simpv.at(is).z, 1. / puLineDensity(simpv.at(is).z));
     if (is == 0) {
       meSimPosInSimOrigCollection_->Fill(simpv.at(is).OriginalIndex);
     }
@@ -1424,16 +1424,21 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       for (unsigned int jv = iv; jv < recVtxs->size(); jv++) {
         if ((!(jv == iv)) && select(recVtxs->at(jv))) {
           double dz = recVtxs->at(iv).z() - recVtxs->at(jv).z();
-          double dt = (recVtxs->at(iv).t() - recVtxs->at(jv).t()) * c_;
+          double dtsigma = std::sqrt(recVtxs->at(iv).covariance(3, 3) + recVtxs->at(jv).covariance(3, 3));
+          double dt = dz <= 0.1 && dtsigma > 0. ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma : -9999.;
           if (recopv.at(iv).is_real() && recopv.at(jv).is_real()) {
             meDeltaZrealreal_->Fill(std::abs(dz));
-            meDeltaZTrealreal_->Fill(std::sqrt(dz * dz + dt * dt));
+            if (dt != -9999.) {
+              meDeltaTrealreal_->Fill(std::abs(dt));
+            }
             if (std::abs(dz) < std::abs(mindistance_realreal)) {
               mindistance_realreal = dz;
             }
           } else if (recopv.at(iv).is_fake() && recopv.at(jv).is_fake()) {
             meDeltaZfakefake_->Fill(std::abs(dz));
-            meDeltaZTfakefake_->Fill(std::sqrt(dz * dz + dt * dt));
+            if (dt != -9999.) {
+              meDeltaTfakefake_->Fill(std::abs(dt));
+            }
           }
         }
       }
@@ -1443,10 +1448,13 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       for (unsigned int jv = 0; jv < recVtxs->size(); jv++) {
         if ((!(jv == iv)) && select(recVtxs->at(jv))) {
           double dz = recVtxs->at(iv).z() - recVtxs->at(jv).z();
-          double dt = (recVtxs->at(iv).t() - recVtxs->at(jv).t()) * c_;
+          double dtsigma = std::sqrt(recVtxs->at(iv).covariance(3, 3) + recVtxs->at(jv).covariance(3, 3));
+          double dt = dz <= 0.1 && dtsigma > 0. ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma : -9999.;
           if (recopv.at(iv).is_fake() && recopv.at(jv).is_real()) {
             meDeltaZfakereal_->Fill(std::abs(dz));
-            meDeltaZTfakereal_->Fill(std::abs(dz * dz + dt * dt));
+            if (dt != -9999.) {
+              meDeltaTfakereal_->Fill(std::abs(dt));
+            }
             if (std::abs(dz) < std::abs(mindistance_fakereal)) {
               mindistance_fakereal = dz;
             }
