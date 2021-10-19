@@ -102,8 +102,7 @@ private:
   double mudist_[20];  // Distance of muon from central part
 };
 
-HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
-    : addTower_(3), hcons_(nullptr), org_(nullptr) {
+HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), hcons_(nullptr), org_(nullptr) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   eta0_ = m_Anal.getParameter<double>("Eta0");
   phi0_ = m_Anal.getParameter<double>("Phi0");
