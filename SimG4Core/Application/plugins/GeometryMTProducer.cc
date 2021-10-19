@@ -45,9 +45,8 @@
 #include "G4TransportationManager.hh"
 #include "G4StateManager.hh"
 
-class GeometryMTProducer : public edm::stream::EDProducer< > {
+class GeometryMTProducer : public edm::stream::EDProducer<> {
 public:
-
   explicit GeometryMTProducer(edm::ParameterSet const& p);
   ~GeometryMTProducer() override;
 
@@ -56,17 +55,16 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& es) override;
 
 private:
-
   void InitialiseTokens(edm::ConsumesCollector&& iC);
 
   G4VPhysicalVolume* m_world = nullptr;
 
   // ES products needed for Geant4 initialization
   edm::ParameterSet m_parField;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep; 
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
-  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT; 
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField; 
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagField;
 
   mutable const DDCompactView* m_pDDD = nullptr;
   mutable const cms::DDCompactView* m_pDD4Hep = nullptr;
@@ -98,46 +96,41 @@ namespace HepPDT {
 }
 
 GeometryMTProducer::GeometryMTProducer(edm::ParameterSet const& p)
-  : m_parField(p.getParameter<edm::ParameterSet>("MagneticField")),
-    m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
-    m_useMagneticField(p.getParameter<bool>("UseMagneticField"))
-{
+    : m_parField(p.getParameter<edm::ParameterSet>("MagneticField")),
+      m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
+      m_useMagneticField(p.getParameter<bool>("UseMagneticField")) {
   edm::LogVerbatim("SimG4CoreApplication") << "GeometryMTProducer is constructed";
   m_kernel = new G4RunManagerKernel();
   InitialiseTokens(consumesCollector());
   produces<int>();
 }
 
-GeometryMTProducer::~GeometryMTProducer() {
-  delete m_kernel;
-}
+GeometryMTProducer::~GeometryMTProducer() { delete m_kernel; }
 
 void GeometryMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   edm::LogVerbatim("SimG4CoreApplication") << "GeometryMTProducer::beginRun";
 
-    
   G4String name = m_geoFromDD4hep ? "OCMS_1" : "OCMS";
   m_world = G4PhysicalVolumeStore::GetInstance()->GetVolume(name, false);
   edm::LogVerbatim("SimG4CoreApplication") << "World Volume " << name << " is accessed: " << (nullptr != m_world);
 
   // unique initialisation in one thread only
-  if(nullptr == m_world) {
+  if (nullptr == m_world) {
     // Lock the mutex
     std::unique_lock<std::mutex> lk(m_threadMutex);
-    if(nullptr == m_world) {
-
+    if (nullptr == m_world) {
       if (m_geoFromDD4hep) {
-	m_pDD4Hep = &(*es.getTransientHandle(m_DD4Hep));
+        m_pDD4Hep = &(*es.getTransientHandle(m_DD4Hep));
       } else {
-	m_pDDD = &(*es.getTransientHandle(m_DDD));
+        m_pDDD = &(*es.getTransientHandle(m_DDD));
       }
       m_pTable = &es.getData(m_PDT);
 
       SensitiveDetectorCatalog catalog;
-      const DDDWorld *dddworld = new DDDWorld(m_pDDD, m_pDD4Hep, catalog, 1, false, false);
+      const DDDWorld* dddworld = new DDDWorld(m_pDDD, m_pDD4Hep, catalog, 1, false, false);
       m_world = dddworld->GetWorldVolume();
       if (nullptr != m_world)
-	edm::LogVerbatim("SimG4CoreApplication") << "World Volume is built: " << m_world->GetName();
+        edm::LogVerbatim("SimG4CoreApplication") << "World Volume is built: " << m_world->GetName();
     }
     lk.unlock();
   }
@@ -147,7 +140,7 @@ void GeometryMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
 
   // Geant4 exceptions
-  double th = 0.5*CLHEP::GeV;
+  double th = 0.5 * CLHEP::GeV;
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler(th));
 
   // Geant4 transport
@@ -167,10 +160,8 @@ void GeometryMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
   }
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "GeometryMTProducer::beginRun done " 
-      << " DD4Hep: " << m_geoFromDD4hep 
-      << "; MagField: " << m_useMagneticField; 
+  edm::LogVerbatim("SimG4CoreApplication") << "GeometryMTProducer::beginRun done "
+                                           << " DD4Hep: " << m_geoFromDD4hep << "; MagField: " << m_useMagneticField;
 }
 
 void GeometryMTProducer::InitialiseTokens(edm::ConsumesCollector&& iC) {
@@ -189,7 +180,6 @@ void GeometryMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   edm::LogVerbatim("SimG4CoreApplication") << "GeometryMTProducer::endRun";
 }
 
-void GeometryMTProducer::produce(edm::Event&, const edm::EventSetup&) {
-}
+void GeometryMTProducer::produce(edm::Event&, const edm::EventSetup&) {}
 
 DEFINE_FWK_MODULE(GeometryMTProducer);
