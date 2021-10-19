@@ -21,9 +21,9 @@
 //#define EDM_ML_DEBUG
 
 class HGCalTBMBProducer : public SimProducer,
-			  public Observer<const BeginOfTrack*>,
-			  public Observer<const G4Step*>,
-			  public Observer<const EndOfTrack*> {
+                          public Observer<const BeginOfTrack*>,
+                          public Observer<const G4Step*>,
+                          public Observer<const EndOfTrack*> {
 public:
   HGCalTBMBProducer(const edm::ParameterSet&);
   HGCalTBMBProducer(const HGCalTBMBProducer&) = delete;                   // stop default
@@ -70,7 +70,6 @@ void HGCalTBMBProducer::produce(edm::Event& e, const edm::EventSetup&) {
   e.put(std::move(hgc), "HGCalTBMB");
 }
 
-
 void HGCalTBMBProducer::update(const BeginOfTrack* trk) {
   radLen_ = std::vector<double>(nList_ + 1, 0);
   intLen_ = std::vector<double>(nList_ + 1, 0);
@@ -81,8 +80,8 @@ void HGCalTBMBProducer::update(const BeginOfTrack* trk) {
   const G4ThreeVector& mom = aTrack->GetMomentum();
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
-  edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer: Track " << aTrack->GetTrackID() << " Code " << theID
-                             << " Energy " << theEnergy / CLHEP::GeV << " GeV; Momentum " << mom;
+  edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer: Track " << aTrack->GetTrackID() << " Code " << theID << " Energy "
+                             << theEnergy / CLHEP::GeV << " GeV; Momentum " << mom;
 #endif
 }
 
@@ -104,8 +103,9 @@ void HGCalTBMBProducer::update(const G4Step* aStep) {
   radLen_[nList_] += (step / radl);
   intLen_[nList_] += (step / intl);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer::Step in " << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index "
-                             << indx << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
+  edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer::Step in " << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+                             << " Index " << indx << " Step " << step << " RadL " << step / radl << " IntL "
+                             << step / intl;
 #endif
 
   if (stopAfter(aStep)) {
@@ -126,8 +126,8 @@ void HGCalTBMBProducer::update(const EndOfTrack* trk) {
     std::string name("Total");
     if (ii < nList_)
       name = listNames_[ii];
-    edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer::Volume[" << ii << "]: " << name << " == Step " << stepLen_[ii] << " RadL "
-                               << radLen_[ii] << " IntL " << intLen_[ii];
+    edm::LogVerbatim("HGCSim") << "HGCalTBMBProducer::Volume[" << ii << "]: " << name << " == Step " << stepLen_[ii]
+                               << " RadL " << radLen_[ii] << " IntL " << intLen_[ii];
 #endif
   }
   matcoll_.emplace_back(matCalo);
@@ -144,7 +144,8 @@ bool HGCalTBMBProducer::stopAfter(const G4Step* aStep) {
   if ((findVolume(touch, true) == 0) || (zz > stopZ_))
     flag = true;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << " HGCalTBMBProducer::Name " << touch->GetVolume(0)->GetName() << " z " << zz << " Flag" << flag;
+  edm::LogVerbatim("HGCSim") << " HGCalTBMBProducer::Name " << touch->GetVolume(0)->GetName() << " z " << zz << " Flag"
+                             << flag;
 #endif
   return flag;
 }

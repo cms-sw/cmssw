@@ -234,8 +234,9 @@ void MaterialBudgetHcalAnalysis::beginJob() {
 
 void MaterialBudgetHcalAnalysis::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MaterialBudgetFull") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  edm::LogVerbatim("MaterialBudgetFull") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event()
+                                         << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                         << iEvent.bunchCrossing();
 #endif
 
   // Fill from the MB collection
@@ -243,7 +244,8 @@ void MaterialBudgetHcalAnalysis::analyze(edm::Event const &iEvent, edm::EventSet
   if (hcalMBColl.isValid()) {
     auto hcalMB = hcalMBColl.product();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MaterialBudgetFull") << "Finds HcalMaterialBudgetCollection with " << hcalMB->size() << " entries";
+    edm::LogVerbatim("MaterialBudgetFull")
+        << "Finds HcalMaterialBudgetCollection with " << hcalMB->size() << " entries";
 #endif
 
     for (auto itr = hcalMB->begin(); itr != hcalMB->end(); ++itr) {
