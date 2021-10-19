@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -10,6 +11,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "TEfficiency.h"
 
 // FIXME TEMPORARY
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -23,19 +26,27 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
-  bool showRings_, autoIneffModTagging_;
+  bool showRings_, autoIneffModTagging_, doStoreOnDB_;
   unsigned int nTEClayers_;
   std::string layerName(unsigned int k) const;
   double threshold_;
   int nModsMin_;
   double tkMapMin_;
-  std::string title_;
+  std::string title_, record_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   std::unique_ptr<TrackerTopology> tTopo_;
   edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
   std::unique_ptr<TkDetMap> tkDetMap_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
   std::unique_ptr<SiStripQuality> stripQuality_;
+
+  void writeBadStripPayload(const SiStripQuality& quality) const;
+  void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
+  void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfoFileReader& reader) const;
+  void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
+  void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
+  void makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const;
+  void makeSummaryVsCM(DQMStore::IGetter& getter, TFileService& fs) const;
 };
 
 SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::ParameterSet& conf) {
@@ -45,7 +56,9 @@ SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::Paramete
   nModsMin_ = conf.getParameter<int>("nModsMin");
   tkMapMin_ = conf.getUntrackedParameter<double>("TkMapMin", 0.9);
   title_ = conf.getParameter<std::string>("Title");
+  record_ = conf.getParameter<std::string>("Record");
   autoIneffModTagging_ = conf.getUntrackedParameter<bool>("AutoIneffModTagging", false);
+  doStoreOnDB_ = conf.getParameter<bool>("doStoreOnDB");
   tTopoToken_ = esConsumes<edm::Transition::EndRun>();
   tkDetMapToken_ = esConsumes<edm::Transition::EndRun>();
   stripQualityToken_ = esConsumes<edm::Transition::EndRun>();
@@ -96,12 +109,246 @@ std::string SiStripHitEfficiencyHarvester::layerName(unsigned int k) const {
 }
 
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  unsigned int nLayers = 22;
-  if (showRings_)
-    nLayers = 20;
+  // FIXME no stdout
+  if (!autoIneffModTagging_)
+    std::cout << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin."
+              << std::endl;
+  else
+    std::cout << "A module is bad if the upper limit on the efficiency is < to the avg in the layer - " << threshold_
+              << " and has at least " << nModsMin_ << " nModsMin." << std::endl;
 
-  // TODO move down, in makeSummaryVsLumi
-  for (unsigned int iLayer = 1; iLayer != nLayers; ++iLayer) {
+  edm::Service<TFileService> fs;
+
+  auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
+  h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
+  auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
+  h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
+  LogDebug("SiStripHitEfficiency:HitEff")
+      << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
+      << h_module_found->getMap(3)->getEntries();
+
+  std::vector<TH1F*> hEffInLayer(std::size_t(1), nullptr);
+  hEffInLayer.reserve(23);
+  for (std::size_t i = 1; i != 23; ++i) {
+    hEffInLayer.push_back(
+        fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
+  }
+  std::array<long, 23> layerTotal{};
+  std::array<long, 23> layerFound{};
+  layerTotal.fill(0);
+  layerFound.fill(0);
+
+  ////////////////////////////////////////////////////////////////
+  // Effiency calculation, bad module tagging, and tracker maps //
+  ////////////////////////////////////////////////////////////////
+
+  TrackerMap tkMap{"  Detector Inefficiency  "};
+  TrackerMap tkMapBad{"  Inefficient Modules  "};
+  TrackerMap tkMapEff{title_};
+  TrackerMap tkMapNum{" Detector numerator   "};
+  TrackerMap tkMapDen{" Detector denominator "};
+  std::map<unsigned int, double> badModules;
+
+  SiStripDetInfoFileReader reader{
+      edm::FileInPath{"CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"}
+          .fullPath()};  // FIXME update to new version, if needed at all (should also be possible to get from quality ?)
+  for (auto det : reader.getAllDetIds()) {
+    auto layer = checkLayer(det, tTopo_.get());
+    const auto num = h_module_found->getValue(det);
+    const auto denom = h_module_total->getValue(det);
+    const auto eff = denom > 0 ? num / denom : 0.;
+    hEffInLayer[layer]->Fill(eff);
+    if (!autoIneffModTagging_) {
+      if ((denom >= nModsMin_) && (eff < threshold_)) {
+        // We have a bad module, put it in the list!
+        badModules[det] = eff;
+        tkMapBad.fillc(det, 255, 0, 0);
+        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
+                  << " , " << num << "/" << denom << std::endl;
+      } else {
+        //Fill the bad list with empty results for every module
+        tkMapBad.fillc(det, 255, 255, 255);
+      }
+      if (eff < threshold_)
+        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
+                  << " , " << num << "/" << denom << std::endl;
+
+      if (denom && (denom < nModsMin_)) {
+        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " is under occupancy at "
+                  << denom << std::endl;
+      }
+    }
+    if (denom) {
+      //Put any module into the TKMap
+      tkMap.fill(det, 1. - eff);
+      tkMapEff.fill(det, eff);
+      tkMapNum.fill(det, num);
+      tkMapDen.fill(det, denom);
+
+      layerTotal[layer] += denom;
+      layerFound[layer] += num;
+    }
+  }
+
+  if (autoIneffModTagging_) {
+    for (Long_t i = 1; i <= 22; i++) {
+      //Compute threshold to use for each layer
+      hEffInLayer[i]->GetXaxis()->SetRange(3, hEffInLayer[i]->GetNbinsX() + 1);  // Remove from the avg modules below 1%
+      const double layer_min_eff = hEffInLayer[i]->GetMean() - std::max(2.5 * hEffInLayer[i]->GetRMS(), threshold_);
+      std::cout << "Layer " << i << " threshold for bad modules: <" << layer_min_eff
+                << "  (layer mean: " << hEffInLayer[i]->GetMean() << " rms: " << hEffInLayer[i]->GetRMS() << ")"
+                << std::endl;
+
+      hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
+
+      for (auto det : reader.getAllDetIds()) {
+        const auto layer = checkLayer(det, tTopo_.get());
+        if (layer == i) {
+          const auto num = h_module_found->getValue(det);
+          const auto denom = h_module_total->getValue(det);
+          const auto eff = denom > 0 ? num / denom : 0.;
+
+          const auto eff_up = TEfficiency::Bayesian(denom, num, .99, 1, 1, true);
+
+          if ((denom >= nModsMin_) && (eff_up < layer_min_eff)) {
+            //We have a bad module, put it in the list!
+            badModules[det] = eff;
+            tkMapBad.fillc(det, 255, 0, 0);
+          } else {
+            //Fill the bad list with empty results for every module
+            tkMapBad.fillc(det, 255, 255, 255);
+          }
+          if (eff_up < layer_min_eff + 0.08)  // printing message also for modules sligthly above (8%) the limit
+
+            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
+                      << " , " << num << "/" << denom << " , upper limit: " << eff_up << std::endl;
+          if (denom && (denom < nModsMin_)) {
+            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " layer " << layer
+                      << " is under occupancy at " << denom << std::endl;
+          }
+        }
+      }
+    }
+  }
+
+  tkMap.save(true, 0, 0, "SiStripHitEffTKMap_NEW.png");
+  tkMapBad.save(true, 0, 0, "SiStripHitEffTKMapBad_NEW.png");
+  tkMapEff.save(true, tkMapMin_, 1., "SiStripHitEffTKMapEff_NEW.png");
+  tkMapNum.save(true, 0, 0, "SiStripHitEffTKMapNum_NEW.png");
+  tkMapDen.save(true, 0, 0, "SiStripHitEffTKMapDen_NEW.png");
+
+  SiStripQuality pQuality{reader.info()};
+  //This is the list of the bad strips, use to mask out entire APVs
+  //Now simply go through the bad hit list and mask out things that
+  //are bad!
+  for (const auto it : badModules) {
+    const auto det = it.first;
+    std::vector<unsigned int> badStripList;
+    //We need to figure out how many strips are in this particular module
+    //To Mask correctly!
+    const auto nStrips = reader.getNumberOfApvsAndStripLength(det).first * 128;
+    std::cout << "Number of strips module " << det << " is " << nStrips << std::endl;
+    badStripList.push_back(pQuality.encode(0, nStrips, 0));
+    //Now compact into a single bad module
+    std::cout << "ID1 shoudl match list of modules above " << det << std::endl;
+    pQuality.compact(det, badStripList);
+    pQuality.put(det, SiStripQuality::Range(badStripList.begin(), badStripList.end()));
+  }
+  pQuality.fillBadComponents();
+  if (doStoreOnDB_) {
+    writeBadStripPayload(pQuality);
+  } else {
+    edm::LogInfo("SiStripHitEfficiencyHarvester") << "Will not produce payload!";
+  }
+
+  printTotalStatistics(layerFound, layerTotal);  // statistics by layer and subdetector
+  //std::cout << "\n-----------------\nNew IOV starting from run " << e.id().run() << " event " << e.id().event()
+  //     << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << "\n-----------------\n";
+  printAndWriteBadModules(pQuality, reader);  // TODO
+
+  makeSummary(getter, *fs);        // TODO
+  makeSummaryVsBX(getter, *fs);    // TODO
+  makeSummaryVsLumi(getter, *fs);  // TODO
+  makeSummaryVsCM(getter, *fs);    // TODO
+}
+
+void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 23>& layerFound,
+                                                         const std::array<long, 23>& layerTotal) const {
+  //Calculate the statistics by layer
+  int totalfound = 0;
+  int totaltotal = 0;
+  double layereff;
+  int subdetfound[5];
+  int subdettotal[5];
+
+  for (Long_t i = 1; i < 5; i++) {
+    subdetfound[i] = 0;
+    subdettotal[i] = 0;
+  }
+
+  for (Long_t i = 1; i <= 22; i++) {
+    layereff = double(layerFound[i]) / double(layerTotal[i]);
+    std::cout << "Layer " << i << " (" << layerName(i) << ") has total efficiency " << layereff << " " << layerFound[i]
+              << "/" << layerTotal[i] << std::endl;
+    totalfound += layerFound[i];
+    totaltotal += layerTotal[i];
+    if (i < 5) {
+      subdetfound[1] += layerFound[i];
+      subdettotal[1] += layerTotal[i];
+    }
+    if (i >= 5 && i < 11) {
+      subdetfound[2] += layerFound[i];
+      subdettotal[2] += layerTotal[i];
+    }
+    if (i >= 11 && i < 14) {
+      subdetfound[3] += layerFound[i];
+      subdettotal[3] += layerTotal[i];
+    }
+    if (i >= 14) {
+      subdetfound[4] += layerFound[i];
+      subdettotal[4] += layerTotal[i];
+    }
+  }
+
+  std::cout << "The total efficiency is " << double(totalfound) / double(totaltotal) << std::endl;
+  std::cout << "      TIB: " << double(subdetfound[1]) / subdettotal[1] << " " << subdetfound[1] << "/"
+            << subdettotal[1] << std::endl;
+  std::cout << "      TOB: " << double(subdetfound[2]) / subdettotal[2] << " " << subdetfound[2] << "/"
+            << subdettotal[2] << std::endl;
+  std::cout << "      TID: " << double(subdetfound[3]) / subdettotal[3] << " " << subdetfound[3] << "/"
+            << subdettotal[3] << std::endl;
+  std::cout << "      TEC: " << double(subdetfound[4]) / subdettotal[4] << " " << subdetfound[4] << "/"
+            << subdettotal[4] << std::endl;
+}
+
+void SiStripHitEfficiencyHarvester::writeBadStripPayload(const SiStripQuality& quality) const {
+  auto pBadStrip = std::make_unique<SiStripBadStrip>();
+  const auto pQdvBegin = quality.getDataVectorBegin();
+  for (auto rIt = quality.getRegistryVectorBegin(); rIt != quality.getRegistryVectorEnd(); ++rIt) {
+    const auto range = SiStripBadStrip::Range(pQdvBegin + rIt->ibegin, pQdvBegin + rIt->iend);
+    if (!pBadStrip->put(rIt->detid, range))
+      edm::LogError("SiStripHitEfficiencyHarvester") << "detid already exists in SiStripBadStrip";
+  }
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (poolDbService.isAvailable()) {
+    // TODO check ownership
+    poolDbService->writeOne(pBadStrip.get(), poolDbService->currentTime(), record_);
+  } else {
+    // TODO throw a cms exception
+    throw std::runtime_error("PoolDBService required.");
+  }
+}
+
+void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, TFileService& fs) const {
+  // use goodlayer_total/found and alllayer_total/found, collapse side and/or ring if needed
+}
+
+void SiStripHitEfficiencyHarvester::makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const {
+  // use found/totalVsBx_layer%i [0,23)
+}
+
+void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const {
+  for (unsigned int iLayer = 1; iLayer != (showRings_ ? 20 : 22); ++iLayer) {
     auto hfound = getter.get(fmt::format("SiStrip/HitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
     auto htotal = getter.get(fmt::format("SiStrip/HitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
     if (!hfound->GetSumw2())
@@ -119,128 +366,232 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
         << hfound->GetEntries();
   }
 
-  // TODO list
-  // - makeHotColdMaps: should be done directly by worker
-  // - makeTKMap: below here
-  // - makeSQLite: TODO
-  // - totalStatistics: TODO
-  // - makeSummary: TODO
-  // - makeSummaryVsBX: TODO
-  // - makeSummaryVsLumi: TODO
-  // - makeSummaryVsCM: TODO
-  // - rest: TODO
+  // continue
+}
 
-  auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
-  auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
-  LogDebug("SiStripHitEfficiency:HitEff")
-      << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
-      << h_module_found->getMap(3)->getEntries();
+void SiStripHitEfficiencyHarvester::makeSummaryVsCM(DQMStore::IGetter& getter, TFileService& fs) const {}
 
-  edm::Service<TFileService> fs;
-  std::vector<TH1F*> hEffInLayer(std::size_t(1), nullptr);
-  hEffInLayer.reserve(23);
-  for (std::size_t i = 1; i != 23; ++i) {
-    hEffInLayer.push_back(
-        fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
-  }
-  std::array<long, 23> layertotal{};
-  std::array<long, 23> layerfound{};
-  layertotal.fill(0);
-  layerfound.fill(0);
+namespace {
+  void setBadComponents(int i,
+                        int comp,
+                        const SiStripQuality::BadComponent& bc,
+                        std::stringstream ssV[4][19],
+                        int nBad[4][19][4],
+                        int nAPV) {
+    ssV[i][comp] << "\n\t\t " << bc.detid << " \t " << bc.BadModule << " \t " << ((bc.BadFibers) & 0x1) << " ";
+    if (nAPV == 4)
+      ssV[i][comp] << "x " << ((bc.BadFibers >> 1) & 0x1);
 
-  //////////////////
-  // Tracker maps //
-  //////////////////
+    if (nAPV == 6)
+      ssV[i][comp] << ((bc.BadFibers >> 1) & 0x1) << " " << ((bc.BadFibers >> 2) & 0x1);
+    ssV[i][comp] << " \t " << ((bc.BadApvs) & 0x1) << " " << ((bc.BadApvs >> 1) & 0x1) << " ";
+    if (nAPV == 4)
+      ssV[i][comp] << "x x " << ((bc.BadApvs >> 2) & 0x1) << " " << ((bc.BadApvs >> 3) & 0x1);
+    if (nAPV == 6)
+      ssV[i][comp] << ((bc.BadApvs >> 2) & 0x1) << " " << ((bc.BadApvs >> 3) & 0x1) << " " << ((bc.BadApvs >> 4) & 0x1)
+                   << " " << ((bc.BadApvs >> 5) & 0x1) << " ";
 
-  TrackerMap tkMap{"  Detector Inefficiency  "};
-  TrackerMap tkMapBad{"  Inefficient Modules  "};
-  TrackerMap tkMapEff{title_};
-  TrackerMap tkMapNum{" Detector numerator   "};
-  TrackerMap tkMapDen{" Detector denominator "};
-  std::map<unsigned int, double> badModules;
-
-  SiStripDetInfoFileReader reader{
-      edm::FileInPath{"CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"}
-          .fullPath()};  // FIXME update to new version, if needed at all (should also be possible to get from quality ?)
-  for (auto det : reader.getAllDetIds()) {
-    // TODO probably need a way to exclude bad modules (cache sistripquality and federrids, or list of bad module DetIds directly - may be easier)
-
-    auto layer = checkLayer(det, tTopo_.get());
-    const auto num = h_module_found->getValue(det);
-    const auto denom = h_module_total->getValue(det);
-    const auto eff = denom > 0 ? num / denom : 0.;
-    hEffInLayer[layer]->Fill(eff);
-    if (!autoIneffModTagging_) {
-      if ((denom >= nModsMin_) && (eff < threshold_)) {
-        // We have a bad module, put it in the list!
-        badModules[det] = eff;
-        tkMapBad.fillc(det, 255, 0, 0);
-        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
-                  << " , " << num << "/" << denom << std::endl;
-      } else {
-        //Fill the bad list with empty results for every module
-        tkMapBad.fillc(det, 255, 255, 255);
-      }
-      if (denom && (denom < nModsMin_)) {
-        std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " is under occupancy at "
-                  << denom << std::endl;
-      }
+    if (bc.BadApvs) {
+      nBad[i][0][2] += ((bc.BadApvs >> 5) & 0x1) + ((bc.BadApvs >> 4) & 0x1) + ((bc.BadApvs >> 3) & 0x1) +
+                       ((bc.BadApvs >> 2) & 0x1) + ((bc.BadApvs >> 1) & 0x1) + ((bc.BadApvs) & 0x1);
+      nBad[i][comp][2] += ((bc.BadApvs >> 5) & 0x1) + ((bc.BadApvs >> 4) & 0x1) + ((bc.BadApvs >> 3) & 0x1) +
+                          ((bc.BadApvs >> 2) & 0x1) + ((bc.BadApvs >> 1) & 0x1) + ((bc.BadApvs) & 0x1);
     }
-    if (denom) {
-      //Put any module into the TKMap
-      tkMap.fill(det, 1. - eff);
-      tkMapEff.fill(det, eff);
-      tkMapNum.fill(det, num);
-      tkMapDen.fill(det, denom);
+    if (bc.BadFibers) {
+      nBad[i][0][1] += ((bc.BadFibers >> 2) & 0x1) + ((bc.BadFibers >> 1) & 0x1) + ((bc.BadFibers) & 0x1);
+      nBad[i][comp][1] += ((bc.BadFibers >> 2) & 0x1) + ((bc.BadFibers >> 1) & 0x1) + ((bc.BadFibers) & 0x1);
+    }
+    if (bc.BadModule) {
+      nBad[i][0][0]++;
+      nBad[i][comp][0]++;
+    }
+  }
+}  // namespace
 
-      layertotal[layer] += denom;
-      layerfound[layer] += num;
+void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality& quality,
+                                                            const SiStripDetInfoFileReader& reader) const {
+  ////////////////////////////////////////////////////////////////////////
+  //try to write out what's in the quality record
+  /////////////////////////////////////////////////////////////////////////////
+  int nTkBadComp[4];  //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+  int nBadComp[4][19][4];
+  //legend: nBadComp[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
+  //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
+  //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+  std::stringstream ssV[4][19];
+
+  for (int i = 0; i < 4; ++i) {
+    nTkBadComp[i] = 0;
+    for (int j = 0; j < 19; ++j) {
+      ssV[i][j].str("");
+      for (int k = 0; k < 4; ++k)
+        nBadComp[i][j][k] = 0;
     }
   }
 
-  if (autoIneffModTagging_) {
-    for (Long_t i = 1; i <= 22; i++) {
-      //Compute threshold to use for each layer
-      hEffInLayer[i]->GetXaxis()->SetRange(3, hEffInLayer[i]->GetNbinsX() + 1);  // Remove from the avg modules below 1%
-      const double eff_limit = hEffInLayer[i]->GetMean() - threshold_;
-      std::cout << "Layer " << i << " threshold for bad modules: " << eff_limit << std::endl;
-      hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
-
-      for (auto det : reader.getAllDetIds()) {
-        // Second loop over modules to tag inefficient ones
-        const auto layer = checkLayer(det, tTopo_.get());
-        if (layer == i) {
-          const auto num = h_module_found->getValue(det);
-          const auto denom = h_module_total->getValue(det);
-          const auto eff = denom > 0 ? num / denom : 0.;
-
-          if ((denom >= nModsMin_) && (eff < eff_limit)) {
-            //We have a bad module, put it in the list!
-            badModules[det] = eff;
-            tkMapBad.fillc(det, 255, 0, 0);
-            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " efficiency: " << eff
-                      << " , " << num << "/" << denom << std::endl;
-          } else {
-            //Fill the bad list with empty results for every module
-            tkMapBad.fillc(det, 255, 255, 255);
-          }
-          if (denom && (denom < nModsMin_)) {
-            std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det << " layer " << layer
-                      << " is under occupancy at " << denom << std::endl;
-          }
-        }
+  for (const auto& bc : quality.getBadComponentList()) {
+    // Full Tk
+    if (bc.BadModule)
+      nTkBadComp[0]++;
+    if (bc.BadFibers)
+      nTkBadComp[1] += ((bc.BadFibers >> 2) & 0x1) + ((bc.BadFibers >> 1) & 0x1) + ((bc.BadFibers) & 0x1);
+    if (bc.BadApvs)
+      nTkBadComp[2] += ((bc.BadApvs >> 5) & 0x1) + ((bc.BadApvs >> 4) & 0x1) + ((bc.BadApvs >> 3) & 0x1) +
+                       ((bc.BadApvs >> 2) & 0x1) + ((bc.BadApvs >> 1) & 0x1) + ((bc.BadApvs) & 0x1);
+    // single subsystem
+    DetId det(bc.detid);
+    if ((det.subdetId() >= SiStripSubdetector::TIB) && (det.subdetId() <= SiStripSubdetector::TEC)) {
+      const auto nAPV = reader.getNumberOfApvsAndStripLength(det).first;
+      switch (det.subdetId()) {
+        case SiStripSubdetector::TIB:
+          setBadComponents(0, tTopo_->tibLayer(det), bc, ssV, nBadComp, nAPV);
+          break;
+        case SiStripSubdetector::TID:
+          setBadComponents(1,
+                           (tTopo_->tidSide(det) == 2 ? tTopo_->tidWheel(det) : tTopo_->tidWheel(det) + 3),
+                           bc,
+                           ssV,
+                           nBadComp,
+                           nAPV);
+          break;
+        case SiStripSubdetector::TOB:
+          setBadComponents(2, tTopo_->tobLayer(det), bc, ssV, nBadComp, nAPV);
+          break;
+        case SiStripSubdetector::TEC:
+          setBadComponents(3,
+                           (tTopo_->tecSide(det) == 2 ? tTopo_->tecWheel(det) : tTopo_->tecWheel(det) + 9),
+                           bc,
+                           ssV,
+                           nBadComp,
+                           nAPV);
+          break;
+        default:
+          break;
       }
     }
   }
+  // single strip info
+  for (auto rp = quality.getRegistryVectorBegin(); rp != quality.getRegistryVectorEnd(); ++rp) {
+    DetId det{rp->detid};
+    int subdet = -999;
+    int component = -999;
+    switch (det.subdetId()) {
+      case SiStripSubdetector::TIB:
+        subdet = 0;
+        component = tTopo_->tibLayer(det);
+        break;
+      case SiStripSubdetector::TID:
+        subdet = 1;
+        component = tTopo_->tidSide(det) == 2 ? tTopo_->tidWheel(det) : tTopo_->tidWheel(det) + 3;
+        break;
+      case SiStripSubdetector::TOB:
+        subdet = 2;
+        component = tTopo_->tobLayer(det);
+        break;
+      case SiStripSubdetector::TEC:
+        subdet = 3;
+        component = tTopo_->tecSide(det) == 2 ? tTopo_->tecWheel(det) : tTopo_->tecWheel(det) + 9;
+        break;
+      default:
+        break;
+    }
 
-  tkMap.save(true, 0, 0, "SiStripHitEffTKMap_NEW.png");
-  tkMapBad.save(true, 0, 0, "SiStripHitEffTKMapBad_NEW.png");
-  tkMapEff.save(true, tkMapMin_, 1., "SiStripHitEffTKMapEff_NEW.png");
-  tkMapNum.save(true, 0, 0, "SiStripHitEffTKMapNum_NEW.png");
-  tkMapDen.save(true, 0, 0, "SiStripHitEffTKMapDen_NEW.png");
-  std::cout << "Finished TKMap Generation" << std::endl;
+    const auto pQdvBegin = quality.getDataVectorBegin();
+    const auto sqrange = SiStripQuality::Range(pQdvBegin + rp->ibegin, pQdvBegin + rp->iend);
+    float percentage = 0;
+    for (int it = 0; it < sqrange.second - sqrange.first; it++) {
+      unsigned int range = quality.decode(*(sqrange.first + it)).range;
+      nTkBadComp[3] += range;
+      nBadComp[subdet][0][3] += range;
+      nBadComp[subdet][component][3] += range;
+      percentage += range;
+    }
+    if (percentage != 0)
+      percentage /= 128. * reader.getNumberOfApvsAndStripLength(det).first;
+    if (percentage > 1)
+      edm::LogError("SiStripQualityStatistics")
+          << "PROBLEM detid " << det.rawId() << " value " << percentage << std::endl;
+  }
+
+  // printout
+  std::cout << "\n-----------------\nGlobal Info\n-----------------";
+  std::cout << "\nBadComp \t	Modules \tFibers "
+               "\tApvs\tStrips\n----------------------------------------------------------------";
+  std::cout << "\nTracker:\t\t" << nTkBadComp[0] << "\t" << nTkBadComp[1] << "\t" << nTkBadComp[2] << "\t"
+            << nTkBadComp[3];
+  std::cout << std::endl;
+  std::cout << "\nTIB:\t\t\t" << nBadComp[0][0][0] << "\t" << nBadComp[0][0][1] << "\t" << nBadComp[0][0][2] << "\t"
+            << nBadComp[0][0][3];
+  std::cout << "\nTID:\t\t\t" << nBadComp[1][0][0] << "\t" << nBadComp[1][0][1] << "\t" << nBadComp[1][0][2] << "\t"
+            << nBadComp[1][0][3];
+  std::cout << "\nTOB:\t\t\t" << nBadComp[2][0][0] << "\t" << nBadComp[2][0][1] << "\t" << nBadComp[2][0][2] << "\t"
+            << nBadComp[2][0][3];
+  std::cout << "\nTEC:\t\t\t" << nBadComp[3][0][0] << "\t" << nBadComp[3][0][1] << "\t" << nBadComp[3][0][2] << "\t"
+            << nBadComp[3][0][3];
+  std::cout << "\n";
+
+  for (int i = 1; i < 5; ++i)
+    std::cout << "\nTIB Layer " << i << " :\t\t" << nBadComp[0][i][0] << "\t" << nBadComp[0][i][1] << "\t"
+              << nBadComp[0][i][2] << "\t" << nBadComp[0][i][3];
+  std::cout << "\n";
+  for (int i = 1; i < 4; ++i)
+    std::cout << "\nTID+ Disk " << i << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
+              << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+  for (int i = 4; i < 7; ++i)
+    std::cout << "\nTID- Disk " << i - 3 << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
+              << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+  std::cout << "\n";
+  for (int i = 1; i < 7; ++i)
+    std::cout << "\nTOB Layer " << i << " :\t\t" << nBadComp[2][i][0] << "\t" << nBadComp[2][i][1] << "\t"
+              << nBadComp[2][i][2] << "\t" << nBadComp[2][i][3];
+  std::cout << "\n";
+  for (int i = 1; i < 10; ++i)
+    std::cout << "\nTEC+ Disk " << i << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
+              << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+  for (int i = 10; i < 19; ++i)
+    std::cout << "\nTEC- Disk " << i - 9 << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
+              << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+  std::cout << "\n";
+
+  std::cout << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
+               "Apvs\n----------------------------------------------------------------";
+  for (int i = 1; i < 5; ++i)
+    std::cout << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  std::cout << "\n";
+  for (int i = 1; i < 4; ++i)
+    std::cout << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+  for (int i = 4; i < 7; ++i)
+    std::cout << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
+  std::cout << "\n";
+  for (int i = 1; i < 7; ++i)
+    std::cout << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  std::cout << "\n";
+  for (int i = 1; i < 10; ++i)
+    std::cout << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+  for (int i = 10; i < 19; ++i)
+    std::cout << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
+
+  // store also bad modules in log file
+  std::ofstream badModules;
+  badModules.open("BadModules.log");
+  badModules << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
+                "Apvs\n----------------------------------------------------------------";
+  for (int i = 1; i < 5; ++i)
+    badModules << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  badModules << "\n";
+  for (int i = 1; i < 4; ++i)
+    badModules << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+  for (int i = 4; i < 7; ++i)
+    badModules << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
+  badModules << "\n";
+  for (int i = 1; i < 7; ++i)
+    badModules << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  badModules << "\n";
+  for (int i = 1; i < 10; ++i)
+    badModules << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+  for (int i = 10; i < 19; ++i)
+    badModules << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
+  badModules.close();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
