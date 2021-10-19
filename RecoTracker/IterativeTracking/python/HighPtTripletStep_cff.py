@@ -3,8 +3,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
@@ -282,13 +282,13 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
      qualityCuts = [0.2,0.3,0.4]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(highPtTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(highPtTripletStep, trackTfClassifier.clone(
     src = 'highPtTripletStepTracks',
-    qualityCuts = qualityCutDictionary['HighPtTripletStep'],
+    qualityCuts = qualityCutDictionary.HighPtTripletStep.value()
 ))
-
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
 pp_on_AA.toModify(highPtTripletStep, 
         mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),

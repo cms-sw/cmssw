@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
@@ -282,18 +282,20 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStepBarrel, jetCoreRegionalStep.clon
      src = 'jetCoreRegionalStepBarrelTracks',
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(jetCoreRegionalStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(jetCoreRegionalStep, trackTfClassifier.clone(
      src = 'jetCoreRegionalStepTracks',
-     qualityCuts = qualityCutDictionary["JetCoreRegionalStep"],
+     qualityCuts = qualityCutDictionary.JetCoreRegionalStep.value()
 ))
-trackdnn.toReplaceWith(jetCoreRegionalStepBarrel, TrackTfClassifier.clone(
+trackdnn.toReplaceWith(jetCoreRegionalStepBarrel, trackTfClassifier.clone(
      src = 'jetCoreRegionalStepBarrelTracks',
-     qualityCuts = qualityCutDictionary["JetCoreRegionalStep"],
+     qualityCuts = qualityCutDictionary.JetCoreRegionalStep.value()
 ))
 
 fastSim.toModify(jetCoreRegionalStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
 
 jetCoreRegionalStepEndcap = jetCoreRegionalStep.clone(
     src = 'jetCoreRegionalStepEndcapTracks',

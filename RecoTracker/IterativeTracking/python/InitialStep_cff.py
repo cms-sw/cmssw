@@ -3,8 +3,8 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
@@ -335,13 +335,16 @@ trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
      qualityCuts = [-0.95,-0.85,-0.75]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(initialStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(initialStep, trackTfClassifier.clone(
         src         = 'initialStepTracks',
-        qualityCuts = qualityCutDictionary["InitialStep"]
+        qualityCuts = qualityCutDictionary.InitialStep.value()
 ))
+
 (trackdnn & fastSim).toModify(initialStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
 
 pp_on_AA.toModify(initialStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
