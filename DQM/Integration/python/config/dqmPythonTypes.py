@@ -2,7 +2,7 @@
 from FWCore.ParameterSet.Types import PSet
 import FWCore.ParameterSet.Config as cms
 class RunType(PSet):
-  def __init__(self,types=['pp_run','pp_run_stage1','cosmic_run','cosmic_run_stage1','hi_run','hpu_run']):
+  def __init__(self,types=['pp_run','pp_run_stage1','cosmic_run','cosmic_run_stage1','hi_run','hpu_run','commissioning_run']):
     PSet.__init__(self)
     self.__runTypesDict = {}
     t=[(x,types.index(x)) for x in types ]
