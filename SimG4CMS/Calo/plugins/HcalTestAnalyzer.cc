@@ -28,12 +28,11 @@
 #include <string>
 
 class HcalTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-
 public:
   HcalTestAnalyzer(const edm::ParameterSet&);
-  virtual ~HcalTestAnalyzer();
+  ~HcalTestAnalyzer() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
@@ -43,7 +42,6 @@ private:
   edm::EDGetTokenT<HcalTestHistoClass> tokHist_;
   int kount_;
 };
-
 
 HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&) : tree_(nullptr), kount_(0) {
   usesResource(TFileService::kSharedResource);
@@ -64,7 +62,7 @@ HcalTestAnalyzer::~HcalTestAnalyzer() {
                               << "histograms after " << kount_ << " events ";
 }
 
-void HcalTestAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void HcalTestAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.add("hcalTestAnalyzer", desc);
 }
@@ -72,7 +70,8 @@ void HcalTestAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descript
 void HcalTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   ++kount_;
   auto histos = e.getHandle(tokHist_);
-  edm::LogVerbatim("HcalSim") << "HcalTestAnalyzer: [" << kount_ << "] event " << e.id().event() << " with " << histos.isValid();
+  edm::LogVerbatim("HcalSim") << "HcalTestAnalyzer: [" << kount_ << "] event " << e.id().event() << " with "
+                              << histos.isValid();
 
   if ((tree_) && histos.isValid()) {
     auto histo = histos.product();
