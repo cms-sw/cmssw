@@ -208,6 +208,13 @@ private:
   const edm::EDGetTokenT<ZVertexHeterogeneous> pataVerticesToken_;
   const edm::EDGetTokenT<PixelTrackHeterogeneous> pataTracksToken_;
   const edm::EDGetTokenT<reco::BeamSpot> BeamSpotToken_;
+  const unsigned int maxVtx_;
+  const double fractionSumPt2_;
+  const double minSumPt2_;
+  const double track_pT_min_;
+  const double track_pT_max_;
+  const double track_chi2_max_;
+  const double track_prob_min_;
   std::string inputTensorName_;
   std::string outputTensorName_;
   const L2TauNNProducerCacheData* L2cacheData_;
@@ -262,6 +269,13 @@ void L2TauNNProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
       ->setComment("patatrack vertices collection");
   desc.add<edm::InputTag>("pataTracks", edm::InputTag("hltPixelTracksSoA"))->setComment("patatrack collection");
   desc.add<edm::InputTag>("BeamSpot", edm::InputTag(""))->setComment("BeamSpot Collection");
+  desc.add<uint>("maxVtx", 100)->setComment("max output collection size (number of accepted vertices)");
+  desc.add<double>("fractionSumPt2", 0.3)->setComment("threshold on sumPt2 fraction of the leading vertex");
+  desc.add<double>("minSumPt2", 0.)->setComment("min sumPt2");
+  desc.add<double>("track_pt_min", 1.0)->setComment("min track p_T");
+  desc.add<double>("track_pt_max", 10.0)->setComment("max track p_T");
+  desc.add<double>("track_chi2_max", 99999.)->setComment("max track chi2");
+  desc.add<double>("track_prob_min", -1.)->setComment("min track prob");
   desc.add<std::string>("graphPath", "RecoTauTag/TrainingFiles/L2TauNNTag/L2TauTag_Run3v1.pb")
       ->setComment("path to the saved CNN");
   desc.add<std::string>("normalizationDict", "RecoTauTag/TrainingFiles/L2TauNNTag/NormalizationDict.json")
@@ -278,7 +292,14 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
       GeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       pataVerticesToken_(consumes<ZVertexHeterogeneous>(cfg.getParameter<edm::InputTag>("pataVertices"))),
       pataTracksToken_(consumes<PixelTrackHeterogeneous>(cfg.getParameter<edm::InputTag>("pataTracks"))),
-      BeamSpotToken_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("BeamSpot"))) {
+      BeamSpotToken_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("BeamSpot"))),
+      maxVtx_(cfg.getParameter<uint>("maxVtx")),
+      fractionSumPt2_(cfg.getParameter<double>("fractionSumPt2")),
+      minSumPt2_(cfg.getParameter<double>("minSumPt2")),
+      track_pT_min_(cfg.getParameter<double>("track_pt_min")),
+      track_pT_max_(cfg.getParameter<double>("track_pt_max")),
+      track_chi2_max_(cfg.getParameter<double>("track_chi2_max")),
+      track_prob_min_(cfg.getParameter<double>("track_prob_min")) {
   if (cacheData->graphDef == nullptr) {
     throw cms::Exception("InvalidCacheData") << "Invalid Cache Data.";
   }
@@ -552,13 +573,6 @@ std::vector<int> L2TauNNProducer::SelectGoodVertices(const ZVertexSoA& patavtx_s
   std::vector<int> VtxGood;
   VtxGood.reserve(nv);
 
-  static constexpr float fractionSumPt2_ = 0.3;
-  static constexpr float minSumPt2_ = 0.;
-  static constexpr double track_pT_min_ = 1.;
-  static constexpr double track_pT_max_ = 20.;
-  // static constexpr double track_prob_min_ = -1.; // keep it for future changes
-  static constexpr double track_chi2_max_ = 20.;
-  static constexpr unsigned int maxVtx_ = 100;
   std::vector<double> maxChi2_;
   std::vector<double> pTSquaredSum(nv);
 
