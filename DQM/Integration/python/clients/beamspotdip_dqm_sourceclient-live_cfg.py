@@ -38,5 +38,8 @@ process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+# monitoring
+process.DQMMonitoringService = cms.Service("DQMMonitoringService")
+
 # path
 process.p = cms.Path( process.beamSpotDipServer )
