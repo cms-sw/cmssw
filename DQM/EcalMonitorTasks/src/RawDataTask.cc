@@ -8,6 +8,7 @@
 #include "DQM/EcalCommon/interface/FEFlags.h"
 
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/Luminosity/interface/LumiConstants.h"
 
 namespace ecaldqm {
 
@@ -28,7 +29,7 @@ namespace ecaldqm {
     // TCDS calls it always 3564, but some subsystems call it 0.
     // From testing: bx_ is labeled 0, dccBX and FEBxs[iFE] labeled 3564
     // Setting bx_ to 0 to match the other two
-    if (bx_ == 3564)
+    if (bx_ == LumiConstants::numBX)  // 3564
       bx_ = 0;
 
     triggerType_ = _evt.experimentType() & 0xf;
