@@ -1,15 +1,35 @@
-#include "TrackingTools/GsfTools/plugins/DistanceBetweenComponentsESProducer.h"
-
-#include "TrackingTools/GsfTools/interface/KullbackLeiblerDistance.h"
-// #include "TrackingTools/GsfTools/interface/MahalanobisDistance.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
+#include "TrackingTools/GsfTools/interface/KullbackLeiblerDistance.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include <string>
 #include <memory>
+#include <string>
+
+/** Provides algorithms to measure the distance between  components
+ * (currently either using a Kullback-Leibler or a Mahalanobis distance)
+ */
+
+template <unsigned int N>
+class DistanceBetweenComponentsESProducer : public edm::ESProducer {
+public:
+  DistanceBetweenComponentsESProducer(const edm::ParameterSet& p);
+
+  std::unique_ptr<DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  const bool useKullbackLeibler_;
+};
+
+#include "FWCore/Framework/interface/ModuleFactory.h"
+typedef DistanceBetweenComponentsESProducer<5> DistanceBetweenComponentsESProducer5D;
+DEFINE_FWK_EVENTSETUP_MODULE(DistanceBetweenComponentsESProducer5D);
 
 template <unsigned int N>
 DistanceBetweenComponentsESProducer<N>::DistanceBetweenComponentsESProducer(const edm::ParameterSet& p)

@@ -1,19 +1,37 @@
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
-#include <string>
-#include <memory>
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include <iostream>
+#include <memory>
+#include <string>
 
-// #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
-// #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
-// #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
+/** Provides the "CloseComponents" algorithm ("Merger") for reducing 
+ * the number of components in a multi-
+ */
+
+template <unsigned int N>
+class CloseComponentsMergerESProducer : public edm::ESProducer {
+public:
+  CloseComponentsMergerESProducer(const edm::ParameterSet& p);
+  ~CloseComponentsMergerESProducer() override;
+  std::unique_ptr<MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  const int maxComp_;
+  const edm::ESGetToken<DistanceBetweenComponents<N>, TrackingComponentsRecord> distToken_;
+};
+
+#include "FWCore/Framework/interface/ModuleFactory.h"
+typedef CloseComponentsMergerESProducer<5> CloseComponentsMergerESProducer5D;
+DEFINE_FWK_EVENTSETUP_MODULE(CloseComponentsMergerESProducer5D);
 
 template <unsigned int N>
 CloseComponentsMergerESProducer<N>::CloseComponentsMergerESProducer(const edm::ParameterSet& p)
