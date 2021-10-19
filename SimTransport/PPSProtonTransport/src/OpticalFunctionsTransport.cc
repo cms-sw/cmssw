@@ -90,13 +90,13 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   double vtxYoffset_;
   double vtxZoffset_;
   if (useBeamPositionFromLHCInfo_) {
-    vtxXoffset_ = -beamParameters_->getVtxOffsetX45() * 10.;
-    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * 10.;
-    vtxZoffset_ = -beamParameters_->getVtxOffsetZ45() * 10.;
+    vtxXoffset_ = -beamParameters_->getVtxOffsetX45() * cm_to_mm;
+    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * cm_to_mm;
+    vtxZoffset_ = -beamParameters_->getVtxOffsetZ45() * cm_to_mm;
   } else {
-    vtxXoffset_ = -beamspot_->GetX() * 10.;
-    vtxYoffset_ = beamspot_->GetY() * 10.;
-    vtxZoffset_ = -beamspot_->GetZ() * 10.;
+    vtxXoffset_ = -beamspot_->GetX() * cm_to_mm;
+    vtxYoffset_ = beamspot_->GetY() * cm_to_mm;
+    vtxZoffset_ = -beamspot_->GetZ() * cm_to_mm;
   }
   vtxZoffset_ *= 1.0;   // just to avoid compilation error, should be used in the future
                         //
