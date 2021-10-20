@@ -79,13 +79,9 @@ void DTSurveyConvert::analyze(const edm::Event &, const edm::EventSetup &iSetup)
 
   if (WriteToDB == true) {
     // Instantiate the helper class
-    edm::ESHandle<DTGeometry> dtGeometry;
-    edm::ESHandle<CSCGeometry> cscGeometry;
-    edm::ESHandle<GEMGeometry> gemGeometry;
-
-    dtGeometry = iSetup.getHandle(dtGeomToken_);
-    cscGeometry = iSetup.getHandle(cscGeomToken_);
-    gemGeometry = iSetup.getHandle(gemGeomToken_);
+    const DTGeometry *dtGeometry = &iSetup.getData(dtGeomToken_);
+    const CSCGeometry *cscGeometry = &iSetup.getData(cscGeomToken_);
+    const GEMGeometry *gemGeometry = &iSetup.getData(gemGeomToken_);
 
     MuonAlignment align(&*dtGeometry, &*cscGeometry, &*gemGeometry);
     std::ifstream inFile(outputFileName.c_str());
