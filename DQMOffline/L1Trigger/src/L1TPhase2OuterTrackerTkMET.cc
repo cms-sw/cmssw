@@ -79,11 +79,11 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
 
   // Adding protection
   if (!TTTrackHandle.isValid()) {
-    std::cout << "cant find tracks" << std::endl;
+    edm::LogWarning("L1TPhase2OuterTrackerTkMET") << "cant find tracks" << std::endl;
     return;
   }
   if (!L1VertexHandle.isValid()) {
-    std::cout << "cant find vertex" << std::endl;
+    edm::LogWarning("L1TPhase2OuterTrackerTkMET") << "cant find vertex" << std::endl;
     return;
   }
   float sumPx = 0;
