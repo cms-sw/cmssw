@@ -225,8 +225,7 @@ std::unique_ptr<L2TauNNProducerCacheData> L2TauNNProducer::initializeGlobalCache
   std::unique_ptr<L2TauNNProducerCacheData> cacheData = std::make_unique<L2TauNNProducerCacheData>();
   cacheData->normVec.reserve(L2TauTagNNv1::nVars);
 
-  std::string graphPath = cfg.getParameter<std::string>("graphPath");
-  graphPath = edm::FileInPath(graphPath).fullPath();
+  auto const graphPath = edm::FileInPath(cfg.getParameter<std::string>("graphPath")).fullPath();
 
   cacheData->graphDef = tensorflow::loadGraphDef(graphPath);
   cacheData->session = tensorflow::createSession(cacheData->graphDef);
@@ -234,8 +233,7 @@ std::unique_ptr<L2TauNNProducerCacheData> L2TauNNProducer::initializeGlobalCache
   tensorflow::setLogging("2");
 
   boost::property_tree::ptree loadPtreeRoot;
-  std::string normalizationDict = cfg.getParameter<std::string>("normalizationDict");
-  normalizationDict = edm::FileInPath(normalizationDict).fullPath();
+  auto const normalizationDict = edm::FileInPath(cfg.getParameter<std::string>("normalizationDict")).fullPath();
   boost::property_tree::read_json(normalizationDict, loadPtreeRoot);
   for (const auto& [key, val] : L2TauTagNNv1::varNameMap) {
     boost::property_tree::ptree var = loadPtreeRoot.get_child(val);
