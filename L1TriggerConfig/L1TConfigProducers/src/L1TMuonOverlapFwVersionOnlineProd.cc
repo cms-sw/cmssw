@@ -69,13 +69,13 @@ std::unique_ptr<const L1TMuonOverlapFwVersion> L1TMuonOverlapFwVersionOnlineProd
   edm::LogInfo("L1-O2O: L1TMuonOverlapFwVersionOnlineProd")
       << "Producing L1TMuonOverlapFwVersion for key = " << objectKey;
 
-  std::string infra_payload, payload, hw_fake;
+  std::string payload, hw_fake;
   std::string algoV_string, layersV_string, patternsV_string, synthDate;
 
   try {
 
-    infra_payload = l1t::OnlineDBqueryHelper::fetch({"CONF"}, "OMTF_CLOBS", objectKey, m_omdsReader)["CONF"];
-//    removeAll(infra_payload,"<!--","-->");
+    payload = l1t::OnlineDBqueryHelper::fetch({"CONF"}, "OMTF_CLOBS", objectKey, m_omdsReader)["CONF"];
+//    removeAll(payload,"<!--","-->");
 
   } catch (std::runtime_error& e) {
     edm::LogError("L1-O2O: L1TMuonOverlapFwVersionOnlineProd") << e.what();
@@ -106,13 +106,9 @@ std::unique_ptr<const L1TMuonOverlapFwVersion> L1TMuonOverlapFwVersionOnlineProd
     xmlRdr.readRootElement(parsedXMLs);
 
 // INFRA payload needs some editing to be suitable for the standard XML parser
-//    replaceAll(infra_payload,"infra","algo");
-//    removeAll(infra_payload,"</context",">");
-    payload = "<algo id=\"OMTF\"> ";
-    std::string str_P1 = infra_payload.substr(infra_payload.find("<context id=\"processors\">"),std::string::npos);
-    std::string str_P2 = str_P1.substr(0,str_P1.find("</context>") + 10);
-    payload.append(str_P2);
-    payload.append(" </algo>");
+    replaceAll(payload,"infra","algo");
+    removeAll(payload,"<context id=\"daq","</context>");
+    removeAll(payload,"<context id=\"OMTF","</context>");
     xmlRdr.readDOMFromString(payload);
     xmlRdr.readRootElement(parsedXMLs);
 
