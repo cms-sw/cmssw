@@ -26,10 +26,10 @@ public:
   explicit L2TauTagFilter(const edm::ParameterSet& cfg)
       : HLTFilter(cfg),
         nExpected_(cfg.getParameter<int>("nExpected")),
-        L1TauSrc_(cfg.getParameter<edm::InputTag>("L1TauSrc")),
-        L1TauSrcToken_(consumes<trigger::TriggerFilterObjectWithRefs>(L1TauSrc_)),
-        L2OutcomesToken_(consumes<std::vector<float>>(cfg.getParameter<edm::InputTag>("L2Outcomes"))),
-        DiscrWP_(cfg.getParameter<double>("DiscrWP")) {}
+        l1TauSrc_(cfg.getParameter<edm::InputTag>("L1TauSrc")),
+        l1TauSrcToken_(consumes<trigger::TriggerFilterObjectWithRefs>(l1TauSrc_)),
+        l2OutcomesToken_(consumes<std::vector<float>>(cfg.getParameter<edm::InputTag>("L2Outcomes"))),
+        discrWP_(cfg.getParameter<double>("DiscrWP")) {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     makeHLTFilterDescription(desc);
@@ -45,21 +45,21 @@ public:
                  const edm::EventSetup& eventsetup,
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override {
     if (saveTags())
-      filterproduct.addCollectionTag(L1TauSrc_);
+      filterproduct.addCollectionTag(l1TauSrc_);
 
     int nTauPassed = 0;
 
-    l1t::TauVectorRef L1Taus;
-    auto const& l1TriggeredTaus = event.get(L1TauSrcToken_);
-    l1TriggeredTaus.getObjects(trigger::TriggerL1Tau, L1Taus);
+    l1t::TauVectorRef l1Taus;
+    auto const& l1TriggeredTaus = event.get(l1TauSrcToken_);
+    l1TriggeredTaus.getObjects(trigger::TriggerL1Tau, l1Taus);
 
-    auto const& L2Outcomes = event.get(L2OutcomesToken_);
-    if (L2Outcomes.size() != L1Taus.size()) {
+    auto const& L2Outcomes = event.get(l2OutcomesToken_);
+    if (L2Outcomes.size() != l1Taus.size()) {
       throw cms::Exception("Inconsistent Data", "L2TauTagFilter::hltFilter") << "CNN output size != L1 taus size \n";
     }
-    for (size_t l1_idx = 0; l1_idx < L1Taus.size(); l1_idx++) {
-      if (L2Outcomes[l1_idx] >= DiscrWP_) {
-        filterproduct.addObject(nTauPassed, L1Taus[l1_idx]);
+    for (size_t l1_idx = 0; l1_idx < l1Taus.size(); l1_idx++) {
+      if (L2Outcomes[l1_idx] >= discrWP_) {
+        filterproduct.addObject(nTauPassed, l1Taus[l1_idx]);
         nTauPassed++;
       }
     }
@@ -69,10 +69,10 @@ public:
 
 private:
   const int nExpected_;
-  const edm::InputTag L1TauSrc_;
-  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1TauSrcToken_;
-  const edm::EDGetTokenT<std::vector<float>> L2OutcomesToken_;
-  const double DiscrWP_;
+  const edm::InputTag l1TauSrc_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> l1TauSrcToken_;
+  const edm::EDGetTokenT<std::vector<float>> l2OutcomesToken_;
+  const double discrWP_;
 };
 
 //define this as a plug-in
