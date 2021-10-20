@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ppsAlignmentConfigESSource = cms.ESSource("PPSAlignmentConfigESSource",
+ppsAlignmentConfigESSource = cms.ESSource("PPSAlignmentConfigurationESSource",
 	label = cms.string('reference'),
 	
 	sector_45 = cms.PSet(
