@@ -14,6 +14,7 @@
   <class name="std::vector<HcalTestHistoClass::Layer>"/>
   <class name="std::vector<HcalTestHistoClass::Hit>"/>
   <class name="std::vector<HcalTestHistoClass::QIE>"/>
+  <class name="edm::Wrapper<HcalTestHistoClass>"/>
 
   <class name="ParticleFlux" ClassVersion="13">
    <version ClassVersion="13" checksum="2329907515"/>
