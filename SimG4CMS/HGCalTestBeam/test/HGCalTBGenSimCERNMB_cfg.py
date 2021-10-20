@@ -47,7 +47,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('SingleElectronE1000_cfi nevts:10'),
+    annotation = cms.untracked.string('SingleNeutrinoE100_cfi nevts:1000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -100,7 +100,7 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single muon E 100')
+    psethack = cms.string('single neutrino E 100')
 )
 
 process.VtxSmeared.MinZ = -800.0
