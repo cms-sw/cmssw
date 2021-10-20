@@ -563,6 +563,14 @@ namespace dqm::implementation {
       auto other = this->findME(me);
       if (other) {
         // we still have a global one, so we can just remove this.
+        for (auto& locals : localMEs_) {
+          auto itLocal = locals.second.find(me);
+          if (itLocal != locals.second.end() and (*itLocal)->mutable_ == me->mutable_) {
+            debugTrackME("cleanupLumi (switchData)", *itLocal, me);
+            (*itLocal)->switchData(other);
+            break;
+          }
+        }
         debugTrackME("cleanupLumi (delete)", nullptr, me);
         delete me;
       } else {
