@@ -14,7 +14,7 @@ ProtonTransport::ProtonTransport(const edm::ParameterSet &iConfig, edm::Consumes
     c = toupper(c);  // just to on the safe side
 
   if (transportMethod_ == "HECTOR") {
-    instance_ = std::make_unique<HectorTransport>(iConfig);
+    instance_ = std::make_unique<HectorTransport>(iConfig, iC);
   } else if (transportMethod_ == "TOTEM") {
     instance_ = std::make_unique<TotemTransport>(iConfig);
   } else if (transportMethod_ == "OPTICALFUNCTIONS") {
