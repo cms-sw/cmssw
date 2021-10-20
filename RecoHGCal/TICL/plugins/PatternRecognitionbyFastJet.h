@@ -9,7 +9,9 @@
 
 // fwd declaration
 
-namespace fastjet { class PseudoJet;};
+namespace fastjet {
+  class PseudoJet;
+};
 
 namespace ticl {
   template <typename TILES>
@@ -27,7 +29,6 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
-
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double antikt_radius_;
     const int minNumLayerCluster_;
@@ -43,7 +44,7 @@ namespace ticl {
 
     static const int eidNFeatures_ = 3;
 
-    void buildJetAndTracksters(std::vector<fastjet::PseudoJet> &, std::vector<ticl::Trackster> &);
+    void buildJetAndTracksters(std::vector<fastjet::PseudoJet>&, std::vector<ticl::Trackster>&);
   };
 
 }  // namespace ticl

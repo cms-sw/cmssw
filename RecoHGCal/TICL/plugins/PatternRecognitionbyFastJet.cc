@@ -22,46 +22,44 @@
 
 #include "fastjet/ClusterSequence.hh"
 
-
 using namespace ticl;
 using namespace fastjet;
 
-  template <typename TILES>
+template <typename TILES>
 PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::ParameterSet &conf,
-    const CacheBase *cache,
-    edm::ConsumesCollector iC)
-  : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
-  caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
-  antikt_radius_(conf.getParameter<double>("antikt_radius")),
-  minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
-  eidInputName_(conf.getParameter<std::string>("eid_input_name")),
-  eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
-  eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
-  eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
-  eidNLayers_(conf.getParameter<int>("eid_n_layers")),
-  eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-  eidSession_(nullptr) {
-    // mount the tensorflow graph onto the session when set
-    const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-    if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
-      throw cms::Exception("MissingGraphDef")
+                                                                const CacheBase *cache,
+                                                                edm::ConsumesCollector iC)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      antikt_radius_(conf.getParameter<double>("antikt_radius")),
+      minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
+      eidInputName_(conf.getParameter<std::string>("eid_input_name")),
+      eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
+      eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
+      eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+      eidNLayers_(conf.getParameter<int>("eid_n_layers")),
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
+      eidSession_(nullptr) {
+  // mount the tensorflow graph onto the session when set
+  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
+  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
+    throw cms::Exception("MissingGraphDef")
         << "PatternRecognitionbyFastJet received an empty graph definition from the global cache";
-    }
-    eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
   }
+  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
+}
 
-template<typename TILES>
-void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> & fjInputs,
-    std::vector<ticl::Trackster> & result) {
+template <typename TILES>
+void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
+                                                               std::vector<ticl::Trackster> &result) {
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-    edm::LogVerbatim("PatternRecogntionbyFastJet") << "Creating FastJet with "
-      << fjInputs.size() << " LayerClusters in input";
+    edm::LogVerbatim("PatternRecogntionbyFastJet")
+        << "Creating FastJet with " << fjInputs.size() << " LayerClusters in input";
   }
   fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, antikt_radius_));
   auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-    edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced "
-      << jets.size() << " jets/trackster";
+    edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced " << jets.size() << " jets/trackster";
   }
 
   auto trackster_idx = result.size();
@@ -72,15 +70,16 @@ void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<Pseud
         result[trackster_idx].vertices().push_back(component.user_index());
         result[trackster_idx].vertex_multiplicity().push_back(1);
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
-          edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet has "
-            << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
+          edm::LogVerbatim("PatternRecogntionbyFastJet")
+              << "Jet has " << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
         }
       }
       trackster_idx++;
     } else {
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-        edm::LogVerbatim("PatternRecogntionbyFastJet") << "Jet with " << pj.constituents().size()
-          << " constituents discarded since too small wrt " << minNumLayerCluster_;
+        edm::LogVerbatim("PatternRecogntionbyFastJet")
+            << "Jet with " << pj.constituents().size() << " constituents discarded since too small wrt "
+            << minNumLayerCluster_;
       }
     }
   }
@@ -109,7 +108,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   unsigned int maxLayer = 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
-  for (unsigned int currentLayer = 0; currentLayer <= maxLayer ; ++currentLayer) {
+  for (unsigned int currentLayer = 0; currentLayer <= maxLayer; ++currentLayer) {
     if (currentLayer == lastLayerPerSide) {
       buildJetAndTracksters(fjInputs, result);
     }
@@ -122,8 +121,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
       for (int iphi = 0; iphi <= nPhiBin; ++iphi) {
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "iphi: " << iphi;
-          edm::LogVerbatim("PatternRecogntionbyFastJet")
-            << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
+          edm::LogVerbatim("PatternRecogntionbyFastJet") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
         }
         for (auto clusterIdx : tileOnLayer[offset + iphi]) {
           // Skip masked layer clusters
@@ -134,7 +132,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
             continue;
           }
           // Should we correct for the position of the PV?
-          auto const & cl = input.layerClusters[clusterIdx];
+          auto const &cl = input.layerClusters[clusterIdx];
           math::XYZVector direction(cl.x(), cl.y(), cl.z());
           direction = direction.Unit();
           direction *= cl.energy();
@@ -142,9 +140,9 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
           fpj.set_user_index(clusterIdx);
           fjInputs.push_back(fpj);
         }  // End of loop on the clusters on currentLayer
-      }  // End of loop over phi-bin region
-    }  // End of loop over eta-bin region
-  }  // End of loop over layers
+      }    // End of loop over phi-bin region
+    }      // End of loop over eta-bin region
+  }        // End of loop over layers
 
   // Collect the jet from the other side wrt to the one taken care of inside the main loop above.
   buildJetAndTracksters(fjInputs, result);
@@ -164,12 +162,11 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
       edm::LogVerbatim("PatternRecogntionbyFastJet") << "Regressed: " << t.regressed_energy();
     }
   }
-
 }
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
-                                                              std::vector<Trackster> &tracksters) {
+                                                               std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
