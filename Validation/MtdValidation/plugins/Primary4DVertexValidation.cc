@@ -47,6 +47,8 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 //class declaration
 class Primary4DVertexValidation : public DQMEDAnalyzer {
   typedef math::XYZTLorentzVector LorentzVector;
@@ -211,6 +213,7 @@ private:
   static constexpr double maxRank_ = 8;
   static constexpr double maxTry_ = 10;
   static constexpr double zWosMatchMax_ = 1;
+  static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
 
   const double trackweightTh_;
   const double mvaTh_;
@@ -244,6 +247,12 @@ private:
   bool optionalPlots_;
 
   //histogram declaration
+  MonitorElement* meTrackEffPtTot_;
+  MonitorElement* meTrackMatchedEffPtTot_;
+  MonitorElement* meTrackMatchedEffPtMtd_;
+  MonitorElement* meTrackEffEtaTot_;
+  MonitorElement* meTrackMatchedEffEtaTot_;
+  MonitorElement* meTrackMatchedEffEtaMtd_;
   MonitorElement* meTrackResTot_;
   MonitorElement* meTrackPullTot_;
   MonitorElement* meTrackRes_[3];
@@ -252,6 +261,7 @@ private:
   MonitorElement* meTrackPullMass_[3];
   MonitorElement* meTrackResMassTrue_[3];
   MonitorElement* meTrackPullMassTrue_[3];
+  MonitorElement* meTrackZposResTot_;
   MonitorElement* meTrackZposRes_[3];
   MonitorElement* meTrack3DposRes_[3];
   MonitorElement* meTimeRes_;
@@ -337,6 +347,16 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
+  meTrackEffPtTot_ = ibook.book1D("EffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedEffPtTot_ =
+      ibook.book1D("MatchedEffPtTot", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedEffPtMtd_ = ibook.book1D(
+      "MatchedEffPtMtd", "Pt of tracks associated to LV matched to TP with time; track pt [GeV] ", 110, 0., 11.);
+  meTrackEffEtaTot_ = ibook.book1D("EffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meTrackMatchedEffEtaTot_ =
+      ibook.book1D("MatchedEffEtaTot", "Pt of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
+  meTrackMatchedEffEtaMtd_ =
+      ibook.book1D("MatchedEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
   meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackRes_[0] = ibook.book1D(
       "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
@@ -391,6 +411,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
     meTrackPullMassTrue_[2] = ibook.book1D(
         "TrackPullMassTrue-HighMVA", "Pull for tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   }
+  meTrackZposResTot_ =
+      ibook.book1D("TrackZposResTot", "Z_{PCA} - Z_{sim} for tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
   meTrackZposRes_[0] = ibook.book1D(
       "TrackZposRes-LowMVA", "Z_{PCA} - Z_{sim} for tracks with MVA < 0.5;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
   meTrackZposRes_[1] = ibook.book1D("TrackZposRes-MediumMVA",
@@ -1175,10 +1197,13 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           continue;
         }
 
-        const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[*iTrack]);
-
         if (vertex->trackWeight(*iTrack) < trackweightTh_)
           continue;
+
+        if (iv == 0) {
+          meTrackEffPtTot_->Fill((*iTrack)->pt());
+          meTrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
+        }
 
         auto tp_info = getMatchedTP(*iTrack, vsim);
         if (tp_info != nullptr) {
@@ -1200,11 +1225,21 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             d3D = -d3D;
           }
 
+          if (iv == 0) {
+            meTrackMatchedEffPtTot_->Fill((*iTrack)->pt());
+            meTrackMatchedEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
+          }
+
           if (sigmat0Safe[*iTrack] == -1)
             continue;
 
+          if (iv == 0) {
+            meTrackMatchedEffPtMtd_->Fill((*iTrack)->pt());
+            meTrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
+          }
           meTrackResTot_->Fill(t0Safe[*iTrack] - tsim);
           meTrackPullTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+          meTrackZposResTot_->Fill(dZ);
           if ((*iTrack)->p() <= 2) {
             meTrackResLowPTot_->Fill(t0Safe[*iTrack] - tsim);
             meTrackPullLowPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
@@ -1425,7 +1460,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         if ((!(jv == iv)) && select(recVtxs->at(jv))) {
           double dz = recVtxs->at(iv).z() - recVtxs->at(jv).z();
           double dtsigma = std::sqrt(recVtxs->at(iv).covariance(3, 3) + recVtxs->at(jv).covariance(3, 3));
-          double dt = dz <= 0.1 && dtsigma > 0. ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma : -9999.;
+          double dt = (std::abs(dz) <= deltaZcut_ && dtsigma > 0.)
+                          ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma
+                          : -9999.;
           if (recopv.at(iv).is_real() && recopv.at(jv).is_real()) {
             meDeltaZrealreal_->Fill(std::abs(dz));
             if (dt != -9999.) {
@@ -1449,7 +1486,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         if ((!(jv == iv)) && select(recVtxs->at(jv))) {
           double dz = recVtxs->at(iv).z() - recVtxs->at(jv).z();
           double dtsigma = std::sqrt(recVtxs->at(iv).covariance(3, 3) + recVtxs->at(jv).covariance(3, 3));
-          double dt = dz <= 0.1 && dtsigma > 0. ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma : -9999.;
+          double dt = (std::abs(dz) <= deltaZcut_ && dtsigma > 0.)
+                          ? (recVtxs->at(iv).t() - recVtxs->at(jv).t()) / dtsigma
+                          : -9999.;
           if (recopv.at(iv).is_fake() && recopv.at(jv).is_real()) {
             meDeltaZfakereal_->Fill(std::abs(dz));
             if (dt != -9999.) {
