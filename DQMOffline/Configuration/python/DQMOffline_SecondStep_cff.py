@@ -43,6 +43,8 @@ DQMOffline_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
 DQMOffline_SecondStepL1T = cms.Sequence( l1TriggerDqmOfflineClient )
 
+DQMOffline_SecondStepL1TPhase2 = cms.Sequence( Phase2l1TriggerDqmOfflineClient )
+
 DQMOffline_SecondStep_PreDPG = cms.Sequence( 
                                              DQMOffline_SecondStepEcal *
                                              DQMOffline_SecondStepTrackerStrip *
@@ -144,6 +146,8 @@ DQMHarvestL1T = cms.Sequence( l1TriggerDqmOfflineClient )
 DQMHarvestL1TEgamma = cms.Sequence( l1TriggerEgDqmOfflineClient )
 
 DQMHarvestL1TMuon = cms.Sequence( l1TriggerMuonDqmOfflineClient )
+
+DQMHarvestL1TPhase2 = cms.Sequence( Phase2l1TriggerDqmOfflineClient )
 
 DQMHarvestCommon = cms.Sequence( DQMMessageLoggerClientSeq *
                                  DQMHarvestTrackerStrip *
