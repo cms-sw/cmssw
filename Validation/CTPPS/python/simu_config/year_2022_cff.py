@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.CTPPS.simu_config.base_cff import *
+
 import CalibPPS.ESProducers.ppsAssociationCuts_non_DB_cff as ac
-ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource,ac.p2022)
+ac.use_single_infinite_iov_entry(ac.ppsAssociationCutsESSource, ac.p2022)
+ppsAssociationCutsESSource = ac.ppsAssociationCutsESSource
 
 from CalibPPS.ESProducers.ctppsOpticalFunctions_non_DB_cff import optics_2022 as selected_optics
 
