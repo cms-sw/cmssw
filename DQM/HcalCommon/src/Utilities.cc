@@ -12,6 +12,8 @@ namespace hcaldqm {
       uint16_t slot = 0;
       if (fed <= FED_VME_MAX) {
         slot = fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 6;
+      } else if ((fed >= 1100 && fed <= 1117) || (fed >= 1140 && fed <= 1148)) {
+        slot = fed >= 1140 ? SLOT_uTCA_MIN + 8 : fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 4;
       } else {
         slot = fed % 2 == 0 ? SLOT_uTCA_MIN : SLOT_uTCA_MIN + 6;
       }
