@@ -113,12 +113,9 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(m_src, tracks);
 
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<MagneticField> magneticField;
-  edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
-  cscGeometry = iSetup.getHandle(cscGeomToken_);
-  magneticField = iSetup.getHandle(magneticFieldToken_);
-  globalGeometry = iSetup.getHandle(globalGeomToken_);
+  const CSCGeometry* cscGeometry = &iSetup.getData(cscGeomToken_);
+  const MagneticField* magneticField = &iSetup.getData(magneticFieldToken_);
+  const GlobalTrackingGeometry* globalGeometry = &iSetup.getData(globalGeomToken_);
 
   MuonTransientTrackingRecHitBuilder muonTransBuilder;
 

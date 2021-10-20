@@ -584,10 +584,8 @@ std::string MuonGeometrySanityCheckPoint::detName() const {
 
 // ------------ method called to for each event  ------------
 void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  dtGeometry = iSetup.getHandle(dtGeomToken_);
-  cscGeometry = iSetup.getHandle(cscGeomToken_);
+  const DTGeometry *dtGeometry = &iSetup.getData(dtGeomToken_);
+  const CSCGeometry *cscGeometry = &iSetup.getData(cscGeomToken_);
 
   int num_transformed = 0;
   int num_tested = 0;
