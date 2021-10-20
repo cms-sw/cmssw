@@ -30,5 +30,3 @@ trackdnn_CKF.toModify(qualityCutDictionary,
    TobTecStep          =        [-0.67, -0.54, -0.40],
    JetCoreRegionalStep =        [0.00, 0.03, 0.68]
 )
-
-
