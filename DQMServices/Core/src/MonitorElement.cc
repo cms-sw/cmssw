@@ -35,12 +35,11 @@ namespace dqm::impl {
   }
 
   MonitorElement::MonitorElement(MonitorElementData &&data) {
-    this->mutable_ = new MutableMonitorElementData();
+    this->mutable_ = std::make_shared<MutableMonitorElementData>();
     this->mutable_->data_ = std::move(data);
-    this->is_owned_ = true;
     syncCoreObject();
   }
-  MonitorElement::MonitorElement(MutableMonitorElementData *data) { switchData(data); }
+  MonitorElement::MonitorElement(std::shared_ptr<MutableMonitorElementData> data) { switchData(std::move(data)); }
   MonitorElement::MonitorElement(MonitorElement *me) { switchData(me); }
 
   MonitorElementData MonitorElement::cloneMEData() {
@@ -54,25 +53,20 @@ namespace dqm::impl {
     return out;
   }
 
-  MutableMonitorElementData *MonitorElement::release(bool expectOwned) {
-    assert(this->is_owned_ == expectOwned);
-    MutableMonitorElementData *data = this->mutable_;
-    this->mutable_ = nullptr;
-    this->is_owned_ = false;
-    assert(!expectOwned || data);
+  std::shared_ptr<MutableMonitorElementData> MonitorElement::release() {
+    auto data = this->mutable_;
+    this->mutable_.reset();
     return data;
   }
 
   void MonitorElement::switchData(MonitorElement *other) {
     assert(other);
     this->mutable_ = other->mutable_;
-    this->is_owned_ = false;
     syncCoreObject();
   }
 
-  void MonitorElement::switchData(MutableMonitorElementData *data) {
-    this->mutable_ = data;
-    this->is_owned_ = true;
+  void MonitorElement::switchData(std::shared_ptr<MutableMonitorElementData> data) {
+    this->mutable_ = std::move(data);
     syncCoreObject();
   }
 
@@ -150,10 +144,7 @@ namespace dqm::impl {
     }
   }
 
-  MonitorElement::~MonitorElement() {
-    if (is_owned_)
-      delete mutable_;
-  }
+  MonitorElement::~MonitorElement() {}
 
   //utility function to check the consistency of the axis labels
   //taken from TH1::CheckBinLabels which is not public
