@@ -14,6 +14,9 @@
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// helper classes
+#include "CondCore/PhysicsToolsPlugins/interface/DropBoxMetaDataPayloadInspectorHelper.h"
+
 // system includes
 #include <memory>
 #include <sstream>
@@ -94,33 +97,32 @@ namespace {
       std::vector<std::string> records = payload->getAllRecords();
       TCanvas canvas("Canv", "Canv", 1200, 100 * records.size());
 
+      DPMetaDataHelper::recordMap theRecordMap;
       for (const auto& record : records) {
         edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
         const auto& parameters = payload->getRecordParameters(record);
-        const auto& recordParams = parameters.getParameterMap();
-        for (const auto& [key, val] : recordParams) {
-          if (val.find("&quot;") != std::string::npos) {
-            const auto& replaced = replaceAll(val, std::string("&quot;"), std::string("'"));
-            edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << replaced << std::endl;
-          } else {
-            edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << val << std::endl;
-          }
-        }
+        theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
       }
+
+      DPMetaDataHelper::DBMetaDataTableDisplay theDisplay(theRecordMap);
+      theDisplay.printMetaDatas();
+
+      //const auto& recordParams = parameters.getParameterMap();
+      // for (const auto& [key, val] : recordParams) {
+      //   if (val.find("&quot;") != std::string::npos) {
+      //     const auto& replaced = replaceAll(val, std::string("&quot;"), std::string("'"));
+      //     edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << replaced << std::endl;
+      //   } else {
+      //     edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << val << std::endl;
+      //   }
+      // }
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
     }
 
   private:
-    std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
-      size_t start_pos = 0;
-      while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length();  // Handles case where 'to' is a substring of 'from'
-      }
-      return str;
-    }
   };
 }  // namespace
 
