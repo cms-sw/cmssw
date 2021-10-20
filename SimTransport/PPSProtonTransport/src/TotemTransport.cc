@@ -23,8 +23,6 @@ TotemTransport::TotemTransport(const edm::ParameterSet& iConfig)
   m_sigmaSX = iConfig.getParameter<double>("BeamSigmaX");
   m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
   m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
-  fBeamXatIP = iConfig.getUntrackedParameter<double>("BeamXatIP", 0.);
-  fBeamYatIP = iConfig.getUntrackedParameter<double>("BeamYatIP", 0.);
 
   if (fPPSRegionStart_56 > 0)
     fPPSRegionStart_56 *= -1;  // make sure sector 56 has negative position, as TOTEM convention
