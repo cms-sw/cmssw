@@ -471,6 +471,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl2 = 0.5 * topFrame2RHeight;
     thet = atan((bl1 - bl2) / (2. * dz));
 
+    constexpr double minDimension = 5.e-8;  // mm value == 5.e-11 meters
+    if (bl2 < minDimension) {
+      // If Trapezoid dimension is too tiny, reset to reasonable minimum value that is still effectively zero.
+      bl2 = minDimension;
+    }
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolid(ns.prepend(name), solid);
     edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << topFrameMat
