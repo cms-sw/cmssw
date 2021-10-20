@@ -173,12 +173,12 @@ private:
   void standardizeTensor(tensorflow::Tensor& tensor);
   std::vector<float> GetTauScore(const tensorflow::Tensor& cellGridMatrix);
   void produce(edm::Event& event, const edm::EventSetup& eventsetup) override;
-  void FillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef> allTaus);
+  void FillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef>& allTaus);
   void FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
-                       const std::vector<l1t::TauRef> allTaus,
+                       const std::vector<l1t::TauRef>& allTaus,
                        const caloRecHitCollections& caloRecHits);
   void FillPatatracks(tensorflow::Tensor& cellGridMatrix,
-                      const std::vector<l1t::TauRef> allTaus,
+                      const std::vector<l1t::TauRef>& allTaus,
                       const pixelTrack::TrackSoA& patatracks_tsoa,
                       const ZVertexSoA& patavtx_soa,
                       const reco::BeamSpot& beamspot,
@@ -197,14 +197,14 @@ private:
   std::tuple<float, float, int, int> getEtaPhiIndices(float eta, float phi, const LVec& tau_p4);
 
 private:
-  int debugLevel_;
+  const int debugLevel_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTriggerToken_;
   std::vector<InputDescTau> L1TauDesc_;
   const edm::EDGetTokenT<HBHERecHitCollection> hbheToken_;
   const edm::EDGetTokenT<HORecHitCollection> hoToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeToken_;
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> GeometryToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
   const edm::EDGetTokenT<ZVertexHeterogeneous> pataVerticesToken_;
   const edm::EDGetTokenT<PixelTrackHeterogeneous> pataTracksToken_;
@@ -277,9 +277,9 @@ void L2TauNNProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("track_pt_max", 10.0)->setComment("max track p_T");
   desc.add<double>("track_chi2_max", 99999.)->setComment("max track chi2");
   desc.add<double>("track_prob_min", -1.)->setComment("min track prob");
-  desc.add<std::string>("graphPath", "RecoTauTag/TrainingFiles/L2TauNNTag/L2TauTag_Run3v1.pb")
+  desc.add<std::string>("graphPath", "RecoTauTag/TrainingFiles/data/L2TauNNTag/L2TauTag_Run3v1.pb")
       ->setComment("path to the saved CNN");
-  desc.add<std::string>("normalizationDict", "RecoTauTag/TrainingFiles/L2TauNNTag/NormalizationDict.json")
+  desc.add<std::string>("normalizationDict", "RecoTauTag/TrainingFiles/data/L2TauNNTag/NormalizationDict.json")
       ->setComment("path to the dictionary for variable standardization");
   descriptions.addWithDefaultLabel(desc);
 }
@@ -290,7 +290,7 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
       hoToken_(consumes<HORecHitCollection>(cfg.getParameter<edm::InputTag>("hoInput"))),
       ebToken_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebInput"))),
       eeToken_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeInput"))),
-      GeometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       bFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       pataVerticesToken_(consumes<ZVertexHeterogeneous>(cfg.getParameter<edm::InputTag>("pataVertices"))),
       pataTracksToken_(consumes<PixelTrackHeterogeneous>(cfg.getParameter<edm::InputTag>("pataTracks"))),
@@ -309,6 +309,7 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
   outputTensorName_ = cacheData->graphDef->node(cacheData->graphDef->node_size() - 1).name();
   L2cacheData_ = cacheData;
   std::vector<edm::ParameterSet> L1TauCollections = cfg.getParameter<std::vector<edm::ParameterSet>>("L1Taus");
+  L1TauDesc_.reserve(L1TauCollections.size());
   for (const auto& l1TauInput : L1TauCollections) {
     InputDescTau toInsert;
     toInsert.CollectionName = l1TauInput.getParameter<std::string>("L1CollectionName");
@@ -398,7 +399,7 @@ void L2TauNNProducer::standardizeTensor(tensorflow::Tensor& tensor) {
   }
 }
 
-void L2TauNNProducer::FillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef> allTaus) {
+void L2TauNNProducer::FillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef>& allTaus) {
   using NNInputs = L2TauTagNNv1::NNInputs;
   const int nTaus = static_cast<int>(allTaus.size());
   for (int tau_idx = 0; tau_idx < nTaus; tau_idx++) {
@@ -430,7 +431,7 @@ std::tuple<float, float, int, int> L2TauNNProducer::getEtaPhiIndices(const VPos&
 }
 
 void L2TauNNProducer::FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
-                                      const std::vector<l1t::TauRef> allTaus,
+                                      const std::vector<l1t::TauRef>& allTaus,
                                       const caloRecHitCollections& caloRecHits) {
   using NNInputs = L2TauTagNNv1::NNInputs;
   const int nTaus = static_cast<int>(allTaus.size());
@@ -443,7 +444,7 @@ void L2TauNNProducer::FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
     return GetCellImpl(cellGridMatrix, tau_idx, phi_idx, eta_idx, input);
   };
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
-    // caorechit_EE
+    // calorechit_EE
     for (const auto& caloRecHit_ee : *caloRecHits.ee) {
       if (caloRecHit_ee.energy() <= 0)
         continue;
@@ -465,7 +466,7 @@ void L2TauNNProducer::FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
       }
     }
 
-    // caorechit_EB
+    // calorechit_EB
     for (const auto& caloRecHit_eb : *caloRecHits.eb) {
       if (caloRecHit_eb.energy() <= 0)
         continue;
@@ -487,7 +488,7 @@ void L2TauNNProducer::FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
       }
     }
 
-    // caorechit_HBHE
+    // calorechit_HBHE
     for (const auto& caloRecHit_hbhe : *caloRecHits.hbhe) {
       if (caloRecHit_hbhe.energy() <= 0)
         continue;
@@ -509,7 +510,7 @@ void L2TauNNProducer::FillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
       }
     }
 
-    // caorechit_HO
+    // calorechit_HO
     for (const auto& caloRecHit_ho : *caloRecHits.ho) {
       if (caloRecHit_ho.energy() <= 0)
         continue;
@@ -663,7 +664,7 @@ std::pair<float, float> L2TauNNProducer::impactParameter(int it,
 }
 
 void L2TauNNProducer::FillPatatracks(tensorflow::Tensor& cellGridMatrix,
-                                     const std::vector<l1t::TauRef> allTaus,
+                                     const std::vector<l1t::TauRef>& allTaus,
                                      const pixelTrack::TrackSoA& patatracks_tsoa,
                                      const ZVertexSoA& patavtx_soa,
                                      const reco::BeamSpot& beamspot,
@@ -792,15 +793,12 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
   const auto eeCal = event.getHandle(eeToken_);
   const auto hbhe = event.getHandle(hbheToken_);
   const auto ho = event.getHandle(hoToken_);
-  const auto pataTracks = event.getHandle(pataTracksToken_);
-  const auto pataVertices = event.getHandle(pataVerticesToken_);
+  const auto& patatracks_SoA = *event.get(pataTracksToken_);
+  const auto& vertices_SoA = *event.get(pataVerticesToken_);
   const auto bsHandle = event.getHandle(BeamSpotToken_);
 
-  pixelTrack::TrackSoA patatracks_SoA = *(*pataTracks).get();
-  ZVertexSoA vertices_SoA = *(*pataVertices).get();
-
-  edm::ESHandle<MagneticField> fieldESH = eventsetup.getHandle(bFieldToken_);
-  edm::ESHandle<CaloGeometry> Geometry = eventsetup.getHandle(GeometryToken_);
+  auto const fieldESH = eventsetup.getHandle(bFieldToken_);
+  auto const Geometry = eventsetup.getHandle(geometryToken_);
 
   caloRecHitCollections caloRecHits;
   caloRecHits.hbhe = &*hbhe;
