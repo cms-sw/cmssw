@@ -45,7 +45,5 @@ iterTrackingTask = cms.Task(InitialStepPreSplittingTask,
 
 _iterTrackingTask_trackdnn = iterTrackingTask.copy()
 _iterTrackingTask_trackdnn.add(trackdnn_source)                       
-trackdnn.toReplaceWith(iterTrackingTask, _iterTrackingTask_trackdnn
-)
-
+trackdnn.toReplaceWith(iterTrackingTask, _iterTrackingTask_trackdnn)
 iterTracking = cms.Sequence(iterTrackingTask)

@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers

@@ -7,8 +7,8 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn_cff import trackdnn 
-from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary 
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # for no-loopers
 from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
