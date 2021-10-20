@@ -814,9 +814,6 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
 
         plots.p_fr_match_unique->Fill(x_N, (hasMatchingAndUniquePair) ? 1 : 0);
         plots.p_fr_match_non_unique->Fill(x_N, (hasMatchingAndNonUniquePair) ? 1 : 0);
-
-        if (arm == 0 && n_exp_prot == 2 && hasMatchingAndNonUniquePair)
-          os << "!!! TADY !!!" << std::endl;
       }
     }
   }
