@@ -53,8 +53,6 @@ public:
     auto const& l1TriggeredTaus = event.get(L1TauSrcToken_);
     l1TriggeredTaus.getObjects(trigger::TriggerL1Tau, L1Taus);
 
-    edm::Handle<std::vector<float>> L2Outcomes_;
-    event.getByToken(L2OutcomesToken_, L2Outcomes_);
     auto const& L2Outcomes = event.get(L2OutcomesToken_);
     if (L2Outcomes.size() != L1Taus.size()) {
       throw cms::Exception("Inconsistent Data", "L2TauTagFilter::hltFilter") << "CNN output size != L1 taus size \n";
