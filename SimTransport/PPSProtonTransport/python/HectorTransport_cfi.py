@@ -4,7 +4,6 @@ from SimG4Core.Application.hectorParameter_cfi import *
 
 baseHectorParameters = cms.PSet(
                 TransportMethod = cms.string('Hector'),
-                produceHitsRelativeToBeam = cms.bool(True),
                 ApplyZShift = cms.bool(True)
 )
 
@@ -21,9 +20,7 @@ Totem_PreTS2_2016 = cms.PSet(
         BeamDivergenceY = cms.double(135.071),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(54.03),
         BeamSigmaY  = cms.double(54.03),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),
-        BeamYatIP      = cms.untracked.double(0.),
+        BeamEnergy = cms.double(6500.0)
 )
 Validated_PreTS2_2016 = cms.PSet(
         #TotemBeamLine = cms.bool(False),
@@ -38,9 +35,7 @@ Validated_PreTS2_2016 = cms.PSet(
         BeamDivergenceY = cms.double(135.071),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(54.03),
         BeamSigmaY  = cms.double(54.03),
-        BeamEnergy = cms.double(6500.0),
-        #BeamXatIP = cms.untracked.double(0.499), # if not given, will take the CMS average vertex position
-        #BeamYatIP = cms.untracked.double(-0.190), # if not given, will take the CMS average vertex position
+        BeamEnergy = cms.double(6500.0)
 )
 # Beam parametes for Nominal 2016
 Nominal_2016 = cms.PSet(
@@ -55,9 +50,7 @@ Nominal_2016 = cms.PSet(
         BeamDivergenceY = cms.double(35.54),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(14.22),
         BeamSigmaY  = cms.double(14.22),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),
-        BeamYatIP      = cms.untracked.double(0.),
+        BeamEnergy = cms.double(6500.0)
 )
 
 # Beam parameter for Nominal 2017 optics
@@ -74,9 +67,7 @@ Nominal_2017_beta40cm = cms.PSet(
         BeamDivergenceY = cms.double(30.04),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(12.01),
         BeamSigmaY  = cms.double(12.01),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),
-        BeamYatIP      = cms.untracked.double(0.),
+        BeamEnergy = cms.double(6500.0)
 )
 #
 Nominal_2017_beta30cm = cms.PSet(
@@ -92,9 +83,7 @@ Nominal_2017_beta30cm = cms.PSet(
         BeamDivergenceY = cms.double(34.68),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(10.40),
         BeamSigmaY  = cms.double(10.40),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),
-        BeamYatIP      = cms.untracked.double(0.),
+        BeamEnergy = cms.double(6500.0)
 )
 
 Nominal_2018_beta30cm = cms.PSet(
@@ -109,9 +98,7 @@ Nominal_2018_beta30cm = cms.PSet(
         BeamDivergenceY = cms.double(34.67),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(10.40),
         BeamSigmaY  = cms.double(10.41),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),  # mm
-        BeamYatIP      = cms.untracked.double(-1.8)
+        BeamEnergy = cms.double(6500.0)
 )
 
 Nominal_2018_beta27cm = cms.PSet(
@@ -126,9 +113,7 @@ Nominal_2018_beta27cm = cms.PSet(
         BeamDivergenceY = cms.double(36.56),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(9.87),
         BeamSigmaY  = cms.double(9.87),
-        BeamEnergy = cms.double(6500.0),
-        BeamXatIP      = cms.untracked.double(0.),  # mm
-        BeamYatIP      = cms.untracked.double(-1.8)
+        BeamEnergy = cms.double(6500.0)
 )
 
 Nominal_2018_beta25cm = cms.PSet(
@@ -143,9 +128,7 @@ Nominal_2018_beta25cm = cms.PSet(
         BeamDivergenceY = cms.double(37.98),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(9.50),
         BeamSigmaY  = cms.double(9.50),
-        BeamEnergy = cms.double(6500.0),
-        #BeamXatIP      = cms.untracked.double(0.),  # mm
-        #BeamYatIP      = cms.untracked.double(-1.8)
+        BeamEnergy = cms.double(6500.0)
 )
 
 Nominal_RunIII =  cms.PSet(
@@ -161,16 +144,14 @@ Nominal_RunIII =  cms.PSet(
         BeamDivergenceY = cms.double(47.25),      ## y angle dispersion at IP (urad); if =0.0 the default(=30.23) is used
         BeamSigmaX  = cms.double(7.08),
         BeamSigmaY  = cms.double(7.09),
-        BeamEnergy = cms.double(7000.0),
-        BeamXatIP      = cms.untracked.double(-0.750),
-        BeamYatIP      = cms.untracked.double(0.),
+        BeamEnergy = cms.double(7000.0)
 )
 
 # choose default optics for each year
 
 hector_2016 = cms.PSet(
               baseHectorParameters,
-              Nominal_2016,
+              Nominal_2016
 )
 
 hector_2017 = cms.PSet(
