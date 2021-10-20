@@ -44,12 +44,22 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  //const bool mvaGenSel(const TrackingParticle&);
+  //const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&);
+  //const bool mvaGenRecMatch(const TrackingParticle&, const TrackingVertex&, const reco::TrackBase&);
+
   // ------------ member data ------------
 
   const std::string folder_;
   const float trackMinPt_;
   const float trackMinEta_;
   const float trackMaxEta_;
+
+  static constexpr double etacut_ = 4;         // |eta| < 4;
+  static constexpr double pTcut_ = 0.7;        // PT > 0.7 GeV
+  static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
+  static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
+  static constexpr double deltaDRcut_ = 0.03;  // DeltaR separation
 
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
@@ -312,6 +322,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
+  //bool selectedVertex = false;
+
+  //if ( iv == 0 && iev == 0 ) {
+  //if ( std::abs(vertex->z() - vsim->position().z()) <= deltaZcut_ ) { continue; }
+  //selectedVertex = true;
+  //}
+
   // --- Loop over the RECO vertices ---
   int nv = 0;
   for (const auto& v : *RecVertexHandle) {
@@ -415,5 +432,33 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   descriptions.add("mtdTracks", desc);
 }
+
+//const bool MtdTracksValidation::mvaGenSel(const TrackingParticle& tp) {
+//bool match = false;
+//if (tp.status() != 1) {
+//return match;
+//}
+//match = tp.threeCharge() != 0 && (tp.genParticles()[0])->pt() > pTcut_ && std::abs((tp.genParticles()[0])->eta()) < 4;
+//return match;
+//}
+
+//const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk, const reco::Vertex& vtx) {
+//bool match = false;
+//match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+//if (trk.covt0t0() > 0.) {
+//match = match && std::abs(trk.t0() - vtx.t()) < 3. * trk.covt0t0();
+//}
+//return match;
+//}
+
+//const bool MtdTracksValidation::mvaGenRecMatch(const TrackingParticle& tp,
+//const TrackingVertex& tv,
+//const reco::TrackBase& trk) {
+//bool match = false;
+//double dR2 = reco::deltaR2(tp.momentum(), trk.momentum());
+//match = std::abs(tp.pt() - trk.pt()) < deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
+//std::abs(trk.vz() - tv.position().z()) < deltaZcut_;
+//return match;
+//}
 
 DEFINE_FWK_MODULE(MtdTracksValidation);
