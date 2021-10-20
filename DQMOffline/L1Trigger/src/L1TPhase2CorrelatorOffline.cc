@@ -32,8 +32,8 @@ const std::map<std::string, unsigned int> L1TPhase2CorrelatorOffline::PlotConfig
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
-L1TPhase2CorrelatorOffline::L1TPhase2CorrelatorOffline(const edm::ParameterSet& ps) : 
-      genJetToken_(consumes<std::vector<reco::GenJet>>(ps.getUntrackedParameter<edm::InputTag>("genJetsInputTag"))),
+L1TPhase2CorrelatorOffline::L1TPhase2CorrelatorOffline(const edm::ParameterSet& ps)
+    : genJetToken_(consumes<std::vector<reco::GenJet>>(ps.getUntrackedParameter<edm::InputTag>("genJetsInputTag"))),
       genParticleToken_(
           consumes<std::vector<reco::GenParticle>>(ps.getUntrackedParameter<edm::InputTag>("genParticlesInputTag"))),
       objs_(ps.getParameter<edm::ParameterSet>("objects")),
@@ -92,10 +92,10 @@ L1TPhase2CorrelatorOffline::L1TPhase2CorrelatorOffline(const edm::ParameterSet& 
   for (const std::string& name : reconames) {
     reco_.emplace_back(L1TPhase2CorrelatorOffline::MultiCollection(objs_, name, consumesCollector()), RecoVars());
   }
-  for (auto &obj : objs_.getParameter<std::vector<edm::InputTag>>("L1PF")) {
+  for (auto& obj : objs_.getParameter<std::vector<edm::InputTag>>("L1PF")) {
     phase2PFToken_.push_back(consumes<std::vector<l1t::PFCandidate>>(obj));
   }
-  for (auto &obj : objs_.getParameter<std::vector<edm::InputTag>>("L1Puppi")) {
+  for (auto& obj : objs_.getParameter<std::vector<edm::InputTag>>("L1Puppi")) {
     phase2PuppiToken_.push_back(consumes<std::vector<l1t::PFCandidate>>(obj));
   }
 }
@@ -111,8 +111,7 @@ L1TPhase2CorrelatorOffline::~L1TPhase2CorrelatorOffline() {
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TPhase2CorrelatorOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
-{
+void L1TPhase2CorrelatorOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   edm::LogInfo("L1TPhase2CorrelatorOffline") << "L1TPhase2CorrelatorOffline::beginRun" << std::endl;
 
   edm::ESHandle<MagneticField> magneticField;
@@ -300,11 +299,10 @@ void L1TPhase2CorrelatorOffline::analyze(edm::Event const& e, edm::EventSetup co
     recopair.second.clear();
   }
 
-
   for (auto& pfToken : phase2PFToken_) {
     edm::Handle<std::vector<l1t::PFCandidate>> l1pfs;
     e.getByToken(pfToken, l1pfs);
-  
+
     for (const auto& pfc : *l1pfs) {
       h_L1PF_pt_->Fill(pfc.pt());
       h_L1PF_eta_->Fill(pfc.eta());
@@ -420,7 +418,6 @@ void L1TPhase2CorrelatorOffline::bookPhase2CorrelatorHistos(DQMStore::IBooker& i
 
   ibooker.setCurrentFolder(respresolFolder_);
 
-
   h_L1PF_part_ptratio_0p2_vs_pt_barrel_ = ibooker.book2D("L1PFParticlePtRatio0p2VsPtBarrel",
                                                          "L1 PF Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Barrel",
                                                          resVsPtDef.nbinsX,
@@ -439,14 +436,15 @@ void L1TPhase2CorrelatorOffline::bookPhase2CorrelatorHistos(DQMStore::IBooker& i
                                                          ptratio_lo,
                                                          ptratio_hi);
 
-  h_L1PF_part_ptratio_0p2_vs_pt_ecnotk_ = ibooker.book2D("L1PFParticlePtRatio0p2VsPtEndcapNoTk",
-                                                         "L1 PF Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Endcap No Tk",
-                                                         resVsPtDef.nbinsX,
-                                                         resVsPtDef.xmin,
-                                                         resVsPtDef.xmax,
-                                                         ptratio_nbins,
-                                                         ptratio_lo,
-                                                         ptratio_hi);
+  h_L1PF_part_ptratio_0p2_vs_pt_ecnotk_ =
+      ibooker.book2D("L1PFParticlePtRatio0p2VsPtEndcapNoTk",
+                     "L1 PF Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Endcap No Tk",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax,
+                     ptratio_nbins,
+                     ptratio_lo,
+                     ptratio_hi);
 
   h_L1PF_part_ptratio_0p2_vs_pt_hf_ = ibooker.book2D("L1PFParticlePtRatio0p2VsPtHF",
                                                      "L1 PF Particle L1/Gen (#Delta R < 0.2) vs p_{T}, HF",
@@ -466,23 +464,25 @@ void L1TPhase2CorrelatorOffline::bookPhase2CorrelatorHistos(DQMStore::IBooker& i
                                                    ptratio_lo,
                                                    ptratio_hi);
 
-  h_L1Puppi_part_ptratio_0p2_vs_pt_barrel_ = ibooker.book2D("L1PUPPIParticlePtRatio0p2VsPtBarrel",
-                                                            "L1 PUPPI Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Barrel",
-                                                            resVsPtDef.nbinsX,
-                                                            resVsPtDef.xmin,
-                                                            resVsPtDef.xmax,
-                                                            ptratio_nbins,
-                                                            ptratio_lo,
-                                                            ptratio_hi);
+  h_L1Puppi_part_ptratio_0p2_vs_pt_barrel_ =
+      ibooker.book2D("L1PUPPIParticlePtRatio0p2VsPtBarrel",
+                     "L1 PUPPI Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Barrel",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax,
+                     ptratio_nbins,
+                     ptratio_lo,
+                     ptratio_hi);
 
-  h_L1Puppi_part_ptratio_0p2_vs_pt_endcap_ = ibooker.book2D("L1PUPPIParticlePtRatio0p2VsPtEndcap",
-                                                            "L1 PUPPI Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Endcap",
-                                                            resVsPtDef.nbinsX,
-                                                            resVsPtDef.xmin,
-                                                            resVsPtDef.xmax,
-                                                            ptratio_nbins,
-                                                            ptratio_lo,
-                                                            ptratio_hi);
+  h_L1Puppi_part_ptratio_0p2_vs_pt_endcap_ =
+      ibooker.book2D("L1PUPPIParticlePtRatio0p2VsPtEndcap",
+                     "L1 PUPPI Particle L1/Gen (#Delta R < 0.2) vs p_{T}, Endcap",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax,
+                     ptratio_nbins,
+                     ptratio_lo,
+                     ptratio_hi);
 
   h_L1Puppi_part_ptratio_0p2_vs_pt_ecnotk_ =
       ibooker.book2D("L1PUPPIParticlePtRatio0p2VsPtEndcapNoTk",
@@ -617,11 +617,12 @@ void L1TPhase2CorrelatorOffline::bookPhase2CorrelatorHistos(DQMStore::IBooker& i
                                                        resVsPtDef.xmin,
                                                        resVsPtDef.xmax);
 
-  h_L1PF_part_response_0p2_pt_ecnotk_ = ibooker.book1D("L1PFParticleResponse0p2VsPtEndcapNoTk",
-                                                       "L1 PF Particle Response (#Delta R < 0.2) vs p_{T}, Endcap No Tk",
-                                                       resVsPtDef.nbinsX,
-                                                       resVsPtDef.xmin,
-                                                       resVsPtDef.xmax);
+  h_L1PF_part_response_0p2_pt_ecnotk_ =
+      ibooker.book1D("L1PFParticleResponse0p2VsPtEndcapNoTk",
+                     "L1 PF Particle Response (#Delta R < 0.2) vs p_{T}, Endcap No Tk",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax);
 
   h_L1PF_part_response_0p2_pt_hf_ = ibooker.book1D("L1PFParticleResponse0p2VsPtHF",
                                                    "L1 PF Particle Response (#Delta R < 0.2) vs p_{T}, HF",
@@ -635,17 +636,19 @@ void L1TPhase2CorrelatorOffline::bookPhase2CorrelatorHistos(DQMStore::IBooker& i
                                                  resVsEtaDef.xmin,
                                                  resVsEtaDef.xmax);
 
-  h_L1Puppi_part_response_0p2_pt_barrel_ = ibooker.book1D("L1PUPPIParticleResponse0p2VsPtBarrel",
-                                                          "L1 PUPPI Particle Response (#Delta R < 0.2) vs p_{T}, Barrel",
-                                                          resVsPtDef.nbinsX,
-                                                          resVsPtDef.xmin,
-                                                          resVsPtDef.xmax);
+  h_L1Puppi_part_response_0p2_pt_barrel_ =
+      ibooker.book1D("L1PUPPIParticleResponse0p2VsPtBarrel",
+                     "L1 PUPPI Particle Response (#Delta R < 0.2) vs p_{T}, Barrel",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax);
 
-  h_L1Puppi_part_response_0p2_pt_endcap_ = ibooker.book1D("L1PUPPIParticleResponse0p2VsPtEndcap",
-                                                          "L1 PUPPI Particle Response (#Delta R < 0.2) vs p_{T}, Endcap",
-                                                          resVsPtDef.nbinsX,
-                                                          resVsPtDef.xmin,
-                                                          resVsPtDef.xmax);
+  h_L1Puppi_part_response_0p2_pt_endcap_ =
+      ibooker.book1D("L1PUPPIParticleResponse0p2VsPtEndcap",
+                     "L1 PUPPI Particle Response (#Delta R < 0.2) vs p_{T}, Endcap",
+                     resVsPtDef.nbinsX,
+                     resVsPtDef.xmin,
+                     resVsPtDef.xmax);
 
   h_L1Puppi_part_response_0p2_pt_ecnotk_ =
       ibooker.book1D("L1PUPPIParticleResponse0p2VsPtEndcapNoTk",
@@ -875,28 +878,26 @@ void L1TPhase2CorrelatorOffline::computeResponseResolution() {
                                                            h_L1Puppi_jet_response_pt_ecnotk_,
                                                            h_L1Puppi_jet_response_pt_hf_,
                                                            h_L1Puppi_jet_response_eta_};
-  std::vector<MonitorElement*> monElementstoComputeResol = {
-      h_L1PF_part_resolution_0p2_pt_barrel_,
-      h_L1PF_part_resolution_0p2_pt_endcap_,
-      h_L1PF_part_resolution_0p2_pt_ecnotk_,
-      h_L1PF_part_resolution_0p2_pt_hf_,
-      nullptr, 
-      h_L1Puppi_part_resolution_0p2_pt_barrel_,
-      h_L1Puppi_part_resolution_0p2_pt_endcap_,
-      h_L1Puppi_part_resolution_0p2_pt_ecnotk_,
-      h_L1Puppi_part_resolution_0p2_pt_hf_,
-      nullptr, 
-      h_L1PF_jet_resolution_pt_barrel_,
-      h_L1PF_jet_resolution_pt_endcap_,
-      h_L1PF_jet_resolution_pt_ecnotk_,
-      h_L1PF_jet_resolution_pt_hf_,
-      nullptr, 
-      h_L1Puppi_jet_resolution_pt_barrel_,
-      h_L1Puppi_jet_resolution_pt_endcap_,
-      h_L1Puppi_jet_resolution_pt_ecnotk_,
-      h_L1Puppi_jet_resolution_pt_hf_,
-      nullptr 
-  };
+  std::vector<MonitorElement*> monElementstoComputeResol = {h_L1PF_part_resolution_0p2_pt_barrel_,
+                                                            h_L1PF_part_resolution_0p2_pt_endcap_,
+                                                            h_L1PF_part_resolution_0p2_pt_ecnotk_,
+                                                            h_L1PF_part_resolution_0p2_pt_hf_,
+                                                            nullptr,
+                                                            h_L1Puppi_part_resolution_0p2_pt_barrel_,
+                                                            h_L1Puppi_part_resolution_0p2_pt_endcap_,
+                                                            h_L1Puppi_part_resolution_0p2_pt_ecnotk_,
+                                                            h_L1Puppi_part_resolution_0p2_pt_hf_,
+                                                            nullptr,
+                                                            h_L1PF_jet_resolution_pt_barrel_,
+                                                            h_L1PF_jet_resolution_pt_endcap_,
+                                                            h_L1PF_jet_resolution_pt_ecnotk_,
+                                                            h_L1PF_jet_resolution_pt_hf_,
+                                                            nullptr,
+                                                            h_L1Puppi_jet_resolution_pt_barrel_,
+                                                            h_L1Puppi_jet_resolution_pt_endcap_,
+                                                            h_L1Puppi_jet_resolution_pt_ecnotk_,
+                                                            h_L1Puppi_jet_resolution_pt_hf_,
+                                                            nullptr};
 
   for (unsigned int i = 0; i < monElementstoComputeIn.size(); i++) {
     if (monElementstoComputeIn[i] != nullptr && monElementstoComputeResp[i] != nullptr &&
