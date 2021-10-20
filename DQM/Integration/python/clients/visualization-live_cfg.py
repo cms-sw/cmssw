@@ -29,7 +29,7 @@ scenarioName = scenarios[runType.getRunTypeName()]
 
 if not unitTest :
   if options.BeamSplashRun :
-    # scenarioName = 'ppEra_Run3' #FIXME
+    scenarioName = 'ppEra_Run3'
     pass
 
 print("Using scenario:",scenarioName)
