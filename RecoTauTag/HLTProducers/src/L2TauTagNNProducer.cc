@@ -527,11 +527,11 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
       for (phi_idx = 0; phi_idx < L2TauTagNNv1::nCellPhi; phi_idx++) {
         /* normalize eCal vars*/
         if (getCell(NNInputs::EcalEnergySum) > 0.) {
-          getCell(NNInputs::EcalDeltaEta) = getCell(NNInputs::EcalDeltaEta) / getCell(NNInputs::EcalEnergySum);
-          getCell(NNInputs::EcalDeltaPhi) = getCell(NNInputs::EcalDeltaPhi) / getCell(NNInputs::EcalEnergySum);
+          getCell(NNInputs::EcalDeltaEta) /= getCell(NNInputs::EcalEnergySum);
+          getCell(NNInputs::EcalDeltaPhi) /= getCell(NNInputs::EcalEnergySum);
         }
         if (getCell(NNInputs::EcalEnergySumForPositiveChi2) > 0.) {
-          getCell(NNInputs::EcalChi2) = getCell(NNInputs::EcalChi2) / getCell(NNInputs::EcalEnergySumForPositiveChi2);
+          getCell(NNInputs::EcalChi2) /= getCell(NNInputs::EcalEnergySumForPositiveChi2);
         }
         if (getCell(NNInputs::EcalSize) > 1.) {
           // (stdDev - (enSum*enSum)/size) / (size-1)
@@ -544,11 +544,11 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
         }
         /* normalize hCal Vars */
         if (getCell(NNInputs::HcalEnergySum) > 0.) {
-          getCell(NNInputs::HcalDeltaEta) = getCell(NNInputs::HcalDeltaEta) / getCell(NNInputs::HcalEnergySum);
-          getCell(NNInputs::HcalDeltaPhi) = getCell(NNInputs::HcalDeltaPhi) / getCell(NNInputs::HcalEnergySum);
+          getCell(NNInputs::HcalDeltaEta) /= getCell(NNInputs::HcalEnergySum);
+          getCell(NNInputs::HcalDeltaPhi) /= getCell(NNInputs::HcalEnergySum);
         }
         if (getCell(NNInputs::HcalEnergySumForPositiveChi2) > 0.) {
-          getCell(NNInputs::HcalChi2) = getCell(NNInputs::HcalChi2) / getCell(NNInputs::HcalEnergySumForPositiveChi2);
+          getCell(NNInputs::HcalChi2) /= getCell(NNInputs::HcalEnergySumForPositiveChi2);
         }
         if (getCell(NNInputs::HcalSize) > 1.) {
           // (stdDev - (enSum*enSum)/size) / (size-1)
@@ -736,15 +736,12 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
       for (phi_idx = 0; phi_idx < L2TauTagNNv1::nCellPhi; phi_idx++) {
         getCell(NNInputs::nVertices) = VtxGood.size();
         if (getCell(NNInputs::PatatrackPtSum) > 0.) {
-          getCell(NNInputs::PatatrackDeltaEta) =
-              getCell(NNInputs::PatatrackDeltaEta) / getCell(NNInputs::PatatrackPtSum);
-          getCell(NNInputs::PatatrackDeltaPhi) =
-              getCell(NNInputs::PatatrackDeltaPhi) / getCell(NNInputs::PatatrackPtSum);
-          getCell(NNInputs::PatatrackChi2OverNdof) =
-              getCell(NNInputs::PatatrackChi2OverNdof) / getCell(NNInputs::PatatrackPtSum);
-          getCell(NNInputs::PatatrackNdof) = getCell(NNInputs::PatatrackNdof) / getCell(NNInputs::PatatrackPtSum);
-          getCell(NNInputs::PatatrackDxy) = getCell(NNInputs::PatatrackDxy) / getCell(NNInputs::PatatrackPtSum);
-          getCell(NNInputs::PatatrackDz) = getCell(NNInputs::PatatrackDz) / getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackDeltaEta) /= getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackDeltaPhi) /= getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackChi2OverNdof) /= getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackNdof) /= getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackDxy) /= getCell(NNInputs::PatatrackPtSum);
+          getCell(NNInputs::PatatrackDz) /= getCell(NNInputs::PatatrackPtSum);
         }
       }
     }
