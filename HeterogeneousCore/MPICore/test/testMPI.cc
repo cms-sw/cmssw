@@ -7,6 +7,7 @@
 #include <random>
 #include <utility>
 #include <mpi.h>
+#include <unistd.h>
 
 // std::cout << "\n\t++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 // std::cout << "\n\t+ (1)  Non Blocking Scatter.                             +";
@@ -33,8 +34,9 @@ struct MPIData {
 
 int choices = 5;    //number of functions of MPI.
 int size = 21;      //default size of vectors.
+int runNumber = 5;  //default number of time to run each function in order to take the average.
 int precision = 4;  //default digits after decimal point.
-int function = 5;   //
+int function = 5;   //Total number of functions in the program.
 int root = 0;
 int choice = 0;  //user Choice to select function to run.
 
@@ -66,28 +68,86 @@ const std::pair<float, float> multiNonBlockSend(MPIData& mpiInput);
 
 void compare(const std::vector<std::pair<float, float>>& timing,
              int choices,
-             const std::vector<int>& digits);  //to printout the time for each function that user chose.
+             const std::vector<int>& digits,
+             int runNumber);  //to printout the time for each function that user chose.
+
+const std::pair<float, float> returnAverage(const std::pair<float, float> (*mpiFunctions)(MPIData&),
+                                            MPIData& mpiInput,
+                                            int runNumber);  //to get the average of time for each function.
 
 int main(int argc, char* argv[]) {
-  if (argc == 2) {
-    try {
-      size = std::stoll(argv[1], nullptr, 0);
-    } catch (std::exception& err) {
-      std::cout << "\n\tError Must be integer Argument!";
-      std::cout << "\n\t" << err.what() << std::endl;
-      return 0;
-    }
-  } else if (argc > 2) {
-    try {
-      size = std::stoll(argv[1], nullptr, 0);
-      choice = std::stoll(argv[2], nullptr, 0);
-      userChoices = chooseFunction(choice);
-    } catch (std::exception& err) {
-      std::cout << "\n\tError Must be integer Argument!";
-      std::cout << "\n\t" << err.what() << std::endl;
-      return 0;
+  int c;
+  char* cvalue = NULL;
+  while ((c = getopt(argc, argv, "s:r:n:")) != -1) {
+    switch (c) {
+      case 's':
+        try {
+          size = std::stoll(optarg, nullptr, 0);
+        } catch (std::exception& err) {
+          std::cout << "\n\tError Must be integer Argument!";
+          std::cout << "\n\t" << err.what() << std::endl;
+          return 0;
+        }
+        break;
+      case 'r':
+        try {
+          //size = std::stoll(optarg, nullptr, 0);
+          choice = std::stoll(optarg, nullptr, 0);
+          userChoices = chooseFunction(choice);
+          //runNumber = std::stoll(argv[3], nullptr, 0);
+        } catch (std::exception& err) {
+          std::cout << "\n\tError Must be integer Argument!";
+          std::cout << "\n\t" << err.what() << std::endl;
+          return 0;
+        }
+        break;
+      case 'n':
+        try {
+          //size = std::stoll(argv[1], nullptr, 0);
+          //choice = std::stoll(argv[2], nullptr, 0);
+          //userChoices = chooseFunction(choice);
+          runNumber = std::stoll(optarg, nullptr, 0);
+        } catch (std::exception& err) {
+          std::cout << "\n\tError Must be integer Argument!";
+          std::cout << "\n\t" << err.what() << std::endl;
+          return 0;
+        }
+        break;
+      default:
+        abort();
     }
   }
+
+  //   if (argc == 2) {
+  //     try {
+  //       size = std::stoll(argv[1], nullptr, 0);
+  //     } catch (std::exception& err) {
+  //       std::cout << "\n\tError Must be integer Argument!";
+  //       std::cout << "\n\t" << err.what() << std::endl;
+  //       return 0;
+  //     }
+  //   } else if (argc == 3) {
+  //     try {
+  //       size = std::stoll(argv[1], nullptr, 0);
+  //       choice = std::stoll(argv[2], nullptr, 0);
+  //       userChoices = chooseFunction(choice);
+  //     } catch (std::exception& err) {
+  //       std::cout << "\n\tError Must be integer Argument!";
+  //       std::cout << "\n\t" << err.what() << std::endl;
+  //       return 0;
+  //     }
+  //   }else if (argc > 3) {
+  //     try {
+  //       size = std::stoll(argv[1], nullptr, 0);
+  //       choice = std::stoll(argv[2], nullptr, 0);
+  //       userChoices = chooseFunction(choice);
+  //       runNumber = std::stoll(argv[3], nullptr, 0);
+  //     } catch (std::exception& err) {
+  //       std::cout << "\n\tError Must be integer Argument!";
+  //       std::cout << "\n\t" << err.what() << std::endl;
+  //       return 0;
+  //     }
+  //   }
 
   MPIData mpiInputs;  //greate object from structur to pass into MPI functios.
 
@@ -126,76 +186,30 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  //std::vector<std::pair <float, float>> average(choices,std::make_pair(0, 0));
-  std::pair<float, float> accum(0, 0);  //create and initialize float pair for every process.
   for (long unsigned int i = 0; i < userChoices.size(); ++i) {
     if (userChoices[i] == 1) {
-      accum = std::make_pair(0, 0);  //initialize float pair.
-      for (long unsigned int a = 0; a < choices; ++a) {
-        accum = nonBlockScatter(mpiInputs);  //repate running the function with size of variable choices.
-        timing[0].first += accum.first;      //accumulate the time.
-        timing[0].second += accum.second;
-      }
-      timing[0].first /= choices;  //get the average.
-      timing[0].second /= choices;
-
-      // for(int a = 1; a < choices; ++a)
-      // {
-      //     verage[a].first = nonBlockScatter(mpiInputs);
-      // }
-
-      //timing[0].first =  std::accumulate(&(average[0].first),&(average[choices-1].first) + 1,0);
-      //timing[0].second = std::accumulate(&(average[0].second),&(average[choices-1].second) + 1,0);
-
-      //timing[0] = nonBlockScatter(mpiInputs);
+      timing[0] = returnAverage(nonBlockScatter, mpiInputs, runNumber);
 
     } else if (userChoices[i] == 2) {
-      accum = std::make_pair(0, 0);
-      for (long unsigned int a = 0; a < choices; ++a) {
-        accum = blockScatter(mpiInputs);
-        timing[1].first += accum.first;
-        timing[1].second += accum.second;
-      }
-      timing[1].first /= choices;
-      timing[1].second /= choices;
-      //timing[1] = blockScatter(mpiInputs);
-    } else if (userChoices[i] == 3) {
-      accum = std::make_pair(0, 0);
-      for (long unsigned int a = 0; a < choices; ++a) {
-        accum = nonBlockSend(mpiInputs);
-        timing[2].first += accum.first;
-        timing[2].second += accum.second;
-      }
-      timing[2].first /= choices;
-      timing[2].second /= choices;
-      //timing[2] = nonBlockSend(mpiInputs);
-    } else if (userChoices[i] == 4) {
-      accum = std::make_pair(0, 0);
+      timing[1] = returnAverage(blockScatter, mpiInputs, runNumber);
 
-      for (long unsigned int a = 0; a < choices; ++a) {
-        accum = blockSend(mpiInputs);
-        timing[3].first += accum.first;
-        timing[3].second += accum.second;
-      }
-      timing[3].first /= choices;
-      timing[3].second /= choices;
-      //timing[3] = blockSend(mpiInputs);
+    } else if (userChoices[i] == 3) {
+      timing[2] = returnAverage(nonBlockSend, mpiInputs, runNumber);
+
+    } else if (userChoices[i] == 4) {
+      timing[3] = returnAverage(blockSend, mpiInputs, runNumber);
+
     } else if (userChoices[i] == 5) {
-      accum = std::make_pair(0, 0);
-      for (long unsigned int a = 0; a < choices; ++a) {
-        accum = multiNonBlockSend(mpiInputs);
-        timing[4].first += accum.first;
-        timing[4].second += accum.second;
-      }
-      timing[4].first /= choices;
-      timing[4].second /= choices;
-      //timing[4] = multiNonBlockSend(mpiInputs);
-    } else
+      timing[4] = returnAverage(multiNonBlockSend, mpiInputs, runNumber);
+
+    } else {
+      std::cout << "\n\n\tError the User has not chose any number of Function!\n";
       break;
+    }
   }
 
   if (!mpiInputs.rank) {
-    compare(timing, choices, userChoices);
+    compare(timing, choices, userChoices, runNumber);
   }
 
   MPI::Finalize();
@@ -293,8 +307,6 @@ const std::pair<float, float> nonBlockScatter(MPIData& mpiInput) {
   MPI_Request requestRootScatter[2];
   MPI_Request requestRootGather;
 
-  // if(!mpiInput.rank)
-  //     std::cout << "\n\t\tNon-Blocking Scatter " << std::endl;
   startTimeScatter = MPI_Wtime();  //get time before scattering.
 
   //Non-Blocking Scatter.
@@ -352,8 +364,6 @@ const std::pair<float, float> nonBlockScatter(MPIData& mpiInput) {
         mpiInput.reference, mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
     returnValue.first = (endTimeScatter - startTimeScatter) * 1000;
     returnValue.second = (endTimeGather - startTimeGather) * 1000;
-    // std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << returnValue.first << " ms";
-    // std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << returnValue.second << " ms\n";
   }
   return returnValue;
 }
@@ -365,11 +375,6 @@ const std::pair<float, float> blockScatter(MPIData& mpiInput) {
   double endTimeScatter = 0;
   double startTimeGather = 0;
   double endTimeGather = 0;
-
-  //MPI_Request requestRoot;
-
-  // if(!mpiInput.rank)
-  //     std::cout << "\n\t\tBlocking Scatter " << std::endl;
 
   //Blocking Scattering.
   mpiInput.vectorWorkers1.resize(
@@ -424,8 +429,6 @@ const std::pair<float, float> blockScatter(MPIData& mpiInput) {
         mpiInput.reference, mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
     returnValue.first = (endTimeScatter - startTimeScatter) * 1000;
     returnValue.second = (endTimeGather - startTimeGather) * 1000;
-    // std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << returnValue.first << " ms";
-    // std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << returnValue.second << " ms\n";
   }
   return returnValue;
 }
@@ -520,8 +523,6 @@ const std::pair<float, float> nonBlockSend(MPIData& mpiInput) {
                             mpiInput.numberToSend);  //Only root print out the results.
     returnValue.first = (endTimeRootSend - startTimeRootSend) * 1000;
     returnValue.second = (endTimeRootRecv - startTimeRootRecv) * 1000;
-    // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
-    // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
   }
   return returnValue;
 }
@@ -599,8 +600,6 @@ const std::pair<float, float> blockSend(MPIData& mpiInput) {
                             mpiInput.numberToSend);  //Only root print out the results.
     returnValue.first = (endTimeRootSend - startTimeRootSend) * 1000;
     returnValue.second = (endTimeRootRecv - startTimeRootRecv) * 1000;
-    // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
-    // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
   }
   return returnValue;
 }
@@ -718,8 +717,6 @@ const std::pair<float, float> multiNonBlockSend(MPIData& mpiInput) {
                             mpiInput.numberToSend);  //Only root print out the results.
     returnValue.first = (endTimeRootSend - startTimeRootSend) * 1000;
     returnValue.second = (endTimeRootRecv - startTimeRootRecv) * 1000;
-    // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
-    // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
   }
   return returnValue;
 }
@@ -745,7 +742,10 @@ const std::vector<int> chooseFunction(int toInteger) {
   return digits;
 }
 
-void compare(const std::vector<std::pair<float, float>>& timing, int choices, const std::vector<int>& digits) {
+void compare(const std::vector<std::pair<float, float>>& timing,
+             int choices,
+             const std::vector<int>& digits,
+             int runNumber) {
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
 
   int j{0};
@@ -773,21 +773,36 @@ void compare(const std::vector<std::pair<float, float>>& timing, int choices, co
       }
     }
   }
-  std::cout << "\n\n\t===================================================";
-  std::cout << "\n\t||      ||  Scatter/Send   ||   Gather/Receive    ||";
-  std::cout << "\n\t===================================================";
+  std::cout << "\n\n\t=============================================================";
+  std::cout << "\n\t|| Func ||  Scatter/Send ||   Gather/Receive  || Number Run||";
+  std::cout << "\n\t=============================================================";
   for (long unsigned int i = 0; i < timing.size(); ++i) {
     if (timing[i].first) {
       if (k < j) {
-        std::cout << "\n\t---------------------------------------------------";
+        std::cout << "\n\t------------------------------------------------------------";
       }
       std::cout.flags(std::ios::fixed | std::ios::showpoint);
       std::cout.precision(precision);
-      std::cout << "\n\t|| " << std::setw(2) << digits[k] << "     ||     " << std::setw(5) << timing[i].first
-                << "    ||        " << std::setw(5) << timing[i].second << "     ||";
+      std::cout << "\n\t||  " << std::setw(1) << digits[k] << "   ||     " << std::setw(5) << timing[i].first
+                << "    ||        " << std::setw(5) << timing[i].second << "     ||    " << std::setw(3) << runNumber
+                << "    ||";
       j += 2;
       ++k;
     }
   }
-  std::cout << "\n\t===================================================\n\n";
+  std::cout << "\n\t=============================================================\n\n";
+}
+
+const std::pair<float, float> returnAverage(const std::pair<float, float> (*mpiFunctions)(MPIData&),
+                                            MPIData& mpiInput,
+                                            int runNumber) {
+  std::pair<float, float> output;
+  for (long unsigned int i = 0; i < runNumber; ++i) {
+    auto accum = mpiFunctions(mpiInput);
+    output.first += accum.first;
+    output.second += accum.second;
+  }
+  output.first /= runNumber;
+  output.second /= runNumber;
+  return output;
 }
