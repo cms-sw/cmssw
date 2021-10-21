@@ -53,13 +53,33 @@
 // class declaration
 //
 
-template <typename T>
-class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
+class BaseMVACache {
 public:
-  explicit BaseMVAValueMapProducer(const edm::ParameterSet& iConfig)
+  BaseMVACache(const std::string& model_path, const std::string& backend) {
+    if (backend == "TF") {
+      graph_.reset(tensorflow::loadGraphDef(model_path));
+      tf_session_ = tensorflow::createSession(graph_.get());
+    } else if (backend == "ONNX") {
+      ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
+    }
+  }
+  ~BaseMVACache() { tensorflow::closeSession(tf_session_); }
+
+  tensorflow::Session* getTFSession() const { return tf_session_; }
+  const cms::Ort::ONNXRuntime& getONNXSession() const { return *ort_; }
+
+private:
+  std::shared_ptr<tensorflow::GraphDef> graph_;
+  tensorflow::Session* tf_session_ = nullptr;
+  std::unique_ptr<cms::Ort::ONNXRuntime> ort_;
+};
+
+template <typename T>
+class BaseMVAValueMapProducer : public edm::stream::EDProducer<edm::GlobalCache<BaseMVACache>> {
+public:
+  explicit BaseMVAValueMapProducer(const edm::ParameterSet& iConfig, const BaseMVACache* cache)
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
         variablesOrder_(iConfig.getParameter<std::vector<std::string>>("variablesOrder")),
-        singleThreadPool_(iConfig.getParameter<std::string>("singleThreadPool")),
         name_(iConfig.getParameter<std::string>("name")),
         backend_(iConfig.getParameter<std::string>("backend")),
         weightfilename_(iConfig.getParameter<edm::FileInPath>("weightFile").fullPath()),
@@ -68,6 +88,10 @@ public:
         tf_(backend_ == "TF"),
         onnx_(backend_ == "ONNX"),
         batch_eval_(iConfig.getParameter<bool>("batch_eval")) {
+    if (!(tmva_ || tf_ || onnx_)) {
+      throw cms::Exception("ConfigError") << "Only 'TF', 'ONNX' and 'TMVA' backends are supported\n";
+    }
+
     if (tmva_)
       reader_ = new TMVA::Reader();
     edm::ParameterSet const& varsPSet = iConfig.getParameter<edm::ParameterSet>("variables");
@@ -87,15 +111,6 @@ public:
     //      reader_.BookMVA(name_,iConfig.getParameter<edm::FileInPath>("weightFile").fullPath() );
     if (tmva_) {
       reco::details::loadTMVAWeights(reader_, name_, weightfilename_);
-    } else if (tf_) {
-      tensorflow::setLogging("3");
-      graph_ = tensorflow::loadGraphDef(weightfilename_);
-      size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
-      session_ = tensorflow::createSession(graph_, nThreads);
-    } else if (onnx_) {
-      ort_ = std::make_unique<cms::Ort::ONNXRuntime>(weightfilename_);
-    } else {
-      throw cms::Exception("ConfigError") << "Only 'TF', 'ONNX' and 'TMVA' backends are supported\n";
     }
     if (tf_ || onnx_) {
       inputTensorName_ = iConfig.getParameter<std::string>("inputTensorName");
@@ -121,6 +136,9 @@ public:
       values_[positions_[var]] = val;
   }
 
+  static std::unique_ptr<BaseMVACache> initializeGlobalCache(const edm::ParameterSet& cfg);
+  static void globalEndJob(const BaseMVACache* cache);
+
   static edm::ParameterSetDescription getDescription();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -139,10 +157,6 @@ private:
   std::vector<std::string> variablesOrder_;
   std::vector<float> values_;
   TMVA::Reader* reader_;
-  tensorflow::GraphDef* graph_;
-  tensorflow::Session* session_;
-  std::string singleThreadPool_;
-  std::unique_ptr<cms::Ort::ONNXRuntime> ort_;
 
   std::string name_;
   std::string backend_;
@@ -190,13 +204,14 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
           input_tensors[0].second.flat<float>()(i) = data[i];
         }
         std::vector<tensorflow::Tensor> output_tensors;
-        tensorflow::run(session_, input_tensors, {outputTensorName_}, &output_tensors, singleThreadPool_);
+        tensorflow::run(globalCache()->getTFSession(), input_tensors, {outputTensorName_}, &output_tensors);
         for (unsigned i = 0; i < output_tensors.at(0).NumElements(); ++i) {
           outputs.push_back(output_tensors.at(0).flat<float>()(i));
         }
       } else if (onnx_) {
         cms::Ort::FloatArrays inputs{data};
-        outputs = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_}, src->size())[0];
+        outputs =
+            globalCache()->getONNXSession().run({inputTensorName_}, inputs, {}, {outputTensorName_}, src->size())[0];
       }
 
       const unsigned outdim = outputs.size() / src->size();
@@ -228,12 +243,12 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
             input_tensors[0].second.matrix<float>()(0, j) = values_[j];
           }
           std::vector<tensorflow::Tensor> outputs;
-          tensorflow::run(session_, input_tensors, {outputTensorName_}, &outputs, singleThreadPool_);
+          tensorflow::run(globalCache()->getTFSession(), input_tensors, {outputTensorName_}, &outputs);
           for (int k = 0; k < outputs.at(0).matrix<float>().dimension(1); k++)
             tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));
         } else if (onnx_) {
           cms::Ort::FloatArrays inputs{values_};
-          tmpOut = ort_->run({inputTensorName_}, inputs, {}, {outputTensorName_})[0];
+          tmpOut = globalCache()->getONNXSession().run({inputTensorName_}, inputs, {}, {outputTensorName_})[0];
         }
         for (size_t k = 0; k < output_names_.size(); k++)
           mvaOut[k].push_back(output_formulas_[k](tmpOut));
@@ -253,6 +268,15 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 template <typename T>
+std::unique_ptr<BaseMVACache> BaseMVAValueMapProducer<T>::initializeGlobalCache(const edm::ParameterSet& cfg) {
+  return std::make_unique<BaseMVACache>(cfg.getParameter<edm::FileInPath>("weightFile").fullPath(),
+                                        cfg.getParameter<std::string>("backend"));
+}
+
+template <typename T>
+void BaseMVAValueMapProducer<T>::globalEndJob(const BaseMVACache* cache) {}
+
+template <typename T>
 edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
@@ -270,8 +294,6 @@ edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
       ->setComment("Names of the output values to be used in the output valuemap");
   desc.add<std::vector<std::string>>("outputFormulas", std::vector<std::string>())
       ->setComment("Formulas to be used to post process the output");
-  desc.add<unsigned int>("nThreads", 1)->setComment("number of threads");
-  desc.add<std::string>("singleThreadPool", "no_threads");
   desc.add<bool>("batch_eval", false)->setComment("Run inference in batch instead of per-object");
 
   return desc;
