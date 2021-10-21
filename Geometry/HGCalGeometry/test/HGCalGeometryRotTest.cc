@@ -85,7 +85,7 @@ void HGCalGeometryRotTest::beginRun(const edm::Run&, const edm::EventSetup& iSet
       double phi1 = std::atan2(xy.second, xy.first);
       edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position ("
                                     << xy.first << ", " << xy.second << ") phi " << convertRadToDeg(phi1);
-      edm::LogVerbatim("HGCalGeom") << detId << " Position " << global << " phi " << convertRadToDeg(phi2); 
+      edm::LogVerbatim("HGCalGeom") << detId << " Position " << global << " phi " << convertRadToDeg(phi2);
     }
   }
 }
