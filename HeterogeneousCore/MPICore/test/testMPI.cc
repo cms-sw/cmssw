@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <random>
 #include <utility>
@@ -15,16 +16,16 @@
     // std::cout << "\n\t+ (5)  Non Blocking Send and Receive with Multiple Tasks +";
     // std::cout << "\n\t++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
-struct MPIinputs
+struct MPIData
 {
     int num_procs{0};
     int rank{0};
     
     std::pair <int,int> workSplit;
-    std::vector <float> vect1; //declare vector 1.
-    std::vector <float> vect2; //declare vector 2.
-    std::vector <float> vect3; //declare vector fulled only by Root to get result from workers.
-    std::vector <float> vectRoot; //declare vector to verify the ruslt form each process.
+    std::vector <float> input1; //declare vector 1.
+    std::vector <float> input2; //declare vector 2.
+    std::vector <float> output; //declare vector fulled only by root to get result from workers.
+    std::vector <float> reference; //declare vector to verify the ruslt form each process.
     std::vector <float> vectorWorkers1; //declare vector 1 for workers only.
     std::vector <float> vectorWorkers2; //declare vector 2 for workers only.
     std::vector <int> displacement; //declare vector for selecting location of each element to be sent.
@@ -33,37 +34,37 @@ struct MPIinputs
 
 };
 
-int val = 5; //number of functions of MPI.
-int sizeOfVector = 21; //default size of vectors.
-int precisions = 4; //default digits after decimal point.
+int choices = 5; //number of functions of MPI.
+int size = 21; //default size of vectors.
+int precision = 4; //default digits after decimal point.
 int function = 5; //
-int Root = 0;
+int root = 0;
 int choice = 0; //user Choice to select function to run.
 
 std::vector <int> userChoices(1,1); //save convertion integer to vector.
 
 const std::vector <int> chooseFunction(int toInteger);//Convert integers to a vector.
-std::vector<std::pair <float, float>> timing(val,std::make_pair(0, 0)); //to save time of scatter/send and gather/receive for each function.
+std::vector<std::pair <float, float>> timing(choices,std::make_pair(0, 0)); //to save time of scatter/send and gather/receive for each function.
 
 void randomGenerator(std::vector<float> &vect); //generate uniform random numbers.
 std::pair <int,int> splitProcess(int works, int numberOfProcess); //calcualte for each process number of works.
 const std::vector <int> numberDataSend(int numberOfProcess, std::pair<int, int> splitWorks); //findout number of data to be sent for each process.
 const std::vector <int> displacmentData(int numberOfProcess, std::pair<int, int> splitWorks, const std::vector <int>& numberDataSend); //findout the index of data to be sent for each process 
-void checkingResultsPrintout(std::vector<float> &vectRoot, std::vector<float> &vect3, std::pair <int,int> workSplit, const std::vector<int>& displacement,  const std::vector<int>& numberDataSend);
+void checkingResultsPrintout(std::vector<float> &reference, std::vector<float> &output, std::pair <int,int> workSplit, const std::vector<int>& displacement,  const std::vector<int>& numberDataSend);
 
-const std::pair <float, float> nonBlockScatter(MPIinputs& mpiInput);
-const std::pair <float, float> blockScatter(MPIinputs& mpiInput);
-const std::pair <float, float> nonBlockSend(MPIinputs& mpiInput);
-const std::pair <float, float> blockSend(MPIinputs& mpiInput);
-const std::pair <float, float> multiNonBlockSend(MPIinputs& mpiInput);
+const std::pair <float, float> nonBlockScatter(MPIData& mpiInput);
+const std::pair <float, float> blockScatter(MPIData& mpiInput);
+const std::pair <float, float> nonBlockSend(MPIData& mpiInput);
+const std::pair <float, float> blockSend(MPIData& mpiInput);
+const std::pair <float, float> multiNonBlockSend(MPIData& mpiInput);
 
-void compare(const std::vector<std::pair <float, float>>& timing, int val, const std::vector <int> digits); //to printout the time for each function that user chose.
+void compare(const std::vector<std::pair <float, float>>& timing, int choices, const std::vector <int>& digits); //to printout the time for each function that user chose.
 
 int main(int argc, char *argv[]) 
 { 
     if (argc == 2) {
         try{
-            sizeOfVector = std::stoll (argv[1], nullptr, 0);
+            size = std::stoll (argv[1], nullptr, 0);
         }
         catch(std::exception& err)
         {
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
     else if(argc > 2)
     {
         try{
-            sizeOfVector = std::stoll (argv[1], nullptr, 0);
+            size = std::stoll (argv[1], nullptr, 0);
             choice = std::stoll (argv[2], nullptr, 0);
             userChoices = chooseFunction(choice);
         }
@@ -87,19 +88,19 @@ int main(int argc, char *argv[])
         }
     }
 
-    MPIinputs mpiInputs; //greate object from structur to pass into MPI functios.
+    MPIData mpiInputs; //greate object from structur to pass into MPI functios.
 
     
     MPI_Init(&argc, &argv); //initialize communicator environment.
     mpiInputs.num_procs = MPI::COMM_WORLD.Get_size(); //get total size of processes.
     mpiInputs.rank = MPI::COMM_WORLD.Get_rank(); //get each process number.
 
-    mpiInputs.vect1.resize(sizeOfVector); //initialize size.
-    mpiInputs.vect2.resize(sizeOfVector);
-    mpiInputs.vect3.resize(sizeOfVector);
-    mpiInputs.vectRoot.resize(sizeOfVector);
+    mpiInputs.input1.resize(size); //initialize size.
+    mpiInputs.input2.resize(size);
+    mpiInputs.output.resize(size);
+    mpiInputs.reference.resize(size);
 
-    mpiInputs.workSplit = splitProcess(sizeOfVector,mpiInputs.num_procs);
+    mpiInputs.workSplit = splitProcess(size,mpiInputs.num_procs);
 
     if(!mpiInputs.workSplit.first)
     {
@@ -113,32 +114,100 @@ int main(int argc, char *argv[])
     mpiInputs.vectorWorkers1.resize(mpiInputs.numberToSend[mpiInputs.rank]); //Resizing each process with appropriate Receiving Data.
     mpiInputs.vectorWorkers2.resize(mpiInputs.numberToSend[mpiInputs.rank]);
 
-    if (!mpiInputs.rank) //Only for Root
+    if (!mpiInputs.rank) //Only for root
     {
-        randomGenerator(mpiInputs.vect1); //generate random floating numbers from(0,1) Only in the Root.
-        randomGenerator(mpiInputs.vect2);
+        randomGenerator(mpiInputs.input1); //generate random floating numbers from(0,1) Only in the root.
+        randomGenerator(mpiInputs.input2);
         std::cout << "\n\tNumber of Processes " << mpiInputs.num_procs << std::endl;
         std::cout << "\tNumber of workSplit First " << mpiInputs.workSplit.first << std::endl;
         std::cout << "\tNumber of workSplit Second " << mpiInputs.workSplit.second << std::endl;
-        for(int j = 0; j < sizeOfVector; j++)
+        for(int j = 0; j < size; j++)
         {
-            mpiInputs.vectRoot[j] = mpiInputs.vect1[j] + mpiInputs.vect2[j]; //Summing for verification.
+            mpiInputs.reference[j] = mpiInputs.input1[j] + mpiInputs.input2[j]; //Summing for verification.
         }
     }
 
-
+    //std::vector<std::pair <float, float>> average(choices,std::make_pair(0, 0));
+    std::pair <float, float> accum (0,0);//create and initialize float pair for every process.
     for (long unsigned int i = 0; i < userChoices.size(); ++i)
     {
         if (userChoices[i] == 1)
-            timing[0] = nonBlockScatter(mpiInputs);
+        {
+            accum = std::make_pair(0, 0); //initialize float pair.
+            for (long unsigned int a = 0; a < choices; ++a)
+            {
+                accum = nonBlockScatter(mpiInputs);//repate running the function with size of variable choices.
+                timing[0].first += accum.first;//accumulate the time.
+                timing[0].second += accum.second;
+            }
+            timing[0].first /= choices;//get the average.
+            timing[0].second /= choices;
+
+
+            // for(int a = 1; a < choices; ++a)
+            // {
+            //     verage[a].first = nonBlockScatter(mpiInputs);
+            // }
+         
+            //timing[0].first =  std::accumulate(&(average[0].first),&(average[choices-1].first) + 1,0);
+            //timing[0].second = std::accumulate(&(average[0].second),&(average[choices-1].second) + 1,0);
+            
+            //timing[0] = nonBlockScatter(mpiInputs);
+         
+        }
         else if (userChoices[i] == 2)
-            timing[1] = blockScatter(mpiInputs);
+        {
+            accum = std::make_pair(0, 0);
+            for (long unsigned int a = 0; a < choices; ++a)
+            {
+                accum = blockScatter(mpiInputs);
+                timing[1].first += accum.first;
+                timing[1].second += accum.second;
+            }
+            timing[1].first /= choices;
+            timing[1].second /= choices;
+            //timing[1] = blockScatter(mpiInputs);
+        }
         else if (userChoices[i] == 3)
-            timing[2] = nonBlockSend(mpiInputs);
+        {
+            accum = std::make_pair(0, 0);
+            for (long unsigned int a = 0; a < choices; ++a)
+            {
+                accum = nonBlockSend(mpiInputs);
+                timing[2].first += accum.first;
+                timing[2].second += accum.second;
+            }
+            timing[2].first /= choices;
+            timing[2].second /= choices;
+            //timing[2] = nonBlockSend(mpiInputs);
+        }
         else if (userChoices[i] == 4)
-            timing[3] = blockSend(mpiInputs);
+        {
+            accum = std::make_pair(0, 0);
+            
+            for (long unsigned int a = 0; a < choices; ++a)
+            {
+                accum = blockSend(mpiInputs);
+                timing[3].first += accum.first;
+                timing[3].second += accum.second;
+            }
+            timing[3].first /= choices;
+            timing[3].second /= choices;
+            //timing[3] = blockSend(mpiInputs);
+        }
         else if (userChoices[i] == 5)
-            timing[4] = multiNonBlockSend(mpiInputs);
+        {
+            accum = std::make_pair(0, 0);
+            for (long unsigned int a = 0; a < choices; ++a)
+            {
+                accum = multiNonBlockSend(mpiInputs);
+                timing[4].first += accum.first;
+                timing[4].second += accum.second;
+            }
+            timing[4].first /= choices;
+            timing[4].second /= choices;
+            //timing[4] = multiNonBlockSend(mpiInputs);
+        }
         else
             break;
     }
@@ -146,7 +215,7 @@ int main(int argc, char *argv[])
 
     if(!mpiInputs.rank)
     {
-        compare(timing, val,userChoices);
+        compare(timing, choices,userChoices);
     }
  
     MPI::Finalize();
@@ -212,14 +281,14 @@ const std::vector <int> displacmentData(int numberOfProcess, std::pair<int, int>
 
 }
 
-void checkingResultsPrintout(std::vector<float> &vectRoot, std::vector<float> &vect3, std::pair <int,int> workSplit, const std::vector<int>& displacement,  const std::vector<int>& numberDataSend)
+void checkingResultsPrintout(std::vector<float> &reference, std::vector<float> &output, std::pair <int,int> workSplit, const std::vector<int>& displacement,  const std::vector<int>& numberDataSend)
 {
     float percent  {0.0};
     float totalError { 0.0};
     int p {1};
-    for(int j = 0; j < sizeOfVector; j++)
+    for(int j = 0; j < size; j++)
     {
-        percent = ((vectRoot[j] - vect3[j]) / vectRoot[j])*100;
+        percent = ((reference[j] - output[j]) / reference[j])*100;
         totalError += percent;
        
     }
@@ -228,11 +297,11 @@ void checkingResultsPrintout(std::vector<float> &vectRoot, std::vector<float> &v
         std::cout << "\n-------------------------------------------------------\n";
         std::cout << "| RootSum | WorksSum | Error   | Error %  | Process # |";
         std::cout << "\n-------------------------------------------------------\n";
-        std::cout.precision(precisions);
-        for(int j = 0; j < sizeOfVector; j++)
+        std::cout.precision(precision);
+        for(int j = 0; j < size; j++)
         {
            
-            std::cout << "| " << vectRoot[j] << "  | " << vect3[j] << "  |" << std::setw(9) << vectRoot[j] - vect3[j] << " |"<< std::setw(9)  << percent << " |" << std::setw(9) << p << " |\n";
+            std::cout << "| " << reference[j] << "  | " << output[j] << "  |" << std::setw(9) << reference[j] - output[j] << " |"<< std::setw(9)  << percent << " |" << std::setw(9) << p << " |\n";
             
             if(j+1  == displacement[p+1])
             {
@@ -251,9 +320,9 @@ void checkingResultsPrintout(std::vector<float> &vectRoot, std::vector<float> &v
 }
 
 
-const std::pair <float, float> nonBlockScatter(MPIinputs& mpiInput)
+const std::pair <float, float> nonBlockScatter(MPIData& mpiInput)
 {
-    std::pair <float, float> Retrun;
+    std::pair <float, float> returnValue;
     std::cout.setf(std::ios::fixed,std::ios::floatfield);
     double startTimeScatter = 0;
     double endTimeScatter = 0;
@@ -264,13 +333,13 @@ const std::pair <float, float> nonBlockScatter(MPIinputs& mpiInput)
     MPI_Request requestRootScatter[2];
     MPI_Request requestRootGather;
 
-    if(!mpiInput.rank)
-        std::cout << "\n\t\tNon-Blocking Scatter " << std::endl;
+    // if(!mpiInput.rank)
+    //     std::cout << "\n\t\tNon-Blocking Scatter " << std::endl;
     startTimeScatter = MPI_Wtime(); //get time before scattering.
 
     //Non-Blocking Scatter.
-    MPI_Iscatterv(&mpiInput.vect1[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootScatter[0]);
-    MPI_Iscatterv(&mpiInput.vect2[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootScatter[1]);
+    MPI_Iscatterv(&mpiInput.input1[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootScatter[0]);
+    MPI_Iscatterv(&mpiInput.input2[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootScatter[1]);
     MPI_Waitall(2,requestRootScatter, MPI_STATUS_IGNORE);
 
     endTimeScatter = MPI_Wtime(); //get time after scattering.
@@ -288,7 +357,7 @@ const std::pair <float, float> nonBlockScatter(MPIinputs& mpiInput)
     startTimeGather = MPI_Wtime(); //get time before Gathering.
 
     //Non Blocking Gathering.
-    MPI_Igatherv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,&mpiInput.vect3[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootGather);
+    MPI_Igatherv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,&mpiInput.output[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,0,MPI_COMM_WORLD,&requestRootGather);
     
     MPI_Wait(&requestRootGather, MPI_STATUS_IGNORE);
     endTimeGather = MPI_Wtime(); //get time after Gathering.
@@ -298,21 +367,21 @@ const std::pair <float, float> nonBlockScatter(MPIinputs& mpiInput)
         
     
 
-    if(!mpiInput.rank) //Only Root print out the results.
+    if(!mpiInput.rank) //Only root print out the results.
     {
-        checkingResultsPrintout(mpiInput.vectRoot,mpiInput.vect3, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
-        Retrun.first = (endTimeScatter - startTimeScatter)*1000;
-        Retrun.second = (endTimeGather - startTimeGather)*1000;
-        std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << Retrun.first << " ms";
-        std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << Retrun.second << " ms\n";
+        checkingResultsPrintout(mpiInput.reference,mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
+        returnValue.first = (endTimeScatter - startTimeScatter)*1000;
+        returnValue.second = (endTimeGather - startTimeGather)*1000;
+        // std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << returnValue.first << " ms";
+        // std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << returnValue.second << " ms\n";
         
     }
-    return Retrun;
+    return returnValue;
     
 }
-const std::pair <float, float> blockScatter(MPIinputs& mpiInput)
+const std::pair <float, float> blockScatter(MPIData& mpiInput)
 {
-    std::pair <float, float> Retrun;
+    std::pair <float, float> returnValue;
     std::cout.setf(std::ios::fixed,std::ios::floatfield);
 
     double startTimeScatter = 0;
@@ -322,16 +391,16 @@ const std::pair <float, float> blockScatter(MPIinputs& mpiInput)
 
     //MPI_Request requestRoot;
 
-    if(!mpiInput.rank)
-        std::cout << "\n\t\tBlocking Scatter " << std::endl;
+    // if(!mpiInput.rank)
+    //     std::cout << "\n\t\tBlocking Scatter " << std::endl;
     
     //Blocking Scattering.
     mpiInput.vectorWorkers1.resize(mpiInput.numberToSend[mpiInput.rank]); //Resizing each process with appropriate Receiving Data.
     mpiInput.vectorWorkers2.resize(mpiInput.numberToSend[mpiInput.rank]);
     
     startTimeScatter =  MPI_Wtime();
-    MPI_Scatterv(&mpiInput.vect1[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD);
-    MPI_Scatterv(&mpiInput.vect2[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD);
+    MPI_Scatterv(&mpiInput.input1[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD);
+    MPI_Scatterv(&mpiInput.input2[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,0,MPI_COMM_WORLD);
     endTimeScatter =  MPI_Wtime();
 
     if(mpiInput.rank)//Only for Workers 
@@ -345,27 +414,27 @@ const std::pair <float, float> blockScatter(MPIinputs& mpiInput)
 
     startTimeGather = MPI_Wtime();
     //Blocking Gathering.
-    MPI_Gatherv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,&mpiInput.vect3[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,0,MPI_COMM_WORLD);
+    MPI_Gatherv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,&mpiInput.output[0],&mpiInput.numberToSend[0],&mpiInput.displacement[0],MPI_FLOAT,0,MPI_COMM_WORLD);
 
     endTimeGather = MPI_Wtime();
     
 
     
 
-    if(!mpiInput.rank) //Only Root print out the results.
+    if(!mpiInput.rank) //Only root print out the results.
     {
-        checkingResultsPrintout(mpiInput.vectRoot,mpiInput.vect3, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
-        Retrun.first = (endTimeScatter - startTimeScatter)*1000;
-        Retrun.second = (endTimeGather - startTimeGather)*1000;
-        std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << Retrun.first << " ms";
-        std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << Retrun.second << " ms\n";       
+        checkingResultsPrintout(mpiInput.reference,mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend);
+        returnValue.first = (endTimeScatter - startTimeScatter)*1000;
+        returnValue.second = (endTimeGather - startTimeGather)*1000;
+        // std::cout << "\nScattreing Time [" << mpiInput.rank << "]" << " = " << returnValue.first << " ms";
+        // std::cout << "\nGathering Time [" << mpiInput.rank << "]" << " = " << returnValue.second << " ms\n";       
         
     }
-   return Retrun;
+   return returnValue;
 }
-const std::pair <float, float> nonBlockSend(MPIinputs& mpiInput)
+const std::pair <float, float> nonBlockSend(MPIData& mpiInput)
 {
-    std::pair <float, float> Retrun;
+    std::pair <float, float> returnValue;
     double startTimeRootSend = 0;
     double endTimeRootSend = 0;
     double startTimeRootRecv = 0;
@@ -380,14 +449,14 @@ const std::pair <float, float> nonBlockSend(MPIinputs& mpiInput)
     
     
 
-    if (!mpiInput.rank) //Only for Root
+    if (!mpiInput.rank) //Only for root
     {
-        std::cout << "\n\t\tNon-Blocking Send and Receive " << std::endl;
+        // std::cout << "\n\t\tNon-Blocking Send and Receive " << std::endl;
         startTimeRootSend =  MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Issend(&mpiInput.vect1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[0]); //Tag is 0
-            MPI_Issend(&mpiInput.vect2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[1]);
+            MPI_Issend(&mpiInput.input1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[0]); //Tag is 0
+            MPI_Issend(&mpiInput.input2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[1]);
             MPI_Waitall(2,requestRootSend, MPI_STATUS_IGNORE);
         }
         endTimeRootSend =  MPI_Wtime();
@@ -396,40 +465,40 @@ const std::pair <float, float> nonBlockSend(MPIinputs& mpiInput)
 
     if(mpiInput.rank)//Only for Workers 
     {
-        MPI_Irecv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD, &requestWorkerRecv[0]);
-        MPI_Irecv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD, &requestWorkerRecv[1]);
+        MPI_Irecv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD, &requestWorkerRecv[0]);
+        MPI_Irecv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD, &requestWorkerRecv[1]);
     
         MPI_Waitall(2,requestWorkerRecv,MPI_STATUS_IGNORE);
         for(long unsigned int i = 0; i < mpiInput.vectorWorkers1.size(); i++)
         {
             mpiInput.vectorWorkers1[i] += mpiInput.vectorWorkers2[i];
         }
-        MPI_Issend(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, Root, 0, MPI_COMM_WORLD, &requestWorkerSend); //Tag is 0
+        MPI_Issend(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, root, 0, MPI_COMM_WORLD, &requestWorkerSend); //Tag is 0
         MPI_Wait(&requestWorkerSend,MPI_STATUS_IGNORE);
     }
 
 
-    if(!mpiInput.rank)//Only for Root
+    if(!mpiInput.rank)//Only for root
     {
         startTimeRootRecv=  MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Irecv(&mpiInput.vect3[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, &requestRootRecv);
+            MPI_Irecv(&mpiInput.output[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, &requestRootRecv);
             MPI_Wait(&requestRootRecv,MPI_STATUS_IGNORE);
         }
         endTimeRootRecv=  MPI_Wtime();
         
-        checkingResultsPrintout(mpiInput.vectRoot,mpiInput.vect3, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only Root print out the results.
-        Retrun.first = (endTimeRootSend - startTimeRootSend)*1000;
-        Retrun.second = (endTimeRootRecv - startTimeRootRecv)*1000;
-        std::cout << "\nTime Sending Root = " << Retrun.first << " ms";
-        std::cout << "\nTime Receiving Root = " << Retrun.second << " ms\n";
+        checkingResultsPrintout(mpiInput.reference,mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only root print out the results.
+        returnValue.first = (endTimeRootSend - startTimeRootSend)*1000;
+        returnValue.second = (endTimeRootRecv - startTimeRootRecv)*1000;
+        // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
+        // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
     }
-    return Retrun;
+    return returnValue;
 }
-const std::pair <float, float> blockSend(MPIinputs& mpiInput)
+const std::pair <float, float> blockSend(MPIData& mpiInput)
 {
-    std::pair <float, float> Retrun;
+    std::pair <float, float> returnValue;
     double startTimeRootSend = 0;
     double endTimeRootSend = 0;
     double startTimeRootRecv = 0;
@@ -437,15 +506,15 @@ const std::pair <float, float> blockSend(MPIinputs& mpiInput)
 
     std::cout.setf(std::ios::fixed,std::ios::floatfield);
     
-    if (!mpiInput.rank) //Only for Root
+    if (!mpiInput.rank) //Only for root
     {
        
-        std::cout << "\n\t\tBlocking Send and Receive " << std::endl;
+        // std::cout << "\n\t\tBlocking Send and Receive " << std::endl;
         startTimeRootSend =  MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Send(&mpiInput.vect1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD); //Tag is 0
-            MPI_Send(&mpiInput.vect2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD);
+            MPI_Send(&mpiInput.input1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD); //Tag is 0
+            MPI_Send(&mpiInput.input2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD);
         }
         endTimeRootSend =  MPI_Wtime();
     }
@@ -453,39 +522,39 @@ const std::pair <float, float> blockSend(MPIinputs& mpiInput)
 
     if(mpiInput.rank)//Only for Workers 
     {
-        MPI_Recv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-        MPI_Recv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        MPI_Recv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        MPI_Recv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     
        
         for(long unsigned int i = 0; i < mpiInput.vectorWorkers1.size(); i++)
         {
             mpiInput.vectorWorkers1[i] += mpiInput.vectorWorkers2[i];
         }
-        MPI_Send(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, Root, 0, MPI_COMM_WORLD); //Tag is 0
+        MPI_Send(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, root, 0, MPI_COMM_WORLD); //Tag is 0
     }
 
 
-    if(!mpiInput.rank)//Only for Root
+    if(!mpiInput.rank)//Only for root
     {
         startTimeRootRecv=  MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Recv(&mpiInput.vect3[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(&mpiInput.output[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         endTimeRootRecv=  MPI_Wtime();
        
-        checkingResultsPrintout(mpiInput.vectRoot,mpiInput.vect3, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only Root print out the results.
-        Retrun.first = (endTimeRootSend - startTimeRootSend)*1000;
-        Retrun.second = (endTimeRootRecv - startTimeRootRecv)*1000;
-        std::cout << "\nTime Sending Root = " << Retrun.first << " ms";
-        std::cout << "\nTime Receiving Root = " << Retrun.second << " ms\n";
+        checkingResultsPrintout(mpiInput.reference,mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only root print out the results.
+        returnValue.first = (endTimeRootSend - startTimeRootSend)*1000;
+        returnValue.second = (endTimeRootRecv - startTimeRootRecv)*1000;
+        // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
+        // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
 
     }
-    return Retrun;
+    return returnValue;
 }
-const std::pair <float, float> multiNonBlockSend(MPIinputs& mpiInput)
+const std::pair <float, float> multiNonBlockSend(MPIData& mpiInput)
 {
-    std::pair <float, float> Retrun;
+    std::pair <float, float> returnValue;
     int lastPointCount = 0;
     double startTimeRootSend = 0;
     double endTimeRootSend = 0;
@@ -501,20 +570,20 @@ const std::pair <float, float> multiNonBlockSend(MPIinputs& mpiInput)
     std::cout.setf(std::ios::fixed,std::ios::floatfield);
     
 
-    if (!mpiInput.rank) //Only for Root
+    if (!mpiInput.rank) //Only for root
     {
-        std::cout << "\n\t\tNon-Blocking Send and Receive with Multiple Tasks" << std::endl;
+        // std::cout << "\n\t\tNon-Blocking Send and Receive with Multiple Tasks" << std::endl;
         int flage = 0; //set operation to processed.
         startTimeRootSend =  MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Issend(&mpiInput.vect1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[0]); //Tag is 0
-            MPI_Issend(&mpiInput.vect2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[1]);
+            MPI_Issend(&mpiInput.input1[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[0]); //Tag is 0
+            MPI_Issend(&mpiInput.input2[mpiInput.displacement[i]], mpiInput.numberToSend[i], MPI_FLOAT, i, 0, MPI_COMM_WORLD, &requestRootSend[1]);
             do{
                 MPI_Testall(2,requestRootSend,&flage, MPI_STATUS_IGNORE); //2 for two requests above. Check on flage.
-                for(; lastPointCount < sizeOfVector && !flage; lastPointCount++) //do the summing while waiting for the sending request is done.
+                for(; lastPointCount < size && !flage; lastPointCount++) //do the summing while waiting for the sending request is done.
                 {
-                    mpiInput.vectRoot[lastPointCount] = mpiInput.vect1[lastPointCount] + mpiInput.vect2[lastPointCount];
+                    mpiInput.reference[lastPointCount] = mpiInput.input1[lastPointCount] + mpiInput.input2[lastPointCount];
 
                     MPI_Testall(2,requestRootSend,&flage, MPI_STATUS_IGNORE); //2 for two requests above. Check on flage.
                 }
@@ -526,31 +595,31 @@ const std::pair <float, float> multiNonBlockSend(MPIinputs& mpiInput)
     
     if(mpiInput.rank)//Only for Workers 
     {
-        MPI_Irecv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD, &requestWorkerRecv[0]);
-        MPI_Irecv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,Root,0,MPI_COMM_WORLD, &requestWorkerRecv[1]);
+        MPI_Irecv(&mpiInput.vectorWorkers1[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD, &requestWorkerRecv[0]);
+        MPI_Irecv(&mpiInput.vectorWorkers2[0],mpiInput.numberToSend[mpiInput.rank],MPI_FLOAT,root,0,MPI_COMM_WORLD, &requestWorkerRecv[1]);
         MPI_Waitall(2,requestWorkerRecv,MPI_STATUS_IGNORE);//2 for two requests above.
         
         for(long unsigned int i = 0; i < mpiInput.vectorWorkers1.size(); i++)
         {
             mpiInput.vectorWorkers1[i] += mpiInput.vectorWorkers2[i];
         }
-        MPI_Issend(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, Root, 0, MPI_COMM_WORLD, &requestWorkerSend); //Tag is 0
+        MPI_Issend(&mpiInput.vectorWorkers1[0], mpiInput.numberToSend[mpiInput.rank], MPI_FLOAT, root, 0, MPI_COMM_WORLD, &requestWorkerSend); //Tag is 0
         MPI_Wait(&requestWorkerSend,MPI_STATUS_IGNORE);
     }
 
 
-    if(!mpiInput.rank)//Only for Root
+    if(!mpiInput.rank)//Only for root
     {
         int flage2 = 0; //set operation to processed.
         startTimeRootRecv = MPI_Wtime();
         for(int i = 1; i < mpiInput.num_procs; i++)
         {
-            MPI_Irecv(&mpiInput.vect3[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, &requestRootRecv);
+            MPI_Irecv(&mpiInput.output[mpiInput.displacement[i]],mpiInput.numberToSend[i],MPI_FLOAT,i,0,MPI_COMM_WORLD, &requestRootRecv);
             do{
                 MPI_Test(&requestRootRecv,&flage2,MPI_STATUS_IGNORE);//Check on flage2.
-                for(; lastPointCount < sizeOfVector && !flage2; lastPointCount++) //do the summing while waiting for the sending request is done.
+                for(; lastPointCount < size && !flage2; lastPointCount++) //do the summing while waiting for the sending request is done.
                 {
-                    mpiInput.vectRoot[lastPointCount] = mpiInput.vect1[lastPointCount] + mpiInput.vect2[lastPointCount];
+                    mpiInput.reference[lastPointCount] = mpiInput.input1[lastPointCount] + mpiInput.input2[lastPointCount];
 
                     MPI_Test(&requestRootRecv,&flage2,MPI_STATUS_IGNORE);//Check on flage.
                 }
@@ -558,19 +627,19 @@ const std::pair <float, float> multiNonBlockSend(MPIinputs& mpiInput)
 
         }
         endTimeRootRecv = MPI_Wtime();
-        for(; lastPointCount < sizeOfVector; lastPointCount++)
+        for(; lastPointCount < size; lastPointCount++)
         {
             
-            mpiInput.vectRoot[lastPointCount] = mpiInput.vect1[lastPointCount] + mpiInput.vect2[lastPointCount];
+            mpiInput.reference[lastPointCount] = mpiInput.input1[lastPointCount] + mpiInput.input2[lastPointCount];
         }
-        checkingResultsPrintout(mpiInput.vectRoot,mpiInput.vect3, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only Root print out the results.
-        Retrun.first = (endTimeRootSend - startTimeRootSend)*1000;
-        Retrun.second = (endTimeRootRecv - startTimeRootRecv)*1000;
-        std::cout << "\nTime Sending Root = " << Retrun.first << " ms";
-        std::cout << "\nTime Receiving Root = " << Retrun.second << " ms\n";
+        checkingResultsPrintout(mpiInput.reference,mpiInput.output, mpiInput.workSplit, mpiInput.displacement, mpiInput.numberToSend); //Only root print out the results.
+        returnValue.first = (endTimeRootSend - startTimeRootSend)*1000;
+        returnValue.second = (endTimeRootRecv - startTimeRootRecv)*1000;
+        // std::cout << "\nTime Sending root = " << returnValue.first << " ms";
+        // std::cout << "\nTime Receiving root = " << returnValue.second << " ms\n";
         
     }
-    return Retrun;
+    return returnValue;
 }
 
 
@@ -579,52 +648,62 @@ const std::vector <int> chooseFunction(int toInteger)
     std::vector <int> digits(0,0);
     std::vector <int> ERROR(0,0);
   
-    int copyTointger{0};
-    int divition{ 0 };
-    int length{0};
+    int copyTointger{ 0 };
+    int digit{ 1 };
+    int length{ 0 };
 
-
-    copyTointger = toInteger;
-   
-    
-    while (copyTointger)
+while (toInteger > 0) 
     {
-        copyTointger /= 10;
-        ++length;
-    }
-
-	divition = std::pow(10.0, (float)(length-1));
-	copyTointger = toInteger;
-	digits.resize(length);
-
-    for (int i = 0; i < length; i++)
-    {
-		copyTointger = toInteger / divition;
-        if(copyTointger > val)
+        digit = toInteger % 10;
+        if (digit > choices) 
         {
-            std::cout << "\n\tError Must be integer Argument <= " << val << std::endl;
+            std::cout << "\n\tError Must be integer Argument <= " << choices << std::endl;
             return ERROR;
         }
-        digits[i]= copyTointger;
-		copyTointger *= divition;
-		toInteger -= copyTointger;
-		divition /= 10;
+        digits.push_back(digit);
+        toInteger /= 10;
     }
-
+    std::reverse(digits.begin(), digits.end());
     return digits;
 
 }
 
-void compare(const std::vector<std::pair <float, float>> &timing, int val, const std::vector <int> digits)
+void compare(const std::vector<std::pair <float, float>> &timing, int choices, const std::vector <int>& digits)
 {
 	std::cout.setf(std::ios::fixed, std::ios::floatfield);
     
 	int j{ 0 };
     int k{ 0 };
+    for(long unsigned int i = 0; i < timing.size(); ++i)
+    {
+        if(timing[i].first)
+        {
+            switch(i)
+            {
+                case 0:
+                    std::cout << "\n\t\t(1) Non-Blocking Scatter " << std::endl;
+                break;
+                case 1:
+                    std::cout << "\n\t\t(2) Blocking Scatter " << std::endl;
+                break;
+                case 2:
+                    std::cout << "\n\t\t(3) Non-Blocking Send and Receive " << std::endl;
+                break;
+                case 3:
+                    std::cout << "\n\t\t(4) Blocking Send and Receive " << std::endl;
+                break;
+                case 4:
+                    std::cout << "\n\t\t(5) Non-Blocking Send and Receive with Multiple Tasks" << std::endl;
+                break;
+                default:
+                std::cout <<"\nSomething went wrong!\n";
+            }
+        }
+    }
 	std::cout << "\n\n\t===================================================";
-	std::cout << "\n\t||      ||  Scatter/Send   ||   Gather/Receive   ||";
+	std::cout << "\n\t||      ||  Scatter/Send   ||   Gather/Receive    ||";
 	std::cout << "\n\t===================================================";
-	for (long unsigned int i = 0; i < timing.size(); i++)
+	for (long unsigned int i = 0; i < timing.size(); ++i)
 	{
 		
 		if (timing[i].first)
@@ -634,9 +713,9 @@ void compare(const std::vector<std::pair <float, float>> &timing, int val, const
 				std::cout << "\n\t---------------------------------------------------";
 
 			}
-            std::cout << std::fixed;
-            std::setprecision(4);
-			std::cout << "\n\t|| " << std::setw(2) << digits[k] << "   ||     " << std::setw(5) << timing[i].first << "    ||        " << std::setw(5) << timing[i].second << "     ||";
+            std::cout.flags ( std::ios::fixed | std::ios::showpoint );
+            std::cout.precision(precision);
+			std::cout << "\n\t|| " << std::setw(2) << digits[k] << "     ||     " << std::setw(5) << timing[i].first << "    ||        " << std::setw(5) << timing[i].second << "     ||";
 			j+=2;
             ++k;
 		}
