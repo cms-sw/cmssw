@@ -110,14 +110,14 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //setup maps
   createBinning(detIdVec);
-  int minLayer( *std::min_element(allLayers_.begin(),allLayers_.end()) );
-  int maxLayer( *std::max_element(allLayers_.begin(),allLayers_.end()) );
+  int minLayer(*std::min_element(allLayers_.begin(), allLayers_.end()));
+  int maxLayer(*std::max_element(allLayers_.begin(), allLayers_.end()));
   int nLayers(maxLayer - minLayer + 1);
-  int minIeta( *std::min_element(allIeta_.begin(),allIeta_.end()) );
-  int maxIeta( *std::max_element(allIeta_.begin(),allIeta_.end()) );
+  int minIeta(*std::min_element(allIeta_.begin(), allIeta_.end()));
+  int maxIeta(*std::max_element(allIeta_.begin(), allIeta_.end()));
   int nIeta(maxIeta - minIeta + 1);
-  int minIphi( *std::min_element(allIphi_.begin(),allIphi_.end()) );
-  int maxIphi( *std::max_element(allIphi_.begin(),allIphi_.end()) );
+  int minIphi(*std::min_element(allIphi_.begin(), allIphi_.end()));
+  int maxIphi(*std::max_element(allIphi_.begin(), allIphi_.end()));
   int nIphi(maxIphi - minIphi + 1);
 
   TString hnames[] = {"count", "radius", "dose", "fluence", "s", "n", "sn", "lysf", "gain", "thr"};
@@ -229,20 +229,22 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
   }
 
   //normalize by the number of tiles to have the mean stored
-  for(auto h : histos_) {
+  for (auto h : histos_) {
     TString name(h.first);
-    if(name.Contains("count_") ) continue;
-    TString pfix( name.Contains("ieta") ? "ieta" : "iphi" );
-    h.second->Divide( histos_["count_"+pfix] );
+    if (name.Contains("count_"))
+      continue;
+    TString pfix(name.Contains("ieta") ? "ieta" : "iphi");
+    h.second->Divide(histos_["count_" + pfix]);
   }
 
-  for(auto h : layerHistos_) {
+  for (auto h : layerHistos_) {
     int lay(h.first);
-    for(auto hh : layerHistos_[lay]) {
+    for (auto hh : layerHistos_[lay]) {
       TString name(hh.first);
-      if(name.Contains("count_") ) continue;
-      TString pfix( name.Contains("ieta") ? "ieta" : "iphi" );
-      hh.second->Divide( layerHistos_[lay]["count_"+pfix] );
+      if (name.Contains("count_"))
+        continue;
+      TString pfix(name.Contains("ieta") ? "ieta" : "iphi");
+      hh.second->Divide(layerHistos_[lay]["count_" + pfix]);
     }
   }
 }

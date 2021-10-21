@@ -206,14 +206,13 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
       //in the region where measurements are available we have used a linear approximation in log (f)
       //the extrapolation to the lower fluence regions is done with an error function matched at the boundary
       //this is a bit more expensive than the previous approximation (lin-lin approx) but it fits
-      //better the TDR, TTU and the new 2021 data   
-      if(siop.fluence > cceParam[0]) {
-           siop.core.cce = cceParam[2]*siop.lnfluence+cceParam[1];
-      }
-      else {
-           double at = cceParam[2]*log(cceParam[0])+cceParam[1];
-           double bt = -cceParam[0]/TMath::ErfcInverse(1./at);
-           siop.core.cce = at * TMath::Erfc( (siop.fluence-cceParam[0])/bt );
+      //better the TDR, TTU and the new 2021 data
+      if (siop.fluence > cceParam[0]) {
+        siop.core.cce = cceParam[2] * siop.lnfluence + cceParam[1];
+      } else {
+        double at = cceParam[2] * log(cceParam[0]) + cceParam[1];
+        double bt = -cceParam[0] / TMath::ErfcInverse(1. / at);
+        siop.core.cce = at * TMath::Erfc((siop.fluence - cceParam[0]) / bt);
       }
 
       siop.core.cce = std::max((float)0., siop.core.cce);
