@@ -28,7 +28,7 @@ FlagsCleanerECAL::FlagsCleanerECAL(const edm::ParameterSet& conf, edm::ConsumesC
 void FlagsCleanerECAL::clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) {
   auto const& hits = *input;
 
-  for (uint16_t idx = 0; idx < hits.size(); ++idx) {
+  for (uint idx = 0; idx < hits.size(); ++idx) {
     if (!mask[idx])
       continue;  // don't need to re-mask things :-)
     const reco::PFRecHit& rechit = hits[idx];
