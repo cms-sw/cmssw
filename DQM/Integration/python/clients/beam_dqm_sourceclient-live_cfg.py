@@ -436,3 +436,4 @@ else:
                        * process.monitor
                        * process.BeamSpotProblemModule)
 
+print("Final Source settings:", process.source)
