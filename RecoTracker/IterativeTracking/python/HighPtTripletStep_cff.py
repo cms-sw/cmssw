@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ### high-pT triplets ###
 
 # NEW CLUSTERS (remove previously used clusters)
@@ -196,6 +199,8 @@ highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkf
     # of the outermost Tracker barrel layer (with B=3.8T)
     maxPtForLooperReconstruction = cms.double(0.7)
 )
+trackingNoLoopers.toModify(highPtTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
     inOutTrajectoryFilter = dict(refToPSet_ = 'highPtTripletStepTrajectoryFilterInOut'),
     useSameTrajFilter = False,
