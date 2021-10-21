@@ -34,7 +34,7 @@ struct MPIData {
 
 int choices = 5;    //number of functions of MPI.
 int size = 21;      //default size of vectors.
-int runNumber = 5;  //default number of time to run each function in order to take the average.
+unsigned int runNumber = 5;  //default number of time to run each function in order to take the average.
 int precision = 4;  //default digits after decimal point.
 int function = 5;   //Total number of functions in the program.
 int root = 0;
@@ -73,11 +73,11 @@ void compare(const std::vector<std::pair<float, float>>& timing,
 
 const std::pair<float, float> returnAverage(const std::pair<float, float> (*mpiFunctions)(MPIData&),
                                             MPIData& mpiInput,
-                                            int runNumber);  //to get the average of time for each function.
+                                            unsigned int runNumber);  //to get the average of time for each function.
 
 int main(int argc, char* argv[]) {
   int c;
-  char* cvalue = NULL;
+
   while ((c = getopt(argc, argv, "s:r:n:")) != -1) {
     switch (c) {
       case 's':
@@ -725,9 +725,8 @@ const std::vector<int> chooseFunction(int toInteger) {
   std::vector<int> digits(0, 0);
   std::vector<int> ERROR(0, 0);
 
-  int copyTointger{0};
   int digit{1};
-  int length{0};
+
 
   while (toInteger > 0) {
     digit = toInteger % 10;
@@ -795,7 +794,7 @@ void compare(const std::vector<std::pair<float, float>>& timing,
 
 const std::pair<float, float> returnAverage(const std::pair<float, float> (*mpiFunctions)(MPIData&),
                                             MPIData& mpiInput,
-                                            int runNumber) {
+                                            unsigned int runNumber) {
   std::pair<float, float> output;
   for (long unsigned int i = 0; i < runNumber; ++i) {
     auto accum = mpiFunctions(mpiInput);
