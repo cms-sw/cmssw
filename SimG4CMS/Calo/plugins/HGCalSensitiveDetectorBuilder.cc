@@ -53,7 +53,8 @@ public:
     SimActivityRegistryEnroller::enroll(reg, sd.get());
 #ifdef EDM_ML_DEBUG
     const auto& dets = clg.logicalNames(iname);
-    edm::LogVerbatim("HGCSim") << "HGCalSensitiveDetectorBuilder for " << iname << " utilizes " << dets.size() << " detectors";
+    edm::LogVerbatim("HGCSim") << "HGCalSensitiveDetectorBuilder for " << iname << " utilizes " << dets.size()
+                               << " detectors";
     for (unsigned int k = 0; k < dets.size(); ++k)
       edm::LogVerbatim("HGCSim") << "Detector [" << k << "] " << dets[k];
 #endif
