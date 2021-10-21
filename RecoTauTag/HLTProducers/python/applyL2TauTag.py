@@ -45,7 +45,6 @@ def update(process):
         track_pt_min = 1.,
         track_pt_max = 20.,
         track_chi2_max = 20.,
-        track_prob_min = -1.,
         graphPath = graphPath,
         normalizationDict = normalizationDict
     )

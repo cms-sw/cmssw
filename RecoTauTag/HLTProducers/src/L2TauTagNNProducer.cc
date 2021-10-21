@@ -8,7 +8,6 @@
 */
 #include <memory>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <cmath>
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,6 +18,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -215,7 +215,6 @@ private:
   const double trackPtMin_;
   const double trackPtMax_;
   const double trackChi2Max_;
-  const double trackProbMin_;
   std::string inputTensorName_;
   std::string outputTensorName_;
   const L2TauNNProducerCacheData* L2cacheData_;
@@ -298,8 +297,7 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
       minSumPt2_(cfg.getParameter<double>("minSumPt2")),
       trackPtMin_(cfg.getParameter<double>("track_pt_min")),
       trackPtMax_(cfg.getParameter<double>("track_pt_max")),
-      trackChi2Max_(cfg.getParameter<double>("track_chi2_max")),
-      trackProbMin_(cfg.getParameter<double>("track_prob_min")) {
+      trackChi2Max_(cfg.getParameter<double>("track_chi2_max")) {
   if (cacheData->graphDef == nullptr) {
     throw cms::Exception("InvalidCacheData") << "Invalid Cache Data.";
   }
@@ -336,7 +334,7 @@ void L2TauNNProducer::checknan(tensorflow::Tensor& tensor, int debugLevel) {
             return getCellImpl(tensor, tau_idx, phi_idx, eta_idx, input);
           };
           auto nonstd_var = getCell(static_cast<NNInputs>(var_idx));
-          if (std::isnan(nonstd_var)) {
+          if (edm::isNotFinite(nonstd_var)) {
             edm::LogWarning("InputVar") << "var is nan \nvar name= "
                                         << L2TauTagNNv1::varNameMap.at(static_cast<L2TauTagNNv1::NNInputs>(var_idx))
                                         << "\t var_idx = " << var_idx << "\t eta_idx = " << eta_idx
@@ -635,7 +633,7 @@ std::pair<float, float> L2TauNNProducer::impactParameter(int it,
                                                          const reco::BeamSpot& beamspot,
                                                          const MagneticField* magfi) {
   auto const& fit = patatracks_tsoa.stateAtBS;
-  /* dxy e dz */
+  /* dxy and dz */
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
   fit.copyToDense(ipar, icov, it);
