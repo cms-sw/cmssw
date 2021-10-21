@@ -26,7 +26,7 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Module" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
-    <Parameter name="LevelTop"            value="11"/>
+    <Parameter name="LevelTop"            value="12"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
@@ -88,7 +88,7 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Module" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
-    <Parameter name="LevelTop"            value="11"/>
+    <Parameter name="LevelTop"            value="12"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
