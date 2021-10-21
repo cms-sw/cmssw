@@ -18,6 +18,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
@@ -26,13 +27,25 @@ class DetLayer;  // #include "TrackingTools/DetLayers/interface/DetLayer.h" //
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+class IdealMagneticFieldRecord;
+class TrackingComponentsRecord;
+class MuonRecoGeometryRecord;
+
 //This is a nearly identical copy to MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h
 
 namespace hltriggeroffline {
 
   class PropagateToMuon {
   public:
-    explicit PropagateToMuon(const edm::ParameterSet &iConfig);
+    using ESTokens = std::tuple<edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord>>;
+
+    static ESTokens getESTokens(edm::ConsumesCollector);
+
+    explicit PropagateToMuon(const edm::ParameterSet &iConfig, const ESTokens &);
     ~PropagateToMuon();
 
     /// Call this method at the beginning of each run, to initialize geometry,
@@ -68,6 +81,11 @@ namespace hltriggeroffline {
     edm::ESHandle<MagneticField> magfield_;
     edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
     edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
+
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+    edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_, propagatorAnyToken_,
+        propagatorOppositeToken_;
+    edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonGeometryToken_;
     // simplified geometry for track propagation
     const BoundCylinder *barrelCylinder_;
     const BoundDisk *endcapDiskPos_, *endcapDiskNeg_;
