@@ -1,5 +1,5 @@
-#ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
-#define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
+#ifndef HLTriggerOffline_Muon_interface_PropagateToMuon_h
+#define HLTriggerOffline_Muon_interface_PropagateToMuon_h
 //
 //
 
@@ -26,59 +26,64 @@ class DetLayer;  // #include "TrackingTools/DetLayers/interface/DetLayer.h" //
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class PropagateToMuon {
-public:
-  explicit PropagateToMuon(const edm::ParameterSet &iConfig);
-  ~PropagateToMuon();
+//This is a nearly identical copy to MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h
 
-  /// Call this method at the beginning of each run, to initialize geometry,
-  /// magnetic field and propagators
-  void init(const edm::EventSetup &iSetup);
+namespace hltriggeroffline {
 
-  /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if
-  /// it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const { return extrapolate(startingState(tk)); }
+  class PropagateToMuon {
+  public:
+    explicit PropagateToMuon(const edm::ParameterSet &iConfig);
+    ~PropagateToMuon();
 
-  /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS
-  /// if it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return extrapolate(startingState(tk)); }
+    /// Call this method at the beginning of each run, to initialize geometry,
+    /// magnetic field and propagators
+    void init(const edm::EventSetup &iSetup);
 
-  /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid
-  /// TSOS if it fails
-  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const;
+    /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if
+    /// it fails
+    TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const { return extrapolate(startingState(tk)); }
 
-private:
-  enum WhichTrack { None, TrackerTk, MuonTk, GlobalTk };
-  enum WhichState { AtVertex, Innermost, Outermost };
+    /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS
+    /// if it fails
+    TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return extrapolate(startingState(tk)); }
 
-  /// Labels for input collections
-  bool useSimpleGeometry_;
-  WhichTrack whichTrack_;
-  WhichState whichState_;
+    /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid
+    /// TSOS if it fails
+    TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const;
 
-  /// for cosmics, some things change: the along-opposite is not in-out, nor the
-  /// innermost/outermost states are in-out really
-  bool cosmicPropagation_;
+  private:
+    enum WhichTrack { None, TrackerTk, MuonTk, GlobalTk };
+    enum WhichState { AtVertex, Innermost, Outermost };
 
-  // needed services for track propagation
-  edm::ESHandle<MagneticField> magfield_;
-  edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
-  edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
-  // simplified geometry for track propagation
-  const BoundCylinder *barrelCylinder_;
-  const BoundDisk *endcapDiskPos_, *endcapDiskNeg_;
-  double barrelHalfLength_;
-  std::pair<float, float> endcapRadii_;
+    /// Labels for input collections
+    bool useSimpleGeometry_;
+    WhichTrack whichTrack_;
+    WhichState whichState_;
 
-  /// Starting state for the propagation
-  FreeTrajectoryState startingState(const reco::Candidate &reco) const;
+    /// for cosmics, some things change: the along-opposite is not in-out, nor the
+    /// innermost/outermost states are in-out really
+    bool cosmicPropagation_;
 
-  /// Starting state for the propagation
-  FreeTrajectoryState startingState(const reco::Track &tk) const;
+    // needed services for track propagation
+    edm::ESHandle<MagneticField> magfield_;
+    edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
+    edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
+    // simplified geometry for track propagation
+    const BoundCylinder *barrelCylinder_;
+    const BoundDisk *endcapDiskPos_, *endcapDiskNeg_;
+    double barrelHalfLength_;
+    std::pair<float, float> endcapRadii_;
 
-  /// Get the best TSOS on one of the chambres of this DetLayer, or an invalid
-  /// TSOS if none match
-  TrajectoryStateOnSurface getBestDet(const TrajectoryStateOnSurface &tsos, const DetLayer *station) const;
-};
+    /// Starting state for the propagation
+    FreeTrajectoryState startingState(const reco::Candidate &reco) const;
+
+    /// Starting state for the propagation
+    FreeTrajectoryState startingState(const reco::Track &tk) const;
+
+    /// Get the best TSOS on one of the chambres of this DetLayer, or an invalid
+    /// TSOS if none match
+    TrajectoryStateOnSurface getBestDet(const TrajectoryStateOnSurface &tsos, const DetLayer *station) const;
+  };
+}  // namespace hltriggeroffline
 
 #endif
