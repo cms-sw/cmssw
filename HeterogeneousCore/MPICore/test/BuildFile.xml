@@ -1,4 +1,4 @@
 <bin name="testMPI" file="testMPI.cc">
     <use name="openmpi"/>
-    <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI 100 12345"/>
+    <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI -s 1000 -r 12345 -n 10"/>
 </bin>
