@@ -335,8 +335,6 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
      outputTensorName = cms.string("ffwd_out/BiasAdd:0"),
      outputNames = cms.vstring(["corr","res"]),
      outputFormulas = cms.vstring(["at(0)*0.27912887930870056+1.0545977354049683","0.5*(at(2)-at(1))*0.27912887930870056"]),
-     nThreads = cms.uint32(1),
-     singleThreadPool = cms.string("no_threads"),
 )
 
 cjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
@@ -390,8 +388,6 @@ cjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
      outputTensorName = cms.string("ffwd_out/BiasAdd:0"),
      outputNames = cms.vstring(["corr","res"]),
      outputFormulas = cms.vstring(["at(0)*0.24325256049633026+0.993854820728302","0.5*(at(2)-at(1))*0.24325256049633026"]),
-     nThreads = cms.uint32(1),
-     singleThreadPool = cms.string("no_threads"),
 )
 
 
