@@ -157,8 +157,8 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     float tunedNoise = nPEperMIP_ * noise_MIP_;                //flat noise case
     float adcThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
     int gainIdx(0);
-    float adcLsb( this->myFEelectronics_->getADClsb() );
-    float maxADC(-1);   //vanilla will rely on what has been configured by default
+    float adcLsb(this->myFEelectronics_->getADClsb());
+    float maxADC(-1);  //vanilla will rely on what has been configured by default
     uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
                                          : std::floor(adcThr / adcLsb));
     float nTotalPixels(nTotalPE_);
@@ -212,7 +212,8 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       //Note: for now the saturation effects are ignored...
       if (scaleByDose_) {
         float pedestal(meanN);
-        if( scal_.ignoreAutoPedestalSubtraction() ) pedestal=0.f;
+        if (scal_.ignoreAutoPedestalSubtraction())
+          pedestal = 0.f;
         chargeColl[i] = std::max(nPixel - pedestal, 0.f);
       }
       //vanilla simulation: scale back to MIP units... and to calibrated response depending on the thresholdFollowsMIP_ flag

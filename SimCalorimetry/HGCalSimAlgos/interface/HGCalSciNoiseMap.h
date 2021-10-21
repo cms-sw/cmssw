@@ -82,7 +82,7 @@ private:
 
   //flags used to disable/override specific SiPM-on-tile operation parameters
   bool ignoreSiPMarea_, overrideSiPMarea_, ignoreTileArea_, ignoreDoseScale_, ignoreFluenceScale_, ignoreNoise_,
-    ignoreTileType_,ignoreAutoPedestalSub_;
+      ignoreTileType_, ignoreAutoPedestalSub_;
 
   //reference dark current for the noise (mA)
   double refDarkCurrent_;
