@@ -2,6 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace hltriggeroffline;
+
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig)
     : prop_(iConfig),
       preselectionCut_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection")

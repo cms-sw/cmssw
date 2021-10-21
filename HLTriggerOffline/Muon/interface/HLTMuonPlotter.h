@@ -130,7 +130,7 @@ private:
   StringCutObjectSelector<reco::GenParticle> *genMuonSelector_;
   StringCutObjectSelector<reco::Muon> *recMuonSelector_;
 
-  L1MuonMatcherAlgo l1Matcher_;
+  hltriggeroffline::L1MuonMatcherAlgo l1Matcher_;
 
   std::map<std::string, MonitorElement *> elements_;
 };

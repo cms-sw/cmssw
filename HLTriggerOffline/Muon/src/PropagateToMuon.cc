@@ -15,6 +15,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace hltriggeroffline;
+
 PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
     : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
       whichTrack_(None),
