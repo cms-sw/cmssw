@@ -1157,7 +1157,7 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021'}, stepDict[step][k]])
         elif 'Phase2' in stepDict[step][k]['--era']:
             dd4hepGeom="DD4hep"
             dd4hepGeom+=stepDict[step][k]['--geometry']
@@ -1207,6 +1207,29 @@ upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
     offset = 0.912,
 )
 upgradeWFs['DD4hepDB'].allowReuse = False
+
+class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Run3' in stepDict[step][k]['--era']:
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic', '--geometry': 'DB:Extended', '--era': 'Run3_DDD'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
+    steps = [
+        'GenSim',
+        'Digi',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+        'RecNan',
+    ],
+    PU = [],
+    suffix = '_DDDDB',
+    offset = 0.914,
+)
+upgradeWFs['DDDDB'].allowReuse = False
 
 class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1286,7 +1309,7 @@ upgradeProperties[2017] = {
     },
     '2021' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_realistic',
+        'GT' : 'auto:phase1_2021_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1294,7 +1317,7 @@ upgradeProperties[2017] = {
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_design',
+        'GT' : 'auto:phase1_2021_design_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
@@ -1302,7 +1325,7 @@ upgradeProperties[2017] = {
     },
     '2023' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2023_realistic',
+        'GT' : 'auto:phase1_2023_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1310,7 +1333,7 @@ upgradeProperties[2017] = {
     },
     '2024' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2024_realistic',
+        'GT' : 'auto:phase1_2024_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
