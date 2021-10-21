@@ -229,6 +229,9 @@ def customisePixelLocalReconstruction(process):
     # workaround for AlCa paths
 
     if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
+        if "HLTSchedule" in process.__dict__:
+            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_Random_v1)
+            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_Random_v1)
         # redefine the path to use the HLTDoLocalPixelSequence
         process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
             process.HLTBeginSequenceRandom +
@@ -238,8 +241,13 @@ def customisePixelLocalReconstruction(process):
             process.HLTDoLocalPixelSequence +
             process.hltAlcaPixelClusterCounts +
             process.HLTEndSequence )
+        if "HLTSchedule" in process.__dict__:
+            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_Random_v1)
 
     if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
+        if "HLTSchedule" in process.__dict__:
+            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
+            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
         # redefine the path to use the HLTDoLocalPixelSequence
         process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
             process.HLTBeginSequence +
@@ -250,6 +258,8 @@ def customisePixelLocalReconstruction(process):
             process.HLTDoLocalPixelSequence +
             process.hltAlcaPixelClusterCounts +
             process.HLTEndSequence )
+        if "HLTSchedule" in process.__dict__:
+            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_ZeroBias_v1)
 
 
     # done
