@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ### STEP 0 ###
 
 # hit building
@@ -202,6 +205,8 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
 )
+trackingNoLoopers.toModify(initialStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
 trackingPhase1.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
