@@ -1176,6 +1176,7 @@ upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
         'HARVEST',
         'HARVESTGlobal',
         'ALCA',
+        'RecNan',
     ],
     PU = [],
     suffix = '_DD4hep',
@@ -1201,6 +1202,7 @@ upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
         'HARVEST',
         'HARVESTGlobal',
         'ALCA',
+        'RecNan',
     ],
     PU = [],
     suffix = '_DD4hepDB',
@@ -1217,7 +1219,10 @@ class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
     steps = [
         'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
         'Digi',
+        'DigiTrigger',
         'Reco',
         'RecoGlobal',
         'HARVEST',
@@ -1309,7 +1314,7 @@ upgradeProperties[2017] = {
     },
     '2021' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_dd4hep',
+        'GT' : 'auto:phase1_2021_realistic_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1325,7 +1330,7 @@ upgradeProperties[2017] = {
     },
     '2023' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2023_dd4hep',
+        'GT' : 'auto:phase1_2023_realistic_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1333,7 +1338,7 @@ upgradeProperties[2017] = {
     },
     '2024' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2024_dd4hep',
+        'GT' : 'auto:phase1_2024_realistic_dd4hep',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
