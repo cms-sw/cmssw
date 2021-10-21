@@ -32,11 +32,11 @@ struct MPIData {
   std::vector<int> numberToSend;
 };
 
-int choices = 5;    //number of functions of MPI.
-int size = 21;      //default size of vectors.
+int choices = 5;             //number of functions of MPI.
+int size = 21;               //default size of vectors.
 unsigned int runNumber = 5;  //default number of time to run each function in order to take the average.
-int precision = 4;  //default digits after decimal point.
-int function = 5;   //Total number of functions in the program.
+int precision = 4;           //default digits after decimal point.
+int function = 5;            //Total number of functions in the program.
 int root = 0;
 int choice = 0;  //user Choice to select function to run.
 
@@ -726,7 +726,6 @@ const std::vector<int> chooseFunction(int toInteger) {
   std::vector<int> ERROR(0, 0);
 
   int digit{1};
-
 
   while (toInteger > 0) {
     digit = toInteger % 10;
