@@ -19,6 +19,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTriggerOffline/Muon/interface/PropagateToMuon.h"
 #include <cmath>
@@ -27,7 +28,9 @@ namespace hltriggeroffline {
 
   class L1MuonMatcherAlgo {
   public:
-    explicit L1MuonMatcherAlgo(const edm::ParameterSet &iConfig);
+    using ESTokens = PropagateToMuon::ESTokens;
+
+    explicit L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, const ESTokens &iTokens);
     ~L1MuonMatcherAlgo();
 
     /// Call this method at the beginning of each run, to initialize geometry,

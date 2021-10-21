@@ -4,8 +4,8 @@
 
 using namespace hltriggeroffline;
 
-L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig)
-    : prop_(iConfig),
+L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, const ESTokens &tokens)
+    : prop_(iConfig, tokens),
       preselectionCut_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection")
                                                                      : ""),
       deltaR2_(std::pow(iConfig.getParameter<double>("maxDeltaR"), 2)),
