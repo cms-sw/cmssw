@@ -6,9 +6,12 @@
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
-TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) : TrajectoryFactoryBase(config, 1) {}
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config, const edm::ConsumesCollector& iC)
+    : TrajectoryFactoryBase(config, 1, iC) {}
 
-TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config, unsigned int tracksPerTrajectory)
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config,
+                                             unsigned int tracksPerTrajectory,
+                                             const edm::ConsumesCollector& iC)
     : cfg_(config),
       tracksPerTrajectory_(tracksPerTrajectory),
       materialEffects_(materialEffects(config.getParameter<std::string>("MaterialEffects"))),
