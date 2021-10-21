@@ -7,13 +7,10 @@
  *         Konstantin Androsov, EPFL and ETHZ
  */
 
-// system include files
-#include <iostream>
 // user include files
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/Handle.h"
