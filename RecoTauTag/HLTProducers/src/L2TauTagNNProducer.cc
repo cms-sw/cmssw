@@ -273,7 +273,6 @@ void L2TauNNProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("track_pt_min", 1.0)->setComment("min track p_T");
   desc.add<double>("track_pt_max", 10.0)->setComment("max track p_T");
   desc.add<double>("track_chi2_max", 99999.)->setComment("max track chi2");
-  desc.add<double>("track_prob_min", -1.)->setComment("min track prob");
   desc.add<std::string>("graphPath", "RecoTauTag/TrainingFiles/data/L2TauNNTag/L2TauTag_Run3v1.pb")
       ->setComment("path to the saved CNN");
   desc.add<std::string>("normalizationDict", "RecoTauTag/TrainingFiles/data/L2TauNNTag/NormalizationDict.json")
