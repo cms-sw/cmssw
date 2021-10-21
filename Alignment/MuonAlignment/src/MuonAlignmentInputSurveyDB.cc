@@ -34,18 +34,25 @@
 //
 // constructors and destructor
 //
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB()
-    : m_dtLabel(""), m_cscLabel(""), idealGeometryLabel("idealForInputSurveyDB") {}
-
-MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel,
-                                                       std::string cscLabel,
-                                                       std::string idealLabel)
-    : m_dtLabel(dtLabel), m_cscLabel(cscLabel), idealGeometryLabel(idealLabel) {}
+MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const DTGeometry* dtGeometry,
+                                                       const CSCGeometry* cscGeometry,
+                                                       const GEMGeometry* gemGeometry,
+                                                       const Alignments* dtSurvey,
+                                                       const Alignments* cscSurvey,
+                                                       const SurveyErrors* dtSurveyError,
+                                                       const SurveyErrors* cscSurveyError)
+    : dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry),
+      dtSurvey_(dtSurvey),
+      cscSurvey_(cscSurvey),
+      dtSurveyError_(dtSurveyError),
+      cscSurveyError_(cscSurveyError) {}
 
 // MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB& rhs)
 // {
 //    // do actual copying here;
-// }
+//
 
 MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 
@@ -65,36 +72,20 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 // member functions
 //
 
-AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<GEMGeometry> gemGeometry;
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
-  edm::ESHandle<Alignments> dtSurvey;
-  edm::ESHandle<SurveyErrors> dtSurveyError;
-  edm::ESHandle<Alignments> cscSurvey;
-  edm::ESHandle<SurveyErrors> cscSurveyError;
-  iSetup.get<DTSurveyRcd>().get(m_dtLabel, dtSurvey);
-  iSetup.get<DTSurveyErrorExtendedRcd>().get(m_dtLabel, dtSurveyError);
-  iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
-  iSetup.get<CSCSurveyErrorExtendedRcd>().get(m_cscLabel, cscSurveyError);
-
-  AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon() const {
+  AlignableMuon* output = new AlignableMuon(dtGeometry_, cscGeometry_, gemGeometry_);
 
   unsigned int theSurveyIndex = 0;
-  const Alignments* theSurveyValues = &*dtSurvey;
-  const SurveyErrors* theSurveyErrors = &*dtSurveyError;
+  const Alignments* theSurveyValues = dtSurvey_;
+  const SurveyErrors* theSurveyErrors = dtSurveyError_;
   const auto& barrels = output->DTBarrel();
   for (const auto& iter : barrels) {
     addSurveyInfo_(iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
   }
 
   theSurveyIndex = 0;
-  theSurveyValues = &*cscSurvey;
-  theSurveyErrors = &*cscSurveyError;
+  theSurveyValues = cscSurvey_;
+  theSurveyErrors = cscSurveyError_;
   const auto& endcaps = output->CSCEndcaps();
   for (const auto& iter : endcaps) {
     addSurveyInfo_(iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
