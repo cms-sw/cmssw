@@ -5,6 +5,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
+#include <array>
 
 /**
    @class HGCalSciNoiseMap
@@ -59,9 +60,9 @@ public:
   void setReferenceDarkCurrent(double idark);
   void setReferenceCrossTalk(double xtalk) { refXtalk_ = xtalk; }
   void setNpePerMIP(float npePerMIP);
-  double *getLSBPerGain() { return lsbPerGain_; }
-  double *getMaxADCPerGain() { return fscADCPerGain_; }
-  double *getNpePerMIP() { return nPEperMIP_; }
+  std::array<double, GAINRANGE_N> getLSBPerGain() { return lsbPerGain_; }
+  std::array<double, GAINRANGE_N> getMaxADCPerGain() { return fscADCPerGain_; }
+  std::array<double, TILETYPE_N> getNpePerMIP() { return nPEperMIP_; }
   float getNPeInSiPM() { return maxSiPMPE_; }
   bool ignoreAutoPedestalSubtraction() { return ignoreAutoPedestalSub_; }
 
@@ -72,10 +73,10 @@ private:
   std::unordered_map<int, float> readSipmPars(const std::string &);
 
   //reference signal yields
-  double nPEperMIP_[TILETYPE_N];
+  std::array<double, TILETYPE_N> nPEperMIP_;
 
   //lsb and fsc per gain
-  double lsbPerGain_[GAINRANGE_N], fscADCPerGain_[GAINRANGE_N];
+  std::array<double, GAINRANGE_N> lsbPerGain_, fscADCPerGain_;
 
   //size of the reference scintillator tile
   const double refEdge_;
