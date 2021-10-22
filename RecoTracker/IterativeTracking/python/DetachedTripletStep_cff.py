@@ -290,11 +290,12 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
     qualityCuts = [-0.2,0.3,0.8]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(detachedTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(detachedTripletStep, trackTfClassifier.clone(
      src = 'detachedTripletStepTracks',
-     qualityCuts = qualityCutDictionary['DetachedTripletStep'],
+     qualityCuts = qualityCutDictionary.DetachedTripletStep.value()
 ))
 (trackdnn & fastSim).toModify(detachedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
