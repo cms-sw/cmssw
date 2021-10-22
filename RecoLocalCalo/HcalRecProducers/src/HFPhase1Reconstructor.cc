@@ -33,6 +33,8 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
+#include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -44,9 +46,6 @@
 
 // Parser for Phase 1 HF reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHFPhase1AlgoDescription.h"
-
-// Fetcher for reco algorithm data
-#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 //
 // class declaration
@@ -73,6 +72,7 @@ private:
   edm::EDGetTokenT<HFPreRecHitCollection> tok_PreRecHit_;
   std::unique_ptr<AbsHFPhase1Algo> reco_;
   std::unique_ptr<AbsHcalAlgoData> recoConfig_;
+  edm::ESGetToken<HFPhase1PMTParams, HFPhase1PMTParamsRcd> recoConfigToken_;
 
   // Noise cleanup algos
   std::unique_ptr<HcalHF_S9S1algorithm> hfS9S1_;
@@ -99,6 +99,15 @@ HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
   // Check that the reco algorithm has been successfully configured
   if (!reco_.get())
     throw cms::Exception("HFPhase1BadConfig") << "Invalid HFPhase1Reconstructor algorithm configuration" << std::endl;
+
+  if (reco_->isConfigurable()) {
+    if ("HFPhase1PMTParams" != algoConfigClass_) {
+      throw cms::Exception("HBHEPhase1BadConfig")
+          << "Invalid HBHEPhase1Reconstructor \"algoConfigClass\" parameter value \"" << algoConfigClass_ << '"'
+          << std::endl;
+    }
+    recoConfigToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 
   // Configure the noise cleanup algorithms
   if (setNoiseFlags_) {
@@ -159,11 +168,7 @@ HFPhase1Reconstructor::~HFPhase1Reconstructor() {
 
 void HFPhase1Reconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es) {
   if (reco_->isConfigurable()) {
-    recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
-    if (!recoConfig_.get())
-      throw cms::Exception("HFPhase1BadConfig")
-          << "Invalid HFPhase1Reconstructor \"algoConfigClass\" parameter value \"" << algoConfigClass_ << '"'
-          << std::endl;
+    recoConfig_ = std::make_unique<HFPhase1PMTParams>(es.getData(recoConfigToken_));
     if (!reco_->configure(recoConfig_.get()))
       throw cms::Exception("HFPhase1BadConfig")
           << "Failed to configure HFPhase1Reconstructor algorithm from EventSetup" << std::endl;
