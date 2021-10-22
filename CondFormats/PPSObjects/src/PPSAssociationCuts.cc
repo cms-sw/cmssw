@@ -33,8 +33,7 @@ PPSAssociationCuts::CutsPerArm::CutsPerArm(const edm::ParameterSet &iConfig, int
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSAssociationCuts::CutsPerArm::buildFunctions() const
-{
+void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
   f_means_.clear();
   for (const auto &s : s_means_)
     f_means_.push_back(std::make_shared<TF1>("f", s.c_str()));
