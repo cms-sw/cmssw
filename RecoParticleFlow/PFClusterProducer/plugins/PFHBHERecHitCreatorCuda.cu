@@ -54,15 +54,19 @@ namespace pf {
 #endif
     }
 
-    __global__ void convert_rechits_to_PFRechits(uint32_t size,
+    __global__ void convert_rechits_to_PFRechits(uint32_t* nPFRHOut,
+                         const bool* rh_mask,
+                         const int* pfrhToInputIdx,
+                         const int* inputToPFRHIdx,
                          const float3* rh_pos,
-                         const uint32_t* rh_neighbours,
-                         const uint32_t* rh_detIdMap,
-                         float const* recHits_energy,
-						 float const* recHits_chi2,
-						 float const* recHits_energyM0,
-						 float const* recHits_timeM0,
-						 uint32_t const* recHits_did,
+                         const int* rh_neighbours,
+                         const int* rh_inputToFullIdx,
+                         const int* rh_fullToInputIdx,
+                         const float* recHits_energy,
+						 const float* recHits_chi2,
+						 const float* recHits_energyM0,
+						 const float* recHits_timeM0,
+						 const uint32_t* recHits_did,
 						 int* pfrechits_depth,
 						 int* pfrechits_layer,
 						 int* pfrechits_caloId,
@@ -72,28 +76,84 @@ namespace pf {
 						 float* pfrechits_pt2,
 						 float* pfrechits_x,
 						 float* pfrechits_y,
-						 float* pfrechits_z) {
-
+						 float* pfrechits_z,
+                         int*   pfrechits_neighbours,
+                         short* pfrechits_neighbourInfos) {
       
-      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < size; i += blockDim.x*gridDim.x) {
 
-          pfrechits_time[i] = recHits_timeM0[i];
-          pfrechits_energy[i] = recHits_energyM0[i];
-          pfrechits_detId[i] = recHits_did[i];
+      uint32_t size = *nPFRHOut;
+      for (uint32_t pfIdx = blockIdx.x * blockDim.x + threadIdx.x; pfIdx < size; pfIdx += blockDim.x*gridDim.x) {
+          int i = pfrhToInputIdx[pfIdx]; // Get index corresponding to rechit input array
+          if (i < 0) printf("convert kernel with pfIdx = %u has input index i = %u\n", pfIdx, i);
+          pfrechits_time[pfIdx] = recHits_timeM0[i];
+          pfrechits_energy[pfIdx] = recHits_energyM0[i];
+          pfrechits_detId[pfIdx] = recHits_did[i];
 
-          uint32_t index = rh_detIdMap[i];  // Determine table index corresponding to this detId
+          int index = rh_inputToFullIdx[i];  // Determine table index corresponding to this detId
+          if (index < 0) printf("convert kernel with pfIdx = %u has full index = %u\n", pfIdx, index);
           float3 pos = rh_pos[index];   // position vector of this rechit
-          pfrechits_x[i] = pos.x; 
-          pfrechits_y[i] = pos.y; 
-          pfrechits_z[i] = pos.z;
+          pfrechits_x[pfIdx] = pos.x; 
+          pfrechits_y[pfIdx] = pos.y; 
+          pfrechits_z[pfIdx] = pos.z;
           
+          auto associateNeighbour = [&] __device__ (uint32_t pos, int eta, int phi, int depth) {
+            int fullIdx = rh_neighbours[index*8+pos];
+            int inputIdx = fullIdx > -1 ? rh_fullToInputIdx[fullIdx] : -1;
+            int pfrhIdx = inputIdx > -1 ? inputToPFRHIdx[inputIdx] : -1;
+            short infos = pfrhIdx > -1 ? 0 : -1;
+            if (pfrhIdx < 0) {
+                pfrechits_neighbours[pfIdx*8+pos] = -1;
+                pfrechits_neighbourInfos[pfIdx*8+pos] = -1;
+            }
+            else {
+                // Valid neighbour found. Compute neighbour infos 
+                if (eta > 0) infos |= 1;
+                infos |= (abs(eta) << 1);
+
+                if (phi > 0) infos |= (1 << 4);
+                infos |= (abs(phi) << 5);
+
+                if (depth > 0) infos |= (1 << 8);
+                infos |= (abs(depth) << 9);
+
+                pfrechits_neighbours[pfIdx*8+pos] = pfrhIdx;
+                pfrechits_neighbourInfos[pfIdx*8+pos] = infos;
+            }
+          };
           
+          // Now fill neighbours and neighbourInfos
+          associateNeighbour(0,  0,  1, 0);   // N
+          associateNeighbour(1,  0, -1, 0);   // $
+          associateNeighbour(2,  1,  0, 0);   // E
+          associateNeighbour(3, -1,  0, 0);   // W
+          associateNeighbour(4,  1,  1, 0);   // NE
+          associateNeighbour(5, -1, -1, 0);   // SW
+          associateNeighbour(6,  1, -1, 0);   // SE
+          associateNeighbour(7, -1,  1, 0);   // NW
+
 #ifdef DEBUG_ENABLE
-          if (pfrechits_detId[i] == 1158694936) {
-            printf("Cuda kernel found neighbours of 1158694936:\n\n");
-            for (int i = 0; i < 8; i++)
-                printf("\t%u\n", rh_neighbours[index*8+i]);
+          if (pfrechits_detId[pfIdx] == 1158694936) {
+            printf("Cuda kernel found neighbours and neighbourInfos of 1158694936:\n");
+            for (int i = 0; i < 8; i++) {
+                printf("\t%d\t%d\t%d\n", i, pfrechits_neighbours[pfIdx*8+i], pfrechits_neighbourInfos[pfIdx*8+i]);
+            }
           }
+//          if (pfrechits_detId[pfIdx] == 1158694936) {
+//            printf("Cuda kernel found neighbours of 1158694936:\n\ti\tpfrhIdx\tinptIdx\tfullIdx\tdetId\n");
+//            for (int i = 0; i < 8; i++) {
+//                if (rh_neighbours[index*8+i] < 0)
+//                    printf("\t%d\tNot found\n", i);
+//                else {
+//                    int fullIdx = rh_neighbours[index*8+i];
+//                    int inputIdx = fullIdx > -1 ? rh_fullToInputIdx[fullIdx] : -1;
+//                    int pfrhIdx = inputIdx > -1 ? inputToPFRHIdx[inputIdx] : -1;
+//                    int did = inputIdx > -1 ? recHits_did[inputIdx] : -1;
+//                    printf("\t%d\t%d\t\t%d\t\t%d\t%d\n", i, pfrhIdx, inputIdx, fullIdx, did); 
+//                }
+//            }
+//                //printf("\t%u\n", rh_neighbours[index*8+i]);
+//            printf("\n");
+//          }
 #endif
       }
 
@@ -153,7 +213,8 @@ namespace pf {
   // Searches by detId for the matching index in lookup table, then terminates
   __global__ void buildDetIdMapPerBlock(uint32_t size,
                                 uint32_t const* rh_detIdRef, // Lookup table index -> detId
-                                uint32_t* rh_detIdMap,  //  Map for input rh detId -> lookup table index
+                                int* rh_inputToFullIdx,  //  Map for input rh index -> lookup table index
+                                int* rh_fullToInputIdx,  //  Map for lookup table index -> input rh index
                                 uint32_t const* recHits_did) {  //  Rechit detIds
     
     __shared__ uint32_t detId, subdet, minval, maxval;
@@ -179,48 +240,106 @@ namespace pf {
     }
     __syncthreads();
 
+
     for (uint32_t j = threadIdx.x + minval; j < maxval; j += blockDim.x) {
         if (detId == rh_detIdRef[j]) {
             // Found it
-            rh_detIdMap[blockIdx.x] = j;
+            rh_inputToFullIdx[blockIdx.x] = j;
+            rh_fullToInputIdx[j] = blockIdx.x;
             return;
         }
     }
   }
  
     __global__ void testDetIdMap(uint32_t size, 
-                            uint32_t const* rh_detIdRef, // Lookup table index -> detId
-                            uint32_t* rh_detIdMap,  //  Map for input rh detId -> lookup table index
-                            uint32_t const* recHits_did) {  //  Rechit detIds 
+                            const uint32_t* rh_detIdRef, // Lookup table index -> detId
+                            const int* rh_inputToFullIdx,  //  Map for input rh detId -> lookup table index
+                            const int* rh_fullToInputIdx,  //  Map for input rh detId -> lookup table index
+                            const uint32_t* recHits_did) {  //  Rechit detIds 
 
         uint32_t i = blockIdx.x * blockDim.x + threadIdx.x;
         if (i >= size) return;
 
         uint32_t detId = recHits_did[i];
-        uint32_t index = rh_detIdMap[i];
+        int index = rh_inputToFullIdx[i];
+        int fullToInputIdx = index > -1 ? rh_fullToInputIdx[index] : -1;
+        if (fullToInputIdx != i) {
+            printf("Rechit %d detId %u doesn't match index from rh_fullToInputIdx %d!\n", i, detId, fullToInputIdx);
+        }
         if (index >= nValidRHTotal || detId != rh_detIdRef[index])
             printf("Rechit %u detId %u MISMATCH with reference table index %u detId %u\n", i, detId, index, rh_detIdRef[index]);
     }
 
+    __global__ void applyMask(uint32_t nRHIn,
+                              uint32_t* nPFRHOut,
+                              const bool* rh_mask,
+                              int* pfrhToInputIdx,
+                              int* inputToPFRHIdx) {
 
-    
+        uint32_t pos = 0;
+        for (uint32_t i = 0; i < nRHIn; i++) {
+            if (rh_mask[i]) {
+                pfrhToInputIdx[pos] = i;
+                inputToPFRHIdx[i] = pos;
+                pos++;
+            }
+        }
+        printf("First 5 entries of pfrh_idx = (");
+        for (uint32_t i = 0; i < 5; i++)
+            printf("%u,", pfrhToInputIdx[i]);
+        printf(")\n");
+        *nPFRHOut = pos;    // Total number of PFRecHits passing cuts
+        printf("Found %d input rechits with %d excluded rechits\n", nRHIn, nRHIn-pos);
+    }
+
+    __global__ void initializeArrays(bool* rh_mask,
+                                     int* rh_inputToFullIdx,
+                                     int* rh_fullToInputIdx,
+                                     int* pfrhToInputIdx,
+                                     int* inputToPFRHIdx) {
+        
+        for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nValidRHTotal; i += blockDim.x * gridDim.x) {
+            rh_mask[i] = true;
+            if (i == 35 || i == 39 || i == 69) rh_mask[i] = false;
+            rh_inputToFullIdx[i] = -1;
+            rh_fullToInputIdx[i] = -1;
+            pfrhToInputIdx[i] = -1;
+            inputToPFRHIdx[i] = -1;
+        }
+        // Test the rechit mask
+//        if (blockIdx.x == 0 && threadIdx.x == 0) {
+//            rh_mask[2] = false;
+//            rh_mask[3] = false;
+//        }
+//        __syncthreads();
+    }
+
     void entryPoint(
         ::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const& HBHERecHits_asInput,
         OutputPFRecHitDataGPU& HBHEPFRecHits_asOutput,
         PersistentDataGPU& persistentDataGPU,
+        ScratchDataGPU& scratchDataGPU,
         cudaStream_t cudaStream) {
       
-      uint32_t nRH = HBHERecHits_asInput.size;   // Number of input rechits
+      uint32_t nRHIn = HBHERecHits_asInput.size;   // Number of input rechits
+      if (nRHIn == 0) {
+        HBHEPFRecHits_asOutput.PFRecHits.size = 0;
+        return;
+      }
+
+      uint32_t *h_nPFRHOut, *d_nPFRHOut;   // Number of output PFRecHits (total passing cuts)
+      h_nPFRHOut = new uint32_t(0);
+      cudaCheck(cudaMallocAsync(&d_nPFRHOut, sizeof(int), cudaStream));
 
 #ifdef DEBUG_ENABLE
       cudaEvent_t start, stop;
       cudaEventCreate(&start);
       cudaEventCreate(&stop);
+      cudaDeviceSynchronize();
       cudaEventRecord(start, cudaStream);
 #endif
 
-      // First build the mapping for input rechits to lookup table indices
-      buildDetIdMapPerBlock<<<nRH, 256, 0, cudaStream>>>(nRH, persistentDataGPU.rh_detId.get(), persistentDataGPU.rh_detIdMap.get(), HBHERecHits_asInput.did.get()); 
+      initializeArrays<<<(scratchDataGPU.maxSize + 511)/512, 256, 0, cudaStream>>>(scratchDataGPU.rh_mask.get(), scratchDataGPU.rh_inputToFullIdx.get(), scratchDataGPU.rh_fullToInputIdx.get(), scratchDataGPU.pfrhToInputIdx.get(), scratchDataGPU.inputToPFRHIdx.get());
 
 #ifdef DEBUG_ENABLE
       cudaEventRecord(stop, cudaStream);
@@ -228,33 +347,73 @@ namespace pf {
 
       float milliseconds = 0;
       cudaEventElapsedTime(&milliseconds, start, stop);
+      printf("\ninitializeArrays took %f ms\n\n", milliseconds);
+      cudaEventRecord(start, cudaStream);
+#endif
+
+      // First build the mapping for input rechits to lookup table indices
+      buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn, persistentDataGPU.rh_detId.get(), scratchDataGPU.rh_inputToFullIdx.get(), scratchDataGPU.rh_fullToInputIdx.get(), HBHERecHits_asInput.did.get()); 
+
+#ifdef DEBUG_ENABLE
+      cudaEventRecord(stop, cudaStream);
+      cudaEventSynchronize(stop);
+
+      milliseconds = 0;
+      cudaEventElapsedTime(&milliseconds, start, stop);
       printf("\nbuildDetIdMapPerBlock took %f ms\n\n", milliseconds);
       
-      testDetIdMap<<<(nRH+127)/128, 128, 0, cudaStream>>>(nRH, persistentDataGPU.rh_detId.get(), persistentDataGPU.rh_detIdMap.get(), HBHERecHits_asInput.did.get()); 
+      testDetIdMap<<<(nRHIn+127)/128, 128, 0, cudaStream>>>(nRHIn, persistentDataGPU.rh_detId.get(), scratchDataGPU.rh_inputToFullIdx.get(), scratchDataGPU.rh_fullToInputIdx.get(), HBHERecHits_asInput.did.get());
+      cudaDeviceSynchronize();
+      cudaEventRecord(start, cudaStream);
+#endif
+      
+      applyMask<<<1, 1, 0, cudaStream>>>(nRHIn, d_nPFRHOut, scratchDataGPU.rh_mask.get(), scratchDataGPU.pfrhToInputIdx.get(), scratchDataGPU.inputToPFRHIdx.get());
+
+#ifdef DEBUG_ENABLE
+      cudaEventRecord(stop, cudaStream);
+      cudaEventSynchronize(stop);
+      cudaEventElapsedTime(&milliseconds, start, stop);
+      printf("\napplyMask took %f ms\n\n", milliseconds);
 #endif 
+      cudaCheck(cudaMemcpyAsync(h_nPFRHOut, d_nPFRHOut, sizeof(uint32_t), cudaMemcpyDeviceToHost, cudaStream));
+      cudaEvent_t sizeCopyEvt = 0;
+      cudaEventRecord(sizeCopyEvt, cudaStream);
 
       // Fill PF rechit arrays
-      convert_rechits_to_PFRechits<<<(nRH+31)/32, 128, 0, cudaStream>>>(
-											 nRH,
-                                             persistentDataGPU.rh_pos.get(),
-                                             persistentDataGPU.rh_neighbours.get(),
-                                             persistentDataGPU.rh_detIdMap.get(),
-                                             HBHERecHits_asInput.energy.get(),
-											 HBHERecHits_asInput.chi2.get(),
-											 HBHERecHits_asInput.energyM0.get(),
-											 HBHERecHits_asInput.timeM0.get(),
-											 HBHERecHits_asInput.did.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_depth.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_layer.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_caloId.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_detId.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_time.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_energy.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_pt2.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_x.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_y.get(),
-											 HBHEPFRecHits_asOutput.PFRecHits.pfrh_z.get());
+      convert_rechits_to_PFRechits<<<(nRHIn+31)/32, 128, 0, cudaStream>>>(
+            d_nPFRHOut,
+            scratchDataGPU.rh_mask.get(),
+            scratchDataGPU.pfrhToInputIdx.get(),
+            scratchDataGPU.inputToPFRHIdx.get(),
+            persistentDataGPU.rh_pos.get(),
+            persistentDataGPU.rh_neighbours.get(),
+            scratchDataGPU.rh_inputToFullIdx.get(),
+            scratchDataGPU.rh_fullToInputIdx.get(),
+            HBHERecHits_asInput.energy.get(),
+            HBHERecHits_asInput.chi2.get(),
+            HBHERecHits_asInput.energyM0.get(),
+            HBHERecHits_asInput.timeM0.get(),
+            HBHERecHits_asInput.did.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_depth.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_layer.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_caloId.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_detId.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_time.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_energy.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_pt2.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_x.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_y.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_z.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_neighbours.get(),
+            HBHEPFRecHits_asOutput.PFRecHits.pfrh_neighbourInfos.get());
+    
 
+      // Make sure output size has finished copying before freeing memory
+      if (cudaEventQuery(sizeCopyEvt) != cudaSuccess) cudaEventSynchronize(sizeCopyEvt);
+      HBHEPFRecHits_asOutput.PFRecHits.size = *h_nPFRHOut;
+      printf("Output PFRecHits size = %d\n", HBHEPFRecHits_asOutput.PFRecHits.size);
+      cudaCheck(cudaFree(d_nPFRHOut));
+      delete h_nPFRHOut;
     }
   } // namespace rechit 
 } //  namespace pf

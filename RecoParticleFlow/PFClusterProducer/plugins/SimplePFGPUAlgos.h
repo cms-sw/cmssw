@@ -14,6 +14,7 @@ namespace pf {
                   ::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
                   OutputPFRecHitDataGPU&,
                   PersistentDataGPU&,
+                  ScratchDataGPU&,
                   cudaStream_t);
 
   }

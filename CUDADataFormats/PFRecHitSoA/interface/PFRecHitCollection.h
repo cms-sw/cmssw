@@ -19,6 +19,8 @@ namespace hcal {
     typename StoragePolicy::template StorageSelector<int>::type pfrh_layer;
     typename StoragePolicy::template StorageSelector<int>::type pfrh_caloId;
     typename StoragePolicy::template StorageSelector<int>::type pfrh_detId;
+    typename StoragePolicy::template StorageSelector<int>::type pfrh_neighbours;
+    typename StoragePolicy::template StorageSelector<short>::type pfrh_neighbourInfos;
 
     typename StoragePolicy::template StorageSelector<float>::type pfrh_time;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_energy;
@@ -36,6 +38,7 @@ namespace hcal {
       pfrh_layer.resize(size);
       pfrh_caloId.resize(size);
       pfrh_detId.resize(size);
+      pfrh_neighbours.resize(8*size);
       
       pfrh_time.resize(size);
       pfrh_energy.resize(size);
