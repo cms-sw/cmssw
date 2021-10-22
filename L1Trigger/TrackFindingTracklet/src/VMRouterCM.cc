@@ -124,8 +124,8 @@ void VMRouterCM::addInput(MemoryBase* memory, string input) {
 void VMRouterCM::execute(unsigned int iSector) {
   unsigned int allStubCounter = 0;
 
-  bool print = getName() == "VMR_D1PHIB" && iSector == 3;
-  print = false;
+  //bool print = getName() == "VMR_D1PHIB" && iSector == 3;
+  //print = false;
   
   //Loop over the input stubs
   for (auto& stubinput : stubinputs_) {
