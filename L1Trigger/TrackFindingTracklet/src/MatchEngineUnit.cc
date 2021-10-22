@@ -60,7 +60,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   //This should be fixed to be done more cleanly - but require synchronizaton
   //with the HLS code
   if (goodpair_) {
-    if (print) 
+    if (print)
       std::cout << "Init have pair" << std::endl;
     candmatches_.store(tmppair_);
   }
@@ -69,11 +69,11 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   goodpair_ = false;
 }
 
-void MatchEngineUnit::step(bool print ) {
+void MatchEngineUnit::step(bool print) {
   bool almostfull = candmatches_.nearfull();
 
   if (goodpair_) {
-    if (print) 
+    if (print)
       std::cout << "Step have pair" << std::endl;
     assert(havepair_);
     candmatches_.store(tmppair_);
@@ -176,7 +176,7 @@ int MatchEngineUnit::TCID() const {
     return peek().first->TCID();
   }
 
-  if (idle_ && !havepair_ ) {
+  if (idle_ && !havepair_) {
     return 16383;
   }
 

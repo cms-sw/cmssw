@@ -26,7 +26,7 @@ void TrackFitMemory::writeTF(bool first, unsigned int iSector) {
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 
   for (unsigned int j = 0; j < tracks_.size(); j++) {
-    out_ << hexstr(j) << " " <<tracks_[j]->trackfitstr() << " " << trklet::hexFormat(tracks_[j]->trackfitstr());
+    out_ << hexstr(j) << " " << tracks_[j]->trackfitstr() << " " << trklet::hexFormat(tracks_[j]->trackfitstr());
     out_ << "\n";
   }
   out_.close();

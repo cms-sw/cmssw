@@ -41,7 +41,7 @@ namespace trklet {
 
     //Format index position in hex
     static std::string hexstr(unsigned int index);
-    
+
   protected:
     std::string name_;
     unsigned int iSector_;

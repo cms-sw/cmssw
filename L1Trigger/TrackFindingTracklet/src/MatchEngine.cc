@@ -224,18 +224,18 @@ void MatchEngine::execute(unsigned int iSector) {
 
       int stubfinerz = vmstub.finerz().value();
 
-      bool isPSmodule=false;
+      bool isPSmodule = false;
 
       if (barrel_) {
-	isPSmodule = layerdisk_ < N_PSLAYER;
+        isPSmodule = layerdisk_ < N_PSLAYER;
       } else {
-	if (layerdisk_<N_LAYER+2) {
-	  isPSmodule = ((rzbin&7)<3) || ((rzbin&7)==3 && stubfinerz<=3);
-	} else {
-	  isPSmodule = ((rzbin&7)<3) || ((rzbin&7)==3 && stubfinerz<=2);
-	}
+        if (layerdisk_ < N_LAYER + 2) {
+          isPSmodule = ((rzbin & 7) < 3) || ((rzbin & 7) == 3 && stubfinerz <= 3);
+        } else {
+          isPSmodule = ((rzbin & 7) < 3) || ((rzbin & 7) == 3 && stubfinerz <= 2);
+        }
       }
-      
+
       assert(isPSmodule == vmstub.isPSmodule());
 
       int nbits = isPSmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
@@ -245,7 +245,7 @@ void MatchEngine::execute(unsigned int iSector) {
       constexpr int mindeltaphicut = 3;
       constexpr int maxdeltaphicut = 5;
       bool passphi = (std::abs(deltaphi) < mindeltaphicut) || (std::abs(deltaphi) > maxdeltaphicut);
-      
+
       unsigned int index = (projrinv << nbits) + vmstub.bend().value();
       if (!barrel_ && isPSmodule) {
         index += (1 << (nrinv_ + N_BENDBITS_2S));

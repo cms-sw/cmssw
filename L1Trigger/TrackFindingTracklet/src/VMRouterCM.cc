@@ -126,7 +126,7 @@ void VMRouterCM::execute(unsigned int iSector) {
 
   //bool print = getName() == "VMR_D1PHIB" && iSector == 3;
   //print = false;
-  
+
   //Loop over the input stubs
   for (auto& stubinput : stubinputs_) {
     for (unsigned int i = 0; i < stubinput->nStubs(); i++) {

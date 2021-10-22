@@ -108,10 +108,8 @@ size_t MemoryBase::find_nth(const string& haystack, size_t pos, const string& ne
   return find_nth(haystack, found_pos + 1, needle, nth - 1);
 }
 
-std::string MemoryBase::hexstr(unsigned int index){
-
+std::string MemoryBase::hexstr(unsigned int index) {
   std::ostringstream oss;
   oss << "0x" << std::setfill('0') << std::setw(2) << hex << index << dec;
   return oss.str();
-  
 }
