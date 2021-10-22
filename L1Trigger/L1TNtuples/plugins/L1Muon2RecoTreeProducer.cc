@@ -15,7 +15,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,15 +82,16 @@ using namespace std;
 // class declaration
 //
 
-class L1Muon2RecoTreeProducer : public edm::EDAnalyzer {
+class L1Muon2RecoTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   explicit L1Muon2RecoTreeProducer(const edm::ParameterSet &);
   ~L1Muon2RecoTreeProducer() override;
 
 private:
-  void beginJob(void) override;
+  void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
   void endJob() override;
 
 public:
@@ -142,6 +143,8 @@ private:
 };
 
 L1Muon2RecoTreeProducer::L1Muon2RecoTreeProducer(const edm::ParameterSet &iConfig) {
+  usesResource(TFileService::kSharedResource);
+
   maxMuon_ = iConfig.getParameter<unsigned int>("maxMuon");
   isoTriggerNames_ = iConfig.getParameter<std::vector<std::string>>("isoTriggerNames");
   // isoTriggerToken_         = iConfig.getParameter<std::vector<std::string>>("isoTriggerNames");
@@ -159,7 +162,7 @@ L1Muon2RecoTreeProducer::L1Muon2RecoTreeProducer(const edm::ParameterSet &iConfi
   //iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   metToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("metToken", edm::InputTag("pfMet")));
 
-  muon = new L1Analysis::L1AnalysisRecoMuon2(iConfig);
+  muon = new L1Analysis::L1AnalysisRecoMuon2(iConfig, consumesCollector());
   muon_data = muon->getData();
 
   tree_ = fs_->make<TTree>("Muon2RecoTree", "Muon2RecoTree");
@@ -190,6 +193,8 @@ L1Muon2RecoTreeProducer::~L1Muon2RecoTreeProducer() {
 
 // ------------ method called to for each event  ------------
 void L1Muon2RecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  muon->init(iSetup);
+
   muon->Reset();
   edm::Handle<reco::MuonCollection> recoMuons;
   iEvent.getByToken(MuonToken_, recoMuons);
@@ -403,8 +408,6 @@ void L1Muon2RecoTreeProducer::beginRun(const edm::Run &run, const edm::EventSetu
       }
     }  // end for isoTriggerNames
   }    // end if (triggerMatching_)
-
-  muon->init(eventSetup);
 }
 
 //define this as a plug-in

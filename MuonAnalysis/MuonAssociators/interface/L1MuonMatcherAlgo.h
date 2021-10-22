@@ -20,6 +20,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/AnySelector.h"
@@ -27,7 +28,7 @@
 
 class L1MuonMatcherAlgo {
 public:
-  explicit L1MuonMatcherAlgo(const edm::ParameterSet &iConfig);
+  explicit L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
   ~L1MuonMatcherAlgo();
 
   /// Call this method at the beginning of each run, to initialize geometry, magnetic field and propagators
