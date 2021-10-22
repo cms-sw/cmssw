@@ -372,11 +372,12 @@ pixelPairStep =  TrackMVAClassifierPrompt.clone(
 )
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(pixelPairStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=qualityCutDictionary['PixelPairStep']
+    qualityCuts=qualityCutDictionary.PixelPairStep.value()
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])

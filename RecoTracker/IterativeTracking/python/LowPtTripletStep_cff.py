@@ -310,13 +310,13 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      qualityCuts = [-0.4,0.0,0.3],
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(lowPtTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(lowPtTripletStep, trackTfClassifier.clone(
     src = 'lowPtTripletStepTracks',
-    qualityCuts = qualityCutDictionary['LowPtTripletStep']
+    qualityCuts = qualityCutDictionary.LowPtTripletStep.value()
 ))
-
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
 pp_on_AA.toModify(lowPtTripletStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
