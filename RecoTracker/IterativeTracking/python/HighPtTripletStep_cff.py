@@ -282,13 +282,13 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
      qualityCuts = [0.2,0.3,0.4]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(highPtTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(highPtTripletStep, trackTfClassifier.clone(
     src = 'highPtTripletStepTracks',
-    qualityCuts = qualityCutDictionary['HighPtTripletStep'],
+    qualityCuts = qualityCutDictionary.HighPtTripletStep.value()
 ))
-
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
 pp_on_AA.toModify(highPtTripletStep, 
         mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
