@@ -67,7 +67,7 @@ void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::Even
   // Write to database or sqlite file
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(p, ilumi, "CTPPSBeamParametersRcd");
+    poolDbService->writeOneIOV(*p, ilumi, "CTPPSBeamParametersRcd");
   // poolDbService->writeOne( p, poolDbService->currentTime(), "CTPPSBeamParametersRcd"  );
   else
     throw std::runtime_error("PoolDBService required.");

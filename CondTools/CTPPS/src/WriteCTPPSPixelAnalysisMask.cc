@@ -73,7 +73,7 @@ void WriteCTPPSPixelAnalysisMask::analyze(const edm::Event &, edm::EventSetup co
   const CTPPSPixelAnalysisMask *pCTPPSPixelAnalysisMask = hAnalysisMask.product();  // Analysis Mask
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCTPPSPixelAnalysisMask, analysismaskiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(*pCTPPSPixelAnalysisMask, analysismaskiov_, /*m_record*/ record_);
   }
 }
 

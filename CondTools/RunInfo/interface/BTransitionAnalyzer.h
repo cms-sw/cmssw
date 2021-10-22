@@ -59,7 +59,7 @@ namespace cond {
           edm::LogInfo("BTransitionAnalyzer")
               << "Exporting payload corresponding to the calibrations for magnetic field "
               << (bFieldLabel == bOnLabel ? "ON" : "OFF") << " starting from run number: " << run.run() << std::endl;
-          mydbservice->writeOne(payloadHandle.product(), run.run(), demangledName(typeid(R)));
+          mydbservice->writeOneIOV(*payloadHandle.product(), run.run(), demangledName(typeid(R)));
         } else {
           edm::LogInfo("BTransitionAnalyzer") << "The payload corresponding to the calibrations for magnetic field "
                                               << (bFieldLabel == bOnLabel ? "ON" : "OFF") << " is still valid for run "

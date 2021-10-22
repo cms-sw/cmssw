@@ -91,8 +91,9 @@ void ApeAdder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
-  // Save to DB
-  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
+  // Save to DB (assuming that the delete below will also delete the concerned payload )
+  poolDbService->writeOneIOV<AlignmentErrorsExtended>(
+      *alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
 
   delete theAlignableTracker;
 }
