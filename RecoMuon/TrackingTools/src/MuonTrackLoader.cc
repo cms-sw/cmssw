@@ -99,10 +99,13 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet& parameterSet,
   // option to do or not the smoothing step.
   // the trajectories which are passed to the track loader are supposed to be non-smoothed
   theSmoothingStep = parameterSet.getParameter<bool>("DoSmoothing");
-  if (theSmoothingStep)
-    theSmootherName = parameterSet.getParameter<string>("Smoother");
+  if (theSmoothingStep) {
+    auto smootherName = parameterSet.getParameter<string>("Smoother");
+    theSmootherToken = iC.esConsumes(edm::ESInputTag("", smootherName));
 
-  theTrackerRecHitBuilderName = parameterSet.getParameter<std::string>("TTRHBuilder");
+    auto trackerRecHitBuilderName = parameterSet.getParameter<std::string>("TTRHBuilder");
+    theTrackerRecHitBuilderToken = iC.esConsumes(edm::ESInputTag("", trackerRecHitBuilderName));
+  }
 
   // update at vertex
   theUpdatingAtVtx = parameterSet.getParameter<bool>("VertexConstraint");
@@ -206,13 +209,11 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContai
   std::map<unsigned int, unsigned int> tjTkMap;
 
   if (doSmoothing) {
-    edm::ESHandle<TrajectorySmoother> aSmoother;
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName, aSmoother);
-    theSmoother.reset(aSmoother->clone());
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    theTrackerRecHitBuilder.product();
-    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
+    TrajectorySmoother const& aSmoother = theService->eventSetup().getData(theSmootherToken);
+    theSmoother.reset(aSmoother.clone());
+    TransientTrackingRecHitBuilder const& theTrackerRecHitBuilder =
+        theService->eventSetup().getData(theTrackerRecHitBuilderToken);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const&>(theTrackerRecHitBuilder).cloner();
     theSmoother->setHitCloner(&hitCloner);
   }
 
@@ -535,12 +536,11 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
   std::map<unsigned int, unsigned int> tjTkMap;
 
   if (doSmoothing) {
-    edm::ESHandle<TrajectorySmoother> aSmoother;
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName, aSmoother);
-    theSmoother.reset(aSmoother->clone());
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
+    TrajectorySmoother const& aSmoother = theService->eventSetup().getData(theSmootherToken);
+    theSmoother.reset(aSmoother.clone());
+    TransientTrackingRecHitBuilder const& theTrackerRecHitBuilder =
+        theService->eventSetup().getData(theTrackerRecHitBuilderToken);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const&>(theTrackerRecHitBuilder).cloner();
     theSmoother->setHitCloner(&hitCloner);
   }
 

@@ -19,9 +19,7 @@
 #include <memory>
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -40,16 +38,31 @@
 #include "RecoMuon/GlobalTrackingTools/interface/ThrParameters.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
+class TransientRecHitRecord;
+
 namespace dyt_utils {
   enum class etaRegion { eta0p8, eta1p2, eta2p0, eta2p2, eta2p4 };
 };
 
 class DynamicTruncation {
 public:
+  struct Config {
+    Config(edm::ConsumesCollector);
+
+    const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+    const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> muonRecHitBuilderToken_;
+    const edm::ESGetToken<TrajectoryStateUpdator, TrackingComponentsRecord> updatorToken_;
+    const edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> navMuonToken_;
+
+    const edm::ESGetToken<DYTThrObject, DYTThrObjectRcd> dytThresholdsToken_;
+    const edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> dtAlignmentErrorsToken_;
+    const edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> cscAlignmentErrorsToken_;
+  };
+
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event &, const MuonServiceProxy &);
+  DynamicTruncation(Config const &, const edm::EventSetup &, const MuonServiceProxy &);
 
   ~DynamicTruncation();
 
@@ -133,7 +146,7 @@ private:
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<MuonDetLayerGeometry> navMuon;
-  DirectMuonNavigation *navigation;
+  std::unique_ptr<DirectMuonNavigation> navigation;
   edm::ESHandle<MagneticField> magfield;
   std::map<int, double> estimatorMap;
   std::map<int, bool> usedStationMap;
@@ -145,8 +158,8 @@ private:
   std::map<CSCDetId, GlobalError> cscApeMap;
   double muonPTest, muonETAest;
   const DYTThrObject *dytThresholds;
-  ChamberSegmentUtility *getSegs;
-  ThrParameters *thrManager;
+  std::unique_ptr<ChamberSegmentUtility> getSegs;
+  std::unique_ptr<ThrParameters> thrManager;
   bool useDBforThr;
   bool doUpdateOfKFStates;
   /* Variables for v2 */

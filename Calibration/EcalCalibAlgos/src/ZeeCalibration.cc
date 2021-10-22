@@ -1,22 +1,12 @@
 #include <fstream>
 #include <iostream>
-#include <map>
-#include <stdexcept>
-#include <string>
 #include <utility>
-#include <vector>
 
 #include <TBranch.h>
 #include <TCanvas.h>
 #include <TF1.h>
-#include <TFile.h>
-#include <TGraph.h>
-#include <TGraphErrors.h>
-#include <TH1.h>
-#include <TH2.h>
 #include <TProfile.h>
 #include <TRandom.h>
-#include <TTree.h>
 
 #include <CLHEP/Vector/LorentzVector.h>
 
@@ -35,36 +25,39 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #define MZ 91.1876
 
 #define DEBUG 1
 
-ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig) {
+ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
+    : hlTriggerResults_(iConfig.getParameter<edm::InputTag>("HLTriggerResults")),
+      mcProducer_(iConfig.getUntrackedParameter<std::string>("mcProducer", "")),
+      rechitProducer_(iConfig.getParameter<std::string>("rechitProducer")),
+      rechitCollection_(iConfig.getParameter<std::string>("rechitCollection")),
+      erechitProducer_(iConfig.getParameter<std::string>("erechitProducer")),
+      erechitCollection_(iConfig.getParameter<std::string>("erechitCollection")),
+      scProducer_(iConfig.getParameter<std::string>("scProducer")),
+      scCollection_(iConfig.getParameter<std::string>("scCollection")),
+      scIslandProducer_(iConfig.getParameter<std::string>("scIslandProducer")),
+      scIslandCollection_(iConfig.getParameter<std::string>("scIslandCollection")),
+      electronProducer_(iConfig.getParameter<std::string>("electronProducer")),
+      electronCollection_(iConfig.getParameter<std::string>("electronCollection")),
+      trigResultsToken_(consumes<edm::TriggerResults>(hlTriggerResults_)),
+      hepMCToken_(consumes<edm::HepMCProduct>(edm::InputTag(mcProducer_))),
+      ebRecHitToken_(consumes<EBRecHitCollection>(edm::InputTag(rechitProducer_, rechitCollection_))),
+      eeRecHitToken_(consumes<EERecHitCollection>(edm::InputTag(erechitProducer_, erechitCollection_))),
+      scToken_(consumes<reco::SuperClusterCollection>(edm::InputTag(scProducer_, scCollection_))),
+      islandSCToken_(consumes<reco::SuperClusterCollection>(edm::InputTag(scIslandProducer_, scIslandCollection_))),
+      gsfElectronToken_(consumes<reco::GsfElectronCollection>(edm::InputTag(electronProducer_, electronCollection_))),
+      geometryToken_(esConsumes()) {
 #ifdef DEBUG
   std::cout << "[ZeeCalibration] Starting the ctor" << std::endl;
 #endif
@@ -78,24 +71,7 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig) {
   minInvMassCut_ = iConfig.getUntrackedParameter<double>("minInvMassCut", 70.);
   maxInvMassCut_ = iConfig.getUntrackedParameter<double>("maxInvMassCut", 110.);
 
-  rechitProducer_ = iConfig.getParameter<std::string>("rechitProducer");
-  rechitCollection_ = iConfig.getParameter<std::string>("rechitCollection");
-
-  erechitProducer_ = iConfig.getParameter<std::string>("erechitProducer");
-  erechitCollection_ = iConfig.getParameter<std::string>("erechitCollection");
-
-  scProducer_ = iConfig.getParameter<std::string>("scProducer");
-  scCollection_ = iConfig.getParameter<std::string>("scCollection");
-
-  scIslandProducer_ = iConfig.getParameter<std::string>("scIslandProducer");
-  scIslandCollection_ = iConfig.getParameter<std::string>("scIslandCollection");
-
   calibMode_ = iConfig.getUntrackedParameter<std::string>("ZCalib_CalibType");
-
-  mcProducer_ = iConfig.getUntrackedParameter<std::string>("mcProducer", "");
-
-  electronProducer_ = iConfig.getParameter<std::string>("electronProducer");
-  electronCollection_ = iConfig.getParameter<std::string>("electronCollection");
 
   outputFile_ = TFile::Open(outputFileName_.c_str(), "RECREATE");  // open output file to store histograms
 
@@ -123,8 +99,6 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig) {
 
   //ZeeCalibrationPLots("zeeCalibPlots");
   //ZeecaPlots->bookHistos(maxsIter);
-
-  hlTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
 
   theParameterSet = iConfig;
   EcalIndexingTools* myIndexTool = nullptr;
@@ -585,9 +559,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
   // code that used to be in beginJob
   if (isfirstcall_) {
     //inizializzare la geometria di ecal
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    EcalRingCalibrationTools::setCaloGeometry(&(*pG));
+    const auto& geometry = iSetup.getData(geometryToken_);
+    EcalRingCalibrationTools::setCaloGeometry(&geometry);
 
     myZeePlots_ = new ZeePlots("zeePlots.root");
     //  myZeeRescaleFactorPlots_ = new ZeeRescaleFactorPlots("zeeRescaleFactorPlots.root");
@@ -717,7 +690,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 #endif
 
   edm::Handle<edm::TriggerResults> hltTriggerResultHandle;
-  iEvent.getByLabel(hlTriggerResults_, hltTriggerResultHandle);
+  iEvent.getByToken(trigResultsToken_, hltTriggerResultHandle);
 
   if (!hltTriggerResultHandle.isValid()) {
     //std::cout << "invalid handle for HLT TriggerResults" << std::endl;
@@ -757,8 +730,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
   if (!mcProducer_.empty()) {
     //DUMP GENERATED Z MASS - BEGIN
     Handle<HepMCProduct> hepProd;
-    //   iEvent.getByLabel( "source", hepProd ) ;
-    iEvent.getByLabel(mcProducer_, hepProd);
+    iEvent.getByToken(hepMCToken_, hepProd);
 
     const HepMC::GenEvent* myGenEvent = hepProd->GetEvent();
 
@@ -809,27 +781,24 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   // Get EBRecHits
   Handle<EBRecHitCollection> phits;
-  try {
-    iEvent.getByLabel(rechitProducer_, rechitCollection_, phits);
-  } catch (std::exception& ex) {
+  iEvent.getByToken(ebRecHitToken_, phits);
+  if (!phits.isValid()) {
     std::cerr << "Error! can't get the product EBRecHitCollection " << std::endl;
   }
   const EBRecHitCollection* hits = phits.product();  // get a ptr to the product
 
   // Get EERecHits
   Handle<EERecHitCollection> ephits;
-  try {
-    iEvent.getByLabel(erechitProducer_, erechitCollection_, ephits);
-  } catch (std::exception& ex) {
+  iEvent.getByToken(eeRecHitToken_, ephits);
+  if (!ephits.isValid()) {
     std::cerr << "Error! can't get the product EERecHitCollection " << std::endl;
   }
   const EERecHitCollection* ehits = ephits.product();  // get a ptr to the product
 
   //Get Hybrid SuperClusters
   Handle<reco::SuperClusterCollection> pSuperClusters;
-  try {
-    iEvent.getByLabel(scProducer_, scCollection_, pSuperClusters);
-  } catch (std::exception& ex) {
+  iEvent.getByToken(scToken_, pSuperClusters);
+  if (!pSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product SuperClusterCollection " << std::endl;
   }
   const reco::SuperClusterCollection* scCollection = pSuperClusters.product();
@@ -843,9 +812,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   //Get Island SuperClusters
   Handle<reco::SuperClusterCollection> pIslandSuperClusters;
-  try {
-    iEvent.getByLabel(scIslandProducer_, scIslandCollection_, pIslandSuperClusters);
-  } catch (std::exception& ex) {
+  iEvent.getByToken(islandSCToken_, pIslandSuperClusters);
+  if (!pIslandSuperClusters.isValid()) {
     std::cerr << "Error! can't get the product IslandSuperClusterCollection " << std::endl;
   }
   const reco::SuperClusterCollection* scIslandCollection = pIslandSuperClusters.product();
@@ -859,9 +827,8 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
   // Get Electrons
   Handle<reco::GsfElectronCollection> pElectrons;
-  try {
-    iEvent.getByLabel(electronProducer_, electronCollection_, pElectrons);
-  } catch (std::exception& ex) {
+  iEvent.getByToken(gsfElectronToken_, pElectrons);
+  if (!pElectrons.isValid()) {
     std::cerr << "Error! can't get the product ElectronCollection " << std::endl;
   }
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();

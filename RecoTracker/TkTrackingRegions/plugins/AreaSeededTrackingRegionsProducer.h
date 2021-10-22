@@ -92,7 +92,7 @@ public:
 
   std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const {
     auto origins = m_origins.origins(e);
-    auto builder = m_builder.beginEvent(e);
+    auto builder = m_builder.beginEvent(e, es);
     return builder.regions(origins, m_areas);
   }
 

@@ -26,10 +26,10 @@ bool edm::eventsetup::recordDoesExist(EventSetupImpl const& iES, EventSetupRecor
 void edm::eventsetup::no_record_exception_message_builder(cms::Exception& oException,
                                                           const char* iName,
                                                           bool iKnownRecord) {
-  oException << "No \"" << iName << "\" record found in the EventSetup.n";
+  oException << "No \"" << iName << "\" record found in the EventSetup.\n";
   if (iKnownRecord) {
     oException << "\n The Record is delivered by an ESSource or ESProducer but there is no valid IOV for the "
-                  "synchronizatio value.\n"
+                  "synchronization value.\n"
                   " Please check \n"
                   "   a) if the synchronization value is reasonable and report to the hypernews if it is not.\n"
                   "   b) else check that all ESSources have been properly configured. \n";

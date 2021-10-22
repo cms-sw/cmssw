@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("AlCaElectronsProduction")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('GR_R_52_V7::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")

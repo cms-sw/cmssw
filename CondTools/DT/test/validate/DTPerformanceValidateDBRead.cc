@@ -25,9 +25,11 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTPerformanceRcd.h"
 
 DTPerformanceValidateDBRead::DTPerformanceValidateDBRead(edm::ParameterSet const& p)
-    : dataFileName(p.getParameter<std::string>("chkFile")), elogFileName(p.getParameter<std::string>("logFile")) {}
+    : dataFileName(p.getParameter<std::string>("chkFile")),
+      elogFileName(p.getParameter<std::string>("logFile")),
+      dtperfToken_(esConsumes()) {}
 
-DTPerformanceValidateDBRead::DTPerformanceValidateDBRead(int i) {}
+DTPerformanceValidateDBRead::DTPerformanceValidateDBRead(int i) : dtperfToken_(esConsumes()) {}
 
 DTPerformanceValidateDBRead::~DTPerformanceValidateDBRead() {}
 
@@ -40,8 +42,7 @@ void DTPerformanceValidateDBRead::analyze(const edm::Event& e, const edm::EventS
   run_fn << "run" << e.id().run() << dataFileName;
   std::ifstream chkFile(run_fn.str().c_str());
   std::ofstream logFile(elogFileName.c_str(), std::ios_base::app);
-  edm::ESHandle<DTPerformance> mP;
-  context.get<DTPerformanceRcd>().get(mP);
+  auto mP = context.getHandle(dtperfToken_);
   std::cout << mP->version() << std::endl;
   std::cout << std::distance(mP->begin(), mP->end()) << " data in the container" << std::endl;
   int status;

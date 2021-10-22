@@ -25,18 +25,19 @@ public:
 private:
   std::string m_fname;
   std::string m_label;
+  edm::ESGetToken<FileBlob, GeometryFileRcd> fileBlobToken_;
 };
 
 XMLGeometryReader::XMLGeometryReader(const edm::ParameterSet& iConfig) {
   m_fname = iConfig.getUntrackedParameter<std::string>("XMLFileName", "test.xml");
   m_label = iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended");
+  fileBlobToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void XMLGeometryReader::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   edm::LogInfo("XMLGeometryReader") << "XMLGeometryReader::beginRun";
 
-  edm::ESHandle<FileBlob> geometry;
-  iSetup.get<GeometryFileRcd>().get(m_label, geometry);
+  auto geometry = iSetup.getHandle(fileBlobToken_);
   std::unique_ptr<std::vector<unsigned char> > blob((*geometry).getUncompressedBlob());
 
   std::string outfile1(m_fname);

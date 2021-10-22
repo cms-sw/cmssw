@@ -179,6 +179,6 @@ process.path_false_pattern       = cms.Path( process.filter_false_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','TEST' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults', '', 'TEST' )
 )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltTrigReport )

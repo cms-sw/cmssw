@@ -54,7 +54,7 @@ def tosqlite(x):
         return x
     if isinstance(x, float):
         return x
-    if isinstance(x, long):
+    if isinstance(x, int):
         return x
     else:
         try: 

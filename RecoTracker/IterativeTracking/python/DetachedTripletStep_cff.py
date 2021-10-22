@@ -10,6 +10,9 @@ from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSe
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ###############################################
 # Low pT and detached tracks from pixel triplets
 ###############################################
@@ -187,6 +190,8 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
+trackingNoLoopers.toModify(detachedTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
     maxCand = 2,
     alwaysUseInvalidHits = False,
@@ -194,7 +199,8 @@ trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_detachedTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'detachedTripletStepSeeds',
     clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
@@ -204,6 +210,7 @@ detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )
+detachedTripletStepTrackCandidates = _detachedTripletStepTrackCandidatesCkf.clone()
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 detachedTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(

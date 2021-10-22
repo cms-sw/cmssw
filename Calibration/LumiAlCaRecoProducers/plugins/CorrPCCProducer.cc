@@ -580,8 +580,6 @@ void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventS
       throw std::runtime_error("PoolDBService required.");
     }
 
-    delete pccCorrections;
-
     histoFile->cd();
     corrlumiAvg_h->Write();
     scaleFactorAvg_h->Write();

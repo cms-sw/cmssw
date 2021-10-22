@@ -14,12 +14,17 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/Record/interface/TrackerMultipleScatteringRecord.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
 
 #include "TMath.h"
 
 class HITrackingRegionProducer : public TrackingRegionProducer {
 public:
-  HITrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) {
+  HITrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : theTtopoToken(iC.esConsumes()), theFieldToken(iC.esConsumes()) {
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     thePtMin = regionPSet.getParameter<double>("ptMin");
@@ -36,9 +41,12 @@ public:
     theSiPixelRecHitsToken = iC.consumes<SiPixelRecHitCollection>(theSiPixelRecHits);
     theOrigin = GlobalPoint(xPos, yPos, zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
+    if (thePrecise) {
+      theMSMakerToken = iC.esConsumes();
+    }
   }
 
-  ~HITrackingRegionProducer() override {}
+  ~HITrackingRegionProducer() override = default;
 
   int estimateMultiplicity(const edm::Event& ev, const edm::EventSetup& es) const {
     //rechits
@@ -46,8 +54,7 @@ public:
     ev.getByToken(theSiPixelRecHitsToken, recHitColl);
 
     //Retrieve tracker topology from geometry
-    edm::ESHandle<TrackerTopology> tTopo;
-    es.get<IdealGeometryRecord>().get(tTopo);
+    const auto& tTopo = es.getData(theTtopoToken);
 
     int numRecHits = 0;
     //FIXME: this can be optimized quite a bit by looping only on the per-det 'items' of DetSetVector
@@ -61,7 +68,7 @@ public:
       unsigned int subid = detId.subdetId();  //subdetector type, barrel=1, fpix=2
 
       unsigned int layer = 0;
-      layer = tTopo->pxbLayer(detId);
+      layer = tTopo.pxbLayer(detId);
       if (detType == 1 && subid == 1 && layer == 1) {
         numRecHits += hits.size();
       }
@@ -102,16 +109,22 @@ public:
     // tracking region selection
     std::vector<std::unique_ptr<TrackingRegion> > result;
     if (estTracks > regTracking) {  // regional tracking
-      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-          theDirection,
-          theOrigin,
-          thePtMin,
-          theOriginRadius,
-          theOriginHalfLength,
-          etaB,
-          phiB,
-          RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever,
-          thePrecise));
+      const auto& field = es.getData(theFieldToken);
+      const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+      if (thePrecise) {
+        msmaker = &es.getData(theMSMakerToken);
+      }
+
+      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(theDirection,
+                                                                         theOrigin,
+                                                                         thePtMin,
+                                                                         theOriginRadius,
+                                                                         theOriginHalfLength,
+                                                                         etaB,
+                                                                         phiB,
+                                                                         field,
+                                                                         msmaker,
+                                                                         thePrecise));
     } else {  // global tracking
       LogTrace("heavyIonHLTVertexing") << " [HIVertexing: Global Tracking]";
       result.push_back(std::make_unique<GlobalTrackingRegion>(
@@ -123,6 +136,9 @@ public:
 private:
   edm::InputTag theSiPixelRecHits;
   edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;
+  edm::ESGetToken<TrackerTopology, IdealGeometryRecord> theTtopoToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> theMSMakerToken;
   double thePtMin;
   GlobalPoint theOrigin;
   double theOriginRadius;

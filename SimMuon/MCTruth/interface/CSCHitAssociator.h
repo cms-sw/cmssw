@@ -21,6 +21,8 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+class MuonGeometryRecord;
+
 class CSCHitAssociator {
 public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
@@ -28,18 +30,27 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
-  CSCHitAssociator(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &);
-  CSCHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
+  class Config {
+  public:
+    Config(const edm::ParameterSet &, edm::ConsumesCollector iC);
 
-  void initEvent(const edm::Event &, const edm::EventSetup &);
+  private:
+    friend class CSCHitAssociator;
+    const edm::InputTag linksTag_;
+    const edm::EDGetTokenT<DigiSimLinks> linksToken_;
+    const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  };
+
+  CSCHitAssociator(const edm::Event &, const edm::EventSetup &, const Config &);
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &) const;
   std::vector<SimHitIdpr> associateCSCHitId(const CSCRecHit2D *) const;
 
 private:
-  const DigiSimLinks *theDigiSimLinks;
+  void initEvent(const edm::Event &, const edm::EventSetup &);
 
-  edm::InputTag linksTag;
+  const Config &theConfig;
+  const DigiSimLinks *theDigiSimLinks;
 
   const CSCGeometry *cscgeom;
 };

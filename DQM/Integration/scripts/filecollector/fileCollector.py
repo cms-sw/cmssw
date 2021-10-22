@@ -107,10 +107,10 @@ while True:
         time.sleep(WAITTIME)
         continue
         
-      TAGRUNEND=long(sorted(NEW.keys(),reverse=True)[1])
+      TAGRUNEND=int(sorted(NEW.keys(),reverse=True)[1])
       
     else:
-      TAGRUNEND=long(TAGS[0].split("_")[2])
+      TAGRUNEND=int(TAGS[0].split("_")[2])
       
     for tag in TAGS:
       os.remove(tag)

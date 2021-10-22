@@ -25,15 +25,9 @@ using namespace std;
 /* ====================================================================== */
 
 /* Constructor */
-DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl,
-                         Handle<DTRecHitCollection>& hits,
-                         const EventSetup& eventSetup,
-                         DTTTrigBaseSync* sync) {
+DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl, Handle<DTRecHitCollection>& hits, DTTTrigBaseSync* sync) {
   // store the digis in container separated per layer, with the time itself and
   // the wire Id: map[int wire]=double time;
-
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   for (DTRecHitCollection::const_iterator hit = hits->begin(); hit != hits->end(); ++hit) {
     // get only this SL hits.
@@ -59,15 +53,9 @@ DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl,
   theNumWires = nWiresSL;
 }
 
-DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl,
-                         vector<DTRecHit1D>& hits,
-                         const edm::EventSetup& eventSetup,
-                         DTTTrigBaseSync* sync) {
+DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl, vector<DTRecHit1D>& hits, DTTTrigBaseSync* sync) {
   // store the digis in container separated per layer, with the time itself and
   // the wire Id: map[int wire]=double time;
-
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
     // get only this SL hits.

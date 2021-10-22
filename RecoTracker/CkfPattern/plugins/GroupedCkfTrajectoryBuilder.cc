@@ -111,6 +111,7 @@ namespace {
 
 GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
     : BaseCkfTrajectoryBuilder(conf,
+                               iC,
                                BaseCkfTrajectoryBuilder::createTrajectoryFilter(
                                    conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC),
                                conf.getParameter<bool>("useSameTrajFilter")

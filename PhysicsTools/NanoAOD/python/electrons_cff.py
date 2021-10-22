@@ -526,6 +526,38 @@ electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleHEEP,isoForEle,ptRatioRel
 electronTablesTask = cms.Task(electronMVATTH, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
+## TEMPORARY as no ID for Run3 yet
+(run3_nanoAOD_devel).toReplaceWith(electronTask, electronTask.copyAndExclude([bitmapVIDForEle,bitmapVIDForEleHEEP]))
+(run3_nanoAOD_devel).toModify(slimmedElectronsWithUserData, userIntFromBools = cms.PSet())
+(run3_nanoAOD_devel).toModify(slimmedElectronsWithUserData.userInts,
+                                                    VIDNestedWPBitmap = None,
+                                                    VIDNestedWPBitmapHEEP = None)
+(run3_nanoAOD_devel).toModify(slimmedElectronsWithUserData.userFloats,
+                                                    mvaFall17V1Iso = None,
+                                                    mvaFall17V1noIso = None,
+                                                    mvaFall17V2Iso = None,
+                                                    mvaFall17V2noIso = None,
+                                                )
+(run3_nanoAOD_devel).toModify(electronTable.variables,
+                              mvaFall17V2Iso = None,
+                              mvaFall17V2Iso_WP80 = None,
+                              mvaFall17V2Iso_WP90 = None,
+                              mvaFall17V2Iso_WPL = None,
+                              mvaFall17V2noIso = None,
+                              mvaFall17V2noIso_WP80 = None,
+                              mvaFall17V2noIso_WP90 = None,
+                              mvaFall17V2noIso_WPL = None,
+                              vidNestedWPBitmapHEEP = None,
+                              vidNestedWPBitmap = None,
+                              cutBased = None,
+                              cutBased_HEEP = None,
+)
+
+(run3_nanoAOD_devel).toReplaceWith(electronTablesTask, electronTablesTask.copyAndExclude([electronMVATTH]))
+(run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
+##### end TEMPORARY Run3
+
+
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
     modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")

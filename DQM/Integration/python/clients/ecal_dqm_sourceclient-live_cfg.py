@@ -16,7 +16,7 @@ if unitTest:
     from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
-    from DQM.Integration.config.inputsource_cfi import options
+    from DQM.Integration.config.inputsource_cfi import options, set_BeamSplashRun_settings
 
 process.load("DQM.Integration.config.environment_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -87,6 +87,34 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+if not unitTest:
+  if options.BeamSplashRun:
+      set_BeamSplashRun_settings( process.source )
+      process.ecalMonitorTask.workerParameters.TimingTask.params.splashSwitch = True
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMap.zaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMap.zaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMapByLS.zaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeMapByLS.zaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAll.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAll.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.Time1D.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.Time1D.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAllMap.zaxis.high = cms.untracked.double(25.)
+      process.ecalMonitorTask.workerParameters.TimingTask.MEs.TimeAllMap.zaxis.low = cms.untracked.double(-25.)
+      process.ecalMonitorTask.workerParameters.TimingTask.params.chi2ThresholdEE = cms.untracked.double(1000.)
+      process.ecalMonitorTask.workerParameters.TimingTask.params.chi2ThresholdEB = cms.untracked.double(1000.)
+
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.yaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.yaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdvBkwd.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdBkwdDiff.xaxis.high = cms.untracked.double(25.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.FwdBkwdDiff.xaxis.low = cms.untracked.double(-25.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanSM.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanSM.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanAll.xaxis.high = cms.untracked.double(30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.MEs.MeanAll.xaxis.low = cms.untracked.double(-30.)
+      process.ecalMonitorClient.workerParameters.TimingClient.params.minChannelEntries = cms.untracked.int32(0)
 
 process.ecalMonitorClient.verbosity = 0
 process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
@@ -171,4 +199,5 @@ elif runTypeName == 'hpu_run':
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
+print("Final Source settings:", process.source)
 process = customise(process)

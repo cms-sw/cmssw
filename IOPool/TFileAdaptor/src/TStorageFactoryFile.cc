@@ -69,6 +69,8 @@ public:
 };
 #endif
 
+using namespace edm::storage;
+
 ClassImp(TStorageFactoryFile);
 static StorageAccount::Counter *s_statsCtor = nullptr;
 static StorageAccount::Counter *s_statsOpen = nullptr;

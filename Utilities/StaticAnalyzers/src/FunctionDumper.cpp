@@ -159,8 +159,8 @@ namespace clangcms {
     if (!support::isInterestingLocation(sname))
       return;
     std::string mname;
-    fixAnonNS(mname);
     mname = support::getQualifiedName(*FD);
+    fixAnonNS(mname);
     std::string tname = "function-dumper.txt.unsorted";
     std::string ostring;
     ostring = "function '" + mdname + "' " + "calls function '" + mname + "'\n";

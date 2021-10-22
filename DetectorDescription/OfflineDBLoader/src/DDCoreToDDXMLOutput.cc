@@ -39,6 +39,9 @@ static inline constexpr NumType convertGPerCcToMgPerCc(NumType gPerCc)  // g/cm^
   return (gPerCc * 1000.);
 }
 
+static constexpr double tol0 = 1.e-11;        // Tiny values to be considered equal to 0
+static constexpr double reflectTol = 1.0e-3;  // Tolerance for recognizing reflections; Geant4-compatible
+
 namespace cms::rotation_utils {
   /* For debugging 
   static double determinant(const dd4hep::Rotation3D &rot) {
@@ -51,7 +54,8 @@ namespace cms::rotation_utils {
   }
   */
 
-  static const std::string identityHash("1.0000000.0000000.0000000.0000001.0000000.0000000.0000000.0000001.000000");
+  static const std::string identityHash(
+      "1.00000000.00000000.00000000.00000001.00000000.00000000.00000000.00000001.0000000");
 
   static void addRotWithNewName(cms::DDNamespace& ns, std::string& name, const dd4hep::Rotation3D& rot) {
     const dd4hep::Rotation3D& rot2 = rot;
@@ -61,15 +65,15 @@ namespace cms::rotation_utils {
 
   static void addRotWithNewName(cms::DDNamespace& ns, std::string& name, const Double_t* rot) {
     using namespace cms_rounding;
-    dd4hep::Rotation3D rot2(roundIfNear0(rot[0]),
-                            roundIfNear0(rot[1]),
-                            roundIfNear0(rot[2]),
-                            roundIfNear0(rot[3]),
-                            roundIfNear0(rot[4]),
-                            roundIfNear0(rot[5]),
-                            roundIfNear0(rot[6]),
-                            roundIfNear0(rot[7]),
-                            roundIfNear0(rot[8]));
+    dd4hep::Rotation3D rot2(roundIfNear0(rot[0], tol0),
+                            roundIfNear0(rot[1], tol0),
+                            roundIfNear0(rot[2], tol0),
+                            roundIfNear0(rot[3], tol0),
+                            roundIfNear0(rot[4], tol0),
+                            roundIfNear0(rot[5], tol0),
+                            roundIfNear0(rot[6], tol0),
+                            roundIfNear0(rot[7], tol0),
+                            roundIfNear0(rot[8], tol0));
     addRotWithNewName(ns, name, rot2);
   }
 
@@ -115,8 +119,12 @@ void DDCoreToDDXMLOutput::solid(const dd4hep::Solid& solid, const cms::DDParsing
       xos << " y=\"" << trans[1] << "*mm\"";
       xos << " z=\"" << trans[2] << "*mm\"";
       xos << "/>" << std::endl;
-      std::string rotNameStr = cms::rotation_utils::rotName(rs.rightMatrix()->GetRotationMatrix(), context);
-      xos << "<rRotation name=\"" << rotNameStr << "\"/>" << std::endl;
+      auto rot = rs.rightMatrix()->GetRotationMatrix();
+      // The identity rotation can be omitted.
+      if (cms::rotation_utils::rotHash(rot) != cms::rotation_utils::identityHash) {
+        std::string rotNameStr = cms::rotation_utils::rotName(rot, context);
+        xos << "<rRotation name=\"" << rotNameStr << "\"/>" << std::endl;
+      }
       if (shape == cms::DDSolidShape::ddunion) {
         xos << "</UnionSolid>" << std::endl;
       } else if (shape == cms::DDSolidShape::ddsubtraction) {
@@ -172,6 +180,10 @@ void DDCoreToDDXMLOutput::solid(const dd4hep::Solid& solid, const cms::DDParsing
     }
     case cms::DDSolidShape::ddtrap: {
       dd4hep::Trap rs(solid);
+      xos << std::setprecision(8);
+      // Precision of 8 is needed to prevent complaints from Native Geant4 10.7 about
+      // small deviations from planarity of trapezoid faces.
+
       xos << "<Trapezoid name=\"" << trimShapeName(rs.name()) << "\""
           << " dz=\"" << rs.dZ() << "*mm\""
           << " theta=\"" << convertRadToDeg(rs.theta()) << "*deg\""
@@ -184,6 +196,12 @@ void DDCoreToDDXMLOutput::solid(const dd4hep::Solid& solid, const cms::DDParsing
           << " bl2=\"" << rs.bottomLow2() << "*mm\""
           << " tl2=\"" << rs.topLow2() << "*mm\""
           << " alp2=\"" << convertRadToDeg(rs.alpha2()) << "*deg\"/>" << std::endl;
+      xos << std::setprecision(5);
+      // Before CMSSW_12_1_0_pre5, all solids, including Trapezoids, had precision of 5.
+      // In tests With Native Geant4 10.7, this precision caused complaints, as explained above.
+      // To minimize changes, the precision was increased only for Trapezoids.
+      // In future, when there is an opportunity to revise the geometry, it might be
+      // desirable to use precision of 8 for all solids for consistency.
       break;
     }
     case cms::DDSolidShape::ddcons: {
@@ -654,19 +672,21 @@ void DDCoreToDDXMLOutput::element(const TGeoMaterial* material, std::ostream& xo
 }
 
 void DDCoreToDDXMLOutput::rotation(const DDRotation& rotation, std::ostream& xos, const std::string& rotn) {
-  double tol = 1.0e-3;  // Geant4 compatible
   DD3Vector x, y, z;
   rotation.rotation().GetComponents(x, y, z);
   double a, b, c;
   x.GetCoordinates(a, b, c);
-  x.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  x.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   y.GetCoordinates(a, b, c);
-  y.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  y.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   z.GetCoordinates(a, b, c);
-  z.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  z.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   double check = (x.Cross(y)).Dot(z);  // in case of a LEFT-handed orthogonal system
                                        // this must be -1
-  bool reflection((1. - check) > tol);
+  bool reflection((1. - check) > reflectTol);
   std::string rotName = rotation.toString();
   if (rotName == ":") {
     if (!rotn.empty()) {
@@ -685,31 +705,33 @@ void DDCoreToDDXMLOutput::rotation(const DDRotation& rotation, std::ostream& xos
   }
   using namespace cms_rounding;
   xos << "name=\"" << rotName << "\""
-      << " phiX=\"" << roundIfNear0(convertRadToDeg(x.phi()), 4.e-4) << "*deg\""
-      << " thetaX=\"" << roundIfNear0(convertRadToDeg(x.theta()), 4.e-4) << "*deg\""
-      << " phiY=\"" << roundIfNear0(convertRadToDeg(y.phi()), 4.e-4) << "*deg\""
-      << " thetaY=\"" << roundIfNear0(convertRadToDeg(y.theta()), 4.e-4) << "*deg\""
-      << " phiZ=\"" << roundIfNear0(convertRadToDeg(z.phi()), 4.e-4) << "*deg\""
-      << " thetaZ=\"" << roundIfNear0(convertRadToDeg(z.theta()), 4.e-4) << "*deg\"/>" << std::endl;
+      << " phiX=\"" << roundIfNear0(convertRadToDeg(x.phi()), tol0) << "*deg\""
+      << " thetaX=\"" << roundIfNear0(convertRadToDeg(x.theta()), tol0) << "*deg\""
+      << " phiY=\"" << roundIfNear0(convertRadToDeg(y.phi()), tol0) << "*deg\""
+      << " thetaY=\"" << roundIfNear0(convertRadToDeg(y.theta()), tol0) << "*deg\""
+      << " phiZ=\"" << roundIfNear0(convertRadToDeg(z.phi()), tol0) << "*deg\""
+      << " thetaZ=\"" << roundIfNear0(convertRadToDeg(z.theta()), tol0) << "*deg\"/>" << std::endl;
 }
 
 void DDCoreToDDXMLOutput::rotation(const dd4hep::Rotation3D& rotation,
                                    std::ostream& xos,
                                    const cms::DDParsingContext& context,
                                    const std::string& rotn) {
-  double tol = 1.0e-3;  // Geant4 compatible
   ROOT::Math::XYZVector x, y, z;
   rotation.GetComponents(x, y, z);
   double a, b, c;
   x.GetCoordinates(a, b, c);
-  x.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  x.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   y.GetCoordinates(a, b, c);
-  y.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  y.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   z.GetCoordinates(a, b, c);
-  z.SetCoordinates(cms_rounding::roundIfNear0(a), cms_rounding::roundIfNear0(b), cms_rounding::roundIfNear0(c));
+  z.SetCoordinates(
+      cms_rounding::roundIfNear0(a, tol0), cms_rounding::roundIfNear0(b, tol0), cms_rounding::roundIfNear0(c, tol0));
   double check = (x.Cross(y)).Dot(z);  // in case of a LEFT-handed orthogonal system
                                        // this must be -1
-  bool reflection((1. - check) > tol);
+  bool reflection((1. - check) > reflectTol);
   if (!reflection) {
     xos << "<Rotation ";
   } else {
@@ -717,12 +739,12 @@ void DDCoreToDDXMLOutput::rotation(const dd4hep::Rotation3D& rotation,
   }
   using namespace cms_rounding;
   xos << "name=\"" << rotn << "\""
-      << " phiX=\"" << roundIfNear0(convertRadToDeg(x.phi()), 4.e-4) << "*deg\""
-      << " thetaX=\"" << roundIfNear0(convertRadToDeg(x.theta()), 4.e-4) << "*deg\""
-      << " phiY=\"" << roundIfNear0(convertRadToDeg(y.phi()), 4.e-4) << "*deg\""
-      << " thetaY=\"" << roundIfNear0(convertRadToDeg(y.theta()), 4.e-4) << "*deg\""
-      << " phiZ=\"" << roundIfNear0(convertRadToDeg(z.phi()), 4.e-4) << "*deg\""
-      << " thetaZ=\"" << roundIfNear0(convertRadToDeg(z.theta()), 4.e-4) << "*deg\"/>" << std::endl;
+      << " phiX=\"" << roundIfNear0(convertRadToDeg(x.phi()), tol0) << "*deg\""
+      << " thetaX=\"" << roundIfNear0(convertRadToDeg(x.theta()), tol0) << "*deg\""
+      << " phiY=\"" << roundIfNear0(convertRadToDeg(y.phi()), tol0) << "*deg\""
+      << " thetaY=\"" << roundIfNear0(convertRadToDeg(y.theta()), tol0) << "*deg\""
+      << " phiZ=\"" << roundIfNear0(convertRadToDeg(z.phi()), tol0) << "*deg\""
+      << " thetaZ=\"" << roundIfNear0(convertRadToDeg(z.theta()), tol0) << "*deg\"/>" << std::endl;
 }
 
 void DDCoreToDDXMLOutput::logicalPart(const DDLogicalPart& lp, std::ostream& xos) {

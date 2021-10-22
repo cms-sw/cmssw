@@ -1,7 +1,7 @@
 #ifndef CondTools_SiStrip_FedCablingReader_H
 #define CondTools_SiStrip_FedCablingReader_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,15 +15,14 @@ class SiStripFecCabling;
 class SiStripDetCabling;
 class SiStripRegionCabling;
 
-class SiStripFedCablingReader : public edm::EDAnalyzer {
+class SiStripFedCablingReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   SiStripFedCablingReader(const edm::ParameterSet&);
-
-  ~SiStripFedCablingReader() override { ; }
+  ~SiStripFedCablingReader() = default;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-
-  void analyze(const edm::Event&, const edm::EventSetup&) override { ; }
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
 
 private:
   bool printFecCabling_;

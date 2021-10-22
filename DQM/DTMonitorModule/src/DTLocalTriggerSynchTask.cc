@@ -9,6 +9,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // Geometry
@@ -40,7 +41,8 @@ using namespace std;
 DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps)
     : nevents(0),
       tTrigSync{DTTTrigSyncFactory::get()->create(ps.getParameter<std::string>("tTrigMode"),
-                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"))},
+                                                  ps.getParameter<edm::ParameterSet>("tTrigModeConfig"),
+                                                  consumesCollector())},
       muonGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::LogVerbatim("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: Constructor" << endl;
   tm_Token_ = consumes<L1MuDTChambPhContainer>(ps.getParameter<edm::InputTag>("TMInputTag"));

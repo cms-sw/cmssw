@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
-from RecoTracker.IterativeTracking.TobTecStep_cff import *
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayersPair,tobTecStepSeedLayersTripl,tobTecStepHitDoubletsPair,tobTecStepHitDoubletsTripl,tobTecStepHitTripletsTripl,tobTecStepTracks,tobTecStepSeedsPair,tobTecStepSeedsTripl,tobTecStepSeeds,tobTecStepTrajectoryBuilder,tobTecStepInOutTrajectoryFilter,tobTecStepClusterShapeHitFilter,tobTecStepTrajectoryCleanerBySharedHits,tobTecStepChi2Est,tobTecFlexibleKFFittingSmoother,tobTecStepFitterSmoother,tobTecStepRKTrajectorySmoother,tobTecStepRKTrajectoryFitter,tobTecStepFitterSmootherForLoopers,tobTecStepRKTrajectorySmootherForLoopers,tobTecStepRKTrajectoryFitterForLoopers
 from .HIPixelTripletSeeds_cff import *
 from .HIPixel3PrimTracks_cfi import *
 
@@ -52,7 +52,8 @@ tobTecStepTrajectoryFilter.minimumNumberOfHits = 5
 tobTecStepTrajectoryFilter.minPt = 0.85
 
 # MAKING OF TRACK CANDIDATES
-tobTecStepTrackCandidates.clustersToSkip = 'hiTobTecStepClusters'
+from RecoTracker.IterativeTracking.TobTecStep_cff import _tobTecStepTrackCandidatesCkf
+tobTecStepTrackCandidates = _tobTecStepTrackCandidatesCkf.clone(clustersToSkip = 'hiTobTecStepClusters')
 
 # TRACK FITTING
 hiTobTecStepTracks = tobTecStepTracks.clone()

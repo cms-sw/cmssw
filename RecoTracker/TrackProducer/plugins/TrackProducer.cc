@@ -18,11 +18,10 @@
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
                           iConfig.getParameter<bool>("useHitsSplitting")),
-      theAlgo(iConfig) {
-  setConf(iConfig);
-  setSrc(consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")),
-         consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")),
-         consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent")));
+      theAlgo(iConfig),
+      theTTopoToken(esConsumes()) {
+  initTrackProducerBase(
+      iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
   if (iConfig.exists("clusterRemovalInfo")) {
@@ -63,8 +62,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) 
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
+  TrackerTopology const& ttopo = setup.getData(theTTopoToken);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -107,7 +105,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) 
            outputIndecesInputColl,
            algoResults,
            theBuilder.product(),
-           httopo.product());
+           &ttopo);
   LogDebug("TrackProducer") << "end"
                             << "\n";
 }

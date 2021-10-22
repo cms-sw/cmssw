@@ -35,7 +35,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
                   "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
                   "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
-                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias+SiPixelCalSingleMuon",
                   "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias"
                   }
 
@@ -124,3 +124,11 @@ autoAlca = { 'allForPrompt'         : buildList(['Charmonium', 'Commissioning', 
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }
 autoAlca.update(AlCaRecoMatrix)
+
+# list of AlCa sequences that have modules that do not support concurrent LuminosityBlocks
+AlCaNoConcurrentLumis = [
+    'PromptCalibProd',                 # AlcaBeamSpotProducer
+    'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
+    'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
+]

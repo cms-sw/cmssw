@@ -502,6 +502,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
     php.cellCoarseIndex_ = cellIndex;
   else
     php.cellFineIndex_ = cellIndex;
+
 #ifdef EDM_ML_DEBUG
   if (type == 1) {
     edm::LogVerbatim("HGCalGeom") << "CellPosition for  type " << type << " for " << php.cellCoarseX_.size()

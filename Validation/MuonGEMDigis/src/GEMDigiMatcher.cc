@@ -91,9 +91,8 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
 
   // loop on the simlinks
   for (auto itsimlink = digisSL.begin(); itsimlink != digisSL.end(); itsimlink++) {
+    GEMDetId p_id(itsimlink->id);
     for (auto sl = itsimlink->data.begin(); sl != itsimlink->data.end(); ++sl) {
-      GEMDetId p_id(sl->getDetUnitId());
-
       // ignore simlinks in non-matched chambers
       const auto& detids(muonSimHitMatcher_->detIds());
       if (detids.find(p_id.rawId()) == detids.end())
@@ -105,8 +104,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
 
       if (verboseSimLink_)
         edm::LogInfo("GEMDigiMatcher") << "GEMDigiSimLink " << p_id << " " << sl->getStrip() << " " << sl->getBx()
-                                       << " " << sl->getEnergyLoss() << " " << sl->getTimeOfFlight() << " "
-                                       << sl->getParticleType() << std::endl;
+                                       << " " << sl->getTrackId() << std::endl;
 
       // consider only the muon hits
       if (simMuOnly_ && std::abs(sl->getParticleType()) != 13)
@@ -119,10 +117,7 @@ void GEMDigiMatcher::matchDigisSLToSimTrack(const edm::DetSetVector<GEMDigiSimLi
       // loop on the matched simhits
       for (const auto& simhit : muonSimHitMatcher_->hitsInDetId(p_id.rawId())) {
         // check if the simhit properties agree
-        if (simhit.particleType() == sl->getParticleType() and simhit.trackId() == sl->getTrackId() and
-            std::abs(simhit.energyLoss() - sl->getEnergyLoss()) < 0.001 and
-            std::abs(simhit.timeOfFlight() - sl->getTimeOfFlight()) < 0.001 and
-            simhit.entryPoint() == sl->getEntryPoint() and simhit.momentumAtEntry() == sl->getMomentumAtEntry()) {
+        if (simhit.trackId() == sl->getTrackId() and simhit.particleType() == sl->getParticleType()) {
           detid_to_simLinks_[p_id.rawId()].push_back(*sl);
           if (verboseSimLink_)
             edm::LogInfo("GEMDigiMatcher") << "...was matched!" << endl;
@@ -220,7 +215,7 @@ void GEMDigiMatcher::matchClustersToSimTrack(const GEMPadDigiClusterCollection& 
     auto clusters_in_det = clusters.get(p_id);
 
     for (auto cluster = clusters_in_det.first; cluster != clusters_in_det.second; ++cluster) {
-      bool isMatched;
+      bool isMatched = false;
 
       // ignore 16-partition GE2/1 pads
       if (p_id.isGE21() and cluster->nPartitions() == GEMPadDigiCluster::GE21SplitStrip)

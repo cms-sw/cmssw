@@ -1,33 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQM.TrackingMonitor.TrackingMonitor_cfi
+from DQM.TrackingMonitor.TrackingMonitor_cfi import *
 
-TrackMonSeed = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-
-TrackMonSeed.MeasurementState           = cms.string('ImpactPoint')
-TrackMonSeed.FolderName                 = cms.string('Tracking/TrackParameters')
-TrackMonSeed.BSFolderName               = cms.string('Tracking/TrackParameters/BeamSpotParameters')
-TrackMonSeed.AlgoName                   = cms.string('Seed')
-#TrackMonSeed.doGoodTrackPlots       = cms.bool(False)
-TrackMonSeed.doTrackerSpecific          = cms.bool(False)
-TrackMonSeed.doAllPlots                 = cms.bool(False)
-TrackMonSeed.doHitPropertiesPlots       = cms.bool(False)
-TrackMonSeed.doGeneralPropertiesPlots   = cms.bool(False)
-TrackMonSeed.doBeamSpotPlots            = cms.bool(False)
-TrackMonSeed.doSeedParameterHistos      = cms.bool(False)
-TrackMonSeed.doLumiAnalysis             = cms.bool(False)
-TrackMonSeed.doMeasurementStatePlots    = cms.bool(False)
-TrackMonSeed.doRecHitsPerTrackProfile   = cms.bool(False)
-TrackMonSeed.doRecHitVsPhiVsEtaPerTrack = cms.bool(False)
-#TrackMonSeed.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False)
-#
-# plot on Seed (total number, pt, seed # vs cluster)
-#
-TrackMonSeed.doSeedNumberHisto    = cms.bool(True)
-TrackMonSeed.doSeedLumiAnalysis   = cms.bool(True)
-TrackMonSeed.doSeedVsClusterHisto = cms.bool(True)
-TrackMonSeed.doSeedPTHisto        = cms.bool(True)
-TrackMonSeed.doSeedETAHisto       = cms.bool(True)
-TrackMonSeed.doSeedPHIHisto       = cms.bool(True)
-TrackMonSeed.doSeedPHIVsETAHisto  = cms.bool(True)
-TrackMonSeed.doStopSource         = cms.bool(True)
+TrackMonSeed = TrackMon.clone(
+    MeasurementState = 'ImpactPoint',
+    FolderName = 'Tracking/TrackParameters',
+    BSFolderName = 'Tracking/TrackParameters/BeamSpotParameters',
+    AlgoName = 'Seed',
+    #doGoodTrackPlots = False,
+    doTrackerSpecific = False,
+    doAllPlots = False,
+    doHitPropertiesPlots = False,
+    doGeneralPropertiesPlots = False,
+    doBeamSpotPlots = False,
+    doSeedParameterHistos = False,
+    doLumiAnalysis = False,
+    doMeasurementStatePlots = False,
+    doRecHitsPerTrackProfile = False,
+    doRecHitVsPhiVsEtaPerTrack = False,
+    #doGoodTrackRecHitVsPhiVsEtaPerTrack = False,
+    #
+    # plot on Seed (total number, pt, seed # vs cluster)
+    #
+    doSeedNumberHisto = True,
+    doSeedLumiAnalysis = True,
+    doSeedVsClusterHisto = True,
+    doSeedPTHisto = True,
+    doSeedETAHisto = True,
+    doSeedPHIHisto = True,
+    doSeedPHIVsETAHisto = True,
+    doStopSource = True
+)

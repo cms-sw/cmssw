@@ -1,6 +1,3 @@
-// system include files
-//#include <memory>
-
 // user include files
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -10,8 +7,6 @@
 
 using namespace reco;
 using namespace pat;
-
-typedef edm::Ptr<pat::Electron> PatElectronPtr;
 
 ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet& iConfig)
     : ElectronDqmAnalyzerBase(iConfig) {
@@ -79,6 +74,10 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
   set_EfficiencyFlag = histosSet.getParameter<bool>("EfficiencyFlag");
   set_StatOverflowFlag = histosSet.getParameter<bool>("StatOverflowFlag");
 
+  ele_nbin = histosSet.getParameter<int>("NbinELE");
+  ele_min = histosSet.getParameter<double>("ELE_min");
+  ele_max = histosSet.getParameter<double>("ELE_max");
+
   // so to please coverity...
 
   h1_recEleNum = nullptr;
@@ -138,7 +137,7 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms(DQMStore::IBooker& iBooker
   setBookStatOverflowFlag(set_StatOverflowFlag);
 
   // rec event collections sizes
-  h1_recEleNum = bookH1(iBooker, "recEleNum", "# rec electrons", 11, -0.5, 10.5, "N_{ele}");
+  h1_recEleNum = bookH1(iBooker, "recEleNum", "# rec electrons", ele_nbin, ele_min, ele_max, "N_{ele}");
   // matched electrons
   setBookPrefix("h_mc");
   setBookPrefix("h_ele");
@@ -156,7 +155,6 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms(DQMStore::IBooker& iBooker
                                         50,
                                         poptrue_min,
                                         poptrue_max);
-  //  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
   h2_ele_sigmaIetaIetaVsPt =
       bookH2(iBooker, "sigmaIetaIetaVsPt", "SigmaIetaIeta vs pt", 100, 0., pt_max, 100, 0., 0.05);
 
@@ -431,6 +429,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       << "Treating event " << iEvent.id() << " with " << electrons_endcaps.product()->size()
       << " multi slimmed electrons";
+
   h1_recEleNum->Fill((*electrons).size());
 
   //===============================================
@@ -438,15 +437,39 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   //===============================================
 
   pat::Electron gsfElectron;
-
   pat::ElectronCollection::const_iterator el1;
-  pat::ElectronCollection::const_iterator el2;
+  std::vector<pat::Electron>::const_iterator el3;
+  std::vector<pat::Electron>::const_iterator el4;
+
+  //===============================================
+  // get a vector with EB  & EE
+  //===============================================
+  std::vector<pat::Electron> localCollection;
+  int iBarrels = 0;
+  int iEndcaps = 0;
+
+  // looking for EB
   for (el1 = electrons->begin(); el1 != electrons->end(); el1++) {
-    for (el2 = el1 + 1; el2 != electrons->end(); el2++) {
-      math::XYZTLorentzVector p12 = el1->p4() + el2->p4();
+    if (el1->isEB()) {
+      localCollection.push_back(*el1);
+      iBarrels += 1;
+    }
+  }
+
+  // looking for EE
+  for (el1 = electrons_endcaps->begin(); el1 != electrons_endcaps->end(); el1++) {
+    if (el1->isEE()) {
+      localCollection.push_back(*el1);
+      iEndcaps += 1;
+    }
+  }
+
+  for (el3 = localCollection.begin(); el3 != localCollection.end(); el3++) {
+    for (el4 = el3 + 1; el4 != localCollection.end(); el4++) {
+      math::XYZTLorentzVector p12 = el3->p4() + el4->p4();
       float mee2 = p12.Dot(p12);
       h1_ele_mee_all->Fill(sqrt(mee2));
-      if (el1->charge() * el2->charge() < 0.) {
+      if (el3->charge() * el4->charge() < 0.) {
         h1_ele_mee_os->Fill(sqrt(mee2));
       }
     }
@@ -457,7 +480,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   //===============================================
 
   int mcNum = 0, gamNum = 0, eleNum = 0;
-  //    bool matchingID;//, matchingMotherID ;
   bool matchingMotherID;
 
   //===============================================
@@ -465,13 +487,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   //===============================================
 
   for (size_t i = 0; i < genParticles->size(); i++) {
-    /*                // DEBUG LINES - KEEP IT !
-        std::cout << "\nevt ID = " << iEvent.id() ;
-        std::cout << ",  mcIter position : " << i << std::endl;
-        std::cout << "pdgID : " << (*genParticles)[i].pdgId() << ", Pt : " << (*genParticles)[i].pt() ;
-        std::cout << ", eta : " << (*genParticles)[i].eta() << ", phi : " << (*genParticles)[i].phi() << std::endl;
-                // DEBUG LINES - KEEP IT !  */
-
     // number of mc particles
     mcNum++;
 
@@ -485,33 +500,14 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     const Candidate* mother = (*genParticles)[i].mother(0);
     matchingMotherID = false;
     for (unsigned int ii = 0; ii < matchingMotherIDs_.size(); ii++) {
-      /*                // DEBUG LINES - KEEP IT !
-                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ;
-                if (mother != 0) {
-			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ;
-                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl;
-                }
-                else {
-                    std::cout << std::endl;
-                }
-                // DEBUG LINES - KEEP IT !  */
-
       if (mother == nullptr) {
         matchingMotherID = true;
       } else if (mother->pdgId() == matchingMotherIDs_[ii]) {
         if (mother->numberOfDaughters() <= 2) {
           matchingMotherID = true;
-          //std::cout << "evt ID = " << iEvent.id() ;                                                                               // debug lines
-          //std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl; // debug lines
         }
       }  // end of mother if test
 
-      /*                // DEBUG LINES - KEEP IT !
-            if (mother != 0) {
-                std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ;
-                std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl;
-            }
-                // DEBUG LINES - KEEP IT !  */
     }  // end of for loop
     if (!matchingMotherID) {
       continue;
@@ -527,35 +523,28 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     bool okGsfFound = false;
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
+    bool isEBflag = false;
+    bool isEEflag = false;
     pat::Electron bestGsfElectron;
 
-    for (unsigned i_elec = 0; i_elec < 2; ++i_elec) {
-      mergedElectrons = (i_elec == 0) ? electrons : electrons_endcaps;
-
-      for (const pat::Electron& el : *mergedElectrons) {  // *electrons
-        if (i_elec == 0 && !el.isEB())
-          continue;
-        double dphi = el.phi() - (*genParticles)[i].phi();
-        if (std::abs(dphi) > CLHEP::pi) {
-          dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-        }
-        double deltaR2 = (el.eta() - (*genParticles)[i].eta()) * (el.eta() - (*genParticles)[i].eta()) + dphi * dphi;
-        if (deltaR2 < deltaR2_) {
-          if ((((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.)) ||
-              (((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.))) {
-            double tmpGsfRatio = el.p() / (*genParticles)[i].p();
-            if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
-              gsfOkRatio = tmpGsfRatio;
-              bestGsfElectron = el;
-              PatElectronPtr elePtr(electrons, &el - &(*electrons)[0]);
-              pt_ = elePtr->pt();
-
-              okGsfFound = true;
-            }
+    for (el3 = localCollection.begin(); el3 != localCollection.end(); el3++) {
+      double dphi = el3->phi() - (*genParticles)[i].phi();
+      if (std::abs(dphi) > CLHEP::pi) {
+        dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+      }
+      double deltaR2 = (el3->eta() - (*genParticles)[i].eta()) * (el3->eta() - (*genParticles)[i].eta()) + dphi * dphi;
+      if (deltaR2 < deltaR2_) {
+        if ((((*genParticles)[i].pdgId() == 11) && (el3->charge() < 0.)) ||
+            (((*genParticles)[i].pdgId() == -11) && (el3->charge() > 0.))) {
+          double tmpGsfRatio = el3->p() / (*genParticles)[i].p();
+          if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
+            gsfOkRatio = tmpGsfRatio;
+            bestGsfElectron = *el3;
+            okGsfFound = true;
           }
         }
       }
-    }  // end loop i_elec
+    }  // end *electrons loop
 
     if (okGsfFound) {
       //------------------------------------
@@ -563,6 +552,8 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
       //------------------------------------
       passMiniAODSelection = bestGsfElectron.pt() >= 5.;
       double one_over_pt = 1. / bestGsfElectron.pt();
+      isEBflag = bestGsfElectron.isEB();
+      isEEflag = bestGsfElectron.isEE();
 
       // electron related distributions
       h1_ele_vertexPt->Fill(bestGsfElectron.pt());
@@ -600,7 +591,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                                                    one_over_pt);
         h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
 
-        if (bestGsfElectron.isEB()) {
+        if (isEBflag) {
           // supercluster related distributions
           h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
           h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
@@ -618,7 +609,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         }
 
         // supercluster related distributions
-        if (bestGsfElectron.isEE()) {
+        if (isEEflag) {
           h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
           h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
           h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());

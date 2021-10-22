@@ -754,6 +754,26 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         return aCopy
     def _place(self,label,process):
         process.setPartialSchedule_(self,label)
+    def _replaceIfHeldDirectly(self,original,replacement):
+        """Only replaces an 'original' with 'replacement' if 'original' is directly held.
+        If a contained Path or Task holds 'original' it will not be replaced."""
+        didReplace = False
+        if original in self._tasks:
+            self._tasks.remove(original)
+            if replacement is not None:
+                self._tasks.add(replacement)
+            didReplace = True
+        indices = []
+        for i, e in enumerate(self):
+            if original == e:
+                indices.append(i)
+        for i in reversed(indices):
+            self.pop(i)
+            if replacement is not None:
+                self.insert(i, replacement)
+            didReplace = True
+        return didReplace
+
     def moduleNames(self):
         result = set()
         visitor = NodeNameVisitor(result)

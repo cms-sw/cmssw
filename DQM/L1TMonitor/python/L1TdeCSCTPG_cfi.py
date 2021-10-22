@@ -28,7 +28,9 @@ l1tdeCSCTPGCommon = cms.PSet(
     lctNBin = cms.vuint32(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
     lctMinBin = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     lctMaxBin = cms.vdouble(16, 116, 224, 16, 2, 448, 896, 5, 16, 2, 2),
-    B904Setup = cms.bool(False),
+    useB904ME11 = cms.bool(False),
+    useB904ME21 = cms.bool(False),
+    useB904ME234s2 = cms.bool(False),
     isRun3 = cms.bool(False),
     preTriggerAnalysis = cms.bool(False)
 )

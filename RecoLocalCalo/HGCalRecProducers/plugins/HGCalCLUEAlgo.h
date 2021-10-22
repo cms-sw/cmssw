@@ -91,7 +91,7 @@ public:
                                    {
                                        1.3,
                                        1.3,
-                                       5.0,
+                                       1.3,
                                        0.0315,  // for scintillator
                                    });
     iDesc.add<bool>("dependSensor", true);

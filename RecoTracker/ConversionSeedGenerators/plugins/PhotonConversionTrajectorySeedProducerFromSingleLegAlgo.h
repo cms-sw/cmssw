@@ -68,6 +68,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> token_vertex;
   edm::EDGetTokenT<reco::BeamSpot> token_bs;
   edm::EDGetTokenT<reco::TrackCollection> token_refitter;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_magField;
 
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;

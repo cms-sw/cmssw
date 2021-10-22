@@ -5,6 +5,7 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <algorithm>
 #include <cmath>
 
 //#define EDM_ML_DEBUG

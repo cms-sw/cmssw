@@ -8,5 +8,8 @@ pfPileUp = cms.EDProducer(
     # pile-up identification now enabled by default. To be studied for jets
     Enable = cms.bool(True),
     verbose = cms.untracked.bool(False),
-    checkClosestZVertex = cms.bool(True)
+    checkClosestZVertex = cms.bool(True),
+    useVertexAssociation = cms.bool(False),
+    vertexAssociationQuality = cms.int32(0),
+    vertexAssociation = cms.InputTag(''),
     )

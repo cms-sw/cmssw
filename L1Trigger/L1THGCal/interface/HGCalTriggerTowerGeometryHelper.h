@@ -30,7 +30,7 @@ public:
 
   ~HGCalTriggerTowerGeometryHelper() {}
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 

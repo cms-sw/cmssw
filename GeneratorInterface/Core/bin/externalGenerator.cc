@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <memory>
+#include <filesystem>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
@@ -75,6 +77,18 @@ private:
 template <typename T>
 using Serializer = ROOTSerializer<T, WriteBuffer>;
 
+namespace {
+  //needed for atexit handling
+  boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* s_sharedLock = nullptr;
+
+  void atexit_handler() {
+    if (s_sharedLock) {
+      std::cerr << "early exit called: unlock\n";
+      s_sharedLock->unlock();
+    }
+  }
+}  // namespace
+
 int main(int argc, char* argv[]) {
   std::string descString(argv[0]);
   descString += " [--";
@@ -83,10 +97,9 @@ int main(int argc, char* argv[]) {
   boost::program_options::options_description desc(descString);
 
   desc.add_options()(kHelpCommandOpt, "produce help message")(
-      kMemoryNameCommandOpt,
-      boost::program_options::value<std::string>(),
-      "memory name")(kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id")(kVerboseCommandOpt,
-                                                                                                     "verbose output");
+      kMemoryNameCommandOpt, boost::program_options::value<std::string>(), "memory name")(
+      kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id")(kVerboseCommandOpt,
+                                                                                      "verbose output");
 
   boost::program_options::positional_options_description p;
   p.add(kMemoryNameOpt, 1);
@@ -125,6 +138,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  using namespace std::string_literals;
+  using namespace std::filesystem;
+
+  auto newDir = path("thread"s + vm[kUniqueIDOpt].as<std::string>());
+  create_directory(newDir);
+  current_path(newDir);
+
   WorkerMonitorThread monitorThread;
 
   monitorThread.startThread();
@@ -142,12 +162,35 @@ int main(int argc, char* argv[]) {
 
       //The lock must be released if there is a catastrophic signal
       auto lockPtr = communicationChannel.accessLock();
+
       monitorThread.setAction([lockPtr]() {
         if (lockPtr) {
           std::cerr << "SIGNAL CAUGHT: unlock\n";
           lockPtr->unlock();
         }
       });
+
+      //be sure to unset the address of the shared lock before the lock goes away
+      s_sharedLock = lockPtr;
+      auto unsetLockPtr = [](void*) { s_sharedLock = nullptr; };
+      std::unique_ptr<decltype(s_sharedLock), decltype(unsetLockPtr)> sharedLockGuard{&s_sharedLock, unsetLockPtr};
+      std::atexit(atexit_handler);
+      auto releaseLock = []() {
+        if (s_sharedLock) {
+          std::cerr << "terminate called: unlock\n";
+          s_sharedLock->unlock();
+          s_sharedLock = nullptr;
+          //deactivate the abort signal
+
+          struct sigaction act;
+          act.sa_sigaction = nullptr;
+          act.sa_flags = SA_SIGINFO;
+          sigemptyset(&act.sa_mask);
+          sigaction(SIGABRT, &act, nullptr);
+          std::abort();
+        }
+      };
+      std::set_terminate(releaseLock);
 
       Serializer<ExternalGeneratorEventInfo> serializer(sm_buffer);
       Serializer<ExternalGeneratorLumiInfo> bl_serializer(sm_buffer);
@@ -175,8 +218,9 @@ int main(int argc, char* argv[]) {
           edm::ServiceRegistry::createContaining(std::unique_ptr<edm::RandomNumberGenerator>(randomService));
       Harness harness(configuration, serviceToken);
 
-      //Either ROOT or the Framework are overriding the signal handlers
+      //Some generator libraries override the signal handlers
       monitorThread.setupSignalHandling();
+      std::set_terminate(releaseLock);
 
       if (verbose) {
         std::cerr << uniqueID << " process: done initializing" << std::endl;

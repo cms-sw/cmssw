@@ -20,15 +20,15 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<string> coolInsert = args.value<vector<string> >("CoolInsert");
   Volume mother = ns.volume(args.parentName());
 
-  LogDebug("TECGeom") << "DDTECCoolAlgo debug: Parent " << mother.name() << " NameSpace " << ns.name()
-                      << " at radial Position " << rPosition;
+  edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo debug: Parent " << mother.name() << " NameSpace " << ns.name()
+                              << " at radial Position " << rPosition;
   if (phiPosition.size() == coolInsert.size()) {
     for (int i = 0; i < (int)(phiPosition.size()); i++) {
-      LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
-                          << convertRadToDeg(phiPosition.at(i));
+      edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
+                                  << convertRadToDeg(phiPosition.at(i));
     }
   } else {
-    LogDebug("TECGeom") << "DDTECCoolAlgo ERROR: Number of inserts does not match the numer of PhiPositions!";
+    edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo ERROR: Number of inserts does not match the numer of PhiPositions!";
   }
 
   int copyNo = startCopyNo;
@@ -41,11 +41,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // place inserts
     Position tran(xpos, ypos, 0.0);
     mother.placeVolume(child, copyNo, tran);
-    LogDebug("TECGeom") << "DDTECCoolAlgo test " << child.name() << "[" << copyNo << "] positioned in " << mother.name()
-                        << " at " << tran << " phi " << convertRadToDeg(phiPosition.at(i)) << " r " << rPosition;
+    edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo test " << child.name() << "[" << copyNo << "] positioned in "
+                                << mother.name() << " at " << tran << " phi " << convertRadToDeg(phiPosition.at(i))
+                                << " r " << rPosition;
     copyNo++;
   }
-  LogDebug("TECGeom") << "DDTECCoolAlgo Finished....";
+  edm::LogVerbatim("TECGeom") << "DDTECCoolAlgo Finished....";
   return 1;
 }
 

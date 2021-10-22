@@ -164,6 +164,8 @@ namespace edm {
     edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
     edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
 
+    const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
+
     bool MergeHcalDigis_;
     bool MergeHcalDigisProd_;
 

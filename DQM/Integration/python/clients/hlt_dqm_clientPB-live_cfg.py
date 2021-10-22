@@ -33,7 +33,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # customise for playback
-if process.dqmRunConfig.type.value() is "playback":
+if process.dqmRunConfig.type.value() == "playback":
     process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
 # DQM Modules
@@ -85,5 +85,5 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
 process.load('DQM.HLTEvF.psMonitorClient_cfi')
 process.psChecker = process.psMonitorClient.clone()
 
-
+print("Final Source settings:", process.source)
 process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )

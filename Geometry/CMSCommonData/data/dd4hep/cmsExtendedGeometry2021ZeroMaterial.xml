@@ -5,7 +5,7 @@
 
   <IncludeSection>
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/trackermaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
@@ -53,8 +53,8 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibtidcommonmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tibmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tibtidcommonmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tibmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0a.xml'/>
@@ -87,7 +87,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tiblayer2.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tiblayer3.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tib.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tidmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tidmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0r.xml'/>
@@ -110,7 +110,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tibtidservices.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesf.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesb.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v1/tobmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/zeroMaterial/2021/v2/tobmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule2.xml'/>
@@ -343,12 +343,12 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_2021/Simu/v1/CTPPS_Detectors_Assembly_122.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Diamond_Sensitive_Dets_TimingHits.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/ppstrackerMaterials.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/PPS_Pixel_Module_2x2_Run3.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v3/PPS_Pixel_Module_2x2_Run3.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Modules/v2/PPS_Pixel_Sens.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v1/CTPPS_Pixel_Assembly_Box_Real_003.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v1/CTPPS_Pixel_Assembly_Box_Real_023.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v1/CTPPS_Pixel_Assembly_Box_Real_103.xml'/>
-    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v1/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_003.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_023.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_103.xml'/>
+    <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml'/>

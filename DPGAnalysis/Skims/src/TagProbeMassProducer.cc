@@ -119,12 +119,6 @@ void TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(TPmass), "TPmass");
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void TagProbeMassProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TagProbeMassProducer::endJob() {}
-
 bool TagProbeMassProducer::isPassingProbe(const unsigned int iProbe) const {
   if (iProbe > probes->size())
     return false;

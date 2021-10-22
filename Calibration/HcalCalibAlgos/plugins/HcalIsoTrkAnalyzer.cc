@@ -411,9 +411,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
-  const HcalRespCorrs* resp = &iSetup.getData(tok_resp_);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
-  respCorrs->setTopo(theHBHETopology);
+  const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
 
   //=== genParticle information
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -793,25 +791,27 @@ void HcalIsoTrkAnalyzer::beginJob() {
 void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   hdc_ = &iSetup.getData(tok_ddrec_);
 
-  bool changed_(true);
-  bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
-  edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " process " << processName_
-                                   << " init flag " << flag << " change flag " << changed_;
-  // check if trigger names in (new) config
-  if (changed_) {
+  if (!ignoreTrigger_) {
+    bool changed_(true);
+    bool flag = hltConfig_.init(iRun, iSetup, processName_, changed_);
+    edm::LogVerbatim("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " process " << processName_
+                                     << " init flag " << flag << " change flag " << changed_;
+    // check if trigger names in (new) config
+    if (changed_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
+      edm::LogVerbatim("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
-    const unsigned int n(hltConfig_.size());
-    for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
-      if (triggerindx >= n) {
-        edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
-                                        << "the current menu";
+      const unsigned int n(hltConfig_.size());
+      for (unsigned itrig = 0; itrig < trigNames_.size(); itrig++) {
+        unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
+        if (triggerindx >= n) {
+          edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " does not exist in "
+                                          << "the current menu";
 #ifdef EDM_ML_DEBUG
-      } else {
-        edm::LogVerbatim("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " exists";
+        } else {
+          edm::LogVerbatim("HcalIsoTrack") << trigNames_[itrig] << " " << triggerindx << " exists";
 #endif
+        }
       }
     }
   }
@@ -939,9 +939,13 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
        trkDetItr++, nTracks++) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
+    t_p = pTrack->p();
+    t_pt = pTrack->pt();
+    t_phi = pTrack->phi();
+
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
-                                     << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
+    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << t_pt << "|"
+                                     << pTrack->eta() << "|" << t_phi << "|" << t_p;
 #endif
     t_mindR2 = 999;
     for (unsigned int k = 0; k < vecL3.size(); ++k) {
@@ -954,6 +958,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr :" << t_mindR2 << " and from L1 " << t_mindR1;
 #endif
+
     t_ieta = t_iphi = 0;
     if (trkDetItr->okHCAL) {
       HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
@@ -1208,10 +1213,6 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
             ids3[k] = newId(ids3[k]);
         }
         storeEnergy(3, respCorrs, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
-
-        t_p = pTrack->p();
-        t_pt = pTrack->pt();
-        t_phi = pTrack->phi();
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << t_pt << "|"

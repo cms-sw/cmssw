@@ -194,7 +194,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
     }
     if (debug_ == true) {  // only produced for debugging reason
       cond::Time_t thisIOV = (cond::Time_t)iRun.id().run();
-      poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_ + "_permanentBad");
+      poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityPermBad, thisIOV, recordName_ + "_permanentBad");
     }
 
     // IOV for final payloads. FEDerror25 and pcl
@@ -298,7 +298,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
       fedError25IOV[it->first] = it->first;
 
       if (debug_ == true)  // only produced for debugging reason
-        poolDbService->writeOne<SiPixelQuality>(siPixelQuality_FEDerror25, thisIOV, recordName_ + "_FEDerror25");
+        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQuality_FEDerror25, thisIOV, recordName_ + "_FEDerror25");
 
       delete siPixelQuality_FEDerror25;
     }
@@ -556,12 +556,12 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
       edm::LuminosityBlockID lu(iRun.id().run(), endLumiBlock_ + 1);
       cond::Time_t thisIOV = (cond::Time_t)(lu.value());
       if (!SiPixelStatusHarvester::equal(lastPrompt, siPixelQualityPermBad))
-        poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_ + "_prompt");
+        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityPermBad, thisIOV, recordName_ + "_prompt");
 
       // add empty bad components to last lumi+1 IF AND ONLY IF the last payload of other is not equal to empty
       SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
       if (!SiPixelStatusHarvester::equal(lastOther, siPixelQualityDummy))
-        poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_ + "_other");
+        poolDbService->writeOneIOV<SiPixelQuality>(*siPixelQualityDummy, thisIOV, recordName_ + "_other");
 
       delete siPixelQualityDummy;
     }
@@ -657,12 +657,12 @@ void SiPixelStatusHarvester::constructTag(std::map<int, SiPixelQuality*> siPixel
 
     SiPixelQuality* thisPayload = qIt->second;
     if (qIt == siPixelQualityTag.begin())
-      poolDbService->writeOne<SiPixelQuality>(thisPayload, thisIOV, recordName_ + "_" + tagName);
+      poolDbService->writeOneIOV<SiPixelQuality>(*thisPayload, thisIOV, recordName_ + "_" + tagName);
     else {
       SiPixelQuality* prevPayload = (std::prev(qIt))->second;
       if (!SiPixelStatusHarvester::equal(thisPayload,
                                          prevPayload))  // only append newIOV if this payload differs wrt last
-        poolDbService->writeOne<SiPixelQuality>(thisPayload, thisIOV, recordName_ + "_" + tagName);
+        poolDbService->writeOneIOV<SiPixelQuality>(*thisPayload, thisIOV, recordName_ + "_" + tagName);
     }
   }
 }

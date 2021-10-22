@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys, imp, re
+import sys, re, os
 import operator
+from importlib.machinery import SourceFileLoader
+import types
+import tempfile
 import FWCore.ParameterSet.Config as cms
 
 mode = 'text'
@@ -15,15 +18,23 @@ except:
   pass
 
 # parse the HLT configuration from standard input or from the given file
-hlt = imp.new_module('hlt')
 try:
   configname = sys.argv[1]
+  loader=SourceFileLoader("pycfg", configname)	
+  hlt=types.ModuleType(loader.name)
+  loader.exec_module(hlt)
 except:
-  config = sys.stdin
-else:
-  config = open(configname)
-exec(config, globals(), hlt.__dict__)
-config.close()
+  with tempfile.NamedTemporaryFile(dir="./",delete=False,suffix=".py") as temp_file:
+
+    temp_file.write(bytes(sys.stdin.read(),'utf-8'))
+    configname = temp_file.name
+    sys.argv.append(configname)# VarParsing expects python/cmsRun python.py
+  loader=SourceFileLoader("pycfg", configname)	
+  hlt=types.ModuleType(loader.name)
+  loader.exec_module(hlt)
+  os.remove(configname)
+
+
 
 if 'process' in hlt.__dict__:
   process = hlt.process

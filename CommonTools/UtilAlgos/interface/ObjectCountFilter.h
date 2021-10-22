@@ -13,10 +13,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/CollectionFilterTrait.h"
 #include "CommonTools/UtilAlgos/interface/EventSelectorAdapter.h"

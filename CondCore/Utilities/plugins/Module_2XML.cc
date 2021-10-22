@@ -2,6 +2,7 @@
 #include "CondCore/Utilities/src/CondFormats.h"
 
 PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
+  m.def("boost_version_label", &cond::boost_version_label, "Get boost version for this release");
   PAYLOAD_2XML_CLASS(AlCaRecoTriggerBits);
   PAYLOAD_2XML_CLASS(AlignPCLThresholds);
   PAYLOAD_2XML_CLASS(AlignmentErrors);
@@ -31,6 +32,8 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(CTPPSPixelDAQMapping);
   PAYLOAD_2XML_CLASS(CTPPSPixelGainCalibrations);
   PAYLOAD_2XML_CLASS(PPSAlignmentConfig)
+  PAYLOAD_2XML_CLASS(PPSAlignmentConfiguration)
+  PAYLOAD_2XML_CLASS(PPSAssociationCuts)
   PAYLOAD_2XML_CLASS(CastorChannelQuality);
   PAYLOAD_2XML_CLASS(CastorElectronicsMap);
   PAYLOAD_2XML_CLASS(CastorGainWidths);

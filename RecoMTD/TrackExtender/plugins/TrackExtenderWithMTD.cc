@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
@@ -16,9 +17,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 
 #include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
-#include "RecoMTD/DetLayers/interface/MTDDetTray.h"
-#include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
-#include "RecoMTD/DetLayers/interface/MTDDetRing.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -448,7 +447,7 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   }
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
-  theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"));
+  theTransformer = std::make_unique<TrackTransformer>(iConfig.getParameterSet("TrackTransformer"), consumesCollector());
 
   btlMatchChi2Token = produces<edm::ValueMap<float>>("btlMatchChi2");
   etlMatchChi2Token = produces<edm::ValueMap<float>>("etlMatchChi2");
@@ -886,7 +885,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
   for (const DetLayer* ilay : layers) {
-    const BoundDisk& disk = static_cast<const MTDRingForwardDoubleLayer*>(ilay)->specificSurface();
+    const BoundDisk& disk = static_cast<const ForwardDetLayer*>(ilay)->specificSurface();
     const double diskZ = disk.position().z();
 
     if (tsos.globalPosition().z() * diskZ < 0)

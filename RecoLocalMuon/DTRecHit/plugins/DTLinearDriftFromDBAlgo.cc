@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
@@ -24,11 +25,12 @@
 using namespace std;
 using namespace edm;
 
-DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       mTimeMap(nullptr),
       vDriftMap(nullptr),
       field(nullptr),
+      fieldToken_(cc.esConsumes()),
       nominalB(-1),
       minTime(config.getParameter<double>("minTime")),
       maxTime(config.getParameter<double>("maxTime")),
@@ -39,7 +41,16 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
       readLegacyTTrigDB(config.getParameter<bool>("readLegacyTTrigDB")),
       readLegacyVDriftDB(config.getParameter<bool>("readLegacyVDriftDB")),
       // Set verbose output
-      debug(config.getUntrackedParameter<bool>("debug")) {}
+      debug(config.getUntrackedParameter<bool>("debug")) {
+  if (readLegacyVDriftDB) {
+    mTimeMapToken_ = cc.esConsumes();
+  } else {
+    vDriftMapToken_ = cc.esConsumes();
+  }
+  if (useUncertDB) {
+    uncertMapToken_ = cc.esConsumes();
+  }
+}
 
 DTLinearDriftFromDBAlgo::~DTLinearDriftFromDBAlgo() {}
 
@@ -49,14 +60,10 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   theSync->setES(setup);
   // Get the map of ttrig from the Setup
   if (readLegacyVDriftDB) {
-    ESHandle<DTMtime> mTimeHandle;
-    setup.get<DTMtimeRcd>().get(mTimeHandle);
-    mTimeMap = &*mTimeHandle;
+    mTimeMap = &setup.getData(mTimeMapToken_);
     vDriftMap = nullptr;
   } else {
-    ESHandle<DTRecoConditions> hVdrift;
-    setup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
-    vDriftMap = &*hVdrift;
+    vDriftMap = &setup.getData(vDriftMapToken_);
     mTimeMap = nullptr;
 
     // Consistency check: no parametrization is implemented for the time being
@@ -66,15 +73,11 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
     }
   }
 
-  ESHandle<MagneticField> magfield;
-  setup.get<IdealMagneticFieldRecord>().get(magfield);
-  field = &*magfield;
+  field = &setup.getData(fieldToken_);
   nominalB = field->nominalValue();
 
   if (useUncertDB) {
-    ESHandle<DTRecoConditions> uncerts;
-    setup.get<DTRecoConditionsUncertRcd>().get(uncerts);
-    uncertMap = &*uncerts;
+    uncertMap = &setup.getData(uncertMapToken_);
     if (uncertMap->version() > 1)
       edm::LogError("NotImplemented") << "DT Uncertainty DB version unsupported: " << uncertMap->version();
   }

@@ -24,16 +24,16 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 namespace edm {
-  class Event;
   class EventSetup;
-}  // namespace edm
+}
 
 class HGCalTriggerTools {
 public:
   HGCalTriggerTools() : geom_(nullptr), eeLayers_(0), fhLayers_(0), bhLayers_(0), noseLayers_(0), totalLayers_(0) {}
   ~HGCalTriggerTools() {}
 
-  void eventSetup(const edm::EventSetup&);
+  void setGeometry(const HGCalTriggerGeometryBase* const);
+  void eventSetup(const edm::EventSetup&);  // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
   GlobalPoint getTCPosition(const DetId& id) const;
   unsigned layers(ForwardSubdetector type) const;
   unsigned layers(DetId::Detector type) const;

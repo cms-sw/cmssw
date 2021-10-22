@@ -7,6 +7,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter('LowPtTripletStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -216,6 +219,8 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     # of the outermost Tracker barrel layer (with B=3.8T)
     maxPtForLooperReconstruction = cms.double(0.7) 
 )
+trackingNoLoopers.toModify(lowPtTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(lowPtTripletStepTrajectoryBuilder, maxCand = 3)
 trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder, 
     inOutTrajectoryFilter = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilterInOut'),
@@ -225,7 +230,8 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryBuilder,
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner       = cms.int32(50),
@@ -236,6 +242,7 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     useHitsSplitting            = True,
     TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
 )
+lowPtTripletStepTrackCandidates = _lowPtTripletStepTrackCandidatesCkf.clone()
 
 trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
     clustersToSkip = None,

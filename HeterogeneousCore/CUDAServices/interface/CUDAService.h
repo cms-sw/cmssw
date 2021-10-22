@@ -33,6 +33,7 @@ private:
   int numberOfDevices_ = 0;
   std::vector<std::pair<int, int>> computeCapabilities_;
   bool enabled_ = false;
+  bool verbose_ = false;
 };
 
 #endif
