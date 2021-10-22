@@ -16,7 +16,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -47,6 +46,8 @@ public:
   typedef SeedingLayerSetsHits::Hits Hits;
 
 public:
+  TrackingRegion() {}
+
   TrackingRegion(const GlobalVector& direction,
                  const GlobalPoint& originPos,
                  const Range& invPtRange,
@@ -89,7 +90,6 @@ public:
   /// and outer hit constraint
   virtual std::unique_ptr<HitRZCompatibility> checkRZ(const DetLayer* layer,
                                                       const Hit& outerHit,
-                                                      const edm::EventSetup& iSetup,
                                                       const DetLayer* outerlayer = nullptr,
                                                       float lr = 0,
                                                       float gz = 0,
@@ -97,7 +97,7 @@ public:
                                                       float dz = 0) const = 0;
 
   /// get hits from layer compatible with region constraints
-  virtual Hits hits(const edm::EventSetup& es, const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
+  virtual Hits hits(const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
 
   /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
   /// Does not reset the elements corresponding to the tracks that are not compatible.

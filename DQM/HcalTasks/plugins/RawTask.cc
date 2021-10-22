@@ -127,14 +127,14 @@ RawTask::RawTask(edm::ParameterSet const& ps)
     //	Bad Quality
     _cBadQuality_FEDVME.initialize(_name,
                                    "BadQuality",
-                                   hcaldqm::hashfunctions::fFED,
+                                   hcaldqm::hashfunctions::fCrate,
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
                                    new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
     _cBadQuality_FEDuTCA.initialize(_name,
                                     "BadQuality",
-                                    hcaldqm::hashfunctions::fFED,
+                                    hcaldqm::hashfunctions::fCrate,
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
                                     new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),

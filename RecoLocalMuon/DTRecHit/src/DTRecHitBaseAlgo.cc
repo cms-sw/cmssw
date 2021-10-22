@@ -10,13 +10,14 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 using namespace std;
 using namespace edm;
 
-DTRecHitBaseAlgo::DTRecHitBaseAlgo(const ParameterSet& config)
-    : theSync{DTTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
-                                                config.getParameter<ParameterSet>("tTrigModeConfig"))} {}
+DTRecHitBaseAlgo::DTRecHitBaseAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : theSync{DTTTrigSyncFactory::get()->create(
+          config.getParameter<string>("tTrigMode"), config.getParameter<ParameterSet>("tTrigModeConfig"), cc)} {}
 
 DTRecHitBaseAlgo::~DTRecHitBaseAlgo() {}
 

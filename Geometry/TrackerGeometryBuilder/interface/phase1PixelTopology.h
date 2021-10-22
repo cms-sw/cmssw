@@ -19,6 +19,10 @@ namespace phase1PixelTopology {
   constexpr int16_t xOffset = -81;
   constexpr int16_t yOffset = -54 * 4;
 
+  constexpr uint16_t pixelThickness = 285;
+  constexpr uint16_t pixelPitchX = 100;
+  constexpr uint16_t pixelPitchY = 150;
+
   constexpr uint32_t numPixsInModule = uint32_t(numRowsInModule) * uint32_t(numColsInModule);
 
   constexpr uint32_t numberOfModules = 1856;

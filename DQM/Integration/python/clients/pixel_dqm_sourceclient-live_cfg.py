@@ -128,6 +128,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
@@ -252,3 +255,4 @@ process = customise(process)
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+print("Final Source settings:", process.source)

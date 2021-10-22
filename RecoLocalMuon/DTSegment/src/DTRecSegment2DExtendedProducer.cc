@@ -9,6 +9,7 @@
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 using namespace edm;
@@ -32,7 +33,8 @@ using namespace std;
 /* ====================================================================== */
 
 /// Constructor
-DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::ParameterSet& pset) {
+DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::ParameterSet& pset)
+    : dtGeomToken_(esConsumes()) {
   // Set verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
 
@@ -46,7 +48,8 @@ DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::Parame
   produces<DTRecSegment2DCollection>();
 
   // Get the concrete reconstruction algo from the factory
-  theAlgo = new DTCombinatorialExtendedPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+  theAlgo =
+      new DTCombinatorialExtendedPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"), consumesCollector());
 }
 
 /// Destructor
@@ -61,8 +64,7 @@ void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const edm::Event
   if (debug)
     cout << "[DTRecSegment2DExtendedProducer] produce called" << endl;
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  const DTGeometry& dtGeom = setup.getData(dtGeomToken_);
 
   theAlgo->setES(setup);
 
@@ -92,7 +94,7 @@ void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const edm::Event
     if (debug)
       cout << "Reconstructing the 2D segments in " << SLId << endl;
 
-    const DTSuperLayer* sl = dtGeom->superLayer(SLId);
+    const DTSuperLayer* sl = dtGeom.superLayer(SLId);
 
     // Get all the rec hit in the same superLayer in which layerId relies
     DTRecHitCollection::range range = allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));

@@ -5,6 +5,7 @@
 int main(int, char** /*argv*/) try {
   initTest();
 
+  using namespace edm::storage;
   auto s = StorageFactory::get()->open("/etc/passwd");
   char buf[1024];
   IOSize n;

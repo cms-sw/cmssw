@@ -12,7 +12,8 @@ namespace evf {
                                            bool isRealData,
                                            const edm::EventAuxiliary::ExperimentType&,
                                            const std::string& processGUID,
-                                           bool verifyLumiSection);
+                                           bool verifyLumiSection,
+                                           bool suppressWarning);
   }
 }  // namespace evf
 #endif

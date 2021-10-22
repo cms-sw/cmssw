@@ -15,6 +15,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 #include <sstream>
@@ -24,8 +25,8 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0FEBPathCorrection::DTT0FEBPathCorrection(const ParameterSet& pset)
-      : calibChamber_(pset.getParameter<string>("calibChamber")) {
+  DTT0FEBPathCorrection::DTT0FEBPathCorrection(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : calibChamber_(pset.getParameter<string>("calibChamber")), t0Token_(cc.esConsumes<edm::Transition::BeginRun>()) {
     //DTChamberId chosenChamberId;
     if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;
@@ -43,8 +44,8 @@ namespace dtCalibration {
   void DTT0FEBPathCorrection::setES(const EventSetup& setup) {
     // Get t0 record from DB
     ESHandle<DTT0> t0H;
-    setup.get<DTT0Rcd>().get(t0H);
-    t0Map_ = &*t0H;
+    t0H = setup.getHandle(t0Token_);
+    t0Map_ = &setup.getData(t0Token_);
     LogVerbatim("Calibration") << "[DTT0FEBPathCorrection] T0 version: " << t0H->version();
   }
 

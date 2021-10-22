@@ -90,7 +90,8 @@ phase2TrackerDigitizer = cms.PSet(
         OhmicColumnRadius = cms.double(4.0),
         NPColumnGap = cms.double(46.0)
     ),
-
+#Pixel-Bricked Digitizer Algorithm
+    PixelBrickedDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),

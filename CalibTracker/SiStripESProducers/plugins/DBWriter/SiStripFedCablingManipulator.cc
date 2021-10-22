@@ -41,12 +41,12 @@ void SiStripFedCablingManipulator::endRun(const edm::Run& run, const edm::EventS
       edm::LogInfo("SiStripFedCablingManipulator") << "first request for storing objects with Record "
                                                    << "SiStripFedCablingRcd"
                                                    << " at time " << Time_ << std::endl;
-      dbservice->createNewIOV<SiStripFedCabling>(obj.release(), Time_, dbservice->endOfTime(), "SiStripFedCablingRcd");
+      dbservice->createOneIOV<SiStripFedCabling>(*obj, Time_, "SiStripFedCablingRcd");
     } else {
       edm::LogInfo("SiStripFedCablingManipulator") << "appending a new object to existing tag "
                                                    << "SiStripFedCablingRcd"
                                                    << " in since mode " << std::endl;
-      dbservice->appendSinceTime<SiStripFedCabling>(obj.release(), Time_, "SiStripFedCablingRcd");
+      dbservice->appendOneIOV<SiStripFedCabling>(*obj, Time_, "SiStripFedCablingRcd");
     }
   } else {
     edm::LogError("SiStripFedCablingManipulator") << "Service is unavailable" << std::endl;

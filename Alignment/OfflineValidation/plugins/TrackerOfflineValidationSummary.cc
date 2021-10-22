@@ -55,7 +55,7 @@
 // class decleration
 //
 
-class TrackerOfflineValidationSummary : public edm::one::EDAnalyzer<> {
+class TrackerOfflineValidationSummary : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
@@ -63,7 +63,7 @@ public:
 
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   struct ModuleHistos {
     ModuleHistos()
@@ -96,7 +96,9 @@ private:
     HarvestingHistos harvestingHistos;
   };
 
+  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override{};
   void analyze(const edm::Event& evt, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup& iSetup) override;
   void endJob() override;
 
   void fillTree(TTree& tree,
@@ -123,6 +125,7 @@ private:
 
   const edm::ParameterSet parSet_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
+  std::unique_ptr<TrackerTopology> tTopo_;
 
   // parameters from cfg to steer
   const std::string moduleDirectory_;
@@ -140,47 +143,31 @@ private:
   std::map<int, TrackerOfflineValidationSummary::ModuleHistos> mTecResiduals_;
 
   std::vector<HarvestingHierarchy> vHarvestingHierarchy_;
-
-  const edm::EventSetup* lastSetup_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig)
-    :  //geomToken_(esConsumes<edm::Transition::endJob>()), # this does not work
-      topoToken_(esConsumes()),
+    : geomToken_(esConsumes()),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
       parSet_(iConfig),
+      tTopo_(nullptr),
       moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
       useFit_(parSet_.getParameter<bool>("useFit")),
       dbe_(nullptr),
-      moduleMapsInitialized(false),
-      lastSetup_(nullptr) {
+      moduleMapsInitialized(false) {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
 }
 
-TrackerOfflineValidationSummary::~TrackerOfflineValidationSummary() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+TrackerOfflineValidationSummary::~TrackerOfflineValidationSummary() = default;
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
 void TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  lastSetup_ = &iSetup;
-
   // Access of EventSetup is needed to get the list of silicon-modules and their IDs
   // Since they do not change, it is accessed only once
   if (moduleMapsInitialized)
@@ -215,18 +202,16 @@ void TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const ed
   moduleMapsInitialized = true;
 }
 
+// ------------ method called at each end of Run  ------------
+void TrackerOfflineValidationSummary::endRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  if (!tTopo_) {
+    tTopo_ = std::make_unique<TrackerTopology>(iSetup.getData(tTopoToken_));
+  }
+}
+
 // ------------ method called once each job just after ending the event loop  ------------
 void TrackerOfflineValidationSummary::endJob() {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  // do not know how to set the transition
-  //edm::ESHandle<TrackerTopology> tTopoHandle = lastSetup_->getHandle(topoToken_);
-  //const TrackerTopology *const tTopo = tTopoHandle.product();
-
-  AlignableTracker aliTracker(&(*tkGeom_), tTopo);
+  AlignableTracker aliTracker(&(*tkGeom_), tTopo_.get());
 
   TTree* tree = new TTree("TkOffVal", "TkOffVal");
 
@@ -239,12 +224,12 @@ void TrackerOfflineValidationSummary::endJob() {
   std::map<std::string, std::string>* substructureName = new std::map<std::string, std::string>;
   tree->Branch("SubstructureName", &substructureName, 32000, 00);  // SplitLevel must be set to zero
 
-  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
-  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
-  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
-  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
-  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
-  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
+  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
+  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
+  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
+  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
+  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo_.get());
 
   //dbe_->save("dqmOut.root");
 

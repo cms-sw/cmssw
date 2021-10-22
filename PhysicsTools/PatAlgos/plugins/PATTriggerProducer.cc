@@ -601,16 +601,22 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       for (size_t indexPath = 0; indexPath < sizePaths; ++indexPath) {
         const std::string& namePath = pathNames.at(indexPath);
         unsigned indexLastFilterPathModules(handleTriggerResults->index(indexPath) + 1);
-        while (indexLastFilterPathModules > 0) {
-          --indexLastFilterPathModules;
-          const std::string& labelLastFilterPathModules(hltConfig.moduleLabel(indexPath, indexLastFilterPathModules));
-          unsigned indexLastFilterFilters =
-              handleTriggerEvent->filterIndex(InputTag(labelLastFilterPathModules, "", nameProcess_));
-          if (indexLastFilterFilters < sizeFilters) {
-            if (hltConfig.moduleType(labelLastFilterPathModules) == "HLTBool")
-              continue;
-            break;
+        const unsigned sizeModulesPath(hltConfig.size(indexPath));
+        //protection for paths with zero filters (needed for reco, digi, etc paths)
+        if (sizeModulesPath != 0) {
+          while (indexLastFilterPathModules > 0) {
+            --indexLastFilterPathModules;
+            const std::string& labelLastFilterPathModules(hltConfig.moduleLabel(indexPath, indexLastFilterPathModules));
+            unsigned indexLastFilterFilters =
+                handleTriggerEvent->filterIndex(InputTag(labelLastFilterPathModules, "", nameProcess_));
+            if (indexLastFilterFilters < sizeFilters) {
+              if (hltConfig.moduleType(labelLastFilterPathModules) == "HLTBool")
+                continue;
+              break;
+            }
           }
+        } else {
+          indexLastFilterPathModules = 0;
         }
         TriggerPath triggerPath(namePath,
                                 indexPath,
@@ -621,8 +627,8 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
                                 indexLastFilterPathModules,
                                 hltConfig.saveTagsModules(namePath).size());
         // add module names to path and states' map
-        const unsigned sizeModulesPath(hltConfig.size(indexPath));
-        assert(indexLastFilterPathModules < sizeModulesPath);
+
+        assert(indexLastFilterPathModules < sizeModulesPath || sizeModulesPath == 0);
         std::map<unsigned, std::string> indicesModules;
         for (size_t iM = 0; iM < sizeModulesPath; ++iM) {
           const std::string& nameModule(hltConfig.moduleLabel(indexPath, iM));

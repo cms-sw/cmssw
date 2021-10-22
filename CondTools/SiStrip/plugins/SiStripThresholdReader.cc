@@ -7,8 +7,6 @@ using namespace cms;
 SiStripThresholdReader::SiStripThresholdReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 3)), thresholdToken_(esConsumes()) {}
 
-SiStripThresholdReader::~SiStripThresholdReader() {}
-
 void SiStripThresholdReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& thresholds = iSetup.getData(thresholdToken_);
   edm::LogInfo("SiStripThresholdReader") << "[SiStripThresholdReader::analyze] End Reading SiStripThreshold"

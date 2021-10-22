@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
 ###################################  
-from RecoTracker.IterativeTracking.InitialStep_cff import *
+import RecoTracker.IterativeTracking.InitialStep_cff
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTrajectoryFilterShape
 
 #################################
 # Filter on quality tracks
@@ -50,7 +51,7 @@ hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_
 )
 
 # track candidates
-hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
+hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff._initialStepTrackCandidatesCkf.clone(
     src               = 'hiRegitInitialStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitInitialStepTrajectoryBuilder')),
     maxNSeeds = 100000

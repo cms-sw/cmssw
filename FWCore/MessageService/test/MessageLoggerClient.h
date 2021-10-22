@@ -2,7 +2,7 @@
 #define Integration_MessageLoggerClient_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;
@@ -10,13 +10,11 @@ namespace edm {
 
 namespace edmtest {
 
-  class MessageLoggerClient : public edm::EDAnalyzer {
+  class MessageLoggerClient : public edm::global::EDAnalyzer<> {
   public:
     explicit MessageLoggerClient(edm::ParameterSet const&) {}
 
-    virtual ~MessageLoggerClient() {}
-
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
 
   private:
   };

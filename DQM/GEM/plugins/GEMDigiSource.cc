@@ -107,7 +107,7 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
   int nNumCh = stationInfo.nNumDigi_;
 
-  mapDigiOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta);
+  mapDigiOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta, -0.5);
   mapDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapDigiOccPerCh_.bookND(bh, key);
   mapDigiOccPerCh_.SetLabelForIEta(key, 2);

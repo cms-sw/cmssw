@@ -15,7 +15,19 @@
 
 struct BinaryOP;
 struct UnaryOP;
+struct ExpressionAST;
 struct Nil {};
+
+namespace detail {
+  ExpressionAST opLesser(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opLesserEq(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opEq(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opNotEq(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opGreater(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opGreaterEq(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opAnd(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  ExpressionAST opOr(ExpressionAST const& lhs, ExpressionAST const& rhs);
+}  // namespace detail
 
 struct ExpressionAST {
   typedef boost::variant<Nil,
@@ -36,16 +48,28 @@ struct ExpressionAST {
   ExpressionAST& operator!();
 
   Type expr;
-};
 
-ExpressionAST operator>(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator>=(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator&&(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator||(ExpressionAST const& lhs, ExpressionAST const& rhs);
+  friend ExpressionAST operator>(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opGreater(lhs, rhs);
+  }
+  friend ExpressionAST operator>=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opGreaterEq(lhs, rhs);
+  }
+  friend ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs) { return detail::opEq(lhs, rhs); }
+  friend ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opNotEq(lhs, rhs);
+  }
+  friend ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opLesser(lhs, rhs);
+  }
+  friend ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opLesserEq(lhs, rhs);
+  }
+  friend ExpressionAST operator&&(ExpressionAST const& lhs, ExpressionAST const& rhs) {
+    return detail::opAnd(lhs, rhs);
+  }
+  friend ExpressionAST operator||(ExpressionAST const& lhs, ExpressionAST const& rhs) { return detail::opOr(lhs, rhs); }
+};
 
 struct BinaryOP {
   enum class OP { GREATER, GREATER_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, AND, OR } op;

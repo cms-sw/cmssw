@@ -19,9 +19,14 @@
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletFilter.h"
 
-class TrackerGeometry;
-class TripletFilter;
+class IdealMagneticFieldRecord;
+class MultipleScatteringParametrisationMaker;
+class TrackerMultipleScatteringRecord;
 class SiPixelClusterShapeCache;
+class TrackerGeometry;
+class TransientTrackingRecHitBuilder;
+class TransientRecHitRecord;
+class TripletFilter;
 
 #include <vector>
 
@@ -48,6 +53,9 @@ public:
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_geomToken;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_magfieldToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_ttrhBuilderToken;
+  edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> m_msmakerToken;
 
   void getTracker(const edm::EventSetup& es);
   GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
@@ -60,7 +68,6 @@ private:
   double rzTolerance;
   double maxAngleRatio;
 
-  std::string builderName;
   bool checkMultipleScattering;
   bool checkClusterShape;
 };

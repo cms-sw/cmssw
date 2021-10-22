@@ -1,27 +1,28 @@
 // Author: Benedikt Hegner, Tom Cornelis
 // Email:  benedikt.hegner@cern.ch, tom.cornelis@cern.ch
 
-#include "TFile.h"
-#include "TVector.h"
-#include "TList.h"
-#include "TKey.h"
-#include "TH1.h"
-#include <sstream>
-#include <cstdlib>
-#include <vector>
-#include <memory>
-#include <string>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TKey.h"
+#include "TList.h"
+#include "TVector.h"
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
-class QGLikelihoodDBWriter : public edm::EDAnalyzer {
+class QGLikelihoodDBWriter : public edm::one::EDAnalyzer<> {
 public:
   QGLikelihoodDBWriter(const edm::ParameterSet&);
   void beginJob() override;
@@ -112,8 +113,8 @@ void QGLikelihoodDBWriter::beginJob() {
 
   // The ROOT file contains the binning for each variable, needed to set up the binning grid
   std::map<TString, std::vector<float>> gridOfBins;
-  for (const TString& binVariable : {"eta", "pt", "rho"}) {
-    if (!getVectorFromFile(f, gridOfBins[binVariable], binVariable + "Bins")) {
+  for (auto&& binVariable : {"eta", "pt", "rho"}) {
+    if (!getVectorFromFile(f, gridOfBins[binVariable], TString(binVariable) + "Bins")) {
       edm::LogError("NoBins") << "Missing bin information for " << binVariable << " in input file" << std::endl;
       return;
     }
@@ -124,13 +125,12 @@ void QGLikelihoodDBWriter::beginJob() {
   // Here we do not store the copies, but try to extend the range of the neighbouring category (will result in less comparisons during application phase)
   std::map<std::vector<int>, TH1*> pdfs;
   std::map<std::vector<int>, QGLikelihoodCategory> categories;
-  for (const TString& type : {"gluon", "quark"}) {
-    int qgIndex = (type == "gluon");  // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
-    for (const TString& likelihoodVar : {"mult", "ptD", "axis2"}) {
-      int varIndex =
-          (likelihoodVar == "mult"
-               ? 0
-               : (likelihoodVar == "ptD" ? 1 : 2));  // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+  for (auto&& type : {"gluon", "quark"}) {
+    // Keep numbering same as in RecoJets/JetAlgorithms/src/QGLikelihoodCalculator.cc
+    int qgIndex = strcmp(type, "gluon") == 0 ? 1 : 0;
+    for (auto&& likelihoodVar : {"mult", "ptD", "axis2"}) {
+      // Keep order same as in RecoJets/JetProducers/plugins/QGTagger.cc
+      int varIndex = (strcmp(likelihoodVar, "mult") == 0 ? 0 : (strcmp(likelihoodVar, "ptD") == 0 ? 1 : 2));
       for (int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i) {
         for (int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j) {
           for (int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k) {
@@ -144,8 +144,7 @@ void QGLikelihoodDBWriter::beginJob() {
             category.QGIndex = qgIndex;
             category.VarIndex = varIndex;
 
-            TString key =
-                TString::Format(likelihoodVar + "/" + likelihoodVar + "_" + type + "_eta%d_pt%d_rho%d", i, j, k);
+            TString key = TString::Format("%s/%s_%s_eta%d_pt%d_rho%d", likelihoodVar, likelihoodVar, type, i, j, k);
             TH1* pdf = (TH1*)f->Get(key);
             if (!pdf) {
               edm::LogError("NoPDF") << "Could not found pdf with key  " << key << " in input file" << std::endl;

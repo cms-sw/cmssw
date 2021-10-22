@@ -85,6 +85,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     StorePhysicsTables = cms.untracked.bool(False),
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
+    ThresholdForGeometryExceptions = cms.double(0.01),   ## in GeV
     CheckGeometry = cms.untracked.bool(False),
     OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
     G4CheckOverlap = cms.untracked.PSet(
@@ -176,7 +177,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscSafetyFactor = cms.double(0.6), 
         G4MscLambdaLimit = cms.double(1.0), # mm 
         G4MscStepLimit = cms.string("UseSafety"), 
-        G4GeneralProcess = cms.bool(True),
+        G4GeneralProcess = cms.bool(False),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD

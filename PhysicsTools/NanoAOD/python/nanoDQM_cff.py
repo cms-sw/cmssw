@@ -119,4 +119,7 @@ nanoDQMQTester = DQMQualityTester(
     verboseQT =  cms.untracked.bool(True)
 )
 
+(run3_nanoAOD_devel).toModify(nanoDQM.vplots, Electron = None)
+(run3_nanoAOD_devel).toModify(nanoDQMMC.vplots, Electron = None)
+
 nanoHarvest = cms.Sequence( nanoDQMQTester )

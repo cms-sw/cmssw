@@ -72,7 +72,8 @@ PATCompositeCandidateProducer::PATCompositeCandidateProducer(const ParameterSet&
 
   // Resolution configurables
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
 
   // produces vector of particles

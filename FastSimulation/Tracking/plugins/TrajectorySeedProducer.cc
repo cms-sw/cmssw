@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,6 +62,7 @@ private:
   edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
   edm::EDGetTokenT<std::vector<bool>> hitMasksToken;
   edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> trackingRegionToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
 
   // other data members
   unsigned int nHitsPerSeed_;
@@ -78,13 +78,13 @@ private:
 public:
   TrajectorySeedProducer(const edm::ParameterSet& conf);
 
-  void produce(edm::Event& e, const edm::EventSetup& es) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 };
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
 
-TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) {
+TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) : trackerTopologyESToken_(esConsumes()) {
   // products
   produces<TrajectorySeedCollection>();
 
@@ -133,14 +133,12 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) {
   // seed creator
   const edm::ParameterSet& seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
-  seedCreator = SeedCreatorFactory::get()->create(seedCreatorName, seedCreatorPSet);
+  seedCreator = SeedCreatorFactory::get()->create(seedCreatorName, seedCreatorPSet, consumesCollector());
 }
 
 void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // services
-  edm::ESHandle<TrackerTopology> trackerTopology;
-
-  es.get<TrackerTopologyRcd>().get(trackerTopology);
+  auto const& trackerTopology = es.getData(trackerTopologyESToken_);
 
   // input data
   edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
@@ -166,7 +164,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // instantiate the seed finder
-  SeedFinder seedFinder(_seedingTree, *trackerTopology.product());
+  SeedFinder seedFinder(_seedingTree, trackerTopology);
   if (seedFinderSelector) {
     seedFinderSelector->initEvent(e, es);
     seedFinder.addHitSelector(seedFinderSelector.get(), nHitsPerSeed_);

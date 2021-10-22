@@ -8,7 +8,7 @@
 
 DeadChannelsManager::DeadChannelsManager() { analysisMaskPresent = false; }
 
-DeadChannelsManager::DeadChannelsManager(edm::ESHandle<TotemAnalysisMask> _analysisMask) {
+DeadChannelsManager::DeadChannelsManager(const TotemAnalysisMask* _analysisMask) {
   analysisMask = _analysisMask;
   analysisMaskPresent = true;
 }

@@ -1,30 +1,24 @@
-
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/EcalRecHitRecalib.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalRecHitRecalib::EcalRecHitRecalib(const edm::ParameterSet& iConfig) {
-  ecalHitsProducer_ = iConfig.getParameter<std::string>("ecalRecHitsProducer");
-  barrelHits_ = iConfig.getParameter<std::string>("barrelHitCollection");
-  endcapHits_ = iConfig.getParameter<std::string>("endcapHitCollection");
-  RecalibBarrelHits_ = iConfig.getParameter<std::string>("RecalibBarrelHitCollection");
-  RecalibEndcapHits_ = iConfig.getParameter<std::string>("RecalibEndcapHitCollection");
-  refactor_ = iConfig.getUntrackedParameter<double>("Refactor", (double)1);
-  refactor_mean_ = iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1);
-
-  //register your products
-  produces<EBRecHitCollection>(RecalibBarrelHits_);
-  produces<EERecHitCollection>(RecalibEndcapHits_);
-}
+EcalRecHitRecalib::EcalRecHitRecalib(const edm::ParameterSet& iConfig)
+    : ecalHitsProducer_(iConfig.getParameter<std::string>("ecalRecHitsProducer")),
+      barrelHits_(iConfig.getParameter<std::string>("barrelHitCollection")),
+      endcapHits_(iConfig.getParameter<std::string>("endcapHitCollection")),
+      recalibBarrelHits_(iConfig.getParameter<std::string>("RecalibBarrelHitCollection")),
+      recalibEndcapHits_(iConfig.getParameter<std::string>("RecalibEndcapHitCollection")),
+      refactor_(iConfig.getUntrackedParameter<double>("Refactor", (double)1)),
+      refactor_mean_(iConfig.getUntrackedParameter<double>("Refactor_mean", (double)1)),
+      ebRecHitToken_(consumes<EBRecHitCollection>(edm::InputTag(ecalHitsProducer_, barrelHits_))),
+      eeRecHitToken_(consumes<EERecHitCollection>(edm::InputTag(ecalHitsProducer_, endcapHits_))),
+      intercalibConstsToken_(esConsumes()),
+      barrelHitsToken_(produces<EBRecHitCollection>(recalibBarrelHits_)),
+      endcapHitsToken_(produces<EERecHitCollection>(recalibEndcapHits_)) {}
 
 EcalRecHitRecalib::~EcalRecHitRecalib() {}
 
@@ -39,14 +33,14 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const EBRecHitCollection* EBRecHits = nullptr;
   const EERecHitCollection* EERecHits = nullptr;
 
-  iEvent.getByLabel(ecalHitsProducer_, barrelHits_, barrelRecHitsHandle);
+  iEvent.getByToken(ebRecHitToken_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
   } else {
     EBRecHits = barrelRecHitsHandle.product();  // get a ptr to the product
   }
 
-  iEvent.getByLabel(ecalHitsProducer_, endcapHits_, endcapRecHitsHandle);
+  iEvent.getByToken(eeRecHitToken_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     LogDebug("") << "EcalREcHitMiscalib: Error! can't get product!" << std::endl;
   } else {
@@ -58,21 +52,18 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   auto RecalibEERecHitCollection = std::make_unique<EERecHitCollection>();
 
   // Intercalib constants
-  edm::ESHandle<EcalIntercalibConstants> pIcal;
-  iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
-  const EcalIntercalibConstants* ical = pIcal.product();
+  const EcalIntercalibConstants& ical = iSetup.getData(intercalibConstsToken_);
 
   if (EBRecHits) {
     //loop on all EcalRecHits (barrel)
     EBRecHitCollection::const_iterator itb;
     for (itb = EBRecHits->begin(); itb != EBRecHits->end(); ++itb) {
       // find intercalib constant for this xtal
-      EcalIntercalibConstantMap::const_iterator icalit = ical->getMap().find(itb->id().rawId());
+      EcalIntercalibConstantMap::const_iterator icalit = ical.getMap().find(itb->id().rawId());
       EcalIntercalibConstant icalconst = -1;
 
-      if (icalit != ical->getMap().end()) {
+      if (icalit != ical.getMap().end()) {
         icalconst = (*icalit);
-        // edm::LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EBDetId(itb->id()) << " " << icalconst ;
 
       } else {
         edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EBDetId(itb->id())
@@ -93,12 +84,11 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     EERecHitCollection::const_iterator ite;
     for (ite = EERecHits->begin(); ite != EERecHits->end(); ++ite) {
       // find intercalib constant for this xtal
-      EcalIntercalibConstantMap::const_iterator icalit = ical->getMap().find(ite->id().rawId());
+      EcalIntercalibConstantMap::const_iterator icalit = ical.getMap().find(ite->id().rawId());
       EcalIntercalibConstant icalconst = -1;
 
-      if (icalit != ical->getMap().end()) {
+      if (icalit != ical.getMap().end()) {
         icalconst = (*icalit);
-        // edm:: LogDebug("EcalRecHitRecalib") << "Found intercalib for xtal " << EEDetId(ite->id()) << " " << icalconst ;
       } else {
         edm::LogError("EcalRecHitRecalib") << "No intercalib const found for xtal " << EEDetId(ite->id())
                                            << "! something wrong with EcalIntercalibConstants in your DB? ";
@@ -115,6 +105,6 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //Put Recalibrated rechit in the event
-  iEvent.put(std::move(RecalibEBRecHitCollection), RecalibBarrelHits_);
-  iEvent.put(std::move(RecalibEERecHitCollection), RecalibEndcapHits_);
+  iEvent.put(barrelHitsToken_, std::move(RecalibEBRecHitCollection));
+  iEvent.put(endcapHitsToken_, std::move(RecalibEERecHitCollection));
 }

@@ -7,13 +7,13 @@ TobTecLayerPairs = seedingLayersEDProducer.clone(
 # Don't bother with TEC8 and 9, as tracking requires 2 hits outside
 # the seeding pairs.
     layerList = ['TOB1+TOB2', 
-                 'TOB1+TEC1_pos', 
+                 'TOB1+TEC1_pos',     
 #                 'TOB1+TEC2_pos', 
-                 'TOB1+TEC1_neg', 
+                 'TOB1+TEC1_neg',     
 #                 'TOB1+TEC2_neg', 
                  'TEC1_pos+TEC2_pos', 
 #                 'TEC1_pos+TEC3_pos', 
-                 'TEC2_pos+TEC3_pos', 
+                 'TEC2_pos+TEC3_pos',
 #                 'TEC2_pos+TEC4_pos', 
                  'TEC3_pos+TEC4_pos', 
 #                 'TEC3_pos+TEC5_pos', 
@@ -34,12 +34,12 @@ TobTecLayerPairs = seedingLayersEDProducer.clone(
 #                 'TEC5_neg+TEC7_neg', 
                  'TEC6_neg+TEC7_neg'],
 
-    TOB = cms.PSet(
+    TOB = dict(
 	matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle'),
         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
-    TEC = cms.PSet(
+    TEC = dict(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),

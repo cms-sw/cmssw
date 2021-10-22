@@ -25,8 +25,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/lexical_cast.hpp"
-
 // constructor
 L1RetrieveL1Extra::L1RetrieveL1Extra(const edm::ParameterSet& paramSet, edm::ConsumesCollector&& iC)
     :  //

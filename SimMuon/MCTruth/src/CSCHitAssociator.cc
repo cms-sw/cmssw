@@ -5,26 +5,22 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/CSCHitAssociator.h"
 
-CSCHitAssociator::CSCHitAssociator(const edm::Event &event, const edm::EventSetup &setup, const edm::ParameterSet &conf)
-    : theDigiSimLinks(nullptr), linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")) {
+CSCHitAssociator::Config::Config(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : linksTag_(conf.getParameter<edm::InputTag>("CSClinksTag")),
+      linksToken_(iC.consumes(linksTag_)),
+      geomToken_(iC.esConsumes()) {}
+
+CSCHitAssociator::CSCHitAssociator(const edm::Event &event, const edm::EventSetup &setup, const Config &conf)
+    : theConfig(conf), theDigiSimLinks(nullptr) {
   initEvent(event, setup);
 }
 
-CSCHitAssociator::CSCHitAssociator(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC)
-    : theDigiSimLinks(nullptr), linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")) {
-  iC.consumes<DigiSimLinks>(linksTag);
-}
-
 void CSCHitAssociator::initEvent(const edm::Event &event, const edm::EventSetup &setup) {
-  edm::Handle<DigiSimLinks> digiSimLinks;
-  LogTrace("CSCHitAssociator") << "getting CSC Strip DigiSimLink collection - " << linksTag;
-  event.getByLabel(linksTag, digiSimLinks);
-  theDigiSimLinks = digiSimLinks.product();
+  LogTrace("CSCHitAssociator") << "getting CSC Strip DigiSimLink collection - " << theConfig.linksTag_;
+  theDigiSimLinks = &event.get(theConfig.linksToken_);
 
   // get CSC Geometry to use CSCLayer methods
-  edm::ESHandle<CSCGeometry> mugeom;
-  setup.get<MuonGeometryRecord>().get(mugeom);
-  cscgeom = &*mugeom;
+  cscgeom = &setup.getData(theConfig.geomToken_);
 }
 
 std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateCSCHitId(const CSCRecHit2D *cscrechit) const {

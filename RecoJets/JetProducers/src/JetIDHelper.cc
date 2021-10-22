@@ -3,9 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -57,6 +55,8 @@ reco::helper::JetIDHelper::JetIDHelper(edm::ParameterSet const &pset, edm::Consu
   input_HFRecHits_token_ = iC.consumes<HFRecHitCollection>(hfRecHitsColl_);
   input_EBRecHits_token_ = iC.consumes<EBRecHitCollection>(ebRecHitsColl_);
   input_EERecHits_token_ = iC.consumes<EERecHitCollection>(eeRecHitsColl_);
+
+  hcal_topo_token_ = iC.esConsumes();
 }
 
 void reco::helper::JetIDHelper::initValues() {
@@ -288,8 +288,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
   RBX_energies.clear();
   LS_bad_energy = HF_OOT_energy = 0.;
 
-  edm::ESHandle<HcalTopology> theHcalTopology;
-  setup.get<HcalRecNumberingRecord>().get(theHcalTopology);
+  edm::ESHandle<HcalTopology> theHcalTopology = setup.getHandle(hcal_topo_token_);
 
   std::map<int, double> HPD_energy_map, RBX_energy_map;
   vector<double> EB_energies, EE_energies, HB_energies, HE_energies, short_energies, long_energies;

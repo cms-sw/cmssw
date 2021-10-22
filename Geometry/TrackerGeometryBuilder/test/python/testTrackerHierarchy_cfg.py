@@ -15,6 +15,9 @@ process.prod = cms.EDAnalyzer("GeoHierarchy",
     fromDDD = cms.bool(True)
 )
 
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
+
 process.p1 = cms.Path(process.prod)
 
 

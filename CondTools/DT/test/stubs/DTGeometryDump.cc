@@ -18,17 +18,15 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTGeometryDump::DTGeometryDump(edm::ParameterSet const& p) {}
+  DTGeometryDump::DTGeometryDump(edm::ParameterSet const& p) : dtgeomToken_(esConsumes()) {}
 
-  DTGeometryDump::DTGeometryDump(int i) {}
+  DTGeometryDump::DTGeometryDump(int i) : dtgeomToken_(esConsumes()) {}
 
   DTGeometryDump::~DTGeometryDump() {}
 
   void DTGeometryDump::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
-    edm::ESHandle<DTGeometry> muonGeom;
-    context.get<MuonGeometryRecord>().get(muonGeom);
-
+    auto muonGeom = context.getHandle(dtgeomToken_);
     const std::vector<const DTChamber*>& ch_cont = muonGeom->chambers();
     std::vector<const DTChamber*>::const_iterator ch_iter = ch_cont.begin();
     std::vector<const DTChamber*>::const_iterator ch_iend = ch_cont.end();

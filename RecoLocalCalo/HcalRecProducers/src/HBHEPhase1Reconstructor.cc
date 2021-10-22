@@ -43,6 +43,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
+#include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
@@ -58,9 +60,6 @@
 
 // Parser for Phase 1 HB/HE reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
-
-// Fetcher for reco algorithm data
-#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 // Some helper functions
 namespace {
@@ -322,6 +321,7 @@ private:
   edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_;
   std::unique_ptr<AbsHBHEPhase1Algo> reco_;
   std::unique_ptr<AbsHcalAlgoData> recoConfig_;
+  edm::ESGetToken<HFPhase1PMTParams, HFPhase1PMTParamsRcd> recoConfigToken_;
 
   // Status bit setters
   const HBHENegativeEFilter* negEFilter_;  // We don't manage this pointer
@@ -395,6 +395,14 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
   // Check that the reco algorithm has been successfully configured
   if (!reco_.get())
     throw cms::Exception("HBHEPhase1BadConfig") << "Invalid HBHEPhase1Algo algorithm configuration" << std::endl;
+  if (reco_->isConfigurable()) {
+    if ("HFPhase1PMTParams" != algoConfigClass_) {
+      throw cms::Exception("HBHEPhase1BadConfig")
+          << "Invalid HBHEPhase1Reconstructor \"algoConfigClass\" parameter value \"" << algoConfigClass_ << '"'
+          << std::endl;
+    }
+    recoConfigToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 
   // Configure the status bit setters that have been turned on
   if (setNoiseFlagsQIE8_)
@@ -723,11 +731,7 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
 // ------------ method called when starting to processes a run  ------------
 void HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es) {
   if (reco_->isConfigurable()) {
-    recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
-    if (!recoConfig_.get())
-      throw cms::Exception("HBHEPhase1BadConfig")
-          << "Invalid HBHEPhase1Reconstructor \"algoConfigClass\" parameter value \"" << algoConfigClass_ << '"'
-          << std::endl;
+    recoConfig_ = std::make_unique<HFPhase1PMTParams>(es.getData(recoConfigToken_));
     if (!reco_->configure(recoConfig_.get()))
       throw cms::Exception("HBHEPhase1BadConfig")
           << "Failed to configure HBHEPhase1Algo algorithm from EventSetup" << std::endl;

@@ -93,6 +93,11 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
       theAlignmentParameterStore(nullptr),
       theAlignables(),
+      theTrajectoryFactory(
+          TrajectoryFactoryPlugin::get()->create(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory")
+                                                     .getParameter<std::string>("TrajectoryFactoryName"),
+                                                 theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"),
+                                                 iC)),
       theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
       theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
       firstIOV_(cfg.getUntrackedParameter<AlignmentAlgorithmBase::RunNumber>("firstIOV")),
@@ -273,9 +278,6 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
       theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
-    const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
-    const std::string fctName(fctCfg.getParameter<std::string>("TrajectoryFactoryName"));
-    theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create(fctName, fctCfg);
   }
 
   if (this->isMode(myPedeSteerBit)) {

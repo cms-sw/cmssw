@@ -227,8 +227,15 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
     ydouble[col] = topol->isItBigPixelInY(hitPixel.second + col - THY);
   }
 
-  for (int row = 0; row < TXSIZE; ++row) {
-    for (int col = 0; col < TYSIZE; ++col) {
+  // define loop boundaries that will prevent the row and col loops
+  // from going out of physical bounds of the pixel module
+  int rowmin = std::max(0, THX - hitPixel.first);
+  int rowmax = std::min(TXSIZE, topol->nrows() + THX - hitPixel.first);
+  int colmin = std::max(0, THY - hitPixel.second);
+  int colmax = std::min(TYSIZE, topol->ncolumns() + THY - hitPixel.second);
+
+  for (int row = rowmin; row < rowmax; ++row) {
+    for (int col = colmin; col < colmax; ++col) {
       //Fill charges into 21x13 Pixel Array with hitPixel in centre
       pixrewgt[row][col] =
           hitSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)];
@@ -266,12 +273,10 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
     printCluster(pixrewgt);
   }
 
-  for (int row = 0; row < TXSIZE; ++row) {
-    for (int col = 0; col < TYSIZE; ++col) {
-      float charge = 0;
-      charge = pixrewgt[row][col];
-      if ((hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() &&
-          (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0) {
+  for (int row = rowmin; row < rowmax; ++row) {
+    for (int col = colmin; col < colmax; ++col) {
+      float charge = pixrewgt[row][col];
+      if (charge > 0) {
         chargeAfter += charge;
         theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
             (boolmakeDigiSimLinks ? SiPixelDigitizerAlgorithm::Amplitude(charge, &hit, hitIndex, tofBin, charge)

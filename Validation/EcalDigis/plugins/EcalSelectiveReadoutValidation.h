@@ -518,8 +518,8 @@ private:
   CollHandle<EESrFlagCollection> eeSrFlags_;
   CollHandle<EBSrFlagCollection> ebComputedSrFlags_;
   CollHandle<EESrFlagCollection> eeComputedSrFlags_;
-  CollHandle<std::vector<PCaloHit> > ebSimHits_;
-  CollHandle<std::vector<PCaloHit> > eeSimHits_;
+  CollHandle<std::vector<PCaloHit>> ebSimHits_;
+  CollHandle<std::vector<PCaloHit>> eeSimHits_;
   CollHandle<EcalTrigPrimDigiCollection> tps_;
   CollHandle<RecHitCollection> ebRecHits_;
   CollHandle<RecHitCollection> eeRecHits_;
@@ -785,17 +785,6 @@ private:
    * at phi=0+ in std CMS coordinate system.
    */
   double ttEtSums[nTtEta][nTtPhi];
-
-  /** Energy deposited in ECAL barrel crystals. Eta index starts from 0 at
-   * eta minimum and phi index starts at phi=0+ in CMS std coordinate system.
-   */
-  energiesEb_t ebEnergies[nEbEta][nEbPhi];
-
-  /** Energy deposited in ECAL endcap crystals. Endcap index is 0 for EE- and
-   * 1 for EE+. X and Y index starts at x and y minimum in std CMS coordinate
-   * system.
-   */
-  energiesEe_t eeEnergies[nEndcaps][nEeX][nEeY];
 
   /** Permits to skip inner SC
    */

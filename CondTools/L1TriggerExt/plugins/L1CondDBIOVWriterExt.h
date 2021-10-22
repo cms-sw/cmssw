@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -13,7 +13,10 @@
 
 #include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
 
-class L1CondDBIOVWriterExt : public edm::EDAnalyzer {
+class L1TriggerKeyExt;
+class L1TriggerKeyExtRcd;
+
+class L1CondDBIOVWriterExt : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBIOVWriterExt(const edm::ParameterSet&);
   ~L1CondDBIOVWriterExt() override;
@@ -45,6 +48,8 @@ private:
   bool m_logTransactions;
 
   bool m_forceUpdate;
+
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> l1TriggerKeyExtToken_;
 };
 
 #endif

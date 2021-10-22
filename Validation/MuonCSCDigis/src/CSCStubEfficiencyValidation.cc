@@ -1,10 +1,7 @@
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/MuonCSCDigis/interface/CSCStubEfficiencyValidation.h"
+#include <memory>
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "Validation/MuonCSCDigis/interface/CSCStubEfficiencyValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCStubMatcher.h"
 
 CSCStubEfficiencyValidation::CSCStubEfficiencyValidation(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : CSCBaseValidation(pset) {
@@ -12,19 +9,9 @@ CSCStubEfficiencyValidation::CSCStubEfficiencyValidation(const edm::ParameterSet
   simVertexInput_ = iC.consumes<edm::SimVertexContainer>(simVertex.getParameter<edm::InputTag>("inputTag"));
   const auto& simTrack = pset.getParameter<edm::ParameterSet>("simTrack");
   simTrackInput_ = iC.consumes<edm::SimTrackContainer>(simTrack.getParameter<edm::InputTag>("inputTag"));
-  simTrackMinPt_ = simTrack.getParameter<double>("minPt");
-  simTrackMinEta_ = simTrack.getParameter<double>("minEta");
-  simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
-
-  // all CSC TPs have the same label
-  const auto& stubConfig = pset.getParameterSet("cscALCT");
-  inputTag_ = stubConfig.getParameter<edm::InputTag>("inputTag");
-  alcts_Token_ = iC.consumes<CSCALCTDigiCollection>(inputTag_);
-  clcts_Token_ = iC.consumes<CSCCLCTDigiCollection>(inputTag_);
-  lcts_Token_ = iC.consumes<CSCCorrelatedLCTDigiCollection>(inputTag_);
 
   // Initialize stub matcher
-  cscStubMatcher_.reset(new CSCStubMatcher(pset, std::move(iC)));
+  cscStubMatcher_ = std::make_unique<CSCStubMatcher>(pset, std::move(iC));
 
   // get the eta ranges
   etaMins_ = pset.getParameter<std::vector<double>>("etaMins");
@@ -34,8 +21,6 @@ CSCStubEfficiencyValidation::CSCStubEfficiencyValidation(const edm::ParameterSet
 CSCStubEfficiencyValidation::~CSCStubEfficiencyValidation() {}
 
 void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
-  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Stub/Occupancy/");
-
   for (int i = 1; i <= 10; ++i) {
     int j = i - 1;
     const std::string cn(CSCDetId::chamberName(i));
@@ -44,17 +29,26 @@ void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
     std::string t2 = "CLCTEtaDenom_" + cn;
     std::string t3 = "LCTEtaDenom_" + cn;
 
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/ALCT/Occupancy/");
     etaALCTDenom[j] = iBooker.book1D(t1, t1 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaCLCTDenom[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-    etaLCTDenom[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
-
+    etaALCTDenom[j]->getTH1()->SetMinimum(0);
     t1 = "ALCTEtaNum_" + cn;
-    t2 = "CLCTEtaNum_" + cn;
-    t3 = "LCTEtaNum_" + cn;
-
     etaALCTNum[j] = iBooker.book1D(t1, t1 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaALCTNum[j]->getTH1()->SetMinimum(0);
+
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/CLCT/Occupancy/");
+    etaCLCTDenom[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaCLCTDenom[j]->getTH1()->SetMinimum(0);
+    t2 = "CLCTEtaNum_" + cn;
     etaCLCTNum[j] = iBooker.book1D(t2, t2 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaCLCTNum[j]->getTH1()->SetMinimum(0);
+
+    iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/LCT/Occupancy/");
+    etaLCTDenom[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaLCTDenom[j]->getTH1()->SetMinimum(0);
+    t3 = "LCTEtaNum_" + cn;
     etaLCTNum[j] = iBooker.book1D(t3, t3 + ";True Muon |#eta|; Entries", 50, etaMins_[j], etaMaxs_[j]);
+    etaLCTNum[j]->getTH1()->SetMinimum(0);
   }
 }
 
@@ -62,32 +56,16 @@ void CSCStubEfficiencyValidation::analyze(const edm::Event& e, const edm::EventS
   // Define handles
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
 
   // Use token to retreive event information
   e.getByToken(simTrackInput_, sim_tracks);
   e.getByToken(simVertexInput_, sim_vertices);
-  e.getByToken(alcts_Token_, alcts);
-  e.getByToken(clcts_Token_, clcts);
-  e.getByToken(lcts_Token_, lcts);
 
   // Initialize StubMatcher
   cscStubMatcher_->init(e, eventSetup);
 
   const edm::SimTrackContainer& sim_track = *sim_tracks.product();
   const edm::SimVertexContainer& sim_vert = *sim_vertices.product();
-
-  if (!alcts.isValid()) {
-    edm::LogError("CSCStubEfficiencyValidation") << "Cannot get ALCTs by label " << inputTag_.encode();
-  }
-  if (!clcts.isValid()) {
-    edm::LogError("CSCStubEfficiencyValidation") << "Cannot get CLCTs by label " << inputTag_.encode();
-  }
-  if (!lcts.isValid()) {
-    edm::LogError("CSCStubEfficiencyValidation") << "Cannot get LCTs by label " << inputTag_.encode();
-  }
 
   // select simtracks for true muons
   edm::SimTrackContainer sim_track_selected;
@@ -151,23 +129,4 @@ void CSCStubEfficiencyValidation::analyze(const edm::Event& e, const edm::EventS
         etaLCTNum[i]->Fill(t.momentum().eta());
     }
   }
-}
-
-bool CSCStubEfficiencyValidation::isSimTrackGood(const SimTrack& t) {
-  // SimTrack selection
-  if (t.noVertex())
-    return false;
-  if (t.noGenpart())
-    return false;
-  // only muons
-  if (std::abs(t.type()) != 13)
-    return false;
-  // pt selection
-  if (t.momentum().pt() < simTrackMinPt_)
-    return false;
-  // eta selection
-  const float eta(std::abs(t.momentum().eta()));
-  if (eta > simTrackMaxEta_ || eta < simTrackMinEta_)
-    return false;
-  return true;
 }

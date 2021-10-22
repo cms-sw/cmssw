@@ -9,8 +9,6 @@
 SiStripDetVOffReader::SiStripDetVOffReader(const edm::ParameterSet& iConfig)
     : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", true)), detVOffToken_(esConsumes()) {}
 
-SiStripDetVOffReader::~SiStripDetVOffReader() {}
-
 void SiStripDetVOffReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   const auto& detVOff = iSetup.getData(detVOffToken_);
   edm::LogInfo("SiStripDetVOffReader") << "[SiStripDetVOffReader::analyze] End Reading SiStripDetVOff" << std::endl;

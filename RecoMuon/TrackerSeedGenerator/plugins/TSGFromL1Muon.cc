@@ -21,7 +21,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include <vector>
@@ -39,7 +38,7 @@ namespace {
   }
 }  // namespace
 
-TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) {
+TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) : theSFPTConfig(consumesCollector()) {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
 
@@ -52,10 +51,11 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) {
 
   theSourceToken = iC.consumes<L1MuonParticleCollection>(theSourceTag);
 
-  theRegionProducer = std::make_unique<L1MuonRegionProducer>(cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet"));
+  theRegionProducer =
+      std::make_unique<L1MuonRegionProducer>(cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC);
   theFitter = std::make_unique<L1MuonPixelTrackFitter>(cfg.getParameter<edm::ParameterSet>("FitterPSet"));
 
-  edm::ParameterSet cleanerPSet = theConfig.getParameter<edm::ParameterSet>("CleanerPSet");
+  edm::ParameterSet cleanerPSet = cfg.getParameter<edm::ParameterSet>("CleanerPSet");
   theMerger = std::make_unique<L1MuonSeedsMerger>(cleanerPSet);
 }
 
@@ -86,7 +86,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
     theFitter->setL1Constraint(muon);
 
     typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
-    Regions regions = theRegionProducer->regions();
+    Regions regions = theRegionProducer->regions(es);
     for (Regions::const_iterator ir = regions.begin(); ir != regions.end(); ++ir) {
       L1MuonSeedsMerger::TracksAndHits tracks;
       const TrackingRegion& region = **ir;
@@ -114,7 +114,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
       if (theMerger)
         theMerger->resolve(tracks);
       for (L1MuonSeedsMerger::TracksAndHits::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-        SeedFromProtoTrack seed(*(it->first), it->second, es);
+        SeedFromProtoTrack seed(theSFPTConfig, *(it->first), it->second, es);
         if (seed.isValid())
           (*result).push_back(L3MuonTrajectorySeed(seed.trajectorySeed(), l1Ref));
 

@@ -3,10 +3,13 @@ autoPCL = {'PromptCalibProd' : 'BeamSpotByRun+BeamSpotByLumi',
            'PromptCalibProdBeamSpotHPLowPU' : 'BeamSpotHPLowPUByRun+BeamSpotHPLowPUByLumi',
            'PromptCalibProdSiStrip' : 'SiStripQuality',
            'PromptCalibProdSiStripGains' : 'SiStripGains',
-           'PromptCalibProdSiPixelAli' : 'SiPixelAli',
-           'PromptCalibProdEcalPedestals': 'EcalPedestals',
            'PromptCalibProdSiStripGainsAAG' : 'SiStripGainsAAG',
-           'PromptCalibProdLumiPCC': 'LumiPCC',
+           'PromptCalibProdSiPixelAli' : 'SiPixelAli',
            'PromptCalibProdSiPixel' : 'SiPixelQuality',
-           'PromptCalibProdPPS' : 'PPSTimingCalibration'
+           'PromptCalibProdSiPixelLA' : 'SiPixelLA',
+           'PromptCalibProdEcalPedestals': 'EcalPedestals',
+           'PromptCalibProdLumiPCC': 'LumiPCC',
+           'PromptCalibProdPPS' : 'PPSTimingCalibration',
+           'PromptCalibProdPPSDiamondSampic' : 'PPSDiamondSampicTimingCalibration',
+           'PromptCalibProdPPSAlig' : 'PPSAlignment'
            }

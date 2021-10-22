@@ -145,11 +145,9 @@ class StandardTester(object):
 
         print('Running in %s thread(s)' % self.maxThreads)
 
+        if testList:
+            self.commands = {d:c for d,c in self.commands.items() if d in testList}
         for dirName, command in self.commands.items():
-
-            if testList and not dirName in testList:
-                del self.commands[dirName]
-                continue
 
             # make sure we don't run more than the allowed number of threads:
             while self.activeThreads() >= self.maxThreads:

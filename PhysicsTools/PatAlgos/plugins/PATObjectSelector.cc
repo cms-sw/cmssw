@@ -1,5 +1,4 @@
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"

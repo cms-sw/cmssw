@@ -68,17 +68,17 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollectio
   if (ee_digis_h.isValid()) {
     const HGCalDigiCollection& ee_digis = *ee_digis_h;
-    vfeProcess_->run(ee_digis, *vfe_trigcell_output, es);
+    vfeProcess_->run(ee_digis, *vfe_trigcell_output);
   }
 
   if (fh_digis_h.isValid()) {
     const HGCalDigiCollection& fh_digis = *fh_digis_h;
-    vfeProcess_->run(fh_digis, *vfe_trigcell_output, es);
+    vfeProcess_->run(fh_digis, *vfe_trigcell_output);
   }
 
   if (bh_digis_h.isValid()) {
     const HGCalDigiCollection& bh_digis = *bh_digis_h;
-    vfeProcess_->run(bh_digis, *vfe_trigcell_output, es);
+    vfeProcess_->run(bh_digis, *vfe_trigcell_output);
   }
 
   // Put in the event

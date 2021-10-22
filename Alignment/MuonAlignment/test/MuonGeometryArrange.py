@@ -3,70 +3,56 @@ process =cms.Process("TEST")
  
 #Ideal geometry
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2021_design")
 
-process.DTGeometryMuonGeometryArrange1 = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel1'),
-    applyAlignment = cms.bool(False), 
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
+import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
+import Geometry.CSCGeometryBuilder.cscGeometryDB_cfi
+import Geometry.GEMGeometryBuilder.gemGeometryDB_cfi
 
-process.CSCGeometryMuonGeometryArrange1 = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel1'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False), 
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
+process.DTGeometryIdeal = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryIdeal.appendToDataLabel = 'MuonGeometryArrangeGeomIdeal'
+process.DTGeometryIdeal.applyAlignment = cms.bool(False)
+process.CSCGeometryIdeal = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryIdeal.appendToDataLabel = 'MuonGeometryArrangeGeomIdeal'
+process.CSCGeometryIdeal.applyAlignment = cms.bool(False)
+process.GEMGeometryIdeal = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryIdeal.appendToDataLabel = 'MuonGeometryArrangeGeomIdeal'
+process.GEMGeometryIdeal.applyAlignment = cms.bool(False)
 
-process.DTGeometryMuonGeometryArrange2 = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2'),
-    applyAlignment = cms.bool(False), 
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
+process.DTGeometryMuonGeometryArrange1 = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryMuonGeometryArrange1.appendToDataLabel = 'MuonGeometryArrangeLabel1'
+process.DTGeometryMuonGeometryArrange1.applyAlignment = cms.bool(False)
+process.CSCGeometryMuonGeometryArrange1 = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryMuonGeometryArrange1.appendToDataLabel = 'MuonGeometryArrangeLabel1'
+process.CSCGeometryMuonGeometryArrange1.applyAlignment = cms.bool(False)
+process.GEMGeometryMuonGeometryArrange1 = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryMuonGeometryArrange1.appendToDataLabel = 'MuonGeometryArrangeLabel1'
+process.GEMGeometryMuonGeometryArrange1.applyAlignment = cms.bool(False)
 
-process.CSCGeometryMuonGeometryArrange2 = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False), 
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
+process.DTGeometryMuonGeometryArrange2 = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryMuonGeometryArrange2.appendToDataLabel = 'MuonGeometryArrangeLabel2'
+process.DTGeometryMuonGeometryArrange2.applyAlignment = cms.bool(False)
+process.CSCGeometryMuonGeometryArrange2 = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryMuonGeometryArrange2.appendToDataLabel = 'MuonGeometryArrangeLabel2'
+process.CSCGeometryMuonGeometryArrange2.applyAlignment = cms.bool(False)
+process.GEMGeometryMuonGeometryArrange2 = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryMuonGeometryArrange2.appendToDataLabel = 'MuonGeometryArrangeLabel2'
+process.GEMGeometryMuonGeometryArrange2.applyAlignment = cms.bool(False)
 
-process.DTGeometryMuonGeometryArrange2a = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2a'),
-    applyAlignment = cms.bool(False), 
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-
-process.CSCGeometryMuonGeometryArrange2a = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2a'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False), 
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
+process.DTGeometryMuonGeometryArrange2a = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryMuonGeometryArrange2a.appendToDataLabel = 'MuonGeometryArrangeLabel2a'
+process.DTGeometryMuonGeometryArrange2a.applyAlignment = cms.bool(False)
+process.CSCGeometryMuonGeometryArrange2a = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryMuonGeometryArrange2a.appendToDataLabel = 'MuonGeometryArrangeLabel2a'
+process.CSCGeometryMuonGeometryArrange2a.applyAlignment = cms.bool(False)
+process.GEMGeometryMuonGeometryArrange2a = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryMuonGeometryArrange2a.appendToDataLabel = 'MuonGeometryArrangeLabel2a'
+process.GEMGeometryMuonGeometryArrange2a.applyAlignment = cms.bool(False)
 
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
@@ -117,7 +103,4 @@ process.MuonGeometryCompare = cms.EDAnalyzer("MuonGeometryArrange",
 )
 
 process.p = cms.Path( process.MuonGeometryCompare )
- 
-
-
 

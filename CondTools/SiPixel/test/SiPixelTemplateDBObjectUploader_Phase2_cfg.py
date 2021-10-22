@@ -72,7 +72,7 @@ if len(magfieldstrsplit)>1 :
 	MagFieldString+=magfieldstrsplit[1]
 
 #open the map file
-mapfile = open(options.Map,'rU', newline='')
+mapfile = open(options.Map,'r', newline='')
 #read the csv file into a reader
 mapfilereader = csv.reader(mapfile,delimiter=options.Delimiter,quotechar=options.Quotechar)
 #separate into the different sections

@@ -30,6 +30,7 @@ public:
 
   ~HcalPFClusterIsolation();
   double getSum(const T1Ref candRef, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles);
+  double getSum(const T1 cand, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles);
 
 private:
   const double drMax_;

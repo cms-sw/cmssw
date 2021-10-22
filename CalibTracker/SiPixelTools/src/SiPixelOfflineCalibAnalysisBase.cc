@@ -131,6 +131,9 @@ void SiPixelOfflineCalibAnalysisBase::beginRun(const edm::Run&, const edm::Event
   this->calibrationSetup(iSetup);
   theHistogramIdWorker_ = new SiPixelHistogramId(siPixelCalibDigiProducer_.label());
 }
+
+void SiPixelOfflineCalibAnalysisBase::endRun(const edm::Run&, const edm::EventSetup& iSetup) {}
+
 void SiPixelOfflineCalibAnalysisBase::beginJob() {}
 // ------------ method called once each job just before starting event loop  ------------
 

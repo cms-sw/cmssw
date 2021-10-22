@@ -30,14 +30,18 @@ public:
     lastAnalyzedRun_ = 0;
     lastAnalyzedFill_ = 0;
     intParams_.resize(ISIZE, std::vector<int>(1, 0));
+    floatParams_.resize(FSIZE, std::vector<float>(1, 0.0));
+    stringParams_.resize(SSIZE, std::vector<std::string>(1, ""));
     timeParams_.resize(TSIZE, std::vector<unsigned long long>(1, 0ULL));
   }
 
   ~BeamSpotOnlineObjects() override {}
 
   /// Enums
-  enum IntParamIndex { NUM_TRACKS = 0, NUM_PVS = 1, ISIZE = 2 };
-  enum TimeParamIndex { CREATE_TIME = 0, TSIZE = 1 };
+  enum IntParamIndex { NUM_TRACKS = 0, NUM_PVS = 1, USED_EVENTS = 2, MAX_PVS = 3, ISIZE = 4 };
+  enum FloatParamIndex { MEAN_PV = 0, ERR_MEAN_PV = 1, RMS_PV = 2, ERR_RMS_PV = 3, FSIZE = 4 };
+  enum StringParamIndex { START_TIME = 0, END_TIME = 1, LUMI_RANGE = 2, SSIZE = 3 };
+  enum TimeParamIndex { CREATE_TIME = 0, START_TIMESTAMP = 1, END_TIMESTAMP = 2, TSIZE = 3 };
 
   /// Setters Methods
   // set lastAnalyzedLumi_, last analyzed lumisection
@@ -55,8 +59,41 @@ public:
   // set number of Primary Vertices used in the BeamSpot fit
   void SetNumPVs(int val);
 
+  // set number of Events used in the BeamSpot fit (for DIP)
+  void SetUsedEvents(int val);
+
+  // set max number of Primary Vertices used in the BeamSpot fit (for DIP)
+  void SetMaxPVs(int val);
+
+  // set mean number of PVs (for DIP)
+  void SetMeanPV(float val);
+
+  // set error on mean number of PVs (for DIP)
+  void SetMeanErrorPV(float val);
+
+  // set rms of number of PVs (for DIP)
+  void SetRmsPV(float val);
+
+  // set error on rm of number of PVs (for DIP)
+  void SetRmsErrorPV(float val);
+
+  // set start time of the firs LS as string (for DIP)
+  void SetStartTime(std::string val);
+
+  // set end time of the last LS as string (for DIP)
+  void SetEndTime(std::string val);
+
+  // set lumi range as string (for DIP)
+  void SetLumiRange(std::string val);
+
   // set creation time of the payload
   void SetCreationTime(cond::Time_t val);
+
+  // set timestamp of the first LS (for DIP)
+  void SetStartTimeStamp(cond::Time_t val);
+
+  // set timestamp of the last LS (for DIP)
+  void SetEndTimeStamp(cond::Time_t val);
 
   /// Getters Methods
   // get lastAnalyzedLumi_, last analyzed lumisection
@@ -74,8 +111,41 @@ public:
   // get number of Primary Vertices used in the BeamSpot fit
   int GetNumPVs() const;
 
+  // get number of Events used in the BeamSpot fit (for DIP)
+  int GetUsedEvents() const;
+
+  // get max number of Primary Vertices used in the BeamSpot fit (for DIP)
+  int GetMaxPVs() const;
+
+  // get mean number of PVs (for DIP)
+  float GetMeanPV() const;
+
+  // get error on mean number of PVs (for DIP)
+  float GetMeanErrorPV() const;
+
+  // get rms of number of PVs (for DIP)
+  float GetRmsPV() const;
+
+  // get error on rm of number of PVs (for DIP)
+  float GetRmsErrorPV() const;
+
+  // get start time of the firs LS as string (for DIP)
+  std::string GetStartTime() const;
+
+  // get end time of the last LS as string (for DIP)
+  std::string GetEndTime() const;
+
+  // get lumi range as string (for DIP)
+  std::string GetLumiRange() const;
+
   // get creation time of the payload
   cond::Time_t GetCreationTime() const;
+
+  // get timestamp of the first LS (for DIP)
+  cond::Time_t GetStartTimeStamp() const;
+
+  // get timestamp of the last LS (for DIP)
+  cond::Time_t GetEndTimeStamp() const;
 
   /// Print BeamSpotOnline parameters
   void print(std::stringstream& ss) const;
@@ -87,7 +157,7 @@ private:
   std::vector<std::vector<int> > intParams_;
   std::vector<std::vector<float> > floatParams_;
   std::vector<std::vector<std::string> > stringParams_;
-  std::vector<std::vector<unsigned long long> > timeParams_;
+  std::vector<std::vector<unsigned long long> > timeParams_;  // unsigned long long is equal to cond::Time_t
 
   COND_SERIALIZABLE;
 };

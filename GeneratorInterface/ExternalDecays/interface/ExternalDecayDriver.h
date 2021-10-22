@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 #include <vector>
@@ -28,7 +29,7 @@ namespace gen {
   class ExternalDecayDriver {
   public:
     // ctor & dtor
-    ExternalDecayDriver(const edm::ParameterSet&);
+    ExternalDecayDriver(const edm::ParameterSet&, edm::ConsumesCollector);
     ~ExternalDecayDriver();
 
     void init(const edm::EventSetup&);

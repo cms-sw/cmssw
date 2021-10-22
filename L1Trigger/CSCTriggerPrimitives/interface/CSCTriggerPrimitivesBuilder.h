@@ -19,6 +19,9 @@
  */
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
@@ -50,6 +53,9 @@ public:
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry* g) { csc_g = g; }

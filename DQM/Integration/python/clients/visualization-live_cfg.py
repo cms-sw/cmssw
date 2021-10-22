@@ -14,18 +14,23 @@ if 'unitTest=True' in sys.argv:
 if unitTest:
     from DQM.Integration.config.unittestinputsource_cfi import options, runType, source
 else:
-    from DQM.Integration.config.inputsource_cfi import options, runType, source
+    from DQM.Integration.config.inputsource_cfi import options, runType, source, set_BeamSplashRun_settings
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA'}
+scenarios = {'pp_run': 'ppEra_Run3','cosmic_run':'cosmicsEra_Run3','hi_run':'ppEra_Run2_2016_pA', 'commissioning_run':'cosmicsEra_Run3'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
     raise RuntimeError(msg)
 
 scenarioName = scenarios[runType.getRunTypeName()]
+
+if not unitTest :
+  if options.BeamSplashRun :
+    scenarioName = 'ppEra_Run3'
+    pass
 
 print("Using scenario:",scenarioName)
 
@@ -66,6 +71,8 @@ if not unitTest:
     process.source.minEventsPerLumi              = 0
     process.source.nextLumiTimeoutMillis         = 10000
     process.source.streamLabel                   = 'streamDQM'
+    if options.BeamSplashRun :
+      set_BeamSplashRun_settings( process.source )
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
     runno = str(m.group(1))
@@ -113,3 +120,4 @@ if dump:
     psetFile.close()
     cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
     print("Now do:\n%s" % cmsRun)
+print("Final Source settings:", process.source)

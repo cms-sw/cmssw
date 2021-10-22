@@ -13,6 +13,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -492,6 +493,8 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       int subdet = (((DetId::HGCalEE == det) || (DetId::HGCalHSi == det) || (DetId::HGCalHSc == det)) ? ForwardEmpty
                                                                                                       : it->subdetId());
       const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det, subdet));
+      hgcal::RecHitTools rhtools;
+      rhtools.setGeometry(*m_caloGeom);
       const auto cor = geom->getNewCorners(*it);
 
       // roll = yaw = pitch = 0
@@ -517,6 +520,22 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
       // total points
       fwRecoGeometry.idToName[id].topology[0] = cor.size() - 1;
+
+      // Layer with Offset
+      fwRecoGeometry.idToName[id].topology[1] = rhtools.getLayerWithOffset(it->rawId());
+
+      // Zside, +/- 1
+      fwRecoGeometry.idToName[id].topology[2] = rhtools.zside(it->rawId());
+
+      // Is Silicon
+      fwRecoGeometry.idToName[id].topology[3] = rhtools.isSilicon(it->rawId());
+
+      // Silicon index
+      fwRecoGeometry.idToName[id].topology[4] =
+          rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
+
+      // Last EE layer
+      fwRecoGeometry.idToName[id].topology[5] = rhtools.lastLayerEE();
     }
   }
 }

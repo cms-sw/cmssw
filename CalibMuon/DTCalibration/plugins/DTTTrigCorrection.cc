@@ -25,6 +25,8 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,9 +35,12 @@ using namespace edm;
 using namespace std;
 
 DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset)
-    : dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
-      correctionAlgo_{DTTTrigCorrectionFactory::get()->create(
-          pset.getParameter<string>("correctionAlgo"), pset.getParameter<ParameterSet>("correctionAlgoConfig"))} {
+    : correctionAlgo_{DTTTrigCorrectionFactory::get()->create(pset.getParameter<string>("correctionAlgo"),
+                                                              pset.getParameter<ParameterSet>("correctionAlgoConfig"),
+                                                              consumesCollector())} {
+  ttrigToken_ =
+      esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+  dtGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   LogVerbatim("Calibration") << "[DTTTrigCorrection] Constructor called" << endl;
 }
 
@@ -45,13 +50,12 @@ DTTTrigCorrection::~DTTTrigCorrection() {
 
 void DTTTrigCorrection::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get tTrig record from DB
-  ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel_, tTrig);
+  ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
   tTrigMap_ = &*tTrig;
   LogVerbatim("Calibration") << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
 
   // Get geometry from Event Setup
-  setup.get<MuonGeometryRecord>().get(muonGeom_);
+  muonGeom_ = setup.getHandle(dtGeomToken_);
 
   // Pass EventSetup to correction Algo
   correctionAlgo_->setES(setup);

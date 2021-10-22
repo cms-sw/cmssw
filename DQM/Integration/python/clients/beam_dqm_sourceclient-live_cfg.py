@@ -89,7 +89,7 @@ process.load("DQM.BeamMonitor.BeamMonitor_Pixel_cff")
 process.load("DQM.BeamMonitor.BeamSpotProblemMonitor_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResultsOld.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
@@ -435,4 +435,6 @@ else:
                        * process.tracking_FirstStep
                        * process.monitor
                        * process.BeamSpotProblemModule)
+
+print("Final Source settings:", process.source)
 

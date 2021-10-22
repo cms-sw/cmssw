@@ -79,11 +79,9 @@ std::unique_ptr<SiStripBadStrip> SiStripBadChannelBuilder::getNewObject() {
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripBadStripRcd")) {
-      mydbservice->createNewIOV<SiStripBadStrip>(
-          obj.get(), mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripBadStripRcd");
+      mydbservice->createOneIOV<SiStripBadStrip>(*obj, mydbservice->beginOfTime(), "SiStripBadStripRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripBadStrip>(obj.get(),mydbservice->currentTime(),"SiStripBadStripRcd");
-      mydbservice->appendSinceTime<SiStripBadStrip>(obj.get(), mydbservice->currentTime(), "SiStripBadStripRcd");
+      mydbservice->appendOneIOV<SiStripBadStrip>(*obj, mydbservice->currentTime(), "SiStripBadStripRcd");
     }
   } else {
     edm::LogError("SiStripBadStripBuilder") << "Service is unavailable" << std::endl;

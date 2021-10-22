@@ -33,7 +33,7 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
+DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) : dtGeomToken_(esConsumes()) {
   // get selected debug option
   debug = pset.getUntrackedParameter<bool>("debug", false);
 
@@ -72,8 +72,7 @@ void DTTTrigWriter::analyze(const Event& event, const EventSetup& eventSetup) {
     cout << "[DTTTrigWriter]Analyzer called!" << endl;
 
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  dtGeom = eventSetup.getHandle(dtGeomToken_);
 
   // Get all the sls from the setup
   const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();

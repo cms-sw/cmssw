@@ -24,8 +24,10 @@ def customiseCommon(process):
     # Services
 
     process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+    if 'MessageLogger' in process.__dict__:
+        process.MessageLogger.CUDAService = cms.untracked.PSet()
 
-    # NVProfilerService is broken in CMSSW 12.0,x and later
+    # NVProfilerService is broken in CMSSW 12.0.x and later
     #process.load("HeterogeneousCore.CUDAServices.NVProfilerService_cfi")
 
 
@@ -121,7 +123,11 @@ def customisePixelLocalReconstruction(process):
 
     # reconstruct the pixel digis and clusters on the gpu
     from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDA_cfi import siPixelRawToClusterCUDA as _siPixelRawToClusterCUDA
-    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone()
+    process.hltSiPixelClustersCUDA = _siPixelRawToClusterCUDA.clone(
+        # use the same thresholds as the legacy module
+        clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+        clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
+    )
     # use the pixel channel calibrations scheme for Run 3
     run3_common.toModify(process.hltSiPixelClustersCUDA, isRun2 = False)
 
@@ -131,51 +137,55 @@ def customisePixelLocalReconstruction(process):
         src = "hltSiPixelClustersCUDA"
     )
 
-    # convert the pixel digis errors to the legacy format
-    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
-    process.hltSiPixelDigiErrors = _siPixelDigiErrorsFromSoA.clone(
-        digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
-        UsePhase1 = True
-    )
-
     # copy the pixel digis (except errors) and clusters to the host
     from EventFilter.SiPixelRawToDigi.siPixelDigisSoAFromCUDA_cfi import siPixelDigisSoAFromCUDA as _siPixelDigisSoAFromCUDA
     process.hltSiPixelDigisSoA = _siPixelDigisSoAFromCUDA.clone(
         src = "hltSiPixelClustersCUDA"
     )
 
-    # convert the pixel digis (except errors) and clusters to the legacy format
-    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
-    process.hltSiPixelDigisClusters = _siPixelDigisClustersFromSoA.clone(
-        src = "hltSiPixelDigisSoA"
-    )
+    # reconstruct the pixel digis on the cpu
+    process.hltSiPixelDigisLegacy = process.hltSiPixelDigis.clone()
 
-    # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
+    # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors to the legacy format
+    from EventFilter.SiPixelRawToDigi.siPixelDigiErrorsFromSoA_cfi import siPixelDigiErrorsFromSoA as _siPixelDigiErrorsFromSoA
     process.hltSiPixelDigis = SwitchProducerCUDA(
         # legacy producer
-        cpu = process.hltSiPixelDigis,
-        # alias used to access products from multiple conversion modules
-        cuda = cms.EDAlias(
-            hltSiPixelDigisClusters = cms.VPSet(
-                cms.PSet(type = cms.string("PixelDigiedmDetSetVector"))
-            ),
-            hltSiPixelDigiErrors = cms.VPSet(
+        cpu = cms.EDAlias(
+            hltSiPixelDigisLegacy = cms.VPSet(
                 cms.PSet(type = cms.string("DetIdedmEDCollection")),
                 cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
                 cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
             )
+        ),
+        # conversion from SoA to legacy format
+        cuda = _siPixelDigiErrorsFromSoA.clone(
+            digiErrorSoASrc = "hltSiPixelDigiErrorsSoA",
+            UsePhase1 = True
         )
     )
 
-    # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+    # reconstruct the pixel clusters on the cpu
+    process.hltSiPixelClustersLegacy = process.hltSiPixelClusters.clone(
+        src = "hltSiPixelDigisLegacy"
+    )
+
+    # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters to the legacy format
+    from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
     process.hltSiPixelClusters = SwitchProducerCUDA(
         # legacy producer
-        cpu = process.hltSiPixelClusters,
-        # alias used to access products from multiple conversion modules
-        cuda = cms.EDAlias(
-            hltSiPixelDigisClusters = cms.VPSet(
+        cpu = cms.EDAlias(
+            hltSiPixelClustersLegacy = cms.VPSet(
                 cms.PSet(type = cms.string("SiPixelClusteredmNewDetSetVector"))
             )
+        ),
+        # conversion from SoA to legacy format
+        cuda = _siPixelDigisClustersFromSoA.clone(
+            src = "hltSiPixelDigisSoA",
+            produceDigis = False,
+            storeDigis = False,
+            # use the same thresholds as the legacy module
+            clusterThreshold_layer1 = process.hltSiPixelClusters.ClusterThreshold_L1,
+            clusterThreshold_otherLayers = process.hltSiPixelClusters.ClusterThreshold
         )
     )
 
@@ -191,7 +201,7 @@ def customisePixelLocalReconstruction(process):
     process.hltSiPixelRecHits = SwitchProducerCUDA(
         # legacy producer
         cpu = process.hltSiPixelRecHits,
-        # converter to legacy format
+        # conversion from SoA to legacy format
         cuda = _siPixelRecHitFromCUDA.clone(
             pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
             src = "hltSiPixelClusters"
@@ -206,15 +216,51 @@ def customisePixelLocalReconstruction(process):
           process.hltSiPixelClustersCUDA,                   # reconstruct the pixel digis and clusters on the gpu
           process.hltSiPixelRecHitsCUDA,                    # reconstruct the pixel rechits on the gpu
           process.hltSiPixelDigisSoA,                       # copy the pixel digis (except errors) and clusters to the host
-          process.hltSiPixelDigisClusters,                  # convert the pixel digis (except errors) and clusters to the legacy format
           process.hltSiPixelDigiErrorsSoA,                  # copy the pixel digis errors to the host
-          process.hltSiPixelDigiErrors,                     # convert the pixel digis errors to the legacy format
-          process.hltSiPixelDigis,                          # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
-          process.hltSiPixelClusters,                       # SwitchProducer wrapping the legacy pixel cluster producer or an alias for the pixel clusters information converted from SoA
+          process.hltSiPixelDigisLegacy,                    # legacy pixel digis producer
+          process.hltSiPixelDigis,                          # SwitchProducer wrapping a subset of the legacy pixel digis producer, or the conversion of the pixel digis errors from SoA
+          process.hltSiPixelClustersLegacy,                 # legacy pixel cluster producer
+          process.hltSiPixelClusters,                       # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
           process.hltSiPixelClustersCache,                  # legacy module, used by the legacy pixel quadruplet producer
           process.hltSiPixelRecHits)                        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
 
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
+
+
+    # workaround for AlCa paths
+
+    if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
+        if "HLTSchedule" in process.__dict__:
+            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_Random_v1)
+            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_Random_v1)
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
+            process.HLTBeginSequenceRandom +
+            process.hltScalersRawToDigi +
+            process.hltPreAlCaLumiPixelsCountsRandom +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
+        if "HLTSchedule" in process.__dict__:
+            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_Random_v1)
+
+    if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
+        if "HLTSchedule" in process.__dict__:
+            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
+            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
+        # redefine the path to use the HLTDoLocalPixelSequence
+        process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
+            process.HLTBeginSequence +
+            process.hltScalersRawToDigi +
+            process.hltL1sZeroBias +
+            process.hltPreAlCaLumiPixelsCountsZeroBias +
+            process.hltPixelTrackerHVOn +
+            process.HLTDoLocalPixelSequence +
+            process.hltAlcaPixelClusterCounts +
+            process.HLTEndSequence )
+        if "HLTSchedule" in process.__dict__:
+            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_ZeroBias_v1)
 
 
     # done
@@ -543,6 +589,7 @@ def customiseHcalLocalReconstruction(process):
 
     process.load("EventFilter.HcalRawToDigi.hcalElectronicsMappingGPUESProducer_cfi")
 
+    process.load("RecoLocalCalo.HcalRecProducers.hcalChannelQualityGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalGainWidthsGPUESProducer_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.hcalLUTCorrsGPUESProducer_cfi")
