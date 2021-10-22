@@ -19,8 +19,16 @@
 
 #include <set>
 
-/// \class GEMPadDigiProducer
-/// producer for GEM trigger pads
+/*
+  \class GEMPadDigiProducer
+  producer for GEM trigger pads
+
+  In GE1/1: trigger pads are made from neighboring strip digis
+  in the same eta partition
+
+  In GE2/1: trigger pads are made from neighboring strip digis
+  in neighboring eta partitions
+*/
 
 class GEMPadDigiProducer : public edm::stream::EDProducer<> {
 public:
@@ -154,17 +162,18 @@ void GEMPadDigiProducer::buildPads16GE21(const GEMDigiCollection& det_digis, GEM
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
 
+    // proto pads for the odd partitions
+    for (auto d = digis.first; d != digis.second; ++d) {
+      proto_pads.emplace(d->strip(), d->bx());
+    }
+
     GEMDetId gemId2(
         p->id().region(), p->id().ring(), p->id().station(), p->id().layer(), p->id().chamber(), p->id().roll() + 1);
     auto digis2 = det_digis.get(gemId2);
 
-    for (auto d = digis.first; d != digis.second; ++d) {
-      // check if the strip digi in the eta partition below also has a digi
-      for (auto d2 = digis2.first; d2 != digis2.second; ++d2) {
-        if (d->strip() == d2->strip()) {
-          proto_pads.emplace(d->strip(), d->bx());
-        }
-      }
+    // proto pads for the even partitions
+    for (auto d = digis2.first; d != digis2.second; ++d) {
+      proto_pads.emplace(d->strip(), d->bx());
     }
 
     // fill the output collections
