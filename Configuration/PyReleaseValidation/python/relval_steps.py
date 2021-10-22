@@ -1911,6 +1911,7 @@ steps['RECODR2_2017']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_r
 steps['RECODR2_2018']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_2018','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018'},dataReco])
 #Run 3
 steps['RECODR3']=merge([{'--scenario':'pp','--conditions':'auto:run3_data_prompt','--era':'Run3','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
+steps['RECODR3Splash']=merge([{'-n': 2},steps['RECODR3']])
 
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
 
