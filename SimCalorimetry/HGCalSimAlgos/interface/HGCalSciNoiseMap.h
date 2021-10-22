@@ -22,8 +22,8 @@
 
 class HGCalSciNoiseMap : public HGCalRadiationMap {
 public:
-  enum TileType_t { CAST, MOULDED };
-  enum GainRange_t { GAIN_2, GAIN_4, AUTO };  //roc gain for 2mm2 and 4mm2
+  enum TileType_t { CAST, MOULDED, TILETYPE_N };
+  enum GainRange_t { GAIN_2, GAIN_4, AUTO, GAINRANGE_N };  //roc gain for 2mm2 and 4mm2
   enum NoiseMapAlgoBits_t {
     IGNORE_SIPMAREA,
     OVERRIDE_SIPMAREA,
@@ -48,20 +48,20 @@ public:
      @short returns the signal scaling and the noise
   */
   double scaleByTileArea(const HGCScintillatorDetId &, const double);
-  std::pair<double, GainRange_t> scaleBySipmArea(const HGCScintillatorDetId &, const double);
+  std::pair<double, GainRange_t> scaleBySipmArea(const HGCScintillatorDetId &, const double, const GainRange_t &);
   SiPMonTileCharacteristics scaleByDose(const HGCScintillatorDetId &,
                                         const double,
                                         const int aimMIPtoADC = 15,
-                                        const GainRange_t gain = GainRange_t::AUTO);
+                                        const GainRange_t gainPreChoice = GainRange_t::AUTO);
 
   void setDoseMap(const std::string &, const unsigned int);
   void setSipmMap(const std::string &);
   void setReferenceDarkCurrent(double idark);
   void setReferenceCrossTalk(double xtalk) { refXtalk_ = xtalk; }
   void setNpePerMIP(float npePerMIP);
-  std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
-  std::vector<double> &getMaxADCPerGain() { return fscADCPerGain_; }
-  std::vector<double> &getNpePerMIP() { return nPEperMIP_; }
+  double *getLSBPerGain() { return lsbPerGain_; }
+  double *getMaxADCPerGain() { return fscADCPerGain_; }
+  double *getNpePerMIP() { return nPEperMIP_; }
   float getNPeInSiPM() { return maxSiPMPE_; }
   bool ignoreAutoPedestalSubtraction() { return ignoreAutoPedestalSub_; }
 
@@ -72,10 +72,10 @@ private:
   std::unordered_map<int, float> readSipmPars(const std::string &);
 
   //reference signal yields
-  std::vector<double> nPEperMIP_;
+  double nPEperMIP_[TILETYPE_N];
 
   //lsb and fsc per gain
-  std::vector<double> lsbPerGain_, fscADCPerGain_;
+  double lsbPerGain_[GAINRANGE_N], fscADCPerGain_[GAINRANGE_N];
 
   //size of the reference scintillator tile
   const double refEdge_;
