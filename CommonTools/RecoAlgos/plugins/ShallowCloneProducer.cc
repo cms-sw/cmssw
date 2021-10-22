@@ -13,13 +13,13 @@
  */
 
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 template <typename C>
-class ShallowCloneProducer : public edm::EDProducer {
+class ShallowCloneProducer : public edm::global::EDProducer<> {
 public:
   /// constructor from parameter set
   explicit ShallowCloneProducer(const edm::ParameterSet&);
@@ -28,9 +28,9 @@ public:
 
 private:
   /// process an event
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// labels of the collection to be converted
-  edm::EDGetTokenT<C> srcToken_;
+  const edm::EDGetTokenT<C> srcToken_;
 };
 
 template <typename C>
@@ -43,7 +43,7 @@ template <typename C>
 ShallowCloneProducer<C>::~ShallowCloneProducer() {}
 
 template <typename C>
-void ShallowCloneProducer<C>::produce(edm::Event& evt, const edm::EventSetup&) {
+void ShallowCloneProducer<C>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
   std::unique_ptr<reco::CandidateCollection> coll(new reco::CandidateCollection);
   edm::Handle<C> masterCollection;
   evt.getByToken(srcToken_, masterCollection);
