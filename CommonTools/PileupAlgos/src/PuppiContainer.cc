@@ -101,18 +101,26 @@ double PuppiContainer::var_within_R(int iId,
         if (dr2 < 0.0001)
           continue;
         auto const pt = cand.pt;
-        if (iId == 5)
-          var += (pt * pt / dr2);
-        else if (iId == 4)
-          var += pt;
-        else if (iId == 3)
-          var += (1. / dr2);
-        else if (iId == 2)
-          var += (1. / dr2);
-        else if (iId == 1)
-          var += pt;
-        else if (iId == 0)
-          var += (pt / dr2);
+        switch (iId) {
+          case 5:
+            var += (pt * pt / dr2);
+            break;
+          case 4:
+            var += pt;
+            break;
+          case 3:
+            var += (1. / dr2);
+            break;
+          case 2:
+            var += (1. / dr2);
+            break;
+          case 1:
+            var += pt;
+            break;
+          case 0:
+            var += (pt / dr2);
+            break;
+        }
       }
     }
   }
