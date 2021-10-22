@@ -14,7 +14,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
+PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC)
     : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
       useMB2_(iConfig.existsAs<bool>("useStation2") ? iConfig.getParameter<bool>("useStation2") : true),
       fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
@@ -24,9 +24,12 @@ PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
                              ? iConfig.getParameter<bool>("cosmicPropagationHypothesis")
                              : false),
       useMB2InOverlap_(iConfig.existsAs<bool>("useMB2InOverlap") ? iConfig.getParameter<bool>("useMB2InOverlap")
-                                                                 : false)
-
-{
+                                                                 : false),
+      magfieldToken_(iC.esConsumes<>()),
+      propagatorToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
+      propagatorAnyToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      propagatorOppositeToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorOpposite"))),
+      muonGeometryToken_(iC.esConsumes<>()) {
   std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
   if (whichTrack == "none") {
     whichTrack_ = None;
@@ -58,11 +61,11 @@ PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
 PropagateToMuon::~PropagateToMuon() {}
 
 void PropagateToMuon::init(const edm::EventSetup &iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagatorAny_);
-  iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry_);
+  magfield_ = iSetup.getHandle(magfieldToken_);
+  propagator_ = iSetup.getHandle(propagatorToken_);
+  propagatorOpposite_ = iSetup.getHandle(propagatorOppositeToken_);
+  propagatorAny_ = iSetup.getHandle(propagatorAnyToken_);
+  muonGeometry_ = iSetup.getHandle(muonGeometryToken_);
 
   // Get the barrel cylinder
   const DetLayer *dtLay = muonGeometry_->allDTLayers()[useMB2_ ? 1 : 0];
