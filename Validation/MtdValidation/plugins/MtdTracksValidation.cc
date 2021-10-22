@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -10,6 +12,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
@@ -32,6 +35,10 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "HepMC/GenRanges.h"
+
 class MtdTracksValidation : public DQMEDAnalyzer {
 public:
   explicit MtdTracksValidation(const edm::ParameterSet&);
@@ -44,9 +51,9 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  //const bool mvaGenSel(const TrackingParticle&);
-  //const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&);
-  //const bool mvaGenRecMatch(const TrackingParticle&, const TrackingVertex&, const reco::TrackBase&);
+  const bool mvaGenSel(const HepMC::GenParticle&, const float& charge);
+  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&);
+  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double& zsim, const reco::TrackBase&);
 
   // ------------ member data ------------
 
@@ -65,6 +72,8 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
 
+  edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
+
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
 
@@ -79,6 +88,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
 
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
 
   MonitorElement* meBTLTrackRPTime_;
   MonitorElement* meBTLTrackEffEtaTot_;
@@ -123,6 +133,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
+  HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtd"));
@@ -135,6 +146,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   Sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
+  particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>();
 }
 
 MtdTracksValidation::~MtdTracksValidation() {}
@@ -322,13 +334,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
-  //bool selectedVertex = false;
-
-  //if ( iv == 0 && iev == 0 ) {
-  //if ( std::abs(vertex->z() - vsim->position().z()) <= deltaZcut_ ) { continue; }
-  //selectedVertex = true;
-  //}
-
   // --- Loop over the RECO vertices ---
   int nv = 0;
   for (const auto& v : *RecVertexHandle) {
@@ -340,6 +345,42 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       cout << "The vertex is not valid" << endl;
   }
   meVerNumber_->Fill(nv);
+
+  // reco-gen matching used for MVA quality flag
+  const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
+
+  auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
+  const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
+  double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
+
+  auto pdt = iSetup.getHandle(particleTableToken_);
+  const HepPDT::ParticleDataTable* pdTable = pdt.product();
+
+  // select events with reco vertex close to true simulated primary vertex
+  if (std::abs(primRecoVtx.z() - zsim) < deltaZcut_) {
+    index = 0;
+    for (const auto& trackGen : *GenRecTrackHandle) {
+      const reco::TrackRef trackref(iEvent.getHandle(GenRecTrackToken_), index);
+      index++;
+
+      // select the reconstructed track
+
+      if (mvaRecSel(trackGen, primRecoVtx)) {
+        for (const auto& genP : mc->particle_range()) {
+
+     // select status 1 genParticles
+
+          float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge();
+          if (mvaGenSel(*genP, charge)) {
+            if (mvaGenRecMatch(*genP, zsim, trackGen)) {
+              double dZ = trackGen.vz() - convertMmToCm(genP->production_vertex()->position().z());
+              edm::LogPrint("MtdTracksValidation") << "dZ = " << dZ;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 // ------------ method for histogram booking ------------
@@ -414,6 +455,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
+  desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
   desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"));
   desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"));
   desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"));
@@ -433,32 +475,33 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("mtdTracks", desc);
 }
 
-//const bool MtdTracksValidation::mvaGenSel(const TrackingParticle& tp) {
-//bool match = false;
-//if (tp.status() != 1) {
-//return match;
-//}
-//match = tp.threeCharge() != 0 && (tp.genParticles()[0])->pt() > pTcut_ && std::abs((tp.genParticles()[0])->eta()) < 4;
-//return match;
-//}
+const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const float& charge) {
+  bool match = false;
+  if (gp.status() != 1) {
+    return match;
+  }
+  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < 4;
+  return match;
+}
 
-//const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk, const reco::Vertex& vtx) {
-//bool match = false;
-//match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
-//if (trk.covt0t0() > 0.) {
-//match = match && std::abs(trk.t0() - vtx.t()) < 3. * trk.covt0t0();
-//}
-//return match;
-//}
+const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk, const reco::Vertex& vtx) {
+  bool match = false;
+  match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+  if (trk.covt0t0() > 0.) {
+    match = match && std::abs(trk.t0() - vtx.t()) < 3. * trk.covt0t0();
+  }
+  return match;
+}
 
-//const bool MtdTracksValidation::mvaGenRecMatch(const TrackingParticle& tp,
-//const TrackingVertex& tv,
-//const reco::TrackBase& trk) {
-//bool match = false;
-//double dR2 = reco::deltaR2(tp.momentum(), trk.momentum());
-//match = std::abs(tp.pt() - trk.pt()) < deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
-//std::abs(trk.vz() - tv.position().z()) < deltaZcut_;
-//return match;
-//}
+const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
+                                               const double& zsim,
+                                               const reco::TrackBase& trk) {
+  bool match = false;
+  double dR2 = reco::deltaR2(genP.momentum(), trk.momentum());
+  double genPT = genP.momentum().perp();
+  match = std::abs(genPT - trk.pt()) < genPT*deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
+          std::abs(trk.vz() - zsim) < deltaZcut_;
+  return match;
+}
 
 DEFINE_FWK_MODULE(MtdTracksValidation);

@@ -355,8 +355,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meTrackEffEtaTot_ = ibook.book1D("EffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
   meTrackMatchedEffEtaTot_ =
       ibook.book1D("MatchedEffEtaTot", "Pt of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
-  meTrackMatchedEffEtaMtd_ =
-      ibook.book1D("MatchedEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
+  meTrackMatchedEffEtaMtd_ = ibook.book1D(
+      "MatchedEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
   meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
   meTrackRes_[0] = ibook.book1D(
       "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
@@ -1200,7 +1200,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         if (vertex->trackWeight(*iTrack) < trackweightTh_)
           continue;
 
-        if (iv == 0) {
+        if (iv == 0 && iev == 0) {
           meTrackEffPtTot_->Fill((*iTrack)->pt());
           meTrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
         }
