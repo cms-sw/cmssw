@@ -24,17 +24,17 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   : '121X_mcRun2_pA_v7',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    : '121X_dataRun2_v6',
+    'run2_data'                    : '121X_dataRun2_v7',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'             : '121X_dataRun2_HEfail_v6',
+    'run2_data_HEfail'             : '121X_dataRun2_HEfail_v7',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'             : '121X_dataRun2_relval_v6',
+    'run2_data_relval'             : '121X_dataRun2_relval_v7',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi'      : '121X_dataRun2_PromptLike_HI_v6',
+    'run2_data_promptlike_hi'      : '121X_dataRun2_PromptLike_HI_v7',
     # GlobalTag for Run3 HLT: it points to the online GT
     'run3_hlt'                     : '121X_dataRun3_HLT_v7',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'              : '121X_dataRun2_HLT_relval_v6',
+    'run2_hlt_relval'              : '121X_dataRun2_HLT_relval_v7',
     # GlobalTag for Run3 data relvals (express GT)
     'run3_data_express'            : '121X_dataRun3_Express_v8',
     # GlobalTag for Run3 data relvals
