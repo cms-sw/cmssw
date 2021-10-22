@@ -179,9 +179,12 @@ double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, con
 //
 std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmArea(
     const HGCScintillatorDetId& cellId, const double radius, const HGCalSciNoiseMap::GainRange_t& gainPreChoice) {
-  HGCalSciNoiseMap::GainRange_t gain(GainRange_t::GAIN_2);
-  if (gainPreChoice != HGCalSciNoiseMap::GainRange_t::AUTO)
-    gain = gainPreChoice;
+  //start with the prechosen gain
+  //if auto then override it according to the SiPM area
+  HGCalSciNoiseMap::GainRange_t gain(gainPreChoice);
+  if (gainPreChoice == HGCalSciNoiseMap::GainRange_t::AUTO)
+    gain = GainRange_t::GAIN_2;
+
   double scaleFactor(1.f);
 
   if (ignoreSiPMarea_)
@@ -192,7 +195,7 @@ std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmAr
     int layer = cellId.layer();
     if (sipmMap_.count(layer) > 0 && radius < sipmMap_[layer]) {
       scaleFactor = 2.f;
-      if (gainPreChoice != HGCalSciNoiseMap::GainRange_t::AUTO)
+      if (gainPreChoice == HGCalSciNoiseMap::GainRange_t::AUTO)
         gain = GainRange_t::GAIN_4;
     }
   }
@@ -201,7 +204,8 @@ std::pair<double, HGCalSciNoiseMap::GainRange_t> HGCalSciNoiseMap::scaleBySipmAr
     int sipm = cellId.sipm();
     if (sipm == 0) {
       scaleFactor = 2.f;
-      gain = GainRange_t::GAIN_4;
+      if (gainPreChoice == HGCalSciNoiseMap::GainRange_t::AUTO)
+        gain = GainRange_t::GAIN_4;
     }
   }
 
