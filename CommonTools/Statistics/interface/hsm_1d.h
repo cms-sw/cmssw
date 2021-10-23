@@ -1,5 +1,5 @@
-#ifndef _HSM_1D_ICC_
-#define _HSM_1D_ICC_
+#ifndef CommonTools_Statistics_hsm_1d_h
+#define CommonTools_Statistics_hsm_1d_h
 
 #include "CommonTools/Statistics/interface/StatisticsException.h"
 
