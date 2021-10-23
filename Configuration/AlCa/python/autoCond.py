@@ -108,9 +108,9 @@ autoCond = autoCond0T(autoCond)
 from Configuration.AlCa.autoCondModifiers import autoCondHLTHI
 autoCond = autoCondHLTHI(autoCond)
 
-# special GT for 2021 DD4HEP geometry
-from Configuration.AlCa.autoCondModifiers import autoCondDD4HEP
-autoCond = autoCondDD4HEP(autoCond)
+# special GT for 2021 DDD geometry
+from Configuration.AlCa.autoCondModifiers import autoCondDDD
+autoCond = autoCondDDD(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
