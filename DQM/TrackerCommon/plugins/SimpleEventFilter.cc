@@ -47,8 +47,9 @@ bool SimpleEventFilter::filter(edm::Event &, edm::EventSetup const &) {
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SimpleEventFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.setComment("filters one event every N");
   desc.addUntracked<bool>("DebugOn", false)->setComment("activates debugging");
-  desc.addUntracked<int>("EventsToSkip", 10);
+  desc.addUntracked<int>("EventsToSkip", 10)->setComment("events to skip");
   descriptions.add("_simpleEventFilter", desc);
 }
 
