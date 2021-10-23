@@ -79,9 +79,9 @@ bool DetectorStateFilter::checkSubdet(const T& DCS, const int index)
   } else if constexpr (std::is_same_v<T, DCSRecord>) {
     return DCS.highVoltageReady(dcsRecordParts[index]);
   } else {
-    edm::LogError("DetectorStateFilter") << __FILE__ << " " << __LINE__
-                                         << " passed a wrong object type, cannot deduce DCS information.\n"
-                                         << " returning true" << std::endl;
+    edm::LogError("DetectorStatusFilter") << __FILE__ << " " << __LINE__
+					  << " passed a wrong object type, cannot deduce DCS information.\n"
+					  << " returning true" << std::endl;
     return true;
   }
 }
