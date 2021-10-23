@@ -1,4 +1,3 @@
-#include "DQM/TrackerCommon/plugins/SimpleEventFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
