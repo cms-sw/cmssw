@@ -585,15 +585,10 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
   if (debug_)
     xAliDir = debugFile_->mkdir((std::to_string(seqPos + 1) + ": x alignment").c_str());
 
-  for (const auto& scPair : {std::make_pair(cfg.sectorConfig45(), cfg_ref.sectorConfig45()),
-                             std::make_pair(cfg.sectorConfig56(), cfg_ref.sectorConfig56())}) {
-    const auto& sc = scPair.first;
-    const auto& sc_ref = scPair.second;
-
-    for (const auto& rpcPair : {std::make_pair(sc.rp_F_, sc_ref.rp_F_), std::make_pair(sc.rp_N_, sc_ref.rp_N_)}) {
-      const auto& rpc = rpcPair.first;
-      const auto& rpc_ref = rpcPair.second;
-
+  for (const auto& [sc, sc_ref] : {std::make_pair(cfg.sectorConfig45(), cfg_ref.sectorConfig45()),
+                                   std::make_pair(cfg.sectorConfig56(), cfg_ref.sectorConfig56())}) {
+    for (const auto& [rpc, rpc_ref] :
+         {std::make_pair(sc.rp_F_, sc_ref.rp_F_), std::make_pair(sc.rp_N_, sc_ref.rp_N_)}) {
       auto mes_test = iGetter.getAllContents(folder_ + "/worker/" + sc.name_ + "/near_far/x slices, " + rpc.position_);
       if (mes_test.empty()) {
         edm::LogWarning("PPS") << "[x_alignment] " << rpc.name_ << ": could not load mes_test";

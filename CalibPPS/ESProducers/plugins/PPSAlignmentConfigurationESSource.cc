@@ -93,9 +93,10 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
   label = iConfig.getParameter<std::string>("label");
 
   debug = iConfig.getParameter<bool>("debug");
-  TFile* debugFile = nullptr;
+  std::unique_ptr<TFile> debugFile;
   if (debug) {
-    debugFile = new TFile(("debug_producer_" + (label.empty() ? "test" : label) + ".root").c_str(), "recreate");
+    debugFile =
+        std::make_unique<TFile>(("debug_producer_" + (label.empty() ? "test" : label) + ".root").c_str(), "recreate");
   }
 
   sectorConfig45.name_ = "sector 45";
@@ -196,11 +197,11 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
 
   // constructing vectors with reference data
   if (!referenceDataset.empty()) {
-    TFile* f_ref = TFile::Open(referenceDataset.c_str());
+    auto f_ref = std::make_unique<TFile>(referenceDataset.c_str(), "READ");
     if (!f_ref->IsOpen()) {
       edm::LogWarning("PPS") << "[ESSource] could not find reference dataset file: " << referenceDataset;
     } else {
-      TDirectory* ad_ref = findDirectoryWithName((TDirectory*)f_ref, sectorConfig45.name_);
+      TDirectory* ad_ref = findDirectoryWithName((TDirectory*)f_ref.get(), sectorConfig45.name_);
       if (ad_ref == nullptr) {
         edm::LogWarning("PPS") << "[ESSource] could not find reference dataset in " << referenceDataset;
       } else {
@@ -220,7 +221,6 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
         }
       }
     }
-    delete f_ref;
   }
 
   for (const auto& p : rpTags) {
@@ -268,9 +268,6 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
 
   setWhatProduced(this, label);
   findingRecord<PPSAlignmentConfigurationRcd>();
-
-  if (debug)
-    delete debugFile;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -605,10 +602,10 @@ int PPSAlignmentConfigurationESSource::fitProfile(TProfile* p, double x_mean, do
 
   double x_min = x_mean - x_rms, x_max = x_mean + x_rms;
 
-  TF1* ff_pol1 = new TF1("ff_pol1", "[0] + [1]*x");
+  auto ff_pol1 = std::make_unique<TF1>("ff_pol1", "[0] + [1]*x");
 
   ff_pol1->SetParameter(0., 0.);
-  p->Fit(ff_pol1, "Q", "", x_min, x_max);
+  p->Fit(ff_pol1.get(), "Q", "", x_min, x_max);
 
   sl = ff_pol1->GetParameter(1);
   sl_unc = ff_pol1->GetParError(1);
