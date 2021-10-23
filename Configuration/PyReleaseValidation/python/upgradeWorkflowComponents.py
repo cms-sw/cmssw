@@ -1183,10 +1183,12 @@ upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
 )
 upgradeWFs['DD4hep'].allowReuse = False
 
+#This workflow is now obsolete, it becomes default for Run-3.
+#Keep it for future use in Phase-2, then delete
 class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_dd4hep', '--geometry': 'DB:Extended', '--procModifiers': 'dd4hep'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic', '--geometry': 'DB:Extended'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
@@ -1211,7 +1213,7 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic', '--geometry': 'DB:Extended', '--era': 'Run3_DDD'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic_ddd', '--geometry': 'DB:Extended', '--era': 'Run3_DDD'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
@@ -1311,7 +1313,7 @@ upgradeProperties[2017] = {
     },
     '2021' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_realistic_dd4hep',
+        'GT' : 'auto:phase1_2021_realistic',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1319,7 +1321,7 @@ upgradeProperties[2017] = {
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_design_dd4hep',
+        'GT' : 'auto:phase1_2021_design',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
@@ -1327,7 +1329,7 @@ upgradeProperties[2017] = {
     },
     '2023' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2023_realistic_dd4hep',
+        'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1335,7 +1337,7 @@ upgradeProperties[2017] = {
     },
     '2024' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2024_realistic_dd4hep',
+        'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
