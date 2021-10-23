@@ -189,7 +189,8 @@ public:
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
-  GlobalPoint waferLocal2Global(HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
+  GlobalPoint waferLocal2Global(
+      HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
     HGCSiliconDetId detid(id);
     double x(0), y(0);
     if (useWafer) {
@@ -198,7 +199,8 @@ public:
       y = xyw.second;
     }
     auto xy = getXY(detid.layer(), (x + loc.x()), (y + loc.y()), false);
-    double zz = (detid.zside() < 0) ? -(loc.z() + waferZ(detid.layer(), reco)) : (loc.z() + waferZ(detid.layer(), reco));
+    double zz =
+        (detid.zside() < 0) ? -(loc.z() + waferZ(detid.layer(), reco)) : (loc.z() + waferZ(detid.layer(), reco));
     double xx = (detid.zside() < 0) ? -xy.first : xy.first;
     return GlobalPoint(xx, xy.second, zz);
   }

@@ -101,34 +101,39 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
             id.setType(typm.first);
             id.setSiPM(typm.second);
           }
-	  bool ok = test ? topology.dddConstants().tileExist(zside, layer, ring, iphi) : true;
+          bool ok = test ? topology.dddConstants().tileExist(zside, layer, ring, iphi) : true;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::layer:rad:phi:type:sipm " << layer << ":" << ring * zside << ":" << iphi << ":" << type << ":" << typm.first << ":" << typm.second << " Test " << test << ":" << ok;
+          edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::layer:rad:phi:type:sipm " << layer << ":"
+                                        << ring * zside << ":" << iphi << ":" << type << ":" << typm.first << ":"
+                                        << typm.second << " Test " << test << ":" << ok;
 #endif
-	  if (ok) {
-	    DetId detId = static_cast<DetId>(id);
-	    const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
-	    double xx = (zside > 0) ? w.first : -w.first;
-	    CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
-	    const HepGeom::Transform3D ht3d(mytr.hr, h3v);
+          if (ok) {
+            DetId detId = static_cast<DetId>(id);
+            const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
+            double xx = (zside > 0) ? w.first : -w.first;
+            CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
+            const HepGeom::Transform3D ht3d(mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":" << type " DetId " << HGCScintillatorDetId(detId) << " " << std::hex << detId.rawId() << std::dec << " transf " << ht3d.getTranslation() << " R "  << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
+            edm::LogVerbatim("HGCalGeom")
+                << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":" << type " DetId "
+                << HGCScintillatorDetId(detId) << " " << std::hex << detId.rawId() << std::dec << " transf "
+                << ht3d.getTranslation() << " R " << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
 #endif
-	    HGCalParameters::hgtrap vol = topology.dddConstants().getModule(md, false, true);
-	    params[FlatTrd::k_dZ] = vol.dz;
-	    params[FlatTrd::k_Theta] = params[FlatTrd::k_Phi] = 0;
-	    params[FlatTrd::k_dY1] = params[FlatTrd::k_dY2] = vol.h;
-	    params[FlatTrd::k_dX1] = params[FlatTrd::k_dX3] = vol.bl;
-	    params[FlatTrd::k_dX2] = params[FlatTrd::k_dX4] = vol.tl;
-	    params[FlatTrd::k_Alp1] = params[FlatTrd::k_Alp2] = 0;
-	    params[FlatTrd::k_Cell] = topology.dddConstants().cellSizeHex(type);
+            HGCalParameters::hgtrap vol = topology.dddConstants().getModule(md, false, true);
+            params[FlatTrd::k_dZ] = vol.dz;
+            params[FlatTrd::k_Theta] = params[FlatTrd::k_Phi] = 0;
+            params[FlatTrd::k_dY1] = params[FlatTrd::k_dY2] = vol.h;
+            params[FlatTrd::k_dX1] = params[FlatTrd::k_dX3] = vol.bl;
+            params[FlatTrd::k_dX2] = params[FlatTrd::k_dX4] = vol.tl;
+            params[FlatTrd::k_Alp1] = params[FlatTrd::k_Alp2] = 0;
+            params[FlatTrd::k_Cell] = topology.dddConstants().cellSizeHex(type);
 
-	    buildGeom(params, ht3d, detId, geom, 1);
-	    counter++;
+            buildGeom(params, ht3d, detId, geom, 1);
+            counter++;
 #ifdef EDM_ML_DEBUG
-	    ++kount;
+            ++kount;
 #endif
-	  }
+          }
         }
         ++ring;
       }
@@ -178,10 +183,11 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
 
   if (counter != numberExpected) {
     if (test) {
-      edm::LogVerbatim("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells << " , inited " << counter;
+      edm::LogVerbatim("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells
+                                    << " , inited " << counter;
     } else {
       edm::LogError("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells
-				 << " , inited " << counter;
+                                 << " , inited " << counter;
       assert(counter == numberExpected);
     }
   }
