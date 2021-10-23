@@ -39,7 +39,6 @@ namespace edm {
     RootEmbeddedFileSequence(RootEmbeddedFileSequence const&) = delete;             // Disallow copying and moving
     RootEmbeddedFileSequence& operator=(RootEmbeddedFileSequence const&) = delete;  // Disallow copying and moving
 
-    void closeFile_() override;
     void endJob();
     void skipEntries(unsigned int offset);
     bool readOneEvent(
@@ -56,6 +55,7 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& desc);
 
   private:
+    void closeFile_() override;
     void initFile_(bool skipBadFiles) override;
     RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
 
