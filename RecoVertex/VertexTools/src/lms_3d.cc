@@ -1,4 +1,4 @@
-#include "CommonTools/Statistics/interface/lms_1d.icc"
+#include "CommonTools/Statistics/interface/lms_1d.h"
 #include "RecoVertex/VertexTools/interface/lms_3d.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <vector>
