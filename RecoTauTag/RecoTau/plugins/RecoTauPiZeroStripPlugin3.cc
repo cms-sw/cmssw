@@ -334,13 +334,15 @@ namespace reco {
       if (combineStrips_ && output.size() > 1) {
         PiZeroVector stripCombinations;
         // Sort the output by descending pt
-        output.sort(output.begin(), output.end(), [&](auto& arg1, auto& arg2) { return arg1.pt() > arg2.pt(); });
+        std::sort(output.begin(), output.end(), [&](auto& arg1, auto& arg2) { return arg1->pt() > arg2->pt(); });
         // Get the end of interesting set of strips to try and combine
         PiZeroVector::const_iterator end_iter = takeNElements(output.begin(), output.end(), maxStrips_);
 
         // Look at all the combinations
-        for (PiZeroVector::const_iterator first = output.begin(); first != end_iter - 1; ++first) {
-          for (PiZeroVector::const_iterator second = first + 1; second != end_iter; ++second) {
+        for (PiZeroVector::const_iterator firstIter = output.begin(); firstIter != end_iter - 1; ++firstIter) {
+          for (PiZeroVector::const_iterator secondIter = firstIter + 1; secondIter != end_iter; ++secondIter) {
+            auto const& first = *firstIter;
+            auto const& second = *secondIter;
             Candidate::LorentzVector firstP4 = first->p4();
             Candidate::LorentzVector secondP4 = second->p4();
             // If we assume a certain mass for each strip apply it here.
@@ -348,15 +350,15 @@ namespace reco {
             secondP4 = applyMassConstraint(secondP4, combinatoricStripMassHypo_);
             Candidate::LorentzVector totalP4 = firstP4 + secondP4;
             // Make our new combined strip
-            std::unique_ptr<RecoTauPiZero> combinedStrips(
-                new RecoTauPiZero(0,
-                                  totalP4,
-                                  Candidate::Point(0, 0, 0),
-                                  //111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
-                                  111,
-                                  10001,
-                                  true,
-                                  RecoTauPiZero::kUndefined));
+            auto combinedStrips =
+                std::make_unique<RecoTauPiZero>(0,
+                                                totalP4,
+                                                Candidate::Point(0, 0, 0),
+                                                //111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
+                                                111,
+                                                10001,
+                                                true,
+                                                RecoTauPiZero::kUndefined);
 
             // Now loop over the strip members
             for (auto const& gamma : first->daughterPtrVector()) {
@@ -376,12 +378,12 @@ namespace reco {
         }
         // When done doing all the combinations, add the combined strips to the
         // output.
-        output.transfer(output.end(), stripCombinations);
+        std::move(stripCombinations.begin(), stripCombinations.end(), std::back_inserter(output));
       }
 
       // Compute correction to account for spread of photon energy in eta and phi
       // in case charged pions make nuclear interactions or photons convert within the tracking detector
-      for (PiZeroVector::iterator strip = output.begin(); strip != output.end(); ++strip) {
+      for (auto const& strip : output) {
         double bendCorrEta = 0.;
         double bendCorrPhi = 0.;
         double energySum = 0.;
@@ -399,7 +401,7 @@ namespace reco {
         strip->setBendCorrPhi(bendCorrPhi);
       }
 
-      return output.release();
+      return output;
     }
   }  // namespace tau
 }  // namespace reco

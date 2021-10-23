@@ -46,7 +46,7 @@ namespace reco::tau {
       piZero->addDaughter(gamma);
       output.push_back(std::move(piZero));
     }
-    return output.release();
+    return output;
   }
 
 }  // namespace reco::tau
