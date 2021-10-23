@@ -160,7 +160,7 @@ namespace {
   }
 
   struct Cuts {
-    Cuts(const edm::ParameterSet& cfg) {
+    Cuts(const edm::ParameterSet& cfg, edm::ConsumesCollector) {
       isHLT = cfg.getParameter<bool>("isHLT");
       fillArrayF(minNdof, cfg, "minNdof");
       fillArrayF(maxChi2, cfg, "maxChi2");

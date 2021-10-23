@@ -14,8 +14,9 @@
 namespace {
   class TfDnn {
   public:
-    TfDnn(const edm::ParameterSet& cfg)
+    TfDnn(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
         : tfDnnLabel_(cfg.getParameter<std::string>("tfDnnLabel")),
+          tfDnnToken_(iC.esConsumes(edm::ESInputTag("", tfDnnLabel_))),
           session_(nullptr)
 
     {}
@@ -29,9 +30,7 @@ namespace {
 
     void initEvent(const edm::EventSetup& es) {
       if (session_ == nullptr) {
-        edm::ESHandle<TfGraphDefWrapper> tfDnnHandle;
-        es.get<TfGraphRecord>().get(tfDnnLabel_, tfDnnHandle);
-        session_ = tfDnnHandle.product()->getSession();
+        session_ = es.getData(tfDnnToken_).getSession();
       }
     }
 
@@ -95,6 +94,7 @@ namespace {
     }
 
     const std::string tfDnnLabel_;
+    const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
     const tensorflow::Session* session_;
   };
 
