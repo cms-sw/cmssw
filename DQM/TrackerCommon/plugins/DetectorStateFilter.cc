@@ -118,6 +118,8 @@ DetectorStateFilter::checkDCS(const T& DCS)
                                          << " TEC- " << checkSubdet(DCS, 5) << " TEC+ " << checkSubdet(DCS, 4)
                                          << " TIB/TID " << checkSubdet(DCS, 3) << " TOB " << checkSubdet(DCS, 2)
                                          << " Detector States " << accepted << std::endl;
+  } else {
+    throw cms::Exception("Wrong Configuration") << "Stated DetectorType '" << detectorType_ << "' is neither 'pixel' or 'sistrip', please check your configuration!";
   }
   return accepted;
 }

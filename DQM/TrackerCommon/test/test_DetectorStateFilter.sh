@@ -28,7 +28,7 @@ cmsRun ${LOCAL_TEST_DIR}/test_DetectorStateFilter_cfg.py maxEvents=10 isStrip=Tr
 pixelCounts=`countEvents outPixels_numEvent10.root`
 stripCounts=`countEvents outStrips_numEvent10.root`
 
-if [[ $pixelCounts -eq 0 ]]
+if [[ $pixelCounts -eq 10 ]]
 then
   echo "The number of events in the pixel filter file matches expectations ($pixelCounts)."
 else 

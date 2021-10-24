@@ -67,7 +67,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 # the module to be tested
 from DQM.TrackerCommon.TrackerFilterConfiguration_cfi import detectorStateFilter
-process.SiPixelFilter = detectorStateFilter.clone(DetectorType = 'sipixel')
+process.SiPixelFilter = detectorStateFilter.clone(DetectorType = 'pixel')
 process.SiStripFilter = detectorStateFilter.clone(DetectorType = 'sistrip')
 
 #process.analysis_step = cms.Path(process.detectorStateFilter)
