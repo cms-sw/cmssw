@@ -41,7 +41,6 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files)
 # ----------------------------------------------------------------------------------
 
 process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
-process.load( 'L1Trigger.TrackerDTC.ProducerES_cff' )
 process.dtc = cms.Path( process.TrackerDTCProducer )
 
 # ----------------------------------------------------------------------------------

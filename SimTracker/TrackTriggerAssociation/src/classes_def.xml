@@ -48,4 +48,15 @@
 
     <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > > >" />
 
+    <class name="std::vector<TPPtr>"/>
+    <class name="edm::Wrapper<std::vector<TPPtr>>"/>
+
+    <class name="tt::StubAssociation">
+        <field name="nullTPPtrs_" transient="true"/>
+        <field name="nullTTStubRefs_" transient="true"/>
+    </class>
+    <class name="std::map<TTStubRef, std::vector<TPPtr>>"/>
+    <class name="std::map<TPPtr, std::vector<TTStubRef>>"/>
+    <class name="edm::Wrapper<tt::StubAssociation>"/>
+
 </lcgdict>
