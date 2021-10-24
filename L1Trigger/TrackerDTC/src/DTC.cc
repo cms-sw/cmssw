@@ -7,39 +7,41 @@
 
 using namespace std;
 using namespace edm;
+using namespace tt;
 
 namespace trackerDTC {
 
   DTC::DTC(const ParameterSet& iConfig,
-           const Setup& setup,
+           const Setup* setup,
+           const LayerEncoding* layerEncoding,
            int dtcId,
            const std::vector<std::vector<TTStubRef>>& stubsDTC)
-      : setup_(&setup),
+      : setup_(setup),
         enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-        region_(dtcId / setup.numDTCsPerRegion()),
-        board_(dtcId % setup.numDTCsPerRegion()),
-        modules_(setup.dtcModules(dtcId)),
-        input_(setup.dtcNumRoutingBlocks(), Stubss(setup.dtcNumModulesPerRoutingBlock())),
-        lost_(setup.numOverlappingRegions()) {
+        region_(dtcId / setup->numDTCsPerRegion()),
+        board_(dtcId % setup->numDTCsPerRegion()),
+        modules_(setup->dtcModules(dtcId)),
+        input_(setup->dtcNumRoutingBlocks(), Stubss(setup->dtcNumModulesPerRoutingBlock())),
+        lost_(setup->numOverlappingRegions()) {
     // count number of stubs on this dtc
     auto acc = [](int& sum, const vector<TTStubRef>& stubsModule) { return sum += stubsModule.size(); };
     const int nStubs = accumulate(stubsDTC.begin(), stubsDTC.end(), 0, acc);
     stubs_.reserve(nStubs);
     // convert and assign Stubs to DTC routing block channel
-    for (int modId = 0; modId < setup.numModulesPerDTC(); modId++) {
+    for (int modId = 0; modId < setup->numModulesPerDTC(); modId++) {
       const vector<TTStubRef>& ttStubRefs = stubsDTC[modId];
       if (ttStubRefs.empty())
         continue;
       // Module which produced this ttStubRefs
       SensorModule* module = modules_.at(modId);
       // DTC routing block id [0-1]
-      const int blockId = modId / setup.dtcNumModulesPerRoutingBlock();
+      const int blockId = modId / setup->dtcNumModulesPerRoutingBlock();
       // DTC routing blockc  channel id [0-35]
-      const int channelId = modId % setup.dtcNumModulesPerRoutingBlock();
+      const int channelId = modId % setup->dtcNumModulesPerRoutingBlock();
       // convert TTStubs and fill input channel
       Stubs& stubs = input_[blockId][channelId];
       for (const TTStubRef& ttStubRef : ttStubRefs) {
-        stubs_.emplace_back(iConfig, setup, module, ttStubRef);
+        stubs_.emplace_back(iConfig, setup, layerEncoding, module, ttStubRef);
         Stub& stub = stubs_.back();
         if (stub.valid())
           // passed pt and eta cut
@@ -48,12 +50,12 @@ namespace trackerDTC {
       // sort stubs by bend
       sort(stubs.begin(), stubs.end(), [](Stub* lhs, Stub* rhs) { return abs(lhs->bend()) < abs(rhs->bend()); });
       // truncate stubs if desired
-      if (!enableTruncation_ || (int)stubs.size() <= setup.numFramesFE())
+      if (!enableTruncation_ || (int)stubs.size() <= setup->numFramesFE())
         continue;
       // begin of truncated stubs
-      const auto limit = next(stubs.begin(), setup.numFramesFE());
+      const auto limit = next(stubs.begin(), setup->numFramesFE());
       // copy truncated stubs into lost output channel
-      for (int region = 0; region < setup.numOverlappingRegions(); region++)
+      for (int region = 0; region < setup->numOverlappingRegions(); region++)
         copy_if(
             limit, stubs.end(), back_inserter(lost_[region]), [region](Stub* stub) { return stub->inRegion(region); });
       // remove truncated stubs form input channel
@@ -150,10 +152,10 @@ namespace trackerDTC {
   void DTC::produce(const Stubss& stubss, TTDTC& product) {
     int channel(0);
     auto toFrame = [&channel](Stub* stub) {
-      return stub ? make_pair(stub->ttStubRef(), stub->frame(channel)) : TTDTC::Frame();
+      return stub ? make_pair(stub->ttStubRef(), stub->frame(channel)) : FrameStub();
     };
     for (const Stubs& stubs : stubss) {
-      TTDTC::Stream stream;
+      StreamStub stream;
       stream.reserve(stubs.size());
       transform(stubs.begin(), stubs.end(), back_inserter(stream), toFrame);
       product.setStream(region_, board_, channel++, stream);

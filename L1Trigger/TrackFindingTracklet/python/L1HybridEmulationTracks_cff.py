@@ -9,6 +9,7 @@ from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
 # prompt hybrid emulation
 TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag(cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks") )
 
+L1TrackletTracks = cms.Sequence(offlineBeamSpot*TrackletTracksFromTrackletEmulation)
 L1HybridTracks = cms.Sequence(offlineBeamSpot*TTTracksFromTrackletEmulation)
 L1HybridTracksWithAssociators = cms.Sequence(offlineBeamSpot*TTTracksFromTrackletEmulation*TrackTriggerAssociatorTracks)
 

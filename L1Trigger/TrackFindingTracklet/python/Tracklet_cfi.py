@@ -20,7 +20,8 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                wiresFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/wires_hourglassExtended.dat'),
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(True),
-                                               TrackQualityPSet = cms.PSet(TrackQualityParams)
+                                               TrackQualityPSet = cms.PSet(TrackQualityParams),
+                                               Fakefit = cms.bool(False)
     )
 
 TTTracksFromExtendedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
@@ -44,3 +45,7 @@ TTTracksFromReducedTrackletEmulation = TTTracksFromTrackletEmulation.clone(
                                                wiresFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/reduced_wires.dat'),
     )
 
+# this is to run Tracklet pattern reco with new KF
+TrackletTracksFromTrackletEmulation = TTTracksFromTrackletEmulation.clone(
+                                               Fakefit = cms.bool(True)
+    )

@@ -240,6 +240,7 @@ namespace trklet {
     bool doKF() const { return doKF_; }
     bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
+    void setFakefit(bool fakefit) { fakefit_ = fakefit; }
 
     // configurable
     unsigned int nHelixPar() const { return nHelixPar_; }

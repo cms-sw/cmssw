@@ -52,7 +52,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
-#include "L1Trigger/TrackerDTC/interface/Setup.h"
+#include "L1Trigger/TrackTrigger/interface/Setup.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -182,9 +182,10 @@ private:
   edm::EDGetTokenT<TTDTC> tokenDTC_;
 
   // helper class to store DTC configuration
-  trackerDTC::Setup setup_;
+  tt::Setup setup_;
 
   // Setup token
+  const edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
   const edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetToken_;
   const edm::ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
@@ -239,7 +240,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   }
 
   // book ES product
-  esGetToken_ = esConsumes<trackerDTC::Setup, trackerDTC::SetupRcd, edm::Transition::BeginRun>();
+  esGetToken_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
 
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
@@ -253,6 +254,8 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   settings.setProcessingModulesFile(processingModulesFile.fullPath());
   settings.setMemoryModulesFile(memoryModulesFile.fullPath());
   settings.setWiresFile(wiresFile.fullPath());
+
+  settings.setFakefit(iConfig.getParameter<bool>("Fakefit"));
 
   if (extended_) {
     settings.setTableTEDFile(tableTEDFile.fullPath());
@@ -421,11 +424,11 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       dtcname += (channel < 24) ? "_A" : "_B";
 
       // Get the stubs from the DTC
-      const TTDTC::Stream& streamFromDTC{handleDTC->stream(region, channel)};
+      const tt::StreamStub& streamFromDTC{handleDTC->stream(region, channel)};
 
       // Prepare the DTC stubs for the IR
       for (size_t stubIndex = 0; stubIndex < streamFromDTC.size(); ++stubIndex) {
-        const TTDTC::Frame& stub{streamFromDTC[stubIndex]};
+        const tt::FrameStub& stub{streamFromDTC[stubIndex]};
 
         if (stub.first.isNull()) {
           continue;
