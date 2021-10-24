@@ -67,8 +67,11 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 # the module to be tested
 from DQM.TrackerCommon.TrackerFilterConfiguration_cfi import detectorStateFilter
-process.SiPixelFilter = detectorStateFilter.clone(DetectorType = 'pixel')
-process.SiStripFilter = detectorStateFilter.clone(DetectorType = 'sistrip')
+process.SiPixelFilter = detectorStateFilter.clone(DetectorType = 'pixel',
+                                                  DebugOn = True)
+
+process.SiStripFilter = detectorStateFilter.clone(DetectorType = 'sistrip',
+                                                  DebugOn = True)
 
 #process.analysis_step = cms.Path(process.detectorStateFilter)
 if(options.isStrip) :
