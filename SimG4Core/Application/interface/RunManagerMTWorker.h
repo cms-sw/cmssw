@@ -88,8 +88,6 @@ private:
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
 
-  int getThreadIndex() const { return m_thread_index; }
-
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::HepMCProduct> m_LHCToken;

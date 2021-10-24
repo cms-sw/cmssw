@@ -172,7 +172,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   //register any products
   auto& producers = m_runManagerWorker->producers();
   for (auto& ptr : producers) {
-    ptr->registerProducts(producesCollector());
+    ptr->registerProducers(producesCollector());
   }
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer is constructed";
 }
@@ -295,7 +295,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   auto& producers = m_runManagerWorker->producers();
   for (auto& prod : producers) {
-    prod->produce(e, es);
+    prod->produceData(e, es);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
   //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();

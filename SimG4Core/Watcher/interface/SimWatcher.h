@@ -33,8 +33,8 @@ public:
   SimWatcher() {}
   virtual ~SimWatcher() {}
 
-  virtual void registerProducts(edm::ProducesCollector &&) {}
-  virtual void produce(edm::Event &, const edm::EventSetup &) {}
+  virtual void registerProducers(edm::ProducesCollector &&){};
+  virtual void produceData(edm::Event &, const edm::EventSetup &){};
 
   SimWatcher(const SimWatcher &) = delete;
   const SimWatcher &operator=(const SimWatcher &) = delete;

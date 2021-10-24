@@ -81,7 +81,7 @@ namespace {
         throw edm::Exception(edm::errors::Configuration)
             << "Unable to find the requested Watcher <" << watcher.getParameter<std::string>("type");
       }
-      auto ptr = maker->make(watcher, *(iReg));
+      auto ptr = maker->makeWatcher(watcher, *(iReg));
       oWatchers.push_back(ptr);
     }
   }
@@ -118,13 +118,12 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, onlySDs);
   m_registry = std::make_unique<SimActivityRegistry>();
 
+  // Look for an outside SimActivityRegistry this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
-  //Look for an outside SimActivityRegistry
-  // this is used by the visualization code
-  int thisID = getThreadIndex();
+
   if (otherRegistry) {
     m_registry->connect(*otherRegistry);
-    if (thisID > 0) {
+    if (m_thread_index > 0) {
       throw edm::Exception(edm::errors::Configuration)
           << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. "
           << " \n If this use case is needed, RunManagerMTWorker has to be updated.";
@@ -147,7 +146,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
        ++itr, ++k)
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << thisID;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << m_thread_index;
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {}
@@ -162,8 +161,7 @@ void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
 }
 
 void RunManagerMTWorker::endRun() {
-  int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::endRun for the thread " << thisID;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::endRun for the thread " << m_thread_index;
   terminateRun();
 }
 
@@ -174,19 +172,20 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   G4Timer timer;
   timer.Start();
 
-  int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker::initializeThread " << m_thread_index << " is started";
 
   // Initialize per-thread output
-  G4Threading::G4SetThreadId(thisID);
-  G4UImanager::GetUIpointer()->SetUpForAThread(thisID);
+  G4Threading::G4SetThreadId(m_thread_index);
+  G4UImanager::GetUIpointer()->SetUpForAThread(m_thread_index);
   const std::string& uitype = m_pCustomUIsession.getUntrackedParameter<std::string>("Type", "MessageLogger");
   if (uitype == "MessageLogger") {
     new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID);
+    new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""),
+                                    m_thread_index);
   } else if (uitype == "FilePerThread") {
-    new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
+    new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), m_thread_index);
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid value of CustomUIsession.Type '" << uitype
@@ -243,14 +242,14 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_sensCaloDets.swap(sensDets.second);
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker: Sensitive Detectors are built in thread " << thisID << " found " << m_sensTkDets.size()
-      << " Tk type SD, and " << m_sensCaloDets.size() << " Calo type SD";
+      << "RunManagerMTWorker: Sensitive Detectors are built in thread " << m_thread_index << " found "
+      << m_sensTkDets.size() << " Tk type SD, and " << m_sensCaloDets.size() << " Calo type SD";
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker: start initialisation of PhysicsList for the thread " << thisID;
+      << "RunManagerMTWorker: start initialisation of PhysicsList for the thread " << m_thread_index;
 
   // Geant4 UI commands in PreInit state
   if (!runManagerMaster->G4Commands().empty()) {
@@ -268,7 +267,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   if (!m_kernel->RunInitialization()) {
     throw edm::Exception(edm::errors::Configuration)
-        << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << thisID;
+        << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << m_thread_index;
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
@@ -290,7 +289,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   timer.Stop();
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker::initializeThread done for the thread " << thisID << "  " << timer;
+      << "RunManagerMTWorker::initializeThread done for the thread " << m_thread_index << "  " << timer;
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -344,8 +343,7 @@ std::vector<SensitiveCaloDetector*>& RunManagerMTWorker::sensCaloDetectors() { r
 std::vector<SimWatcher*>& RunManagerMTWorker::producers() { return m_watchers; }
 
 void RunManagerMTWorker::initializeRun() {
-  int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeRun " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeRun " << m_thread_index << " is started";
   m_currentRun = new G4Run();
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
   if (nullptr != m_userRunAction) {
@@ -354,12 +352,10 @@ void RunManagerMTWorker::initializeRun() {
 }
 
 void RunManagerMTWorker::terminateRun() {
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun ";
   if (m_runTerminated) {
     return;
   }
-  int thisID = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun " << thisID << " is started";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun " << m_thread_index << " is started";
   if (nullptr != m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     m_userRunAction.reset();
@@ -420,7 +416,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
-        << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent->weight() << "; "
+        << " threadIndex=" << m_thread_index << " weight=" << m_simEvent->weight() << "; "
         << m_currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent->nGenParts() << " particles.";
 
@@ -469,7 +465,7 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   m_simEvent = nullptr;
 
   // 64 bits event ID in CMSSW converted into Geant4 event ID
-  G4int evtid = (G4int)inpevt.id().event();
+  G4int evtid = inpevt.id().event();
   G4Event* evt = new G4Event(evtid);
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;

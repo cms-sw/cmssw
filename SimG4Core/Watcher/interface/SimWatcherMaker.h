@@ -46,6 +46,12 @@ public:
     oProd = this->getSimProducer(returnValue.get(), returnValue);
   }
 
+  SimWatcher *makeWatcher(const edm::ParameterSet &p, SimActivityRegistry &reg) const override {
+    auto ptr = new T(p);
+    SimActivityRegistryEnroller::enroll(reg, ptr);
+    return ptr;
+  }
+
 private:
   std::shared_ptr<SimProducer> getSimProducer(SimProducer *, std::shared_ptr<T> &iProd) const {
     return std::shared_ptr<SimProducer>(iProd);

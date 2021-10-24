@@ -43,7 +43,7 @@ public:
                     std::shared_ptr<SimWatcher> &,
                     std::shared_ptr<SimProducer> &) const = 0;
 
-  virtual SimWatcher *make(const edm::ParameterSet &, SimActivityRegistry &) const { return nullptr; };
+  virtual SimWatcher *makeWatcher(const edm::ParameterSet &, SimActivityRegistry &) const { return nullptr; };
 };
 
 #endif

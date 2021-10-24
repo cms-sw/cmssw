@@ -65,9 +65,17 @@ class SimProducer : public SimWatcher {
 public:
   SimProducer() {}
 
-  void produce(edm::Event &, const edm::EventSetup &) override{};
+  void registerProducers(edm::ProducesCollector &&producesCollector) override { registerProducts(producesCollector); }
 
-  void registerProducts(edm::ProducesCollector &&producesCollector) override {
+  void produceData(edm::Event &evt, const edm::EventSetup &es) override { produce(evt, es); }
+
+  virtual void produce(edm::Event &, const edm::EventSetup &) = 0;
+
+  SimProducer(const SimProducer &) = delete;
+  const SimProducer &operator=(const SimProducer &) = delete;
+
+protected:
+  void registerProducts(edm::ProducesCollector producesCollector) {
     std::for_each(m_info.begin(),
                   m_info.end(),
                   [&producesCollector](std::shared_ptr<simproducer::ProductInfoBase> const &ptr) mutable {
@@ -75,10 +83,6 @@ public:
                   });
   }
 
-  SimProducer(const SimProducer &) = delete;
-  const SimProducer &operator=(const SimProducer &) = delete;
-
-protected:
   template <class T>
   void produces() {
     produces<T>("");
