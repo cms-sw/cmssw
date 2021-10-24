@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include <type_traits>  // for std::is_same
+
 class DetectorStateFilter : public edm::stream::EDFilter<> {
 public:
   DetectorStateFilter(const edm::ParameterSet&);
@@ -28,9 +30,21 @@ private:
   const edm::EDGetTokenT<DcsStatusCollection> dcsStatusLabel_;
   const edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
+  template <typename T>
+  bool checkSubdet(const T& DCS, const int index);
+  template <typename T>
+  bool checkDCS(const T& DCS);
+
   bool checkDCSStatus(const DcsStatusCollection& dcsStatus);
-  bool checkDCSRecord(const DCSRecord& dcsRecod);
+  bool checkDCSRecord(const DCSRecord& dcsRecord);
 };
+
+//
+// auxilliary enum
+//
+namespace DetStateFilter {
+  enum parts { BPix = 0, FPix = 1, TIBTID = 2, TOB = 3, TECp = 4, TECm = 5, Invalid };
+}
 
 //
 // -- Constructor
@@ -52,81 +66,72 @@ DetectorStateFilter::DetectorStateFilter(const edm::ParameterSet& pset)
 //
 DetectorStateFilter::~DetectorStateFilter() = default;
 
+template <typename T>
 //*********************************************************************//
-bool DetectorStateFilter::checkDCSStatus(const DcsStatusCollection& dcsStatus)
+bool DetectorStateFilter::checkSubdet(const T& DCS, const int index)
 //*********************************************************************//
 {
-  bool accepted = false;
-  if (detectorType_ == "pixel") {
-    if ((dcsStatus)[0].ready(DcsStatus::BPIX) && (dcsStatus)[0].ready(DcsStatus::FPIX)) {
-      accepted = true;
-      nSelectedEvents_++;
-    } else {
-      accepted = false;
-    }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " BPix " << (dcsStatus)[0].ready(DcsStatus::BPIX) << " FPix "
-                                         << (dcsStatus)[0].ready(DcsStatus::FPIX) << " Detector State " << accepted
-                                         << std::endl;
-  } else if (detectorType_ == "sistrip") {
-    if ((dcsStatus)[0].ready(DcsStatus::TIBTID) && (dcsStatus)[0].ready(DcsStatus::TOB) &&
-        (dcsStatus)[0].ready(DcsStatus::TECp) && (dcsStatus)[0].ready(DcsStatus::TECm)) {
-      accepted = true;
-      nSelectedEvents_++;
-    } else {
-      accepted = false;
-    }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " TEC- " << (dcsStatus)[0].ready(DcsStatus::TECm) << " TEC+ "
-                                         << (dcsStatus)[0].ready(DcsStatus::TECp) << " TIB/TID "
-                                         << (dcsStatus)[0].ready(DcsStatus::TIBTID) << " TOB "
-                                         << (dcsStatus)[0].ready(DcsStatus::TOB) << " Detector States " << accepted
-                                         << std::endl;
+  std::vector<int> dcsStatusParts = {
+      DcsStatus::BPIX, DcsStatus::FPIX, DcsStatus::TIBTID, DcsStatus::TOB, DcsStatus::TECp, DcsStatus::TECm};
+
+  std::vector<DCSRecord::Partition> dcsRecordParts = {DCSRecord::Partition::BPIX,
+                                                      DCSRecord::Partition::FPIX,
+                                                      DCSRecord::Partition::TIBTID,
+                                                      DCSRecord::Partition::TOB,
+                                                      DCSRecord::Partition::TECp,
+                                                      DCSRecord::Partition::TECm};
+
+  if constexpr (std::is_same_v<T, DcsStatusCollection>) {
+    return (DCS)[0].ready(dcsStatusParts[index]);
+  } else if constexpr (std::is_same_v<T, DCSRecord>) {
+    return DCS.highVoltageReady(dcsRecordParts[index]);
+  } else {
+    edm::LogError("DetectorStatusFilter")
+        << __FILE__ << " " << __LINE__ << " passed a wrong object type, cannot deduce DCS information.\n"
+        << " returning true" << std::endl;
+    return true;
   }
-  return accepted;
 }
 
+template <typename T>
+bool
 //*********************************************************************//
-bool DetectorStateFilter::checkDCSRecord(const DCSRecord& dcsRecord)
+DetectorStateFilter::checkDCS(const T& DCS)
 //*********************************************************************//
 {
   bool accepted = false;
   if (detectorType_ == "pixel") {
-    if (dcsRecord.highVoltageReady(DCSRecord::Partition::BPIX) &&
-        dcsRecord.highVoltageReady(DCSRecord::Partition::FPIX)) {
+    if (checkSubdet(DCS, DetStateFilter::BPix) && checkSubdet(DCS, DetStateFilter::FPix)) {
       accepted = true;
       nSelectedEvents_++;
     } else {
       accepted = false;
     }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " BPix " << dcsRecord.highVoltageReady(DCSRecord::Partition::BPIX)
-                                         << " FPix " << dcsRecord.highVoltageReady(DCSRecord::Partition::FPIX)
-                                         << " Detector State " << accepted << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " BPix " << checkSubdet(DCS, DetStateFilter::BPix) << " FPix " << checkSubdet(DCS, DetStateFilter::FPix)
+          << " Detector State " << accepted << std::endl;
+    }
   } else if (detectorType_ == "sistrip") {
-    if (dcsRecord.highVoltageReady(DCSRecord::Partition::TIBTID) &&
-        dcsRecord.highVoltageReady(DCSRecord::Partition::TOB) &&
-        dcsRecord.highVoltageReady(DCSRecord::Partition::TECp) &&
-        dcsRecord.highVoltageReady(DCSRecord::Partition::TECm)) {
+    if (checkSubdet(DCS, DetStateFilter::TIBTID) && checkSubdet(DCS, DetStateFilter::TOB) &&
+        checkSubdet(DCS, DetStateFilter::TECp) && checkSubdet(DCS, DetStateFilter::TECm)) {
       accepted = true;
       nSelectedEvents_++;
     } else {
       accepted = false;
     }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " TEC- " << dcsRecord.highVoltageReady(DCSRecord::Partition::TECm)
-                                         << " TEC+ " << dcsRecord.highVoltageReady(DCSRecord::Partition::TECp)
-                                         << " TIB/TID " << dcsRecord.highVoltageReady(DCSRecord::Partition::TIBTID)
-                                         << " TOB " << dcsRecord.highVoltageReady(DCSRecord::Partition::TOB)
-                                         << " Detector States " << accepted << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " TEC- " << checkSubdet(DCS, DetStateFilter::TECm) << " TEC+ " << checkSubdet(DCS, DetStateFilter::TECp)
+          << " TIB/TID " << checkSubdet(DCS, DetStateFilter::TIBTID) << " TOB " << checkSubdet(DCS, DetStateFilter::TOB)
+          << " Detector States " << accepted << std::endl;
+    }
+  } else {
+    throw cms::Exception("Wrong Configuration")
+        << "Stated DetectorType '" << detectorType_
+        << "' is neither 'pixel' or 'sistrip', please check your configuration!";
   }
   return accepted;
 }
@@ -145,10 +150,10 @@ bool DetectorStateFilter::filter(edm::Event& evt, edm::EventSetup const& es)
 
     if (dcsStatus.isValid() && !dcsStatus->empty()) {
       // if the old style DCS status is valid (Run1 + Run2)
-      detectorOn_ = checkDCSStatus(*dcsStatus);
+      detectorOn_ = checkDCS(*dcsStatus);
     } else if (dcsRecord.isValid()) {
       // in case of real data check for DCSRecord content (Run >=3)
-      detectorOn_ = checkDCSRecord(*dcsRecord);
+      detectorOn_ = checkDCS(*dcsRecord);
     } else {
       edm::LogError("DetectorStatusFilter")
           << "Error! can't get the products, neither DCSRecord, nor scalersRawToDigi: accept in any case!";
@@ -157,9 +162,10 @@ bool DetectorStateFilter::filter(edm::Event& evt, edm::EventSetup const& es)
   } else {
     detectorOn_ = true;
     nSelectedEvents_++;
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " Detector States " << detectorOn_ << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_
+                                           << " Detector States " << detectorOn_ << std::endl;
+    }
   }
   return detectorOn_;
 }
