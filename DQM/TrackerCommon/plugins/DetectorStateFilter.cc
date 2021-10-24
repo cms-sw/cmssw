@@ -40,6 +40,13 @@ private:
 };
 
 //
+// auxilliary enum
+//
+namespace DetStateFilter {
+  enum parts { BPix = 0, FPix = 1, TIBTID = 2, TOB = 3, TECp = 4, TECm = 5, Invalid };
+}
+
+//
 // -- Constructor
 //
 DetectorStateFilter::DetectorStateFilter(const edm::ParameterSet& pset)
@@ -79,9 +86,9 @@ bool DetectorStateFilter::checkSubdet(const T& DCS, const int index)
   } else if constexpr (std::is_same_v<T, DCSRecord>) {
     return DCS.highVoltageReady(dcsRecordParts[index]);
   } else {
-    edm::LogError("DetectorStatusFilter") << __FILE__ << " " << __LINE__
-					  << " passed a wrong object type, cannot deduce DCS information.\n"
-					  << " returning true" << std::endl;
+    edm::LogError("DetectorStatusFilter")
+        << __FILE__ << " " << __LINE__ << " passed a wrong object type, cannot deduce DCS information.\n"
+        << " returning true" << std::endl;
     return true;
   }
 }
@@ -94,32 +101,37 @@ DetectorStateFilter::checkDCS(const T& DCS)
 {
   bool accepted = false;
   if (detectorType_ == "pixel") {
-    if (checkSubdet(DCS, 0) && checkSubdet(DCS, 1)) {
+    if (checkSubdet(DCS, DetStateFilter::BPix) && checkSubdet(DCS, DetStateFilter::FPix)) {
       accepted = true;
       nSelectedEvents_++;
     } else {
       accepted = false;
     }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " BPix " << checkSubdet(DCS, 0) << " FPix " << checkSubdet(DCS, 1)
-                                         << " Detector State " << accepted << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " BPix " << checkSubdet(DCS, DetStateFilter::BPix) << " FPix " << checkSubdet(DCS, DetStateFilter::FPix)
+          << " Detector State " << accepted << std::endl;
+    }
   } else if (detectorType_ == "sistrip") {
-    if (checkSubdet(DCS, 2) && checkSubdet(DCS, 3) && checkSubdet(DCS, 4) && checkSubdet(DCS, 5)) {
+    if (checkSubdet(DCS, DetStateFilter::TIBTID) && checkSubdet(DCS, DetStateFilter::TOB) &&
+        checkSubdet(DCS, DetStateFilter::TECp) && checkSubdet(DCS, DetStateFilter::TECm)) {
       accepted = true;
       nSelectedEvents_++;
     } else {
       accepted = false;
     }
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " DCS States : "
-                                         << " TEC- " << checkSubdet(DCS, 5) << " TEC+ " << checkSubdet(DCS, 4)
-                                         << " TIB/TID " << checkSubdet(DCS, 3) << " TOB " << checkSubdet(DCS, 2)
-                                         << " Detector States " << accepted << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " TEC- " << checkSubdet(DCS, DetStateFilter::TECm) << " TEC+ " << checkSubdet(DCS, DetStateFilter::TECp)
+          << " TIB/TID " << checkSubdet(DCS, DetStateFilter::TIBTID) << " TOB " << checkSubdet(DCS, DetStateFilter::TOB)
+          << " Detector States " << accepted << std::endl;
+    }
   } else {
-    throw cms::Exception("Wrong Configuration") << "Stated DetectorType '" << detectorType_ << "' is neither 'pixel' or 'sistrip', please check your configuration!";
+    throw cms::Exception("Wrong Configuration")
+        << "Stated DetectorType '" << detectorType_
+        << "' is neither 'pixel' or 'sistrip', please check your configuration!";
   }
   return accepted;
 }
@@ -150,9 +162,10 @@ bool DetectorStateFilter::filter(edm::Event& evt, edm::EventSetup const& es)
   } else {
     detectorOn_ = true;
     nSelectedEvents_++;
-    //if (verbose_)
-    edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_
-                                         << " Detector States " << detectorOn_ << std::endl;
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter") << "Total MC Events " << nEvents_ << " Selected Events " << nSelectedEvents_
+                                           << " Detector States " << detectorOn_ << std::endl;
+    }
   }
   return detectorOn_;
 }
