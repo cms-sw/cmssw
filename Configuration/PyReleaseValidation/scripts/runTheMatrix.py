@@ -81,12 +81,13 @@ if __name__ == '__main__':
                      1306.0, #SingleMu Pt1 UP15
                      1325.81, #test NanoAOD from existing MINI UL 106Xv1
                      136.8523, #test NanoAOD from existing reMINI UL 106Xv2
-                     1330, #Run2 MC Zmm
-                     135.4, #Run 2 Zee ttbar
+                     1330, #Run2 2015/2016 MC Zmm
+                     135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
+                     2018.1, #2018 ttbar fastsim
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.912, #2021 DD4hep ttbar reading geometry from the DB
                      11634.0, #2021 ttbar
