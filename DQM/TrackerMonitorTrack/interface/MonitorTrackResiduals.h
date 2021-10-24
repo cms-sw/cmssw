@@ -85,6 +85,7 @@ private:
 
   unsigned long long m_cacheID_;
   bool ModOn;
+  bool applyVertexCut_;
 
   GenericTriggerEventFlag *genTriggerEventFlag_;
   TrackerValidationVariables avalidator_;

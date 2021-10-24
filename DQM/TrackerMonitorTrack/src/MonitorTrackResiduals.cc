@@ -22,6 +22,7 @@ MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
       avalidator_(iConfig, consumesCollector()) {
+  applyVertexCut_ = conf_.getUntrackedParameter<bool>("VertexCut", true);
   ModOn = conf_.getParameter<bool>("Mod_On");
   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
 }
@@ -235,10 +236,11 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event &iEvent
     return;
 
   edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-  if (!vertices.isValid() || vertices->empty())
-    return;
-  const auto primaryVertex = vertices->at(0);
+  if (applyVertexCut_) {
+    iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+    if (!vertices.isValid() || vertices->empty())
+      return;
+  }
 
   // Retrieve tracker topology from geometry
   const TrackerTopology *const tTopo = &iSetup.getData(trackerTopologyEventToken_);
@@ -248,7 +250,8 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event &iEvent
       iSetup,
       // tell the validator to only look at good tracks
       [&](const reco::Track &track) -> bool {
-        return track.pt() > 0.75 && abs(track.dxy(primaryVertex.position())) < 5 * track.dxyError();
+        return (!applyVertexCut_ ||
+                (track.pt() > 0.75 && abs(track.dxy(vertices->at(0).position())) < 5 * track.dxyError()));
       },
       vtracks);
 
