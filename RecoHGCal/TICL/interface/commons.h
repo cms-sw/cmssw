@@ -64,6 +64,7 @@ namespace ticl {
 
     tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(pdgId, charge), 1.f);
     tmpTrackster.setRegressedEnergy(energy);
+    tmpTrackster.setIteration(ticl::Trackster::SIM);
     tmpTrackster.setSeed(seed, index);
     result.emplace_back(tmpTrackster);
   }
