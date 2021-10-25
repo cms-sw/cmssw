@@ -618,7 +618,7 @@ namespace pixelgpudetails {
           digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
-      threadsPerBlock = 256;
+      threadsPerBlock = 256 + 128;  /// should be larger than 6000/16 aka (maxPixInModule/maxiter in the kernel)
       blocks = maxNumModules;
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
