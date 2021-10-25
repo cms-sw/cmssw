@@ -37,23 +37,22 @@
 
 // constructors and destructor
 L1TPhase2OuterTrackerTkMET::L1TPhase2OuterTrackerTkMET(const edm::ParameterSet& iConfig)
-  : conf_(iConfig),
-    m_topoToken(esConsumes()) {
-      topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-      ttTrackToken_ =
-        consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(conf_.getParameter<edm::InputTag>("TTTracksTag"));
-      pvToken = consumes<l1t::TkPrimaryVertexCollection>(conf_.getParameter<edm::InputTag>("L1VertexInputTag"));
-  
-      maxZ0 = conf_.getParameter<double>("maxZ0");
-      DeltaZ = conf_.getParameter<double>("DeltaZ");
-      chi2dofMax = conf_.getParameter<double>("chi2dofMax");
-      bendchi2Max = conf_.getParameter<double>("bendchi2Max");
-      minPt = conf_.getParameter<double>("minPt");
-      nStubsmin = iConfig.getParameter<int>("nStubsmin");
-      nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
-      maxPt = conf_.getParameter<double>("maxPt");
-      maxEta = conf_.getParameter<double>("maxEta");
-      HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
+    : conf_(iConfig), m_topoToken(esConsumes()) {
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  ttTrackToken_ =
+      consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(conf_.getParameter<edm::InputTag>("TTTracksTag"));
+  pvToken = consumes<l1t::TkPrimaryVertexCollection>(conf_.getParameter<edm::InputTag>("L1VertexInputTag"));
+
+  maxZ0 = conf_.getParameter<double>("maxZ0");
+  DeltaZ = conf_.getParameter<double>("DeltaZ");
+  chi2dofMax = conf_.getParameter<double>("chi2dofMax");
+  bendchi2Max = conf_.getParameter<double>("bendchi2Max");
+  minPt = conf_.getParameter<double>("minPt");
+  nStubsmin = iConfig.getParameter<int>("nStubsmin");
+  nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
+  maxPt = conf_.getParameter<double>("maxPt");
+  maxEta = conf_.getParameter<double>("maxEta");
+  HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
 }
 
 L1TPhase2OuterTrackerTkMET::~L1TPhase2OuterTrackerTkMET() {
@@ -74,7 +73,7 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
 
   // for PS stubs
   // Tracker Topology
-  const TrackerTopology *const tTopo = &iSetup.getData(m_topoToken);
+  const TrackerTopology* const tTopo = &iSetup.getData(m_topoToken);
 
   // Adding protection
   if (!TTTrackHandle.isValid()) {
