@@ -263,19 +263,21 @@ void EHcalVsRho::Init(TChain *tree, const char* dupFile) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infile(dupFile);
-  if (!infile.is_open()) {
-    std::cout << "Cannot open " << dupFile << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infile >> jentry;
-      if (!infile.good()) break;
-      entries_.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infile(dupFile);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open " << dupFile << std::endl;
+    } else {
+      while (1) {
+	Long64_t jentry;
+	infile >> jentry;
+	if (!infile.good()) break;
+	entries_.push_back(jentry);
+      }
+      infile.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " 
+		<< dupFile << std::endl;
     }
-    infile.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " 
-              << dupFile << std::endl;
   }
 }
 
