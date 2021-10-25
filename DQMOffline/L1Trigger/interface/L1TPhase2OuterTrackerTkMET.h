@@ -40,7 +40,7 @@ public:
 
 private:
   edm::ParameterSet conf_;
-  // edm::EDGetTokenT< l1t::VertexCollection > pvToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   edm::EDGetTokenT<l1t::TkPrimaryVertexCollection> pvToken;
   edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > ttTrackToken_;
 
