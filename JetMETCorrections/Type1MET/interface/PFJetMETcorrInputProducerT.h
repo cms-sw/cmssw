@@ -61,6 +61,21 @@ namespace PFJetMETcorrInputProducer_namespace {
     reco::Candidate::LorentzVector operator()(const T& jet) const { return jet.p4(); }
   };
 
+  // functor to retrieve JER factors of jets
+  // only possible for pat::Jets because of their userFloat ability
+  // therefore general template just returns 1
+  // specialized template for pat::Jets returns desired userFloat value if available
+  template <typename T>
+  class RetrieveJerT
+  {
+    public:
+      RetrieveJerT(){}
+      float operator()(const T& jet) const
+      {
+        return 1.0;
+      }
+  };
+
 }  // namespace PFJetMETcorrInputProducer_namespace
 
 template <typename T, typename Textractor>
@@ -196,6 +211,9 @@ private:
         corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
         corrJetP4 = jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      // retrieve JER factors in case of pat::Jets (done via specialized template defined for pat::Jets) and apply it
+      const static PFJetMETcorrInputProducer_namespace::RetrieveJerT<T> retrieveJER{};
+      corrJetP4*=retrieveJER(jet);
 
       if (corrJetP4.pt() > type1JetPtThreshold_) {
         reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;

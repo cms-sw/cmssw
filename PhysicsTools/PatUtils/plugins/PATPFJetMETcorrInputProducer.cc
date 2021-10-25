@@ -16,17 +16,43 @@ namespace PFJetMETcorrInputProducer_namespace {
     bool isPatJet(const pat::Jet& jet) const { return true; }
   };
 
+  // template specialization for pat::Jets
+  // remove JER correction if JER factor was saved as userFloat previously
   template <>
   class RawJetExtractorT<pat::Jet> {
   public:
     RawJetExtractorT() {}
     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const {
+      reco::Candidate::LorentzVector uncorrected_jet;
       if (jet.jecSetsAvailable())
-        return jet.correctedP4("Uncorrected");
+        uncorrected_jet = jet.correctedP4("Uncorrected");
       else
-        return jet.p4();
+        uncorrected_jet = jet.p4();
+      // remove JER correction factor from pat::Jets
+      if(jet.hasUserFloat("SmearFactor")) {
+           uncorrected_jet*=(1.0/jet.userFloat("SmearFactor"));
+      }
+      return uncorrected_jet;
     }
   };
+
+  // template specialization for pat::Jets
+  // retrieve JER factor if it was saved previously
+  // otherwise just return 1
+  template <>
+  class RetrieveJerT<pat::Jet>
+  {
+    public:
+      RetrieveJerT(){}
+      float operator()(const pat::Jet& jet) const
+      {
+        if(jet.hasUserFloat("SmearFactor")) {
+            return jet.userFloat("SmearFactor");
+        }
+        else return 1.0;
+      }
+  };
+
 }  // namespace PFJetMETcorrInputProducer_namespace
 
 typedef PFJetMETcorrInputProducerT<pat::Jet, PATJetCorrExtractor> PATPFJetMETcorrInputProducer;
