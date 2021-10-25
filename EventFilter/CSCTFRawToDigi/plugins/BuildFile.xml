@@ -1,5 +1,9 @@
 <use name="CondFormats/CSCObjects"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1CSCTrackFinder"/>
 <use name="EventFilter/CSCTFRawToDigi"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <library file="*.cc" name="EventFilterCSCTFRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
