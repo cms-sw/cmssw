@@ -128,7 +128,7 @@ void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventS
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
+    poolDbService->writeOneIOV(*theAPVGains, poolDbService->currentTime(), m_Record);
   else
     throw std::runtime_error("PoolDBService required.");
 }

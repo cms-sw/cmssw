@@ -85,7 +85,7 @@ void CTPPSRPAlignmentInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::
   const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCTPPSRPAlignmentCorrectionsData, iov_, record_);
+    poolDbService->writeOneIOV(*pCTPPSRPAlignmentCorrectionsData, iov_, record_);
   }
 }
 

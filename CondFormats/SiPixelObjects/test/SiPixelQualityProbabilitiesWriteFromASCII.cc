@@ -127,7 +127,7 @@ void SiPixelQualityProbabilitiesWriteFromASCII::endJob() {
   if (poolDbService.isAvailable()) {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myProbabilities, valid_time, m_record);
+    poolDbService->writeOneIOV(*myProbabilities, valid_time, m_record);
   }
 }
 

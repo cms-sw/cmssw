@@ -207,18 +207,16 @@ void BeamSpotOnlineRecordsWriter::endJob() {
       edm::LogPrint("BeamSpotOnlineRecordsWriter") << "new tag requested";
       if (fuseNewSince) {
         edm::LogPrint("BeamSpotOnlineRecordsWriter") << "Using a new Since: " << fnewSince;
-        poolDbService->createNewIOV<BeamSpotOnlineObjects>(
-            abeam.release(), fnewSince, poolDbService->endOfTime(), fLabel);
+        poolDbService->createOneIOV<BeamSpotOnlineObjects>(*abeam, fnewSince, fLabel);
       } else
-        poolDbService->createNewIOV<BeamSpotOnlineObjects>(
-            abeam.release(), poolDbService->beginOfTime(), poolDbService->endOfTime(), fLabel);
+        poolDbService->createOneIOV<BeamSpotOnlineObjects>(*abeam, poolDbService->beginOfTime(), fLabel);
     } else {
       edm::LogPrint("BeamSpotOnlineRecordsWriter") << "no new tag requested";
       if (fuseNewSince) {
         edm::LogPrint("BeamSpotOnlineRecordsWriter") << "Using a new Since: " << fnewSince;
-        poolDbService->appendSinceTime<BeamSpotOnlineObjects>(abeam.release(), fnewSince, fLabel);
+        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(*abeam, fnewSince, fLabel);
       } else
-        poolDbService->appendSinceTime<BeamSpotOnlineObjects>(abeam.release(), poolDbService->currentTime(), fLabel);
+        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(*abeam, poolDbService->currentTime(), fLabel);
     }
   }
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << "[BeamSpotOnlineRecordsWriter] endJob done \n";
