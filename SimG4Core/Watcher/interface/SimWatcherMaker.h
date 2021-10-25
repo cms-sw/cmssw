@@ -26,25 +26,10 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 #include "SimG4Core/Watcher/interface/SimWatcherMakerBase.h"
 
-// forward declarations
-
 template <class T>
 class SimWatcherMaker : public SimWatcherMakerBase {
 public:
   SimWatcherMaker() {}
-
-  // ---------- const member functions ---------------------
-  void make(const edm::ParameterSet &p,
-            SimActivityRegistry &reg,
-            std::shared_ptr<SimWatcher> &oWatcher,
-            std::shared_ptr<SimProducer> &oProd) const override {
-    auto returnValue = std::make_shared<T>(p);
-    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-    oWatcher = returnValue;
-
-    // If this is also a SimProducer, set the value
-    oProd = this->getSimProducer(returnValue.get(), returnValue);
-  }
 
   SimWatcher *makeWatcher(const edm::ParameterSet &p, SimActivityRegistry &reg) const override {
     auto ptr = new T(p);

@@ -71,19 +71,44 @@ namespace {
 
   int get_new_thread_index() { return thread_counter++; }
 
-  void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry* iReg, std::vector<SimWatcher*>& oWatchers) {
+  bool createWatchers(const edm::ParameterSet& iP,
+                      SimActivityRegistry* iReg,
+                      std::vector<SimWatcher*>& oWatchers,
+                      int threadID) {
     std::vector<edm::ParameterSet> watchers = iP.getParameter<std::vector<edm::ParameterSet>>("Watchers");
-
-    for (auto& watcher : watchers) {
-      std::unique_ptr<SimWatcherMakerBase> maker(
-          SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
-      if (maker == nullptr) {
-        throw edm::Exception(edm::errors::Configuration)
-            << "Unable to find the requested Watcher <" << watcher.getParameter<std::string>("type");
+    std::vector<edm::ParameterSet> watchersMT = iP.getParameter<std::vector<edm::ParameterSet>>("MTWatchers");
+    bool result(false);
+    if (!watchers.empty() && 0 == threadID) {
+      for (auto& watcher : watchers) {
+        std::unique_ptr<SimWatcherMakerBase> maker(
+            SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
+        if (maker == nullptr) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "Unable to find the requested Watcher <" << watcher.getParameter<std::string>("type");
+        }
+        auto ptr = maker->makeWatcher(watcher, *(iReg));
+        if (nullptr != ptr) {
+          oWatchers.push_back(ptr);
+          result = true;
+        }
       }
-      auto ptr = maker->makeWatcher(watcher, *(iReg));
-      oWatchers.push_back(ptr);
     }
+    if (!watchersMT.empty()) {
+      for (auto& watcher : watchersMT) {
+        std::unique_ptr<SimWatcherMakerBase> maker(
+            SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
+        if (maker == nullptr) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "Unable to find the requested Watcher <" << watcher.getParameter<std::string>("type");
+        }
+        auto ptr = maker->makeWatcher(watcher, *(iReg));
+        if (nullptr != ptr) {
+          oWatchers.push_back(ptr);
+          result = true;
+        }
+      }
+    }
+    return result;
   }
 }  // namespace
 
@@ -113,26 +138,18 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
       m_p(iConfig) {
   std::vector<std::string> onlySDs = iConfig.getParameter<std::vector<std::string>>("OnlySDs");
-  std::vector<edm::ParameterSet> watchers = iConfig.getParameter<std::vector<edm::ParameterSet>>("Watchers");
 
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, iC, onlySDs);
   m_registry = std::make_unique<SimActivityRegistry>();
 
   // Look for an outside SimActivityRegistry this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
-
-  if (otherRegistry) {
+  if (otherRegistry && 0 == m_thread_index) {
     m_registry->connect(*otherRegistry);
-    if (m_thread_index > 0) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. "
-          << " \n If this use case is needed, RunManagerMTWorker has to be updated.";
-    }
   }
-  m_hasWatchers = !watchers.empty();
-  if (m_hasWatchers) {
-    createWatchers(m_p, m_registry.get(), m_watchers);
-  }
+
+  m_hasWatchers = createWatchers(m_p, m_registry.get(), m_watchers, m_thread_index);
+
   if (m_LHCTransport) {
     m_LHCToken = iC.consumes<edm::HepMCProduct>(edm::InputTag("LHCTransport"));
   }
