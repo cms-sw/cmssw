@@ -63,10 +63,12 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       denominator = 1;
     }
 
-    // check Pt/Eta bin
-    reco::Jet recoJet = *jet;
-    if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
-      jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
+    // only fill with valid discriminator values
+    if (numerator >= 0 && denominator >= 0) {
+      reco::Jet recoJet = *jet;
+      if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
+        jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
+      }
     }
 
     // fill JetMultiplicity
