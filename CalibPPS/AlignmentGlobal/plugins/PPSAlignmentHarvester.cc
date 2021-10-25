@@ -23,6 +23,8 @@
 #include "CondFormats/PPSObjects/interface/PPSAlignmentConfiguration.h"
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
 
+#include "CalibPPS/AlignmentGlobal/interface/utils.h"
+
 #include <memory>
 #include <map>
 #include <vector>
@@ -61,13 +63,6 @@ private:
                  edm::EventSetup const& iSetup) override;
 
   // ------------ x alignment ------------
-  static int fitProfile(TProfile* p,
-                        double x_mean,
-                        double x_rms,
-                        unsigned int fitProfileMinBinEntries,
-                        unsigned int fitProfileMinNReasonable,
-                        double& sl,
-                        double& sl_unc);
   std::unique_ptr<TGraphErrors> buildGraphFromVector(const std::vector<PPSAlignmentConfiguration::PointErrors>& pv);
   std::unique_ptr<TGraphErrors> buildGraphFromMonitorElements(DQMStore::IGetter& iGetter,
                                                               const PPSAlignmentConfiguration::RPConfig& rpc,
@@ -326,40 +321,6 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
 
 // -------------------------------- x alignment methods --------------------------------
 
-// Fits a linear function to a TProfile (similar method in PPSAlignmentConfigurationESSource).
-int PPSAlignmentHarvester::fitProfile(TProfile* p,
-                                      double x_mean,
-                                      double x_rms,
-                                      unsigned int fitProfileMinBinEntries,
-                                      unsigned int fitProfileMinNReasonable,
-                                      double& sl,
-                                      double& sl_unc) {
-  unsigned int n_reasonable = 0;
-  for (int bi = 1; bi <= p->GetNbinsX(); bi++) {
-    if (p->GetBinEntries(bi) < fitProfileMinBinEntries) {
-      p->SetBinContent(bi, 0.);
-      p->SetBinError(bi, 0.);
-    } else {
-      n_reasonable++;
-    }
-  }
-
-  if (n_reasonable < fitProfileMinNReasonable)
-    return 1;
-
-  double x_min = x_mean - x_rms, x_max = x_mean + x_rms;
-
-  auto ff_pol1 = std::make_unique<TF1>("ff_pol1", "[0] + [1]*x");
-
-  ff_pol1->SetParameter(0., 0.);
-  p->Fit(ff_pol1.get(), "Q", "", x_min, x_max);
-
-  sl = ff_pol1->GetParameter(1);
-  sl_unc = ff_pol1->GetParError(1);
-
-  return 0;
-}
-
 // Builds graph from a vector of points (with errors).
 std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromVector(
     const std::vector<PPSAlignmentConfiguration::PointErrors>& pv) {
@@ -412,8 +373,8 @@ std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromMonitorElemen
       y_width *= rpc.y_width_mult_;
 
       double sl = 0., sl_unc = 0.;
-      int fr =
-          fitProfile(p_y_diffFN_vs_y, y_cen, y_width, fitProfileMinBinEntries, fitProfileMinNReasonable, sl, sl_unc);
+      int fr = alig_utils::fitProfile(
+          p_y_diffFN_vs_y, y_cen, y_width, fitProfileMinBinEntries, fitProfileMinNReasonable, sl, sl_unc);
       if (fr != 0)
         continue;
 
