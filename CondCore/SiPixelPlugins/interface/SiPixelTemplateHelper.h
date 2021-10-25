@@ -242,7 +242,10 @@ namespace templateHelper {
           h2_Header->GetXaxis()->SetBinLabel(idx, "");
 
           for (unsigned int iy = 1; iy <= 12; iy++) {
-            if (tempValue.head.Dtype != 0 || uH < 0) {
+            // Some of the Phase-2 templates have DType = 0 for all partitions (TBPX, TEPX, TFPX)
+            // so they are distinguished by the uH strength value (<0).
+            // To avoid changing the behaviour of 0T payload (uH=-99) that case is treated separately
+            if (tempValue.head.Dtype != 0 || (uH < 0 && uH > -99)) {
               h2_ghost->SetBinContent(idx, iy, 1);
             } else {
               h2_ghost->SetBinContent(idx, iy, -1);
@@ -337,13 +340,11 @@ namespace templateHelper {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
         if (myType == SiPixelPI::t_barrel) {
-          theMaps.bookBarrelHistograms(barrelName_, title_.c_str(), title_.c_str());
           // book the barrel bins of the TH2Poly
-          theMaps.bookBarrelBins(barrelName_);
+          theMaps.bookBarrelHistograms(barrelName_, title_.c_str(), title_.c_str());
         } else if (myType == SiPixelPI::t_forward) {
-          theMaps.bookForwardHistograms(endcapName_, title_.c_str(), title_.c_str());
           // book the forward bins of the TH2Poly
-          theMaps.bookForwardBins(endcapName_);
+          theMaps.bookForwardHistograms(endcapName_, title_.c_str(), title_.c_str());
         }
 
         std::map<unsigned int, short> templMap;

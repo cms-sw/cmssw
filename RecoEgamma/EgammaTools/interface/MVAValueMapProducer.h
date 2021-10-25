@@ -32,6 +32,35 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  static auto getMVAEstimators(const edm::VParameterSet& vConfig) {
+    std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
+
+    // Loop over the list of MVA configurations passed here from python and
+    // construct all requested MVA estimators.
+    for (auto& imva : vConfig) {
+      // The factory below constructs the MVA of the appropriate type based
+      // on the "mvaName" which is the name of the derived MVA class (plugin)
+      if (!imva.empty()) {
+        mvaEstimators.emplace_back(
+            AnyMVAEstimatorRun2Factory::get()->create(imva.getParameter<std::string>("mvaName"), imva));
+
+      } else
+        throw cms::Exception(" MVA configuration not found: ")
+            << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
+    }
+
+    return mvaEstimators;
+  }
+
+  static std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) {
+    std::vector<std::string> names;
+    for (auto& imva : vConfig) {
+      names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);
+    }
+
+    return names;
+  }
+
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   const edm::EDGetTokenT<edm::View<ParticleType>> srcToken_;
@@ -63,35 +92,6 @@ namespace {
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
     iEvent.put(std::move(valMap), label);
-  }
-
-  auto getMVAEstimators(const edm::VParameterSet& vConfig) {
-    std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
-
-    // Loop over the list of MVA configurations passed here from python and
-    // construct all requested MVA estimators.
-    for (auto& imva : vConfig) {
-      // The factory below constructs the MVA of the appropriate type based
-      // on the "mvaName" which is the name of the derived MVA class (plugin)
-      if (!imva.empty()) {
-        mvaEstimators.emplace_back(
-            AnyMVAEstimatorRun2Factory::get()->create(imva.getParameter<std::string>("mvaName"), imva));
-
-      } else
-        throw cms::Exception(" MVA configuration not found: ")
-            << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
-    }
-
-    return mvaEstimators;
-  }
-
-  std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) {
-    std::vector<std::string> names;
-    for (auto& imva : vConfig) {
-      names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);
-    }
-
-    return names;
   }
 
   template <class ParticleType>

@@ -21,7 +21,7 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTFSetup.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 

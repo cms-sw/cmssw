@@ -41,11 +41,17 @@ private:
   int readUserData();
   int nbins;
   int nshowers;
+  int bsize;
+  int splitlevel;
+  int compressionAlgo;
+  int compressionLevel;
 
   TFile* theFile;
   TTree* theTree;
   TFile* LibFile;
   TTree* LibTree;
+  TBranch* emBranch;
+  TBranch* hadBranch;
 
   edm::Service<TFileService> fs;
   std::string theDataFile;

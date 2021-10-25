@@ -32,7 +32,7 @@
 #include <iostream>
 #include <string>
 
-class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<> {
+class CSCTriggerPrimitivesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   explicit CSCTriggerPrimitivesAnalyzer(const edm::ParameterSet &conf);
@@ -68,18 +68,15 @@ private:
   bool dataVsEmulatorPlots_;
   void makeDataVsEmulatorPlots();
 
-  // plots of efficiencies in MC
-  bool mcEfficiencyPlots_;
-
-  // plots of resolution in MC
-  bool mcResolutionPlots_;
-
   /*
     When set to True, we assume that the data comes from
     the Building 904 CSC test-stand. This test-stand is a single
     ME1/1 chamber.
   */
-  bool B904Setup_;
+  bool useB904_;
+  bool useB904ME11_;
+  bool useB904ME21_;
+  bool useB904ME234s2_;
   // label only relevant for B904 local runs
   std::string B904RunNumber_;
 };
@@ -93,14 +90,15 @@ CSCTriggerPrimitivesAnalyzer::CSCTriggerPrimitivesAnalyzer(const edm::ParameterS
       clctVars_(conf.getParameter<std::vector<std::string>>("clctVars")),
       lctVars_(conf.getParameter<std::vector<std::string>>("lctVars")),
       dataVsEmulatorPlots_(conf.getParameter<bool>("dataVsEmulatorPlots")),
-      mcEfficiencyPlots_(conf.getParameter<bool>("mcEfficiencyPlots")),
-      mcResolutionPlots_(conf.getParameter<bool>("mcResolutionPlots")),
-      B904Setup_(conf.getParameter<bool>("B904Setup")),
-      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {}
-
-void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {
-  // efficiency and resolution analysis is done here
+      useB904ME11_(conf.getParameter<bool>("useB904ME11")),
+      useB904ME21_(conf.getParameter<bool>("useB904ME21")),
+      useB904ME234s2_(conf.getParameter<bool>("useB904ME234s2")),
+      B904RunNumber_(conf.getParameter<std::string>("B904RunNumber")) {
+  usesResource("TFileService");
+  useB904_ = useB904ME11_ or useB904ME21_ or useB904ME234s2_;
 }
+
+void CSCTriggerPrimitivesAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &setup) {}
 
 void CSCTriggerPrimitivesAnalyzer::endJob() {
   if (dataVsEmulatorPlots_)
@@ -132,7 +130,7 @@ void CSCTriggerPrimitivesAnalyzer::makeDataVsEmulatorPlots() {
   }
 
   TString runTitle = "CMS_Run_" + std::to_string(runNumber_);
-  if (B904Setup_)
+  if (useB904_)
     runTitle = "B904_Cosmic_Run_" + TString(B904RunNumber_);
 
   TPostScript *ps = new TPostScript("CSC_dataVsEmul_" + runTitle + ".ps", 111);
@@ -224,7 +222,7 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   ps->NewPage();
 
   TString runTitle = "(CMS Run " + std::to_string(runNumber_) + ")";
-  if (B904Setup_)
+  if (useB904_)
     runTitle = "(B904 Cosmic Run " + TString(B904RunNumber_) + ")";
   const TString title(chamber + " " + lcts + " " + var + " " + runTitle);
   c1->cd(1);
@@ -238,7 +236,7 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->SetMarkerStyle(kPlus);
   dataMon->SetMarkerSize(3);
   // add 50% to make sure the legend does not overlap with the histograms
-  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.5);
+  dataMon->SetMaximum(dataMon->GetBinContent(dataMon->GetMaximumBin()) * 1.6);
   dataMon->Draw("histp");
   dataMon->GetXaxis()->SetLabelSize(0.05);
   dataMon->GetYaxis()->SetLabelSize(0.05);
@@ -246,9 +244,9 @@ void CSCTriggerPrimitivesAnalyzer::makePlot(TH1F *dataMon,
   dataMon->GetYaxis()->SetTitleSize(0.05);
   emulMon->SetLineColor(kRed);
   emulMon->Draw("histsame");
-  auto legend = new TLegend(0.7, 0.7, 0.9, 0.9);
-  legend->AddEntry(dataMon, "Data", "p");
-  legend->AddEntry(emulMon, "Emulator", "l");
+  auto legend = new TLegend(0.6, 0.7, 0.9, 0.9);
+  legend->AddEntry(dataMon, TString("Data (" + std::to_string((int)dataMon->GetEntries()) + ")"), "p");
+  legend->AddEntry(emulMon, TString("Emulator (" + std::to_string((int)emulMon->GetEntries()) + ")"), "l");
   legend->Draw();
 
   c1->cd(2);

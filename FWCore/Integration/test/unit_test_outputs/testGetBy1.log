@@ -208,8 +208,6 @@ GlobalContext: transition = BeginRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++++ starting: global begin run for module: label = 'intVectorProducer' id = 14
-++++++ finished: global begin run for module: label = 'intVectorProducer' id = 14
 ++++++ starting: global begin run for module: label = 'a1' id = 5
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -322,8 +320,6 @@ GlobalContext: transition = BeginLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++++ starting: global begin lumi for module: label = 'intVectorProducer' id = 14
-++++++ finished: global begin lumi for module: label = 'intVectorProducer' id = 14
 ++++++ starting: global begin lumi for module: label = 'a1' id = 5
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -1168,8 +1164,6 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++++ starting: global end lumi for module: label = 'intVectorProducer' id = 14
-++++++ finished: global end lumi for module: label = 'intVectorProducer' id = 14
 ++++++ starting: global end lumi for module: label = 'a1' id = 5
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -1308,8 +1302,6 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++++ starting: global end run for module: label = 'intVectorProducer' id = 14
-++++++ finished: global end run for module: label = 'intVectorProducer' id = 14
 ++++++ starting: global end run for module: label = 'a1' id = 5
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -1429,6 +1421,34 @@ GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ starting: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ finished: access input process block
+GlobalContext: transition = AccessInputProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ starting: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++ finished: write process block
+GlobalContext: transition = WriteProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
+    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
 ++++ starting: end process block
 GlobalContext: transition = EndProcessBlock

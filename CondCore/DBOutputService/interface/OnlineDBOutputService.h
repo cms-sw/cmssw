@@ -37,11 +37,11 @@ namespace cond {
 
       //
       template <typename PayloadType>
-      bool writeForNextLumisection(const PayloadType* payload, const std::string& recordName) {
+      bool writeIOVForNextLumisection(const PayloadType& payload, const std::string& recordName) {
         cond::Time_t targetTime = getLastLumiProcessed() + m_latencyInLumisections;
         auto t0 = std::chrono::high_resolution_clock::now();
         logger().logInfo() << "Updating lumisection " << targetTime;
-        cond::Hash payloadId = PoolDBOutputService::writeOne<PayloadType>(payload, targetTime, recordName);
+        cond::Hash payloadId = PoolDBOutputService::writeOneIOV<PayloadType>(payload, targetTime, recordName);
         bool ret = true;
         if (payloadId.empty()) {
           return false;
@@ -71,6 +71,15 @@ namespace cond {
         auto t_lat = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t0).count();
         logger().logInfo() << "Total update time: " << t_lat << " microsecs.";
         return ret;
+      }
+
+      //
+      template <typename PayloadType>
+      bool writeForNextLumisection(const PayloadType* payloadPtr, const std::string& recordName) {
+        if (!payloadPtr)
+          throwException("Provided payload pointer is invalid.", "OnlineDBOutputService::writeForNextLumisection");
+        std::unique_ptr<const PayloadType> payload(payloadPtr);
+        return writeForNextLumisection<PayloadType>(*payload, recordName);
       }
 
     private:

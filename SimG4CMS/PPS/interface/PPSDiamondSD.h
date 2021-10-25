@@ -32,11 +32,7 @@ class PPSDiamondSD : public SensitiveTkDetector,
                      public Observer<const BeginOfEvent*>,
                      public Observer<const EndOfEvent*> {
 public:
-  PPSDiamondSD(const std::string&,
-               const edm::EventSetup&,
-               const SensitiveDetectorCatalog&,
-               edm::ParameterSet const&,
-               const SimTrackManager*);
+  PPSDiamondSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~PPSDiamondSD() override;
   void printHitInfo();
 

@@ -2,7 +2,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Geometry")
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+process = cms.Process("Geometry",phase2_common)
 
 readGeometryFromDB = False
 
@@ -11,7 +12,7 @@ readGeometryFromDB = False
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')

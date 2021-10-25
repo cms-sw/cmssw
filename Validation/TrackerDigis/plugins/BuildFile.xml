@@ -5,7 +5,6 @@
 <use name="Geometry/Records"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/TkDetLayers"/>
-<use name="boost"/>
 <use name="root"/>
 <library file="*.cc" name="ValidationTrackerDigisPlugins">
   <flags EDM_PLUGIN="1"/>

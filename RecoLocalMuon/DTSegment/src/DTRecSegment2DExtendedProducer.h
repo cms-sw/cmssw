@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 
@@ -22,6 +22,8 @@ namespace edm {
 }  // namespace edm
 
 class DTCombinatorialExtendedPatternReco;
+class DTGeometry;
+class MuonGeometryRecord;
 
 /* C++ Headers */
 
@@ -29,7 +31,7 @@ class DTCombinatorialExtendedPatternReco;
 
 /* Class DTRecSegment2DExtendedProducer Interface */
 
-class DTRecSegment2DExtendedProducer : public edm::EDProducer {
+class DTRecSegment2DExtendedProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   DTRecSegment2DExtendedProducer(const edm::ParameterSet&);
@@ -53,5 +55,6 @@ private:
   //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   edm::EDGetTokenT<DTRecClusterCollection> recClusToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif  // DTRecHit_DTRecSegment2DExtendedProducer_h

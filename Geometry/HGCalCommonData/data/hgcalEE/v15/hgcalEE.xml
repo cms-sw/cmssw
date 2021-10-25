@@ -219,7 +219,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="28">
        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
        0, 1, 0, 1, 0, 1, 0, 1 
-       </Vector>
+    </Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="8736">
         262146,  262147,  262148,  262149,  262150,  262151,  262152,
         262153,  262178,  262179,  262180,  262181,  262182,  262183,

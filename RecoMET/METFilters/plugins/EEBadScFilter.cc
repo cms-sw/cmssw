@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,17 +43,19 @@ private:
 
   // function to calculate 5x5 energy and check rechit flags
 
-  virtual void scan5x5(const DetId &det,
-                       const edm::Handle<EcalRecHitCollection> &hits,
-                       const edm::ESHandle<CaloTopology> &caloTopo,
-                       const edm::ESHandle<CaloGeometry> &geometry,
-                       int &nHits,
-                       float &totEt) const;
+  void scan5x5(const DetId &det,
+               const EcalRecHitCollection &hits,
+               const CaloTopology &caloTopo,
+               const CaloGeometry &geometry,
+               int &nHits,
+               float &totEt) const;
 
   // input parameters
 
   // ee rechit collection (from AOD)
   const edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
 
   //config parameters (defining the cuts on the bad SCs)
   const double Emin_;             // rechit energy threshold (check for !kGood rechit flags)
@@ -70,6 +71,8 @@ private:
 // read the parameters from the config file
 EEBadScFilter::EEBadScFilter(const edm::ParameterSet &iConfig)
     : eeRHSrcToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource"))),
+      geometryToken_(esConsumes()),
+      caloTopoToken_(esConsumes()),
       Emin_(iConfig.getParameter<double>("EminHit")),
       EtminSC_(iConfig.getParameter<double>("EtminSC")),
       side_(iConfig.getParameter<int>("SCsize")),
@@ -81,9 +84,9 @@ EEBadScFilter::EEBadScFilter(const edm::ParameterSet &iConfig)
 }
 
 void EEBadScFilter::scan5x5(const DetId &det,
-                            const edm::Handle<EcalRecHitCollection> &hits,
-                            const edm::ESHandle<CaloTopology> &caloTopo,
-                            const edm::ESHandle<CaloGeometry> &geometry,
+                            const EcalRecHitCollection &hits,
+                            const CaloTopology &caloTopo,
+                            const CaloGeometry &geometry,
                             int &nHits,
                             float &totEt) const {
   // function to compute:  total transverse energy in a given supercrystal (totEt)
@@ -95,8 +98,7 @@ void EEBadScFilter::scan5x5(const DetId &det,
 
   // navigator to define a 5x5 region around the input DetId
 
-  CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo->getSubdetectorTopology(det));
-  const CaloGeometry *geo = geometry.product();
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det, caloTopo.getSubdetectorTopology(det));
 
   // loop over a 5x5 array centered on the input DetId
 
@@ -104,11 +106,11 @@ void EEBadScFilter::scan5x5(const DetId &det,
     for (int i = -side_ / 2; i <= side_ / 2; ++i) {
       cursor.home();
       cursor.offsetBy(i, j);
-      if (hits->find(*cursor) != hits->end())  // if hit exists in the rechit collection
+      if (hits.find(*cursor) != hits.end())  // if hit exists in the rechit collection
       {
-        EcalRecHit tmpHit = *hits->find(*cursor);  // get rechit with detID at cursor
+        EcalRecHit tmpHit = *hits.find(*cursor);  // get rechit with detID at cursor
 
-        const GlobalPoint p(geo->getPosition(*cursor));  // calculate Et of the rechit
+        const GlobalPoint p(geometry.getPosition(*cursor));  // calculate Et of the rechit
         TVector3 hitPos(p.x(), p.y(), p.z());
         hitPos *= 1.0 / hitPos.Mag();
         hitPos *= tmpHit.energy();
@@ -129,16 +131,13 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSe
   // load required collections
 
   // EE rechit collection
-  edm::Handle<EcalRecHitCollection> eeRHs;
-  iEvent.getByToken(eeRHSrcToken_, eeRHs);
+  auto const &eeRHs = iEvent.get(eeRHSrcToken_);
 
   // Calo Geometry - needed for computing E_t
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  auto const &geometry = iSetup.getData(geometryToken_);
 
   // Calo Toplology - needed for navigating the 5x5 xtal array around the centre of a SC
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
+  auto const &caloTopo = iSetup.getData(caloTopoToken_);
 
   // by default the event is OK
   bool pass = true;
@@ -169,7 +168,7 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSe
 
     // loop over the 5x5 SC centered on this DetId and fill discriminating variables
 
-    scan5x5(det, eeRHs, pTopology, pG, nhits, totEt);
+    scan5x5(det, eeRHs, caloTopo, geometry, nhits, totEt);
 
     // print some debug info
 

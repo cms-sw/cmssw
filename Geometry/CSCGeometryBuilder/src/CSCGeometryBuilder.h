@@ -9,7 +9,7 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include <Geometry/CSCGeometry/interface/CSCWireGroupPackage.h>
 #include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 

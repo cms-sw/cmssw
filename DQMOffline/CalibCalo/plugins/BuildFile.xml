@@ -1,4 +1,24 @@
+<use name="DQMServices/Core"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/HcalIsolatedTrack"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/CaloTopology"/>
+<use name="EventFilter/HcalRawToDigi"/>
+<use name="RecoEcal/EgammaCoreTools"/>
+<use name="rootphysics"/>
 <library file="*.cc" name="DQMOfflineCalibCaloPlugins">
-  <use name="DQMOffline/CalibCalo"/>
   <flags EDM_PLUGIN="1"/>
 </library>

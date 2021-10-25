@@ -59,11 +59,12 @@ public:
 protected:
   void implSort(int iCol, bool iSortOrder) override;
 
-private:
+public:
   FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager&) = delete;  // stop default
 
   const FWCollectionSummaryTableManager& operator=(const FWCollectionSummaryTableManager&) = delete;  // stop default
 
+private:
   void dataChanged();
   // ---------- member data --------------------------------
   FWEventItem* m_collection;

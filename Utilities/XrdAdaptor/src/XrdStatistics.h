@@ -2,6 +2,7 @@
 #define __XRD_STATISTICS_SERVICE_H_
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
+#include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <atomic>
@@ -32,24 +33,19 @@ namespace XrdAdaptor {
  * singleton on non-CMSSW-created threads.  Services are only available to threads
  * created by CMSSW.
  */
-  class XrdStatisticsService {
+  class XrdStatisticsService : public xrd_adaptor::XrdStatistics {
   public:
     XrdStatisticsService(const edm::ParameterSet &iPS, edm::ActivityRegistry &iRegistry);
 
     void postEndJob();
 
-    void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
-    struct CondorIOStats {
-      uint64_t bytesRead{0};
-      std::chrono::nanoseconds transferTime{0};
-    };
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     // Provide an update of per-site transfer statistics to the CondorStatusService.
     // Returns a mapping of "site name" to transfer statistics.  The "site name" is
     // as self-identified by the Xrootd host; may not necessarily match up with the
     // "CMS site name".
-    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate();
+    std::vector<std::pair<std::string, CondorIOStats>> condorUpdate() final;
   };
 
   class XrdSiteStatisticsInformation {
@@ -113,14 +109,14 @@ namespace XrdAdaptor {
     XrdReadStatistics &operator=(const XrdReadStatistics &) = delete;
 
   private:
-    XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, IOSize size, size_t count);
+    XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, edm::storage::IOSize size, size_t count);
 
     uint64_t elapsedNS() const;
     int readCount() const { return m_count; }
     int size() const { return m_size; }
 
     size_t m_size;
-    IOSize m_count;
+    edm::storage::IOSize m_count;
     edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_parent;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
   };

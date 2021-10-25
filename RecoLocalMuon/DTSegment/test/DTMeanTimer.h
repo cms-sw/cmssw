@@ -35,16 +35,10 @@ namespace edm {
 class DTMeanTimer {
 public:
   /// Constructor: it takes a list of hits of a SL and a reference to the SL id
-  DTMeanTimer(const DTSuperLayer* sl,
-              edm::Handle<DTRecHitCollection>& hits,
-              const edm::EventSetup& eventSetup,
-              DTTTrigBaseSync* sync);
+  DTMeanTimer(const DTSuperLayer* sl, edm::Handle<DTRecHitCollection>& hits, DTTTrigBaseSync* sync);
 
   /// Constructor: alternative way to pass a list of hits
-  DTMeanTimer(const DTSuperLayer* sl,
-              std::vector<DTRecHit1D>& hits,
-              const edm::EventSetup& eventSetup,
-              DTTTrigBaseSync* sync);
+  DTMeanTimer(const DTSuperLayer* sl, std::vector<DTRecHit1D>& hits, DTTTrigBaseSync* sync);
 
   /* Destructor */
   ~DTMeanTimer();

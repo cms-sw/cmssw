@@ -9,7 +9,6 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/VertexAssociation/test/testVertexAssociator.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"

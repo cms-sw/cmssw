@@ -13,7 +13,7 @@
 //
 #include "CSCGeometryBuilderFromDDD.h"
 #include "CSCGeometryBuilder.h"
-#include "CSCGeometryParsFromDD.h"
+#include "Geometry/CSCGeometryBuilder/interface/CSCGeometryParsFromDD.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"

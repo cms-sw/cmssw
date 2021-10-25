@@ -8,12 +8,16 @@ from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 from RecoLocalTracker.SiPixelClusterizer.siPixelClustersPreSplitting_cff import *
+from RecoLocalTracker.SiPixelDigiReProducers.siPixelDigisMorphed_cfi import *
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SubCollectionProducers.clustersummaryproducer_cfi import *
 
 pixeltrackerlocalrecoTask = cms.Task(
     siPixelClustersPreSplittingTask,
     siPixelRecHitsPreSplittingTask)
+
+from Configuration.ProcessModifiers.siPixelDigiMorphing_cff import *
+siPixelDigiMorphing.toModify(pixeltrackerlocalrecoTask, func=lambda t: t.add(siPixelDigisMorphed))
 
 striptrackerlocalrecoTask = cms.Task(
     siStripZeroSuppression,

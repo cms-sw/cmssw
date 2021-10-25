@@ -36,6 +36,9 @@ namespace edm {
                         CheckAbility<module::Abilities::kOneWatchLuminosityBlocks, T...>::kHasIt),
                     "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
       EDFilter() = default;
+      EDFilter(const EDFilter&) = delete;
+      const EDFilter& operator=(const EDFilter&) = delete;
+
       //virtual ~EDFilter();
 
       // ---------- const member functions ---------------------
@@ -64,9 +67,6 @@ namespace edm {
       SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue(); }
 
     private:
-      EDFilter(const EDFilter&) = delete;
-      const EDFilter& operator=(const EDFilter&) = delete;
-
       // ---------- member data --------------------------------
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value>

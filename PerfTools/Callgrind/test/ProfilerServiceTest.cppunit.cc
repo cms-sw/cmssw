@@ -4,7 +4,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
 
 #include <limits>
 #include <vector>

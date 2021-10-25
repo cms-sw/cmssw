@@ -33,7 +33,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   DetId trgdetid(trgCell.detId());
   bool isSilicon = triggerTools_.isSilicon(trgdetid);
   constexpr int kScintillatorIndex = 0;
-  unsigned thickness = isSilicon ? triggerTools_.thicknessIndex(trgdetid, true) : kScintillatorIndex;
+  unsigned thickness = isSilicon ? triggerTools_.thicknessIndex(trgdetid) : kScintillatorIndex;
   if (thickness >= fCperMIP_.size()) {
     throw cms::Exception("OutOfBound") << "Trying to access thickness index " << thickness
                                        << " in fCperMIP, which is of size " << fCperMIP_.size();
@@ -76,7 +76,7 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
   unsigned trgCellLayer = triggerTools_.layerWithOffset(trgdetid);
   bool isSilicon = triggerTools_.isSilicon(trgdetid);
   constexpr int kScintillatorIndex = 0;
-  unsigned thickness = isSilicon ? triggerTools_.thicknessIndex(trgdetid, true) : kScintillatorIndex;
+  unsigned thickness = isSilicon ? triggerTools_.thicknessIndex(trgdetid) : kScintillatorIndex;
   if (thickness >= thicknessCorrection_.size()) {
     throw cms::Exception("OutOfBound") << "Trying to access thickness index " << thickness
                                        << " in thicknessCorrection, which is of size " << thicknessCorrection_.size();

@@ -27,6 +27,7 @@ class PixelDigi;
 
 class SiPixelCluster {
 public:
+  // FIXME make it POD
   class Pixel {
   public:
     constexpr Pixel() : x(0), y(0), adc(0) {}  // for root
@@ -37,6 +38,7 @@ public:
   };
 
   //--- Integer shift in x and y directions.
+  // FIXME make    it POD
   class Shift {
   public:
     constexpr Shift(int dx, int dy) : dx_(dx), dy_(dy) {}
@@ -50,6 +52,7 @@ public:
   };
 
   //--- Position of a SiPixel
+  // FIXME make    it POD
   class PixelPos {
   public:
     constexpr PixelPos() : row_(0), col_(0) {}
@@ -76,6 +79,11 @@ public:
    */
 
   SiPixelCluster() = default;
+  ~SiPixelCluster() = default;
+  SiPixelCluster(SiPixelCluster const&) = default;
+  SiPixelCluster(SiPixelCluster&&) = default;
+  SiPixelCluster& operator=(SiPixelCluster const&) = default;
+  SiPixelCluster& operator=(SiPixelCluster&&) = default;
 
   SiPixelCluster(unsigned int isize,
                  uint16_t const* adcs,
@@ -87,7 +95,7 @@ public:
       : thePixelOffset(2 * isize), thePixelADC(adcs, adcs + isize), theOriginalClusterId(id) {
     uint16_t maxCol = 0;
     uint16_t maxRow = 0;
-    for (unsigned int i = 0; i != isize; ++i) {
+    for (unsigned int i = 0; i < isize; ++i) {
       uint16_t xoffset = xpos[i] - xmin;
       uint16_t yoffset = ypos[i] - ymin;
       thePixelOffset[i * 2] = std::min(uint16_t(MAXSPAN), xoffset);

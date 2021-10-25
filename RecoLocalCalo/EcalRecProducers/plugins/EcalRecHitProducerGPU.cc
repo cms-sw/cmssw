@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
@@ -62,15 +63,18 @@ private:
   // configuration parameters
   ecal::rechit::ConfigurationParameters configParameters_;
 
-  // conditions handles
-  edm::ESHandle<EcalRechitADCToGeVConstantGPU> ADCToGeVConstantHandle_;
-  edm::ESHandle<EcalIntercalibConstantsGPU> IntercalibConstantsHandle_;
-  edm::ESHandle<EcalRechitChannelStatusGPU> ChannelStatusHandle_;
+  // conditions tokens
+  edm::ESGetToken<EcalRechitADCToGeVConstantGPU, EcalADCToGeVConstantRcd> tokenADCToGeVConstant_;
+  edm::ESGetToken<EcalIntercalibConstantsGPU, EcalIntercalibConstantsRcd> tokenIntercalibConstants_;
+  edm::ESGetToken<EcalRechitChannelStatusGPU, EcalChannelStatusRcd> tokenChannelStatus_;
+  edm::ESGetToken<EcalLaserAPDPNRatiosGPU, EcalLaserAPDPNRatiosRcd> tokenLaserAPDPNRatios_;
+  edm::ESGetToken<EcalLaserAPDPNRatiosRefGPU, EcalLaserAPDPNRatiosRefRcd> tokenLaserAPDPNRatiosRef_;
+  edm::ESGetToken<EcalLaserAlphasGPU, EcalLaserAlphasRcd> tokenLaserAlphas_;
+  edm::ESGetToken<EcalLinearCorrectionsGPU, EcalLinearCorrectionsRcd> tokenLinearCorrections_;
+  edm::ESGetToken<EcalRecHitParametersGPU, JobConfigurationGPURecord> tokenRecHitParameters_;
 
-  edm::ESHandle<EcalLaserAPDPNRatiosGPU> LaserAPDPNRatiosHandle_;
-  edm::ESHandle<EcalLaserAPDPNRatiosRefGPU> LaserAPDPNRatiosRefHandle_;
-  edm::ESHandle<EcalLaserAlphasGPU> LaserAlphasHandle_;
-  edm::ESHandle<EcalLinearCorrectionsGPU> LinearCorrectionsHandle_;
+  // conditions handles
+  edm::ESHandle<EcalIntercalibConstantsGPU> IntercalibConstantsHandle_;
   edm::ESHandle<EcalRecHitParametersGPU> recHitParametersHandle_;
 
   // Associate reco flagbit (outer vector) to many db status flags (inner vector)
@@ -143,6 +147,16 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   configParameters_.recoverEEVFE = ps.getParameter<bool>("recoverEEVFE");
   configParameters_.recoverEBFE = ps.getParameter<bool>("recoverEBFE");
   configParameters_.recoverEEFE = ps.getParameter<bool>("recoverEEFE");
+
+  // conditions tokens
+  tokenADCToGeVConstant_ = esConsumes<EcalRechitADCToGeVConstantGPU, EcalADCToGeVConstantRcd>();
+  tokenIntercalibConstants_ = esConsumes<EcalIntercalibConstantsGPU, EcalIntercalibConstantsRcd>();
+  tokenChannelStatus_ = esConsumes<EcalRechitChannelStatusGPU, EcalChannelStatusRcd>();
+  tokenLaserAPDPNRatios_ = esConsumes<EcalLaserAPDPNRatiosGPU, EcalLaserAPDPNRatiosRcd>();
+  tokenLaserAPDPNRatiosRef_ = esConsumes<EcalLaserAPDPNRatiosRefGPU, EcalLaserAPDPNRatiosRefRcd>();
+  tokenLaserAlphas_ = esConsumes<EcalLaserAlphasGPU, EcalLaserAlphasRcd>();
+  tokenLinearCorrections_ = esConsumes<EcalLinearCorrectionsGPU, EcalLinearCorrectionsRcd>();
+  tokenRecHitParameters_ = esConsumes<EcalRecHitParametersGPU, JobConfigurationGPURecord>();
 }
 
 EcalRecHitProducerGPU::~EcalRecHitProducerGPU() {}
@@ -164,6 +178,10 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   neb_ = ebUncalibRecHits.size;
   nee_ = eeUncalibRecHits.size;
 
+  // stop here if there are no uncalibRecHits
+  if (neb_ + nee_ == 0)
+    return;
+
   if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
     edm::LogError("EcalRecHitProducerGPU")
         << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
@@ -177,24 +195,17 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   // - adt2gev
 
   //
-  setup.get<EcalADCToGeVConstantRcd>().get(ADCToGeVConstantHandle_);
-  setup.get<EcalIntercalibConstantsRcd>().get(IntercalibConstantsHandle_);
-  setup.get<EcalChannelStatusRcd>().get(ChannelStatusHandle_);
+  IntercalibConstantsHandle_ = setup.getHandle(tokenIntercalibConstants_);
+  recHitParametersHandle_ = setup.getHandle(tokenRecHitParameters_);
 
-  setup.get<EcalLaserAPDPNRatiosRcd>().get(LaserAPDPNRatiosHandle_);
-  setup.get<EcalLaserAPDPNRatiosRefRcd>().get(LaserAPDPNRatiosRefHandle_);
-  setup.get<EcalLaserAlphasRcd>().get(LaserAlphasHandle_);
-  setup.get<EcalLinearCorrectionsRcd>().get(LinearCorrectionsHandle_);
-  setup.get<JobConfigurationGPURecord>().get(recHitParametersHandle_);
-
-  auto const& ADCToGeVConstantProduct = ADCToGeVConstantHandle_->getProduct(ctx.stream());
+  auto const& ADCToGeVConstantProduct = setup.getData(tokenADCToGeVConstant_).getProduct(ctx.stream());
   auto const& IntercalibConstantsProduct = IntercalibConstantsHandle_->getProduct(ctx.stream());
-  auto const& ChannelStatusProduct = ChannelStatusHandle_->getProduct(ctx.stream());
+  auto const& ChannelStatusProduct = setup.getData(tokenChannelStatus_).getProduct(ctx.stream());
 
-  auto const& LaserAPDPNRatiosProduct = LaserAPDPNRatiosHandle_->getProduct(ctx.stream());
-  auto const& LaserAPDPNRatiosRefProduct = LaserAPDPNRatiosRefHandle_->getProduct(ctx.stream());
-  auto const& LaserAlphasProduct = LaserAlphasHandle_->getProduct(ctx.stream());
-  auto const& LinearCorrectionsProduct = LinearCorrectionsHandle_->getProduct(ctx.stream());
+  auto const& LaserAPDPNRatiosProduct = setup.getData(tokenLaserAPDPNRatios_).getProduct(ctx.stream());
+  auto const& LaserAPDPNRatiosRefProduct = setup.getData(tokenLaserAPDPNRatiosRef_).getProduct(ctx.stream());
+  auto const& LaserAlphasProduct = setup.getData(tokenLaserAlphas_).getProduct(ctx.stream());
+  auto const& LinearCorrectionsProduct = setup.getData(tokenLinearCorrections_).getProduct(ctx.stream());
   auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
 
   // set config ptrs : this is done to avoid changing things downstream

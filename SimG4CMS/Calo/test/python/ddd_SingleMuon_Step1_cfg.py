@@ -18,6 +18,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
+process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.EcalSimX=dict()

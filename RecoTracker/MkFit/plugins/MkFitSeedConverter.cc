@@ -111,17 +111,16 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
     SVector3 pos(gpos.x(), gpos.y(), gpos.z());
     SVector3 mom(gmom.x(), gmom.y(), gmom.z());
 
-    const auto cartError = tsos.cartesianError();  // returns a temporary, so can't chain with the following line
-    const auto& cov = cartError.matrix();
-    SMatrixSym66 err;
-    for (int i = 0; i < 6; ++i) {
-      for (int j = i; j < 6; ++j) {
+    const auto& cov = tsos.curvilinearError().matrix();
+    SMatrixSym66 err;  //fill a sub-matrix, mkfit::TrackState will convert internally
+    for (int i = 0; i < 5; ++i) {
+      for (int j = i; j < 5; ++j) {
         err.At(i, j) = cov[i][j];
       }
     }
 
     mkfit::TrackState state(tsos.charge(), pos, mom, err);
-    state.convertFromCartesianToCCS();
+    state.convertFromGlbCurvilinearToCCS();
     ret.emplace_back(state, 0, seed_index, 0, nullptr);
     LogTrace("MkFitSeedConverter") << "Inserted seed with index " << seed_index;
 

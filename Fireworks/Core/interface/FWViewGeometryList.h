@@ -47,11 +47,12 @@ protected:
 
   void addToCompound(TEveElement* el, FWGeomColorIndex idx, bool applyTransp = true) const;
 
-private:
+public:
   FWViewGeometryList(const FWViewGeometryList&) = delete;  // stop default
 
   const FWViewGeometryList& operator=(const FWViewGeometryList&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   sigc::connection m_transpConnection;
   sigc::connection m_colorConnection;

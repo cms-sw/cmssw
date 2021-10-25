@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ### STEP 0 ###
 
 # hit building
@@ -202,6 +205,8 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
 )
+trackingNoLoopers.toModify(initialStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
 trackingPhase1.toModify(initialStepTrajectoryBuilder,
     minNrOfHitsForRebuild = 1,
@@ -213,7 +218,8 @@ trackingPhase2PU140.toModify(initialStepTrajectoryBuilder,
 )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+# Give handle for CKF for HI
+_initialStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'initialStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
@@ -222,6 +228,7 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
+initialStepTrackCandidates = _initialStepTrackCandidatesCkf.clone()
 
 from Configuration.ProcessModifiers.trackingMkFitInitialStep_cff import trackingMkFitInitialStep
 from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
@@ -233,7 +240,6 @@ import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationCon
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 mkFitSiPixelHits = mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone() # TODO: figure out better place for this module?
-mkFitSiStripHits = mkFitSiStripHitConverter_cfi.mkFitSiStripHitConverter.clone() # TODO: figure out better place for this module?
 mkFitEventOfHits = mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone() # TODO: figure out better place for this module?
 initialStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'initialStepSeeds',
@@ -329,13 +335,16 @@ trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
      qualityCuts = [-0.95,-0.85,-0.75]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(initialStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(initialStep, trackTfClassifier.clone(
         src         = 'initialStepTracks',
-        qualityCuts = qualityCutDictionary["InitialStep"]
+        qualityCuts = qualityCutDictionary.InitialStep.value()
 ))
+
 (trackdnn & fastSim).toModify(initialStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
 
 pp_on_AA.toModify(initialStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
@@ -428,7 +437,7 @@ InitialStep = cms.Sequence(InitialStepTask)
 
 from Configuration.ProcessModifiers.trackingMkFitCommon_cff import trackingMkFitCommon
 _InitialStepTask_trackingMkFitCommon = InitialStepTask.copy()
-_InitialStepTask_trackingMkFitCommon.add(mkFitSiPixelHits, mkFitSiStripHits, mkFitEventOfHits, mkFitGeometryESProducer)
+_InitialStepTask_trackingMkFitCommon.add(mkFitSiPixelHits, mkFitEventOfHits, mkFitGeometryESProducer)
 trackingMkFitCommon.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()

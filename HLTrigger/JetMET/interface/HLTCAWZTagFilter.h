@@ -57,7 +57,7 @@ private:
   double massdropcut_;
 };
 
-reco::CATopJetProperties CAWZJetHelperUser::operator()(reco::Jet const& ihardJet) const {
+inline reco::CATopJetProperties CAWZJetHelperUser::operator()(reco::Jet const& ihardJet) const {
   reco::CATopJetProperties properties;
   // Get subjets
   reco::Jet::Constituents subjets = ihardJet.getJetConstituents();

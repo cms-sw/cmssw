@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryParsFromDD.h"
+#include "Geometry/DTGeometryBuilder/interface/DTGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -29,10 +29,16 @@ public:
 
 private:
   bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iC) {
   fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
+  muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -43,19 +49,15 @@ void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
     return;
   }
 
-  edm::ESHandle<MuonGeometryConstants> pMNDC;
+  auto pMNDC = es.getHandle(muonGeomConstantsToken_);
   DTGeometryParsFromDD dtgp;
 
   if (fromDD4Hep_) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+    auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
     const cms::DDCompactView& cpv = *pDD;
     dtgp.build(&cpv, *pMNDC, *rig);
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
+    auto pDD = es.getTransientHandle(compactViewToken_);
     const DDCompactView& cpv = *pDD;
     dtgp.build(&cpv, *pMNDC, *rig);
   }

@@ -30,10 +30,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWGEMRecHitProxyBuilder(const FWGEMRecHitProxyBuilder&) = delete;
   const FWGEMRecHitProxyBuilder& operator=(const FWGEMRecHitProxyBuilder&) = delete;
 
+private:
   using FWSimpleProxyBuilderTemplate<GEMRecHit>::buildViewType;
   void buildViewType(const GEMRecHit& iData,
                      unsigned int iIndex,

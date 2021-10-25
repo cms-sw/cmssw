@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
-import six
 
 variables = {
     'met': L1TStep1.metEfficiencyThresholds,

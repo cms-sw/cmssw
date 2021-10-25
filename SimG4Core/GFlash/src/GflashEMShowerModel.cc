@@ -2,7 +2,6 @@
 // initial setup : E.Barberio & Joanna Weng
 // big changes : Soon Jun & Dongwook Jang
 //
-#include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/GFlash/interface/GflashEMShowerModel.h"
 
 #include "SimGeneral/GFlash/interface/GflashEMShowerProfile.h"

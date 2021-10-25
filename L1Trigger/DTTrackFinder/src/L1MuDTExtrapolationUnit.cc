@@ -29,18 +29,19 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTERS.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 
 using namespace std;
 
@@ -52,7 +53,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTExtrapolationUnit::L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor& sp) : m_sp(sp), m_SEUs() {
+L1MuDTExtrapolationUnit::L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor& sp, edm::ConsumesCollector iC)
+    : m_sp(sp), m_SEUs(), m_parsToken(iC.esConsumes()), m_extLUTsToken(iC.esConsumes()) {
   for (int ext_idx = 0; ext_idx < MAX_EXT; ext_idx++) {
     Extrapolation ext = static_cast<Extrapolation>(ext_idx);
 
@@ -92,7 +94,9 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 // run Extrapolation Unit
 //
 void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
-  c.get<L1MuDTTFParametersRcd>().get(pars);
+  auto const& pars = c.getData(m_parsToken);
+
+  L1MuDTExtLut const& extLUTs = c.getData(m_extLUTsToken);
 
   SEUmap::const_iterator iter;
   for (iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++) {
@@ -106,14 +110,14 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
 
     if (ts != nullptr && !ts->empty()) {
       ((*iter).second)->load(ts);
-      ((*iter).second)->run(c);
+      ((*iter).second)->run(extLUTs, pars);
     }
   }
 
   //
   // use EX21 to cross-check EX12
   //
-  bool run_21 = pars->get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
+  bool run_21 = pars.get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
   if (m_sp.tf().config()->getUseEX21() || run_21) {
     // search for EX12 + EX21 single extrapolation units
     for (unsigned int startAdr = 0; startAdr < 2; startAdr++) {
@@ -213,7 +217,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getEXTable(Extrapolation ext, unsigne
   //  assert( startAdr >= 0 && startAdr <= 3 );
 
   SEUId seuid = make_pair(ext, startAdr);
-  return m_SEUs[seuid]->exTable();
+  return m_SEUs.find(seuid)->second->exTable();
 }
 
 //
@@ -226,7 +230,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getQSTable(Extrapolation ext, unsigne
   //  assert( startAdr >= 0 && startAdr <= 3 );
 
   SEUId seuid = make_pair(ext, startAdr);
-  return m_SEUs[seuid]->qsTable();
+  return m_SEUs.find(seuid)->second->qsTable();
 }
 
 //

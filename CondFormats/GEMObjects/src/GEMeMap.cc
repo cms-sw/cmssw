@@ -15,11 +15,7 @@ void GEMeMap::convert(GEMROMapping& romap) {
   // fed->amc->geb mapping to GEMDetId
   for (auto imap : theChamberMap_) {
     for (unsigned int ix = 0; ix < imap.fedId.size(); ix++) {
-      GEMROMapping::chamEC ec;
-      ec.fedId = imap.fedId[ix];
-      ec.amcNum = imap.amcNum[ix];
-      ec.gebId = imap.gebId[ix];
-
+      GEMROMapping::chamEC ec{imap.fedId[ix], imap.amcNum[ix], imap.gebId[ix]};
       GEMROMapping::chamDC dc;
       dc.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1 : -1,
                           1,
@@ -29,6 +25,9 @@ void GEMeMap::convert(GEMROMapping& romap) {
                           0);
       dc.vfatVer = imap.vfatVer[ix];
       romap.add(ec, dc);
+      GEMROMapping::sectorEC amcEC = {imap.fedId[ix], imap.amcNum[ix]};
+      if (!romap.isValidAMC(amcEC))
+        romap.add(amcEC);
     }
   }
 
@@ -82,16 +81,20 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
       uint8_t gebId = 0;
       int maxVFat = 0;
       int maxLayerId = GEMDetId::maxLayerId;
+      int maxiEtaId = 0;
       if (st == 0) {
         maxVFat = maxVFatGE0_;
         fedId = (re == 1 ? FEDNumbering::MINGE0FEDID + 1 : FEDNumbering::MINGE0FEDID);
         maxLayerId = GEMDetId::maxLayerId0;
+        maxiEtaId = maxiEtaIdGE0_;
       } else if (st == 1) {
         maxVFat = maxVFatGE11_;
         fedId = (re == 1 ? FEDNumbering::MINGEMFEDID + 1 : FEDNumbering::MINGEMFEDID);
+        maxiEtaId = maxiEtaIdGE11_;
       } else if (st == 2) {
         maxVFat = maxVFatGE21_;
         fedId = (re == 1 ? FEDNumbering::MINGE21FEDID + 1 : FEDNumbering::MINGE21FEDID);
+        maxiEtaId = maxiEtaIdGE21_;
       }
 
       for (int ch = 1; ch <= GEMDetId::maxChamberId; ++ch) {
@@ -108,16 +111,20 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
           dc.vfatVer = vfatVerV3_;
           romap.add(ec, dc);
 
+          GEMROMapping::sectorEC amcEC = {fedId, amcNum};
+          if (!romap.isValidAMC(amcEC))
+            romap.add(amcEC);
+
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {
-            for (int roll = 1; roll <= GEMDetId::maxRollId; ++roll) {
+            for (int ieta = 1; ieta <= maxiEtaId; ++ieta) {
               GEMROMapping::vfatEC vec;
               vec.vfatAdd = chipPos;
               vec.detId = gemId;
 
               GEMROMapping::vfatDC vdc;
               vdc.vfatType = vfatTypeV3_;  // > 10 is vfat v3
-              vdc.detId = GEMDetId(re, 1, st, ly, ch, roll);
+              vdc.detId = GEMDetId(re, 1, st, ly, ch, ieta);
               vdc.localPhi = lphi;
 
               romap.add(vec, vdc);

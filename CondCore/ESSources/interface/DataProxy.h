@@ -31,6 +31,8 @@ public:
                      edm::SerialTaskQueue* iQueue,
                      std::mutex* iMutex)
       : edm::eventsetup::ESSourceDataProxyTemplate<DataT>(iQueue, iMutex), m_data{pdata} {}
+  //DataProxy(); // stop default
+  const DataProxy& operator=(const DataProxy&) = delete;  // stop default
 
   // ---------- const member functions ---------------------
 
@@ -46,9 +48,6 @@ protected:
   DataT const* fetch() const final { return &(*m_data)(); }
 
 private:
-  //DataProxy(); // stop default
-  const DataProxy& operator=(const DataProxy&) = delete;  // stop default
-
   void initializeForNewIOV() override { m_data->initializeForNewIOV(); }
 
   // ---------- member data --------------------------------

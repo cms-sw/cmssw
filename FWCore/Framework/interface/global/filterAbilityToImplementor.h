@@ -34,96 +34,96 @@ namespace edm {
 
       template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
-        typedef edm::global::impl::StreamCacheHolder<edm::global::EDFilterBase, C> Type;
+        using Type = edm::global::impl::StreamCacheHolder<edm::global::EDFilterBase, C>;
       };
 
-      template <typename C>
-      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
-        typedef edm::global::impl::InputProcessBlockCacheHolder<edm::global::EDFilterBase, C> Type;
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::global::impl::InputProcessBlockCacheHolder<edm::global::EDFilterBase, Cs...>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::global::impl::RunCacheHolder<edm::global::EDFilterBase, C> Type;
+        using Type = edm::global::impl::RunCacheHolder<edm::global::EDFilterBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-        typedef edm::global::impl::RunSummaryCacheHolder<edm::global::EDFilterBase, C> Type;
+        using Type = edm::global::impl::RunSummaryCacheHolder<edm::global::EDFilterBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::global::impl::LuminosityBlockCacheHolder<edm::global::EDFilterBase, C> Type;
+        using Type = edm::global::impl::LuminosityBlockCacheHolder<edm::global::EDFilterBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-        typedef edm::global::impl::LuminosityBlockSummaryCacheHolder<edm::global::EDFilterBase, C> Type;
+        using Type = edm::global::impl::LuminosityBlockSummaryCacheHolder<edm::global::EDFilterBase, C>;
       };
 
       template <>
       struct AbilityToImplementor<edm::WatchProcessBlock> {
-        typedef edm::global::impl::WatchProcessBlock<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::WatchProcessBlock<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
-        typedef edm::global::impl::BeginProcessBlockProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::BeginProcessBlockProducer<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndProcessBlockProducer> {
-        typedef edm::global::impl::EndProcessBlockProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::EndProcessBlockProducer<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginRunProducer> {
-        typedef edm::global::impl::BeginRunProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::BeginRunProducer<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndRunProducer> {
-        typedef edm::global::impl::EndRunProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::EndRunProducer<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-        typedef edm::global::impl::BeginLuminosityBlockProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::BeginLuminosityBlockProducer<edm::global::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-        typedef edm::global::impl::EndLuminosityBlockProducer<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::EndLuminosityBlockProducer<edm::global::EDFilterBase>;
       };
       template <>
       struct AbilityToImplementor<edm::ExternalWork> {
-        typedef edm::global::impl::ExternalWork<edm::global::EDFilterBase> Type;
+        using Type = edm::global::impl::ExternalWork<edm::global::EDFilterBase>;
       };
 
       template <bool, bool, typename T>
       struct SpecializeAbilityToImplementor {
-        typedef typename AbilityToImplementor<T>::Type Type;
+        using Type = typename AbilityToImplementor<T>::Type;
       };
 
       template <bool B, typename C>
       struct SpecializeAbilityToImplementor<true, B, edm::RunSummaryCache<C>> {
-        typedef typename edm::global::impl::EndRunSummaryProducer<edm::global::EDFilterBase, C> Type;
+        using Type = typename edm::global::impl::EndRunSummaryProducer<edm::global::EDFilterBase, C>;
       };
 
       template <bool B>
       struct SpecializeAbilityToImplementor<true, B, edm::EndRunProducer> {
-        typedef typename edm::global::impl::EmptyType Type;
+        using Type = edm::global::impl::EmptyType;
       };
 
       template <bool B, typename C>
       struct SpecializeAbilityToImplementor<B, true, edm::LuminosityBlockSummaryCache<C>> {
-        typedef typename edm::global::impl::EndLuminosityBlockSummaryProducer<edm::global::EDFilterBase, C> Type;
+        using Type = typename edm::global::impl::EndLuminosityBlockSummaryProducer<edm::global::EDFilterBase, C>;
       };
 
       template <bool B>
       struct SpecializeAbilityToImplementor<B, true, edm::EndLuminosityBlockProducer> {
-        typedef typename edm::global::impl::EmptyType Type;
+        using Type = edm::global::impl::EmptyType;
       };
     }  // namespace filter
   }    // namespace global

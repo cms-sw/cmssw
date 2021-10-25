@@ -25,6 +25,8 @@ class TrackerTopology;
 class SiStripHistoId {
 public:
   SiStripHistoId();
+  SiStripHistoId(const SiStripHistoId&) = delete;                   // stop default
+  const SiStripHistoId& operator=(const SiStripHistoId&) = delete;  // stop default
   virtual ~SiStripHistoId();
   // generally: histoid = description + separator1 + id_type + separator2 + component_id
   std::string createHistoId(std::string description, std::string id_type, uint32_t component_id);
@@ -36,8 +38,6 @@ public:
   std::string getComponentType(std::string histoid);
 
 private:
-  SiStripHistoId(const SiStripHistoId&) = delete;                   // stop default
-  const SiStripHistoId& operator=(const SiStripHistoId&) = delete;  // stop default
   std::string returnIdPart(std::string histoid, uint32_t whichpart);
 };
 

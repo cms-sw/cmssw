@@ -37,32 +37,35 @@ from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
 
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
-SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
-SiStripMonitorClusterBPTX.Mod_On = False
-SiStripMonitorClusterBPTX.TH1TotalNumberOfClusters.subdetswitchon   = True
-SiStripMonitorClusterBPTX.TProfClustersApvCycle.subdetswitchon      = True
-SiStripMonitorClusterBPTX.TProfTotalNumberOfClusters.subdetswitchon = True 
-SiStripMonitorClusterBPTX.TrendVs10LS = False
-SiStripMonitorClusterBPTX.TH2CStripVsCpixel.globalswitchon       = True
-SiStripMonitorClusterBPTX.TH1MultiplicityRegions.globalswitchon  = True
-SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
-SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
-SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
-SiStripMonitorClusterBPTX.ClusterHisto = True
-SiStripMonitorClusterBPTX.BPTXfilter = genericTriggerEventFlag4L1bd
-SiStripMonitorClusterBPTX.PixelDCSfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-    dcsPartitions = cms.vint32 ( 28, 29),
-    andOrDcs      = cms.bool( False ),
-    errorReplyDcs = cms.bool( True ),
-)
-SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-    dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
-    andOrDcs      = cms.bool( False ),
-    errorReplyDcs = cms.bool( True ),
+SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone(
+    Mod_On = False,
+    TH1TotalNumberOfClusters = SiStripMonitorCluster.TH1TotalNumberOfClusters.clone(
+        subdetswitchon = True
+    ),
+    TProfClustersApvCycle = SiStripMonitorCluster.TProfClustersApvCycle.clone(
+        subdetswitchon = True
+    ),
+    TProfTotalNumberOfClusters = SiStripMonitorCluster.TProfTotalNumberOfClusters.clone(
+        subdetswitchon = True
+    ),
+    TrendVs10LS = False,
+    TH2CStripVsCpixel = SiStripMonitorCluster.TH2CStripVsCpixel.clone(
+        globalswitchon = True
+    ),
+    TH1MultiplicityRegions = SiStripMonitorCluster.TH1MultiplicityRegions.clone(
+        globalswitchon = True
+    ),
+    TH1MainDiagonalPosition = SiStripMonitorCluster.TH1MainDiagonalPosition.clone(
+        globalswitchon = True
+    ),
+    TH1StripNoise2ApvCycle = SiStripMonitorCluster.TH1StripNoise2ApvCycle.clone(
+        globalswitchon = True
+    ),
+    TH1StripNoise3ApvCycle = SiStripMonitorCluster.TH1StripNoise3ApvCycle.clone(
+        globalswitchon = True
+    ),
+    ClusterHisto = True,
+    BPTXfilter = genericTriggerEventFlag4L1bd
 )
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
@@ -79,37 +82,60 @@ stage2L1Trigger.toModify(SiStripMonitorClusterBPTX,
 from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi 
-SiStripMonitorTrackCommon = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
-SiStripMonitorTrackCommon.Mod_On        = False
-SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
-SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
-SiStripMonitorTrackCommon.TH1ClusterPos.layerView = cms.bool( False )
-SiStripMonitorTrackCommon.TH1ClusterPos.ringView = cms.bool( True )
+from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
+SiStripMonitorTrackCommon = SiStripMonitorTrack.clone(
+    TrackProducer = 'generalTracks',
+    Mod_On = False,
+    TH1ClusterCharge = SiStripMonitorTrack.TH1ClusterCharge.clone(
+        ringView = True
+    ),
+    TH1ClusterStoNCorr = SiStripMonitorTrack.TH1ClusterStoNCorr.clone(
+        ringView = True
+    ),
+    TH1ClusterPos = SiStripMonitorTrack.TH1ClusterPos.clone(
+        layerView = False,
+        ringView = True
+    )
+)
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
-SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
-SiStripMonitorTrackMB.TH1ClusterCharge.ringView = cms.bool( True )
-SiStripMonitorTrackMB.TH1ClusterStoNCorr.ringView = cms.bool( True )
+from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
+SiStripMonitorTrackMB = SiStripMonitorTrack.clone(
+    TrackProducer = 'generalTracks',
+    Mod_On = False,
+    genericTriggerEventPSet = genericTriggerEventFlag4HLTdb,
+    TH1ClusterCharge = SiStripMonitorTrack.TH1ClusterCharge.clone(
+        ringView = True
+    ),
+    TH1ClusterStoNCorr = SiStripMonitorTrack.TH1ClusterStoNCorr.clone(
+        ringView = True
+    )
+)
 
 # Clone for SiStripMonitorTrack for Isolated Bunches ####
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-SiStripMonitorTrackIB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackIB.TrackProducer = 'generalTracks'
-SiStripMonitorTrackIB.Mod_On        = False
-SiStripMonitorTrackIB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdbIB
-SiStripMonitorTrackIB.TH1ClusterCharge.ringView = cms.bool( True )
-SiStripMonitorTrackIB.TH1ClusterStoNCorr.ringView = cms.bool( True )
-SiStripMonitorTrackIB.TkHistoMap_On = cms.bool(False)
-SiStripMonitorTrackIB.TH1ClusterNoise.layerView = cms.bool(False) 
-SiStripMonitorTrackIB.TH1ClusterWidth.layerView = cms.bool(False) 
-SiStripMonitorTrackIB.TH1ClusterChargePerCM.ringView = cms.bool(False) 
-SiStripMonitorTrackIB.TopFolderName = cms.string("SiStrip/IsolatedBunches")
+from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
+SiStripMonitorTrackIB = SiStripMonitorTrack.clone(
+    TrackProducer = 'generalTracks',
+    Mod_On = False,
+    genericTriggerEventPSet = genericTriggerEventFlag4HLTdbIB,
+    TH1ClusterCharge = SiStripMonitorTrack.TH1ClusterCharge.clone(
+        ringView = True
+    ),
+    TH1ClusterStoNCorr = SiStripMonitorTrack.TH1ClusterStoNCorr.clone(
+        ringView = True
+    ),
+    TkHistoMap_On = False,
+    TH1ClusterNoise = SiStripMonitorTrack.TH1ClusterNoise.clone(
+        layerView = False
+    ),
+    TH1ClusterWidth = SiStripMonitorTrack.TH1ClusterWidth.clone(
+        layerView = False
+    ),
+    TH1ClusterChargePerCM = SiStripMonitorTrack.TH1ClusterChargePerCM.clone(
+        ringView = False
+    ),
+    TopFolderName = "SiStrip/IsolatedBunches"
+)
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
@@ -167,6 +193,3 @@ SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*SiStripMonitorTrackIB*refittedForPixelDQM*MonitorTrackResiduals
     *dqmInfoSiStrip)
-
-
-

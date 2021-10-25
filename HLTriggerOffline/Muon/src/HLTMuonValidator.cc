@@ -59,6 +59,8 @@ private:
              edm::EDGetTokenT<reco::GenParticleCollection>,
              edm::EDGetTokenT<reco::MuonCollection>>
       myTokens_;
+
+  HLTMuonPlotter::ESTokens myESTokens_;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,6 +81,7 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
       hltProcessName_(pset.getParameter<string>("hltProcessName")),
       hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")) {
   myTokens_ = HLTMuonPlotter::getTokens(pset_, consumesCollector());
+  myESTokens_ = HLTMuonPlotter::getESTokens(consumesCollector());
 }
 
 vector<string> HLTMuonValidator::moduleLabels(string path) {
@@ -159,7 +162,7 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
     vector<string> steps = stepLabels(labels);
 
     if (!labels.empty() && !steps.empty()) {
-      HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
+      HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_, myESTokens_);
       analyzers_.push_back(analyzer);
     }
   }

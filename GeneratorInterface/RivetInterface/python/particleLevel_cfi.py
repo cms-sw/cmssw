@@ -6,6 +6,7 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     usePromptFinalStates = cms.bool(True), # for leptons, photons, neutrinos
     excludePromptLeptonsFromJetClustering = cms.bool(True),
     excludeNeutrinosFromJetClustering = cms.bool(True),
+    doJetClustering = cms.bool(True),
     
     particleMinPt  = cms.double(0.),
     particleMaxEta = cms.double(5.), # HF range. Maximum 6.0 on MiniAOD

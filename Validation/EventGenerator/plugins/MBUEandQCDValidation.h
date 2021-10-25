@@ -53,6 +53,7 @@ private:
 
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+  edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 
   ///  status 1 GenParticle collection
   std::vector<const HepMC::GenParticle*> hepmcGPCollection;

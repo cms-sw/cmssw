@@ -34,37 +34,37 @@ namespace edm {
 
       template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
-        typedef edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+        using Type = edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
-      template <typename C>
-      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
-        typedef edm::limited::impl::InputProcessBlockCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::limited::impl::InputProcessBlockCacheHolder<edm::limited::EDAnalyzerBase, Cs...>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+        using Type = edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+        using Type = edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+        using Type = edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
+        using Type = edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase, C>;
       };
 
       template <>
       struct AbilityToImplementor<edm::WatchProcessBlock> {
-        typedef edm::limited::impl::WatchProcessBlock<edm::limited::EDAnalyzerBase> Type;
+        using Type = edm::limited::impl::WatchProcessBlock<edm::limited::EDAnalyzerBase>;
       };
     }  // namespace analyzer
   }    // namespace limited

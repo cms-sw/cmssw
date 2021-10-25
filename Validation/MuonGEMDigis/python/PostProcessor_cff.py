@@ -12,4 +12,4 @@ gemDigiHarvesting = DQMEDHarvester("MuonGEMDigisHarvestor",
 MuonGEMDigisPostProcessors = cms.Sequence(gemDigiHarvesting)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( gemDigiHarvesting, stationIds = (1, 2) )
+phase2_common.toModify( gemDigiHarvesting, stationIds = (0, 1, 2) )

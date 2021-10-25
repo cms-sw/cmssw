@@ -260,6 +260,10 @@ namespace edm {
 
     EDProductGetter const& productGetter() const;
 
+    unsigned int processBlockIndex(std::string const& processName) const {
+      return provRecorder_.processBlockIndex(processName);
+    }
+
   private:
     //for testing
     friend class ::testEventGetRefBeforePut;

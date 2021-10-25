@@ -967,12 +967,12 @@ void DQMAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
 
     h_ele_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h_ele_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
-    h_ele_hcalDepth1TowerSumEt_dr03->Fill(gsfIter->dr03HcalDepth1TowerSumEt());
-    h_ele_hcalDepth2TowerSumEt_dr03->Fill(gsfIter->dr03HcalDepth2TowerSumEt());
+    h_ele_hcalDepth1TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt(2));
     h_ele_tkSumPt_dr04->Fill(gsfIter->dr04TkSumPt());
     h_ele_ecalRecHitSumEt_dr04->Fill(gsfIter->dr04EcalRecHitSumEt());
-    h_ele_hcalDepth1TowerSumEt_dr04->Fill(gsfIter->dr04HcalDepth1TowerSumEt());
-    h_ele_hcalDepth2TowerSumEt_dr04->Fill(gsfIter->dr04HcalDepth2TowerSumEt());
+    h_ele_hcalDepth1TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(1));
+    h_ele_hcalDepth2TowerSumEt_dr04->Fill(gsfIter->dr04HcalTowerSumEt(2));
   }
 
   // association matching object-reco electrons
@@ -1207,11 +1207,11 @@ bool DQMAnalyzer::isolationCut(const reco::GsfElectronCollection::const_iterator
 
   if (gsfIter->dr03TkSumPt() > tkIso03Max_)
     return true;
-  if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_)
+  if (gsfIter->isEB() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxBarrel_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxEndcaps_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(2) > hcalIso03Depth2MaxEndcaps_)
     return true;
   if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_)
     return true;

@@ -33,6 +33,8 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   namespace SiPixelVCalPI {
     enum type { t_slope = 0, t_offset = 1 };
   }
@@ -42,15 +44,14 @@ namespace {
   *************************************************/
   // inherit from one of the predefined plot class: Histogram1D
   template <SiPixelVCalPI::type myType>
-  class SiPixelVCalValue : public cond::payloadInspector::Histogram1D<SiPixelVCal, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelVCalValue : public Histogram1D<SiPixelVCal, SINGLE_IOV> {
   public:
     SiPixelVCalValue()
-        : cond::payloadInspector::Histogram1D<SiPixelVCal, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixel VCal values",
-              "SiPixel VCal values",
-              100,
-              myType == SiPixelVCalPI::t_slope ? 40. : -700,
-              myType == SiPixelVCalPI::t_slope ? 60. : 0) {}
+        : Histogram1D<SiPixelVCal, SINGLE_IOV>("SiPixel VCal values",
+                                               "SiPixel VCal values",
+                                               100,
+                                               myType == SiPixelVCalPI::t_slope ? 40. : -700,
+                                               myType == SiPixelVCalPI::t_slope ? 60. : 0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -77,10 +78,9 @@ namespace {
   /************************************************
     1d histogram of SiPixelVCal of 1 IOV 
   *************************************************/
-  class SiPixelVCalValues : public cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelVCalValues : public PlotImage<SiPixelVCal, SINGLE_IOV> {
   public:
-    SiPixelVCalValues()
-        : cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::SINGLE_IOV>("SiPixelVCal Values") {}
+    SiPixelVCalValues() : PlotImage<SiPixelVCal, SINGLE_IOV>("SiPixelVCal Values") {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
@@ -195,17 +195,15 @@ namespace {
       1d histogram of SiPixelVCal of 1 IOV per region
   *************************************************/
   template <bool isBarrel, SiPixelVCalPI::type myType>
-  class SiPixelVCalValuesPerRegion
-      : public cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelVCalValuesPerRegion : public PlotImage<SiPixelVCal, SINGLE_IOV> {
   public:
-    SiPixelVCalValuesPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelVCal Values per region") {}
+    SiPixelVCalValuesPerRegion() : PlotImage<SiPixelVCal, SINGLE_IOV>("SiPixelVCal Values per region") {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
 
       auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
       auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelVCal> payload = fetchPayload(std::get<1>(iov));
       SiPixelVCal::mapToDetId Map_;
@@ -279,7 +277,11 @@ namespace {
         canvas.cd(c);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (PixelRegions::IDlabels.at(index) + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                         fmt::sprintf("%s, #color[2]{%s, IOV: %s}",
+                                      PixelRegions::IDlabels.at(index),
+                                      tagname,
+                                      std::to_string(std::get<0>(iov)))
+                             .c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -298,20 +300,18 @@ namespace {
   /************************************************
       1d histogram of SiPixelVCal (slope or offset) of 2 IOV per region
   *************************************************/
-  template <bool isBarrel, int ntags, SiPixelVCalPI::type myType>
-  class SiPixelVCalValuesComparisonPerRegion
-      : public cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::MULTI_IOV, ntags> {
+  template <bool isBarrel, SiPixelVCalPI::type myType, IOVMultiplicity nIOVs, int ntags>
+  class SiPixelVCalValuesCompareSubdet : public PlotImage<SiPixelVCal, nIOVs, ntags> {
   public:
-    SiPixelVCalValuesComparisonPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelVCal, cond::payloadInspector::MULTI_IOV, ntags>(
-              Form("SiPixelVCal Values Comparisons per region %i tags(s)", ntags)) {}
+    SiPixelVCalValuesCompareSubdet()
+        : PlotImage<SiPixelVCal, nIOVs, ntags>(Form("SiPixelVCal Values Comparisons by Subdet %i tags(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
       std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -320,8 +320,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -373,14 +373,16 @@ namespace {
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
+      auto delta = std::abs(max - min) / 10.;
+
       auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll(
           fmt::sprintf("SiPixel VCal %s,last", (myType == SiPixelVCalPI::t_slope ? "slope" : "offset")),
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),
           "#modules",
           50,
-          min * 0.9,
-          max * 1.1);
+          min - delta,
+          max + delta);
 
       for (const auto &element : l_Map_) {
         l_myPlots.fill(element.first, element.second);
@@ -402,8 +404,8 @@ namespace {
           fmt::sprintf("SiPixel VCal %s", (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]")),
           "#modules",
           50,
-          min * 0.9,
-          max * 1.1);
+          min - delta,
+          max + delta);
 
       for (const auto &element : f_Map_) {
         f_myPlots.fill(element.first, element.second);
@@ -465,45 +467,61 @@ namespace {
     }
   };
 
-  using SiPixelVCalSlopesBarrelCompareSingleTag = SiPixelVCalValuesComparisonPerRegion<true, 1, SiPixelVCalPI::t_slope>;
+  using SiPixelVCalSlopesBarrelCompareSingleTag =
+      SiPixelVCalValuesCompareSubdet<true, SiPixelVCalPI::t_slope, MULTI_IOV, 1>;
   using SiPixelVCalOffsetsBarrelCompareSingleTag =
-      SiPixelVCalValuesComparisonPerRegion<true, 1, SiPixelVCalPI::t_offset>;
+      SiPixelVCalValuesCompareSubdet<true, SiPixelVCalPI::t_offset, MULTI_IOV, 1>;
 
   using SiPixelVCalSlopesEndcapCompareSingleTag =
-      SiPixelVCalValuesComparisonPerRegion<false, 1, SiPixelVCalPI::t_slope>;
+      SiPixelVCalValuesCompareSubdet<false, SiPixelVCalPI::t_slope, MULTI_IOV, 1>;
   using SiPixelVCalOffsetsEndcapCompareSingleTag =
-      SiPixelVCalValuesComparisonPerRegion<false, 1, SiPixelVCalPI::t_offset>;
+      SiPixelVCalValuesCompareSubdet<false, SiPixelVCalPI::t_offset, MULTI_IOV, 1>;
 
-  using SiPixelVCalSlopesBarrelCompareTwoTags = SiPixelVCalValuesComparisonPerRegion<true, 2, SiPixelVCalPI::t_slope>;
-  using SiPixelVCalOffsetsBarrelCompareTwoTags = SiPixelVCalValuesComparisonPerRegion<true, 2, SiPixelVCalPI::t_offset>;
+  using SiPixelVCalSlopesBarrelCompareTwoTags =
+      SiPixelVCalValuesCompareSubdet<true, SiPixelVCalPI::t_slope, SINGLE_IOV, 2>;
+  using SiPixelVCalOffsetsBarrelCompareTwoTags =
+      SiPixelVCalValuesCompareSubdet<true, SiPixelVCalPI::t_offset, SINGLE_IOV, 2>;
 
-  using SiPixelVCalSlopesEndcapCompareTwoTags = SiPixelVCalValuesComparisonPerRegion<false, 2, SiPixelVCalPI::t_slope>;
+  using SiPixelVCalSlopesEndcapCompareTwoTags =
+      SiPixelVCalValuesCompareSubdet<false, SiPixelVCalPI::t_slope, SINGLE_IOV, 2>;
   using SiPixelVCalOffsetsEndcapCompareTwoTags =
-      SiPixelVCalValuesComparisonPerRegion<false, 2, SiPixelVCalPI::t_offset>;
+      SiPixelVCalValuesCompareSubdet<false, SiPixelVCalPI::t_offset, SINGLE_IOV, 2>;
 
   /************************************************
       1d histogram of SiPixelVCal of 1 IOV
   *************************************************/
 
-  template <SiPixelVCalPI::type myType>
-  class SiPixelVCalValueComparisonBase : public cond::payloadInspector::PlotImage<SiPixelVCal> {
+  template <SiPixelVCalPI::type myType, IOVMultiplicity nIOVs, int ntags>
+  class SiPixelVCalValueComparisonBase : public PlotImage<SiPixelVCal, nIOVs, ntags> {
   public:
     SiPixelVCalValueComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelVCal>("SiPixelVCal Values Comparison") {}
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+        : PlotImage<SiPixelVCal, nIOVs, ntags>(Form("SiPixelVCal Synoptic Values Comparison %i tag(s)", ntags)) {}
+
+    bool fill() override {
       TH1F::SetDefaultSumw2(true);
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
       SiPixelVCal::mapToDetId l_Map_;
       SiPixelVCal::mapToDetId f_Map_;
 
-      std::shared_ptr<SiPixelVCal> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelVCal> last_payload = this->fetchPayload(std::get<1>(lastiov));
       if (myType == SiPixelVCalPI::t_slope) {
         l_Map_ = last_payload->getAllSlopes();
       } else {
@@ -511,7 +529,7 @@ namespace {
       }
       auto l_extrema = SiPixelPI::findMinMaxInMap(l_Map_);
 
-      std::shared_ptr<SiPixelVCal> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::shared_ptr<SiPixelVCal> first_payload = this->fetchPayload(std::get<1>(firstiov));
       if (myType == SiPixelVCalPI::t_slope) {
         f_Map_ = first_payload->getAllSlopes();
       } else {
@@ -521,6 +539,7 @@ namespace {
 
       auto max = (l_extrema.second > f_extrema.second) ? l_extrema.second : f_extrema.second;
       auto min = (l_extrema.first < f_extrema.first) ? l_extrema.first : f_extrema.first;
+      auto delta = std::abs(max - min) / 10.;
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -534,8 +553,8 @@ namespace {
                                 (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]"))
                        .c_str(),
                    50,
-                   min * 0.9,
-                   max * 1.1));
+                   min - delta,
+                   max + delta));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
@@ -545,8 +564,8 @@ namespace {
                                 (myType == SiPixelVCalPI::t_slope ? " slope [ADC/VCal]" : " offset [ADC]"))
                        .c_str(),
                    50,
-                   min * 0.9,
-                   max * 1.1));
+                   min - delta,
+                   max + delta));
       hlast->SetStats(false);
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
@@ -586,38 +605,34 @@ namespace {
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
-      ltx.SetTextSize(0.047);
+      ltx.SetTextSize(0.040);
       ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       ("SiPixel VCal IOV: #color[2]{" + std::to_string(std::get<0>(firstiov)) +
-                        "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov)) + "}")
-                           .c_str());
+      std::string ltxText;
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltxText = fmt::sprintf("#color[2]{%s, %s} vs #color[4]{%s, %s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               l_tagname,
+                               std::to_string(std::get<0>(lastiov)));
+      } else {
+        ltxText = fmt::sprintf("%s IOV: #color[2]{%s} vs IOV: #color[4]{%s}",
+                               f_tagname,
+                               std::to_string(std::get<0>(firstiov)),
+                               std::to_string(std::get<0>(lastiov)));
+      }
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, ltxText.c_str());
 
-      std::string fileName(m_imageFileName);
+      std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
     }
   };
 
-  template <SiPixelVCalPI::type myType>
-  class SiPixelVCalValueComparisonSingleTag : public SiPixelVCalValueComparisonBase<myType> {
-  public:
-    SiPixelVCalValueComparisonSingleTag() : SiPixelVCalValueComparisonBase<myType>() { this->setSingleIov(false); }
-  };
-
-  template <SiPixelVCalPI::type myType>
-  class SiPixelVCalValueComparisonTwoTags : public SiPixelVCalValueComparisonBase<myType> {
-  public:
-    SiPixelVCalValueComparisonTwoTags() : SiPixelVCalValueComparisonBase<myType>() { this->setTwoTags(true); }
-  };
-
-  using SiPixelVCalSlopesComparisonSingleTag = SiPixelVCalValueComparisonSingleTag<SiPixelVCalPI::t_slope>;
-  using SiPixelVCalOffsetsComparisonSingleTag = SiPixelVCalValueComparisonSingleTag<SiPixelVCalPI::t_offset>;
-
-  using SiPixelVCalSlopesComparisonTwoTags = SiPixelVCalValueComparisonTwoTags<SiPixelVCalPI::t_slope>;
-  using SiPixelVCalOffsetsComparisonTwoTags = SiPixelVCalValueComparisonTwoTags<SiPixelVCalPI::t_offset>;
+  using SiPixelVCalSlopesComparisonSingleTag = SiPixelVCalValueComparisonBase<SiPixelVCalPI::t_slope, MULTI_IOV, 1>;
+  using SiPixelVCalOffsetsComparisonSingleTag = SiPixelVCalValueComparisonBase<SiPixelVCalPI::t_offset, MULTI_IOV, 1>;
+  using SiPixelVCalSlopesComparisonTwoTags = SiPixelVCalValueComparisonBase<SiPixelVCalPI::t_slope, SINGLE_IOV, 2>;
+  using SiPixelVCalOffsetsComparisonTwoTags = SiPixelVCalValueComparisonBase<SiPixelVCalPI::t_offset, SINGLE_IOV, 2>;
 
 }  // namespace
 

@@ -6,13 +6,14 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
+#include "FWCore/Common/interface/SubProcessBlockHelper.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/src/SubProcess.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -34,7 +35,10 @@ namespace edm {
         act_table_(),
         processConfiguration_() {}
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, SubProcess const& om)
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg,
+                               SubProcess const& om,
+                               SubProcessBlockHelper& subProcessBlockHelper,
+                               ProcessBlockHelperBase const& parentProcessBlockHelper)
       : actReg_(std::make_shared<ActivityRegistry>()),
         preg_(std::make_shared<SignallingProductRegistry>(preg)),
         branchIDListHelper_(std::make_shared<BranchIDListHelper>()),
@@ -76,6 +80,7 @@ namespace edm {
         prod.setDropped(true);
       }
     }
+    subProcessBlockHelper.updateFromParentProcess(parentProcessBlockHelper, *preg_);
   }
 
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
@@ -130,11 +135,13 @@ namespace edm {
   std::unique_ptr<Schedule> ScheduleItems::initSchedule(ParameterSet& parameterSet,
                                                         bool hasSubprocesses,
                                                         PreallocationConfiguration const& config,
-                                                        ProcessContext const* processContext) {
+                                                        ProcessContext const* processContext,
+                                                        ProcessBlockHelperBase& processBlockHelper) {
     return std::make_unique<Schedule>(parameterSet,
                                       ServiceRegistry::instance().get<service::TriggerNamesService>(),
                                       *preg_,
                                       *branchIDListHelper_,
+                                      processBlockHelper,
                                       *thinnedAssociationsHelper_,
                                       subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
                                       *act_table_,
@@ -143,14 +150,5 @@ namespace edm {
                                       hasSubprocesses,
                                       config,
                                       processContext);
-  }
-
-  void ScheduleItems::clear() {
-    // propagate_const<T> has no reset() function
-    actReg_ = nullptr;
-    preg_ = nullptr;
-    branchIDListHelper_ = nullptr;
-    thinnedAssociationsHelper_ = nullptr;
-    processConfiguration_ = nullptr;
   }
 }  // namespace edm

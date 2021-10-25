@@ -63,10 +63,8 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
      )
 
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.reader = siStripQualityStatistics.clone()
 
 process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)

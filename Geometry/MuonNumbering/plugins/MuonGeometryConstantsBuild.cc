@@ -12,7 +12,7 @@
 
 bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryConstants& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry")
+  edm::LogVerbatim("MuonGeom")
       << "MuonGeometryConstantsBuild;:build (const DDCompactView* cpv, MuonGeometryConstants& php)";
 #endif
   std::string attribute = "OnlyForMuonNumbering";
@@ -27,7 +27,7 @@ bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryCon
 
   const DDsvalues_type mySpecs(fview.mergedSpecifics());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::mySpecs.size() = " << mySpecs.size();
+  edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsBuild::mySpecs.size() = " << mySpecs.size();
 #endif
   if (mySpecs.size() < 25) {
     edm::LogError("MuonGeometryConstantsBuild")
@@ -43,7 +43,7 @@ bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryCon
     if (bit->second.isEvaluated()) {
       php.addValue(bit->second.name(), static_cast<int>(bit->second.doubles()[0]));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::adding DDConstant of " << bit->second.name() << " = "
+      edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsBuild::adding DDConstant of " << bit->second.name() << " = "
                                    << static_cast<int>(bit->second.doubles()[0]);
 #endif
     }
@@ -53,7 +53,7 @@ bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryCon
 
 bool MuonGeometryConstantsBuild::build(const cms::DDCompactView* cpv, MuonGeometryConstants& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry")
+  edm::LogVerbatim("MuonGeom")
       << "MuonGeometryConstantsBuild;:build (const cms::DDCompactView* cpv, MuonGeometryConstants& php)";
 #endif
   cms::DDSpecParRegistry const& registry = cpv->specpars();
@@ -65,7 +65,7 @@ bool MuonGeometryConstantsBuild::build(const cms::DDCompactView* cpv, MuonGeomet
           for (const auto& ik : k.second) {
             php.addValue(k.first, static_cast<int>(ik));
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::adding DDConstant of " << k.first << " = "
+            edm::LogVerbatim("MuonGeom") << "MuonGeometryConstantsBuild::adding DDConstant of " << k.first << " = "
                                          << static_cast<int>(ik);
 #endif
           }

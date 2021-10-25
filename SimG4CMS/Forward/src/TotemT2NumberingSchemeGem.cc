@@ -20,7 +20,7 @@
 // constructors and destructor
 //
 TotemT2NumberingSchemeGem::TotemT2NumberingSchemeGem(int i) {
-  edm::LogInfo("ForwardSim") << " Creating TotemT2NumberingSchemeGem";
+  edm::LogVerbatim("ForwardSim") << " Creating TotemT2NumberingSchemeGem";
 }
 
 TotemT2NumberingSchemeGem::~TotemT2NumberingSchemeGem() {}

@@ -50,7 +50,6 @@ public:
   TEveScalableStraightLineSet *buildRhoZClusterLineSet(
       const reco::PFCluster &, const FWViewContext *, float caloTransAngle, float e, float et, float r, float z);
 
-private:
   FWPFClusterRPZUtils(const FWPFClusterRPZUtils &) = delete;                   // Disable default copy constructor
   const FWPFClusterRPZUtils &operator=(const FWPFClusterRPZUtils &) = delete;  // Disable default assignment operator
 };

@@ -10,8 +10,6 @@
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/BscNumberingScheme.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,10 +17,8 @@
 
 #include <iostream>
 
-#define debug
 //-------------------------------------------------------------------
 BscSD::BscSD(const std::string& name,
-             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
@@ -35,7 +31,7 @@ BscSD::BscSD(const std::string& name,
 
   if (name == "BSCHits") {
     if (verbn > 0) {
-      edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
+      edm::LogVerbatim("BscSim") << "name = BSCHits and  new BscNumberingSchem";
     }
     numberingScheme = new BscNumberingScheme();
   } else {

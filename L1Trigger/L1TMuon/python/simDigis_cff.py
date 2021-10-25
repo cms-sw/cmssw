@@ -12,6 +12,8 @@ simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtT
 )
 #simDtTriggerPrimitiveDigis.debug = cms.untracked.bool(True)
 
+# Lookup tables for the CSC TP emulator
+from CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff import *
 # - CSC TP emulator
 import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
 simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone(
@@ -78,7 +80,7 @@ from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 from L1Trigger.L1TMuonEndCap.simEmtfShowers_cfi import *
-from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
+from L1Trigger.L1TMuonOverlapPhase1.simOmtfDigis_cfi import *
 from L1Trigger.L1TMuon.simGmtCaloSumDigis_cfi import *
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
@@ -86,12 +88,19 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 #
 stage2L1Trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simTwinMuxDigis, simBmtfDigis, simKBmtfStubs, simKBmtfDigis, simEmtfDigis, simOmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis))
 
+## hadronic shower trigger for Run-3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+_run3_Shower_SimL1TMuonTask = SimL1TMuonTask.copy()
+_run3_Shower_SimL1TMuonTask.add(simEmtfShowers)
+_run3_Shower_SimL1TMuonTask.add(simGmtShowerDigis)
+(stage2L1Trigger & run3_common).toReplaceWith( SimL1TMuonTask, _run3_Shower_SimL1TMuonTask )
+
 #
 # Phase-2 Trigger
 #
 from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
-from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger 
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simTwinMuxDigis, simBmtfDigis, simKBmtfStubs, simKBmtfDigis, simEmtfDigis, simOmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis))
 
 ## GEM TPs

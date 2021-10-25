@@ -10,8 +10,8 @@
 using namespace std;
 using namespace trklet;
 
-TripletEngine::TripletEngine(string name, Settings const &settings, Globals *global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector) {
+TripletEngine::TripletEngine(string name, Settings const &settings, Globals *global)
+    : ProcessBase(name, settings, global) {
   stubpairs_.clear();
   thirdvmstubs_.clear();
   layer1_ = 0;
@@ -207,10 +207,13 @@ void TripletEngine::execute() {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
-                      << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
-                      << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
+                      << settings_.benddecode(secondvmstub.bend().value(), layer2_ - 1, secondvmstub.isPSmodule())
+                      << " " << settings_.benddecode(thirdvmstub.bend().value(), layer3_ - 1, thirdvmstub.isPSmodule());
                 }
-                continue;
+
+                //FIXME temporarily commented out until bend table fixed
+                //if (!settings_.writeTripletTables())
+                //  continue;
               }
               if (settings_.writeTripletTables()) {
                 if (index >= table_.size())
@@ -230,7 +233,7 @@ void TripletEngine::execute() {
                 edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
               if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
-                fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
                 fout.close();
               }
               stubtriplets_->addStubs(thirdvmstub.stub(),
@@ -290,8 +293,8 @@ void TripletEngine::execute() {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub triplet rejected because of stub pt cut bends : "
-                      << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
-                      << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
+                      << settings_.benddecode(secondvmstub.bend().value(), disk2_ + 5, secondvmstub.isPSmodule()) << " "
+                      << settings_.benddecode(thirdvmstub.bend().value(), layer3_ - 1, thirdvmstub.isPSmodule());
                 }
                 continue;
               }
@@ -313,7 +316,7 @@ void TripletEngine::execute() {
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
               if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
-                fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
                 fout.close();
               }
               stubtriplets_->addStubs(thirdvmstub.stub(),
@@ -374,8 +377,8 @@ void TripletEngine::execute() {
                 if (settings_.debugTracklet()) {
                   edm::LogVerbatim("Tracklet")
                       << "Stub pair rejected because of stub pt cut bends : "
-                      << benddecode(secondvmstub.bend().value(), secondvmstub.isPSmodule()) << " "
-                      << benddecode(thirdvmstub.bend().value(), thirdvmstub.isPSmodule());
+                      << settings_.benddecode(secondvmstub.bend().value(), layer2_ - 1, secondvmstub.isPSmodule())
+                      << " " << settings_.benddecode(thirdvmstub.bend().value(), disk3_ + 5, thirdvmstub.isPSmodule());
                 }
                 continue;
               }
@@ -397,7 +400,7 @@ void TripletEngine::execute() {
                 edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
               if (settings_.writeMonitorData("Seeds")) {
                 ofstream fout("seeds.txt", ofstream::app);
-                fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
+                fout << __FILE__ << ":" << __LINE__ << " " << name_ << " " << iSeed_ << endl;
                 fout.close();
               }
               stubtriplets_->addStubs(thirdvmstub.stub(),
@@ -460,16 +463,16 @@ void TripletEngine::writeTables() {
   ofstream fout;
   stringstream tableName;
 
-  tableName << "table/table_" << name_ << "_" << iSector_ << ".txt";
+  tableName << "table/table_" << name_ << ".txt";
 
   fout.open(tableName.str(), ofstream::out);
-  for (const auto &entry : table_)
+  for (const auto entry : table_)
     fout << entry << endl;
   fout.close();
 
   for (const auto &tedName : spTable_) {
     tableName.str("");
-    tableName << "table/table_" << tedName.first << "_" << name_ << "_" << iSector_ << ".txt";
+    tableName << "table/table_" << tedName.first << "_" << name_ << ".txt";
 
     fout.open(tableName.str(), ofstream::out);
     for (const auto &entry : tedName.second) {

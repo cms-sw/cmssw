@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,7 +48,7 @@
 
 class TrackerTopology;
 
-class HitEff : public edm::EDAnalyzer {
+class HitEff : public edm::one::EDAnalyzer<> {
 public:
   explicit HitEff(const edm::ParameterSet& conf);
   double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);

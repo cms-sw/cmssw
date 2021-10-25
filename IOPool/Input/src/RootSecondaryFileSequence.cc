@@ -37,7 +37,7 @@ namespace edm {
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    StorageFactory::get()->stagein(fileNames()[0]);
+    storage::StorageFactory::get()->stagein(fileNames()[0]);
 
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -52,7 +52,7 @@ namespace edm {
 
   RootSecondaryFileSequence::~RootSecondaryFileSequence() {}
 
-  void RootSecondaryFileSequence::endJob() { closeFile_(); }
+  void RootSecondaryFileSequence::endJob() { closeFile(); }
 
   void RootSecondaryFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.

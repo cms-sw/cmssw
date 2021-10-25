@@ -24,7 +24,7 @@
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "SystemTimeKeeper.h"
+#include "FWCore/Framework/interface/SystemTimeKeeper.h"
 
 using namespace edm;
 
@@ -202,9 +202,15 @@ void SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream, ModuleCa
   }
 }
 
-void SystemTimeKeeper::startProcessingLoop() { m_processingLoopTimer.start(); }
+void SystemTimeKeeper::startProcessingLoop() {
+  m_processingLoopTimer.start();
+  m_processingLoopChildrenTimer.start();
+}
 
-void SystemTimeKeeper::stopProcessingLoop() { m_processingLoopTimer.stop(); }
+void SystemTimeKeeper::stopProcessingLoop() {
+  m_processingLoopTimer.stop();
+  m_processingLoopChildrenTimer.stop();
+}
 
 static void fillPathSummary(unsigned int iStartIndex,
                             unsigned int iEndIndex,
@@ -248,7 +254,7 @@ void SystemTimeKeeper::fillTriggerTimingReport(TriggerTimingReport& rep) const {
       sumEventTime += stream.realTime();
     }
     rep.eventSummary.realTime = m_processingLoopTimer.realTime();
-    rep.eventSummary.cpuTime = m_processingLoopTimer.cpuTime();
+    rep.eventSummary.cpuTime = m_processingLoopTimer.cpuTime() + m_processingLoopChildrenTimer.cpuTime();
     rep.eventSummary.sumStreamRealTime = sumEventTime;
   }
 

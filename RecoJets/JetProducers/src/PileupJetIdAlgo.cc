@@ -664,7 +664,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   }
 
   internalId_.dRLeadCent_ = reco::deltaR(*jet, *lLead);
-  if (lSecond == nullptr) {
+  if (lSecond != nullptr) {
     internalId_.dRLead2nd_ = reco::deltaR(*jet, *lSecond);
   }
   internalId_.dRMean_ /= jetPt;

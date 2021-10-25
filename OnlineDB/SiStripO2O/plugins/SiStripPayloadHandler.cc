@@ -51,7 +51,6 @@ private:
 
   std::string p_type;
   std::string p_cfgstr;
-  edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
 };
 
 template <typename SiStripPayload>
@@ -63,8 +62,9 @@ SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::Paramete
       m_localCondDbFile(iConfig.getParameter<std::string>("condDbFile")),
       m_targetTag(iConfig.getParameter<std::string>("targetTag")),
       m_since(iConfig.getParameter<uint32_t>("since")),
-      p_type(cond::demangledName(typeid(SiStripPayload))),
-      p_cfgstr(condObjBuilder->getConfigString(typeid(SiStripPayload))) {
+      p_type(cond::demangledName(typeid(SiStripPayload))) {
+  edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
+  p_cfgstr = condObjBuilder->getConfigString(typeid(SiStripPayload));
   if (iConfig.exists("configMapDatabase"))
     m_configMapDb = iConfig.getParameter<std::string>("configMapDatabase");
   if (iConfig.exists("cfgMapDbFile"))
@@ -108,6 +108,7 @@ void SiStripPayloadHandler<SiStripPayload>::analyze(const edm::Event& evt, const
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
                                           << "NO mapping payload hash found. Will run the long O2O. ";
     SiStripPayload* obj = nullptr;
+    edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
     if (typeid(SiStripPayload) == typeid(SiStripApvGain)) {
       // special treatment for ApvGain : provide last payload in DB
       condObjBuilder->setLastIovGain(condDbSession.fetchPayload<SiStripApvGain>(last_hash));

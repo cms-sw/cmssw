@@ -175,10 +175,6 @@ GsfTransientTrack::GsfTransientTrack(const GsfTransientTrack& tt)
   }
 }
 
-void GsfTransientTrack::setES(const edm::EventSetup& setup) {
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-}
-
 void GsfTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
   theTrackingGeometry = tg;
 }

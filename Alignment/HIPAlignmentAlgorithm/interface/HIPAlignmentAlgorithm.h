@@ -9,6 +9,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Riostream.h"
 
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
@@ -21,6 +22,10 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPMonitorConfig.h"
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
 #include "TFormula.h"
@@ -31,7 +36,7 @@ class TTree;
 class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  HIPAlignmentAlgorithm(const edm::ParameterSet& cfg);
+  HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// Destructor
   ~HIPAlignmentAlgorithm() override{};
@@ -80,6 +85,8 @@ private:
   HIPAlignableSpecificParameters* findAlignableSpecs(const Alignable* ali);
 
   // private data members
+  const edm::ESGetToken<TrackerTopology, IdealGeometryRecord> topoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken2_;
 
   std::unique_ptr<AlignableObjectId> alignableObjectId_;
   AlignmentParameterStore* theAlignmentParameterStore;

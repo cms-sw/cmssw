@@ -16,7 +16,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_run_only_file.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} || die "python3 ${checkFile}" $?
 
   testConfig=create_lumi_only_file_cfg.py
   rm -f dqm_lumi_only.root
@@ -29,7 +29,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_lumi_only_file.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} || die "python3 ${checkFile}" $?
 
   testConfig=create_run_lumi_file_cfg.py
   rm -f dqm_run_lumi.root
@@ -42,7 +42,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_run_lumi_file.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} dqm_run_lumi.root || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} dqm_run_lumi.root || die "python3 ${checkFile}" $?
 
   #read write
   testConfig=read_write_run_lumi_file_cfg.py
@@ -52,7 +52,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_run_lumi_file.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} dqm_run_lumi_copy.root || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} dqm_run_lumi_copy.root || die "python3 ${checkFile}" $?
 
   #more than one type
   testConfig=create_file_multi_types_cfg.py
@@ -63,7 +63,7 @@ pushd ${LOCAL_TMP_DIR}
   checkFile=check_multi_types.py
   fileToCheck=dqm_file_multi_types.root
   echo ${checkFile} ${fileToCheck} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python3 ${checkFile} ${fileToCheck}" $?
 
   testConfig=copy_file_multi_types_cfg.py
   rm -f dqm_copy_multi_types.root
@@ -73,7 +73,7 @@ pushd ${LOCAL_TMP_DIR}
   checkFile=check_multi_types.py
   fileToCheck=dqm_copy_multi_types.root
   echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python3 ${checkFile} ${fileToCheck}" $?
 
   #merging
   testConfig=create_file1_cfg.py
@@ -85,7 +85,7 @@ pushd ${LOCAL_TMP_DIR}
   # test GUID here
   checkFile=check_guid_file1.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} || die "python3 ${checkFile}" $?
 
   testConfig=create_file2_cfg.py
   rm -f dqm_file2.root
@@ -112,7 +112,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_merged_file1_file2.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} || die "python3 ${checkFile}" $?
 
   testConfig=read_merged_file1_file2_cfg.py
   echo ${testConfig} ------------------------------------------------------------
@@ -145,7 +145,7 @@ pushd ${LOCAL_TMP_DIR}
 
   checkFile=check_merged_file1_file3_file2_filterOnRun1_cfg.py
   echo ${checkFile} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} || die "python3 ${checkFile}" $?
 
   testConfig=read_write_merged_file1_file3_file2_filterOnRun1_cfg.py
   rm -f dqm_merged_file1_file3_file2_filterOnRun1_copy.root
@@ -155,7 +155,7 @@ pushd ${LOCAL_TMP_DIR}
   checkFile=check_merged_file1_file3_file2_filterOnRun1_copy_cfg.py
   fileToCheck=dqm_merged_file1_file3_file2_filterOnRun1_copy.root
   echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
-  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
+  python3 ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python3 ${checkFile} ${fileToCheck}" $?
 
   testConfig=create_file4_cfg.py
   rm -f dqm_file4.root

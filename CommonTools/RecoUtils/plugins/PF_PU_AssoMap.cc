@@ -73,7 +73,7 @@ void PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   PF_PU_AssoMapAlgos::GetInputCollections(iEvent, iSetup);
 
   if (asstype == "TracksToVertex" || asstype == "VertexToTracks" || asstype == "Both") {
-    auto mappings = createMappings(trkcollH, iSetup);
+    auto mappings = createMappings(trkcollH);
     if (asstype == "TracksToVertex" || asstype == "Both") {
       iEvent.put(SortAssociationMap(&(*mappings.first), trkcollH));
     }

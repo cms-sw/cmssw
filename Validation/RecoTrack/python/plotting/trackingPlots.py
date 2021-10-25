@@ -4,7 +4,6 @@ import os
 import copy
 import collections
 
-import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -353,7 +352,9 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2mean_vs_pt", title="", xtitle="p_{T}", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, fallback={"name": "chi2_vs_pt", "profileX": True}),
     Plot("chi2mean_vs_drj", title="", xtitle="#DeltaR(track, jet)", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, xmax=_maxDRJ, fallback={"name": "chi2_vs_drj", "profileX": True}),
     Plot("ptres_vs_pt_Mean", title="", xtitle="p_{T}", ytitle="< #delta p_{T}/p_{T} > (%)", scale=100, ymin=_minResidualPt, ymax=_maxResidualPt,xlog=True)
-])
+],
+                   legendDy=_legendDy_4rows
+)
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
     Plot("pullPt", **_common),
@@ -630,7 +631,7 @@ def _mapCollectionToAlgoQuality(collName):
                 break
         # next try "old style"
         if algo is None:
-            for coll, name in six.iteritems(_possibleTrackingCollsOld):
+            for coll, name in _possibleTrackingCollsOld.items():
                 if testColl(coll.lower()):
                     algo = name
                     break
@@ -960,7 +961,7 @@ class TrackingSummaryTable:
 
     def create(self, tdirectory):
         def _getAlgoQuality(data, algo, quality):
-            for label, value in six.iteritems(data):
+            for label, value in data.items():
                 (a, q) = _mapCollectionToAlgoQuality(label)
                 if a == algo and q == quality:
                     return value[0] # value is (value, uncertainty) tuple
@@ -1456,7 +1457,9 @@ _iterations = [
                        "initialStepHitTripletsPreSplitting",
                        "initialStepHitQuadrupletsPreSplitting",
                        "initialStepSeedsPreSplitting"],
-              building=["initialStepTrackCandidatesPreSplitting"],
+              building=["initialStepTrackCandidatesPreSplitting",
+                        "initialStepTrackCandidatesMkFitSeedsPreSplitting",
+                        "initialStepTrackCandidatesMkFitPreSplitting"],
               fit=["initialStepTracksPreSplitting"],
               other=["firstStepPrimaryVerticesPreSplitting",
                      "initialStepTrackRefsForJetsPreSplitting",
@@ -1466,7 +1469,10 @@ _iterations = [
                      "siPixelClusters",
                      "siPixelRecHits",
                      "MeasurementTrackerEvent",
-                     "siPixelClusterShapeCache"]),
+                     "siPixelClusterShapeCache",
+                     "mkFitSiPixelHitsPreSplitting",
+                     "mkFitSiStripHits",
+                     "mkFitEventOfHitsPreSplitting"]),
     Iteration("initialStep", clusterMasking=[],
               selection=["initialStepClassifier1",
                          "initialStepClassifier2",
@@ -1479,7 +1485,6 @@ _iterations = [
                      "ak4CaloJetsForTrk",
                      "firstStepPrimaryVertices",
                      "mkFitSiPixelHits",
-                     "mkFitSiStripHits",
                      "mkFitEventOfHits"]),
     Iteration("highPtTripletStep",
               selection=["highPtTripletStepClassifier1",

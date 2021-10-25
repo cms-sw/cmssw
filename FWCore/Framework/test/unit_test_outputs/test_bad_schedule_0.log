@@ -1,0 +1,6 @@
+An exception of category 'ScheduleExecutionFailure' occurred while
+   [0] Calling beginJob
+Exception Message:
+Unrunnable schedule
+The Path/EndPath configuration could cause the job to deadlock
+  module 'a' is on path 'p' and depends on module 'a'

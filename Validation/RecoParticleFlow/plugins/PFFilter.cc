@@ -1,12 +1,33 @@
-#include "Validation/RecoParticleFlow/plugins/PFFilter.h"
+// author: Florent Lacroix (UIC)
+// date: 07/14/2009
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+class PFFilter : public edm::EDFilter {
+public:
+  explicit PFFilter(const edm::ParameterSet &);
+  ~PFFilter() override;
+
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
+  bool checkInput();
+
+private:
+  std::vector<std::string> collections_;
+  std::vector<std::string> variables_;
+  std::vector<double> min_;
+  std::vector<double> max_;
+  std::vector<int> doMin_;
+  std::vector<int> doMax_;
+};
 
 PFFilter::PFFilter(const edm::ParameterSet &iConfig) {
   collections_ = iConfig.getParameter<std::vector<std::string>>("Collections");

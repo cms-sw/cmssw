@@ -41,10 +41,10 @@ public:
   // --------------------- Member Functions --------------------------
   void updateScale(const FWViewContext* vc, const fireworks::Context&);
 
-private:
   FWLegoCandidate(const FWLegoCandidate&) = delete;                   // Disable default copy constructor
   const FWLegoCandidate& operator=(const FWLegoCandidate&) = delete;  // Disable default assignment operator
 
+private:
   // ----------------------- Data Members ----------------------------
   float m_energy;
   float m_et;

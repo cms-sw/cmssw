@@ -19,7 +19,7 @@
 #include "Fireworks/Core/interface/FWModelFilter.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
 
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"

@@ -16,7 +16,7 @@ namespace edm {
     void endJob() override;
     void beginLuminosityBlock(edm::LuminosityBlock&) override;
     void beginRun(edm::Run&) override;
-    std::unique_ptr<edm::FileBlock> readFile_() override;
+    std::shared_ptr<edm::FileBlock> readFile_() override;
     void closeFile_() override;
     std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
     std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
@@ -83,10 +83,10 @@ namespace edm {
       throw cms::Exception("TestThrow") << "ThrowingSource::beginRun";
   }
 
-  std::unique_ptr<FileBlock> ThrowingSource::readFile_() {
+  std::shared_ptr<FileBlock> ThrowingSource::readFile_() {
     if (whenToThrow_ == kReadFile)
       throw cms::Exception("TestThrow") << "ThrowingSource::readFile_";
-    return std::make_unique<FileBlock>();
+    return std::make_shared<FileBlock>();
   }
 
   void ThrowingSource::closeFile_() {

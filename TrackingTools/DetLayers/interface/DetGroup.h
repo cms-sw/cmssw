@@ -43,7 +43,7 @@ public:
   typedef std::vector<DetGroupElement> Base;
   typedef DetGroupElement::DetWithState DetWithState;
 
-  DetGroup() {}
+  DetGroup() : index_(0), indexSize_(0) {}
   DetGroup(DetGroup const& rhs) : Base(rhs), index_(rhs.index_), indexSize_(rhs.indexSize_) {}
   DetGroup(DetGroup&& rhs) noexcept : Base(std::forward<Base>(rhs)), index_(rhs.index_), indexSize_(rhs.indexSize_) {}
   DetGroup& operator=(DetGroup const& rhs) {

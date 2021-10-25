@@ -36,67 +36,67 @@ namespace edm {
 
       template <>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::SharedResourcesUser<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::one::WatchRuns> {
-        typedef edm::one::impl::RunWatcher<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::RunWatcher<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::one::WatchLuminosityBlocks> {
-        typedef edm::one::impl::LuminosityBlockWatcher<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::LuminosityBlockWatcher<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::WatchProcessBlock> {
-        typedef edm::one::impl::WatchProcessBlock<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::WatchProcessBlock<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginProcessBlockProducer> {
-        typedef edm::one::impl::BeginProcessBlockProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::BeginProcessBlockProducer<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndProcessBlockProducer> {
-        typedef edm::one::impl::EndProcessBlockProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::EndProcessBlockProducer<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginRunProducer> {
-        typedef edm::one::impl::BeginRunProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::BeginRunProducer<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndRunProducer> {
-        typedef edm::one::impl::EndRunProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::EndRunProducer<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::BeginLuminosityBlockProducer> {
-        typedef edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::BeginLuminosityBlockProducer<edm::one::EDFilterBase>;
       };
 
       template <>
       struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
-        typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDFilterBase> Type;
+        using Type = edm::one::impl::EndLuminosityBlockProducer<edm::one::EDFilterBase>;
       };
 
-      template <typename C>
-      struct AbilityToImplementor<edm::InputProcessBlockCache<C>> {
-        typedef edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDFilterBase, C> Type;
+      template <typename... Cs>
+      struct AbilityToImplementor<edm::InputProcessBlockCache<Cs...>> {
+        using Type = edm::one::impl::InputProcessBlockCacheHolder<edm::one::EDFilterBase, Cs...>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::one::impl::RunCacheHolder<edm::one::EDFilterBase, C> Type;
+        using Type = edm::one::impl::RunCacheHolder<edm::one::EDFilterBase, C>;
       };
 
       template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDFilterBase, C> Type;
+        using Type = edm::one::impl::LuminosityBlockCacheHolder<edm::one::EDFilterBase, C>;
       };
 
     }  // namespace filter

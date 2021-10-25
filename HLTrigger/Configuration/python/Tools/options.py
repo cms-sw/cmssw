@@ -46,9 +46,9 @@ class ConnectionL1TMenuXml(object):
 
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
-  valid_versions  = 'v1', 'v2'
-  valid_databases = 'online', 'offline', 'adg'
-  compatibility   = { 'hltdev': ('v2', 'offline'), 'orcoff': ('v2', 'adg') }
+  valid_versions  = 'v1', 'v2', 'v3', 'v3-beta', 'v3-test'
+  valid_databases = 'online', 'run3', 'adg','dev','run2'
+  compatibility   = { 'hltdev': ('v3', 'run3'), 'orcoff': ('v3', 'adg') }
 
   def __init__(self, value):
     self.version    = None
@@ -60,9 +60,9 @@ class ConnectionHLTMenu(object):
       return
 
     if not ':' in value:
-      # default to 'v2/offline'
-      self.version    = 'v2'
-      self.database   = 'offline'
+      # default to 'v3/run3'
+      self.version    = 'v3'
+      self.database   = 'run3'
       self.name       = value
       return
 
@@ -73,7 +73,7 @@ class ConnectionHLTMenu(object):
     (db, name) = tokens
     # check if the menu should be automatically determined based on the run number
     if db == 'run':
-      self.version  = 'v2'
+      self.version  = 'v3'
       self.database = 'adg'
       self.run      = name
     # check for backward compatibility names
@@ -95,11 +95,11 @@ class ConnectionHLTMenu(object):
         self.database = db
         self.name     = name
       else:
-        # use the confdb v2 by default
+        # use the confdb v3 by default
         if db not in self.valid_databases:
           raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
         self.database = db
-        self.version  = 'v2'
+        self.version  = 'v3'
         self.name     = name
 
 # options marked with a (*) only apply when creating a whole process configuration
@@ -132,29 +132,31 @@ class HLTProcessOptions(object):
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
-    if name is 'menu' and not isinstance(value, ConnectionHLTMenu):
+    if name == 'menu' and not isinstance(value, ConnectionHLTMenu):
       # format 'menu' as needed
       object.__setattr__(self, name, ConnectionHLTMenu(value))
-    elif name is 'l1' and not isinstance(value, ConnectionL1TMenu):
+    elif name == 'l1' and not isinstance(value, ConnectionL1TMenu):
       # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
-    elif name is 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
+    elif name == 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
-    elif name is 'open' and value:
+    elif name == 'open' and value:
       # '--open' implies '--unprescale'
       object.__setattr__(self, 'open',      True)
       object.__setattr__(self, 'prescale',  "none")
-    elif name is 'prescale' and value is not None:
+    elif name == 'prescale' and value is not None:
       # '--open' overrides '--prescale', set the prescale value only if '--open' is not set
       if not self.open:
         object.__setattr__(self, 'prescale', value)
-    elif name is 'profiling' and value:
+    elif name == 'profiling' and value:
       # '--profiling'
       object.__setattr__(self, 'profiling', True)
-    elif name is 'timing' and value:
+    elif name == 'timing' and value:
       # '--timing' implies '--profiling'
       object.__setattr__(self, 'timing',    True)
       object.__setattr__(self, 'profiling', True)
+    elif name == 'setup' and value and value.find(":")!=-1:
+      raise Exception('you can not specify a converter/database in the setup option.\nIt takes the converter database specified by the primary config.\nPlease remove the text upto and including the ":" in\n  {} '.format(value))      
     else:
       object.__setattr__(self, name, value)

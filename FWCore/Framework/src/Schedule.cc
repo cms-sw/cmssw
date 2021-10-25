@@ -7,21 +7,23 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/src/SubProcess.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/src/OutputModuleCommunicator.h"
-#include "FWCore/Framework/src/ModuleHolder.h"
-#include "FWCore/Framework/src/ModuleRegistry.h"
+#include "FWCore/Framework/interface/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -647,6 +649,18 @@ namespace edm {
         }
       }
     };
+
+    template <typename F>
+    auto doCleanup(F&& iF) {
+      auto wrapped = [f = std::move(iF)](std::exception_ptr const* iPtr, edm::WaitingTaskHolder iTask) {
+        CMS_SA_ALLOW try { f(); } catch (...) {
+        }
+        if (iPtr) {
+          iTask.doneWaiting(*iPtr);
+        }
+      };
+      return wrapped;
+    }
   }  // namespace
   // -----------------------------
 
@@ -658,6 +672,7 @@ namespace edm {
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
+                     ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
@@ -796,10 +811,12 @@ namespace edm {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
 
+    processBlockHelper.updateForNewProcess(preg, processConfiguration->processName());
+
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->selectProducts(preg, thinnedAssociationsHelper);
+      c->selectProducts(preg, thinnedAssociationsHelper, processBlockHelper);
     }
 
     for (auto& product : preg.productListUpdator()) {
@@ -1213,6 +1230,9 @@ namespace edm {
   void Schedule::closeOutputFiles() {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
+    for (auto& worker : allWorkers()) {
+      worker->respondToCloseOutputFile();
+    }
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
@@ -1232,30 +1252,25 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
 
-            activityRegistry->postGlobalWriteRunSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-    for (auto& c : all_output_communicators_) {
-      c->writeRunAsync(tHolder, rp, processContext, activityRegistry, mergeableRunProductMetadata);
-    }
+      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
+
+      activityRegistry->postGlobalWriteRunSignal_(globalContext);
+    })) |
+        chain::runLast(task);
   }
 
   void Schedule::writeProcessBlockAsync(WaitingTaskHolder task,
@@ -1270,30 +1285,22 @@ namespace edm {
                                 Timestamp::invalidTimestamp(),
                                 processContext);
 
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
+      ServiceRegistry::Operate op(token);
+      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeProcessBlockAsync(nextTask, pbp, processContext, activityRegistry);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-            activityRegistry->postWriteProcessBlockSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
-
-    for (auto& c : all_output_communicators_) {
-      c->writeProcessBlockAsync(tHolder, pbp, processContext, activityRegistry);
-    }
+      activityRegistry->postWriteProcessBlockSignal_(globalContext);
+    })) |
+        chain::runLast(std::move(task));
   }
 
   void Schedule::writeLumiAsync(WaitingTaskHolder task,
@@ -1308,29 +1315,21 @@ namespace edm {
                                 lbp.beginTime(),
                                 processContext);
 
-    auto t =
-        make_waiting_task([task, activityRegistry, globalContext, token](std::exception_ptr const* iExcept) mutable {
-          // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-          CMS_SA_ALLOW try {
-            //services can depend on other services
-            ServiceRegistry::Operate op(token);
+    using namespace edm::waiting_task;
+    chain::first([&](auto nextTask) {
+      ServiceRegistry::Operate op(token);
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
+      }
+      for (auto& c : all_output_communicators_) {
+        c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
+      }
+    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
+      //services can depend on other services
+      ServiceRegistry::Operate op(token);
 
-            activityRegistry->postGlobalWriteLumiSignal_(globalContext);
-          } catch (...) {
-          }
-          std::exception_ptr ptr;
-          if (iExcept) {
-            ptr = *iExcept;
-          }
-          task.doneWaiting(ptr);
-        });
-    // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-    CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
-    }
-    WaitingTaskHolder tHolder(*task.group(), t);
-    for (auto& c : all_output_communicators_) {
-      c->writeLumiAsync(tHolder, lbp, processContext, activityRegistry);
-    }
+      activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+    })) |
+        chain::runLast(task);
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -1352,8 +1351,10 @@ namespace edm {
     for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
-  void Schedule::beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const& iESIndices) {
-    globalSchedule_->beginJob(iRegistry, iESIndices);
+  void Schedule::beginJob(ProductRegistry const& iRegistry,
+                          eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                          ProcessBlockHelperBase const& processBlockHelperBase) {
+    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }
 
   void Schedule::beginStream(unsigned int iStreamID) {

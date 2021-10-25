@@ -19,10 +19,8 @@
 // user include files
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -82,7 +80,9 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,
       doWireCorr_(iConfig.getParameter<bool>("DoWireCorr")),
       dropTheta_(iConfig.getParameter<bool>("DropTheta")),
       requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
-      debug(iConfig.getParameter<bool>("debug")) {
+      debug(iConfig.getParameter<bool>("debug")),
+      theDTGeomToken(iC.esConsumes()),
+      thePropagatorToken(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = std::make_unique<MuonServiceProxy>(serviceParameters, edm::ConsumesCollector(iC));
   theMatcher = segMatcher;
@@ -106,13 +106,10 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
   const GlobalTrackingGeometry* theTrackingGeometry = &*theService->trackingGeometry();
 
   // get the DT geometry
-  edm::ESHandle<DTGeometry> theDTGeom;
-  iSetup.get<MuonGeometryRecord>().get(theDTGeom);
+  DTGeometry const& theDTGeom = iSetup.getData(theDTGeomToken);
 
   // get the propagator
-  edm::ESHandle<Propagator> propagator;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  const Propagator* propag = propagator.product();
+  const Propagator* propag = &iSetup.getData(thePropagatorToken);
 
   math::XYZPoint pos = muonTrack->innerPosition();
   math::XYZVector mom = muonTrack->innerMomentum();
@@ -191,7 +188,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
 
         // signal propagation along the wire correction for unmached theta or phi segment hits
         if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {
-          const DTLayer* layer = theDTGeom->layer(hiti.wireId());
+          const DTLayer* layer = theDTGeom.layer(hiti.wireId());
           float propgL = layer->toLocal(tsos.first.globalPosition()).y();
           float wirePropCorr = propgL / 24.4 * 0.00543;  // signal propagation speed along the wire
           if (thisHit.isLeft)

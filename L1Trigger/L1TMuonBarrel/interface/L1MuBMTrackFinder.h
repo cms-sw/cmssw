@@ -41,11 +41,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
@@ -141,6 +144,7 @@ private:
   static L1MuBMTFConfig* m_config;  ///< Track Finder configuration
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;
 };
 
 #endif

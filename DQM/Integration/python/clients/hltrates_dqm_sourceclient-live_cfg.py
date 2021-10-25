@@ -97,7 +97,7 @@ process.load("DQM.HLTEvF.TrigResRateMon_cfi")
 
 # run on 1 out of 8 SM, LSSize 23 -> 23/8 = 2.875
 # stream is prescaled by 10, to correct change LSSize 23 -> 23/10 = 2.3
-process.trRateMon.LuminositySegmentSize = cms.untracked.double(2.3)
+process.trRateMon.LuminositySegmentSize = 2.3
 
 
 # Add RawToDigi

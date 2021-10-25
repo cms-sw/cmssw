@@ -5,26 +5,15 @@
 
 #include <memory>
 #include <fstream>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-
 #include "Validation/MuonRPCGeometry/plugins/RPCGeometryServTest.h"
 
-#include <string>
 #include <cmath>
 #include <vector>
-#include <map>
 #include <iomanip>
 #include <set>
 
@@ -33,13 +22,13 @@ using namespace std;
 RPCGeometryServTest::RPCGeometryServTest(const edm::ParameterSet& iConfig)
     : dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("RPCGeometryServTest") {
   std::cout << "======================== Opening output file" << std::endl;
+  rpcGeomToken_ = esConsumes();
 }
 
 RPCGeometryServTest::~RPCGeometryServTest() {}
 
 void RPCGeometryServTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RPCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const auto& pDD = iSetup.getHandle(rpcGeomToken_);
 
   std::cout << myName() << ": Analyzer..." << std::endl;
   std::cout << "start " << dashedLine_ << std::endl;

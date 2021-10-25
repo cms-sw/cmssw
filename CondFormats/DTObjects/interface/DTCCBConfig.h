@@ -60,6 +60,8 @@ public:
 class DTCCBConfig {
 public:
   DTCCBConfig();
+  DTCCBConfig(DTCCBConfig const&) = delete;
+  DTCCBConfig& operator=(DTCCBConfig const&) = delete;
   DTCCBConfig(const std::string& version);
 
   virtual ~DTCCBConfig();
@@ -96,9 +98,6 @@ public:
   void initialize();
 
 private:
-  DTCCBConfig(DTCCBConfig const&) = delete;
-  DTCCBConfig& operator=(DTCCBConfig const&) = delete;
-
   int timeStamp;
   std::string dataVersion;
   std::vector<DTConfigKey> fullConfigKey;

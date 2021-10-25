@@ -1,4 +1,5 @@
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripFedCablingFakeESSource.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "CalibTracker/Records/interface/SiStripHashedDetIdRcd.h"
@@ -18,7 +19,7 @@ using namespace sistrip;
 SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource(const edm::ParameterSet& pset)
     : SiStripFedCablingESProducer(pset), fedIds_(pset.getParameter<edm::FileInPath>("FedIdsFile")), pset_(pset) {
   findingRecord<SiStripFedCablingRcd>();
-  m_detInfoFileReader = SiStripDetInfoFileReader{pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
   edm::LogVerbatim("FedCabling") << "[SiStripFedCablingFakeESSource::" << __func__ << "]"
                                  << " Constructing object...";
 }
@@ -42,7 +43,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
 
   // Read DetId list from file
   typedef std::vector<uint32_t> Dets;
-  Dets dets = m_detInfoFileReader.getAllDetIds();
+  Dets dets = m_detInfo.getAllDetIds();
 
   // Read FedId list from file
   typedef std::vector<uint16_t> Feds;
@@ -55,7 +56,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
   Dets::const_iterator idet = dets.begin();
   Dets::const_iterator jdet = dets.end();
   for (; idet != jdet; ++idet) {
-    uint16_t npairs = m_detInfoFileReader.getNumberOfApvsAndStripLength(*idet).first / 2;
+    uint16_t npairs = m_detInfo.getNumberOfApvsAndStripLength(*idet).first / 2;
     for (uint16_t ipair = 0; ipair < npairs; ++ipair) {
       uint16_t addr = 0;
       if (npairs == 2 && ipair == 0) {

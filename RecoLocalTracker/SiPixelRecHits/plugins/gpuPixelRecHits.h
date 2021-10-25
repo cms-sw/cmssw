@@ -146,8 +146,9 @@ namespace gpuPixelRecHits {
         assert(cl < MaxHitsInIter);
         auto x = digis.xx(i);
         auto y = digis.yy(i);
-        auto ch = std::min(digis.adc(i), pixmx);
+        auto ch = digis.adc(i);
         atomicAdd(&clusParams.charge[cl], ch);
+        ch = std::min(ch, pixmx);
         if (clusParams.minRow[cl] == x)
           atomicAdd(&clusParams.q_f_X[cl], ch);
         if (clusParams.maxRow[cl] == x)
@@ -173,7 +174,7 @@ namespace gpuPixelRecHits {
         pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
         // store it
-        hits.charge(h) = clusParams.charge[ic];
+        hits.setChargeAndStatus(h, clusParams.charge[ic], clusParams.status[ic]);
         hits.detectorIndex(h) = me;
 
         float xl, yl;
@@ -183,8 +184,8 @@ namespace gpuPixelRecHits {
         hits.clusterSizeX(h) = clusParams.xsize[ic];
         hits.clusterSizeY(h) = clusParams.ysize[ic];
 
-        hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic];
-        hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic];
+        hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic] + cpeParams->detParams(me).apeXX;
+        hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic] + cpeParams->detParams(me).apeYY;
 
         // keep it local for computations
         float xg, yg, zg;

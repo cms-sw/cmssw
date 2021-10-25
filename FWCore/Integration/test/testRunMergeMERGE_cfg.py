@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MERGE")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.cerr.threshold = 'ERROR'
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.MessageLogger.cerr.threshold = 'ERROR'
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
@@ -97,17 +97,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
     ),
 
     expectedDroppedEvent1 = cms.untracked.vint32(13, -1, -1, -1, 13),
-
-    expectedRespondToOpenInputFile = cms.untracked.int32(5),
-    expectedRespondToCloseInputFile = cms.untracked.int32(5),
-
-    expectedInputFileNames = cms.untracked.vstring(
-        'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
-        'file:testRunMerge3.root',
-        'file:testRunMerge4.root',
-        'file:testRunMerge5.root'
-    ),
+    expectedDroppedEvent1NEvents = cms.untracked.vint32(10,10,10,1,99),
 
     verbose = cms.untracked.bool(False),
     testAlias = cms.untracked.bool(True)

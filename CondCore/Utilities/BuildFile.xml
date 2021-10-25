@@ -2,8 +2,9 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/PluginManager"/>
 <use name="boost"/>
-<use name="boost_python"/>
 <use name="boost_program_options"/>
+<use name="py3-pybind11"/>
+<use name="python3"/>
 <use name="CondCore/CondDB"/>
 <use name="CondFormats/HLTObjects"/>
 <use name="CondFormats/Alignment"/>

@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,11 +41,13 @@ private:
   // ----------member data ---------------------------
   const std::string fileName_;
   const bool testCalib_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
 };
 
 HcalDetId2DenseTester::HcalDetId2DenseTester(const edm::ParameterSet& iC)
     : fileName_(iC.getUntrackedParameter<std::string>("fileName", "")),
-      testCalib_(iC.getUntrackedParameter<bool>("testCalib", false)) {}
+      testCalib_(iC.getUntrackedParameter<bool>("testCalib", false)),
+      tokTopo_{esConsumes<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})} {}
 
 void HcalDetId2DenseTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -56,18 +57,13 @@ void HcalDetId2DenseTester::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 void HcalDetId2DenseTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalTopology> topo;
-  iSetup.get<HcalRecNumberingRecord>().get(topo);
-  if (topo.isValid()) {
-    if (!testCalib_) {
-      doTestFile(*topo);
-      doTestHcalDetId(*topo);
-      doTestHcalCalibDetId(*topo);
-    } else {
-      doTestOnlyHcalCalibDetId(*topo);
-    }
+  const auto& topo = iSetup.getData(tokTopo_);
+  if (!testCalib_) {
+    doTestFile(topo);
+    doTestHcalDetId(topo);
+    doTestHcalCalibDetId(topo);
   } else {
-    std::cout << "Cannot get a valid HcalTopology Object\n";
+    doTestOnlyHcalCalibDetId(topo);
   }
 }
 

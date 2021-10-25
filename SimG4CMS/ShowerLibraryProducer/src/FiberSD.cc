@@ -4,8 +4,6 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
@@ -19,30 +17,18 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
+//#define EDM_ML_DEBUG
+
 FiberSD::FiberSD(const std::string& iname,
-                 const edm::EventSetup& es,
-                 const SensitiveDetectorCatalog& clg,
-                 edm::ParameterSet const& p,
-                 const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, clg), m_trackManager(manager), theShower(nullptr), theHCID(-1), theHC(nullptr) {
+                                               const HcalSimulationConstants* hsps,
+                                               const HcalDDDSimConstants* hdc,
+                                               const SensitiveDetectorCatalog& clg,
+                                               edm::ParameterSet const& p,
+                                               const SimTrackManager* manager)
+    : SensitiveCaloDetector(iname, clg), theShower(nullptr), theHCID(-1), theHC(nullptr) {
   edm::LogVerbatim("FiberSim") << "FiberSD : Instantiating for " << iname;
   // Get pointer to HcalDDDConstants and HcalSimulationConstants
-  edm::ESHandle<HcalSimulationConstants> hdsc;
-  es.get<HcalSimNumberingRecord>().get(hdsc);
-  if (!hdsc.isValid()) {
-    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalSimulationConstants";
-    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalSimulationConstants\n";
-  }
-  const HcalSimulationConstants* hsps = hdsc.product();
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  es.get<HcalSimNumberingRecord>().get(hdc);
-  if (hdc.isValid()) {
-    const HcalDDDSimConstants* hcalConstants = hdc.product();
-    theShower = new HFShower(iname, hcalConstants, hsps->hcalsimpar(), p, 1);
-  } else {
-    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimConstant\n";
-  }
+  theShower = new HFShower(iname, hdc, hsps->hcalsimpar(), p, 1);
 }
 
 FiberSD::~FiberSD() {
@@ -51,13 +37,14 @@ FiberSD::~FiberSD() {
 }
 
 void FiberSD::Initialize(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "FiberSD : Initialize called for " << GetName() << " in collection " << HCE;
+  edm::LogVerbatim("FiberSim") << "FiberSD : Initialize called for " << GetName() << " in collection "
+                               << HCE;
   theHC = new FiberG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  edm::LogVerbatim("FiberSim") << "FiberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
-                               << theHC;
+  edm::LogVerbatim("FiberSim") << "FiberSD : Add hit collectrion for " << collectionName[0] << ":"
+                               << theHCID << ":" << theHC;
 }
 
 G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -84,22 +71,25 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     //edm::LogVerbatim("FiberSim") << "FiberSD :presteppoint position z " << preStepPoint->GetPosition().z();
 
     FiberG4Hit* aHit = new FiberG4Hit(lv, detID, depth, trackID);
+#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("FiberSim") << "FiberSD :hit size " << hits.size() << "  npe" << aHit->npe();
     edm::LogVerbatim("FiberSim") << "FiberSD :pre hit position " << aHit->hitPos();
+#endif
     aHit->setNpe(hits.size());
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
-    edm::LogVerbatim("FiberSim") << "FiberSD :ShowerPhoton position " << thePE[0].x() << " " << thePE[0].y() << " "
-                                 << thePE[0].z();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FiberSim") << "FiberSD :ShowerPhoton position " << thePE[0].x() << " "
+                                 << thePE[0].y() << " " << thePE[0].z();
 
-    edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName() << " DetID: " << aHit->towerId()
-                                 << " Depth: " << aHit->depth() << " Track ID: " << aHit->trackId()
-                                 << " Nb. of Cerenkov Photons: " << aHit->npe() << " Time: " << aHit->time() << " at "
-                                 << aHit->hitPos();
+    edm::LogVerbatim("FiberSim") << "FiberSD: Hit created at " << lv->GetName()
+                                 << " DetID: " << aHit->towerId() << " Depth: " << aHit->depth()
+                                 << " Track ID: " << aHit->trackId() << " Nb. of Cerenkov Photons: " << aHit->npe()
+                                 << " Time: " << aHit->time() << " at " << aHit->hitPos();
     for (unsigned int i = 0; i < thePE.size(); i++)
       edm::LogVerbatim("FiberSim") << "FiberSD: PE[" << i << "] " << thePE[i];
-
+#endif
     theHC->insert(aHit);
   }
   return true;

@@ -106,6 +106,8 @@ private:
   TTree* treeRun;
   TTree* treeCluster;
 
+  //---------  Temporary varibles to store the values till the Run tree is filled  ------//
+  // a) For track rates
   int events;
   int track_BPIX;
   int track_FPIX;
@@ -119,10 +121,31 @@ private:
   int track_TIDM;
   int track_TIDP;
 
+  // b) For PIXEL Hit Rates by layers
+  int hit_Total;
+  int hit_PIX;
+  int hit_BPIX;
+  int hit_BPIX_layer1;
+  int hit_BPIX_layer2;
+  int hit_BPIX_layer3;
+  int hit_BPIX_layer4;
+  int hit_FPIX;
+  int hit_FPIX_disk1;
+  int hit_FPIX_disk2;
+  int hit_FPIX_disk3;
+  int hit_FPIX_disk1_plus;
+  int hit_FPIX_disk2_plus;
+  int hit_FPIX_disk3_plus;
+  int hit_FPIX_disk1_minus;
+  int hit_FPIX_disk2_minus;
+  int hit_FPIX_disk3_minus;
+
   std::vector<int> v_ntrk;
   int ntrk;
   int ntrk_runnum;
 
+  //---------- Branch Variables in tree Run ----------//
+  // a) Track Rate
   int number_of_tracks;
   int number_of_tracks_PIX;
   int number_of_tracks_FPIX;
@@ -138,6 +161,27 @@ private:
   int number_of_events;
   edm::RunNumber_t runnum;
   double run_time;
+
+  // b) For Hit Rate per PIXEL layer
+  int number_of_hits_Total;
+  int number_of_hits_PIX;
+  int number_of_hits_BPIX;
+  int number_of_hits_BPIX_layer1;
+  int number_of_hits_BPIX_layer2;
+  int number_of_hits_BPIX_layer3;
+  int number_of_hits_BPIX_layer4;
+  int number_of_hits_FPIX;
+  int number_of_hits_FPIX_disk1;
+  int number_of_hits_FPIX_disk2;
+  int number_of_hits_FPIX_disk3;
+  int number_of_hits_FPIX_disk1_plus;
+  int number_of_hits_FPIX_disk2_plus;
+  int number_of_hits_FPIX_disk3_plus;
+  int number_of_hits_FPIX_disk1_minus;
+  int number_of_hits_FPIX_disk2_minus;
+  int number_of_hits_FPIX_disk3_minus;
+
+  //---------- Branch Variables in tree Event: Track parameters ----------//
   std::vector<double> pt;
   std::vector<double> charge;
   std::vector<double> chi2;
@@ -150,12 +194,20 @@ private:
   std::vector<double> dz;
   std::vector<double> nvh;
   std::vector<double> DTtime;
+  std::vector<int> nh_PIXEL;
   std::vector<int> nh_BPIX;
   std::vector<int> nh_FPIX;
   std::vector<int> nh_TIB;
   std::vector<int> nh_TOB;
   std::vector<int> nh_TID;
   std::vector<int> nh_TEC;
+
+  //------ Temporary variables to store Hits per track till the Event tree is filled -------//
+  //FPIX+/-, BPIX+/-,TEC+/-, TID+/- can also be added similar way in case required
+  int nHits_PIXEL;
+
+  //------ Variables to keep track of total events and tracks ------//
+  int nTotalTracks, nTotalEvents;
 };
 
 //
@@ -183,6 +235,9 @@ CosmicRateAnalyzer::CosmicRateAnalyzer(const edm::ParameterSet& iConfig)
   treeEvent = fs->make<TTree>("Event", "");
   treeRun = fs->make<TTree>("Run", "");
   treeCluster = fs->make<TTree>("Cluster", "");
+
+  nTotalTracks = 0;
+  nTotalEvents = 0;
 }
 
 CosmicRateAnalyzer::~CosmicRateAnalyzer() {
@@ -206,6 +261,7 @@ void CosmicRateAnalyzer::ClearInEventLoop() {
   dz.clear();
   nvh.clear();
   DTtime.clear();
+  nh_PIXEL.clear();
   nh_BPIX.clear();
   nh_FPIX.clear();
   nh_TIB.clear();
@@ -258,6 +314,8 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     nh_TID.push_back(itTrack1->hitPattern().numberOfValidStripTIDHits());
     nh_TEC.push_back(itTrack1->hitPattern().numberOfValidStripTECHits());
 
+    nHits_PIXEL = 0;
+
     int nhitinBPIX = 0;
     int nhitinFPIX = 0;
     int nhitinPIXEL = 0;
@@ -274,15 +332,35 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (auto const& hit1 : itTrack1->recHits()) {
       const DetId detId1(hit1->geographicalId());
       const int subdetId1 = detId1.subdetId();
+      uint32_t detid_db = detId1.rawId();
       if (!hit1->isValid())
         continue;  // only real hits count as in itTrack1->numberOfValidHits()
+      hit_Total++;
 
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       // 			 Hit information in PixelBarrel                          		 //
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       if (PixelSubdetector::PixelBarrel == subdetId1) {
-        ++nhitinBPIX;
-        ++nhitinPIXEL;
+        ++nhitinBPIX;   //for cosmic track rate evaluation
+        ++nhitinPIXEL;  //for cosmic track rate evaluation
+        ++nHits_PIXEL;  // for PIXEL hits per track in Event Tree
+        ++hit_PIX;      // for cosmic PIXEL hit rates per layer
+        ++hit_BPIX;     // for cosmic PIXEL hit rates per layer
+
+        int BPIX_layer = (tTopo->pxbLayer(detid_db));
+        if (BPIX_layer == 1) {
+          ++hit_BPIX_layer1;  // for cosmic PIXEL hit rates per layer
+        } else if (BPIX_layer == 2) {
+          ++hit_BPIX_layer2;  // for cosmic PIXEL hit rates per layer
+        } else if (BPIX_layer == 3) {
+          ++hit_BPIX_layer3;  // for cosmic PIXEL hit rates per layer
+        } else if (BPIX_layer == 4) {
+          ++hit_BPIX_layer4;  // for cosmic PIXEL hit rates per layer
+        } else {
+          std::cout << "CAUTION : Check Phase! BPIX layer not in {1,2,3}!" << std::endl;
+          std::cout << "Layer is : " << BPIX_layer << std::endl;
+        }
+
       }
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       //			Hit information in PixelEndcap                                  	//
@@ -290,6 +368,41 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       else if (PixelSubdetector::PixelEndcap == subdetId1) {
         ++nhitinFPIX;
         ++nhitinPIXEL;
+
+        ++nHits_PIXEL;
+        ++hit_PIX;   // for cosmic PIXEL hit rates per layer
+        ++hit_FPIX;  // for cosmic PIXEL hit rates per layer
+
+        int FPIX_side = (tTopo->pxfSide(detid_db));
+        int FPIX_disk = (tTopo->pxfDisk(detid_db));
+
+        if (FPIX_disk == 1) {
+          ++hit_FPIX_disk1;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 2) {
+          ++hit_FPIX_disk2;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 3) {
+          ++hit_FPIX_disk3;  // for cosmic PIXEL hit rates per layer
+        } else {
+          std::cout << "CAUTION : Check Phase! FPIX disk not in {1,2}!" << std::endl;
+          std::cout << "Disk is : " << FPIX_disk << std::endl;
+        }
+
+        if (FPIX_disk == 1 && FPIX_side == 1) {
+          ++hit_FPIX_disk1_minus;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 1 && FPIX_side == 2) {
+          ++hit_FPIX_disk1_plus;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 2 && FPIX_side == 1) {
+          ++hit_FPIX_disk2_minus;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 2 && FPIX_side == 2) {
+          ++hit_FPIX_disk2_plus;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 3 && FPIX_side == 1) {
+          ++hit_FPIX_disk3_minus;  // for cosmic PIXEL hit rates per layer
+        } else if (FPIX_disk == 3 && FPIX_side == 2) {
+          ++hit_FPIX_disk3_plus;  // for cosmic PIXEL hit rates per layer
+        } else {
+          std::cout << "CAUTION : FPIX side not in {1,2}!" << std::endl;
+        }
+
       }
       //////////////////////////////////////////////////////////////////////////////////////////////////
       //			Hit information in TEC							//
@@ -331,6 +444,8 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       countHit++;
     }  // for Loop over Hits
 
+    nh_PIXEL.push_back(nHits_PIXEL);
+
     if (nhitinBPIX > 0) {
       track_BPIX++;
     }
@@ -367,6 +482,7 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     ntrk++;
     ntrk_runnum++;
+    nTotalTracks++;
   }  // for Loop over TrackCollection
   events++;
 
@@ -388,13 +504,16 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     time = mt0.timeAtIpInOut;
     DTtime.push_back(time);
   }
+
   treeEvent->Fill();
   ClearInEventLoop();
+  nTotalEvents++;
 
 }  //Event Loop
 
 // ------------ method called once each job just before starting event loop  ------------
 void CosmicRateAnalyzer::beginJob() {
+  //--- Event tree ---//
   treeEvent->Branch("pt", &pt);
   treeEvent->Branch("charge", &charge);
   treeEvent->Branch("chi2", &chi2);
@@ -407,6 +526,7 @@ void CosmicRateAnalyzer::beginJob() {
   treeEvent->Branch("dz", &dz);
   treeEvent->Branch("nvh", &nvh);
   treeEvent->Branch("ntrk", &ntrk);
+  treeEvent->Branch("nHitsPIXEL", &nh_PIXEL);
   treeEvent->Branch("nHitsBPIX", &nh_BPIX);
   treeEvent->Branch("nHitsFPIX", &nh_FPIX);
   treeEvent->Branch("nHitsTIB", &nh_TIB);
@@ -415,8 +535,11 @@ void CosmicRateAnalyzer::beginJob() {
   treeEvent->Branch("nHitsTEC", &nh_TEC);
   treeEvent->Branch("DTtime", &DTtime);
   treeEvent->Branch("magField", &magField);
+
+  //--- Run tree ---//
   treeRun->Branch("run_time", &run_time);
   treeRun->Branch("runnum", &runnum);
+  // a) For track Rate Calculation
   treeRun->Branch("number_of_events", &number_of_events);
   treeRun->Branch("number_of_tracks", &number_of_tracks);
   treeRun->Branch("number_of_tracks_PIX", &number_of_tracks_PIX);
@@ -430,11 +553,34 @@ void CosmicRateAnalyzer::beginJob() {
   treeRun->Branch("number_of_tracks_TECP", &number_of_tracks_TECP);
   treeRun->Branch("number_of_tracks_TECM", &number_of_tracks_TECM);
   treeRun->Branch("number_of_tracks_TOB", &number_of_tracks_TOB);
+  // a) For PIXEL Hit Rate Calculation
+  treeRun->Branch("number_of_hits_Total", &number_of_hits_Total);
+  treeRun->Branch("number_of_hits_PIX", &number_of_hits_PIX);
+  treeRun->Branch("number_of_hits_BPIX", &number_of_hits_BPIX);
+  treeRun->Branch("number_of_hits_BPIX_layer1", &number_of_hits_BPIX_layer1);
+  treeRun->Branch("number_of_hits_BPIX_layer2", &number_of_hits_BPIX_layer2);
+  treeRun->Branch("number_of_hits_BPIX_layer3", &number_of_hits_BPIX_layer3);
+  treeRun->Branch("number_of_hits_BPIX_layer4", &number_of_hits_BPIX_layer4);
+  treeRun->Branch("number_of_hits_FPIX", &number_of_hits_FPIX);
+  treeRun->Branch("number_of_hits_FPIX_disk1", &number_of_hits_FPIX_disk1);
+  treeRun->Branch("number_of_hits_FPIX_disk2", &number_of_hits_FPIX_disk2);
+  treeRun->Branch("number_of_hits_FPIX_disk3", &number_of_hits_FPIX_disk3);
+  treeRun->Branch("number_of_hits_FPIX_disk1_plus", &number_of_hits_FPIX_disk1_plus);
+  treeRun->Branch("number_of_hits_FPIX_disk1_minus", &number_of_hits_FPIX_disk1_minus);
+  treeRun->Branch("number_of_hits_FPIX_disk2_plus", &number_of_hits_FPIX_disk2_plus);
+  treeRun->Branch("number_of_hits_FPIX_disk2_minus", &number_of_hits_FPIX_disk2_minus);
+  treeRun->Branch("number_of_hits_FPIX_disk3_plus", &number_of_hits_FPIX_disk3_plus);
+  treeRun->Branch("number_of_hits_FPIX_disk3_minus", &number_of_hits_FPIX_disk3_minus);
+
+  //--- Cluster tree ---//
   treeCluster->Branch("DetID", &DetectorID);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void CosmicRateAnalyzer::endJob() {}
+void CosmicRateAnalyzer::endJob() {
+  std::cout << "Total Events: " << nTotalEvents << std::endl;
+  std::cout << "TotalTracks: " << nTotalTracks << std::endl;
+}
 
 // ------------ method called when starting to processes a run  ------------
 void CosmicRateAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
@@ -442,6 +588,7 @@ void CosmicRateAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
   lastrunnum = 0.0;
   ntrk_runnum = 0.0;
   events = 0.0;
+  // a) for Track rate
   track_BPIX = 0.0;
   track_FPIX = 0.0;
   track_PIXEL = 0.0;
@@ -453,6 +600,25 @@ void CosmicRateAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
   track_TID = 0.0;
   track_TIDM = 0.0;
   track_TIDP = 0.0;
+
+  // b) for PIXEL hit rate
+  hit_Total = 0.0;
+  hit_PIX = 0.0;
+  hit_BPIX = 0.0;
+  hit_BPIX_layer1 = 0.0;
+  hit_BPIX_layer2 = 0.0;
+  hit_BPIX_layer3 = 0.0;
+  hit_BPIX_layer4 = 0.0;
+  hit_FPIX = 0.0;
+  hit_FPIX_disk1 = 0.0;
+  hit_FPIX_disk2 = 0.0;
+  hit_FPIX_disk3 = 0.0;
+  hit_FPIX_disk1_plus = 0.0;
+  hit_FPIX_disk1_minus = 0.0;
+  hit_FPIX_disk2_plus = 0.0;
+  hit_FPIX_disk2_minus = 0.0;
+  hit_FPIX_disk3_plus = 0.0;
+  hit_FPIX_disk3_minus = 0.0;
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -461,6 +627,7 @@ void CosmicRateAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   number_of_tracks = ntrk_runnum;
   run_time = lastruntime;
   runnum = lastrunnum;
+  // a) for Track Rate
   number_of_tracks_PIX = track_PIXEL;
   number_of_tracks_FPIX = track_FPIX;
   number_of_tracks_BPIX = track_BPIX;
@@ -473,6 +640,25 @@ void CosmicRateAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   number_of_tracks_TIDM = track_TIDM;
   number_of_tracks_TIDP = track_TIDP;
   number_of_events = events;
+  // b) for PIXEL Hit Rate
+  number_of_hits_Total = hit_Total;
+  number_of_hits_PIX = hit_PIX;
+  number_of_hits_BPIX = hit_BPIX;
+  number_of_hits_BPIX_layer1 = hit_BPIX_layer1;
+  number_of_hits_BPIX_layer2 = hit_BPIX_layer2;
+  number_of_hits_BPIX_layer3 = hit_BPIX_layer3;
+  number_of_hits_BPIX_layer4 = hit_BPIX_layer4;
+  number_of_hits_FPIX = hit_FPIX;
+  number_of_hits_FPIX_disk1 = hit_FPIX_disk1;
+  number_of_hits_FPIX_disk2 = hit_FPIX_disk2;
+  number_of_hits_FPIX_disk3 = hit_FPIX_disk3;
+  number_of_hits_FPIX_disk1_plus = hit_FPIX_disk1_plus;
+  number_of_hits_FPIX_disk1_minus = hit_FPIX_disk1_minus;
+  number_of_hits_FPIX_disk2_plus = hit_FPIX_disk2_plus;
+  number_of_hits_FPIX_disk2_minus = hit_FPIX_disk2_minus;
+  number_of_hits_FPIX_disk3_plus = hit_FPIX_disk3_plus;
+  number_of_hits_FPIX_disk3_minus = hit_FPIX_disk3_minus;
+
   treeRun->Fill();
 }
 

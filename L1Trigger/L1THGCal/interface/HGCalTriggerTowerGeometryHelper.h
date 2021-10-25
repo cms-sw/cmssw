@@ -30,7 +30,7 @@ public:
 
   ~HGCalTriggerTowerGeometryHelper() {}
 
-  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
 
   const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 
@@ -38,10 +38,13 @@ public:
   unsigned short getTriggerTower(const l1t::HGCalTriggerCell&) const;
   unsigned short getTriggerTower(const l1t::HGCalTriggerSums&) const;
 
+  const bool isNose() { return doNose_; }
+
 private:
   std::vector<l1t::HGCalTowerCoord> tower_coords_;
   std::unordered_map<unsigned, short> cells_to_trigger_towers_;
 
+  bool doNose_;
   double minEta_;
   double maxEta_;
   double minPhi_;

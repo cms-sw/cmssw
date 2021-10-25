@@ -75,7 +75,7 @@ bool DataPointDefinition::isPopulated() const {
   return false;
 }
 
-OperationType DataPointDefinition::getOperationFor(unsigned int index) {
+OperationType DataPointDefinition::getOperationFor(unsigned int index) const {
   OperationType opType = OPUNKNOWN;
   if (opNames_.at(index) == DataPointDefinition::SUM)
     opType = OPSUM;

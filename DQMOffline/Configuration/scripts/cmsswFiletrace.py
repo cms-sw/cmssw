@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import os
 import re
@@ -10,7 +10,6 @@ from shutil import copy, rmtree
 from collections import defaultdict
 
 # only needed to locate CMSSW
-import six
 import FWCore
 import FWCore.ParameterSet.Types
 
@@ -21,7 +20,6 @@ FLAT_OUTPUT = False
 WRAP_SCRIPTS = ["cmsDriver.py" ]
 IGNORE_DIRS = [
   os.path.dirname(os.__file__),
-  os.path.dirname(six.__file__),
   FWCore.ParameterSet.Types.__file__,
 ]
 STRIPPATHS = [ # we will add the base dir from CMSSWCALLBASE env var here

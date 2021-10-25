@@ -21,6 +21,8 @@ TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilte
     maxConsecLostHits = 1,
     nSigmaMinPt = 5.0,
     minimumNumberOfHits = 5,
+    highEtaSwitch = 2.5,
+    minHitsAtHighEta = 3,
     maxCCCLostHits = 9999,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
 )
@@ -69,7 +71,3 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 # "forward" propagator for electrons
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
-
-electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
-  src = 'electronMergedSeedsFromMultiCl'
-)

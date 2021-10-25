@@ -12,14 +12,15 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/PrincipalCache.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -32,6 +33,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -241,6 +243,7 @@ namespace edm {
     void handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder);
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     void streamEndLumiAsync(edm::WaitingTaskHolder iTask, unsigned int iStreamIndex);
+    void readProcessBlock(ProcessBlockPrincipal&);
     std::pair<ProcessHistoryID, RunNumber_t> readRun();
     std::pair<ProcessHistoryID, RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
@@ -302,7 +305,8 @@ namespace edm {
     std::shared_ptr<EDLooperBase const> looper() const { return get_underlying_safe(looper_); }
     std::shared_ptr<EDLooperBase>& looper() { return get_underlying_safe(looper_); }
 
-    void warnAboutModulesRequiringLuminosityBLockSynchronization() const;
+    void throwAboutModulesRequiringLuminosityBlockSynchronization() const;
+    void warnAboutLegacyModules() const;
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -316,6 +320,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
@@ -337,7 +342,7 @@ namespace edm {
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
-    edm::propagate_const<std::unique_ptr<FileBlock>> fb_;
+    edm::propagate_const<std::shared_ptr<FileBlock>> fb_;
     edm::propagate_const<std::shared_ptr<EDLooperBase>> looper_;
 
     //The atomic protects concurrent access of deferredExceptionPtr_

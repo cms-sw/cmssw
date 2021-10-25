@@ -41,12 +41,12 @@ namespace edm {
   class DuplicateTreeSentry {
   public:
     DuplicateTreeSentry(TTree* tree) : tree_(tree) { dup(); }
+    DuplicateTreeSentry(DuplicateTreeSentry const&) = delete;  // Disallow copying and moving
+    DuplicateTreeSentry& operator=(DuplicateTreeSentry const&) = delete;
 
     TTree* tree() const { return mytree_ ? mytree_.get() : tree_; }
 
   private:
-    DuplicateTreeSentry(DuplicateTreeSentry const&) = delete;  // Disallow copying and moving
-    DuplicateTreeSentry& operator=(DuplicateTreeSentry const&) = delete;
     struct CloseBeforeDelete {
       void operator()(TFile* iFile) const {
         if (iFile) {
@@ -96,9 +96,12 @@ namespace edm {
   RootOutputTree::RootOutputTree(std::shared_ptr<TFile> filePtr,
                                  BranchType const& branchType,
                                  int splitLevel,
-                                 int treeMaxVirtualSize)
+                                 int treeMaxVirtualSize,
+                                 std::string const& processName)
       : filePtr_(filePtr),
-        tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+        tree_(processName.empty()
+                  ? makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)
+                  : makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType, processName), splitLevel)),
         producedBranches_(),
         readBranches_(),
         auxBranches_(),

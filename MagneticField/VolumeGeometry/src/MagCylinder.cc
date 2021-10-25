@@ -32,6 +32,7 @@ MagCylinder::MagCylinder(const PositionType& pos,
   if (def != faces.size()) {
     throw MagGeometryError("MagCylinder constructed with wrong number/type of faces");
   }
+  setNominalValue();
 }
 
 bool MagCylinder::inside(const GlobalPoint& gp, double tolerance) const { return inside(toLocal(gp), tolerance); }

@@ -3,6 +3,7 @@
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 namespace spr {
@@ -67,7 +68,7 @@ namespace spr {
           if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR)
             keepHit = true;
         } else {
-          std::cout << "PROBLEM : Endcap RecHits in Barrel Collection!?" << std::endl;
+          edm::LogWarning("IsoTrack") << "PROBLEM : Endcap RecHits in Barrel Collection!?";
         }
         if (keepHit)
           hit.push_back(j);
@@ -84,7 +85,7 @@ namespace spr {
           if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR)
             keepHit = true;
         } else {
-          std::cout << "PROBLEM : Barrel RecHits in Endcap Collection!?" << std::endl;
+          edm::LogWarning("IsoTrack") << "PROBLEM : Barrel RecHits in Endcap Collection!?";
         }
         if (keepHit)
           hit.push_back(j);

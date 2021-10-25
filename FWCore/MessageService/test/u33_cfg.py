@@ -6,6 +6,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
+process.TestService = cms.Service("TestService",
+  printTestMessageLoggerErrors = cms.untracked.bool(True)
+)
+
 import FWCore.Framework.test.cmsExceptionsFatal_cff
 process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 

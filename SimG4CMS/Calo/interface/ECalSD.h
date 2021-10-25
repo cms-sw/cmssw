@@ -31,7 +31,7 @@ class EnergyResolutionVsLumi;
 class ECalSD : public CaloSD {
 public:
   ECalSD(const std::string &,
-         const edm::EventSetup &,
+         const EcalSimulationParameters *,
          const SensitiveDetectorCatalog &,
          edm::ParameterSet const &p,
          const SimTrackManager *);

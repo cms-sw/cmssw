@@ -11,7 +11,8 @@ process = cms.Process("TESTSTREAMMODULES")
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(nStreams),
-    numberOfThreads = cms.untracked.uint32(nStreams)
+    numberOfThreads = cms.untracked.uint32(nStreams),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
 )
 
 

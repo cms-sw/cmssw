@@ -37,6 +37,9 @@ namespace edm {
                     "Cannot use both WatchLuminosityBlocks and LuminosityBLockCache");
 
       EDAnalyzer() = default;
+      EDAnalyzer(const EDAnalyzer&) = delete;
+      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
+
 #ifdef __INTEL_COMPILER
       virtual ~EDAnalyzer() = default;
 #endif
@@ -54,9 +57,6 @@ namespace edm {
       SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue(); }
 
     private:
-      EDAnalyzer(const EDAnalyzer&) = delete;
-      const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
-
       // ---------- member data --------------------------------
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
       impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value>

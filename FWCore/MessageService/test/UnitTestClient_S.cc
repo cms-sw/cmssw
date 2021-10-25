@@ -1,21 +1,51 @@
-#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
-#include "FWCore/MessageService/test/UnitTestClient_S.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include <iostream>
-#include <string>
+#include <sstream>
 
 namespace edmtest {
 
-  bool UTC_S1::enableNotYetCalled = true;
-  int UTC_S1::n = 0;
-  int UTC_S2::n = 0;
+  class UTC_S1 : public edm::one::EDAnalyzer<> {
+  public:
+    explicit UTC_S1(edm::ParameterSet const &pset) {
+      identifier = pset.getUntrackedParameter<int>("identifier", 99);
+      edm::GroupLogStatistics("grouped_cat");
+    }
 
-  void UTC_S1::analyze(edm::Event const& /*unused*/
-                       ,
-                       edm::EventSetup const& /*unused*/
-  ) {
+    void analyze(edm::Event const &, edm::EventSetup const &) override;
+
+  private:
+    int identifier;
+    bool enableNotYetCalled = true;
+    int n = 0;
+  };
+
+  class UTC_S2 : public edm::one::EDAnalyzer<> {
+  public:
+    explicit UTC_S2(edm::ParameterSet const &p) { identifier = p.getUntrackedParameter<int>("identifier", 98); }
+
+    void analyze(edm::Event const &, edm::EventSetup const &) override;
+
+  private:
+    int identifier;
+    int n = 0;
+  };
+
+  class UTC_SUMMARY : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UTC_SUMMARY(edm::ParameterSet const &) {}
+
+    void analyze(edm::StreamID, edm::Event const &, edm::EventSetup const &) const override;
+  };
+
+  void UTC_S1::analyze(edm::Event const &, edm::EventSetup const &) {
     if (enableNotYetCalled) {
       edm::EnableLoggedErrorsSummary();
       enableNotYetCalled = false;
@@ -27,10 +57,7 @@ namespace edmtest {
     edm::LogError("grouped_cat") << "S1 timer with identifier " << identifier;
   }
 
-  void UTC_S2::analyze(edm::Event const& /*unused*/
-                       ,
-                       edm::EventSetup const& /*unused*/
-  ) {
+  void UTC_S2::analyze(edm::Event const &, edm::EventSetup const &) {
     n++;
     if (n <= 2)
       return;
@@ -42,8 +69,7 @@ namespace edmtest {
     }
   }
 
-  void UTC_SUMMARY::analyze(edm::Event const& iEvent, edm::EventSetup const& /*unused*/
-  ) {
+  void UTC_SUMMARY::analyze(edm::StreamID, edm::Event const &iEvent, edm::EventSetup const &) const {
     const auto index = iEvent.streamID().value();
     if (!edm::FreshErrorsExist(index)) {
       edm::LogInfo("NoFreshErrors") << "Not in this event, anyway";

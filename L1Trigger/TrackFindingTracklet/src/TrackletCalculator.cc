@@ -14,8 +14,8 @@
 using namespace std;
 using namespace trklet;
 
-TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Globals* globals, unsigned int iSector)
-    : TrackletCalculatorBase(name, settings, globals, iSector) {
+TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Globals* globals)
+    : TrackletCalculatorBase(name, settings, globals) {
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
     vector<TrackletProjectionsMemory*> tmp(settings.nallstubs(ilayer), nullptr);
     trackletprojlayers_.push_back(tmp);
@@ -43,7 +43,7 @@ TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Gl
   }
 
   // write the drinv and invt inverse tables
-  if ((settings_.writeInvTable() || settings_.writeHLSInvTable()) && iTC_ == 0 && iSector_ == 0) {
+  if ((settings_.writeInvTable() || settings_.writeHLSInvTable() || settings_.writeTable()) && iTC_ == 0) {
     void (*writeLUT)(const VarInv&, const string&) = nullptr;
     if (settings.writeInvTable()) {  // Verilog version
       writeLUT = [](const VarInv& x, const string& basename) -> void {
@@ -61,7 +61,7 @@ TrackletCalculator::TrackletCalculator(string name, Settings const& settings, Gl
 
   // write the firmware design for the calculation of the tracklet parameters
   // and projections
-  if ((settings_.writeVerilog() || settings_.writeHLS()) && iTC_ == 0 && iSector_ == 0) {
+  if ((settings_.writeVerilog() || settings_.writeHLS()) && iTC_ == 0) {
     void (*writeDesign)(const vector<VarBase*>&, const string&) = nullptr;
     if (settings.writeVerilog()) {  // Verilog version
       writeDesign = [](const vector<VarBase*>& v, const string& basename) -> void {
@@ -151,9 +151,17 @@ void TrackletCalculator::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find intput : " << input;
 }
 
-void TrackletCalculator::execute() {
+void TrackletCalculator::execute(unsigned int iSector, double phimin, double phimax) {
   unsigned int countall = 0;
   unsigned int countsel = 0;
+
+  phimin_ = phimin;
+  phimax_ = phimax;
+  iSector_ = iSector;
+
+  //Helpfull to have for debugging the HLS code - will keep here for now.
+  //bool print = (iSector == 3) && (getName() == "TC_L1L2G");
+  //print = false;
 
   for (auto& stubpair : stubpairs_) {
     if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
@@ -169,11 +177,11 @@ void TrackletCalculator::execute() {
       const L1TStub* outerStub = outerFPGAStub->l1tstub();
 
       if (settings_.debugTracklet()) {
-        edm::LogVerbatim("Tracklet") << "TrackletCalculator execute " << getName() << "[" << iSector_ << "]";
+        edm::LogVerbatim("Tracklet") << "TrackletCalculator execute " << getName() << "[" << iSector << "]";
       }
 
-      if (innerFPGAStub->isBarrel() && (getName() != "TC_D1L2A" && getName() != "TC_D1L2B")) {
-        if (outerFPGAStub->isDisk()) {
+      if (innerFPGAStub->layerdisk() < N_LAYER && (getName() != "TC_D1L2A" && getName() != "TC_D1L2B")) {
+        if (outerFPGAStub->layerdisk() >= N_LAYER) {
           //overlap seeding
           bool accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
           if (accept)
@@ -185,12 +193,12 @@ void TrackletCalculator::execute() {
             countsel++;
         }
       } else {
-        if (outerFPGAStub->isDisk()) {
+        if (outerFPGAStub->layerdisk() >= N_LAYER) {
           //disk+disk seeding
           bool accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
           if (accept)
             countsel++;
-        } else if (innerFPGAStub->isDisk()) {
+        } else if (innerFPGAStub->layerdisk() >= N_LAYER) {
           //layer+disk seeding
           bool accept = overlapSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
           if (accept)

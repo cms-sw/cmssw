@@ -4,7 +4,8 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/src/Guid.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Guid.h"
 
 #include <string>
 #include <cmath>
@@ -15,11 +16,7 @@
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 
-#define UPDATE_STATISTIC(x) m_##x = x;
-
-#define UPDATE_AND_OUTPUT_STATISTIC(x)        \
-  os << "\"" #x "\":" << (x - m_##x) << ", "; \
-  UPDATE_STATISTIC(x)
+#define OUTPUT_STATISTIC(x) os << "\"" #x "\":" << (x - m_##x) << ", ";
 
 // Simple hack to define HOST_NAME_MAX on Mac.
 // Allows arrays to be statically allocated
@@ -27,8 +24,8 @@
 #define HOST_NAME_MAX 128
 #endif
 
-#define JOB_UNIQUE_ID_ENV "CRAB_UNIQUE_JOB_ID"
-#define JOB_UNIQUE_ID_ENV_V2 "DashboardJobId"
+static constexpr char const *const JOB_UNIQUE_ID_ENV = "CRAB_UNIQUE_JOB_ID";
+static constexpr char const *const JOB_UNIQUE_ID_ENV_V2 = "DashboardJobId";
 
 using namespace edm::storage;
 
@@ -43,7 +40,7 @@ StatisticsSenderService::FileStatistics::FileStatistics()
       m_read_vector_count_square(0),
       m_start_time(time(nullptr)) {}
 
-void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
+void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) const {
   const StorageAccount::StorageStats &stats = StorageAccount::summary();
   ssize_t read_single_operations = 0;
   ssize_t read_single_bytes = 0;
@@ -77,35 +74,31 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
     double single_sum = read_single_bytes - m_read_single_bytes;
     double single_average = single_sum / static_cast<double>(single_op_count);
     os << "\"read_single_sigma\":"
-       << sqrt((static_cast<double>(read_single_square - m_read_single_square) -
-                single_average * single_average * single_op_count) /
-               static_cast<double>(single_op_count))
+       << sqrt(std::abs((static_cast<double>(read_single_square - m_read_single_square) -
+                         single_average * single_average * single_op_count) /
+                        static_cast<double>(single_op_count)))
        << ", ";
     os << "\"read_single_average\":" << single_average << ", ";
   }
-  m_read_single_square = read_single_square;
   int64_t vector_op_count = read_vector_operations - m_read_vector_operations;
   if (vector_op_count > 0) {
     double vector_average =
         static_cast<double>(read_vector_bytes - m_read_vector_bytes) / static_cast<double>(vector_op_count);
     os << "\"read_vector_average\":" << vector_average << ", ";
     os << "\"read_vector_sigma\":"
-       << sqrt((static_cast<double>(read_vector_square - m_read_vector_square) -
-                vector_average * vector_average * vector_op_count) /
-               static_cast<double>(vector_op_count))
+       << sqrt(std::abs((static_cast<double>(read_vector_square - m_read_vector_square) -
+                         vector_average * vector_average * vector_op_count) /
+                        static_cast<double>(vector_op_count)))
        << ", ";
     double vector_count_average =
         static_cast<double>(read_vector_count_sum - m_read_vector_count_sum) / static_cast<double>(vector_op_count);
     os << "\"read_vector_count_average\":" << vector_count_average << ", ";
     os << "\"read_vector_count_sigma\":"
-       << sqrt((static_cast<double>(read_vector_count_square - m_read_vector_count_square) -
-                vector_count_average * vector_count_average * vector_op_count) /
-               static_cast<double>(vector_op_count))
+       << sqrt(std::abs((static_cast<double>(read_vector_count_square - m_read_vector_count_square) -
+                         vector_count_average * vector_count_average * vector_op_count) /
+                        static_cast<double>(vector_op_count)))
        << ", ";
   }
-  m_read_vector_square = read_vector_square;
-  m_read_vector_count_square = read_vector_count_square;
-  m_read_vector_count_sum = read_vector_count_sum;
 
   os << "\"read_bytes\":" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes)
      << ", ";
@@ -113,30 +106,75 @@ void StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
      << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
 
   // See top of file for macros; not complex, just avoiding copy/paste
-  UPDATE_AND_OUTPUT_STATISTIC(read_single_operations)
-  UPDATE_AND_OUTPUT_STATISTIC(read_single_bytes)
-  UPDATE_AND_OUTPUT_STATISTIC(read_vector_operations)
-  UPDATE_AND_OUTPUT_STATISTIC(read_vector_bytes)
+  OUTPUT_STATISTIC(read_single_operations)
+  OUTPUT_STATISTIC(read_single_bytes)
+  OUTPUT_STATISTIC(read_vector_operations)
+  OUTPUT_STATISTIC(read_vector_bytes)
 
   os << "\"start_time\":" << m_start_time << ", ";
-  m_start_time = time(nullptr);
   // NOTE: last entry doesn't have the trailing comma.
-  os << "\"end_time\":" << m_start_time;
+  os << "\"end_time\":" << time(nullptr);
 }
 
-StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const & /*pset*/, edm::ActivityRegistry &ar)
-    : m_clienthost("unknown"),
-      m_clientdomain("unknown"),
+void StatisticsSenderService::FileStatistics::update() {
+  const StorageAccount::StorageStats &stats = StorageAccount::summary();
+  ssize_t read_single_operations = 0;
+  ssize_t read_single_bytes = 0;
+  ssize_t read_single_square = 0;
+  ssize_t read_vector_operations = 0;
+  ssize_t read_vector_bytes = 0;
+  ssize_t read_vector_square = 0;
+  ssize_t read_vector_count_sum = 0;
+  ssize_t read_vector_count_square = 0;
+  auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+  for (StorageAccount::StorageStats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+    if (i->first == token.value()) {
+      continue;
+    }
+    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+      if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
+        read_vector_operations += j->second.attempts;
+        read_vector_bytes += j->second.amount;
+        read_vector_count_square += j->second.vector_square;
+        read_vector_square += j->second.amount_square;
+        read_vector_count_sum += j->second.vector_count;
+      } else if (j->first == static_cast<int>(StorageAccount::Operation::read)) {
+        read_single_operations += j->second.attempts;
+        read_single_bytes += j->second.amount;
+        read_single_square += j->second.amount_square;
+      }
+    }
+  }
+
+  m_read_single_square = read_single_square;
+  m_read_vector_square = read_vector_square;
+  m_read_vector_count_square = read_vector_count_square;
+  m_read_vector_count_sum = read_vector_count_sum;
+  m_read_single_operations = read_single_operations;
+  m_read_single_bytes = read_single_bytes;
+  m_read_vector_operations = read_vector_operations;
+  m_read_vector_bytes = read_vector_bytes;
+  m_start_time = time(nullptr);
+}
+StatisticsSenderService::FileInfo::FileInfo(std::string const &iLFN, edm::InputType iType)
+    : m_filelfn(iLFN),
       m_serverhost("unknown"),
       m_serverdomain("unknown"),
-      m_filelfn("unknown"),
+      m_type(iType),
+      m_size(-1),
+      m_id(0),
+      m_openCount(1) {}
+
+StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const &iPSet, edm::ActivityRegistry &ar)
+    : m_clienthost("unknown"),
+      m_clientdomain("unknown"),
       m_filestats(),
       m_guid(Guid().toString()),
       m_counter(0),
-      m_size(-1),
-      m_userdn("unknown") {
+      m_userdn("unknown"),
+      m_debug(iPSet.getUntrackedParameter<bool>("debug", false)) {
   determineHostnames();
-  ar.watchPreCloseFile(this, &StatisticsSenderService::filePreCloseEvent);
+  ar.watchPostCloseFile(this, &StatisticsSenderService::filePostCloseEvent);
   if (!getX509Subject(m_userdn)) {
     m_userdn = "unknown";
   }
@@ -148,7 +186,35 @@ const char *StatisticsSenderService::getJobID() {
   return id ? id : std::getenv(JOB_UNIQUE_ID_ENV_V2);
 }
 
-void StatisticsSenderService::setCurrentServer(const std::string &servername) {
+std::string const *StatisticsSenderService::matchedLfn(std::string const &iURL) {
+  auto found = m_urlToLfn.find(iURL);
+  if (found != m_urlToLfn.end()) {
+    return &found->second;
+  }
+  for (auto const &v : m_lfnToFileInfo) {
+    if (v.first.size() < iURL.size()) {
+      if (v.first == iURL.substr(iURL.size() - v.first.size())) {
+        m_urlToLfn.emplace(iURL, v.first);
+        return &m_urlToLfn.find(iURL)->second;
+      }
+    }
+  }
+  //does the lfn have a protocol and the iURL not?
+  if (std::string::npos == iURL.find(':')) {
+    for (auto const &v : m_lfnToFileInfo) {
+      if ((std::string::npos != v.first.find(':')) and (v.first.size() > iURL.size())) {
+        if (iURL == v.first.substr(v.first.size() - iURL.size())) {
+          m_urlToLfn.emplace(iURL, v.first);
+          return &m_urlToLfn.find(iURL)->second;
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+void StatisticsSenderService::setCurrentServer(const std::string &url, const std::string &servername) {
   size_t dot_pos = servername.find('.');
   std::string serverhost;
   std::string serverdomain;
@@ -163,24 +229,41 @@ void StatisticsSenderService::setCurrentServer(const std::string &servername) {
     }
   }
   {
+    auto lfn = matchedLfn(url);
     std::lock_guard<std::mutex> sentry(m_servermutex);
-    m_serverhost = std::move(serverhost);
-    m_serverdomain = std::move(serverdomain);
+    if (nullptr != lfn) {
+      auto found = m_lfnToFileInfo.find(*lfn);
+      if (found != m_lfnToFileInfo.end()) {
+        found->second.m_serverhost = std::move(serverhost);
+        found->second.m_serverdomain = std::move(serverdomain);
+      }
+    } else if (m_debug) {
+      edm::LogWarning("StatisticsSenderService") << "setCurrentServer: unknown url name " << url << "\n";
+    }
   }
 }
 
-void StatisticsSenderService::setSize(size_t size) { m_size = size; }
+void StatisticsSenderService::openingFile(std::string const &lfn, edm::InputType type, size_t size) {
+  m_urlToLfn.emplace(lfn, lfn);
+  auto attempt = m_lfnToFileInfo.emplace(lfn, FileInfo{lfn, type});
+  if (attempt.second) {
+    attempt.first->second.m_size = size;
+    attempt.first->second.m_id = m_counter++;
+    edm::LogInfo("StatisticsSenderService") << "openingFile: opening " << lfn << "\n";
+  } else {
+    ++(attempt.first->second.m_openCount);
+    edm::LogInfo("StatisticsSenderService") << "openingFile: re-opening" << lfn << "\n";
+  }
+}
 
-void StatisticsSenderService::filePreCloseEvent(std::string const &lfn, bool usedFallback) {
-  m_filelfn = lfn;
-
+void StatisticsSenderService::closedFile(std::string const &url, bool usedFallback) {
   edm::Service<edm::SiteLocalConfig> pSLC;
   if (!pSLC.isAvailable()) {
     return;
   }
 
   const struct addrinfo *addresses = pSLC->statisticsDestination();
-  if (!addresses) {
+  if (!addresses and !m_debug) {
     return;
   }
 
@@ -190,22 +273,84 @@ void StatisticsSenderService::filePreCloseEvent(std::string const &lfn, bool use
     m_userdn = "not reported";
   }
 
-  std::string results;
-  fillUDP(pSLC->siteName(), usedFallback, results);
+  auto lfn = matchedLfn(url);
+  if (nullptr != lfn) {
+    auto found = m_lfnToFileInfo.find(*lfn);
+    assert(found != m_lfnToFileInfo.end());
 
-  for (const struct addrinfo *address = addresses; address != nullptr; address = address->ai_next) {
-    int sock = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
-    if (sock < 0) {
-      continue;
+    std::string results;
+    fillUDP(pSLC->siteName(), found->second, usedFallback, results);
+    if (m_debug) {
+      edm::LogSystem("StatisticSenderService") << "\n" << results << "\n";
     }
-    auto close_del = [](int *iSocket) { close(*iSocket); };
-    std::unique_ptr<int, decltype(close_del)> guard(&sock, close_del);
-    if (sendto(sock, results.c_str(), results.size(), 0, address->ai_addr, address->ai_addrlen) >= 0) {
-      break;
+
+    for (const struct addrinfo *address = addresses; address != nullptr; address = address->ai_next) {
+      int sock = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
+      if (sock < 0) {
+        continue;
+      }
+      auto close_del = [](int *iSocket) { close(*iSocket); };
+      std::unique_ptr<int, decltype(close_del)> guard(&sock, close_del);
+      if (sendto(sock, results.c_str(), results.size(), 0, address->ai_addr, address->ai_addrlen) >= 0) {
+        break;
+      }
     }
+
+    auto c = --found->second.m_openCount;
+    if (c == 0) {
+      edm::LogWarning("StatisticsSenderService") << "fully closed: " << *lfn << "\n";
+    } else {
+      edm::LogWarning("StatisticsSenderService") << "partially closed: " << *lfn << "\n";
+    }
+  } else if (m_debug) {
+    edm::LogWarning("StatisticsSenderService") << "closed: unknown url name " << url << "\n";
   }
+}
 
-  m_counter++;
+void StatisticsSenderService::cleanupOldFiles() {
+  //remove entries with openCount of 0
+  bool moreToTest = false;
+  do {
+    moreToTest = false;
+    for (auto it = m_lfnToFileInfo.begin(); it != m_lfnToFileInfo.end(); ++it) {
+      if (it->second.m_openCount == 0) {
+        auto lfn = it->first;
+        bool moreToTest2 = false;
+        do {
+          moreToTest2 = false;
+          for (auto it2 = m_urlToLfn.begin(); it2 != m_urlToLfn.end(); ++it2) {
+            if (it2->second == lfn) {
+              m_urlToLfn.unsafe_erase(it2);
+              moreToTest2 = true;
+              break;
+            }
+          }
+        } while (moreToTest2);
+
+        m_lfnToFileInfo.unsafe_erase(it);
+        moreToTest = true;
+        break;
+      }
+    }
+  } while (moreToTest);
+}
+
+void StatisticsSenderService::setSize(const std::string &url, size_t size) {
+  auto lfn = matchedLfn(url);
+  if (nullptr != lfn) {
+    auto itFound = m_lfnToFileInfo.find(*lfn);
+    if (itFound != m_lfnToFileInfo.end()) {
+      itFound->second.m_size = size;
+    }
+  } else if (m_debug) {
+    edm::LogWarning("StatisticsSenderService") << "setSize: unknown url name " << url << "\n";
+  }
+}
+
+void StatisticsSenderService::filePostCloseEvent(std::string const &lfn, bool usedFallback) {
+  //we are at a sync point in the framwework so no new files are being opened
+  cleanupOldFiles();
+  m_filestats.update();
 }
 
 void StatisticsSenderService::determineHostnames(void) {
@@ -225,7 +370,10 @@ void StatisticsSenderService::determineHostnames(void) {
   }
 }
 
-void StatisticsSenderService::fillUDP(const std::string &siteName, bool usedFallback, std::string &udpinfo) {
+void StatisticsSenderService::fillUDP(const std::string &siteName,
+                                      const FileInfo &fileinfo,
+                                      bool usedFallback,
+                                      std::string &udpinfo) const {
   std::ostringstream os;
 
   // Header - same for all IO accesses
@@ -235,22 +383,34 @@ void StatisticsSenderService::fillUDP(const std::string &siteName, bool usedFall
   }
   if (usedFallback) {
     os << "\"fallback\": true, ";
+  } else {
+    os << "\"fallback\": false, ";
   }
-  std::string serverhost;
-  std::string serverdomain;
-  {
-    std::lock_guard<std::mutex> sentry(m_servermutex);
-    serverhost = m_serverhost;
-    serverdomain = m_serverdomain;
+  os << "\"type\": ";
+  switch (fileinfo.m_type) {
+    case edm::InputType::Primary: {
+      os << "\"primary\", ";
+      break;
+    }
+    case edm::InputType::SecondaryFile: {
+      os << "\"secondary\", ";
+      break;
+    }
+    case edm::InputType::SecondarySource: {
+      os << "\"embedded\", ";
+      break;
+    }
   }
+  auto serverhost = fileinfo.m_serverhost;
+  auto serverdomain = fileinfo.m_serverdomain;
 
   os << "\"user_dn\":\"" << m_userdn << "\", ";
   os << "\"client_host\":\"" << m_clienthost << "\", ";
   os << "\"client_domain\":\"" << m_clientdomain << "\", ";
   os << "\"server_host\":\"" << serverhost << "\", ";
   os << "\"server_domain\":\"" << serverdomain << "\", ";
-  os << "\"unique_id\":\"" << m_guid << "-" << m_counter << "\", ";
-  os << "\"file_lfn\":\"" << m_filelfn << "\", ";
+  os << "\"unique_id\":\"" << m_guid << "-" << fileinfo.m_id << "\", ";
+  os << "\"file_lfn\":\"" << fileinfo.m_filelfn << "\", ";
   // Dashboard devs requested that we send out no app_info if a job ID
   // is not present in the environment.
   const char *jobId = getJobID();
@@ -258,8 +418,8 @@ void StatisticsSenderService::fillUDP(const std::string &siteName, bool usedFall
     os << "\"app_info\":\"" << jobId << "\", ";
   }
 
-  if (m_size >= 0) {
-    os << "\"file_size\":" << m_size << ", ";
+  if (fileinfo.m_size >= 0) {
+    os << "\"file_size\":" << fileinfo.m_size << ", ";
   }
 
   m_filestats.fillUDP(os);

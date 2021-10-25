@@ -92,25 +92,23 @@ hiLowPtTripletStepPixelTracksFilter = hiFilter.clone(
     lipMax = 0,
     ptMin = 0.4,
 )
-hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
-    passLabel  = cms.string('Pixel primary tracks with vertex constraint'),
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
+hiLowPtTripletStepPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel primary tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTriplets"),
-	
+    SeedingHitSets = "hiLowPtTripletStepTracksHitTriplets",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiLowPtTripletStepPixelTracksFilter"),
-	
+    Filter = "hiLowPtTripletStepPixelTracksFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(hiLowPtTripletStepPixelTracks,
-    SeedingHitSets = cms.InputTag("hiLowPtTripletStepTracksHitTripletsCA")
+    SeedingHitSets = "hiLowPtTripletStepTracksHitTripletsCA"
 )
 
 

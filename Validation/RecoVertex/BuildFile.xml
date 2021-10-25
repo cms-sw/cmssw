@@ -26,7 +26,6 @@
 <use name="CommonTools/TriggerUtils"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="clhep"/>
-<use name="boost"/>
 <use name="hepmc"/>
 <use name="RecoVertex/PrimaryVertexProducer"/>
 <use name="RecoVertex/VertexTools"/>

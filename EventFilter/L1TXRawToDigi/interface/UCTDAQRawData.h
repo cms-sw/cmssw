@@ -20,6 +20,10 @@ public:
     }
   }
 
+  // No copy constructor and equality operator are needed
+  UCTDAQRawData(const UCTDAQRawData &) = delete;
+  const UCTDAQRawData &operator=(const UCTDAQRawData &i) = delete;
+
   virtual ~UCTDAQRawData() { ; }
 
   // Access functions for convenience
@@ -279,11 +283,6 @@ public:
   }
 
 private:
-  // No copy constructor and equality operator are needed
-
-  UCTDAQRawData(const UCTDAQRawData &) = delete;
-  const UCTDAQRawData &operator=(const UCTDAQRawData &i) = delete;
-
   // RawData data
 
   const uint64_t *myDataPtr;

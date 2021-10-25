@@ -18,8 +18,6 @@
 // system include files
 #include <vector>
 
-#include "boost/lexical_cast.hpp"
-
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

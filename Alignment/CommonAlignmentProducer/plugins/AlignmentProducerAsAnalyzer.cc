@@ -14,7 +14,8 @@
 
 //------------------------------------------------------------------------------
 AlignmentProducerAsAnalyzer::AlignmentProducerAsAnalyzer(const edm::ParameterSet& config)
-    : AlignmentProducerBase{config}, token_(produces<AlignmentToken, edm::Transition::EndProcessBlock>()) {
+    : AlignmentProducerBase(config, consumesCollector()),
+      token_(produces<AlignmentToken, edm::Transition::EndProcessBlock>()) {
   usesResource(TFileService::kSharedResource);
 
   tjTkAssociationMapToken_ = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);

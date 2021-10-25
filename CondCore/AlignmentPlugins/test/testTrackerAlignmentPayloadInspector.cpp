@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
   std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
 
   std::string tag = "TrackerAlignment_v21_offline";
-  cond::Time_t start = boost::lexical_cast<unsigned long long>(294034);
-  cond::Time_t end = boost::lexical_cast<unsigned long long>(305898);
+  cond::Time_t start = static_cast<unsigned long long>(294034);
+  cond::Time_t end = static_cast<unsigned long long>(305898);
 
   std::cout << "## Alignment Histos" << std::endl;
 

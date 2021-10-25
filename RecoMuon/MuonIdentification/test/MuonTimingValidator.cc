@@ -29,7 +29,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,10 +45,6 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
-#include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -93,6 +88,7 @@ MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig)
       DtTimeTokens_(consumes<reco::MuonTimeExtraMap>(DtTimeTags_)),
       CscTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CscTiming")),
       CscTimeTokens_(consumes<reco::MuonTimeExtraMap>(CscTimeTags_)),
+      trackingGeometryToken_(esConsumes()),
       out(iConfig.getParameter<std::string>("out")),
       open(iConfig.getParameter<std::string>("open")),
       theMinEta(iConfig.getParameter<double>("etaMin")),
@@ -142,8 +138,7 @@ void MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(CscTimeTokens_, timeMap3);
   const reco::MuonTimeExtraMap& timeMapCSC = *timeMap3;
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeometryToken_);
 
   reco::MuonCollection::const_iterator imuon;
 

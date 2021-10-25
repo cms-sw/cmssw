@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import ROOT
 from DataFormats.FWLite import Events, Handle
 

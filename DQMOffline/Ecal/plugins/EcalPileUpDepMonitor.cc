@@ -14,10 +14,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -30,7 +26,7 @@
 
 // Framework
 
-EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet &ps) {
+EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet &ps) : geomH(esConsumes()), caloTop(esConsumes()) {
   VertexCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("VertexCollection"));
 
   if (ps.existsAs<edm::InputTag>("basicClusterCollection") &&
@@ -58,9 +54,6 @@ EcalPileUpDepMonitor::~EcalPileUpDepMonitor() {}
 void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker &ibooker,
                                           edm::Run const &,
                                           edm::EventSetup const &eventSetup) {
-  eventSetup.get<CaloGeometryRecord>().get(geomH);
-  eventSetup.get<CaloTopologyRecord>().get(caloTop);
-
   ibooker.cd();
   ibooker.setCurrentFolder("Ecal/EcalPileUpDepMonitor");
 
@@ -229,8 +222,8 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   recHitEtEE->setAxisTitle("Events", 2);
 }
 
-void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &) {
-  const CaloGeometry *geom = geomH.product();
+void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &es) {
+  const CaloGeometry *geom = &es.getData(geomH);
   // Vertex collection:
   //-----------------------------------------
   edm::Handle<reco::VertexCollection> PVCollection_h;
@@ -336,7 +329,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
 
     // get sigma eta_eta etc
 
-    CaloTopology const *p_topology = caloTop.product();  // get calo topology
+    CaloTopology const *p_topology = &es.getData(caloTop);  // get calo topology
     const EcalRecHitCollection *eeRecHits = RecHitsEE.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());
@@ -379,7 +372,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
 
     // sigma ietaieta etc
 
-    CaloTopology const *p_topology = caloTop.product();  // get calo topology
+    CaloTopology const *p_topology = &es.getData(caloTop);  // get calo topology
     const EcalRecHitCollection *ebRecHits = RecHitsEB.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());

@@ -166,11 +166,11 @@ protected:
         "implemented by inherited class");
   };
 
-private:
+public:
   FWHeatmapProxyBuilderTemplate(const FWHeatmapProxyBuilderTemplate&) = delete;  // stop default
 
   const FWHeatmapProxyBuilderTemplate& operator=(const FWHeatmapProxyBuilderTemplate&) = delete;  // stop default
-
+private:
   // ---------- member data --------------------------------
 };
 

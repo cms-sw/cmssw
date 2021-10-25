@@ -33,7 +33,7 @@ namespace edmtest {
     ItemType getNextItemType() final;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() final;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() final;
-    std::unique_ptr<FileBlock> readFile_() final;
+    std::shared_ptr<FileBlock> readFile_() final;
     void readRun_(RunPrincipal& runPrincipal) final;
     void readEvent_(EventPrincipal& eventPrincipal) final;
 
@@ -132,9 +132,9 @@ std::shared_ptr<RunAuxiliary> PutOrMergeTestSource::readRunAuxiliary_() {
   return id;
 }
 std::shared_ptr<LuminosityBlockAuxiliary> PutOrMergeTestSource::readLuminosityBlockAuxiliary_() { return {}; }
-std::unique_ptr<FileBlock> PutOrMergeTestSource::readFile_() {
+std::shared_ptr<FileBlock> PutOrMergeTestSource::readFile_() {
   ++stage_;
-  return std::make_unique<FileBlock>();
+  return std::make_shared<FileBlock>();
 }
 void PutOrMergeTestSource::readRun_(RunPrincipal& runPrincipal) {
   runAuxiliary()->setProcessHistoryID(historyID_);

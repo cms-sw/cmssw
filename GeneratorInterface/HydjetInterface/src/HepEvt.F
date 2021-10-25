@@ -3,8 +3,8 @@
       subroutine ihepevt
   
   
-#include "SimDataFormats/GeneratorProducts/data/stdhep.inc"
-#include "SimDataFormats/GeneratorProducts/data/hepev4.inc"
+#include "SimDataFormats/GeneratorProducts/interface/stdhep.inc"
+#include "SimDataFormats/GeneratorProducts/interface/hepev4.inc"
   
       return
       end

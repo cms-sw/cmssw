@@ -209,16 +209,17 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
       }    /// End of loop over upper clusters
 
       /// Here tempOutput stores all the stubs from this lower cluster
-      /// Check if there is need to store only one (if only one already, skip this step)
-      if (ForbidMultipleStubs && tempOutput.size() > 1) {
-        /// If so, sort the stubs by bend and keep only the first one (smallest bend)
+      /// Check if there is need to store only one or two (2S/PS modules cases) (if only one already, skip this step)
+      if (ForbidMultipleStubs && tempOutput.size() > 1 + static_cast<unsigned int>(isPS)) {
+        /// If so, sort the stubs by bend and keep only the first one (2S case) or the first pair (PS case) (smallest |bend|)
         std::sort(tempOutput.begin(), tempOutput.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubsBend);
 
         /// Get to the second element (the switch above ensures there are min 2)
         typename std::vector<TTStub<Ref_Phase2TrackerDigi_>>::iterator tempIter = tempOutput.begin();
         ++tempIter;
-
-        /// tempIter points now to the second element
+        if (isPS)
+          ++tempIter;  // PS module case
+        /// tempIter points now to the second or third element (2S/PS)
 
         /// Delete all-but-the first one from tempOutput
         tempOutput.erase(tempIter, tempOutput.end());

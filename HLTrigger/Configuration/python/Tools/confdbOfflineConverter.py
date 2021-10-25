@@ -2,10 +2,11 @@
 import sys, os
 import os.path
 import tempfile
-import urllib
+import urllib.request
 import shutil
 import subprocess
 import atexit
+from collections import Counter
 
 class OfflineConverter:
 
@@ -27,16 +28,25 @@ class OfflineConverter:
 
     databases = {}
     databases['v1'] = {}
-    databases['v1']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hltdev_reader', '-s', 'ConvertMe!' )
+    databases['v1']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hltdev_reader', '-s', 'convertMe!' )
     databases['v1']['hltdev']  = databases['v1']['offline']     # for backwards compatibility
-    databases['v1']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_r',         '-s', 'ConvertMe!' )
-    databases['v1']['adg']     = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gui_r',     '-s', 'ConvertMe!' )
+    databases['v1']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_r',         '-s', 'convertMe!' )
+    databases['v1']['adg']     = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gui_r',     '-s', 'convertMe!' )
     databases['v1']['orcoff']  = databases['v1']['adg']         # for backwards compatibility
-    databases['v2'] = {}
-    databases['v2']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v2']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v2']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg1-s.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-
+    databases['v3'] = {}
+    databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
+    databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
+    databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg1-s.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3-beta'] = dict(databases['v3'])
+    databases['v3-test'] = dict(databases['v3'])
+    databases['v2'] = dict(databases['v3'])
+    #old converter can only handle a single host so we modify the params accordingly
+    for dbkey in databases['v2']:
+        dbparams  = databases['v2'][dbkey]
+        if dbparams[3]=='cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch':
+            databases['v2'][dbkey] = dbparams[0:3]+('cmsr1-s.cern.ch',)+dbparams[4:]
 
     @staticmethod
     def CheckTempDirectory(dir):
@@ -49,12 +59,15 @@ class OfflineConverter:
         return dir
 
 
-    def __init__(self, version = 'v2', database = 'offline', url = None, verbose = False):
+    def __init__(self, version = 'v3', database = 'run3', url = None, verbose = False):
         self.verbose = verbose
         self.version = version
         self.baseDir = '/afs/cern.ch/user/c/confdb/www/%s/lib' % version
-        self.baseUrl = 'http://confdb.web.cern.ch/confdb/%s/lib' % version
-        self.jars    = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
+        self.baseUrl = 'https://confdb.web.cern.ch/confdb/%s/lib' % version
+        self.jars    = ( 'ojdbc8.jar', 'cmssw-evf-confdb-converter.jar' )
+        if version=='v2':
+            #legacy driver for run2 gui
+            self.jars = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
         self.workDir = ''
 
         # check the schema version
@@ -97,7 +110,7 @@ class OfflineConverter:
                 # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
                 handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
                 os.close(handle)
-                urllib.urlretrieve(self.baseUrl + '/' + jar, temp)
+                urllib.request.urlretrieve(self.baseUrl + '/' + jar, temp)
                 if not os.path.exists(self.workDir + '/' + jar):
                     os.rename(temp, self.workDir + '/' + jar)
                 else:
@@ -131,9 +144,9 @@ class OfflineConverter:
 def help():
     sys.stdout.write("""Usage: %s OPTIONS
 
-        --v1|--v2                   (specify the ConfDB version [default: v2])
+        --v1|--v2|--v3|--v3-beta|--v3-test  (specify the ConfDB version [default: v3])
 
-        --offline|--online|--adg    (specify the target db [default: offline])
+        --run3|--run2|--dev|--online|--adg    (specify the target db [default: run3], online will only work inside p5 network)
 
         Note that for v1
             --orcoff  is a synonim of --adg
@@ -180,8 +193,8 @@ def help():
 
 def main():
     args = sys.argv[1:]
-    version = 'v2'
-    db      = 'offline'
+    version = 'v3'
+    db      = 'run3'
     verbose = False
 
     if not args:
@@ -196,8 +209,10 @@ def main():
         verbose = True
         args.remove('--verbose')
 
-    if '--v1' in args and '--v2' in args:
-        sys.stderr.write( "ERROR: conflicting database version specifications \"--v1\" and \"--v2\"\n" )
+    arg_count = Counter(args)
+    db_count = arg_count['--v1'] + arg_count['--v2'] + arg_count['--v3'] + arg_count['--v3-beta'] + arg_count['--v3-test']
+    if db_count>1:
+        sys.stderr.write( 'ERROR: conflicting database version specifications: "--v1", "--v2", "--v3", "--v3-beta", and "--v3-test" are mutually exclusive options' )
         sys.exit(1)
 
     if '--v1' in args:
@@ -207,12 +222,30 @@ def main():
 
     if '--v2' in args:
         version = 'v2'
-        db      = 'offline'
+        db      = 'run2'
         args.remove('--v2')
+
+    if '--v3' in args:
+        version = 'v3'
+        db      = 'run3'
+        args.remove('--v3')
+
+    if '--v3-beta' in args:
+        version = 'v3-beta'
+        db      = 'run3'
+        args.remove('--v3-beta')
+
+    if '--v3-test' in args:
+        version = 'v3-test'
+        db      = 'dev'
+        args.remove('--v3-test')
 
     _dbs = {}
     _dbs['v1'] = [ '--%s' % _db for _db in OfflineConverter.databases['v1'] ] + [ '--runNumber' ]
     _dbs['v2'] = [ '--%s' % _db for _db in OfflineConverter.databases['v2'] ] + [ '--runNumber' ]
+    _dbs['v3'] = [ '--%s' % _db for _db in OfflineConverter.databases['v3'] ] + [ '--runNumber'] 
+    _dbs['v3-beta'] = [ '--%s' % _db for _db in OfflineConverter.databases['v3-beta'] ] + [ '--runNumber' ]
+    _dbs['v3-test'] = [ '--%s' % _db for _db in OfflineConverter.databases['v3-test'] ] + [ '--runNumber' ]
     _dbargs = set(args) & set(sum(_dbs.values(), []))
 
     if _dbargs:

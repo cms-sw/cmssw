@@ -4,9 +4,10 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
+#include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
+
 #include <cassert>
 
-#include "getBestVertex.h"
 #include "powN.h"
 
 namespace {
@@ -159,7 +160,7 @@ namespace {
   }
 
   struct Cuts {
-    Cuts(const edm::ParameterSet& cfg) {
+    Cuts(const edm::ParameterSet& cfg, edm::ConsumesCollector) {
       isHLT = cfg.getParameter<bool>("isHLT");
       fillArrayF(minNdof, cfg, "minNdof");
       fillArrayF(maxChi2, cfg, "maxChi2");

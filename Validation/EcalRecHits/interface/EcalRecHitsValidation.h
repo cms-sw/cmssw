@@ -34,6 +34,12 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+#include <Validation/EcalRecHits/interface/EcalRecHitsValidation.h>
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include <fstream>
 #include <iostream>
@@ -83,6 +89,9 @@ private:
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> pAgc;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> pEcsToken;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> pttMapToken;
 
   MonitorElement *meGunEnergy_;
   MonitorElement *meGunEta_;

@@ -19,7 +19,7 @@ RC=0
 P=$$
 PREFIX=results_${USER}${P}
 OUTDIR=${LOCAL_TMP_DIR}/${PREFIX}
-
+echo "Output will be temporarily written to ${OUTDIR}"
 
 mkdir ${OUTDIR}
 cp ${SCRIPTDIR}/startBU.py ${OUTDIR}

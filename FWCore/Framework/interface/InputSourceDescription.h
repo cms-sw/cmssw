@@ -8,7 +8,8 @@ input source that does not come in through the ParameterSet
 ----------------------------------------------------------------------*/
 #include <memory>
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
 namespace edm {
   class ProductRegistry;
@@ -29,6 +30,7 @@ namespace edm {
     InputSourceDescription(ModuleDescription const& md,
                            std::shared_ptr<ProductRegistry> preg,
                            std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                           std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                            std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                            std::shared_ptr<ActivityRegistry> areg,
                            int maxEvents,
@@ -38,6 +40,7 @@ namespace edm {
         : moduleDescription_(md),
           productRegistry_(preg),
           branchIDListHelper_(branchIDListHelper),
+          processBlockHelper_(processBlockHelper),
           thinnedAssociationsHelper_(thinnedAssociationsHelper),
           actReg_(areg),
           maxEvents_(maxEvents),
@@ -48,6 +51,7 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     int maxEvents_;

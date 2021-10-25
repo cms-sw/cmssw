@@ -15,6 +15,9 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder &) = delete;                   // stop default
+  const FWCaloClusterProxyBuilder &operator=(const FWCaloClusterProxyBuilder &) = delete;  // stop default
+
 private:
   edm::Handle<edm::ValueMap<std::pair<float, float>>> TimeValueMapHandle;
   double timeLowerBound, timeUpperBound;
@@ -24,9 +27,6 @@ private:
   bool z_plus;
   bool z_minus;
   bool enableTimeFilter;
-
-  FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder &) = delete;                   // stop default
-  const FWCaloClusterProxyBuilder &operator=(const FWCaloClusterProxyBuilder &) = delete;  // stop default
 
   void setItem(const FWEventItem *iItem) override;
 

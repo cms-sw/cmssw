@@ -12,29 +12,25 @@ namespace trklet {
   class Settings;
   class Globals;
   class Stub;
-  class L1TStub;
-  class VMRouterPhiCorrTable;
 
   class InputLinkMemory : public MemoryBase {
   public:
-    InputLinkMemory(std::string name, Settings const& settings, unsigned int iSector, double, double);
+    InputLinkMemory(std::string name, Settings const& settings, double, double);
 
     ~InputLinkMemory() override = default;
 
-    bool addStub(Settings const& settings, Globals* globals, L1TStub& al1stub, Stub& stub, std::string dtc);
+    void addStub(Stub* stub);
 
     unsigned int nStubs() const { return stubs_.size(); }
 
     Stub* getStub(unsigned int i) { return stubs_[i]; }
 
-    void writeStubs(bool first);
+    void writeStubs(bool first, unsigned int iSector);
 
     void clean() override;
 
   private:
     std::vector<Stub*> stubs_;
-    int phiregion_;
-    unsigned int layerdisk_;
   };
 
 };  // namespace trklet

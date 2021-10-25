@@ -91,6 +91,8 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::ofstream Output("ModuleInfo.log", std::ios::out);
   // TEC output as Martin Weber's
   std::ofstream TECOutput("TECLayout_CMSSW.dat", std::ios::out);
+  TECOutput << std::fixed << std::setprecision(4);
+
   // Numbering Scheme
   std::ofstream NumberingOutput("ModuleNumbering.dat", std::ios::out);
 

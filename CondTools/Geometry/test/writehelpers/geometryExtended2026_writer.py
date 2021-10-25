@@ -30,6 +30,7 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool(False))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool(False))
+process.TrackerAdditionalParametersPerDetWriter = cms.EDAnalyzer("PTrackerAdditionalParametersPerDetDBBuilder")
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalE = cms.untracked.bool(False),
@@ -53,6 +54,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_Extended2026D41_mc')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'), tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerParametersRcd'), tag = cms.string('TKParameters_Geometry_TagXX')),
+                                                            cms.PSet(record = cms.string('PTrackerAdditionalParametersPerDetRcd'), tag = cms.string('TKAdditionalParametersPerDet_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('HcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_TagXX')),
@@ -74,4 +76,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter+process.ME0GeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.TrackerAdditionalParametersPerDetWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter+process.ME0GeometryWriter)

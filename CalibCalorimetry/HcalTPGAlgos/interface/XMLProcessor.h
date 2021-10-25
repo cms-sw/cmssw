@@ -137,6 +137,8 @@ public:
     return instance;
   }
 
+  XMLProcessor(const XMLProcessor&) = delete;  // stop default
+
   // returns XML std::string if target == "string" otherwise NULL
   XMLCh* serializeDOM(XERCES_CPP_NAMESPACE::DOMNode* node, std::string target = "stdout");
 
@@ -160,8 +162,6 @@ public:
 
 private:
   XMLProcessor();
-
-  XMLProcessor(const XMLProcessor&) = delete;  // stop default
 
   //const XMLProcessor& operator=(const XMLProcessor&); // stop default
 

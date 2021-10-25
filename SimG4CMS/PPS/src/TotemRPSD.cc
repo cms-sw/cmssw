@@ -5,7 +5,6 @@
 #include "SimG4CMS/PPS/interface/TotemRPSD.h"
 #include "SimG4CMS/PPS/interface/PPSStripNumberingScheme.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -32,7 +31,6 @@
 #include <string>
 
 TotemRPSD::TotemRPSD(const std::string& name_,
-                     const edm::EventSetup& es,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)

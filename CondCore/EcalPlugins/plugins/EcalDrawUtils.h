@@ -1,7 +1,7 @@
 #include "TH2F.h"
 #include "TLine.h"
 
-void DrawEB(TH2F* ebmap, float min, float max) {
+inline void DrawEB(TH2F* ebmap, float min, float max) {
   ebmap->SetXTitle("i#phi");
   ebmap->SetYTitle("i#eta");
   ebmap->GetXaxis()->SetNdivisions(-418, kFALSE);
@@ -26,7 +26,7 @@ void DrawEB(TH2F* ebmap, float min, float max) {
   l->Draw();
 }  //   DrawEB method
 
-void DrawEE(TH2F* endc, float min, float max) {
+inline void DrawEE(TH2F* endc, float min, float max) {
   int ixSectorsEE[202] = {
       62, 62, 61, 61, 60, 60, 59, 59, 58, 58, 56, 56, 46, 46, 44, 44, 43, 43, 42, 42,  41,  41,  40,  40, 41, 41,
       42, 42, 43, 43, 44, 44, 46, 46, 56, 56, 58, 58, 59, 59, 60, 60, 61, 61, 62, 62,  0,   101, 101, 98, 98, 96,
@@ -62,7 +62,7 @@ void DrawEE(TH2F* endc, float min, float max) {
   }
 }  //   DrawEE method
 
-void DrawEE_Tower(TH2F* endc, TLine* l, double minScale, double maxScale) {
+inline void DrawEE_Tower(TH2F* endc, TLine* l, double minScale, double maxScale) {
   endc->SetStats(false);
   endc->SetMinimum(minScale);
   endc->SetMaximum(maxScale);
@@ -88,7 +88,7 @@ void DrawEE_Tower(TH2F* endc, TLine* l, double minScale, double maxScale) {
 
 }  //draw EE in case of a tower
 
-void drawTable(int nbRows, int nbColumns) {
+inline void drawTable(int nbRows, int nbColumns) {
   TLine* l = new TLine;
   l->SetLineWidth(1);
   for (int i = 1; i < nbRows; i++) {

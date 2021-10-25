@@ -38,6 +38,9 @@ namespace edm::eventsetup {
     ESSourceDataProxyTemplate(edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
         : ESSourceDataProxyBase(iQueue, iMutex) {}
 
+    ESSourceDataProxyTemplate(const ESSourceDataProxyTemplate&) = delete;
+    const ESSourceDataProxyTemplate& operator=(const ESSourceDataProxyTemplate&) = delete;
+
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------
@@ -53,10 +56,6 @@ namespace edm::eventsetup {
 
   private:
     void const* getAfterPrefetchImpl() const final { return fetch(); }
-
-    ESSourceDataProxyTemplate(const ESSourceDataProxyTemplate&) = delete;
-
-    const ESSourceDataProxyTemplate& operator=(const ESSourceDataProxyTemplate&) = delete;
   };
 }  // namespace edm::eventsetup
 

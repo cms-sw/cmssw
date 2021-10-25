@@ -3,14 +3,18 @@
 
 #include "G4BogackiShampine45.hh"
 #include "G4CashKarpRKF45.hh"
+#include "G4TCashKarpRKF45.hh"
 #include "G4ClassicalRK4.hh"
+#include "G4TClassicalRK4.hh"
 #include "G4DormandPrince745.hh"
+#include "G4TDormandPrince45.hh"
 #include "G4HelixExplicitEuler.hh"
 #include "G4HelixHeum.hh"
 #include "G4HelixImplicitEuler.hh"
 #include "G4HelixSimpleRunge.hh"
 #include "G4ImplicitEuler.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "G4TMagFieldEquation.hh"
 #include "G4NystromRK4.hh"
 #include "G4SimpleHeum.hh"
 #include "G4SimpleRunge.hh"
@@ -34,6 +38,8 @@ G4int FieldStepper::IntegratorOrder() const { return theStepper->IntegratorOrder
 void FieldStepper::selectStepper(const std::string &ss) {
   if (ss == "G4ClassicalRK4")
     theStepper = new G4ClassicalRK4(theEquation);
+  else if (ss == "G4TClassicalRK4")
+    theStepper = new G4TClassicalRK4<G4Mag_UsualEqRhs, 8>(theEquation);
   else if (ss == "G4NystromRK4")
     theStepper = new G4NystromRK4(theEquation, theDelta);
   else if (ss == "G4SimpleRunge")
@@ -42,8 +48,12 @@ void FieldStepper::selectStepper(const std::string &ss) {
     theStepper = new G4SimpleHeum(theEquation);
   else if (ss == "G4CashKarpRKF45")
     theStepper = new G4CashKarpRKF45(theEquation);
+  else if (ss == "G4TCashKarpRKF45")
+    theStepper = new G4TCashKarpRKF45<G4Mag_UsualEqRhs>(theEquation);
   else if (ss == "G4DormandPrince745")
     theStepper = new G4DormandPrince745(theEquation);
+  else if (ss == "G4TDormandPrince45")
+    theStepper = new G4TDormandPrince45<G4Mag_UsualEqRhs>(theEquation);
   else if (ss == "G4BogackiShampine45")
     theStepper = new G4BogackiShampine45(theEquation);
   else if (ss == "G4TsitourasRK45")

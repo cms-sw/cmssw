@@ -26,7 +26,7 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 //

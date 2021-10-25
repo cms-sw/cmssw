@@ -16,7 +16,7 @@ namespace trklet {
 
   class TrackletParametersMemory : public MemoryBase {
   public:
-    TrackletParametersMemory(std::string name, Settings const &settings, unsigned int iSector);
+    TrackletParametersMemory(std::string name, Settings const &settings);
 
     ~TrackletParametersMemory() override = default;
 
@@ -28,9 +28,7 @@ namespace trklet {
 
     void clean() override;
 
-    void writeMatches(Globals *globals, int &matchesL1, int &matchesL3, int &matchesL5);
-
-    void writeTPAR(bool first);
+    void writeTPAR(bool first, unsigned int iSector);
 
   private:
     std::vector<Tracklet *> tracklets_;

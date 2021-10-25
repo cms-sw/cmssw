@@ -7,6 +7,9 @@
  * \author Boris Mangano (UCSD)  5/7/2009
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 
@@ -14,8 +17,8 @@
 
 class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
 public:
-  CosmicParametersDefinerForTP(){};
-  ~CosmicParametersDefinerForTP() override{};
+  CosmicParametersDefinerForTP(edm::ConsumesCollector iC);
+  ~CosmicParametersDefinerForTP() override;
 
   TrackingParticle::Vector momentum(const edm::Event &iEvent,
                                     const edm::EventSetup &iSetup,
@@ -54,6 +57,7 @@ public:
   }
 
 private:
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
 };
 

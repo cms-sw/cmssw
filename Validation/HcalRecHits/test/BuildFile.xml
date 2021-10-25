@@ -8,7 +8,6 @@
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/CaloTest"/>
-<use name="boost"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="testValidationHcalRecHits">

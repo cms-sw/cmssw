@@ -11,6 +11,18 @@ class UCTCard {
 public:
   UCTCard(uint32_t crt, uint32_t crd, int fwv);
 
+  // No default constructor is needed
+
+  UCTCard() = delete;
+
+  // No copy constructor is needed
+
+  UCTCard(const UCTCard&) = delete;
+
+  // No equality operator is needed
+
+  const UCTCard& operator=(const UCTCard&) = delete;
+
   virtual ~UCTCard();
 
   // To set up event data before processing
@@ -36,18 +48,6 @@ public:
   friend std::ostream& operator<<(std::ostream&, const UCTCard&);
 
 private:
-  // No default constructor is needed
-
-  UCTCard() = delete;
-
-  // No copy constructor is needed
-
-  UCTCard(const UCTCard&) = delete;
-
-  // No equality operator is needed
-
-  const UCTCard& operator=(const UCTCard&) = delete;
-
   // Helper functions
 
   const UCTRegion* getRegion(bool negativeEta, uint32_t caloEta, uint32_t caloPhi) const;

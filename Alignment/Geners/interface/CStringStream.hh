@@ -65,10 +65,10 @@ namespace gs {
     // String representation of the compression mode
     static std::string compressionModeName(CompressionMode m, bool useShortName = true);
 
-  private:
     CStringStream(const CStringStream &) = delete;
     CStringStream &operator=(const CStringStream &) = delete;
 
+  private:
     CStringBuf buf_;
     CompressionMode mode_;
     int compressionLevel_;

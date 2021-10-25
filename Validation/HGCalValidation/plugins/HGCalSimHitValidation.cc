@@ -185,10 +185,9 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     double time = hits[i].time();
     uint32_t id_ = hits[i].id();
     int cell, sector, subsector(0), layer, zside;
-    int subdet(0), cell2(0), type(0);
+    int cell2(0), type(0);
     if (hgcons_->waferHexagon8()) {
       HGCSiliconDetId detId = HGCSiliconDetId(id_);
-      subdet = ForwardEmpty;
       cell = detId.cellU();
       cell2 = detId.cellV();
       sector = detId.waferU();
@@ -198,7 +197,6 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       zside = detId.zside();
     } else if (hgcons_->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
-      subdet = ForwardEmpty;
       sector = detId.ietaAbs();
       cell = detId.iphi();
       subsector = 1;
@@ -206,6 +204,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
       layer = detId.layer();
       zside = detId.zside();
     } else {
+      int subdet;
       HGCalTestNumbering::unpackHexagonIndex(id_, subdet, zside, layer, sector, type, cell);
     }
     nused++;

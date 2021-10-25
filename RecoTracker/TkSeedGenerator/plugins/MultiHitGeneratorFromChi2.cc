@@ -2,20 +2,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitCorrection.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -25,9 +23,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
@@ -51,7 +46,7 @@ namespace {
   };
 }  // namespace
 
-MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg)
+MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : MultiHitGeneratorFromPairAndLayers(cfg),
       useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
       extraHitRZtolerance(
@@ -98,6 +93,16 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
   filter = nullptr;
   bfield = nullptr;
   nomField = -1.;
+
+  if (useSimpleMF_) {
+    magneticFieldESToken_ = iC.esConsumes(edm::ESInputTag("", mfName_));
+  } else {
+    magneticFieldESToken_ = iC.esConsumes();
+  }
+  if (refitHits) {
+    clusterShapeHitFilterESToken_ = iC.esConsumes(edm::ESInputTag("", filterName_));
+    transientTrackingRecHitBuilderESToken_ = iC.esConsumes(edm::ESInputTag("", builderName_));
+  }
 }
 
 MultiHitGeneratorFromChi2::~MultiHitGeneratorFromChi2() {}
@@ -133,23 +138,14 @@ void MultiHitGeneratorFromChi2::fillDescriptions(edm::ParameterSetDescription& d
 }
 
 void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es) {
-  edm::ESHandle<MagneticField> bfield_h;
-  if (useSimpleMF_)
-    es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);
-  else
-    es.get<IdealMagneticFieldRecord>().get(bfield_h);
-  bfield = bfield_h.product();
+  bfield = &es.getData(magneticFieldESToken_);
   nomField = bfield->nominalValue();
   ufield.set(nomField);  // more than enough (never actually used)
 
   if (refitHits) {
-    edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-    es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-    filter = filterHandle_.product();
-
-    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-    es.get<TransientRecHitRecord>().get(builderName_, builderH);
-    builder = (TkTransientTrackingRecHitBuilder const*)(builderH.product());
+    filter = &es.getData(clusterShapeHitFilterESToken_);
+    auto const& builderRef = es.getData(transientTrackingRecHitBuilderESToken_);
+    builder = (TkTransientTrackingRecHitBuilder const*)(&builderRef);
     cloner = (*builder).cloner();
   }
 }
@@ -184,13 +180,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   }
 
   assert(theLayerCache);
-  hitSets(region, result, ev, es, doublets, thirdLayers, *theLayerCache, cache);
+  hitSets(region, result, doublets, thirdLayers, *theLayerCache, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
                                         OrderedMultiHits& result,
-                                        const edm::Event& ev,
-                                        const edm::EventSetup& es,
                                         const HitDoublets& doublets,
                                         const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
                                         LayerCacheType& layerCache,
@@ -199,26 +193,24 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   const RecHitsSortedInPhi* thirdHitMap[size];
   vector<const DetLayer*> thirdLayerDetLayer(size, nullptr);
   for (int il = 0; il < size; ++il) {
-    thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+    thirdHitMap[il] = &layerCache(thirdLayers[il], region);
 
     thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
   }
-  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
+  hitSets(region, result, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
 }
 
 void MultiHitGeneratorFromChi2::hitTriplets(const TrackingRegion& region,
                                             OrderedMultiHits& result,
-                                            const edm::EventSetup& es,
                                             const HitDoublets& doublets,
                                             const RecHitsSortedInPhi** thirdHitMap,
                                             const std::vector<const DetLayer*>& thirdLayerDetLayer,
                                             const int nThirdLayers) {
-  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
+  hitSets(region, result, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
                                         OrderedMultiHits& result,
-                                        const edm::EventSetup& es,
                                         const HitDoublets& doublets,
                                         const RecHitsSortedInPhi** thirdHitMap,
                                         const std::vector<const DetLayer*>& thirdLayerDetLayer,
@@ -305,7 +297,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: now we have initialized the KDTrees and we are out of the layer loop
 
   //gc: this sets the minPt of the triplet
-  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), *bfield);
 
   LogTrace("MultiHitGeneratorFromChi2") << "doublet size=" << doublets.size() << std::endl;
 

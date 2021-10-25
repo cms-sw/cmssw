@@ -2,12 +2,14 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <vector>
 
 namespace edm {
@@ -59,6 +61,8 @@ private:
     bool operator()(const reco::Track* t1, const reco::Track* t2) const { return t1->pt() > t2->pt(); }
   };
   ComparePt ptComparator;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
   const int seedOnlyFromAbove_;

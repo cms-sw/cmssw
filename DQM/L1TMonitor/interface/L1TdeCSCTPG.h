@@ -10,6 +10,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 class L1TdeCSCTPG : public DQMEDAnalyzer {
@@ -34,6 +35,7 @@ private:
   edm::EDGetTokenT<CSCALCTDigiCollection> emulALCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> dataCLCT_token_;
   edm::EDGetTokenT<CSCCLCTDigiCollection> emulCLCT_token_;
+  edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> emulpreCLCT_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> dataLCT_token_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> emulLCT_token_;
   std::string monitorDir_;
@@ -59,11 +61,17 @@ private:
   /*
     When set to True, we assume that the data comes from
     the Building 904 CSC test-stand. This test-stand is a single
-    ME1/1 chamber.
+    ME1/1 chamber or ME4/2 chamber.
   */
-  bool B904Setup_;
+  bool useB904_;
+  bool useB904ME11_;
+  bool useB904ME21_;
+  bool useB904ME234s2_;
 
   bool isRun3_;
+
+  // check the data CLCTs and emul CLCTs against emul preCLCTs
+  bool preTriggerAnalysis_;
 
   // first key is the chamber number
   // second key is the variable

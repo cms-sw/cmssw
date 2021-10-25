@@ -98,10 +98,9 @@ namespace fireworks {
     static float caloTransAngle();
     static double caloMaxEta();
 
-  private:
     Context(const Context&) = delete;                   // stop default
     const Context& operator=(const Context&) = delete;  // stop default
-
+  private:
     // ---------- member data --------------------------------
     FWModelChangeManager* m_changeManager;
     FWSelectionManager* m_selectionManager;

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 HGVHistoProducerAlgoBlock = cms.PSet(
-
     minEta = cms.double(-4.5),
     maxEta = cms.double(4.5),
     nintEta = cms.int32(100),
@@ -77,6 +76,7 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minSharedEneFrac = cms.double(0.),
     maxSharedEneFrac = cms.double(1.),
     nintSharedEneFrac = cms.int32(100),
+    minTSTSharedEneFracEfficiency = cms.double(0.5),
 
     #Same as above for tracksters
     minTSTSharedEneFrac = cms.double(0.),
@@ -178,5 +178,4 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minZ  = cms.double(-550.),
     maxZ  = cms.double(550.),
     nintZ = cms.int32(1100)
-
 )

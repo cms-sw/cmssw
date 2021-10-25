@@ -7,22 +7,22 @@ using namespace trklet;
 
 TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
                                        unsigned int nbitsfinephi,
+                                       unsigned int layerdisk1,
                                        unsigned int layerdisk2,
                                        unsigned int iSeed,
                                        unsigned int nbitsfinephidiff,
                                        unsigned int iAllStub,
-                                       std::vector<bool> const& pttableinner,
-                                       std::vector<bool> const& pttableouter,
+                                       const TrackletLUT* pttableinnernew,
+                                       const TrackletLUT* pttableouternew,
                                        VMStubsTEMemory* outervmstubs)
-    : settings_(settings), candpairs_(5) {
+    : settings_(settings), pttableinnernew_(pttableinnernew), pttableouternew_(pttableouternew), candpairs_(3) {
   idle_ = true;
   nbitsfinephi_ = nbitsfinephi;
   layerdisk2_ = layerdisk2;
+  layerdisk1_ = layerdisk1;
   iSeed_ = iSeed;
   nbitsfinephidiff_ = nbitsfinephidiff;
   iAllStub_ = iAllStub;
-  pttableinner_ = pttableinner;
-  pttableouter_ = pttableouter;
   outervmstubs_ = outervmstubs;
 }
 
@@ -37,12 +37,24 @@ void TrackletEngineUnit::init(const TEData& tedata) {
 
 void TrackletEngineUnit::reset() {
   idle_ = true;
+  goodpair_ = false;
+  goodpair__ = false;
   candpairs_.reset();
 }
 
-void TrackletEngineUnit::step() {
-  if (candpairs_.full())
+void TrackletEngineUnit::step(bool, int, int) {
+  if (goodpair__) {
+    candpairs_.store(candpair__);
+  }
+
+  goodpair__ = goodpair_;
+  candpair__ = candpair_;
+
+  goodpair_ = false;
+
+  if (idle_ || nearfull_) {
     return;
+  }
 
   int ibin = tedata_.start_ + next_;
 
@@ -61,9 +73,10 @@ void TrackletEngineUnit::step() {
   int outerfinephi = iAllStub_ * (1 << (nbitsfinephi_ - settings_->nbitsallstubs(layerdisk2_))) +
                      ireg_ * (1 << settings_->nfinephi(1, iSeed_)) + iphiouterbin.value();
   int idphi = outerfinephi - tedata_.innerfinephi_;
+
   bool inrange = (idphi < (1 << (nbitsfinephidiff_ - 1))) && (idphi >= -(1 << (nbitsfinephidiff_ - 1)));
-  if (idphi < 0)
-    idphi = idphi + (1 << nbitsfinephidiff_);
+
+  idphi = idphi & ((1 << nbitsfinephidiff_) - 1);
 
   unsigned int firstDiskSeed = 4;
   if (iSeed_ >= firstDiskSeed) {  //Also use r-position
@@ -75,6 +88,7 @@ void TrackletEngineUnit::step() {
 
   if (next_ != 0)
     rzbin += (1 << NFINERZBITS);
+
   if ((rzbin < tedata_.rzbinfirst_) || (rzbin - tedata_.rzbinfirst_ > tedata_.rzdiffmax_)) {
     if (settings_->debugTracklet()) {
       edm::LogVerbatim("Tracklet") << " layer-disk stub pair rejected because rbin cut : " << rzbin << " "
@@ -86,17 +100,22 @@ void TrackletEngineUnit::step() {
     int ptinnerindex = (idphi << tedata_.innerbend_.nbits()) + tedata_.innerbend_.value();
     int ptouterindex = (idphi << outerbend.nbits()) + outerbend.value();
 
-    if (!(inrange && pttableinner_[ptinnerindex] && pttableouter_[ptouterindex])) {
+    if (!(inrange && pttableinnernew_->lookup(ptinnerindex) && pttableouternew_->lookup(ptouterindex))) {
       if (settings_->debugTracklet()) {
         edm::LogVerbatim("Tracklet") << " Stub pair rejected because of stub pt cut bends : "
-                                     << benddecode(tedata_.innerbend_.value(), tedata_.stub_->isPSmodule()) << " "
-                                     << benddecode(outerbend.value(), outervmstub.isPSmodule());
+                                     << settings_->benddecode(
+                                            tedata_.innerbend_.value(), layerdisk1_, tedata_.stub_->isPSmodule())
+                                     << " "
+                                     << settings_->benddecode(outerbend.value(), layerdisk2_, outervmstub.isPSmodule());
       }
     } else {
-      candpairs_.store(pair<const Stub*, const Stub*>(tedata_.stub_, outervmstub.stub()));
+      candpair_ = pair<const Stub*, const Stub*>(tedata_.stub_, outervmstub.stub());
+      goodpair_ = true;
     }
   }
+
   istub_++;
+  assert(nstub_ <= N_VMSTUBSMAX);
   if (istub_ >= nstub_) {
     istub_ = 0;
     nreg_++;

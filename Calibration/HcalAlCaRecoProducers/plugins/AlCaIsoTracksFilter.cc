@@ -53,6 +53,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
+//#define EDM_ML_DEBUG
 //
 // class declaration
 //
@@ -236,16 +237,14 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     triggerSatisfied = true;
   } else {
     trigger::TriggerEvent triggerEvent;
-    edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-    iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+    auto const& triggerEventHandle = iEvent.getHandle(tok_trigEvt_);
     if (!triggerEventHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else {
       triggerEvent = *(triggerEventHandle.product());
 
       /////////////////////////////TriggerResults
-      edm::Handle<edm::TriggerResults> triggerResults;
-      iEvent.getByToken(tok_trigRes_, triggerResults);
+      auto const& triggerResults = iEvent.getHandle(tok_trigRes_);
       if (triggerResults.isValid()) {
         std::vector<std::string> modules;
         const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
@@ -266,6 +265,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: triggerSatisfied: " << triggerSatisfied;
+#endif
 
   //Step2: Get geometry/B-field information
   if (triggerSatisfied) {
@@ -276,18 +278,15 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     //Also relevant information to extrapolate tracks to Hcal surface
     bool foundCollections(true);
     //Get track collection
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
+    auto trkCollection = iEvent.getHandle(tok_genTrack_);
     if (!trkCollection.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
       foundCollections = false;
     }
 
     //Define the best vertex and the beamspot
-    edm::Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByToken(tok_recVtx_, recVtxs);
-    edm::Handle<reco::BeamSpot> beamSpotH;
-    iEvent.getByToken(tok_bs_, beamSpotH);
+    auto const& recVtxs = iEvent.getHandle(tok_recVtx_);
+    auto const& beamSpotH = iEvent.getHandle(tok_bs_);
     math::XYZPoint leadPV(0, 0, 0);
     if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(), (*recVtxs)[0].y(), (*recVtxs)[0].z());
@@ -297,24 +296,24 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV;
 
     // RecHits
-    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-    iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+    auto barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
     if (!barrelRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
       foundCollections = false;
     }
-    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-    iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+    auto endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
     if (!endcapRecHitsHandle.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
       foundCollections = false;
     }
-    edm::Handle<HBHERecHitCollection> hbhe;
-    iEvent.getByToken(tok_hbhe_, hbhe);
+    auto hbhe = iEvent.getHandle(tok_hbhe_);
     if (!hbhe.isValid()) {
       edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
       foundCollections = false;
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: foundCollections: " << foundCollections;
+#endif
 
     //Step3 propagate the tracks to calorimeter surface and find
     // candidates for isolated tracks
@@ -324,14 +323,20 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, false);
 
       std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: Has " << trkCaloDirections.size()
+                                       << " propagated tracks from a total of " << trkCollection->size();
+#endif
       unsigned int nTracks(0), nselTracks(0), ntrin(0), ntrout(0), ntrH(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
            trkDetItr++, nTracks++) {
         const reco::Track* pTrack = &(*(trkDetItr->trkItr));
         math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
-                                         << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p();
-
+                                         << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p() << " OK HCAL "
+                                         << trkDetItr->okHCAL;
+#endif
         //Selection of good track
         int ieta(0);
         if (trkDetItr->okHCAL) {
@@ -339,23 +344,28 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
           ieta = detId.ietaAbs();
         }
         bool qltyFlag = spr::goodTrack(pTrack, leadPV, selectionParameter_, false);
+#ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
                                          << trkDetItr->okHCAL;
+#endif
         if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
           double t_p = pTrack->p();
           nselTracks++;
           int nNearTRKs(0);
           std::vector<DetId> eIds;
           std::vector<double> eHit;
-          double eEcal = spr::eCone_ecal(geo,
-                                         barrelRecHitsHandle,
-                                         endcapRecHitsHandle,
-                                         trkDetItr->pointHCAL,
-                                         trkDetItr->pointECAL,
-                                         a_mipR_,
-                                         trkDetItr->directionECAL,
-                                         eIds,
-                                         eHit);
+#ifdef EDM_ML_DEBUG
+          double eEcal =
+#endif
+              spr::eCone_ecal(geo,
+                              barrelRecHitsHandle,
+                              endcapRecHitsHandle,
+                              trkDetItr->pointHCAL,
+                              trkDetItr->pointECAL,
+                              a_mipR_,
+                              trkDetItr->directionECAL,
+                              eIds,
+                              eHit);
           double eMipDR(0);
           for (unsigned int k = 0; k < eIds.size(); ++k) {
             const GlobalPoint& pos = geo->getPosition(eIds[k]);
@@ -375,9 +385,11 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
           double eIsolation = (maxRestrictionP_ * exp(slopeRestrictionP_ * ((double)(ieta))));
           if (eIsolation < eIsolate_)
             eIsolation = eIsolate_;
+#ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << pTrack->pt() << "|"
                                            << pTrack->eta() << "|" << pTrack->phi() << "|" << t_p << "e_MIP " << eMipDR
                                            << ":" << eEcal << " Chg Isolation " << hmaxNearP << ":" << eIsolation;
+#endif
           if (t_p > pTrackMin_ && eMipDR < eEcalMax_ && hmaxNearP < eIsolation) {
             if (t_p > pTrackLow_ && t_p < pTrackHigh_)
               ntrin++;
@@ -485,9 +497,9 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow", 20.0);
   desc.add<double>("momentumRangeHigh", 40.0);
-  desc.add<int>("preScaleFactor", 10);
+  desc.add<int>("preScaleFactor", 1);
   desc.add<double>("momentumHigh", 60.0);
-  desc.add<int>("preScaleHigh", 2);
+  desc.add<int>("preScaleHigh", 1);
   descriptions.add("alcaIsoTracksFilter", desc);
 }
 

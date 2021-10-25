@@ -1,7 +1,6 @@
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 
 #include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -33,17 +32,17 @@ namespace edm {
         /*
         if(parts.size() == 4) {
           if(releaseVersion.find("patch") != std::string::npos) {
-            patch_ = boost::lexical_cast<unsigned int>(parts[3]);
+            patch_ = std::stoul(parts[3]);
           } else if(releaseVersion.find("pre") != std::string::npos) {
-            pre_ = boost::lexical_cast<unsigned int>(parts[3]);
+            pre_ = std::stoul(parts[3]);
           } else {
             return;
           }
         }
 */
-        major_ = boost::lexical_cast<unsigned int>(parts[0]);
-        minor_ = boost::lexical_cast<unsigned int>(parts[1]);
-        //        point_ = boost::lexical_cast<unsigned int>(parts[2]);
+        major_ = std::stoul(parts[0]);
+        minor_ = std::stoul(parts[1]);
+        //        point_ = std::stoul(parts[2]);
         irregular_ = false;
       } catch (std::exception const&) {
       }

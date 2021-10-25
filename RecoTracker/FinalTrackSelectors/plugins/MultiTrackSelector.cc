@@ -2,9 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include <Math/DistFunc.h>
 #include <TMath.h>
@@ -194,6 +193,12 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
       mvaType_.push_back("Detached");
       forestLabel_.push_back("MVASelectorIter0");
     }
+  }
+
+  if (useForestFromDB_) {
+    forestToken_ = edm::vector_transform(forestLabel_, [this](auto const& label) {
+      return esConsumes<GBRForest, GBRWrapperRcd>(edm::ESInputTag("", label));
+    });
   }
 }
 
@@ -606,9 +611,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt,
 
     GBRForest const* forest = forest_[selIndex];
     if (useForestFromDB_) {
-      edm::ESHandle<GBRForest> forestHandle;
-      es.get<GBRWrapperRcd>().get(forestLabel_[selIndex], forestHandle);
-      forest = forestHandle.product();
+      forest = &es.getData(forestToken_[selIndex]);
     }
 
     float gbrVals_[16];

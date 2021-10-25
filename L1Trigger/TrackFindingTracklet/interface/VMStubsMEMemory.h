@@ -15,7 +15,7 @@ namespace trklet {
 
   class VMStubsMEMemory : public MemoryBase {
   public:
-    VMStubsMEMemory(std::string name, Settings const& settings, unsigned int iSector);
+    VMStubsMEMemory(std::string name, Settings const& settings);
 
     ~VMStubsMEMemory() override = default;
 
@@ -50,7 +50,7 @@ namespace trklet {
       }
     }
 
-    void writeStubs(bool first);
+    void writeStubs(bool first, unsigned int iSector);
 
   private:
     std::vector<std::vector<VMStubME> > binnedstubs_;

@@ -17,7 +17,6 @@
 // system include files
 #include <memory>
 #include <utility>
-#include <fmt/printf.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,6 +32,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 // utils
+#include "Alignment/OfflineValidation/interface/DiLeptonVertexHelpers.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TLorentzVector.h"
 
@@ -57,168 +57,6 @@
 //#define LogDebug(X) std::cout << X <<
 
 //
-// Ancillary class for plotting
-//
-class PlotsVsDiMuKinematics {
-public:
-  PlotsVsDiMuKinematics() : m_name(""), m_title(""), m_ytitle(""), m_isBooked(false) {}
-
-  //________________________________________________________________________________//
-  // overloaded constructor
-  PlotsVsDiMuKinematics(const std::string& name, const std::string& tt, const std::string& ytt)
-      : m_name(name), m_title(tt), m_ytitle(ytt), m_isBooked(false) {}
-
-  ~PlotsVsDiMuKinematics() = default;
-
-  //________________________________________________________________________________//
-  void bookFromPSet(const TFileDirectory& fs, const edm::ParameterSet& hpar) {
-    std::string namePostfix;
-    std::string titlePostfix;
-    float xmin, xmax;
-
-    for (const auto& xAx : axisChoices) {
-      switch (xAx) {
-        case xAxis::Z_PHI:
-          xmin = -M_PI;
-          xmax = M_PI;
-          namePostfix = "MuMuPhi";
-          titlePostfix = "#mu#mu pair #phi;#mu^{+}#mu^{-} #phi";
-          break;
-        case xAxis::Z_ETA:
-          xmin = -3.5;
-          xmax = 3.5;
-          namePostfix = "MuMuEta";
-          titlePostfix = "#mu#mu pair #eta;#mu^{+}#mu^{-} #eta";
-          break;
-        case xAxis::MP_PHI:
-          xmin = -M_PI;
-          xmax = M_PI;
-          namePostfix = "MuPlusPhi";
-          titlePostfix = "#mu^{+} #phi;#mu^{+} #phi [rad]";
-          break;
-        case xAxis::MP_ETA:
-          xmin = -2.4;
-          xmax = 2.4;
-          namePostfix = "MuPlusEta";
-          titlePostfix = "#mu^{+} #eta;#mu^{+} #eta";
-          break;
-        case xAxis::MM_PHI:
-          xmin = -M_PI;
-          xmax = M_PI;
-          namePostfix = "MuMinusPhi";
-          titlePostfix = "#mu^{-} #phi;#mu^{-} #phi [rad]";
-          break;
-        case xAxis::MM_ETA:
-          xmin = -2.4;
-          xmax = 2.4;
-          namePostfix = "MuMinusEta";
-          titlePostfix = "#mu^{-} #eta;#mu^{+} #eta";
-          break;
-        default:
-          throw cms::Exception("LogicalError") << " there is not such Axis choice as " << xAx;
-      }
-
-      const auto& h2name = fmt::sprintf("%sVs%s", hpar.getParameter<std::string>("name"), namePostfix);
-      const auto& h2title = fmt::sprintf("%s vs %s;%s% s",
-                                         hpar.getParameter<std::string>("title"),
-                                         titlePostfix,
-                                         hpar.getParameter<std::string>("title"),
-                                         hpar.getParameter<std::string>("yUnits"));
-
-      m_h2_map[xAx] = fs.make<TH2F>(h2name.c_str(),
-                                    h2title.c_str(),
-                                    hpar.getParameter<int32_t>("NxBins"),
-                                    xmin,
-                                    xmax,
-                                    hpar.getParameter<int32_t>("NyBins"),
-                                    hpar.getParameter<double>("ymin"),
-                                    hpar.getParameter<double>("ymax"));
-    }
-
-    // flip the is booked bit
-    m_isBooked = true;
-  }
-
-  //________________________________________________________________________________//
-  void bookPlots(TFileDirectory& fs, const float valmin, const float valmax, const int nxbins, const int nybins) {
-    if (m_name.empty() && m_title.empty() && m_ytitle.empty()) {
-      edm::LogError("PlotsVsDiMuKinematics")
-          << "In" << __FUNCTION__ << "," << __LINE__
-          << "trying to book plots without the right constructor being called!" << std::endl;
-      return;
-    }
-
-    static constexpr float maxMuEta = 2.4;
-    static constexpr float maxMuMuEta = 3.5;
-    TH1F::SetDefaultSumw2(kTRUE);
-
-    // clang-format off
-    m_h2_map[xAxis::Z_ETA] = fs.make<TH2F>(fmt::sprintf("%sVsMuMuEta", m_name).c_str(),
-					   fmt::sprintf("%s vs #mu#mu pair #eta;#mu^{+}#mu^{-} #eta;%s", m_title, m_ytitle).c_str(),
-					   nxbins, -M_PI, M_PI,
-					   nybins, valmin, valmax);
-
-    m_h2_map[xAxis::Z_PHI] = fs.make<TH2F>(fmt::sprintf("%sVsMuMuPhi", m_name).c_str(),
-					   fmt::sprintf("%s vs #mu#mu pair #phi;#mu^{+}#mu^{-} #phi [rad];%s", m_title, m_ytitle).c_str(),
-					   nxbins, -maxMuMuEta, maxMuMuEta,
-					   nybins, valmin, valmax);
-
-    m_h2_map[xAxis::MP_ETA] = fs.make<TH2F>(fmt::sprintf("%sVsMuPlusEta", m_name).c_str(),
-					    fmt::sprintf("%s vs #mu^{+} #eta;#mu^{+} #eta;%s", m_title, m_ytitle).c_str(),
-					    nxbins, -maxMuEta, maxMuEta,
-					    nybins, valmin, valmax);
-
-    m_h2_map[xAxis::MP_PHI] = fs.make<TH2F>(fmt::sprintf("%sVsMuPlusPhi", m_name).c_str(),
-					    fmt::sprintf("%s vs #mu^{+} #phi;#mu^{+} #phi [rad];%s", m_title, m_ytitle).c_str(),
-					    nxbins, -M_PI, M_PI,
-					    nybins, valmin, valmax);
-
-    m_h2_map[xAxis::MM_ETA] = fs.make<TH2F>(fmt::sprintf("%sVsMuMinusEta", m_name).c_str(),
-					    fmt::sprintf("%s vs #mu^{-} #eta;#mu^{-} #eta;%s", m_title, m_ytitle).c_str(),
-					    nxbins, -maxMuEta, maxMuEta,
-					    nybins, valmin, valmax);
-
-    m_h2_map[xAxis::MM_PHI] = fs.make<TH2F>(fmt::sprintf("%sVsMuMinusPhi", m_name).c_str(),
-					    fmt::sprintf("%s vs #mu^{-} #phi;#mu^{-} #phi [rad];%s", m_title, m_ytitle).c_str(),
-					    nxbins, -M_PI, M_PI,
-					    nybins, valmin, valmax);
-    // clang-format on
-
-    // flip the is booked bit
-    m_isBooked = true;
-  }
-
-  //________________________________________________________________________________//
-  void fillPlots(const float val, const std::pair<TLorentzVector, TLorentzVector>& momenta) {
-    if (!m_isBooked) {
-      edm::LogError("PlotsVsDiMuKinematics")
-          << "In" << __FUNCTION__ << "," << __LINE__ << "trying to fill a plot not booked!" << std::endl;
-      return;
-    }
-
-    m_h2_map[xAxis::Z_ETA]->Fill((momenta.first + momenta.second).Eta(), val);
-    m_h2_map[xAxis::Z_PHI]->Fill((momenta.first + momenta.second).Phi(), val);
-    m_h2_map[xAxis::MP_ETA]->Fill((momenta.first).Eta(), val);
-    m_h2_map[xAxis::MP_PHI]->Fill((momenta.first).Phi(), val);
-    m_h2_map[xAxis::MM_ETA]->Fill((momenta.second).Eta(), val);
-    m_h2_map[xAxis::MM_PHI]->Fill((momenta.second).Phi(), val);
-  }
-
-private:
-  enum xAxis { Z_PHI, Z_ETA, MP_PHI, MP_ETA, MM_PHI, MM_ETA };
-  const std::vector<xAxis> axisChoices = {
-      xAxis::Z_PHI, xAxis::Z_ETA, xAxis::MP_PHI, xAxis::MP_ETA, xAxis::MM_PHI, xAxis::MM_ETA};
-
-  const std::string m_name;
-  const std::string m_title;
-  const std::string m_ytitle;
-
-  bool m_isBooked;
-
-  std::map<xAxis, TH2F*> m_h2_map;
-};
-
-//
 // class declaration
 //
 
@@ -235,7 +73,9 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  DiLeptonHelp::Counts myCounts;
 
+  bool useReco_;
   std::vector<double> pTthresholds_;
   float maxSVdist_;
 
@@ -266,22 +106,28 @@ private:
   TH1F* hInvMass_;
   TH1F* hTrackInvMass_;
 
+  TH1F* hCutFlow_;
+
   // 2D maps
 
-  PlotsVsDiMuKinematics CosPhiPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics CosPhi3DPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics VtxProbPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics VtxDistPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics VtxDist3DPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics VtxDistSigPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics VtxDist3DSigPlots = PlotsVsDiMuKinematics();
-  PlotsVsDiMuKinematics ZMassPlots = PlotsVsDiMuKinematics();
+  DiLeptonHelp::PlotsVsKinematics CosPhiPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics CosPhi3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxProbPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDistPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDistSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
+  DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
 
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
-  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;     //used to select what tracks to read from configuration file
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  //used to select what vertices to read from configuration file
+
+  // either on or the other!
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken_;  //used to select what tracks to read from configuration file
+  edm::EDGetTokenT<reco::TrackCollection>
+      alcaRecoToken_;  //used to select what muon tracks to read from configuration file
 };
 
 //
@@ -289,6 +135,7 @@ private:
 //
 
 static constexpr float cmToum = 10e4;
+static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
 
 //
 // static data member definitions
@@ -298,7 +145,8 @@ static constexpr float cmToum = 10e4;
 // constructors and destructor
 //
 DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
-    : pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
+    : useReco_(iConfig.getParameter<bool>("useReco")),
+      pTthresholds_(iConfig.getParameter<std::vector<double>>("pTThresholds")),
       maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
       CosPhiConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhiConfig")),
       CosPhi3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhi3DConfig")),
@@ -310,8 +158,13 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
       DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")),
       ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
-      muonsToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))) {
+  if (useReco_) {
+    muonsToken_ = mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+  } else {
+    alcaRecoToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
+  }
+
   usesResource(TFileService::kSharedResource);
 
   // sort the vector of thresholds
@@ -321,7 +174,7 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
   for (const auto& thr : pTthresholds_) {
     edm::LogInfo("DiMuonVertexValidation") << " Threshold: " << thr << " ";
   }
-  edm::LogInfo("DiMuonVertexValidation") << "\n Max SV distance: " << maxSVdist_ << " ";
+  edm::LogInfo("DiMuonVertexValidation") << "Max SV distance: " << maxSVdist_ << " ";
 }
 
 DiMuonVertexValidation::~DiMuonVertexValidation() = default;
@@ -334,68 +187,86 @@ DiMuonVertexValidation::~DiMuonVertexValidation() = default;
 void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  // select the good muons
-  std::vector<const reco::Muon*> myGoodMuonVector;
-  for (const auto& muon : iEvent.get(muonsToken_)) {
-    const reco::TrackRef t = muon.innerTrack();
-    if (!t.isNull()) {
-      if (t->quality(reco::TrackBase::highPurity)) {
-        if (t->chi2() / t->ndof() <= 2.5 && t->numberOfValidHits() >= 5 &&
-            t->hitPattern().numberOfValidPixelHits() >= 2 && t->quality(reco::TrackBase::highPurity))
-          myGoodMuonVector.emplace_back(&muon);
-      }
-    }
-  }
+  myCounts.eventsTotal++;
 
-  LogDebug("DiMuonVertexValidation") << "myGoodMuonVector size: " << myGoodMuonVector.size() << std::endl;
-  std::sort(myGoodMuonVector.begin(), myGoodMuonVector.end(), [](const reco::Muon*& lhs, const reco::Muon*& rhs) {
-    return lhs->pt() > rhs->pt();
-  });
-
-  // just check the ordering
-  for (const auto& muon : myGoodMuonVector) {
-    LogDebug("DiMuonVertexValidation") << "pT: " << muon->pt() << " ";
-  }
-  LogDebug("DiMuonVertexValidation") << std::endl;
-
-  // reject if there's no Z
-  if (myGoodMuonVector.size() < 2)
-    return;
-  if ((myGoodMuonVector[0]->pt()) < pTthresholds_[0] || (myGoodMuonVector[1]->pt() < pTthresholds_[1]))
-    return;
-  if (myGoodMuonVector[0]->charge() * myGoodMuonVector[1]->charge() > 0)
-    return;
-
-  const auto& m1 = myGoodMuonVector[1]->p4();
-  const auto& m0 = myGoodMuonVector[0]->p4();
-  const auto& mother = m0 + m1;
-
-  float invMass = mother.M();
-  hInvMass_->Fill(invMass);
-
-  // just copy the top two muons
-  std::vector<const reco::Muon*> theZMuonVector;
-  theZMuonVector.reserve(2);
-  theZMuonVector.emplace_back(myGoodMuonVector[1]);
-  theZMuonVector.emplace_back(myGoodMuonVector[0]);
-
-  // do the matching of Z muons with inner tracks
+  // the di-muon tracks
   std::vector<const reco::Track*> myTracks;
 
-  unsigned int i = 0;
-  for (const auto& muon : theZMuonVector) {
-    i++;
-    float minD = 1000.;
-    const reco::Track* theMatch = nullptr;
-    for (const auto& track : iEvent.get(tracksToken_)) {
-      float D = ::deltaR(muon->eta(), muon->phi(), track.eta(), track.phi());
-      if (D < minD) {
-        minD = D;
-        theMatch = &track;
+  // if we have to start from scratch from RECO data-tier
+  if (useReco_) {
+    // select the good muons
+    std::vector<const reco::Muon*> myGoodMuonVector;
+    for (const auto& muon : iEvent.get(muonsToken_)) {
+      const reco::TrackRef t = muon.innerTrack();
+      if (!t.isNull()) {
+        if (t->quality(reco::TrackBase::highPurity)) {
+          if (t->chi2() / t->ndof() <= 2.5 && t->numberOfValidHits() >= 5 &&
+              t->hitPattern().numberOfValidPixelHits() >= 2 && t->quality(reco::TrackBase::highPurity))
+            myGoodMuonVector.emplace_back(&muon);
+        }
       }
     }
-    LogDebug("DiMuonVertexValidation") << "pushing new track: " << i << std::endl;
-    myTracks.emplace_back(theMatch);
+
+    LogDebug("DiMuonVertexValidation") << "myGoodMuonVector size: " << myGoodMuonVector.size() << std::endl;
+    std::sort(myGoodMuonVector.begin(), myGoodMuonVector.end(), [](const reco::Muon*& lhs, const reco::Muon*& rhs) {
+      return lhs->pt() > rhs->pt();
+    });
+
+    // just check the ordering
+    for (const auto& muon : myGoodMuonVector) {
+      LogDebug("DiMuonVertexValidation") << "pT: " << muon->pt() << " ";
+    }
+    LogDebug("DiMuonVertexValidation") << std::endl;
+
+    // reject if there's no Z
+    if (myGoodMuonVector.size() < 2)
+      return;
+
+    myCounts.eventsAfterMult++;
+
+    if ((myGoodMuonVector[0]->pt()) < pTthresholds_[0] || (myGoodMuonVector[1]->pt() < pTthresholds_[1]))
+      return;
+
+    myCounts.eventsAfterPt++;
+    myCounts.eventsAfterEta++;
+
+    if (myGoodMuonVector[0]->charge() * myGoodMuonVector[1]->charge() > 0)
+      return;
+
+    const auto& m1 = myGoodMuonVector[1]->p4();
+    const auto& m0 = myGoodMuonVector[0]->p4();
+    const auto& mother = m0 + m1;
+
+    float invMass = mother.M();
+    hInvMass_->Fill(invMass);
+
+    // just copy the top two muons
+    std::vector<const reco::Muon*> theZMuonVector;
+    theZMuonVector.reserve(2);
+    theZMuonVector.emplace_back(myGoodMuonVector[1]);
+    theZMuonVector.emplace_back(myGoodMuonVector[0]);
+
+    // do the matching of Z muons with inner tracks
+    unsigned int i = 0;
+    for (const auto& muon : theZMuonVector) {
+      i++;
+      float minD = 1000.;
+      const reco::Track* theMatch = nullptr;
+      for (const auto& track : iEvent.get(tracksToken_)) {
+        float D = ::deltaR(muon->eta(), muon->phi(), track.eta(), track.phi());
+        if (D < minD) {
+          minD = D;
+          theMatch = &track;
+        }
+      }
+      LogDebug("DiMuonVertexValidation") << "pushing new track: " << i << std::endl;
+      myTracks.emplace_back(theMatch);
+    }
+  } else {
+    // we start directly with the pre-selected ALCARECO tracks
+    for (const auto& muon : iEvent.get(alcaRecoToken_)) {
+      myTracks.emplace_back(&muon);
+    }
   }
 
   LogDebug("DiMuonVertexValidation") << "selected tracks: " << myTracks.size() << std::endl;
@@ -414,11 +285,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
   const auto& tplus = myTracks[0]->charge() > 0 ? myTracks[0] : myTracks[1];
   const auto& tminus = myTracks[0]->charge() < 0 ? myTracks[0] : myTracks[1];
 
-  static constexpr float mumass = 0.105658367;  //mu mass  (GeV/c^2)
-
-  TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + (mumass * mumass)));
-  TLorentzVector p4_tminus(
-      tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + (mumass * mumass)));
+  TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mumass2));
+  TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mumass2));
 
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
@@ -449,6 +317,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   if (!aTransientVertex.isValid())
     return;
+
+  myCounts.eventsAfterVtx++;
 
   // fill the VtxProb plots
   VtxProbPlots.fillPlots(SVProb, tktk_p4);
@@ -506,6 +376,8 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
     LogDebug("DiMuonVertexValidation") << "distance: " << distance << "+/-" << dist_err << std::endl;
     // cut on the PV - SV distance
     if (distance * cmToum < maxSVdist_) {
+      myCounts.eventsAfterDist++;
+
       double cosphi = (ZpT.x() * deltaVtx.x() + ZpT.y() * deltaVtx.y()) /
                       (sqrt(ZpT.x() * ZpT.x() + ZpT.y() * ZpT.y()) *
                        sqrt(deltaVtx.x() * deltaVtx.x() + deltaVtx.y() * deltaVtx.y()));
@@ -577,10 +449,29 @@ void DiMuonVertexValidation::beginJob() {
 
   TFileDirectory dirInvariantMass = fs->mkdir("InvariantMassPlots");
   ZMassPlots.bookFromPSet(dirInvariantMass, DiMuMassConfiguration_);
+
+  // cut flow
+
+  hCutFlow_ = fs->make<TH1F>("hCutFlow", "cut flow;cut step;events left", 6, -0.5, 5.5);
+  std::string names[6] = {"Total", "Mult.", ">pT", "<eta", "hasVtx", "VtxDist"};
+  for (unsigned int i = 0; i < 6; i++) {
+    hCutFlow_->GetXaxis()->SetBinLabel(i + 1, names[i].c_str());
+  }
+
+  myCounts.zeroAll();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DiMuonVertexValidation::endJob() {
+  myCounts.printCounts();
+
+  hCutFlow_->SetBinContent(1, myCounts.eventsTotal);
+  hCutFlow_->SetBinContent(2, myCounts.eventsAfterMult);
+  hCutFlow_->SetBinContent(3, myCounts.eventsAfterPt);
+  hCutFlow_->SetBinContent(4, myCounts.eventsAfterEta);
+  hCutFlow_->SetBinContent(5, myCounts.eventsAfterVtx);
+  hCutFlow_->SetBinContent(6, myCounts.eventsAfterDist);
+
   TH1F::SetDefaultSumw2(kTRUE);
   const unsigned int nBinsX = hCosPhi_->GetNbinsX();
   for (unsigned int i = 1; i <= nBinsX; i++) {
@@ -601,8 +492,15 @@ void DiMuonVertexValidation::endJob() {
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DiMuonVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.ifValue(edm::ParameterDescription<bool>("useReco", true, true),
+               true >> edm::ParameterDescription<edm::InputTag>("muons", edm::InputTag("muons"), true) or
+                   false >> edm::ParameterDescription<edm::InputTag>(
+                                "muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"), true))
+      ->setComment("If useReco is true need to specify the muon tracks, otherwise take the ALCARECO Inner tracks");
+  //desc.add<bool>("useReco",true);
+  //desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
+  //desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<std::vector<double>>("pTThresholds", {30., 10.});
   desc.add<double>("maxSVdist", 50.);

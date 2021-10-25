@@ -57,12 +57,10 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
                                                   )
 
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
-                             TkMapFileName = cms.untracked.string(''),
-                             dataLabel = cms.untracked.string('')
-                             )
+from CalibTracker.SiStripQuality.siStripQualityStatistics_cfi import siStripQualityStatistics
+process.stat = siStripQualityStatistics.clone(
+        #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
+        )
 process.analysis = cms.EDAnalyzer("SiStripCorrelateBadStripAndNoise")
 
 

@@ -32,9 +32,9 @@ namespace gs {
 
     bool matches(const std::string &sentence) const;
 
-  private:
     SearchSpecifier() = delete;
 
+  private:
     std::string tag_;
     Regex regex_;
     bool useRegex_;

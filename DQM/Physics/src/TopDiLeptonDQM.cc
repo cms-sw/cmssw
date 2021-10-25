@@ -372,7 +372,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
       double elecCombRelIso = 1.;
 
       if (elec->et() != 0.)
-        elecCombRelIso = (elecIso.ecalRecHitSumEt + elecIso.hcalDepth1TowerSumEt + elecIso.tkSumPt) / elec->et();
+        elecCombRelIso = (elecIso.ecalRecHitSumEt + elecIso.hcalRecHitSumEt[0] + elecIso.tkSumPt) / elec->et();
 
       ElecIso_CombRelIso_->Fill(elecCombRelIso);
 

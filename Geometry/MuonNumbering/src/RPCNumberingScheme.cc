@@ -19,20 +19,19 @@ void RPCNumberingScheme::initMe(const MuonGeometryConstants& muonConstants) {
   theESectorLevel = muonConstants.getValue("mr_esector") / theLevelPart;
   theERollLevel = muonConstants.getValue("mr_eroll") / theLevelPart;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme::theRegionLevel " << theRegionLevel
-                                         << "\ntheBWheelLevel " << theBWheelLevel << "\ntheBStationLevel "
-                                         << theBStationLevel << "\ntheBPlaneLevel " << theBPlaneLevel
-                                         << "\ntheBChamberLevel " << theBChamberLevel << "\ntheEPlaneLevel "
-                                         << theEPlaneLevel << "\ntheESectorLevel " << theESectorLevel
-                                         << "\ntheERollLevel " << theERollLevel;
+  edm::LogVerbatim("MuonGeom") << "RPCNumberingScheme::theRegionLevel " << theRegionLevel << "\ntheBWheelLevel "
+                               << theBWheelLevel << "\ntheBStationLevel " << theBStationLevel << "\ntheBPlaneLevel "
+                               << theBPlaneLevel << "\ntheBChamberLevel " << theBChamberLevel << "\ntheEPlaneLevel "
+                               << theEPlaneLevel << "\ntheESectorLevel " << theESectorLevel << "\ntheERollLevel "
+                               << theERollLevel;
 #endif
 }
 
 int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumbering " << num.getLevels();
+  edm::LogVerbatim("MuonGeom") << "RPCNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("RPCNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
+    edm::LogVerbatim("MuonGeom") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
 
@@ -46,8 +45,8 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   }
 
   if (num.getLevels() != maxLevel) {
-    edm::LogWarning("RPCNumberingScheme")
-        << "RPCNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need " << maxLevel;
+    edm::LogWarning("MuonGeom") << "RPCNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need "
+                                << maxLevel;
     return 0;
   }
 
@@ -183,16 +182,16 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
 #ifdef EDM_ML_DEBUG
   if (barrel_muon) {
-    edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (barrel): ";
+    edm::LogVerbatim("MuonGeom") << "RPCNumberingScheme (barrel): ";
   } else {
     if (forward) {
-      edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (forward): ";
+      edm::LogVerbatim("MuonGeom") << "RPCNumberingScheme (forward): ";
     } else {
-      edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (backward): ";
+      edm::LogVerbatim("MuonGeom") << "RPCNumberingScheme (backward): ";
     }
   }
-  edm::LogVerbatim("RPCNumberingScheme") << " roll " << roll_id << " copy " << copy_id << " sector " << sector_id
-                                         << " plane " << plane_id << " eta " << eta_id << " rr12 " << rr12_id;
+  edm::LogVerbatim("MuonGeom") << " roll " << roll_id << " copy " << copy_id << " sector " << sector_id << " plane "
+                               << plane_id << " eta " << eta_id << " rr12 " << rr12_id;
 #endif
 
   // Build the actual numbering
@@ -200,7 +199,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   id.buildfromTrIndex(trIndex);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme:: DetId " << id;
+  edm::LogVerbatim("MuonGeom") << "RPCNumberingScheme:: DetId " << id;
 #endif
 
   return id.rawId();

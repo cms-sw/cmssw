@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -86,6 +87,25 @@ namespace edmtest {
     std::string name_;
     int num_pass_;
     int total_;
+  };
+
+  class ExternalWorkSewerModule : public edm::global::OutputModule<edm::ExternalWork> {
+  public:
+    explicit ExternalWorkSewerModule(edm::ParameterSet const&);
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
+  private:
+    void write(edm::EventForOutput const& e) override;
+    void acquire(edm::StreamID, edm::EventForOutput const& e, edm::WaitingTaskWithArenaHolder) const override;
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    void writeRun(edm::RunForOutput const&) override {}
+    void endJob() override;
+
+    const std::string name_;
+    const int num_pass_;
+    mutable std::atomic<int> total_;
+    mutable std::atomic<int> totalAcquire_;
   };
 
   // -----------------------------------------------------------------
@@ -202,8 +222,50 @@ namespace edmtest {
     descriptions.add("sewerModule", desc);
   }
 
+  // ---------
+
+  ExternalWorkSewerModule::ExternalWorkSewerModule(edm::ParameterSet const& ps)
+      : edm::global::OutputModuleBase::OutputModuleBase(ps),
+        edm::global::OutputModule<edm::ExternalWork>(ps),
+        name_(ps.getParameter<std::string>("name")),
+        num_pass_(ps.getParameter<int>("shouldPass")),
+        total_(0),
+        totalAcquire_(0) {}
+
+  void ExternalWorkSewerModule::acquire(edm::StreamID,
+                                        edm::EventForOutput const&,
+                                        WaitingTaskWithArenaHolder task) const {
+    ++totalAcquire_;
+  }
+  void ExternalWorkSewerModule::write(edm::EventForOutput const&) { ++total_; }
+
+  void ExternalWorkSewerModule::endJob() {
+    std::cerr << "EXTERNALWORKSEWERMODULE " << name_ << ": should pass " << num_pass_ << ", did pass " << total_.load()
+              << " with acquire " << totalAcquire_.load() << "\n";
+
+    if (total_.load() != num_pass_) {
+      std::cerr << "number passed should be " << num_pass_ << ", but got " << total_.load() << "\n";
+      abort();
+    }
+
+    if (total_.load() != totalAcquire_.load()) {
+      std::cerr << "write() called " << total_.load() << ", but acquire called " << totalAcquire_.load() << "\n";
+      abort();
+    }
+  }
+
+  void ExternalWorkSewerModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.setComment("Tracks number of times the write and acquire methods are called.");
+    desc.add<std::string>("name")->setComment("name used in printout");
+    desc.add<int>("shouldPass")->setComment("number of times write/acquire should be called");
+    edm::one::OutputModule<>::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+    descriptions.add("externalWorkSewerModule", desc);
+  }
+
 }  // namespace edmtest
 
+using edmtest::ExternalWorkSewerModule;
 using edmtest::SewerModule;
 using edmtest::TestContextAnalyzer;
 using edmtest::TestFilterModule;
@@ -212,4 +274,5 @@ using edmtest::TestResultAnalyzer;
 DEFINE_FWK_MODULE(TestFilterModule);
 DEFINE_FWK_MODULE(TestResultAnalyzer);
 DEFINE_FWK_MODULE(SewerModule);
+DEFINE_FWK_MODULE(ExternalWorkSewerModule);
 DEFINE_FWK_MODULE(TestContextAnalyzer);

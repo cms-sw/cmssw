@@ -19,6 +19,10 @@ namespace hgcal {
     TracksterToSimTracksterAssociator() = default;
     TracksterToSimTracksterAssociator(TracksterToSimTracksterAssociator &&) = default;
     TracksterToSimTracksterAssociator &operator=(TracksterToSimTracksterAssociator &&) = default;
+    TracksterToSimTracksterAssociator(const TracksterToSimTracksterAssociator &) = delete;  // stop default
+    const TracksterToSimTracksterAssociator &operator=(const TracksterToSimTracksterAssociator &) =
+        delete;  // stop default
+
     ~TracksterToSimTracksterAssociator() = default;
 
     // ---------- const member functions ---------------------
@@ -39,11 +43,6 @@ namespace hgcal {
     }
 
   private:
-    TracksterToSimTracksterAssociator(const TracksterToSimTracksterAssociator &) = delete;  // stop default
-
-    const TracksterToSimTracksterAssociator &operator=(const TracksterToSimTracksterAssociator &) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
     std::unique_ptr<TracksterToSimTracksterAssociatorBaseImpl> m_impl;
   };

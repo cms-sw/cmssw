@@ -30,6 +30,10 @@
 #include <map>
 #include <set>
 
+#ifdef XERCES_CPP_NAMESPACE_USE
+XERCES_CPP_NAMESPACE_USE
+#endif
+
 //----------------------------------------------------------------------------------------------------
 
 /**

@@ -1,18 +1,15 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletHLTGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "ThirdHitPredictionFromInvParabola.h"
-#include "ThirdHitRZPrediction.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
@@ -34,6 +31,7 @@ using namespace std;
 
 PixelTripletHLTGenerator::PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : HitTripletGeneratorFromPairAndLayers(cfg),
+      fieldToken_(iC.esConsumes()),
       useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
@@ -44,6 +42,9 @@ PixelTripletHLTGenerator::PixelTripletHLTGenerator(const edm::ParameterSet& cfg,
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   if (comparitorName != "none") {
     theComparitor = SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC);
+  }
+  if (useMScat) {
+    msmakerToken_ = iC.esConsumes();
   }
 }
 
@@ -93,7 +94,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   const RecHitsSortedInPhi* thirdHitMap[size];
   vector<const DetLayer*> thirdLayerDetLayer(size, nullptr);
   for (int il = 0; il < size; ++il) {
-    thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+    thirdHitMap[il] = &layerCache(thirdLayers[il], region);
     thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
   }
   hitTriplets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, tripletLastLayerIndex);
@@ -138,6 +139,12 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   const float maxphi = M_PI + maxDelphi, minphi = -maxphi;  // increase to cater for any range
   const float safePhi = M_PI - maxDelphi;                   // sideband
 
+  const auto& field = es.getData(fieldToken_);
+  const MultipleScatteringParametrisationMaker* msmaker = nullptr;
+  if (useMScat) {
+    msmaker = &es.getData(msmakerToken_);
+  }
+
   // fill the prediction vector
   for (int il = 0; il < nThirdLayers; ++il) {
     auto const& hits = *thirdHitMap[il];
@@ -145,13 +152,14 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     pred.initLayer(thirdLayerDetLayer[il]);
     pred.initTolerance(extraHitRZtolerance);
 
-    corrections[il].init(es,
-                         region.ptMin(),
+    corrections[il].init(region.ptMin(),
                          *doublets.detLayer(HitDoublets::inner),
                          *doublets.detLayer(HitDoublets::outer),
                          *thirdLayerDetLayer[il],
                          useMScat,
-                         useBend);
+                         msmaker,
+                         useBend,
+                         &field);
 
     layerTree.clear();
     float minv = 999999.0f, maxv = -minv;  // Initialise to extreme values in case no hits
@@ -180,7 +188,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
   float imppar = region.originRBound();
   float imppartmp = region.originRBound() + region.origin().perp();
-  float curv = PixelRecoUtilities::curvature(1.f / region.ptMin(), es);
+  float curv = PixelRecoUtilities::curvature(1.f / region.ptMin(), field);
 
   for (std::size_t ip = 0; ip != doublets.size(); ip++) {
     auto xi = doublets.x(ip, HitDoublets::inner);

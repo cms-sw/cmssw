@@ -33,6 +33,9 @@ namespace hcaldqm {
       uint32_t getHash(HcalTrigTowerDetId const &tid) const override {
         return hashfunctions::hash_tid[_htype - hashfunctions::nHashType_eid - 1](tid);
       }
+      uint32_t getHash(HcalTrigTowerDetId const &tid, HcalElectronicsId const &eid) const override {
+        return hashfunctions::hash_mixid[_htype - hashfunctions::nHashType_tid - 1](tid, eid);
+      }
 
       //	get name of the hashed element
       using Mapper::getName;
@@ -42,6 +45,9 @@ namespace hcaldqm {
       }
       std::string getName(HcalTrigTowerDetId const &tid) const override {
         return hashfunctions::name_tid[_htype - hashfunctions::nHashType_eid - 1](tid);
+      }
+      std::string getName(HcalTrigTowerDetId const &tid, HcalElectronicsId const &eid) const override {
+        return hashfunctions::name_mixid[_htype - hashfunctions::nHashType_tid - 1](tid, eid);
       }
 
       //	get the Hash Type Name
@@ -56,6 +62,9 @@ namespace hcaldqm {
       virtual bool isTHash() const {
         return (_htype > hashfunctions::nHashType_eid && _htype < hashfunctions::nHashType_tid) ? true : false;
       }
+      virtual bool isMixHash() const {
+        return (_htype > hashfunctions::nHashType_tid && _htype < hashfunctions::nHashType_mixid) ? true : false;
+      }
 
       //	get the Linear Hash Type
       virtual int getLinearHashType(hashfunctions::HashType htype) const {
@@ -64,8 +73,10 @@ namespace hcaldqm {
           l = htype;
         else if (htype < hashfunctions::nHashType_eid)
           l = htype - 1;
-        else
+        else if (htype < hashfunctions::nHashType_tid)
           l = htype - 2;
+        else
+          l = htype - 3;
         return l;
       }
 

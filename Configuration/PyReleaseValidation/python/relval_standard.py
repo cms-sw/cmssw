@@ -191,6 +191,8 @@ workflows[136.734] = ['',['RunMuOnia2016B','HLTDR2_2016','RECODR2_2016reHLT_skim
 workflows[136.735] = ['',['RunNoBPTX2016B','HLTDR2_2016','RECODR2reHLTAlCaTkCosmics_HIPM','HARVESTDR2']]
 # reminiAOD wf on 2016B input, mainly here for PPS testing
 workflows[136.72411] = ['',['RunJetHT2016B_reminiaodUL','REMINIAOD_data2016UL_HIPM','HARVESTDR2_REMINIAOD_data2016UL_HIPM']]
+workflows[136.72412] = ['',['RunJetHT2016B_reminiaodUL','REMININANO_data2016UL_HIPM','HARVESTDR2_REMININANO_data2016UL_HIPM']]
+#workflows[136.72413] = ['',['RunJetHT2016B_reminiaodUL','REMININANO_data2016UL_HIPM_met','HARVESTDR2_REMININANO_data2016UL_HIPM_met']] #diable for now until MET is fixed.
 
 ### run 2016C ###
 workflows[136.736] = ['',['RunHLTPhy2016C','HLTDR2_2016','RECODR2_2016reHLT_HIPM','HARVESTDR2']]
@@ -425,12 +427,15 @@ workflows[136.888511] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_EC
 workflows[136.885521] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
 workflows[136.888521] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
 
+### run 2021 CRUZET ###
+workflows[136.897] = ['',['RunCosmics2021CRUZET','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
+
 # multi-run harvesting
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 ### LS2 - MWGR ###
-workflows[138.1] = ['',['RunCosmics2020','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
-workflows[138.2] = ['',['RunCosmics2020','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
+workflows[138.1] = ['',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
+workflows[138.2] = ['',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]

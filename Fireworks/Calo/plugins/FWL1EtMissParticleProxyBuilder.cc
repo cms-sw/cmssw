@@ -22,10 +22,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWL1EtMissParticleProxyBuilder(const FWL1EtMissParticleProxyBuilder&) = delete;                   // stop default
   const FWL1EtMissParticleProxyBuilder& operator=(const FWL1EtMissParticleProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
   void build(const l1extra::L1EtMissParticle& iData,
              unsigned int iIndex,

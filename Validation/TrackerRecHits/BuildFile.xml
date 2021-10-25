@@ -7,6 +7,5 @@
 <use name="CalibFormats/SiStripObjects"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/Records"/>
-<use name="boost"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

@@ -47,8 +47,9 @@ void gen::ranmar_(float* rvec, int* lenv) {
 void gen::rmarin_(int*, int*, int*) { return; }
 }
 
-TauolappInterface::TauolappInterface(const edm::ParameterSet& pset)
+TauolappInterface::TauolappInterface(const edm::ParameterSet& pset, edm::ConsumesCollector iCollector)
     : fPolarization(false),
+      fPDGTableToken(iCollector.esConsumes<edm::Transition::BeginLuminosityBlock>()),
       fPSet(nullptr),
       fIsInitialized(false),
       fMDTAU(-1),
@@ -58,9 +59,6 @@ TauolappInterface::TauolappInterface(const edm::ParameterSet& pset)
       dolhe(false),
       dolheBosonCorr(false),
       ntries(10) {
-  if (fPSet != nullptr)
-    throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n"
-                                                   << std::endl;
   fPSet = new ParameterSet(pset);
 }
 
@@ -78,7 +76,7 @@ void TauolappInterface::init(const edm::EventSetup& es) {
 
   fIsInitialized = true;
 
-  es.getData(fPDGTable);
+  fPDGTable = es.getHandle(fPDGTableToken);
 
   Tauolapp::Tauola::setDecayingParticle(15);
 

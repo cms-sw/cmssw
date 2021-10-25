@@ -218,6 +218,8 @@ namespace edm {
 
     void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const;
 
+    unsigned int processBlockIndex(std::string const& processName) const;
+
   private:
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;

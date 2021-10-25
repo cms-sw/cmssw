@@ -1,18 +1,44 @@
-#include "FWCore/MessageService/test/UnitTestClient_T.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <iostream>
-#include <string>
 #include <sstream>
+#include <vector>
 
 namespace edmtest {
 
-  void UTC_T1::analyze(edm::Event const& /*unused*/
-                       ,
-                       edm::EventSetup const& /*unused*/
-  ) {
+  class UTC_T1 : public edm::one::EDAnalyzer<> {
+  public:
+    explicit UTC_T1(edm::ParameterSet const& ps) : ev(0) {
+      identifier = ps.getUntrackedParameter<int>("identifier", 99);
+    }
+
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+
+  private:
+    int identifier;
+    int ev;
+  };
+
+  class UTC_T2 : public edm::one::EDAnalyzer<> {
+  public:
+    explicit UTC_T2(edm::ParameterSet const& ps) : ev(0) {
+      identifier = ps.getUntrackedParameter<int>("identifier", 98);
+    }
+
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+
+  private:
+    int identifier;
+    int ev;
+    void printLES(std::vector<edm::messagelogger::ErrorSummaryEntry> const& v);
+  };
+
+  void UTC_T1::analyze(edm::Event const&, edm::EventSetup const&) {
     if (ev == 0)
       edm::EnableLoggedErrorsSummary();
     edm::LogError("cat_A") << "T1 error with identifier " << identifier << " event " << ev;

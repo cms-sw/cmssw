@@ -19,7 +19,7 @@ namespace trklet {
 
   class TrackletEngineDisplaced : public ProcessBase {
   public:
-    TrackletEngineDisplaced(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    TrackletEngineDisplaced(std::string name, Settings const& settings, Globals* global);
 
     ~TrackletEngineDisplaced() override;
 
@@ -30,7 +30,7 @@ namespace trklet {
 
     void readTables();
 
-    const short memNameToIndex(const std::string& name);
+    short memNameToIndex(const std::string& name);
 
   private:
     int layer1_;

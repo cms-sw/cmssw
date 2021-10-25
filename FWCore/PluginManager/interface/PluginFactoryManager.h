@@ -33,6 +33,8 @@ namespace edmplugin {
   public:
     friend class DummyFriend;
 
+    PluginFactoryManager(const PluginFactoryManager&) = delete;                   // stop default
+    const PluginFactoryManager& operator=(const PluginFactoryManager&) = delete;  // stop default
     ~PluginFactoryManager();
 
     typedef std::vector<const PluginFactoryBase*>::const_iterator const_iterator;
@@ -49,9 +51,6 @@ namespace edmplugin {
 
   private:
     PluginFactoryManager();
-    PluginFactoryManager(const PluginFactoryManager&) = delete;  // stop default
-
-    const PluginFactoryManager& operator=(const PluginFactoryManager&) = delete;  // stop default
 
     // ---------- member data --------------------------------
     std::vector<const PluginFactoryBase*> factories_;

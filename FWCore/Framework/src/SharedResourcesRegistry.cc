@@ -15,7 +15,7 @@
 #include <cassert>
 
 // user include files
-#include "SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 namespace edm {

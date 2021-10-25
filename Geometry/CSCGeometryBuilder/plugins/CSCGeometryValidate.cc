@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -92,7 +91,8 @@ private:
     wireAngle_.clear();
   }
 
-  edm::ESHandle<CSCGeometry> cscGeometry_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokCSC_;
+  const CSCGeometry* cscGeometry_;
   FWGeometry fwGeometry_;
   TFile* outFile_;
   //chambers
@@ -118,7 +118,8 @@ private:
 };
 
 CSCGeometryValidate::CSCGeometryValidate(const edm::ParameterSet& iConfig)
-    : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+    : tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateCSCGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
@@ -126,13 +127,10 @@ CSCGeometryValidate::CSCGeometryValidate(const edm::ParameterSet& iConfig)
 }
 
 void CSCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
-  if (cscGeometry_.isValid()) {
-    LogVerbatim("CSCGeometry") << "Validating CSC chamber geometry";
-    validateCSCChamberGeometry();
-    validateCSCLayerGeometry();
-  } else
-    LogVerbatim("CSCGeometry") << "Invalid CSC geometry";
+  cscGeometry_ = &eventSetup.getData(tokCSC_);
+  LogVerbatim("CSCGeometry") << "Validating CSC chamber geometry";
+  validateCSCChamberGeometry();
+  validateCSCLayerGeometry();
 }
 
 void CSCGeometryValidate::validateCSCChamberGeometry() {

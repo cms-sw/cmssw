@@ -94,11 +94,16 @@ process.VtxSmeared.MinY                 = -7.5
 process.VtxSmeared.MaxY                 =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
+                             'HGCSensitiveDetector',
+                             'HGCalTB1601SensitiveDetector',
+                             'HcalTB06BeamDetector']
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
-			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
-			MotherName = cms.string('OCMS'),
-			),
+                    LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
+                    MotherName = cms.string('OCMS'),
+                    IfDD4Hep = cms.bool(False),
+                ),
 		type = cms.string('HGCPassive'),
 		)
 				       )

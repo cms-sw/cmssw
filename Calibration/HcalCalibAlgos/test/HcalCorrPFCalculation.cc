@@ -32,6 +32,8 @@
 #include <iostream>
 #include "TProfile.h"
 
+//#define EDM_ML_DEBUG
+
 class HcalCorrPFCalculation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
@@ -170,7 +172,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     pfRecalib = &c.getData(tok_pfcorr_);
 
     AddRecalib = kTRUE;
-    // edm::LogVerbatim("CalibConstants")<<"   OK ";
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CalibConstants") << "   OK ";
+#endif
 
   } catch (const cms::Exception& e) {
     edm::LogWarning("CalibConstants") << "   Not Found!! ";
@@ -244,10 +248,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   //  ev.getByLabel("generatorSmeared",evtMC);
   ev.getByToken(tok_gen_, evtMC);
   if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;
+    edm::LogVerbatim("HcalCalib") << "no HepMCProduct found";
   } else {
     //MC=true;
-    //    std::cout << "*** source HepMCProduct found"<< std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalCalib") << "*** source HepMCProduct found";
+#endif
   }
 
   // MC particle with highest pt is taken as a direction reference
@@ -373,20 +379,27 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //zAtHcal = gPointHcal.z();
     /*       -----------------   ------------------------      */
 
-    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) { /*cout <<"gPointHcal is Zero!"<<endl;*/
+    if (gPointHcal.x() == 0 && gPointHcal.y() == 0 && gPointHcal.z() == 0) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "gPointHcal is Zero!";
+#endif
       continue;
     }
 
     float etahcal = gPointHcal.eta();
-    // float phihcal=gPointHcal.phi();
     if (abs(etahcal) > 5.192)
       continue;
-    //if (abs(etahcal)>3.0 && abs(etahcal)<5.191)
-
-    //cout <<gPointHcal.x() <<"   "<<gPointHcal.y() <<"   "<<gPointHcal.z()<<"    "<<gPointHcal.eta()<<"  "<<gPointHcal.phi()<<"   "<<ietatrue<<"   "<<iphitrue <<endl;
-
-    //      if (ietatrue==100 || iphitrue==-10) {cout<<"ietatrue: "<<ietatrue<<"   iphitrue: "<<iphitrue<<"  etahcal: "<<etahcal<<"  phihcal: "<<phihcal<<endl;}
-
+#ifdef EDM_ML_DEBUG
+    if (std::abs(etahcal) > 3.0 && std::abs(etahcal) < 5.191) {
+      edm::LogVerbatim("HcalCalib") << gPointHcal.x() << "   " << gPointHcal.y() << "   " << gPointHcal.z() << "    "
+                                    << gPointHcal.eta() << "  " << gPointHcal.phi() << "   " << ietatrue << "   "
+                                    << iphitrue;
+      if (ietatrue == 100 || iphitrue == -10) {
+        edm::LogVerbatim("HcalCalib") << "ietatrue: " << ietatrue << "   iphitrue: " << iphitrue
+                                      << "  etahcal: " << etahcal << "  phihcal: " << gPointHcal.phi();
+      }
+    }
+#endif
     /*   -------------   Calculate Ecal Energy using TrackAssociator  ---------------------- */
 
     //float etaecal=info.trkGlobPosAtEcal.eta();
@@ -502,8 +515,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     //    for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++)
     {
       recal = RecalibFactor(hhit->detid());
-      //cout<<"recal: "<<recal<<endl;
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << "recal: " << recal;
+#endif
       GlobalPoint pos = gHcal->getPosition(hhit->detid());
 
       int iphihit = (hhit->id()).iphi();
@@ -544,9 +558,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
                                  !(abs(MaxHit.ietahitm) == 21 && abs((hhit->id()).ieta()) <= 20 && abs(DIPHI) > 1)))) {
           e3x3 += hhit->energy();
         }
-
-        // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalCalib") << "track: ieta " << ietahit << " iphi: " << iphihit << " depth: " << depthhit
+                                      << " energydepos: " << enehit;
+#endif
         for (HBHERecHitCollection::const_iterator hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
           recal = RecalibFactor(hhit2->detid());
           int iphihit2 = (hhit2->id()).iphi();
@@ -557,7 +572,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
           if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2 > 0.) {
             eHcalConeNoise += hhit2->energy() * recal;
             UsedCellsNoise++;
-            //cout<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2<<endl;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HcalCalib") << "Noise: ieta " << ietahit2 << " iphi: " << iphihit2
+                                          << " depth: " << depthhit2 << " energydepos: " << enehit2;
+#endif
           }
         }
       }
@@ -668,12 +686,13 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     diphi_M_P = diphi_M_P > 36 ? 72 - diphi_M_P : diphi_M_P;
     iDr = sqrt(diphi_M_P * diphi_M_P + dieta_M_P * dieta_M_P);
 
-    /*      if (iDr>15) 
-	{
-cout<<"diphi: "<<diphi_M_P<<"  dieta: "<<dieta_M_P<<"   iDr: "<<iDr<<" ietatrue:"<<ietatrue<<"  iphitrue:"<<iphitrue<<endl;
-cout<<"M ieta: "<<MaxHit.ietahitm<<"  M iphi: "<<MaxHit.iphihitm<<endl;
-	
-}*/
+#ifdef EDM_ML_DEBUG
+    if (iDr > 15) {
+      edm::LogVerbatim("HcalCalib") << "diphi: " << diphi_M_P << "  dieta: " << dieta_M_P << "   iDr: " << iDr
+                                    << " ietatrue:" << ietatrue << "  iphitrue:" << iphitrue;
+      edm::LogVerbatim("HcalCalib") << "M ieta: " << MaxHit.ietahitm << "  M iphi: " << MaxHit.iphihitm;
+    }
+#endif
 
     Bool_t passCuts = kFALSE;
     passCuts = kTRUE;

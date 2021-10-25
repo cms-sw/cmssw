@@ -59,6 +59,7 @@ process.simulation_step = cms.Path(process.psim)
 process.out_step = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
+process.g4SimHits.OnlySDs = ['TotemT2ScintSensitiveDetector']
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

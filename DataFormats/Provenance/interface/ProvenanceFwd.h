@@ -12,6 +12,7 @@ namespace edm {
   class ProductProvenance;
   class EventAuxiliary;
   class EventID;
+  class EventToProcessBlockIndexes;
   class LuminosityBlockAuxiliary;
   class LuminosityBlockID;
   class ModuleDescription;
@@ -24,6 +25,7 @@ namespace edm {
   class RunAuxiliary;
   class RunID;
   class StableProvenance;
+  class StoredProcessBlockHelper;
   class Timestamp;
   class ProductProvenanceLookup;
 }  // namespace edm

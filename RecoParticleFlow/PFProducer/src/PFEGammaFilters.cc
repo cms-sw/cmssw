@@ -12,6 +12,10 @@ using namespace reco;
 
 namespace {
 
+  // Constants defining the ECAL barrel limit
+  constexpr float ecalBarrelMaxEtaWithGap = 1.566;
+  constexpr float ecalBarrelMaxEtaNoGap = 1.485;
+
   void readEBEEParams_(const edm::ParameterSet& pset, const std::string& name, std::array<float, 2>& out) {
     const auto& vals = pset.getParameter<std::vector<double>>(name);
     if (vals.size() != 2)
@@ -28,6 +32,9 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ph_loose_hoe_(cfg.getParameter<double>("photon_HoE")),
       ph_sietaieta_eb_(cfg.getParameter<double>("photon_SigmaiEtaiEta_barrel")),
       ph_sietaieta_ee_(cfg.getParameter<double>("photon_SigmaiEtaiEta_endcap")),
+      useElePFidDNN_(cfg.getParameter<bool>("useElePFidDnn")),
+      usePhotonPFidDNN_(cfg.getParameter<bool>("usePhotonPFidDnn")),
+      useEBModelInGap_(cfg.getParameter<bool>("useEBModelInGap")),
       ele_iso_pt_(cfg.getParameter<double>("electron_iso_pt")),
       ele_iso_mva_eb_(cfg.getParameter<double>("electron_iso_mva_barrel")),
       ele_iso_mva_ee_(cfg.getParameter<double>("electron_iso_mva_endcap")),
@@ -36,11 +43,14 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ele_noniso_mva_(cfg.getParameter<double>("electron_noniso_mvaCut")),
       ele_missinghits_(cfg.getParameter<unsigned int>("electron_missinghits")),
       ele_ecalDrivenHademPreselCut_(cfg.getParameter<double>("electron_ecalDrivenHademPreselCut")),
-      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")) {
+      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")),
+      allowEEEinPF_(cfg.getParameter<bool>("allowEEEinPF")) {
   auto const& eleProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
   auto const& eleProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
   auto const& phoProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
+  auto const& eleDNNIdThresholds = cfg.getParameter<edm::ParameterSet>("electronDnnThresholds");
+  auto const& photonDNNIdThresholds = cfg.getParameter<edm::ParameterSet>("photonDnnThresholds");
 
   pho_sumPtTrackIso_ = phoProtectionsForJetMET.getParameter<double>("sumPtTrackIso");
   pho_sumPtTrackIsoSlope_ = phoProtectionsForJetMET.getParameter<double>("sumPtTrackIsoSlope");
@@ -58,6 +68,12 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   ele_maxEcalEOverP_2_ = eleProtectionsForJetMET.getParameter<double>("maxEcalEOverP_2");
   ele_maxEeleOverPout_ = eleProtectionsForJetMET.getParameter<double>("maxEeleOverPout");
   ele_maxDPhiIN_ = eleProtectionsForJetMET.getParameter<double>("maxDPhiIN");
+
+  ele_dnnLowPtThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnLowPtThr");
+  ele_dnnHighPtBarrelThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtBarrelThr");
+  ele_dnnHighPtEndcapThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtEndcapThr");
+  photon_dnnBarrelThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnBarrelThr");
+  photon_dnnEndcapThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnEndcapThr");
 
   readEBEEParams_(eleProtectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
   readEBEEParams_(eleProtectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
@@ -91,26 +107,40 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon& photon) const {
                       : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_ * photon.pt())
               << ")" << std::endl;
 
-  if (photon.hadTowOverEm() > ph_loose_hoe_)
-    return false;
-  //Isolation variables in 0.3 cone combined
-  if (photon.trkSumPtHollowConeDR03() + photon.ecalRecHitSumEtConeDR03() + photon.hcalTowerSumEtConeDR03() >
-      ph_combIso_)
-    return false;
-
-  //patch for bad hcal
-  if (!validHoverE && badHcal_phoEnable_ &&
-      photon.trkSumPtSolidConeDR03() >
-          badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_ * photon.pt()) {
-    return false;
-  }
-
-  if (photon.isEB()) {
-    if (photon.sigmaIetaIeta() > ph_sietaieta_eb_)
-      return false;
+  if (usePhotonPFidDNN_) {
+    // Run3 DNN based PFID
+    const auto dnn = photon.pfDNN();
+    const auto photEta = std::abs(photon.eta());
+    const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
+    // using the Barrel model for photons in the EB-EE gap
+    if (photEta <= etaThreshold) {
+      return dnn > photon_dnnBarrelThr_;
+    } else if (photEta > etaThreshold) {
+      return dnn > photon_dnnEndcapThr_;
+    }
   } else {
-    if (photon.sigmaIetaIeta() > ph_sietaieta_ee_)
+    // Run2 cut based PFID
+    if (photon.hadTowOverEm() > ph_loose_hoe_)
       return false;
+    //Isolation variables in 0.3 cone combined
+    if (photon.trkSumPtHollowConeDR03() + photon.ecalRecHitSumEtConeDR03() + photon.hcalTowerSumEtConeDR03() >
+        ph_combIso_)
+      return false;
+
+    //patch for bad hcal
+    if (!validHoverE && badHcal_phoEnable_ &&
+        photon.trkSumPtSolidConeDR03() >
+            badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_ * photon.pt()) {
+      return false;
+    }
+
+    if (photon.isEB()) {
+      if (photon.sigmaIetaIeta() > ph_sietaieta_eb_)
+        return false;
+    } else {
+      if (photon.sigmaIetaIeta() > ph_sietaieta_ee_)
+        return false;
+    }
   }
 
   return true;
@@ -135,34 +165,61 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
   bool passEleSelection = false;
 
   // Electron ET
-  float electronPt = electron.pt();
+  const auto electronPt = electron.pt();
+  const auto eleEta = std::abs(electron.eta());
 
-  if (electronPt > ele_iso_pt_) {
-    double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
-    double eleEta = fabs(electron.eta());
-    if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
-      if (electron.mva_Isolated() > ele_iso_mva_eb_)
-        passEleSelection = true;
-    } else if (eleEta > 1.485 && isoDr03 < ele_iso_combIso_ee_) {
-      if (electron.mva_Isolated() > ele_iso_mva_ee_)
-        passEleSelection = true;
+  if (useElePFidDNN_) {  // Use DNN for ele pfID >=CMSSW12_1
+    const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
+    const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
+    if (electronPt > ele_iso_pt_) {
+      // using the Barrel model for electron in the EB-EE gap
+      if (eleEta <= etaThreshold) {
+        passEleSelection = dnn_sig > ele_dnnHighPtBarrelThr_;
+      } else if (eleEta > etaThreshold) {
+        passEleSelection = dnn_sig > ele_dnnHighPtEndcapThr_;
+      }
+    } else {  // pt < ele_iso_pt_
+      passEleSelection = dnn_sig > ele_dnnLowPtThr_;
     }
-  }
+    // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
+    // To be understood if they are needed
 
-  //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
-  if (electron.mva_e_pi() > ele_noniso_mva_) {
-    if (validHoverE || !badHcal_eleEnable_) {
-      passEleSelection = true;
-    } else {
-      bool EE = (std::abs(electron.eta()) > 1.485);  // for prefer consistency with above than with E/gamma for now
-      if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
-          (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
-          (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) < badHcal_dEta_[EE]) &&  // looser in case of misalignment
-          (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
+  } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
+    if (electronPt > ele_iso_pt_) {
+      double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
+      if (eleEta <= ecalBarrelMaxEtaNoGap && isoDr03 < ele_iso_combIso_eb_) {
+        if (electron.mva_Isolated() > ele_iso_mva_eb_)
+          passEleSelection = true;
+      } else if (eleEta > ecalBarrelMaxEtaNoGap && isoDr03 < ele_iso_combIso_ee_) {
+        if (electron.mva_Isolated() > ele_iso_mva_ee_)
+          passEleSelection = true;
+      }
+    }
+
+    if (electron.mva_e_pi() > ele_noniso_mva_) {
+      if (validHoverE || !badHcal_eleEnable_) {
         passEleSelection = true;
+      } else {
+        bool EE = (std::abs(electron.eta()) >
+                   ecalBarrelMaxEtaNoGap);  // for prefer consistency with above than with E/gamma for now
+        if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
+            (std::abs(1.0 - electron.eSuperClusterOverP()) / electron.ecalEnergy() < badHcal_eInvPInv_[EE]) &&
+            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx()) <
+             badHcal_dEta_[EE]) &&  // looser in case of misalignment
+            (std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) < badHcal_dPhi_[EE])) {
+          passEleSelection = true;
+        }
       }
     }
   }
+
+  //TEMPORARY hack for 12_1.
+  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EtaExtendedEle are in place.
+  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
+  //this is to be taken care of by EGM POG
+  //https://github.com/cms-sw/cmssw/issues/35374
+  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
+    passEleSelection = false;
 
   return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
@@ -284,10 +341,11 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       isSafeForJetMET = false;
     }
     // the electron is retained and the kf tracks are not locked
-    if ((fabs(1. - EtotPinMode) < ele_maxEcalEOverPRes_ &&
-         (fabs(electron.eta()) < 1.0 || fabs(electron.eta()) > 2.0)) ||
-        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) && (fabs(electron.eta()) >= 1.0 && fabs(electron.eta()) <= 2.0))) {
-      if (fabs(1. - EGsfPoutMode) < ele_maxEeleOverPoutRes_ && (itrackHcalLinked == iextratrack)) {
+    if ((std::abs(1. - EtotPinMode) < ele_maxEcalEOverPRes_ &&
+         (std::abs(electron.eta()) < 1.0 || std::abs(electron.eta()) > 2.0)) ||
+        ((EtotPinMode < 1.1 && EtotPinMode > 0.6) &&
+         (std::abs(electron.eta()) >= 1.0 && std::abs(electron.eta()) <= 2.0))) {
+      if (std::abs(1. - EGsfPoutMode) < ele_maxEeleOverPoutRes_ && (itrackHcalLinked == iextratrack)) {
         lockTracks = false;
         //	lockExtraKf = false;
         if (debugSafeForJetMET)
@@ -316,12 +374,20 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
   }
 
   // For not-preselected Gsf Tracks ET > 50 GeV, apply dphi preselection
-  if (ETtotal > ele_maxE_ && fabs(dphi_normalsc) > ele_maxDPhiIN_) {
+  if (ETtotal > ele_maxE_ && std::abs(dphi_normalsc) > ele_maxDPhiIN_) {
     if (debugSafeForJetMET)
       cout << " *****This electron candidate is discarded  Large ANGLE "
            << " ETtotal " << ETtotal << " EGsfPoutMode " << dphi_normalsc << endl;
     isSafeForJetMET = false;
   }
+
+  //TEMPORARY hack for 12_1.
+  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EtaExtendedEle are in place.
+  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
+  //this is to be taken care of by EGM POG
+  //https://github.com/cms-sw/cmssw/issues/35374
+  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
+    isSafeForJetMET = false;
 
   return isSafeForJetMET;
 }
@@ -400,6 +466,18 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
     return passCutBased || passMVA;
 }
 
+bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
+  bool returnVal = false;
+  if (!allowEtaExtEleinPF) {
+    const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
+    const auto absEleEta = std::abs(electron.eta());
+    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
+      returnVal = true;
+    }
+  }
+  return returnVal;
+}
+
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   // Electron selection cuts
   iDesc.add<double>("electron_iso_pt", 10.0);
@@ -411,6 +489,25 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<unsigned int>("electron_missinghits", 1);
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
+  iDesc.add<bool>("allowEEEinPF", false);
+  iDesc.add<bool>("useElePFidDnn", false);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("electronDnnLowPtThr", 0.5);
+    psd.add<double>("electronDnnHighPtBarrelThr", 0.5);
+    psd.add<double>("electronDnnHighPtEndcapThr", 0.5);
+
+    iDesc.add<edm::ParameterSetDescription>("electronDnnThresholds", psd);
+  }
+  iDesc.add<bool>("usePhotonPFidDnn", false);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("photonDnnBarrelThr", 0.5);
+    psd.add<double>("photonDnnEndcapThr", 0.5);
+    iDesc.add<edm::ParameterSetDescription>("photonDnnThresholds", psd);
+  }
+  // control if the EB DNN models should be used up to eta 1.485 or 1.566
+  iDesc.add<bool>("useEBModelInGap", true);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");

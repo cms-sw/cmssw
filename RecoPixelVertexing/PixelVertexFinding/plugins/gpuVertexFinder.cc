@@ -1,6 +1,3 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
-#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "gpuClusterTracksByDensity.h"
@@ -39,7 +36,7 @@ namespace gpuVertexFinder {
 
       if (nHits < 4)
         continue;  // no triplets
-      if (quality[idx] != pixelTrack::Quality::loose)
+      if (quality[idx] < pixelTrack::Quality::highPurity)
         continue;
 
       auto pt = tracks.pt(idx);
@@ -131,7 +128,7 @@ namespace gpuVertexFinder {
 
 #ifdef __CUDACC__
     // Running too many thread lead to problems when printf is enabled.
-    constexpr int maxThreadsForPrint = 1024 - 256;
+    constexpr int maxThreadsForPrint = 1024 - 128;
     constexpr int numBlocks = 1024;
     constexpr int threadsPerBlock = 128;
 
@@ -188,5 +185,3 @@ namespace gpuVertexFinder {
   }
 
 }  // namespace gpuVertexFinder
-
-#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h

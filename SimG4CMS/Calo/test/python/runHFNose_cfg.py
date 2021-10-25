@@ -1,15 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
-process = cms.Process("PROD")
+process = cms.Process("PROD",phase2_common)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
+#process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")

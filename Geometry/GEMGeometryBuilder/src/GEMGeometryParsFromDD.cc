@@ -6,7 +6,7 @@
  *  Created:  Mon, 15 Feb 2021 
  *
  */
-#include "Geometry/GEMGeometryBuilder/src/GEMGeometryParsFromDD.h"
+#include "Geometry/GEMGeometryBuilder/interface/GEMGeometryParsFromDD.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"

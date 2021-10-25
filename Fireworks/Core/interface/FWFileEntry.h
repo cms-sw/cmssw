@@ -83,10 +83,10 @@ public:
   void NewEventItemCallIn(const FWEventItem* it);
   void RemovingEventItemCallIn(const FWEventItem* it);
 
-private:
   FWFileEntry(const FWFileEntry&) = delete;                   // stop default
   const FWFileEntry& operator=(const FWFileEntry&) = delete;  // stop default
 
+private:
   void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
   bool filterEventsWithCustomParser(Filter* filter);
 

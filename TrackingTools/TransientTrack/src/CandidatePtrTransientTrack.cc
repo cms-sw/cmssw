@@ -116,10 +116,6 @@ CandidatePtrTransientTrack::CandidatePtrTransientTrack(const CandidatePtrTransie
   }
 }
 
-void CandidatePtrTransientTrack::setES(const edm::EventSetup& setup) {
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-}
-
 void CandidatePtrTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) {
   theTrackingGeometry = tg;
 }

@@ -70,6 +70,8 @@ public:
   /** Constructor
    */
   DTTtrig();
+  DTTtrig(DTTtrig const&) = delete;
+  DTTtrig& operator=(DTTtrig const&) = delete;
   DTTtrig(const std::string& version);
 
   /** Destructor
@@ -143,9 +145,6 @@ public:
   void initialize();
 
 private:
-  DTTtrig(DTTtrig const&) = delete;
-  DTTtrig& operator=(DTTtrig const&) = delete;
-
   std::string dataVersion;
   float nsPerCount;
 

@@ -27,13 +27,15 @@ using namespace std;
 
 DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset) {
   //framework
-  setWhatProduced(this, &DTFakeT0ESProducer::produce);
+  auto cc = setWhatProduced(this, &DTFakeT0ESProducer::produce);
   //  setWhatProduced(this,dependsOn(& DTGeometryESModule::parseDDD()));
   findingRecord<DTT0Rcd>();
 
   //read constant value for t0 from cfg
   t0Mean = pset.getParameter<double>("t0Mean");
   t0Sigma = pset.getParameter<double>("t0Sigma");
+  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  mdcToken_ = cc.consumes();
 }
 
 DTFakeT0ESProducer::~DTFakeT0ESProducer() {}
@@ -59,13 +61,10 @@ std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord) {
 }
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord) {
-  edm::ESTransientHandle<DDCompactView> cpv;
-  edm::ESHandle<MuonGeometryConstants> mdc;
+  edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
+  const auto& mdc = iRecord.get(mdcToken_);
 
-  iRecord.getRecord<IdealGeometryRecord>().get(cpv);
-  iRecord.getRecord<IdealGeometryRecord>().get(mdc);
-
-  DTGeometryParserFromDDD parser(&(*cpv), *mdc, theLayerIdWiresMap);
+  DTGeometryParserFromDDD parser(&(*cpv), mdc, theLayerIdWiresMap);
 }
 
 void DTFakeT0ESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

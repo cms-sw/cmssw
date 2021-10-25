@@ -1,8 +1,9 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   ParentageRegistry* ParentageRegistry::instance() {
-    static ParentageRegistry s_reg;
+    CMS_THREAD_SAFE static ParentageRegistry s_reg;
     return &s_reg;
   }
 

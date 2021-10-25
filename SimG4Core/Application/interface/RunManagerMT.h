@@ -2,10 +2,7 @@
 #define SimG4Core_RunManagerMT_H
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
@@ -36,7 +33,6 @@ class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4StateManager;
-class G4GeometryManager;
 class RunAction;
 
 class SimRunInterface;
@@ -59,7 +55,6 @@ public:
   explicit RunManagerMT(edm::ParameterSet const&);
   ~RunManagerMT();
 
-  //  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
   void initG4(const DDCompactView*, const cms::DDCompactView*, const HepPDT::ParticleDataTable*);
 
   void initializeUserActions();
@@ -95,7 +90,6 @@ private:
   RunAction* m_userRunAction;
   G4Run* m_currentRun;
   G4StateManager* m_stateManager;
-  G4GeometryManager* m_geometryManager;
 
   std::unique_ptr<SimRunInterface> m_runInterface;
 

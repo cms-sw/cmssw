@@ -1,12 +1,14 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <random>
 #include <set>
+#include <type_traits>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
@@ -31,6 +33,50 @@ struct RS<float> {
   //  static auto ud() { return type(0,std::numeric_limits<T>::max()/2);}
   static constexpr int imax = std::numeric_limits<int>::max();
 };
+
+// A templated unsigned integer type with N bytes
+template <int N>
+struct uintN;
+
+template <>
+struct uintN<8> {
+  using type = uint8_t;
+};
+
+template <>
+struct uintN<16> {
+  using type = uint16_t;
+};
+
+template <>
+struct uintN<32> {
+  using type = uint32_t;
+};
+
+template <>
+struct uintN<64> {
+  using type = uint64_t;
+};
+
+template <int N>
+using uintN_t = typename uintN<N>::type;
+
+// A templated unsigned integer type with the same size as T
+template <typename T>
+using uintT_t = uintN_t<sizeof(T) * 8>;
+
+// Keep only the `N` most significant bytes of `t`, and set the others to zero
+template <int N, typename T, typename SFINAE = std::enable_if_t<N <= sizeof(T)>>
+void truncate(T& t) {
+  const int shift = 8 * (sizeof(T) - N);
+  union {
+    T t;
+    uintT_t<T> u;
+  } c;
+  c.t = t;
+  c.u = c.u >> shift << shift;
+  t = c.t;
+}
 
 template <typename T, int NS = sizeof(T), typename U = T, typename LL = long long>
 void go(bool useShared) {
@@ -100,7 +146,7 @@ void go(bool useShared) {
     cudaCheck(cudaMemcpy(off_d.get(), offsets, 4 * (blocks + 1), cudaMemcpyHostToDevice));
 
     if (i < 2)
-      std::cout << "lauch for " << offsets[blocks] << std::endl;
+      std::cout << "launch for " << offsets[blocks] << std::endl;
 
     auto ntXBl __attribute__((unused)) = 1 == i % 4 ? 256 : 256;
 
@@ -138,14 +184,8 @@ void go(bool useShared) {
         auto a = v + offsets[ib];
         auto k1 = a[ind[j]];
         auto k2 = a[ind[j - 1]];
-        auto sh = sizeof(uint64_t) - NS;
-        sh *= 8;
-        auto shorten = [sh](T& t) {
-          auto k = (uint64_t*)(&t);
-          *k = (*k >> sh) << sh;
-        };
-        shorten(k1);
-        shorten(k2);
+        truncate<NS>(k1);
+        truncate<NS>(k2);
         if (k1 < k2)
           std::cout << ib << " not ordered at " << ind[j] << " : " << a[ind[j]] << ' ' << a[ind[j - 1]] << std::endl;
       }

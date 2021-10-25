@@ -34,7 +34,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -48,6 +47,9 @@
 // DQM Histograming
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <cmath>
+
+using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
+
 class TBeamTest : public DQMEDAnalyzer {
 public:
   explicit TBeamTest(const edm::ParameterSet&);

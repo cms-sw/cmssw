@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import FWCore.ParameterSet.Config as cms
 import sys

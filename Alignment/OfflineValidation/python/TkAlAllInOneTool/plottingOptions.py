@@ -15,9 +15,8 @@ from .TkAlExceptions import AllInOneError
 from .trackSplittingValidation import TrackSplittingValidation
 from .zMuMuValidation import ZMuMuValidation
 from .overlapValidation import OverlapValidation
-from six import with_metaclass
 
-class BasePlottingOptions(with_metaclass(ValidationMetaClass,object)):
+class BasePlottingOptions(object, metaclass=ValidationMetaClass):
     defaults = {
                 "cmssw" : os.environ["CMSSW_BASE"],
                 "publicationstatus" : "",

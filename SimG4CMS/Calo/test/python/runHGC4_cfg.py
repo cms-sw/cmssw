@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process("PROD",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -12,8 +12,8 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('SimG4CMS.Calo.hgcalHitIdCheck_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['phase2_realistic']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
@@ -58,7 +58,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    fileName = cms.untracked.string('hgcV14.root')
 )
 
 process.generation_step = cms.Path(process.pgen)

@@ -11,8 +11,6 @@
 
 #include <memory>
 
-#define EDM_ML_DEBUG
-
 class HcalTB06ParametersESModule : public edm::ESProducer {
 public:
   HcalTB06ParametersESModule(const edm::ParameterSet&);
@@ -34,8 +32,10 @@ HcalTB06ParametersESModule::HcalTB06ParametersESModule(const edm::ParameterSet& 
   name2_ = ps.getParameter<std::string>("name2");
   fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
   auto cc = setWhatProduced(this);
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
-  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4Hep_)
+    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalTB06ParametersESModule::HcalTB06ParametersESModule called with dd4hep: "

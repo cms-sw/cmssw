@@ -393,9 +393,9 @@ void HGCalHitCalibration::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-  desc.add<edm::InputTag>("hgcalMultiClusters", edm::InputTag("particleFlowClusterHGCalFromMultiCl"));
-  desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
-  desc.add<edm::InputTag>("photons", edm::InputTag("photonsFromMultiCl"));
+  desc.add<edm::InputTag>("hgcalMultiClusters", edm::InputTag("particleFlowClusterHGCal"));
+  desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsHGC"));
+  desc.add<edm::InputTag>("photons", edm::InputTag("photonsHGC"));
   descriptions.add("hgcalHitCalibrationDefault", desc);
 }
 

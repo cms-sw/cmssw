@@ -83,15 +83,15 @@ private:
   const int idMuon_ = 13;
   TTree* tree_;
   unsigned int runNumber_, eventNumber_, lumiNumber_, bxNumber_;
-  std::vector<double> ptGlob_, etaGlob_, phiGlob_, pMuon_;
-  std::vector<double> ecal3x3Energy_, hcal1x1Energy_;
-  std::vector<unsigned int> ecalDetId_, hcalDetId_, hcalHot_;
-  std::vector<double> matchedId_;
-  std::vector<double> hcalDepthEnergy_[depthMax_];
-  std::vector<double> hcalDepthActiveLength_[depthMax_];
-  std::vector<double> hcalDepthEnergyHot_[depthMax_];
-  std::vector<double> hcalDepthActiveLengthHot_[depthMax_];
-  std::vector<double> hcalActiveLength_, hcalActiveLengthHot_;
+  double ptGlob_, etaGlob_, phiGlob_, pMuon_;
+  double ecal3x3Energy_, hcal1x1Energy_;
+  unsigned int ecalDetId_, hcalDetId_, hcalHot_;
+  double matchedId_;
+  double hcalDepthEnergy_[depthMax_];
+  double hcalDepthActiveLength_[depthMax_];
+  double hcalDepthEnergyHot_[depthMax_];
+  double hcalDepthActiveLengthHot_[depthMax_];
+  double hcalActiveLength_, hcalActiveLengthHot_;
 };
 
 HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfig) {
@@ -188,6 +188,16 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
 
+  std::vector<double> ptGlob, etaGlob, phiGlob, pMuon;
+  std::vector<double> ecal3x3Energy, hcal1x1Energy;
+  std::vector<unsigned int> ecalDetId, hcalDetId, hcalHot;
+  std::vector<double> matchedId;
+  std::vector<double> hcalDepthEnergy[depthMax_];
+  std::vector<double> hcalDepthActiveLength[depthMax_];
+  std::vector<double> hcalDepthEnergyHot[depthMax_];
+  std::vector<double> hcalDepthActiveLengthHot[depthMax_];
+  std::vector<double> hcalActiveLength, hcalActiveLengthHot;
+
   // Loop over all SimTracks
   for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
     if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
@@ -223,10 +233,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       if (trkD.okHCAL) {
         // Muon properties
         spr::trackAtOrigin tkvx = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-        ptGlob_.push_back(tkvx.momentum.perp());
-        etaGlob_.push_back(tkvx.momentum.eta());
-        phiGlob_.push_back(tkvx.momentum.phi());
-        pMuon_.push_back(tkvx.momentum.mag());
+        ptGlob.push_back(tkvx.momentum.perp());
+        etaGlob.push_back(tkvx.momentum.eta());
+        phiGlob.push_back(tkvx.momentum.phi());
+        pMuon.push_back(tkvx.momentum.mag());
 #ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
           edm::LogVerbatim("HBHEMuon") << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
@@ -320,24 +330,43 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
             edm::LogVerbatim("HBHEMuon") << "Depth " << k << " E " << eHcalDepth[k] << ":" << eHcalDepthHot[k];
         }
 #endif
-        matchedId_.push_back(tmpmatch);
-        ecal3x3Energy_.push_back(eEcal);
-        ecalDetId_.push_back(isoCell.rawId());
-        hcal1x1Energy_.push_back(eHcal);
-        hcalDetId_.push_back(closestCell.rawId());
+        matchedId.push_back(tmpmatch);
+        ecal3x3Energy.push_back(eEcal);
+        ecalDetId.push_back(isoCell.rawId());
+        hcal1x1Energy.push_back(eHcal);
+        hcalDetId.push_back(closestCell.rawId());
         for (int k = 0; k < depthMax_; ++k) {
-          hcalDepthEnergy_[k].push_back(eHcalDepth[k]);
-          hcalDepthActiveLength_[k].push_back(activeL[k]);
-          hcalDepthEnergyHot_[k].push_back(eHcalDepthHot[k]);
-          hcalDepthActiveLengthHot_[k].push_back(activeHotL[k]);
+          hcalDepthEnergy[k].push_back(eHcalDepth[k]);
+          hcalDepthActiveLength[k].push_back(activeL[k]);
+          hcalDepthEnergyHot[k].push_back(eHcalDepthHot[k]);
+          hcalDepthActiveLengthHot[k].push_back(activeHotL[k]);
         }
-        hcalHot_.push_back(isHot);
-        hcalActiveLengthHot_.push_back(activeLengthHotTot);
+        hcalHot.push_back(isHot);
+        hcalActiveLengthHot.push_back(activeLengthHotTot);
       }
     }
   }
-  if (!hcalHot_.empty())
+  for (unsigned int k = 0; k < hcalHot.size(); ++k) {
+    ptGlob_ = ptGlob[k];
+    etaGlob_ = etaGlob[k];
+    phiGlob_ = phiGlob[k];
+    pMuon_ = pMuon[k];
+    ecal3x3Energy_ = ecal3x3Energy[k];
+    hcal1x1Energy_ = hcal1x1Energy[k];
+    ecalDetId_ = ecalDetId[k];
+    hcalDetId_ = hcalDetId[k];
+    hcalHot_ = hcalHot[k];
+    matchedId_ = matchedId[k];
+    for (int i = 0; i < depthMax_; ++i) {
+      hcalDepthEnergy_[i] = hcalDepthEnergy[k][i];
+      hcalDepthActiveLength_[i] = hcalDepthActiveLength[k][i];
+      hcalDepthEnergyHot_[i] = hcalDepthEnergyHot[k][i];
+      hcalDepthActiveLengthHot_[i] = hcalDepthActiveLengthHot[k][i];
+    }
+    hcalActiveLength_ = hcalActiveLength[k];
+    hcalActiveLengthHot_ = hcalActiveLengthHot[k];
     tree_->Fill();
+  }
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {
@@ -402,25 +431,6 @@ void HcalHBHEMuonSimAnalyzer::clearVectors() {
   eventNumber_ = -99999;
   lumiNumber_ = -99999;
   bxNumber_ = -99999;
-
-  ptGlob_.clear();
-  etaGlob_.clear();
-  phiGlob_.clear();
-  pMuon_.clear();
-  matchedId_.clear();
-  ecal3x3Energy_.clear();
-  ecalDetId_.clear();
-  hcal1x1Energy_.clear();
-  hcalDetId_.clear();
-  hcalHot_.clear();
-  hcalActiveLength_.clear();
-  hcalActiveLengthHot_.clear();
-  for (int k = 0; k < depthMax_; ++k) {
-    hcalDepthEnergy_[k].clear();
-    hcalDepthActiveLength_[k].clear();
-    hcalDepthEnergyHot_[k].clear();
-    hcalDepthActiveLengthHot_[k].clear();
-  }
 }
 
 unsigned int HcalHBHEMuonSimAnalyzer::matchId(const HcalDetId& id1, const HcalDetId& id2) {

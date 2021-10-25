@@ -105,6 +105,9 @@ namespace edm {
     preSourceRunSignal_.connect(std::cref(iOther.preSourceRunSignal_));
     postSourceRunSignal_.connect(std::cref(iOther.postSourceRunSignal_));
 
+    preSourceProcessBlockSignal_.connect(std::cref(iOther.preSourceProcessBlockSignal_));
+    postSourceProcessBlockSignal_.connect(std::cref(iOther.postSourceProcessBlockSignal_));
+
     preOpenFileSignal_.connect(std::cref(iOther.preOpenFileSignal_));
     postOpenFileSignal_.connect(std::cref(iOther.postOpenFileSignal_));
 
@@ -324,6 +327,9 @@ namespace edm {
 
     copySlotsToFrom(preSourceRunSignal_, iOther.preSourceRunSignal_);
     copySlotsToFromReverse(postSourceRunSignal_, iOther.postSourceRunSignal_);
+
+    copySlotsToFrom(preSourceProcessBlockSignal_, iOther.preSourceProcessBlockSignal_);
+    copySlotsToFromReverse(postSourceProcessBlockSignal_, iOther.postSourceProcessBlockSignal_);
 
     copySlotsToFrom(preOpenFileSignal_, iOther.preOpenFileSignal_);
     copySlotsToFromReverse(postOpenFileSignal_, iOther.postOpenFileSignal_);

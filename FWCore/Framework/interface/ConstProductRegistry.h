@@ -23,7 +23,7 @@ Usage:
 #include <string>
 
 // user include files
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 

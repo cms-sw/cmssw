@@ -19,10 +19,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHGCalTriggerCellProxyBuilder(const FWHGCalTriggerCellProxyBuilder &) = delete;                   // stop default
   const FWHGCalTriggerCellProxyBuilder &operator=(const FWHGCalTriggerCellProxyBuilder &) = delete;  // stop default
 
+private:
   void build(const l1t::HGCalTriggerCell &iData,
              unsigned int iIndex,
              TEveElement &oItemHolder,

@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineTestHLT'
-BSOnlineJobName = 'BeamSpotOnlineTestHLT'
+BSOnlineTag = 'BeamSpotOnlineHLT'
+BSOnlineJobName = 'BeamSpotOnlineHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
@@ -76,10 +76,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 # DQM Live Environment
 #-----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'BeamMonitor'
-process.dqmSaver.tag           = 'BeamMonitor'
+process.dqmEnv.subSystemFolder = 'BeamMonitorHLT'
+process.dqmSaver.tag           = 'BeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitor'
+process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
@@ -99,7 +99,7 @@ process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 
 # Change Beam Monitor variables
 process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
@@ -166,7 +166,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
         "HLT_HI")
 
-    process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+    process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 
     #---------
     # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
@@ -226,4 +226,6 @@ if (process.runType.getRunType() == process.runType.pp_run or
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
+
+print("Final Source settings:", process.source)
 

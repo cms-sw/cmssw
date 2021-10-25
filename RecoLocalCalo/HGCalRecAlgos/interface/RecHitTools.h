@@ -37,6 +37,8 @@ namespace hgcal {
     std::float_t getRadiusToSide(const DetId&) const;
     int getSiThickIndex(const DetId&) const;
 
+    std::pair<float, float> getScintDEtaDPhi(const DetId&) const;
+
     unsigned int getLayer(DetId::Detector type, bool nose = false) const;
     unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
@@ -47,6 +49,7 @@ namespace hgcal {
     bool isHalfCell(const DetId&) const;
 
     bool isSilicon(const DetId&) const;
+    bool isScintillator(const DetId&) const;
 
     bool isOnlySilicon(const unsigned int layer) const;
 

@@ -109,7 +109,7 @@ private:
 
   edm::ParameterSet config_;
   edm::InputTag trajectoryTag_;
-  SiStripDetInfoFileReader* reader;
+  SiStripDetInfo detInfo_;
   bool doSimHit_;
   const TrackerGeometry* trackerGeometry_;
   const MagneticField* magField_;
@@ -192,7 +192,7 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
       topoToken_(esConsumes()),
       config_(iConfig),
       rootTree_(nullptr),
-      FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
+      FileInPath_(SiStripDetInfoFileReader::kDefaultFile),
       compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
       addExtraBranches_(false),
       minHitsCut_(6),
@@ -202,7 +202,7 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
   trajectoryTag_ = iConfig.getParameter<edm::InputTag>("trajectories");
   trajectoryToken_ = iC.consumes<TrajectoryCollection>(trajectoryTag_);
   doSimHit_ = iConfig.getParameter<bool>("associateStrip");
-  reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
+  detInfo_ = SiStripDetInfoFileReader::read(FileInPath_.fullPath());
 
   overlapCounts_[0] = 0;  // #trajectories
   overlapCounts_[1] = 0;  // #hits
@@ -653,7 +653,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
         uint16_t firstStrip = cluster1->firstStrip();
         uint16_t lastStrip = firstStrip + (cluster1->amplitudes()).size() - 1;
         unsigned short Nstrips;
-        Nstrips = reader->getNumberOfApvsAndStripLength(id1).first * 128;
+        Nstrips = detInfo_.getNumberOfApvsAndStripLength(id1).first * 128;
         bool atEdge = false;
         if (firstStrip == 0 || lastStrip == (Nstrips - 1))
           atEdge = true;
@@ -682,7 +682,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
         uint16_t firstStrip = cluster2->firstStrip();
         uint16_t lastStrip = firstStrip + (cluster2->amplitudes()).size() - 1;
         unsigned short Nstrips;
-        Nstrips = reader->getNumberOfApvsAndStripLength(id2).first * 128;
+        Nstrips = detInfo_.getNumberOfApvsAndStripLength(id2).first * 128;
         bool atEdge = false;
         if (firstStrip == 0 || lastStrip == (Nstrips - 1))
           atEdge = true;

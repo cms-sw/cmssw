@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
 #include "TLorentzVector.h"
 #include "TVector.h"
@@ -27,7 +28,7 @@ namespace gen {
   class TauolappInterface : public TauolaInterfaceBase {
   public:
     // ctor & dtor
-    TauolappInterface(const edm::ParameterSet&);
+    TauolappInterface(const edm::ParameterSet&, edm::ConsumesCollector);
     ~TauolappInterface() override;
 
     void enablePolarization() override {
@@ -72,6 +73,7 @@ namespace gen {
     std::vector<int> fPDGs;
     bool fPolarization;
     edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+    edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
     edm::ParameterSet* fPSet;
     bool fIsInitialized;
 

@@ -26,6 +26,7 @@
 #include "TAxis.h"
 
 #include <mutex>
+#include <memory>
 #include <string>
 #include <atomic>
 #include <sstream>
@@ -119,7 +120,7 @@ namespace dqm::impl {
         return std::make_tuple(std::reference_wrapper(me->getPathname()), std::reference_wrapper(me->getName()));
       }
       auto make_tuple(MonitorElementData::Path const &path) const {
-        return std::make_tuple(path.getDirname(), path.getObjectname());
+        return std::make_tuple(std::reference_wrapper(path.getDirname()), std::reference_wrapper(path.getObjectname()));
       }
       bool operator()(MonitorElement *left, MonitorElement *right) const {
         return make_tuple(left) < make_tuple(right);
@@ -136,9 +137,8 @@ namespace dqm::impl {
     };
 
   private:
-    MutableMonitorElementData *mutable_;  // only set if this is a mutable copy of this ME
+    std::shared_ptr<MutableMonitorElementData> mutable_;  // only set if this is a mutable copy of this ME
     // there are no immutable MEs at this time, but we might need them in the future.
-    bool is_owned_;  // true if we are responsible for deleting the mutable object.
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
      * This object will contain the lock guard if one is needed. We differentiate
@@ -176,7 +176,7 @@ namespace dqm::impl {
     // new ME. The new ME will own this data.
     MonitorElement(MonitorElementData &&data);
     // Create new ME and take ownership of this data.
-    MonitorElement(MutableMonitorElementData *data);
+    MonitorElement(std::shared_ptr<MutableMonitorElementData> data);
     // Create a new ME sharing data with this existing ME.
     MonitorElement(MonitorElement *me);
 
@@ -184,13 +184,13 @@ namespace dqm::impl {
     // is owned by the returned value.
     MonitorElementData cloneMEData();
 
-    // Remove access and ownership to the data. The flag is used for a sanity check.
-    MutableMonitorElementData *release(bool expectOwned);
+    // Remove access to the data.
+    std::shared_ptr<MutableMonitorElementData> release();
 
     // re-initialize this ME as a shared copy of the other.
     void switchData(MonitorElement *other);
     // re-initialize taking ownership of this data.
-    void switchData(MutableMonitorElementData *data);
+    void switchData(std::shared_ptr<MutableMonitorElementData> data);
 
     // Replace the ROOT object in this ME's data with the new object, taking
     // ownership. The old object is deleted.

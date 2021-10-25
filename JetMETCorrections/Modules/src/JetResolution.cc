@@ -20,11 +20,8 @@ namespace JME {
   }
 
 #ifndef STANDALONE
-  const JetResolution JetResolution::get(const edm::EventSetup& setup, const std::string& label) {
-    edm::ESHandle<JetResolutionObject> handle;
-    setup.get<JetResolutionRcd>().get(label, handle);
-
-    return *handle;
+  const JetResolution JetResolution::get(const edm::EventSetup& setup, const Token& token) {
+    return setup.getData(token);
   }
 #endif
 
@@ -45,11 +42,8 @@ namespace JME {
   }
 
 #ifndef STANDALONE
-  const JetResolutionScaleFactor JetResolutionScaleFactor::get(const edm::EventSetup& setup, const std::string& label) {
-    edm::ESHandle<JetResolutionObject> handle;
-    setup.get<JetResolutionScaleFactorRcd>().get(label, handle);
-
-    return *handle;
+  const JetResolutionScaleFactor JetResolutionScaleFactor::get(const edm::EventSetup& setup, const Token& token) {
+    return setup.getData(token);
   }
 #endif
 

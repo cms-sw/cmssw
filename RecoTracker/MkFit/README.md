@@ -38,8 +38,10 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
-* *m_require_quality_filter:* is additional post-processing required for result tracks
+* *m_requires_quality_filter:* is additional post-processing required for result tracks
+* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
+* *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
 
 ### Iteration parameters [class IterationParams]
@@ -48,7 +50,7 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *maxCandsPerSeed:* maximum number of concurrent track candidates per given seed
 * *maxHolesPerCand:* maximum number of allowed holes on a candidate
 * *maxConsecHoles:*  maximum number of allowed consecutive holes on a candidate
-* *chi2Cut:*         chi2 cut for accepting a new hit
+* *chi2Cut_min:*     minimum chi2 cut for accepting a new hit
 * *chi2CutOverlap:*  chi2 cut for accepting an overlap hit
 * *pTCutOverlap:*    pT cut below which the overlap hits are not picked up
 
@@ -68,6 +70,9 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *minHitsQF:* min number of hits on track candidate to apply duplicate cleaning based on fraction of shared hits
 * *fracSharedHits:* min fraction of shared hits to determine duplicate track candidate
+* *drth_central:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))<1.99 (abs(eta)<1.44)
+* *drth_obarrel:* dR cut used to identify duplicate candidates if 1.99<std::abs(cotan(theta))<6.05 (1.44<abs(eta)<2.5)
+* *drth_forward:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))>6.05 (abs(eta)>2.5)
 
 ### Per-layer parameters [class IterationLayerConfig]
 
@@ -77,3 +82,5 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *c_dp_sf:* additional scaling factor for dphi cut
 * *c_dq_[012]:* dr (endcap) / dz (barrel) selection window cut (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
 * *c_dq_sf:* additional scaling factor for dr (endcap) / dz (barrel) cut
+* *c_c2_[012]:* chi2 cut for accepting new hit (= [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
+* *c_c2_sf:* additional scaling factor for chi2 cut

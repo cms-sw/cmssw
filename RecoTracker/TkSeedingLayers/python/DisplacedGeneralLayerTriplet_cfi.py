@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
 
 DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
-        layerList = cms.vstring( 
+        layerList = [ 
                 #----------
                 #TIB
                 #----------
@@ -43,38 +43,38 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
                 #TID+TEC
                 'TID1+TID2+TEC1_pos', 'TID1+TID2+TEC1_neg', 
                 'TID2+MTID3+TEC1_pos', 'TID2+MTID3+TEC1_neg',
-                'MTID3+TEC1_pos+MTEC2_pos', 'MTID3+TEC1_neg+MTEC2_neg'), 
+                'MTID3+TEC1_pos+MTEC2_pos', 'MTID3+TEC1_neg+MTEC2_neg'], 
 
 
-        TOB = cms.PSet(
+        TOB = dict(
 	 TTRHBuilder = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
 	 skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
 
-        MTOB = cms.PSet(
+        MTOB = dict(
          TTRHBuilder = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
          skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
 
-        TIB = cms.PSet(
+        TIB = dict(
          TTRHBuilder    = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
          matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
          skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
 
-        MTIB = cms.PSet(
+        MTIB = dict(
          TTRHBuilder    = cms.string('WithTrackAngle'), 
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
          skipClusters   = cms.InputTag('displacedGeneralStepClusters')
         ),
 
-        TID = cms.PSet(
+        TID = dict(
 	 TTRHBuilder = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -84,7 +84,7 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
          maxRing = cms.int32(2)
 	),
         
-	MTID = cms.PSet(
+	MTID = dict(
          TTRHBuilder = cms.string('WithTrackAngle'),
  	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
@@ -94,7 +94,7 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
          maxRing = cms.int32(3)
         ),
 
-        TEC = cms.PSet(
+        TEC = dict(
 	 TTRHBuilder = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
@@ -104,7 +104,7 @@ DisplacedGeneralLayerTriplet = seedingLayersEDProducer.clone(
          maxRing = cms.int32(5)
 	),
 
-        MTEC = cms.PSet(
+        MTEC = dict(
 	 TTRHBuilder = cms.string('WithTrackAngle'),
 	 clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 	 rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),

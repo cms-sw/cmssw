@@ -111,6 +111,7 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps)
       h_efficiencyNonIsoTauET_EB_EE_total_() {
   edm::LogInfo("L1TTauOffline") << "Constructor "
                                 << "L1TTauOffline::L1TTauOffline " << std::endl;
+  mFieldToken_ = esConsumes();
 }
 
 //
@@ -236,7 +237,8 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) 
     return;
   }
 
-  eSetup.get<IdealMagneticFieldRecord>().get(m_BField);
+  m_BField = eSetup.getHandle(mFieldToken_);
+
   const reco::Vertex primaryVertex = getPrimaryVertex(vertex, beamSpot);
 
   getTightMuons(muons, mets, primaryVertex, trigEvent);
@@ -701,6 +703,19 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       reco::PFTauRef tauCandidate(taus, iTau);
       TLorentzVector mytau;
       mytau.SetPtEtaPhiE(tauIt->pt(), tauIt->eta(), tauIt->phi(), tauIt->energy());
+
+      if ((*antimu)[tauCandidate].workingPoints.empty()) {
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping" << std::endl;
+        continue;
+      }
+      if ((*antiele)[tauCandidate].workingPoints.empty()) {
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
+        continue;
+      }
+      if ((*comb3T)[tauCandidate].workingPoints.empty()) {
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no comb3T discriminator, skipping" << std::endl;
+        continue;
+      }
 
       if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
           (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&

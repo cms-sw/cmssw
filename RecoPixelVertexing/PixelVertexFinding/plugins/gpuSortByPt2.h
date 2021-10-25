@@ -46,7 +46,7 @@ namespace gpuVertexFinder {
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       if (iv[i] > 9990)
         continue;
-      atomicAdd(&ptv2[iv[i]], ptt2[i]);
+      atomicAdd_block(&ptv2[iv[i]], ptt2[i]);
     }
     __syncthreads();
 

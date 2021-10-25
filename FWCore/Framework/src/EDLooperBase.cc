@@ -27,6 +27,12 @@
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "tbb/global_control.h"
 
 namespace edm {
 
@@ -182,6 +188,104 @@ namespace edm {
   void EDLooperBase::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
 
   void EDLooperBase::attachTo(ActivityRegistry&) {}
+
+  void EDLooperBase::prefetchAsync(WaitingTaskHolder iTask,
+                                   ServiceToken const& token,
+                                   Transition iTrans,
+                                   Principal const& iPrincipal,
+                                   EventSetupImpl const& iImpl) const {
+    esPrefetchAsync(iTask, iImpl, iTrans, token);
+    edPrefetchAsync(std::move(iTask), token, iPrincipal);
+  }
+
+  void EDLooperBase::edPrefetchAsync(WaitingTaskHolder iTask,
+                                     ServiceToken const& token,
+                                     Principal const& iPrincipal) const {
+    //Based on Worker edPrefetchAsync
+
+    // Prefetch products the module declares it consumes
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
+
+    for (auto const& item : items) {
+      ProductResolverIndex productResolverIndex = item.productResolverIndex();
+      bool skipCurrentProcess = item.skipCurrentProcess();
+      if (productResolverIndex != ProductResolverIndexAmbiguous) {
+        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+      }
+    }
+  }
+
+  void EDLooperBase::esPrefetchAsync(WaitingTaskHolder iTask,
+                                     EventSetupImpl const& iImpl,
+                                     Transition iTrans,
+                                     ServiceToken const& iToken) const {
+    //Based on Worker::esPrefetchAsync
+    if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
+      return;
+    }
+    auto const& recs = esGetTokenRecordIndicesVector(iTrans);
+    auto const& items = esGetTokenIndicesVector(iTrans);
+
+    assert(items.size() == recs.size());
+    if (items.empty()) {
+      return;
+    }
+
+    //Thread case of 1 thread special. The master thread is doing a wait_for_all on the
+    // default tbb arena. It will not process any tasks on the es arena. We need to add a
+    // task that will synchronously do a wait_for_all in the es arena to be sure prefetching
+    // will work.
+
+    if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
+      auto taskGroup = iTask.group();
+      ServiceWeakToken weakToken = iToken;
+      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, weakToken]() {
+        std::exception_ptr exceptPtr{};
+        iImpl.taskArena()->execute([this, iTrans, &iImpl, weakToken, &exceptPtr]() {
+          exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
+            auto const& recs = esGetTokenRecordIndicesVector(iTrans);
+            auto const& items = esGetTokenIndicesVector(iTrans);
+            auto hWaitTask = std::move(iHolder);
+            auto token = weakToken.lock();
+            for (size_t i = 0; i != items.size(); ++i) {
+              if (recs[i] != ESRecordIndex{}) {
+                auto rec = iImpl.findImpl(recs[i]);
+                if (rec) {
+                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, token, ESParentContext(&moduleCallingContext_));
+                }
+              }
+            }
+          });  //syncWait
+        });    //esTaskArena().execute
+        //note use of a copy gets around declaring the lambda as mutable
+        auto tempTask = task;
+        tempTask.doneWaiting(exceptPtr);
+      });  //group.run
+    } else {
+      auto group = iTask.group();
+      //We need iTask to run in the default arena since it is not an ES task
+      auto task = make_waiting_task(
+          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
+            if (iExcept) {
+              holder.doneWaiting(*iExcept);
+            } else {
+              holder.doneWaiting(std::exception_ptr{});
+            }
+          });
+
+      WaitingTaskHolder tempH(*group, task);
+      iImpl.taskArena()->execute([&]() {
+        for (size_t i = 0; i != items.size(); ++i) {
+          if (recs[i] != ESRecordIndex{}) {
+            auto rec = iImpl.findImpl(recs[i]);
+            if (rec) {
+              rec->prefetchAsync(tempH, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
+            }
+          }
+        }
+      });
+    }
+  }
 
   std::set<eventsetup::EventSetupRecordKey> EDLooperBase::modifyingRecords() const {
     return std::set<eventsetup::EventSetupRecordKey>();

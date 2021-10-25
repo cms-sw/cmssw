@@ -35,12 +35,12 @@ namespace edm {
       return iElement - &(iContainer->front());
     }
 
+    ContainerMaskTraits() = delete;
+    ContainerMaskTraits(const ContainerMaskTraits&) = delete;                   // stop default
+    const ContainerMaskTraits& operator=(const ContainerMaskTraits&) = delete;  // stop default
+
   private:
     //virtual ~ContainerMaskTraits();
-    ContainerMaskTraits() = delete;
-    ContainerMaskTraits(const ContainerMaskTraits&) = delete;  // stop default
-
-    const ContainerMaskTraits& operator=(const ContainerMaskTraits&) = delete;  // stop default
 
     // ---------- member data --------------------------------
   };

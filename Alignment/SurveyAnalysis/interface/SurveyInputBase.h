@@ -10,11 +10,11 @@
  *  \author Chung Khim Lae
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 class Alignable;
 
-class SurveyInputBase : public edm::EDAnalyzer {
+class SurveyInputBase : public edm::one::EDAnalyzer<> {
 public:
   ~SurveyInputBase() override;
 

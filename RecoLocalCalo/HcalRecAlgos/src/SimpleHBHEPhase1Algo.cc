@@ -30,7 +30,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(const int firstSampleShift,
                                            std::unique_ptr<MahiFit> mahi,
                                            edm::ConsumesCollector iC)
     : delayToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "HBHE"))),
-      pulseCorr_(PulseContainmentFractionalError, iC),
+      pulseCorr_(PulseContainmentFractionalError, false, iC),
       firstSampleShift_(firstSampleShift),
       samplesToAdd_(samplesToAdd),
       phaseNS_(phaseNS),

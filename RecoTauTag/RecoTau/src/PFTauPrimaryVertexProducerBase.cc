@@ -1,11 +1,8 @@
 #include "RecoTauTag/RecoTau/interface/PFTauPrimaryVertexProducerBase.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 
@@ -23,6 +20,7 @@ PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::Parame
       muonToken_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("MuonTag"))),
       pvToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PVTag"))),
       beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      transTrackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       algorithm_(iConfig.getParameter<int>("Algorithm")),
       qualityCutsPSet_(iConfig.getParameter<edm::ParameterSet>("qualityCuts")),
       useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
@@ -79,8 +77,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
   beginEvent(iEvent, iSetup);
 
   // Obtain Collections
-  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+  auto const& transTrackBuilder = iSetup.getData(transTrackBuilderToken_);
 
   edm::Handle<std::vector<reco::PFTau>> pfTaus;
   iEvent.getByToken(pftauToken_, pfTaus);
@@ -193,7 +190,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent, const edm::Even
         std::vector<reco::TransientTrack> transTracks;
         transTracks.reserve(nonTauTracks.size());
         for (const auto track : nonTauTracks) {
-          transTracks.push_back(transTrackBuilder->build(*track));
+          transTracks.push_back(transTrackBuilder.build(*track));
         }
         bool fitOK(true);
         if (transTracks.size() >= 2) {

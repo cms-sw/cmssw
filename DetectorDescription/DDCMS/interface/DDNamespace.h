@@ -10,6 +10,12 @@
 
 namespace cms {
 
+  namespace rotation_utils {
+    std::string rotHash(const Double_t* rot);
+    std::string rotHash(const dd4hep::Rotation3D& rot);
+    double roundBinary(double value);
+  }  // namespace rotation_utils
+
   class DDParsingContext;
   using DDVectorsMap = std::unordered_map<std::string, std::vector<double>>;
 
@@ -56,8 +62,9 @@ namespace cms {
     dd4hep::Solid addSolid(const std::string& name, dd4hep::Solid solid) const;
     dd4hep::Solid addSolidNS(const std::string& name, dd4hep::Solid solid) const;
 
-    dd4hep::Assembly assembly(const std::string& name) const;
-    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb) const;
+    dd4hep::Assembly assembly(const std::string& name, bool exception = true) const;
+    dd4hep::Assembly addAssembly(dd4hep::Assembly asmb, bool addSolid = true) const;
+    dd4hep::Assembly addAssemblySolid(dd4hep::Assembly assembly) const;
 
     dd4hep::Volume volume(const std::string& name, bool exc = true) const;
     dd4hep::Volume addVolume(dd4hep::Volume vol) const;

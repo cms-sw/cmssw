@@ -1,15 +1,84 @@
-//
-//
+/**
+  \class    pat::PATMETProducer PATMETProducer.h "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
+  \brief    Produces the pat::MET
 
-#include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+   The PATMETProducer produces the analysis-level pat::MET starting from
+   a collection of objects of METType.
+
+  \author   Steven Lowette
+  \version  $Id: PATMETProducer.h,v 1.10 2009/06/25 23:49:35 gpetrucc Exp $
+*/
+
+#include "CommonTools/Utils/interface/EtComparator.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
-
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+#include "RecoMET/METAlgorithms/interface/METSignificance.h"
+#include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
+#include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
 
 #include <memory>
+
+namespace pat {
+
+  class PATMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATMETProducer(const edm::ParameterSet& iConfig);
+    ~PATMETProducer() override;
+
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  private:
+    // configurables
+    edm::InputTag metSrc_;
+    edm::EDGetTokenT<edm::View<reco::MET>> metToken_;
+    bool addGenMET_;
+    edm::EDGetTokenT<edm::View<reco::GenMET>> genMETToken_;
+    bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
+    bool addMuonCorr_;
+    edm::InputTag muonSrc_;
+    // tools
+    GreaterByEt<MET> eTComparator_;
+
+    bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
+
+    bool useUserData_;
+    pat::PATUserDataHelper<pat::MET> userDataHelper_;
+
+    //MET Significance
+    bool calculateMETSignificance_;
+    metsig::METSignificance* metSigAlgo_;
+    edm::EDGetTokenT<edm::View<reco::Jet>> jetToken_;
+    edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> lepTokens_;
+    edm::EDGetTokenT<double> rhoToken_;
+    edm::EDGetTokenT<edm::ValueMap<float>> weightsToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPtToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> jetResPhiToken_;
+    edm::ESGetToken<JME::JetResolutionObject, JetResolutionScaleFactorRcd> jetSFToken_;
+
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event,
+                                             const edm::EventSetup& iSetup,
+                                             const reco::MET& met,
+                                             double& sumPtUnclustered) const;
+  };
+
+}  // namespace pat
 
 using namespace pat;
 
@@ -31,7 +100,8 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet& iConfig) : useUserData_(
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ =
+        pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"), consumesCollector());
   }
 
   // Check to see if the user wants to add user data
@@ -47,15 +117,18 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet& iConfig) : useUserData_(
       weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     metSigAlgo_ = new metsig::METSignificance(iConfig);
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
-    jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
-    jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
-    jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
     jetToken_ = consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
     pfCandToken_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("srcPFCands"));
     std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
     for (std::vector<edm::InputTag>::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
       lepTokens_.push_back(consumes<edm::View<reco::Candidate>>(*it));
     }
+    auto jetSFType = iConfig.getParameter<std::string>("srcJetSF");
+    auto jetResPtType = iConfig.getParameter<std::string>("srcJetResPt");
+    auto jetResPhiType = iConfig.getParameter<std::string>("srcJetResPhi");
+    jetResPtToken_ = esConsumes(edm::ESInputTag("", jetResPtType));
+    jetResPhiToken_ = esConsumes(edm::ESInputTag("", jetResPhiType));
+    jetSFToken_ = esConsumes(edm::ESInputTag("", jetSFType));
   }
 
   // produces vector of mets
@@ -187,9 +260,9 @@ const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event
   if (!weightsToken_.isUninitialized())
     event.getByToken(weightsToken_, weights);
 
-  JME::JetResolution resPtObj = JME::JetResolution::get(iSetup, jetResPtType_);
-  JME::JetResolution resPhiObj = JME::JetResolution::get(iSetup, jetResPhiType_);
-  JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetSFType_);
+  JME::JetResolution resPtObj = iSetup.getData(jetResPtToken_);
+  JME::JetResolution resPhiObj = iSetup.getData(jetResPhiToken_);
+  JME::JetResolutionScaleFactor resSFObj = iSetup.getData(jetSFToken_);
 
   //Compute the covariance matrix and fill it
   const edm::ValueMap<float>* weightsPtr = nullptr;
@@ -213,5 +286,4 @@ const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 DEFINE_FWK_MODULE(PATMETProducer);

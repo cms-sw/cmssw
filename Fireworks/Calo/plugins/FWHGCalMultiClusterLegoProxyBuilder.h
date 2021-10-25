@@ -19,14 +19,14 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
+  FWHGCalMultiClusterLegoProxyBuilder(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;  // stop default
+  const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) =
+      delete;  // stop default
+
 private:
   void fillCaloData() override;
   FWHistSliceSelector *instantiateSliceSelector() override;
   void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *) override;
-
-  FWHGCalMultiClusterLegoProxyBuilder(const FWHGCalMultiClusterLegoProxyBuilder &) = delete;  // stop default
-  const FWHGCalMultiClusterLegoProxyBuilder &operator=(const FWHGCalMultiClusterLegoProxyBuilder &) =
-      delete;  // stop default
 
   const std::vector<reco::HGCalMultiCluster> *m_towers;
 };

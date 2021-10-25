@@ -43,14 +43,16 @@ public:
                         float lsbADC = -1,
                         uint32_t gainIdx = 0,
                         float maxADC = -1,
-                        int thickness = 1) {
+                        int thickness = 1,
+                        float tdcOnsetAuto = -1) {
     switch (fwVersion_) {
       case SIMPLE: {
         runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, gainIdx, maxADC, adcPulse);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse);
+        runShaperWithToT(
+            dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse);
         break;
       }
       default: {
@@ -127,6 +129,7 @@ public:
                         uint32_t gainIdx,
                         float maxADC,
                         int thickness,
+                        float tdcOnsetAuto,
                         const hgc_digi::FEADCPulseShape& adcPulse);
   void runShaperWithToT(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
@@ -136,8 +139,10 @@ public:
                         float lsbADC,
                         uint32_t gainIdx,
                         float maxADC,
-                        int thickness) {
-    runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, adcPulse_);
+                        int thickness,
+                        float tdcOnsetAuto) {
+    runShaperWithToT(
+        dataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto, adcPulse_);
   }
 
   /**

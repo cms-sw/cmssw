@@ -44,11 +44,11 @@ namespace reco {
         return ret;
       }
 
-    private:
       UnaryMinusEvaluator(const UnaryMinusEvaluator&) = delete;
 
       const UnaryMinusEvaluator& operator=(const UnaryMinusEvaluator&) = delete;
 
+    private:
       // ---------- member data --------------------------------
       std::shared_ptr<EvaluatorBase> m_arg;
     };

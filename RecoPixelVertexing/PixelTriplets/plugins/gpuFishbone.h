@@ -16,27 +16,29 @@
 
 namespace gpuPixelDoublets {
 
-  //  __device__
-  //  __forceinline__
   __global__ void fishbone(GPUCACell::Hits const* __restrict__ hhp,
                            GPUCACell* cells,
                            uint32_t const* __restrict__ nCells,
-                           GPUCACell::OuterHitOfCell const* __restrict__ isOuterHitOfCell,
-                           uint32_t nHits,
+                           GPUCACell::OuterHitOfCell const isOuterHitOfCellWrap,
+                           int32_t nHits,
                            bool checkTrack) {
     constexpr auto maxCellsPerHit = GPUCACell::maxCellsPerHit;
 
     auto const& hh = *hhp;
 
-    // x run faster...
+    auto const isOuterHitOfCell = isOuterHitOfCellWrap.container;
+    int32_t offset = isOuterHitOfCellWrap.offset;
+
+    // x runs faster...
     auto firstY = threadIdx.y + blockIdx.y * blockDim.y;
     auto firstX = threadIdx.x;
 
     float x[maxCellsPerHit], y[maxCellsPerHit], z[maxCellsPerHit], n[maxCellsPerHit];
-    uint16_t d[maxCellsPerHit];  // uint8_t l[maxCellsPerHit];
     uint32_t cc[maxCellsPerHit];
+    uint16_t d[maxCellsPerHit];
+    // uint8_t l[maxCellsPerHit];
 
-    for (int idy = firstY, nt = nHits; idy < nt; idy += gridDim.y * blockDim.y) {
+    for (int idy = firstY, nt = nHits - offset; idy < nt; idy += gridDim.y * blockDim.y) {
       auto const& vc = isOuterHitOfCell[idy];
       auto size = vc.size();
       if (size < 2)
@@ -82,10 +84,11 @@ namespace gpuPixelDoublets {
               cj.kill();
             }
           }
-        }  //cj
+        }  // cj
       }    // ci
     }      // hits
   }
+
 }  // namespace gpuPixelDoublets
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_gpuFishbone_h

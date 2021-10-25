@@ -7,8 +7,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTestBeamData/interface/HcalTB02ParametersFromDD.h"
 
-#define EDM_ML_DEBUG
-
 bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name) {
   DDSpecificsMatchesValueFilter filter{DDValue("ReadOutName", name, 0)};
   DDFilteredView fv(*cpv, filter);

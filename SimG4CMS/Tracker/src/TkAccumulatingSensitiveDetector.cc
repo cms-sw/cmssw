@@ -12,12 +12,7 @@
 #include "SimG4CMS/Tracker/interface/TkSimHitPrinter.h"
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -44,11 +39,12 @@ static TrackerG4SimHitNumberingScheme& numberingScheme(const GeometricDet& det) 
 }
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::string& name,
-                                                                 const edm::EventSetup& es,
+                                                                 const GeometricDet* pDD,
                                                                  const SensitiveDetectorCatalog& clg,
                                                                  edm::ParameterSet const& p,
                                                                  const SimTrackManager* manager)
     : SensitiveTkDetector(name, clg),
+      pDD_(pDD),
       theManager(manager),
       rTracker(1200. * CLHEP::mm),
       zTracker(3000. * CLHEP::mm),
@@ -353,13 +349,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfEvent* i) {
   mySimHit = nullptr;
 }
 
-void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) {
-  edm::ESHandle<GeometricDet> pDD;
-  const edm::EventSetup* es = (*i)();
-  es->get<IdealGeometryRecord>().get(pDD);
-
-  theNumberingScheme = &(numberingScheme(*pDD));
-}
+void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) { theNumberingScheme = &(numberingScheme(*pDD_)); }
 
 void TkAccumulatingSensitiveDetector::clearHits() {
   slaveLowTof.get()->Initialize();

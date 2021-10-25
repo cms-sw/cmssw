@@ -107,8 +107,9 @@ for i in range( nE) :
   cmd3 = 'rm -f ' + fnametmp
   os.system(cmd3)
   pfile = open(fnametmp, "w")
-  pfile.write('import FWCore.ParameterSet.Config as cms \n\n' )                
-  pfile.write('process = cms.Process("PROD") \n\n' )
+  pfile.write('import FWCore.ParameterSet.Config as cms \n\n' )
+  pfile.write('from Configuration.Eras.Modifier_h2tb_cff import h2tb   \n\n' )
+  pfile.write('process = cms.Process("PROD", h2tb) \n\n' )
   pfile.write('process.load("' + geom + '") \n\n')
   pfile.write('from SimG4CMS.HcalTestBeam.TB2006Analysis_cfi import * \n')
   pfile.write('process = testbeam2006(process) \n\n')
@@ -135,6 +136,7 @@ for i in range( nE) :
   pfile.write('  input = cms.untracked.int32(' + stat + ') \n')
   pfile.write(') \n\n')
   pfile.write('process.g4SimHits.Physics.type = "SimG4Core/Physics/' + phys + '" \n\n')
+  pfile.write('process.g4SimHits.OnlySDs = ["CaloTrkProcessing", "EcalTBH4BeamDetector", "HcalTB02SensitiveDetector", "HcalTB06BeamDetector", "EcalSensitiveDetector", "HcalSensitiveDetector"] \n\n')
   pfile.close()
   cmd2 = 'cmsRun ' + fnametmp + ' >> ' + outf 
   os.system(cmd2)

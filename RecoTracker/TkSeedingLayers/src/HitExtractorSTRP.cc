@@ -1,21 +1,15 @@
 #include "HitExtractorSTRP.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/ContainerMask.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 
 #include <tuple>
@@ -29,13 +23,15 @@ using namespace edm;
 HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet,
                                    TrackerDetSide side,
                                    int idLayer,
-                                   float iminGoodCharge)
+                                   float iminGoodCharge,
+                                   edm::ConsumesCollector& iC)
     : theLayerSubDet(subdet),
       theSide(side),
       theIdLayer(idLayer),
       minAbsZ(0),
       theMinRing(1),
       theMaxRing(0),
+      theTtopo(iC.esConsumes()),
       hasMatchedHits(false),
       hasRPhiHits(false),
       hasStereoHits(false),
@@ -190,9 +186,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
   unsigned int cleanFrom = 0;
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(theTtopo);
 
   //
   // TIB

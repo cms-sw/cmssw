@@ -35,12 +35,9 @@
 
 namespace pixelgpudetails {
 
-  // number of words for all the FEDs
-  constexpr uint32_t MAX_FED_WORDS = pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD;
-
-  SiPixelRawToClusterGPUKernel::WordFedAppender::WordFedAppender() {
-    word_ = cms::cuda::make_host_noncached_unique<unsigned int[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
-    fedId_ = cms::cuda::make_host_noncached_unique<unsigned char[]>(MAX_FED_WORDS, cudaHostAllocWriteCombined);
+  SiPixelRawToClusterGPUKernel::WordFedAppender::WordFedAppender(uint32_t maxFedWords) {
+    word_ = cms::cuda::make_host_noncached_unique<unsigned int[]>(maxFedWords, cudaHostAllocWriteCombined);
+    fedId_ = cms::cuda::make_host_noncached_unique<unsigned char[]>(maxFedWords, cudaHostAllocWriteCombined);
   }
 
   void SiPixelRawToClusterGPUKernel::WordFedAppender::initializeWordFed(int fedId,
@@ -455,7 +452,10 @@ namespace pixelgpudetails {
 
   }  // end of Raw to Digi kernel
 
-  __global__ void fillHitsModuleStart(uint32_t const *__restrict__ cluStart, uint32_t *__restrict__ moduleStart) {
+  __global__ void fillHitsModuleStart(uint32_t const *__restrict__ clusInModule,
+                                      uint32_t *__restrict__ moduleStart,
+                                      uint32_t const *__restrict__ nModules,
+                                      uint32_t *__restrict__ nModules_Clusters) {
     assert(gpuClustering::maxNumModules < 2048);  // easy to extend at least till 32*1024
     assert(1 == gridDim.x);
     assert(0 == blockIdx.x);
@@ -464,7 +464,7 @@ namespace pixelgpudetails {
 
     // limit to maxHitsInModule()
     for (int i = first, iend = gpuClustering::maxNumModules; i < iend; i += blockDim.x) {
-      moduleStart[i + 1] = std::min(gpuClustering::maxHitsInModule(), cluStart[i]);
+      moduleStart[i + 1] = std::min(gpuClustering::maxHitsInModule(), clusInModule[i]);
     }
 
     __shared__ uint32_t ws[32];
@@ -476,9 +476,18 @@ namespace pixelgpudetails {
     }
     __syncthreads();
 
+    if (threadIdx.x == 0) {
+      // copy the number of modules
+      nModules_Clusters[0] = *nModules;
+      // last element holds the number of all clusters
+      nModules_Clusters[1] = moduleStart[gpuClustering::maxNumModules];
+      // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
+      nModules_Clusters[2] = moduleStart[96];
+    }
+
 #ifdef GPU_DEBUG
     assert(0 == moduleStart[0]);
-    auto c0 = std::min(gpuClustering::maxHitsInModule(), cluStart[0]);
+    auto c0 = std::min(gpuClustering::maxHitsInModule(), clusInModule[0]);
     assert(c0 == moduleStart[1]);
     assert(moduleStart[1024] >= moduleStart[1023]);
     assert(moduleStart[1025] >= moduleStart[1024]);
@@ -505,6 +514,7 @@ namespace pixelgpudetails {
                                                        SiPixelFormatterErrors &&errors,
                                                        const uint32_t wordCounter,
                                                        const uint32_t fedCounter,
+                                                       const uint32_t maxFedWords,
                                                        bool useQualityInfo,
                                                        bool includeErrors,
                                                        bool debug,
@@ -512,16 +522,14 @@ namespace pixelgpudetails {
     nDigis = wordCounter;
 
 #ifdef GPU_DEBUG
-    std::cout << "decoding " << wordCounter << " digis. Max is " << pixelgpudetails::MAX_FED_WORDS << std::endl;
+    std::cout << "decoding " << wordCounter << " digis. Max is " << maxFedWords << std::endl;
 #endif
 
-    digis_d = SiPixelDigisCUDA(pixelgpudetails::MAX_FED_WORDS, stream);
+    digis_d = SiPixelDigisCUDA(maxFedWords, stream);
     if (includeErrors) {
-      digiErrors_d = SiPixelDigiErrorsCUDA(pixelgpudetails::MAX_FED_WORDS, std::move(errors), stream);
+      digiErrors_d = SiPixelDigiErrorsCUDA(maxFedWords, std::move(errors), stream);
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::maxNumModules, stream);
-
-    nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(2, stream);
 
     if (wordCounter)  // protect in case of empty event....
     {
@@ -599,10 +607,6 @@ namespace pixelgpudetails {
           digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
-      // read the number of modules into a data member, used by getProduct())
-      cudaCheck(cudaMemcpyAsync(
-          &(nModules_Clusters_h[0]), clusters_d.moduleStart(), sizeof(uint32_t), cudaMemcpyDefault, stream));
-
       threadsPerBlock = 256;
       blocks = maxNumModules;
 #ifdef GPU_DEBUG
@@ -637,16 +641,15 @@ namespace pixelgpudetails {
       // rechits) so that the number of clusters/hits can be made
       // available in the rechit producer without additional points of
       // synchronization/ExternalWork
-
+      auto nModules_Clusters_d = cms::cuda::make_device_unique<uint32_t[]>(3, stream);
       // MUST be ONE block
-      fillHitsModuleStart<<<1, 1024, 0, stream>>>(clusters_d.clusInModule(), clusters_d.clusModuleStart());
+      fillHitsModuleStart<<<1, 1024, 0, stream>>>(
+          clusters_d.clusInModule(), clusters_d.clusModuleStart(), clusters_d.moduleStart(), nModules_Clusters_d.get());
 
-      // last element holds the number of all clusters
-      cudaCheck(cudaMemcpyAsync(&(nModules_Clusters_h[1]),
-                                clusters_d.clusModuleStart() + gpuClustering::maxNumModules,
-                                sizeof(uint32_t),
-                                cudaMemcpyDefault,
-                                stream));
+      // copy to host
+      nModules_Clusters_h = cms::cuda::make_host_unique<uint32_t[]>(3, stream);
+      cudaCheck(cudaMemcpyAsync(
+          nModules_Clusters_h.get(), nModules_Clusters_d.get(), 3 * sizeof(uint32_t), cudaMemcpyDefault, stream));
 
 #ifdef GPU_DEBUG
       cudaDeviceSynchronize();

@@ -4,7 +4,6 @@ from __future__ import print_function
 # V.M. Ghete 2010-06-09 initial version
 
 import FWCore.ParameterSet.Config as cms
-import six
 
 def customiseUnprescaleAlgoTriggers(process):
 
@@ -164,7 +163,7 @@ def customiseL1EmulatorFromRaw(process):
         process.CaloTriggerPrimitives +
         process.SimL1Emulator )
 
-    for path in six.itervalues(process._Process__paths):
+    for path in process._Process__paths.values():
         path.replace(process.SimL1Emulator, process.CaloTPG_SimL1Emulator)
 
     # set the new input tags after RawToDigi
@@ -237,11 +236,11 @@ def customiseL1GtEmulatorFromRaw(process):
         process.simGtDigis )
 
     # replace the SimL1Emulator in all paths and sequences
-    for iterable in six.itervalues(process.sequences):
+    for iterable in process.sequences.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.paths):
+    for iterable in process.paths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.endpaths):
+    for iterable in process.endpaths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
     process.SimL1Emulator = SimL1Emulator
 
@@ -276,11 +275,11 @@ def customiseL1CaloAndGtEmulatorsFromRaw(process):
         process.simGtDigis )
 
     # replace the SimL1Emulator in all paths and sequences
-    for iterable in six.itervalues(process.sequences):
+    for iterable in process.sequences.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.paths):
+    for iterable in process.paths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in six.itervalues(process.endpaths):
+    for iterable in process.endpaths.values():
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
     process.SimL1Emulator = SimL1Emulator
 

@@ -70,6 +70,12 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet &iPSet)
 
   RPCSimHit_Token_ =
       consumes<edm::PSimHitContainer>(edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
+
+  ecalADCtoGevToken_ = esConsumes();
+  rpcGeomToken_ = esConsumes();
+  tTopoToken_ = esConsumes();
+  hcaldbToken_ = esConsumes();
+
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -426,9 +432,7 @@ void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
 
   // THIS BLOCK MIGRATED HERE FROM beginJob:
   // setup calorimeter constants from service
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant *agc = pAgc.product();
+  const EcalADCToGeVConstant *agc = &iSetup.getData(ecalADCtoGevToken_);
   ECalbarrelADCtoGeV_ = agc->getEBValue();
   ECalendcapADCtoGeV_ = agc->getEEValue();
   if (verbosity >= 0) {
@@ -824,8 +828,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSet
     eventout = "\nGathering info:";
 
   // get calibration info
-  edm::ESHandle<HcalDbService> HCalconditions;
-  iSetup.get<HcalDbRecord>().get(HCalconditions);
+  const auto &HCalconditions = iSetup.getHandle(hcaldbToken_);
   if (!HCalconditions.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find HCalconditions in event!";
     return;
@@ -1073,12 +1076,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSet
 
 void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
+  const TrackerTopology *const tTopo = &iSetup.getData(tTopoToken_);
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillTrk";
-
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";
@@ -1456,8 +1455,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSet
 
   // get RPC information
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  const auto &rpcGeom = iSetup.getHandle(rpcGeomToken_);
   if (!rpcGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find RPCGeometryRecord in event!";
     return;

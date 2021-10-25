@@ -37,8 +37,8 @@ namespace edm {
         static constexpr bool kGlobalCache = true;
       };
 
-      template <typename R, typename... U>
-      struct HasAbility<InputProcessBlockCache<R>, U...> : public HasAbility<U...> {
+      template <typename... CacheTypes, typename... U>
+      struct HasAbility<InputProcessBlockCache<CacheTypes...>, U...> : public HasAbility<U...> {
         static constexpr bool kInputProcessBlockCache = true;
       };
 

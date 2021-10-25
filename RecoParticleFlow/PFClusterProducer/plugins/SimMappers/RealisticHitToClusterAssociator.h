@@ -10,22 +10,6 @@
 #include <unordered_map>
 #include "RealisticCluster.h"
 
-namespace {
-
-  float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) {
-    constexpr float eeDecayLengthInLayer = 2.f;
-    constexpr float fhDecayLengthInLayer = 1.5f;
-    constexpr float bhDecayLengthInLayer = 1.f;
-
-    if (layer <= fhOffset)
-      return eeDecayLengthInLayer;
-    else if (layer > fhOffset && layer <= bhOffset)
-      return fhDecayLengthInLayer;
-    else
-      return bhDecayLengthInLayer;
-  }
-}  // namespace
-
 class RealisticHitToClusterAssociator {
   using Hit3DPosition = std::array<float, 3>;
 
@@ -283,6 +267,19 @@ public:
   const std::vector<RealisticCluster>& realisticClusters() const { return realisticSimClusters_; }
 
 private:
+  static float getDecayLength(unsigned int layer, unsigned int fhOffset, unsigned int bhOffset) {
+    constexpr float eeDecayLengthInLayer = 2.f;
+    constexpr float fhDecayLengthInLayer = 1.5f;
+    constexpr float bhDecayLengthInLayer = 1.f;
+
+    if (layer <= fhOffset)
+      return eeDecayLengthInLayer;
+    else if (layer > fhOffset && layer <= bhOffset)
+      return fhDecayLengthInLayer;
+    else
+      return bhDecayLengthInLayer;
+  }
+
   // the vector of the Realistic SimClusters
   std::vector<RealisticCluster> realisticSimClusters_;
   // the vector of the Realistic SimClusters

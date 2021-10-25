@@ -1,10 +1,10 @@
-#include "DetectorDescription/Core/src/Polyhedra.h"
+#include "DetectorDescription/Core/interface/Polyhedra.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

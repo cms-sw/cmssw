@@ -1,10 +1,12 @@
 #include "SimTransport/PPSProtonTransport/interface/OpticalFunctionsTransport.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-OpticalFunctionsTransport::OpticalFunctionsTransport(const edm::ParameterSet& iConfig)
+OpticalFunctionsTransport::OpticalFunctionsTransport(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
     : BaseProtonTransport(iConfig),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
-      opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
+      lhcInfoToken_(iC.esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      beamParametersToken_(iC.esConsumes()),
+      opticsToken_(iC.esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
+      beamspotToken_(iC.esConsumes()),
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
       empiricalAperture45_xi0_int_(iConfig.getParameter<double>("empiricalAperture45_xi0_int")),
       empiricalAperture45_xi0_slp_(iConfig.getParameter<double>("empiricalAperture45_xi0_slp")),
@@ -13,8 +15,7 @@ OpticalFunctionsTransport::OpticalFunctionsTransport(const edm::ParameterSet& iC
       empiricalAperture56_xi0_int_(iConfig.getParameter<double>("empiricalAperture56_xi0_int")),
       empiricalAperture56_xi0_slp_(iConfig.getParameter<double>("empiricalAperture56_xi0_slp")),
       empiricalAperture56_a_int_(iConfig.getParameter<double>("empiricalAperture56_a_int")),
-      empiricalAperture56_a_slp_(iConfig.getParameter<double>("empiricalAperture56_a_slp")),
-      produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")) {
+      empiricalAperture56_a_slp_(iConfig.getParameter<double>("empiricalAperture56_a_slp")) {
   MODE = TransportMode::OPTICALFUNCTIONS;
 }
 void OpticalFunctionsTransport::process(const HepMC::GenEvent* evt,
@@ -22,9 +23,10 @@ void OpticalFunctionsTransport::process(const HepMC::GenEvent* evt,
                                         CLHEP::HepRandomEngine* _engine) {
   this->clear();
 
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, lhcInfo_);
-  iSetup.get<CTPPSBeamParametersRcd>().get(beamParameters_);
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, opticalFunctions_);
+  lhcInfo_ = &iSetup.getData(lhcInfoToken_);
+  beamParameters_ = &iSetup.getData(beamParametersToken_);
+  opticalFunctions_ = &iSetup.getData(opticsToken_);
+  beamspot_ = &iSetup.getData(beamspotToken_);
 
   // Choose the optical function corresponding to the first station ono each side (it is in lhc ref. frame)
   optFunctionId45_ = 0;
@@ -83,7 +85,21 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   double empiricalAperture_xi0_int, empiricalAperture_xi0_slp;
   double empiricalAperture_a_int, empiricalAperture_a_slp;
   unsigned int optFunctionId_;
-
+  // get the beam position at the IP in mm and in the LHC ref. frame
+  double vtxXoffset_;
+  double vtxYoffset_;
+  double vtxZoffset_;
+  if (useBeamPositionFromLHCInfo_) {
+    vtxXoffset_ = -beamParameters_->getVtxOffsetX45() * cm_to_mm;
+    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * cm_to_mm;
+    vtxZoffset_ = -beamParameters_->getVtxOffsetZ45() * cm_to_mm;
+  } else {
+    vtxXoffset_ = -beamspot_->GetX() * cm_to_mm;
+    vtxYoffset_ = beamspot_->GetY() * cm_to_mm;
+    vtxZoffset_ = -beamspot_->GetZ() * cm_to_mm;
+  }
+  vtxZoffset_ *= 1.0;   // just to avoid compilation error, should be used in the future
+                        //
   if (mom_lhc.z() < 0)  // sector 45
   {
     optFunctionId_ = optFunctionId45_;
@@ -104,13 +120,13 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   }
   if (xangle > 1.0)
     xangle *= urad;
-  // calculate kinematics for optics parametrisation
+  // calculate kinematics for optics parametrisation, avoid the aproximation for small angles xangle -> tan(xangle)
   const double p = mom_lhc.rho();
   const double xi = 1. - p / beamMomentum;
-  const double th_x_phys = mom_lhc.x() / p;
-  const double th_y_phys = mom_lhc.y() / p;
-  const double vtx_lhc_eff_x = vtx_lhc.x() - vtx_lhc.z() * (mom_lhc.x() / mom_lhc.z() + xangle);
-  const double vtx_lhc_eff_y = vtx_lhc.y() - vtx_lhc.z() * (mom_lhc.y() / mom_lhc.z());
+  const double th_x_phys = mom_lhc.x() / abs(mom_lhc.z()) - tan(xangle);  //"-" in the LHC ref. frame
+  const double th_y_phys = mom_lhc.y() / abs(mom_lhc.z());
+  const double vtx_lhc_eff_x = vtx_lhc.x() - vtx_lhc.z() * (mom_lhc.x() / mom_lhc.z() + tan(xangle)) - (vtxXoffset_);
+  const double vtx_lhc_eff_y = vtx_lhc.y() - vtx_lhc.z() * (mom_lhc.y() / mom_lhc.z()) - (vtxYoffset_);
 
   if (verbosity_) {
     LogDebug("OpticalFunctionsTransport")
@@ -155,7 +171,7 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
   // if needed, subtract beam position and angle
   if (produceHitsRelativeToBeam_) {
     // determine beam position
-    LHCInterpolatedOpticalFunctionsSet::Kinematics k_be_in = {0., 0., 0., 0., 0.};
+    LHCInterpolatedOpticalFunctionsSet::Kinematics k_be_in = {0., -tan(xangle), 0., 0., 0.};
     LHCInterpolatedOpticalFunctionsSet::Kinematics k_be_out;
     ofp.transport(k_be_in, k_be_out, true);
 
@@ -172,6 +188,11 @@ bool OpticalFunctionsTransport::transportProton(const HepMC::GenParticle* in_trk
         << "    proton transported: a_x = " << a_x << " rad, a_y = " << a_y << " rad, b_x = " << b_x
         << " mm, b_y = " << b_y << " mm, z = " << z_scoringPlane << " mm" << std::endl;
   }
+  //
+  // Project the track back to the starting of PPS region
+  b_x -= (abs(z_scoringPlane) - (double)((z_scoringPlane < 0) ? fPPSRegionStart_45 : fPPSRegionStart_56) * 1e3) *
+         a_x;  // z_scoringPlane is in mm
+  b_y -= (abs(z_scoringPlane) - (double)((z_scoringPlane < 0) ? fPPSRegionStart_45 : fPPSRegionStart_56) * 1e3) * a_y;
 
   unsigned int line = in_trk->barcode();
   double px = -p * a_x;

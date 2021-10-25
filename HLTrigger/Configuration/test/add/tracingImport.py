@@ -9,7 +9,7 @@ customised version:
 """
 
 import sys, imp, 
-from six import builtins
+import builtins
 import re
 
 # patterns to discover cms.Path and cms.EndPath definitions in imported files

@@ -8,4 +8,4 @@ from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 
 run2_GEM_2017.toModify(muonGEMDigis, useDBEMap = True)
 run3_GEM.toModify(muonGEMDigis, useDBEMap = True)
-phase2_GEM.toModify(muonGEMDigis, useDBEMap = False)
+phase2_GEM.toModify(muonGEMDigis, useDBEMap = False, readMultiBX = True)

@@ -20,7 +20,6 @@
 #include "G4SystemOfUnits.hh"
 
 EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string &name,
-                               const edm::EventSetup &es,
                                const SensitiveDetectorCatalog &clg,
                                edm::ParameterSet const &p,
                                const SimTrackManager *manager)

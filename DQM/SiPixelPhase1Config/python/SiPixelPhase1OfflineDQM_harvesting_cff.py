@@ -14,10 +14,14 @@ siPixelPhase1OfflineDQM_harvesting = cms.Sequence(SiPixelPhase1RawDataHarvester
                                                 + SiPixelPhase1RawDataHarvester
                                                 + RunQTests_offline
                                                 + SiPixelPhase1SummaryOffline
+                                                + SiPixelBarycenterOffline
+                                                + SiPixelPhase1ResidualsExtra
+                                                + SiPixelPhase1EfficiencyExtras
                                                   )
 
 siPixelPhase1OfflineDQM_harvesting_cosmics = siPixelPhase1OfflineDQM_harvesting.copyAndExclude([
-   SiPixelPhase1TrackEfficiencyHarvester,
+    SiPixelPhase1TrackEfficiencyHarvester,
+    SiPixelPhase1EfficiencyExtras,
 ])
 
 siPixelPhase1OfflineDQM_harvesting_cosmics.replace(RunQTests_offline, RunQTests_cosmics)

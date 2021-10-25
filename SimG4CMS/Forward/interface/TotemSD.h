@@ -45,11 +45,7 @@ class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
-  TotemSD(const std::string&,
-          const edm::EventSetup&,
-          const SensitiveDetectorCatalog&,
-          edm::ParameterSet const&,
-          const SimTrackManager*);
+  TotemSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~TotemSD() override;
 
   bool ProcessHits(G4Step*, G4TouchableHistory*) override;

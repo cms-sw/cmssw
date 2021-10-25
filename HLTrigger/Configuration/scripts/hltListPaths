@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import print_function
 import os
 import re
 import argparse
@@ -19,7 +20,7 @@ def _build_query(menu):
 
 def getPathList(menu, selection):
   cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
-  data = pipe.pipe(cmdline)
+  data = pipe.pipe(cmdline).decode()
   if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
     raise ImportError('%s is not a valid HLT menu' % menu.value)
 
@@ -53,7 +54,7 @@ parser.add_argument('menu',
                     action  = 'store', 
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible database schemas are "v1" and "v2" (default).\nThe possible databases are "offline" (default, used for offline development), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.' )
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
 
 # options
 group = parser.add_mutually_exclusive_group()
@@ -83,5 +84,5 @@ parser.add_argument('-h', '--help',
 config = parser.parse_args()
 paths  = getPathList(config.menu, config.selection)
 for path in paths:
-  print path
+  print(path)
 

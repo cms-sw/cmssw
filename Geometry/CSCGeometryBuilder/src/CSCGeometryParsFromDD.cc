@@ -10,7 +10,7 @@
 //         Modified: Wed, 23 December 2020 
 //         Original author: Tim Cox
 */
-#include "CSCGeometryParsFromDD.h"
+#include "Geometry/CSCGeometryBuilder/interface/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
@@ -18,7 +18,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include "Geometry/CSCGeometry/interface/CSCWireGroupPackage.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

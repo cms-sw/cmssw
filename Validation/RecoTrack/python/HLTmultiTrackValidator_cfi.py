@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
-hltLhcParametersDefinerForTP = LhcParametersDefinerForTP.clone()
-hltLhcParametersDefinerForTP.ComponentName = cms.string('hltLhcParametersDefinerForTP')
-hltLhcParametersDefinerForTP.beamSpot      = cms.untracked.InputTag('hltOnlineBeamSpot')
-
 from Validation.RecoTrack.associators_cff import *
 
 from Validation.RecoTrack.MultiTrackValidator_cfi import *

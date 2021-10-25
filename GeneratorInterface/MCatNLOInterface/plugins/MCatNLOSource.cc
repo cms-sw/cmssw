@@ -7,8 +7,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/bind.hpp>
-
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"

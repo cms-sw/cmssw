@@ -10,7 +10,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 #include "CellularAutomaton.h"
 
 namespace {
@@ -25,7 +25,8 @@ using namespace std;
 constexpr unsigned int CAHitQuadrupletGenerator::minLayers;
 
 CAHitQuadrupletGenerator::CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-    : extraHitRPhitolerance(cfg.getParameter<double>(
+    : theFieldToken(iC.esConsumes()),
+      extraHitRPhitolerance(cfg.getParameter<double>(
           "extraHitRPhitolerance")),  //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
       maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
       fitFastCircle(cfg.getParameter<bool>("fitFastCircle")),
@@ -84,6 +85,7 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
 void CAHitQuadrupletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
   if (theComparitor)
     theComparitor->init(ev, es);
+  theField = &es.getData(theFieldToken);
 }
 namespace {
   void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
@@ -159,7 +161,6 @@ namespace {
 
 void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                                            std::vector<OrderedHitSeeds>& result,
-                                           const edm::EventSetup& es,
                                            const SeedingLayerSetsHits& layers) {
   CAGraph g;
 
@@ -193,7 +194,7 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
     auto& allCells = ca.getAllCells();
 
-    const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
+    const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(*theField);
 
     // re-used thoughout
     std::array<float, 4> bc_r;
@@ -242,12 +243,12 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
       if (useBendingCorrection) {
         // Following PixelFitterByConformalMappingAndLine
         const float simpleCot = (gps.back().z() - gps.front().z()) / (gps.back().perp() - gps.front().perp());
-        const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
+        const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, *theField);
         for (int i = 0; i < 4; ++i) {
           const GlobalPoint& point = gps[i];
           const GlobalError& error = ges[i];
           bc_r[i] = sqrt(sqr(point.x() - region.origin().x()) + sqr(point.y() - region.origin().y()));
-          bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, es)(bc_r[i]);
+          bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, *theField)(bc_r[i]);
           bc_z[i] = point.z() - region.origin().z();
           bc_errZ2[i] = (barrels[i]) ? error.czz() : error.rerr(point) * sqr(simpleCot);
         }

@@ -57,18 +57,19 @@ ctftracksP5Task = cms.Task(combinatorialcosmicseedinglayersP5Task,
 ctftracksP5 = cms.Sequence(ctftracksP5Task)
 
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
-cosmicTrackSplitter = RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi.cosmicTrackSplitter.clone(
+cosmicTrackSplitting = RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi.cosmicTrackSplitter.clone(
     tjTkAssociationMapTag = 'cosmictrackfinderCosmics',
     tracks = 'cosmictrackfinderCosmics'
 )
-splittedTracksP5 = cosmictrackfinderCosmics.clone(src = "cosmicTrackSplitter")
+splittedTracksP5 = cosmictrackfinderCosmics.clone(src = "cosmicTrackSplitting")
 
 cosmictracksP5Task = cms.Task(cosmicseedfinderP5,
-                                  cosmicCandidateFinderP5,
-                                  cosmictrackfinderCosmics,
-                                  cosmictrackfinderP5,
-                                  cosmicTrackSplitter,
-                                  splittedTracksP5)
+                              cosmicCandidateFinderP5,
+                              cosmictrackfinderCosmics,
+                              cosmictrackfinderP5,
+                              cosmicTrackSplitting,
+                              splittedTracksP5)
+
 cosmictracksP5 = cms.Sequence(cosmictracksP5Task)
 
 #Top/Bottom tracks NEW

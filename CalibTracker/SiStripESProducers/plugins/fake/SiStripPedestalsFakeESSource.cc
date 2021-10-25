@@ -40,7 +40,7 @@ public:
 private:
   uint32_t m_pedestalValue;
   uint32_t m_printDebug;
-  SiStripDetInfoFileReader m_detInfoFileReader;
+  SiStripDetInfo m_detInfo;
 };
 
 SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterSet& iConfig) {
@@ -49,8 +49,7 @@ SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterS
 
   m_pedestalValue = iConfig.getParameter<uint32_t>("PedestalValue");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfo = SiStripDetInfoFileReader::read(iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath());
 }
 
 SiStripPedestalsFakeESSource::~SiStripPedestalsFakeESSource() {}
@@ -68,7 +67,7 @@ SiStripPedestalsFakeESSource::ReturnType SiStripPedestalsFakeESSource::produce(c
   auto pedestals = std::make_unique<SiStripPedestals>();
 
   uint32_t count{0};
-  for (const auto& elm : m_detInfoFileReader.getAllData()) {
+  for (const auto& elm : m_detInfo.getAllData()) {
     //Generate Noises for det detid
     SiStripPedestals::InputVector theSiStripVector;
     for (unsigned short j{0}; j < 128 * elm.second.nApvs; ++j) {

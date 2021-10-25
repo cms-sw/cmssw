@@ -513,13 +513,13 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo_);
   const CaloTopology *topology = theCaloTopo_.product();
 
-  // get Hcal towers collection 
+  // get Hcal rechits collection
   Handle<CaloTowerCollection> hcalTowersHandle;
   iEvent.getByLabel(hcalTowers_, hcalTowersHandle);
   */
 
   //create photon collection
-  //if(status) createPhotons(vertexCollection, pcRefProd, topology, &barrelRecHits, &endcapRecHits, hcalTowersHandle, isolationValues, outputPhotonCollection);
+  //if(status) createPhotons(vertexCollection, pcRefProd, topology, &barrelRecHits, &endcapRecHits, hcalRecHitsHandle, isolationValues, outputPhotonCollection);
   if (status)
     createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
 
@@ -962,8 +962,9 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
     showerShape.maxEnergyXtal = egPhotonRef_[iphot]->maxEnergyXtal();
     showerShape.sigmaEtaEta = egPhotonRef_[iphot]->sigmaEtaEta();
     showerShape.sigmaIetaIeta = egPhotonRef_[iphot]->sigmaIetaIeta();
-    showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
-    showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
+    for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
+      showerShape.hcalOverEcal[id] = egPhotonRef_[iphot]->hcalOverEcal(id + 1);
+    }
     myPhoton.setShowerShapeVariables(showerShape);
 
     saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
@@ -980,17 +981,17 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
     myPhoton.setFiducialVolumeFlags(fiducialFlags);
 
     isolationVariables03.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR03();
-    isolationVariables03.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03();
-    isolationVariables03.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR03();
-    isolationVariables03.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR03();
+    for (uint id = 0; id < isolationVariables03.hcalRecHitSumEt.size(); ++id) {
+      isolationVariables03.hcalRecHitSumEt[id] = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03(id + 1);
+    }
     isolationVariables03.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR03();
     isolationVariables03.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR03();
     isolationVariables03.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR03();
     isolationVariables03.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR03();
     isolationVariables04.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR04();
-    isolationVariables04.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04();
-    isolationVariables04.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR04();
-    isolationVariables04.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR04();
+    for (uint id = 0; id < isolationVariables04.hcalRecHitSumEt.size(); ++id) {
+      isolationVariables04.hcalRecHitSumEt[id] = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04(id + 1);
+    }
     isolationVariables04.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR04();
     isolationVariables04.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR04();
     isolationVariables04.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR04();

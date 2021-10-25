@@ -11,10 +11,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 #include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 #include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -23,10 +25,12 @@
 using namespace std;
 using namespace edm;
 
-DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
-    : DTRecHitBaseAlgo(config),
+DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config, ConsumesCollector cc)
+    : DTRecHitBaseAlgo(config, cc),
       mTimeMap(nullptr),
+      vDriftMap(nullptr),
       field(nullptr),
+      fieldToken_(cc.esConsumes()),
       nominalB(-1),
       minTime(config.getParameter<double>("minTime")),
       maxTime(config.getParameter<double>("maxTime")),
@@ -34,37 +38,60 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config)
       // Option to force going back to digi time at Step 2
       stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
       useUncertDB(config.getParameter<bool>("useUncertDB")),
+      readLegacyTTrigDB(config.getParameter<bool>("readLegacyTTrigDB")),
+      readLegacyVDriftDB(config.getParameter<bool>("readLegacyVDriftDB")),
       // Set verbose output
-      debug(config.getUntrackedParameter<bool>("debug")) {}
+      debug(config.getUntrackedParameter<bool>("debug")) {
+  if (readLegacyVDriftDB) {
+    mTimeMapToken_ = cc.esConsumes();
+  } else {
+    vDriftMapToken_ = cc.esConsumes();
+  }
+  if (useUncertDB) {
+    uncertMapToken_ = cc.esConsumes();
+  }
+}
 
 DTLinearDriftFromDBAlgo::~DTLinearDriftFromDBAlgo() {}
 
 void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   if (debug)
-    cout << "[DTLinearDriftFromDBAlgo] setES called" << endl;
+    edm::LogVerbatim("DTLocalReco") << "[DTLinearDriftFromDBAlgo] setES called" << endl;
   theSync->setES(setup);
   // Get the map of ttrig from the Setup
-  ESHandle<DTMtime> mTimeHandle;
-  setup.get<DTMtimeRcd>().get(mTimeHandle);
-  mTimeMap = &*mTimeHandle;
+  if (readLegacyVDriftDB) {
+    mTimeMap = &setup.getData(mTimeMapToken_);
+    vDriftMap = nullptr;
+  } else {
+    vDriftMap = &setup.getData(vDriftMapToken_);
+    mTimeMap = nullptr;
 
-  ESHandle<MagneticField> magfield;
-  setup.get<IdealMagneticFieldRecord>().get(magfield);
-  field = &*magfield;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+  }
+
+  field = &setup.getData(fieldToken_);
   nominalB = field->nominalValue();
 
   if (useUncertDB) {
-    ESHandle<DTRecoConditions> uncerts;
-    setup.get<DTRecoConditionsUncertRcd>().get(uncerts);
-    uncertMap = &*uncerts;
+    uncertMap = &setup.getData(uncertMapToken_);
     if (uncertMap->version() > 1)
       edm::LogError("NotImplemented") << "DT Uncertainty DB version unsupported: " << uncertMap->version();
   }
 
   if (debug) {
-    cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version() << endl;
+    if (readLegacyVDriftDB) {
+      edm::LogVerbatim("DTLocalReco") << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version() << endl;
+    } else {
+      edm::LogVerbatim("DTLocalReco") << "[DTLinearDriftFromDBAlgo] vDrift version: " << vDriftMap->version() << endl;
+    }
+
     if (useUncertDB)
-      cout << "                          uncertDB  version: " << uncertMap->version() << endl;
+      edm::LogVerbatim("DTLocalReco") << "                          uncertDB  version: " << uncertMap->version()
+                                      << endl;
   }
 }
 
@@ -129,7 +156,8 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   // check for out-of-time
   if (driftTime < minTime || driftTime > maxTime) {
     if (debug)
-      cout << "[DTLinearDriftFromDBAlgo]*** Drift time out of window for in-time hits " << driftTime << endl;
+      edm::LogWarning("DTLocalReco") << "[DTLinearDriftFromDBAlgo]*** Drift time out of window for in-time hits "
+                                     << driftTime << endl;
 
     if (step == 1) {  //FIXME: protection against failure at 2nd and 3rd steps, must be checked!!!
       // Hits are interpreted as coming from out-of-time pile-up and recHit
@@ -145,11 +173,17 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   // Read the vDrift and reso for this wire
   float vDrift = 0;
   float hitResolution = 0;
-  // vdrift is cm/ns , resolution is cm
-  mTimeMap->get(wireId.superlayerId(),
-                vDrift,
-                hitResolution,  // Value from vdrift DB; replaced below if useUncertDB card is set
-                DTVelocityUnits::cm_per_ns);
+
+  if (readLegacyVDriftDB) {
+    // vdrift is cm/ns , resolution is cm
+    mTimeMap->get(wireId.superlayerId(),
+                  vDrift,
+                  hitResolution,  // Value from vdrift DB; replaced below if useUncertDB card is set
+                  DTVelocityUnits::cm_per_ns);
+  } else {
+    // For v2, we will pass also: double args[1] = {(layer->toLocal(globPos)).y()};
+    vDrift = vDriftMap->get(wireId);
+  }
 
   if (useUncertDB) {
     // Read the uncertainty from the DB for the given channel and step
@@ -182,15 +216,16 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   error = LocalError(hitResolution * hitResolution, 0., 0.);
 
   if (debug) {
-    cout << "[DTLinearDriftFromDBAlgo] Compute drift distance, for digi at wire: " << wireId << endl
-         << "       Step:           " << step << endl
-         << "       Digi time:      " << digiTime << endl
-         << "       Drift time:     " << driftTime << endl
-         << "       Drift distance: " << drift << endl
-         << "       Hit Resolution: " << hitResolution << endl
-         << "       Left point:     " << leftPoint << endl
-         << "       Right point:    " << rightPoint << endl
-         << "       Error:          " << error << endl;
+    edm::LogWarning("DTLocalReco") << "[DTLinearDriftFromDBAlgo] Compute drift distance, for digi at wire: " << wireId
+                                   << endl
+                                   << "       Step:           " << step << endl
+                                   << "       Digi time:      " << digiTime << endl
+                                   << "       Drift time:     " << driftTime << endl
+                                   << "       Drift distance: " << drift << endl
+                                   << "       Hit Resolution: " << hitResolution << endl
+                                   << "       Left point:     " << leftPoint << endl
+                                   << "       Right point:    " << rightPoint << endl
+                                   << "       Error:          " << error << endl;
   }
 
   return true;

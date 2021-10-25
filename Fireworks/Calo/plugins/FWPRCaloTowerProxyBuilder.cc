@@ -11,10 +11,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPRCaloTowerProxyBuilder(const FWPRCaloTowerProxyBuilder&) = delete;                   // stop default
   const FWPRCaloTowerProxyBuilder& operator=(const FWPRCaloTowerProxyBuilder&) = delete;  // stop default
 
+private:
   using FWDigitSetProxyBuilder::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };

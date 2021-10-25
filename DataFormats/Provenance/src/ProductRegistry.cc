@@ -273,7 +273,8 @@ namespace edm {
         }
         ++i;
       } else if (i == e || (j != s && j->first < i->first)) {
-        if (j->second.present() && branchesMustMatch == BranchDescription::Strict) {
+        if (j->second.present() &&
+            (branchesMustMatch == BranchDescription::Strict || j->second.branchType() == InProcess)) {
           differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
           differences << "    but not in file '" << fileName << "'.\n";
         }

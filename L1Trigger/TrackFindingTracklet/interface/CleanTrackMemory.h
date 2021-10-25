@@ -12,7 +12,7 @@ namespace trklet {
 
   class CleanTrackMemory : public MemoryBase {
   public:
-    CleanTrackMemory(std::string name, Settings const& settings, unsigned int iSector, double phimin, double phimax);
+    CleanTrackMemory(std::string name, Settings const& settings, double phimin, double phimax);
 
     ~CleanTrackMemory() override = default;
 
@@ -22,7 +22,7 @@ namespace trklet {
 
     void clean() override { tracks_.clear(); }
 
-    void writeCT(bool first);
+    void writeCT(bool first, unsigned int iSector);
 
   private:
     double phimin_;

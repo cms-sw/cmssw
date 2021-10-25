@@ -11,10 +11,10 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Specific.h"
+#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/interface/Specific.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 

@@ -32,9 +32,10 @@ namespace caConstants {
   constexpr uint32_t maxCellsPerHit = 128 / 2;
 #else   // GPU_SMALL_EVENTS
   // tested on MC events with 55-75 pileup events
-  constexpr uint32_t maxNumberOfTuples = 24 * 1024;
+  // and extended for Heavy Ions operations (24k -> 32k tuples, 128 -> 256 cells)
+  constexpr uint32_t maxNumberOfTuples = 32 * 1024;
   constexpr uint32_t maxNumberOfDoublets = 512 * 1024;
-  constexpr uint32_t maxCellsPerHit = 128;
+  constexpr uint32_t maxCellsPerHit = 256;
 #endif  // GPU_SMALL_EVENTS
 #endif  // ONLY_PHICUT
   constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
@@ -72,10 +73,17 @@ namespace caConstants {
   using CellNeighborsVector = cms::cuda::SimpleVector<CellNeighbors>;
   using CellTracksVector = cms::cuda::SimpleVector<CellTracks>;
 
-  using OuterHitOfCell = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
+  using OuterHitOfCellContainer = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
   using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples, 5 * maxTuples>;
   using HitToTuple = cms::cuda::OneToManyAssoc<tindex_type, -1, 4 * maxTuples>;  // 3.5 should be enough
   using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
+
+  struct OuterHitOfCell {
+    OuterHitOfCellContainer* container;
+    int32_t offset;
+    constexpr auto& operator[](int i) { return container[i - offset]; }
+    constexpr auto const& operator[](int i) const { return container[i - offset]; }
+  };
 
 }  // namespace caConstants
 

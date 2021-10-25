@@ -29,10 +29,10 @@ public:
 
   std::unique_ptr<FWRecoGeometry> produce(const FWRecoGeometryRecord&);
 
-private:
   FWRecoGeometryESProducer(const FWRecoGeometryESProducer&) = delete;
   const FWRecoGeometryESProducer& operator=(const FWRecoGeometryESProducer&) = delete;
 
+private:
   void addCSCGeometry(FWRecoGeometry&);
   void addDTGeometry(FWRecoGeometry&);
   void addRPCGeometry(FWRecoGeometry&);

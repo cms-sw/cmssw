@@ -11,15 +11,10 @@
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -45,7 +40,11 @@
 #endif
 
 HCalSD::HCalSD(const std::string& name,
-               const edm::EventSetup& es,
+               const HcalDDDSimConstants* hcns,
+               const HcalDDDRecConstants* hcnr,
+               const HcalSimulationConstants* hscs,
+               const HBHEDarkening* hbd,
+               const HBHEDarkening* hed,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)
@@ -55,10 +54,10 @@ HCalSD::HCalSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")),
-      hcalConstants_(nullptr),
-      hcalSimConstants_(nullptr),
-      m_HBDarkening(nullptr),
-      m_HEDarkening(nullptr),
+      hcalConstants_(hcns),
+      hcalSimConstants_(hscs),
+      m_HBDarkening(hbd),
+      m_HEDarkening(hed),
       isHF(false),
       weight_(1.0),
       depth_(1) {
@@ -135,28 +134,11 @@ HCalSD::HCalSD(const std::string& name,
                               << "Application of Fiducial Cut " << applyFidCut
                               << "Flag for test number|neutral density filter " << testNumber << " " << neutralDensity;
 
-  // Get pointers to HcalDDDConstant and HcalSimulationParameters
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  es.get<HcalSimNumberingRecord>().get(hdc);
-  if (hdc.isValid()) {
-    hcalConstants_ = hdc.product();
-  } else {
-    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant\n";
-  }
   if (forTBHC) {
     useHF = false;
     matNames.emplace_back("Scintillator");
   } else {
-    edm::ESHandle<HcalSimulationConstants> hdsc;
-    es.get<HcalSimNumberingRecord>().get(hdsc);
-    if (hdsc.isValid()) {
-      hcalSimConstants_ = hdsc.product();
-      matNames = hcalSimConstants_->hcalsimpar()->hcalMaterialNames_;
-    } else {
-      edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimulationConstant";
-      throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimulationConstant\n";
-    }
+    matNames = hcalSimConstants_->hcalsimpar()->hcalMaterialNames_;
   }
 
   HcalNumberingScheme* scheme;
@@ -263,18 +245,7 @@ HCalSD::HCalSD(const std::string& name,
 
   //Test Hcal Numbering Scheme
   if (testNS_)
-    m_HcalTestNS = std::make_unique<HcalTestNS>(&es);
-
-  if (agingFlagHB) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es.get<HBHEDarkeningRecord>().get("HB", hdark);
-    m_HBDarkening = &*hdark;
-  }
-  if (agingFlagHE) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es.get<HBHEDarkeningRecord>().get("HE", hdark);
-    m_HEDarkening = &*hdark;
-  }
+    m_HcalTestNS = std::make_unique<HcalTestNS>(hcnr);
 
   for (int i = 0; i < 9; ++i) {
     hit_[i] = time_[i] = dist_[i] = nullptr;
@@ -506,7 +477,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
     weight_ = layerWeight(det + 2, hitPoint, depth_, lay);
   }
 
-  if (m_HBDarkening && det == 1) {
+  if (agingFlagHB && m_HBDarkening && det == 1) {
     double dweight = m_HBDarkening->degradation(deliveredLumi, ieta, lay);
     weight_ *= dweight;
 #ifdef EDM_ML_DEBUG
@@ -515,7 +486,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
 #endif
   }
 
-  if (m_HEDarkening && det == 2) {
+  if (agingFlagHE && m_HEDarkening && det == 2) {
     double dweight = m_HEDarkening->degradation(deliveredLumi, ieta, lay);
     weight_ *= dweight;
 #ifdef EDM_ML_DEBUG
@@ -539,11 +510,13 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
       }
     }
   }
+  double wt0(1.0);
   if (useBirk) {
     const G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat))
-      weight_ *= getAttenuation(aStep, birk1, birk2, birk3);
+      wt0 = getAttenuation(aStep, birk1, birk2, birk3);
   }
+  weight_ *= wt0;
   double wt1 = getResponseWt(theTrack);
   double wt2 = theTrack->GetWeight();
   double edep = weight_ * wt1 * destep;
@@ -552,7 +525,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD: edep= " << edep << " Det: " << det + 2 << " depth= " << depth_
-                              << " weight= " << weight_ << " wt1= " << wt1 << " wt2= " << wt2;
+                              << " weight= " << weight_ << " wt0= " << wt0 << " wt1= " << wt1 << " wt2= " << wt2;
 #endif
   return edep;
 }

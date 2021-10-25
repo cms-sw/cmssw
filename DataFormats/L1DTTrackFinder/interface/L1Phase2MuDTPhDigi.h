@@ -37,6 +37,8 @@ public:
   L1Phase2MuDTPhDigi(
       int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int rpc = -10);
 
+  virtual ~L1Phase2MuDTPhDigi(){};
+
   // Operations
   int bxNum() const;
 

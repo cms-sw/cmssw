@@ -14,6 +14,11 @@ class L1RCTLookupTables;
 class L1RCTReceiverCard {
 public:
   L1RCTReceiverCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables);
+
+  // No default constructor, no copy constructor,
+  // and no assignment operator
+  L1RCTReceiverCard() = delete;
+
   ~L1RCTReceiverCard();
 
   // Information needed to identify cards
@@ -83,9 +88,5 @@ private:
   std::vector<unsigned short> overFlowBits;
   std::vector<unsigned short> muonBits;
   std::vector<unsigned short> tauBits;
-
-  // No default constructor, no copy constructor,
-  // and no assignment operator
-  L1RCTReceiverCard() = delete;
 };
 #endif

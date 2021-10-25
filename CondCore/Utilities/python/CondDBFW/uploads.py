@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3
 """
 
 Joshua Dawes - CERN, CMS - The University of Manchester
@@ -6,14 +6,12 @@ Joshua Dawes - CERN, CMS - The University of Manchester
 This module holds classes to help with uploading conditions to the drop box web service, which also uses CondDBFW to read and write data.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 import os
 import json
 import base64
 from datetime import datetime
-from urllib import urlencode
+from urllib.parse import urlencode
 import math
 import sys
 import traceback
@@ -42,7 +40,7 @@ def log(file_handle, message):
 	"""
 	Very simple logging function, used by output class.
 	"""
-	file_handle.write("[%s] %s\n" % (to_timestamp(datetime.now()), message))
+	file_handle.write("[%s] %s\n" % (to_timestamp(datetime.utcnow()), message))
 
 def new_log_file_id():
 	"""
@@ -124,7 +122,7 @@ class uploader(object):
 		if self.metadata_source.get("destinationTags") == None:
 			self.exit_upload("No destination Tag was given.")
 		else:
-			if isinstance(self.metadata_source.get("destinationTags"), dict) and self.metadata_source.get("destinationTags").keys()[0] == None:
+			if type(self.metadata_source.get("destinationTags")) == dict and list(self.metadata_source.get("destinationTags").keys())[0] == None:
 				self.exit_upload("No destination Tag was given.")
 
 		# make sure a destination database was given
@@ -169,7 +167,7 @@ class uploader(object):
 			if iovs == None:
 				self.exit_upload("No IOVs found in the SQLite file given for Tag '%s'." % self.input_tag)
 			iovs = iovs.as_dicts(convert_timestamps=True)
-			iovs = [iovs] if not isinstance(iovs, list) else iovs
+			iovs = [iovs] if type(iovs) != list else iovs
 
 			"""
 			Finally, get the list of all Payload hashes of IOVs,
@@ -195,7 +193,7 @@ class uploader(object):
 			# set empty dictionary to contain Tag and IOV data from command line
 			result_dictionary = {}
 
-			now = to_timestamp(datetime.now())
+			now = to_timestamp(datetime.utcnow())
 			# tag dictionary will be taken from the server
 			# this does not require any authentication
 			tag = self.get_tag_dictionary()
@@ -235,7 +233,7 @@ class uploader(object):
 		# look for deprecated metadata entries - give warnings
 		# Note - we only really support this format
 		try:
-			if isinstance(result_dictionary["destinationTags"], dict):
+			if type(result_dictionary["destinationTags"]) == dict:
 				self._outputter.write("WARNING: Multiple destination tags in a single metadata source is deprecated.")
 		except Exception as e:
 			self._outputter.write("ERROR: %s" % str(e))
@@ -253,7 +251,7 @@ class uploader(object):
 		If it is a dictionary, and one of its keys is "error", the server returned an error
 		"""
 		# if the decoded response data is a dictionary and has an error key in it, we should display an error and its traceback
-		if isinstance(response_dict, dict) and "error" in response_dict.keys():
+		if type(response_dict) == dict and "error" in list(response_dict.keys()):
 			splitter_string = "\n%s\n" % ("-"*50)
 			self._outputter.write("\nERROR: %s" % splitter_string, ignore_verbose=True)
 			self._outputter.write(response_dict["error"], ignore_verbose=True)
@@ -278,7 +276,7 @@ class uploader(object):
 					return False
 				else:
 					exit()
-		elif not("error" in response_dict.keys()) and "log_data" in response_dict.keys():
+		elif not("error" in list(response_dict.keys())) and "log_data" in list(response_dict.keys()):
 			# store the log data, if it's there, in memory - this is used if a request times out and we don't get any log data back
 			self._log_data = response_dict["log_data"]
 			return True
@@ -419,7 +417,7 @@ class uploader(object):
 
 			# finally, check hashes_not_found with hashes not found locally - if there is an intersection, we stop the upload
 			# because if a hash is not found and is not on the server, there is no data to upload
-			all_hashes = map(lambda iov : iov["payload_hash"], self.data_to_send["iovs"])
+			all_hashes = [iov["payload_hash"] for iov in self.data_to_send["iovs"]]
 			hashes_not_found = check_hashes_response["hashes_not_found"]
 			hashes_found = list(set(all_hashes) - set(hashes_not_found))
 			self._outputter.write("Checking for IOVs that have no Payload locally or on the server.")
@@ -506,11 +504,11 @@ class uploader(object):
 		# this method's end result is obtaining a token.
 		body_data = base64.b64encode(json.dumps(
 				{
-					"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
+					"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
 					"username_or_token" : self.data_to_send["username"],
 					"password" : self.data_to_send["password"]
 				}
-			))
+			).encode('UTF-8'))
 
 		url_data = {"database" : self.data_to_send["destinationDatabase"]}
 
@@ -538,11 +536,15 @@ class uploader(object):
 		Note: we do this in a separate function we so we can do the decoding check for json data with check_response.
 		"""
 		# tiny amount of client-side logic here - all of the work is done on the server
+		# tier0_response uses get() so if the key isn't present, we default to None
+		# tier0_response is for replaying uploads from the old upload service, with knowledge of the tier0 response
+		# when those uploads happened.
 		url_data = {
 						"database" : self.data_to_send["destinationDatabase"],
 						"upload_session_id" : upload_session_id,
-						"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
-						"sourceTagSync" : self.data_to_send["fcsr_filter"]
+						"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
+						"sourceTagSync" : self.data_to_send["fcsr_filter"],
+						"tier0_response" : self.data_to_send.get("tier0_response")
 					}
 		query = url_query(url=self._SERVICE_URL + "get_fcsr/", url_data=url_data)
 		result = query.send()
@@ -607,7 +609,7 @@ class uploader(object):
 				self.data_to_send["iovs"][i]["since"] = self.data_to_send["since"]
 
 		# modify insertion_time of iovs
-		new_time = to_timestamp(datetime.now())
+		new_time = to_timestamp(datetime.utcnow())
 		for (i, iov) in enumerate(self.data_to_send["iovs"]):
 			self.data_to_send["iovs"][i]["insertion_time"] = new_time
 
@@ -616,7 +618,7 @@ class uploader(object):
 		Get all the hashes from the dictionary of IOVs we have from the SQLite file.
 		"""
 		self._outputter.write("\tGetting list of all hashes found in SQLite database.")
-		hashes = map(lambda iov : iov["payload_hash"], self.data_to_send["iovs"])
+		hashes = [iov["payload_hash"] for iov in self.data_to_send["iovs"]]
 		return hashes
 
 	@check_response(check="json")
@@ -643,16 +645,17 @@ class uploader(object):
 		else:
 			self._outputter.write("Sending payloads of hashes not found:")
 			# construct connection string for local SQLite database file
-			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if isinstance(self.sqlite_file_name, str) else self.sqlite_file_name
+			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if type(self.sqlite_file_name) == str else self.sqlite_file_name
 			# create CondDBFW connection that maps blobs - as we need to query for payload BLOBs (disabled by default in CondDBFW)
 			self._outputter.write("\tConnecting to input SQLite database.")
 			con = querying.connect(database, map_blobs=True)
 
 			# query for the Payloads
 			self._outputter.write("\tGetting Payloads from SQLite database based on list of hashes.")
-			payloads = con.payload(hash=hashes)
+			byte_hashes = [bytes(h, 'utf-8') for h in hashes]
+			payloads = con.payload(hash=byte_hashes)
 			# if we get a single Payload back, put it in a list and turn it into a json_list
-			if payloads.__class__ != data_sources.json_list:
+			if payloads and payloads.__class__ != data_sources.json_list:
 				payloads = data_sources.json_data_node.make([payloads])
 
 			# close the session with the SQLite database file - we won't use it again
@@ -693,7 +696,7 @@ class uploader(object):
 		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
 
 		# construct the data to send in the body and header of the HTTPs request
-		for key in payload.keys():
+		for key in list(payload.keys()):
 			# skip blob
 			if key != "data":
 				if key == "insertion_time":
@@ -710,7 +713,7 @@ class uploader(object):
 			return request_response
 		except Exception as e:
 			# make sure we don't try again - if a NoMoreRetriesException has been thrown, retries have run out
-			if isinstance(e, errors.NoMoreRetriesException):
+			if type(e) == errors.NoMoreRetriesException:
 				self._outputter.write("\t\t\tPayload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 				self._outputter.write("Payload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 			return json.dumps({"error" : str(e), "traceback" : traceback.format_exc()})
@@ -724,13 +727,13 @@ class uploader(object):
 
 		# set user text if it's empty
 		if self.data_to_send["userText"] in ["", None]:
-			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % self.data_to_send["destinationTags"].keys()[0]
+			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % list(self.data_to_send["destinationTags"].keys())[0]
 
 		self._outputter.write("Sending metadata to server - see server_side_log at server_side_logs/upload_log_%s for details on metadata processing on server side."\
 							% self.upload_session_id)
 
 		# sent the HTTPs request to the server
-		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
+		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id, "tier0_response" : self.data_to_send.get("tier0_response")}
 		request = url_query(url=self._SERVICE_URL + "upload_metadata/", url_data=url_data, body=json.dumps(self.data_to_send))
 		response = request.send()
 		self._outputter.write("Response received - conditions upload process complete.")
@@ -757,7 +760,7 @@ See https://cms-conddb-dev.cern.ch/cmsDbCondUpload for information on how to obt
 
 	# make new dictionary, and copy over everything except "metadata_source"
 	upload_metadata_argument = {}
-	for (key, value) in upload_metadata.items():
+	for (key, value) in list(upload_metadata.items()):
 		if key != "metadata_source":
 			upload_metadata_argument[key] = value
 

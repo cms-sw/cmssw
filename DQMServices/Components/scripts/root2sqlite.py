@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import re
 import json
@@ -30,7 +30,7 @@ def tosqlite(x):
           return x
     if isinstance(x, float):
         return x
-    if isinstance(x, long):
+    if isinstance(x, int):
         return x
     else:
         try: 

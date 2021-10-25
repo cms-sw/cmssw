@@ -1,28 +1,24 @@
 import FWCore.ParameterSet.Config as cms
+import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
 
-offlinePrimaryVerticesFromCosmicTracks = cms.EDProducer("PrimaryVertexProducer",
-
-    verbose = cms.untracked.bool(False),
-    TrackLabel = cms.InputTag("ctfWithMaterialTracksP5"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
+offlinePrimaryVerticesFromCosmicTracks = _mod.primaryVertexProducer.clone(
+    TrackLabel    = "ctfWithMaterialTracksP5",
+    beamSpotLabel = "offlineBeamSpot",
                                         
-    TkFilterParameters = cms.PSet(
-        algorithm=cms.string('filter'),
-        maxNormalizedChi2 = cms.double(5.0),
-        minSiliconLayersWithHits = cms.int32(7), ## hits > 7
-        maxD0Significance = cms.double(5.0), ## keep most primary tracks
-        maxD0Error = cms.double(10.0),
-        maxDzError = cms.double(10.0),
-        minPt = cms.double(0.0), ## better for softish events
-        maxEta = cms.double(5.0), 
-        minPixelLayersWithHits = cms.int32(2), ## hits > 2
-        trackQuality = cms.string("any")
+    TkFilterParameters = dict(
+        maxNormalizedChi2 = 5.0,
+        minSiliconLayersWithHits = 7, ## hits > 7
+        maxD0Significance = 5.0, ## keep most primary tracks
+        maxD0Error = 10.0,
+        maxDzError = 10.0,
+        maxEta = 5.0, 
+        minPixelLayersWithHits = 2, ## hits > 2
     ),
 
-    TkClusParameters = cms.PSet(
-        algorithm   = cms.string("gap"),
-        TkGapClusParameters = cms.PSet( 
-            zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+    TkClusParameters = dict(
+        algorithm   = "gap",
+        TkGapClusParameters = dict( 
+            zSeparation = 0.1 ## 1 mm max separation betw. clusters
         )
     ),
 
@@ -36,9 +32,4 @@ offlinePrimaryVerticesFromCosmicTracks = cms.EDProducer("PrimaryVertexProducer",
                )
       ]
     )
-                                        
-
-                                        
 )
-
-

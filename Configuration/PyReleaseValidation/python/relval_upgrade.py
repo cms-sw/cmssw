@@ -1,4 +1,3 @@
-import six
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
 
@@ -20,7 +19,7 @@ def makeStepName(key,frag,step,suffix):
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
-        for frag,info in six.iteritems(upgradeFragments):
+        for frag,info in upgradeFragments.items():
             # phase2-specific fragments are skipped in phase1
             if ("CE_E" in frag or "CE_H" in frag) and year==2017:
                 numWF += 1
@@ -29,22 +28,26 @@ for year in upgradeKeys:
             for specialType in upgradeWFs.keys():
                 stepList[specialType] = []
             hasHarvest = False
-            for step in upgradeProperties[year][key]['ScenToRun']:                    
+            for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step:
-                    if 'HLBeamSpot' in step and '14TeV' in frag:
-                        step = 'GenSimHLBeamSpot14'
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenSimHLBeamSpot14'
+                        if 'CloseByParticle' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                            step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
 
-                for specialType,specialWF in six.iteritems(upgradeWFs):
+                for specialType,specialWF in upgradeWFs.items():
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
                         if 'ProdLike' in specialType:
                             if 'Reco' in step: # handles both Reco and RecoGlobal
                                 stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','Nano').replace('Reco','Nano'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
                             if 'GenSim' in step:
@@ -57,8 +60,13 @@ for year in upgradeKeys:
                                     else: stepList[specialType][-1] = stepMade
                     else:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
+                        
+                    if specialType in ['baseline']:
+                        for ist, st in enumerate(stepList[specialType]):
+                            if st.split('_')[0] == 'Reco': stepList[specialType][ist] = st.replace('Reco', 'RecNan')
+                            elif st.split('_')[0] == 'HARVEST': stepList[specialType][ist] = st.replace('HARVEST', 'HARVESTRecNan')
 
-            for specialType,specialWF in six.iteritems(upgradeWFs):
+            for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
                 if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]

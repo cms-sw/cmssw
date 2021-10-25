@@ -69,9 +69,6 @@ private:
   // selected stubs
   std::vector<csctf::TrackStub> selectedStubs_;
 
-  // quality control
-  std::unique_ptr<LCTQualityControl> qualityControl_;
-
   // CSC expert options
   bool sort_stubs_;
   bool drop_invalid_stubs_;

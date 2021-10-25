@@ -1249,6 +1249,13 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   DDsvalues_type sv(fv.mergedSpecifics());
   php.cellThickness_ = getDDDArray("CellThickness", sv, 3);
   rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDDD);
+  if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+    php.waferThickness_ = getDDDArray("WaferThickness", sv, 3);
+    rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDDD);
+  } else {
+    for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
+      php.waferThickness_.emplace_back(php.waferThick_);
+  }
 
   php.radius100to200_ = getDDDArray("Radius100to200", sv, 5);
   php.radius200to300_ = getDDDArray("Radius200to300", sv, 5);
@@ -1285,7 +1292,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
 
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
-    std::vector<int> waferIndex, waferProperties;
+    std::vector<int> layerType, waferIndex, waferProperties;
     if (php.waferMaskMode_ == siliconFileEE) {
       waferIndex = dbl_to_int(fv.vector("WaferIndexEE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesEE"));
@@ -1293,8 +1300,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
       waferIndex = dbl_to_int(fv.vector("WaferIndexHE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesHE"));
     }
+    if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+      if (php.waferMaskMode_ == siliconFileEE) {
+        layerType = dbl_to_int(fv.vector("LayerTypesEE"));
+      } else if (php.waferMaskMode_ == siliconFileHE) {
+        layerType = dbl_to_int(fv.vector("LayerTypesHE"));
+      }
+    }
 
-    loadSpecParsHexagon8(php, waferIndex, waferProperties);
+    loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
 
@@ -1304,6 +1318,13 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
                                                const std::string& sdTag1) {
   php.cellThickness_ = fv.get<std::vector<double> >(sdTag1, "CellThickness");
   rescale(php.cellThickness_, HGCalParameters::k_ScaleFromDD4Hep);
+  if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+    php.waferThickness_ = fv.get<std::vector<double> >(sdTag1, "WaferThickness");
+    rescale(php.waferThickness_, HGCalParameters::k_ScaleFromDD4Hep);
+  } else {
+    for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
+      php.waferThickness_.emplace_back(php.waferThick_);
+  }
 
   php.radius100to200_ = fv.get<std::vector<double> >(sdTag1, "Radius100to200");
   php.radius200to300_ = fv.get<std::vector<double> >(sdTag1, "Radius200to300");
@@ -1357,7 +1378,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
 
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
-    std::vector<int> waferIndex, waferProperties;
+    std::vector<int> layerType, waferIndex, waferProperties;
     if (php.waferMaskMode_ == siliconFileEE) {
       for (auto const& it : vmap) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexEE")) {
@@ -1379,13 +1400,32 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
         }
       }
     }
+    if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
+      if (php.waferMaskMode_ == siliconFileEE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesEE")) {
+            for (const auto& i : it.second)
+              layerType.emplace_back(std::round(i));
+          }
+        }
+      } else if (php.waferMaskMode_ == siliconFileHE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesHE")) {
+            for (const auto& i : it.second)
+              layerType.emplace_back(std::round(i));
+          }
+        }
+      }
+    }
 
-    loadSpecParsHexagon8(php, waferIndex, waferProperties);
+    loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
 
 void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
+  for (unsigned int k = 0; k < php.waferThickness_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: wafer[" << k << "] Thickness " << php.waferThickness_[k];
   for (unsigned int k = 0; k < php.cellThickness_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell[" << k << "] Thickness " << php.cellThickness_[k];
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
@@ -1419,9 +1459,30 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php) {
 }
 
 void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
+                                               const std::vector<int>& layerType,
                                                const std::vector<int>& waferIndex,
                                                const std::vector<int>& waferProperties) {
   // Store parameters from Philip's file
+  int types[5] = {HGCalTypes::WaferCenter,
+                  HGCalTypes::WaferCenterB,
+                  HGCalTypes::CornerCenterYm,
+                  HGCalTypes::CornerCenterYp,
+                  HGCalTypes::WaferCenterR};
+  for (unsigned int k = 0; k < layerType.size(); ++k) {
+    php.layerType_.emplace_back(types[layerType[k]]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
+#endif
+  }
+  for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
+    double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
+    double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
+    php.layerRotV_.emplace_back(std::make_pair(cth, sth));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
+                                  << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second;
+#endif
+  }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
     int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));

@@ -26,6 +26,8 @@
 #include <map>
 #include <vector>
 
+//#define EDM_ML_DEBUG
+
 //
 // constructors and destructor
 //
@@ -49,7 +51,7 @@ namespace cms {
 
     myout_hcal = new std::ofstream(fDataFile.c_str());
     if (!myout_hcal)
-      std::cout << " Output file not open!!! " << std::endl;
+      edm::LogVerbatim("HcalCalib") << " Output file not open!!! ";
   }
 
   void HcalConstantsASCIIWriter::endJob() { delete myout_hcal; }
@@ -60,7 +62,7 @@ namespace cms {
 
   // ------------ method called to produce the data  ------------
   void HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    std::cout << " Start HcalConstantsASCIIWriter::analyze " << std::endl;
+    edm::LogVerbatim("HcalCalib") << " Start HcalConstantsASCIIWriter::analyze";
 
     HcalRespCorrs* oldRespCorrs = new HcalRespCorrs(iSetup.getData(tok_resp_));
     //    std::vector<DetId> dd = oldRespCorrs->getAllChannels();
@@ -82,11 +84,11 @@ namespace cms {
         HcalDetId hid = HcalDetId(*i);
         theVector.push_back(hid);
         corrold[hid] = (oldRespCorrs->getValues(*i))->getValue();
-        std::cout << " Old calibration " << hid.depth() << " " << hid.ieta() << " " << hid.iphi() << std::endl;
+        edm::LogVerbatim("HcalCalib") << " Old calibration " << hid.depth() << " " << hid.ieta() << " " << hid.iphi();
       }
     }
 
-    std::cout << " Get old calibration " << std::endl;
+    edm::LogVerbatim("HcalCalib") << " Get old calibration ";
     // Read new corrections from file
 
     edm::FileInPath f1(file_input);
@@ -97,19 +99,22 @@ namespace cms {
 
     double corrnew_p[5][5][45][75];
     double corrnew_m[5][5][45][75];
-    std::cout << " Start to read txt file " << fDataFile.c_str() << std::endl;
+    edm::LogVerbatim("HcalCalib") << " Start to read txt file " << fDataFile.c_str() << std::endl;
     while (std::getline(in, line)) {
-      //    std::cout<<" Line size "<<line.size()<< " "<<line<< std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalCalib") << " Line size " << line.size() << " " << line;
+#endif
 
       if (!line.size() || line[0] == '#')
         continue;
       std::istringstream linestream(line);
 
       linestream >> mysubd >> depth >> ieta >> iphi >> coradd >> corerr;
-      //      DetId mydid(DetId::Hcal,HcalSubdetector(mysubd));
-      //      HcalDetId  hid(HcalSubdetector(mysubd),ieta,iphi,depth);
-      //        HcalDetId hid(mydid);
-      //      std::cout<<" Check mysubd "<<hid.subdet()<<" depth "<<hid.depth()<<" ieta "<<hid.ieta()<<" iphi "<<hid.iphi()<<" "<<hid.rawId()<< std::endl;
+#ifdef EDM_ML_DEBUG
+      HcalDetId hid(HcalSubdetector(mysubd), ieta, iphi, depth);
+      edm::LogVerbatim("HcalCalib") << " Check mysubd " << hid.subdet() << " depth " << hid.depth() << " ieta "
+                                    << hid.ieta() << " iphi " << hid.iphi() << " " << hid.rawId();
+#endif
       int ietak = ieta;
       if (ieta < 0)
         ietak = -1 * ieta;
@@ -117,8 +122,8 @@ namespace cms {
         corrnew_p[mysubd][depth][ietak][iphi] = coradd;
       if (ieta < 0)
         corrnew_m[mysubd][depth][ietak][iphi] = coradd;
-      std::cout << " Try to initialize mysubd " << mysubd << " depth " << depth << " ieta " << ieta << " " << ietak
-                << " iphi " << iphi << " " << coradd << std::endl;
+      edm::LogVerbatim("HcalCalib") << " Try to initialize mysubd " << mysubd << " depth " << depth << " ieta " << ieta
+                                    << " " << ietak << " iphi " << iphi << " " << coradd;
     }
 
     HcalRespCorrs* mycorrections = new HcalRespCorrs(oldRespCorrs->topo());
@@ -138,8 +143,9 @@ namespace cms {
         cc2 = corrnew_m[(*it).subdet()][(*it).depth()][ietak][(*it).iphi()];
 
       float cc = cc1 * cc2;
-      std::cout << " Multiply " << (*it).subdet() << " " << (*it).depth() << " " << (*it).ieta() << " " << ietak << " "
-                << (*it).iphi() << " " << (*it).rawId() << " " << cc1 << " " << cc2 << std::endl;
+      edm::LogVerbatim("HcalCalib") << " Multiply " << (*it).subdet() << " " << (*it).depth() << " " << (*it).ieta()
+                                    << " " << ietak << " " << (*it).iphi() << " " << (*it).rawId() << " " << cc1 << " "
+                                    << cc2;
 
       // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
       HcalRespCorr item((*it).rawId(), cc);

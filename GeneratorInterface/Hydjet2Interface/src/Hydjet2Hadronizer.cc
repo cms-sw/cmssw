@@ -52,7 +52,6 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "boost/lexical_cast.hpp"
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -75,6 +74,8 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 #include "GeneratorInterface/Hydjet2Interface/interface/HYJET_COMMONS.h"
+
+CLHEP::HepRandomEngine* hjRandomEngine;
 
 extern "C" void hyevnt_();
 extern "C" void myini_();

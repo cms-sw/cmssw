@@ -33,6 +33,11 @@ namespace fwlite {
   class RecordWriter {
   public:
     RecordWriter(const char* iName, TFile* iFile);
+
+    RecordWriter(const RecordWriter&) = delete;  // stop default
+
+    const RecordWriter& operator=(const RecordWriter&) = delete;  // stop default
+
     virtual ~RecordWriter();
 
     struct DataBuffer {
@@ -53,10 +58,6 @@ namespace fwlite {
     void write();
 
   private:
-    RecordWriter(const RecordWriter&) = delete;  // stop default
-
-    const RecordWriter& operator=(const RecordWriter&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     TTree* tree_;
     edm::ESRecordAuxiliary aux_;

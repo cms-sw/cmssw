@@ -32,7 +32,6 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1I.h"

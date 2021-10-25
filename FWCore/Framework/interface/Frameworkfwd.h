@@ -40,6 +40,7 @@ namespace edm {
   class PrincipalCache;
   class PrincipalGetAdapter;
   class ProcessBlock;
+  class ProcessBlockForOutput;
   class ProcessBlockPrincipal;
   class ProcessBlockTransitionInfo;
   class ProcessNameSelector;

@@ -172,7 +172,7 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       double elecCombRelIso = 1.;
 
-      elecCombRelIso = (elecIso.ecalRecHitSumEt + elecIso.hcalDepth1TowerSumEt + elecIso.tkSumPt) / elec->pt();
+      elecCombRelIso = (elecIso.ecalRecHitSumEt + elecIso.hcalRecHitSumEt[0] + elecIso.tkSumPt) / elec->pt();
       elIso_CombRelIso->Fill(elecCombRelIso);
       elIso_cal->Fill(elecIso.ecalRecHitSumEt);
       elIso_trk->Fill(elecIso.tkSumPt);

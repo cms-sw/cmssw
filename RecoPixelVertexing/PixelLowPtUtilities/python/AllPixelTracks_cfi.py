@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from RecoPixelVertexing.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter
 from RecoPixelVertexing.PixelLowPtUtilities.trackFitter_cfi import trackFitter
 from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import trackCleaner
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
 ##########################
 # The base for all steps
-allPixelTracks = cms.EDProducer("PixelTrackProducer",
-
-    passLabel  = cms.string(''),
-
+allPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = '',
     # Region
     RegionFactoryPSet = cms.PSet(
         ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer'),
@@ -27,7 +26,6 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
             nSigmaZ          = cms.double(3.0)
         )
     ),
-     
     # Ordered hits
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
@@ -45,7 +43,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
     ),
 
     # Filter
-    Filter = cms.InputTag("clusterShapeTrackFilter"),
+    Filter = "clusterShapeTrackFilter",
 
     # Cleaner
     CleanerPSet = cms.string("trackCleaner"),

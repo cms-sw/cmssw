@@ -42,13 +42,12 @@
 class FFTJetCorrectorDBWriter : public edm::EDAnalyzer {
 public:
   explicit FFTJetCorrectorDBWriter(const edm::ParameterSet&);
-  ~FFTJetCorrectorDBWriter() override {}
-
-private:
   FFTJetCorrectorDBWriter() = delete;
   FFTJetCorrectorDBWriter(const FFTJetCorrectorDBWriter&) = delete;
   FFTJetCorrectorDBWriter& operator=(const FFTJetCorrectorDBWriter&) = delete;
+  ~FFTJetCorrectorDBWriter() override {}
 
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string inputFile;
@@ -82,7 +81,7 @@ void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent, const edm::Event
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(fcp.release(), poolDbService->currentTime(), record);
+    poolDbService->writeOneIOV(*fcp, poolDbService->currentTime(), record);
   else
     throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
                                                << "please configure it properly" << std::endl;

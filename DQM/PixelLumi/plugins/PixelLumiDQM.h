@@ -36,7 +36,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class ConfigurationDescriptions;
-
+class TrackerGeometry;
+class TrackerDigiGeometryRecord;
 class PixelLumiDQM : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet &);
@@ -112,6 +113,7 @@ private:
   };
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> fPixelClusterLabel;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 
   UInt_t fRunNo;
   UInt_t fEvtNo;

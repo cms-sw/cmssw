@@ -21,11 +21,12 @@ public:
   /// load all known libraries holding dictionaries
   static void loadAll();
 
+  AutoLibraryLoader(const AutoLibraryLoader&) = delete;                   // stop default
+  const AutoLibraryLoader& operator=(const AutoLibraryLoader&) = delete;  // stop default
+
 private:
   static bool enabled_;
   AutoLibraryLoader();
-  AutoLibraryLoader(const AutoLibraryLoader&) = delete;                   // stop default
-  const AutoLibraryLoader& operator=(const AutoLibraryLoader&) = delete;  // stop default
 };
 
 #endif

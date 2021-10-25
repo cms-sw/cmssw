@@ -21,6 +21,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+
 //#include <pair>
 #include <map>
 
@@ -48,5 +54,8 @@ private:
   //t0 mean and sigma values read from cfg
   double t0Mean;
   double t0Sigma;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;
 };
 #endif

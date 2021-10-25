@@ -36,6 +36,8 @@ namespace edm {
 class JetCorrectorImplMakerBase {
 public:
   JetCorrectorImplMakerBase(edm::ParameterSet const&);
+  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;                   // stop default
+  const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&) = delete;  // stop default
   virtual ~JetCorrectorImplMakerBase();
 
   // ---------- const member functions ---------------------
@@ -50,10 +52,6 @@ protected:
       edm::EventSetup const&, std::function<void(std::string const&)> levelCheck);
 
 private:
-  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;  // stop default
-
-  const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&) = delete;  // stop default
-
   // ---------- member data --------------------------------
   std::string level_;
   std::string algo_;

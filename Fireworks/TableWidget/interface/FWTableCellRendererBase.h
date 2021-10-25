@@ -69,7 +69,6 @@ public:
       */
   virtual void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY);
 
-private:
   FWTableCellRendererBase(const FWTableCellRendererBase&) = delete;  // stop default
 
   const FWTableCellRendererBase& operator=(const FWTableCellRendererBase&) = delete;  // stop default

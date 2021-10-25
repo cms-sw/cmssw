@@ -1,6 +1,5 @@
 <use name="RecoLocalTracker/SiStripRecHitConverter"/>
 <use name="CalibTracker/Records"/>
-<use name="CalibTracker/SiStripCommon"/>
 <library file="*.cc" name="RecoLocalTrackerSiStripRecHitConverterPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

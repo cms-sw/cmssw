@@ -1,5 +1,7 @@
-#ifndef DataFormats_L1TCalorimeter_HGCalTowerID_h
-#define DataFormats_L1TCalorimeter_HGCalTowerID_h
+#ifndef DataFormats_L1THGCal_HGCalTowerID_h
+#define DataFormats_L1THGCal_HGCalTowerID_h
+
+#include <cstdint>
 
 // NOTE: in the current implementation HGCalTowerID can only
 // accomodate 127 bins per coordinate x2 zsides
@@ -9,12 +11,14 @@ namespace l1t {
   public:
     HGCalTowerID() : HGCalTowerID(0) {}
 
-    HGCalTowerID(unsigned short rawId) : rawId_(rawId) {}
+    HGCalTowerID(uint32_t rawId) : rawId_(rawId) {}
 
-    HGCalTowerID(short zside, unsigned short coord1, unsigned short coord2) {
-      rawId_ = ((coord1 & coordMask) << coord1Shift) | ((coord2 & coordMask) << coord2Shift) |
-               (((zside > 0) & zsideMask) << zsideShift);
+    HGCalTowerID(short subdetIsNode, short zside, unsigned short coord1, unsigned short coord2) {
+      rawId_ = (((subdetIsNode & subDetMask) << subDetShift) | ((coord1 & coordMask) << coord1Shift) |
+                ((coord2 & coordMask) << coord2Shift) | ((zside > 0) & zsideMask) << zsideShift);
     }
+
+    short subdet() const { return (rawId_ >> subDetShift) & subDetMask; }
 
     short zside() const { return ((rawId_ >> zsideShift) & zsideMask) ? 1 : -1; }
 
@@ -25,7 +29,9 @@ namespace l1t {
     unsigned short rawId() const { return rawId_; }
 
   private:
-    unsigned short rawId_;
+    uint32_t rawId_;
+    static const int subDetMask = 0x1;  // two for now 0 is HGC and 1 is HFNose
+    static const int subDetShift = 16;
     static const int zsideMask = 0x1;
     static const int zsideShift = 15;
     static const int coordMask = 0x007F;
@@ -34,9 +40,9 @@ namespace l1t {
   };
 
   struct HGCalTowerCoord {
-    HGCalTowerCoord(unsigned short rawId, float eta, float phi) : rawId(rawId), eta(eta), phi(phi) {}
+    HGCalTowerCoord(uint32_t rawId, float eta, float phi) : rawId(rawId), eta(eta), phi(phi) {}
 
-    const unsigned short rawId;
+    const uint32_t rawId;
     const float eta;
     const float phi;
   };

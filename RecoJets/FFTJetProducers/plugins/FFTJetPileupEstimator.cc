@@ -46,6 +46,9 @@ using namespace fftjetcms;
 class FFTJetPileupEstimator : public edm::EDProducer {
 public:
   explicit FFTJetPileupEstimator(const edm::ParameterSet&);
+  FFTJetPileupEstimator() = delete;
+  FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
+  FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
   ~FFTJetPileupEstimator() override;
 
 protected:
@@ -55,10 +58,6 @@ protected:
   void endJob() override;
 
 private:
-  FFTJetPileupEstimator() = delete;
-  FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
-  FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
-
   std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(double uncalibrated) const;
 
   std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromDB(double uncalibrated, const edm::EventSetup& iSetup) const;

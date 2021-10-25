@@ -1,7 +1,24 @@
-#include "RBXAndHPDCleaner.h"
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+
 #include <cmath>
+#include <unordered_map>
+
+class RBXAndHPDCleaner : public RecHitTopologicalCleanerBase {
+public:
+  RBXAndHPDCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : RecHitTopologicalCleanerBase(conf, cc) {}
+  RBXAndHPDCleaner(const RBXAndHPDCleaner&) = delete;
+  RBXAndHPDCleaner& operator=(const RBXAndHPDCleaner&) = delete;
+
+  void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
+
+private:
+  std::unordered_map<int, std::vector<unsigned> > _hpds, _rbxs;
+};
+
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, RBXAndHPDCleaner, "RBXAndHPDCleaner");
 
 namespace {
   bool greaterByEnergy(const std::pair<unsigned, double>& a, const std::pair<unsigned, double>& b) {

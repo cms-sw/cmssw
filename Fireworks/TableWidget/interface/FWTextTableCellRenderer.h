@@ -61,11 +61,11 @@ public:
 
   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
 
-private:
   FWTextTableCellRenderer(const FWTextTableCellRenderer&) = delete;  // stop default
 
   const FWTextTableCellRenderer& operator=(const FWTextTableCellRenderer&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const TGGC* m_context;
   const TGGC* m_highlightContext;

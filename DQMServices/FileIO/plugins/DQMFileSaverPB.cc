@@ -21,7 +21,7 @@
 
 #include "zlib.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/src/ROOTFilePB.pb.h"
+#include "DQMServices/Core/interface/ROOTFilePB.pb.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

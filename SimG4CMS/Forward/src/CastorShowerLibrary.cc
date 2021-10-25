@@ -25,7 +25,7 @@
 #include "TTree.h"
 #include "TBranch.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 CastorShowerLibrary::CastorShowerLibrary(const std::string& name, edm::ParameterSet const& p)
     : hf(nullptr),
@@ -238,7 +238,7 @@ CastorShowerEvent CastorShowerLibrary::getRecord(int type, int record) {
   //
   //////////////////////////////////////////////////////////////
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: ";
 #endif
   int nrc = record;
@@ -252,7 +252,7 @@ CastorShowerEvent CastorShowerLibrary::getRecord(int type, int record) {
     emBranch->GetEntry(nrc);
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int nHit = showerEvent->getNhit();
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
                            << nHit << " CastorShowerHits";
@@ -286,7 +286,7 @@ CastorShowerEvent CastorShowerLibrary::select(int type, double pin, double etain
 
   int ienergy = FindEnergyBin(pin);
   int ieta = FindEtaBin(etain);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   if (verbose)
     edm::LogVerbatim("CastorShower") << " ienergy = " << ienergy;
   if (verbose)
@@ -305,7 +305,7 @@ CastorShowerEvent CastorShowerLibrary::select(int type, double pin, double etain
     phiin = phiMin + remainder;
     iphi = FindPhiBin(phiin);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   if (verbose)
     edm::LogVerbatim("CastorShower") << " iphi = " << iphi;
 #endif
@@ -318,7 +318,7 @@ CastorShowerEvent CastorShowerLibrary::select(int type, double pin, double etain
   else
     irec = int(nEvtPerBinE * (ienergy + r));
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CastorShower") << "CastorShowerLibrary:: Select record " << irec << " of type " << type;
 #endif
 

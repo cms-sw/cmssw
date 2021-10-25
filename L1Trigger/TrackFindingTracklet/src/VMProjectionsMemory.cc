@@ -7,8 +7,7 @@
 using namespace std;
 using namespace trklet;
 
-VMProjectionsMemory::VMProjectionsMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {
+VMProjectionsMemory::VMProjectionsMemory(string name, Settings const& settings) : MemoryBase(name, settings) {
   initLayerDisk(7, layer_, disk_);
 }
 
@@ -21,7 +20,8 @@ void VMProjectionsMemory::addTracklet(Tracklet* tracklet, unsigned int allprojin
   tracklets_.push_back(tmp);
 }
 
-void VMProjectionsMemory::writeVMPROJ(bool first) {
+void VMProjectionsMemory::writeVMPROJ(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirVM = settings_.memPath() + "VMProjections/";
 
   std::ostringstream oss;
@@ -34,21 +34,7 @@ void VMProjectionsMemory::writeVMPROJ(bool first) {
   oss << "_" << std::setfill('0') << std::setw(2) << (iSector_ + 1) << ".dat";
   auto const& fname = oss.str();
 
-  if (first) {
-    bx_ = 0;
-    event_ = 1;
-
-    if (not std::filesystem::exists(dirVM)) {
-      int fail = system((string("mkdir -p ") + dirVM).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirVM;
-    }
-    out_.open(fname);
-    if (out_.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-
-  } else
-    out_.open(fname, std::ofstream::app);
+  openfile(out_, first, dirVM, fname, __FILE__, __LINE__);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

@@ -85,6 +85,9 @@ namespace edm {
       void preSourceRun(RunIndex);
       void postSourceRun(RunIndex);
 
+      void preSourceProcessBlock();
+      void postSourceProcessBlock(std::string const&);
+
       void preOpenFile(std::string const&, bool);
       void postOpenFile(std::string const&, bool);
 
@@ -267,6 +270,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreSourceRun(this, &Tracer::preSourceRun);
   iRegistry.watchPostSourceRun(this, &Tracer::postSourceRun);
+
+  iRegistry.watchPreSourceProcessBlock(this, &Tracer::preSourceProcessBlock);
+  iRegistry.watchPostSourceProcessBlock(this, &Tracer::postSourceProcessBlock);
 
   iRegistry.watchPreOpenFile(this, &Tracer::preOpenFile);
   iRegistry.watchPostOpenFile(this, &Tracer::postOpenFile);
@@ -497,6 +503,7 @@ void Tracer::preBeginJob(PathsAndConsumesOfModulesBase const& pathsAndConsumes, 
     std::vector<ModuleDescription const*> const& allModules = pathsAndConsumes.allModules();
     out << "All modules and modules in the current process whose products they consume:\n";
     out << "(This does not include modules from previous processes or the source)\n";
+    out << "(Exclusively considers Event products, not Run, Lumi, or ProcessBlock products)\n";
     for (auto const& module : allModules) {
       out << "  " << module->moduleName() << "/\'" << module->moduleLabel() << "\'";
       unsigned int moduleID = module->id();
@@ -584,6 +591,16 @@ void Tracer::preSourceRun(RunIndex index) {
 
 void Tracer::postSourceRun(RunIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: source run";
+}
+
+void Tracer::preSourceProcessBlock() {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                        << " starting: source process block";
+}
+
+void Tracer::postSourceProcessBlock(std::string const& processName) {
+  LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                        << " finished: source process block " << processName;
 }
 
 void Tracer::preOpenFile(std::string const& lfn, bool b) {

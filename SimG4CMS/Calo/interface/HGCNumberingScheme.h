@@ -15,6 +15,7 @@ public:
   enum HGCNumberingParameters { HGCCellSize };
 
   HGCNumberingScheme(const HGCalDDDConstants& hgc, std::string& name);
+  HGCNumberingScheme() = delete;
 
   ~HGCNumberingScheme();
 
@@ -34,7 +35,6 @@ public:
   std::pair<float, float> getLocalCoords(int cell, int layer);
 
 private:
-  HGCNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
 };
 

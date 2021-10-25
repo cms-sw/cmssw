@@ -12,14 +12,17 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/Common"/>
-  <use name="boost_python"/>
+  <use name="py3-pybind11"/>
   <use name="rootgraphics"/>
 </library>
 
 <library file="Module_PayloadInspector.cc" name="Module_PayloadInspector">
   <use name="CondCore/Utilities"/>
+  <use name="py3-pybind11"/>
 </library>
 
 <library file="Module_2XML.cc" name="Utilities_payload2xml">
   <use name="CondCore/Utilities"/>
+  <use name="py3-pybind11"/>
+  <use name="python3"/>
 </library>

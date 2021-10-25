@@ -78,11 +78,13 @@ namespace edm {
     std::string const fileIndex = "FileIndex";
     std::string const indexIntoFile = "IndexIntoFile";
     std::string const mergeableRunProductMetadata = "MergeableRunProductMetadata";
+    std::string const processBlockHelper = "ProcessBlockHelper";
     std::string const eventHistory = "EventHistory";
     std::string const eventBranchMapper = "EventBranchMapper";
 
     std::string const eventSelections = "EventSelections";
     std::string const branchListIndexes = "BranchListIndexes";
+    std::string const eventToProcessBlockIndexes = "EventToProcessBlockIndexes";
 
     std::string const parameterSetsTree = "ParameterSets";
     std::string const idToParameterSetBlobsBranch = "IdToParameterSetsBlobs";
@@ -93,6 +95,11 @@ namespace edm {
   std::string const& BranchTypeToProductTreeName(BranchType const& branchType) {
     assert(branchType < eventLumiRunSize);
     return treeNames[branchType];
+  }
+
+  std::string BranchTypeToProductTreeName(BranchType const& branchType, std::string const& processName) {
+    assert(branchType == InProcess);
+    return branchTypeNames[InProcess] + "s" + processName;
   }
 
   std::string const& BranchTypeToMetaDataTreeName(BranchType const& branchType) {
@@ -193,6 +200,9 @@ namespace edm {
     // Branch on MetaData Tree
     std::string const& mergeableRunProductMetadataBranchName() { return mergeableRunProductMetadata; }
 
+    // Branch on MetaData Tree
+    std::string const& processBlockHelperBranchName() { return processBlockHelper; }
+
     // Branch on Event History Tree
     std::string const& eventHistoryBranchName() { return eventHistory; }
 
@@ -200,6 +210,8 @@ namespace edm {
     std::string const& eventSelectionsBranchName() { return eventSelections; }
 
     std::string const& branchListIndexesBranchName() { return branchListIndexes; }
+
+    std::string const& eventToProcessBlockIndexesBranchName() { return eventToProcessBlockIndexes; }
 
     std::string const& parameterSetsTreeName() { return parameterSetsTree; }
     // Branch on ParameterSets Tree

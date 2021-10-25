@@ -22,11 +22,11 @@ void SiStripApvSimulationParametersBuilder::analyze(const edm::Event&, const edm
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripApvSimulationParametersRcd")) {
-      mydbservice->createNewIOV<SiStripApvSimulationParameters>(
-          obj.get(), mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripApvSimulationParametersRcd");
+      mydbservice->createOneIOV<SiStripApvSimulationParameters>(
+          *obj, mydbservice->beginOfTime(), "SiStripApvSimulationParametersRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripApvSimulationParameters>(
-          obj.get(), mydbservice->currentTime(), "SiStripApvSimulationParametersRcd");
+      mydbservice->appendOneIOV<SiStripApvSimulationParameters>(
+          *obj, mydbservice->currentTime(), "SiStripApvSimulationParametersRcd");
     }
   } else {
     edm::LogError("SiStripApvSimulationParametersBuilder") << "Service is unavailable";

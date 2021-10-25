@@ -213,6 +213,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              uint32_t gainIdx,
                                              float maxADC,
                                              int thickness,
+                                             float tdcOnsetAuto,
                                              const hgc_digi::FEADCPulseShape& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -256,9 +257,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     if (busyFlags[it])
       continue;
 
+    if (tdcOnsetAuto < 0) {
+      tdcOnsetAuto = tdcOnset_fC_;
+    }
     //if below TDC onset will be handled by SARS ADC later
     float charge = chargeColl[it];
-    if (charge < tdcOnset_fC_) {
+    if (charge < tdcOnsetAuto) {
       debug = false;
       continue;
     }
@@ -362,7 +366,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       if (toaMode_ == WEIGHTEDBYE)
         finalToA /= totalCharge;
     }
-    newCharge[it] = (totalCharge - tdcOnset_fC_);
+    newCharge[it] = (totalCharge - tdcOnsetAuto);
 
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -372,9 +376,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     //last fC (tdcOnset) are dissipated trough pulse
     if (it + busyBxs < (int)(newCharge.size())) {
       const float deltaT2nextBx((busyBxs * 25 - integTime));
-      const float tdcOnsetLeakage(tdcOnset_fC_ * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
+      const float tdcOnsetLeakage(tdcOnsetAuto * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
       if (debug)
-        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ << " fC, to be dissipated in "
+        edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnsetAuto << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
                                   << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
                                   << it + busyBxs << " bx (first free bx)" << std::endl;

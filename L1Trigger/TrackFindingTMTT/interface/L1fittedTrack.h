@@ -111,11 +111,12 @@ namespace tmtt {
     ~L1fittedTrack() override = default;
 
     //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
-    void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
+    void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon, bool accepted) {
       done_bcon_ = true;
       qOverPt_bcon_ = qOverPt_bcon;
       d0_bcon_ = 0.0, phi0_bcon_ = phi0_bcon;
       chi2rphi_bcon_ = chi2rphi_bcon;
+      accepted_ = accepted;
     }
 
     //--- Set/get additional info about fitted track that is specific to individual track fit algorithms (KF, LR, chi2)
@@ -161,7 +162,12 @@ namespace tmtt {
                            nHelixParam(),
                            iPhiSec(),
                            iEtaReg(),
-                           accepted());
+                           accepted(),
+                           done_bcon(),
+                           qOverPt_bcon(),
+                           d0_bcon(),
+                           phi0_bcon(),
+                           chi2rphi_bcon());
       return trk_;
     }
 
@@ -247,6 +253,7 @@ namespace tmtt {
       return 1. / (small + this->invPt_bcon());
     }
     float phi0_bcon() const { return phi0_bcon_; }
+    float d0_bcon() const { return d0_bcon_; }
 
     // Phi and z coordinates at which track crosses "chosenR" values used by r-phi HT and rapidity sectors respectively.
     // (Optionally with beam-spot constraint applied).

@@ -22,22 +22,22 @@
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
 #include "Utilities/XrdAdaptor/src/XrdHostHandler.hh"
 
-#define XRD_CL_MAX_CHUNK 512 * 1024
+static constexpr int XRD_CL_MAX_CHUNK = 512 * 1024;
 
-#define XRD_ADAPTOR_SHORT_OPEN_DELAY 5
+static constexpr int XRD_ADAPTOR_SHORT_OPEN_DELAY = 5;
 
 #ifdef XRD_FAKE_OPEN_PROBE
-#define XRD_ADAPTOR_OPEN_PROBE_PERCENT 100
-#define XRD_ADAPTOR_LONG_OPEN_DELAY 20
+static constexpr int XRD_ADAPTOR_OPEN_PROBE_PERCENT = 100;
+static constexpr int XRD_ADAPTOR_LONG_OPEN_DELAY = 20;
 // This is the minimal difference in quality required to swap an active and inactive source
-#define XRD_ADAPTOR_SOURCE_QUALITY_FUDGE 0
+static constexpr int XRD_ADAPTOR_SOURCE_QUALITY_FUDGE = 0;
 #else
-#define XRD_ADAPTOR_OPEN_PROBE_PERCENT 10
-#define XRD_ADAPTOR_LONG_OPEN_DELAY 2 * 60
-#define XRD_ADAPTOR_SOURCE_QUALITY_FUDGE 100
+static constexpr int XRD_ADAPTOR_OPEN_PROBE_PERCENT = 10;
+static constexpr int XRD_ADAPTOR_LONG_OPEN_DELAY = 2 * 60;
+static constexpr int XRD_ADAPTOR_SOURCE_QUALITY_FUDGE = 100;
 #endif
 
-#define XRD_ADAPTOR_CHUNK_THRESHOLD 1000
+static constexpr int XRD_ADAPTOR_CHUNK_THRESHOLD = 1000;
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -57,6 +57,7 @@
 #endif
 
 using namespace XrdAdaptor;
+using namespace edm::storage;
 
 long long timeDiffMS(const timespec &a, const timespec &b) {
   long long diff = (a.tv_sec - b.tv_sec) * 1000;
@@ -250,7 +251,7 @@ void RequestManager::updateCurrentServer() {
     std::unique_ptr<std::string> hostname(hostname_ptr);
     edm::Service<edm::storage::StatisticsSenderService> statsService;
     if (statsService.isAvailable()) {
-      statsService->setCurrentServer(*hostname_ptr);
+      statsService->setCurrentServer(m_name, *hostname_ptr);
     }
   }
 }

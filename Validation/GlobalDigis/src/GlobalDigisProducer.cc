@@ -64,6 +64,9 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet &iPSet)
   ESHits_Token_ =
       consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
 
+  ecalADCtoGevToken_ = esConsumes();
+  tTopoToken_ = esConsumes();
+  hcaldbToken_ = esConsumes();
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -111,11 +114,6 @@ GlobalDigisProducer::~GlobalDigisProducer() {}
 void GlobalDigisProducer::beginJob(void) {
   std::string MsgLoggerCat = "GlobalDigisProducer_beginJob";
 
-  //   // setup calorimeter constants from service
-  //   edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  //   iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  //   const EcalADCToGeVConstant* agc = pAgc.product();
-
   EcalMGPAGainRatio *defaultRatios = new EcalMGPAGainRatio();
 
   ECalgainConv_[0] = 0.;
@@ -124,9 +122,6 @@ void GlobalDigisProducer::beginJob(void) {
   ECalgainConv_[3] = ECalgainConv_[2] * (defaultRatios->gain6Over1());
 
   delete defaultRatios;
-
-  //   ECalbarrelADCtoGeV_ = agc->getEBValue();
-  //   ECalendcapADCtoGeV_ = agc->getEEValue();
 
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
@@ -157,9 +152,7 @@ void GlobalDigisProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
   // THIS BLOCK MIGRATED HERE FROM beginJob:
   // setup calorimeter constants from service
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  const EcalADCToGeVConstant *agc = pAgc.product();
+  const EcalADCToGeVConstant *agc = &iSetup.getData(ecalADCtoGevToken_);
   ECalbarrelADCtoGeV_ = agc->getEBValue();
   ECalendcapADCtoGeV_ = agc->getEEValue();
   if (verbosity >= 0) {
@@ -625,8 +618,7 @@ void GlobalDigisProducer::fillHCal(edm::Event &iEvent, const edm::EventSetup &iS
     eventout = "\nGathering info:";
 
   // get calibration info
-  edm::ESHandle<HcalDbService> HCalconditions;
-  iSetup.get<HcalDbRecord>().get(HCalconditions);
+  const auto &HCalconditions = iSetup.getHandle(hcaldbToken_);
   if (!HCalconditions.isValid()) {
     edm::LogWarning(MsgLoggerCat) << "Unable to find HCalconditions in event!";
     return;
@@ -876,9 +868,7 @@ void GlobalDigisProducer::storeHCal(PGlobalDigi &product) {
 
 void GlobalDigisProducer::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &iSetup.getData(tTopoToken_);
 
   std::string MsgLoggerCat = "GlobalDigisProducer_fillTrk";
 

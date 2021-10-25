@@ -43,8 +43,10 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
                                 << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
 #endif
   auto cc = setWhatProduced(this, namex_);
-  cpvTokenDDD_ = cc.consumes<DDCompactView>(edm::ESInputTag());
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4Hep_)
+    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumes<DDCompactView>(edm::ESInputTag());
 }
 
 void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

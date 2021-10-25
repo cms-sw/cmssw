@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -37,6 +36,7 @@ private:
 
   const edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
+  const edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
 
   // thresholds to laser corr to set kPoorCalib
   const double EBLaserMIN_, EELaserMIN_, EBLaserMAX_, EELaserMAX_, EBEnegyMIN_, EEEnegyMIN_;
@@ -46,6 +46,7 @@ private:
 EcalLaserCorrFilter::EcalLaserCorrFilter(const edm::ParameterSet& iConfig)
     : ebRHSrcToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitSource"))),
       eeRHSrcToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource"))),
+      laserToken_(esConsumes()),
       EBLaserMIN_(iConfig.getParameter<double>("EBLaserMIN")),
       EELaserMIN_(iConfig.getParameter<double>("EELaserMIN")),
       EBLaserMAX_(iConfig.getParameter<double>("EBLaserMAX")),
@@ -69,8 +70,7 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
   iEvent.getByToken(eeRHSrcToken_, eeRHs);
 
   // Laser corrections
-  edm::ESHandle<EcalLaserDbService> laser;
-  iSetup.get<EcalLaserDbRecord>().get(laser);
+  auto const& laser = iSetup.getData(laserToken_);
 
   bool goodCalib = true;
 
@@ -85,7 +85,7 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
     int jz = EEDetId((*eerh).id()).zside();
 
     // get laser coefficient
-    float lasercalib = laser->getLaserCorrection(EEDetId(eeDet), iEvent.time());
+    float lasercalib = laser.getLaserCorrection(EEDetId(eeDet), iEvent.time());
 
     if (energy > EEEnegyMIN_ && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) {
       goodCalib = false;
@@ -111,7 +111,7 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
     int zrec = EBDetId((*ebrh).id()).zside();
 
     // get laser coefficient
-    float lasercalib = laser->getLaserCorrection(EBDetId(ebDet), iEvent.time());
+    float lasercalib = laser.getLaserCorrection(EBDetId(ebDet), iEvent.time());
 
     if (energy > EBEnegyMIN_ && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) {
       goodCalib = false;

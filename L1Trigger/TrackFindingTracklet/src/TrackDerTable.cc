@@ -1,10 +1,9 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackDerTable.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FPGAWord.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -359,17 +358,7 @@ void TrackDerTable::fillTable() {
   }
 
   if (settings_.writeTable()) {
-    if (not std::filesystem::exists(settings_.tablePath())) {
-      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
-                                       << settings_.tablePath();
-    }
-
-    const string fnameL = settings_.tablePath() + "FitDerTableNew_LayerMem.tab";
-    ofstream outL(fnameL);
-    if (outL.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameL;
+    ofstream outL = openfile(settings_.tablePath(), "FitDerTableNew_LayerMem.tab", __FILE__, __LINE__);
 
     int nbits = 6;
     for (unsigned int i = 0; i < LayerMem_.size(); i++) {
@@ -382,10 +371,7 @@ void TrackDerTable::fillTable() {
     }
     outL.close();
 
-    const string fnameD = settings_.tablePath() + "FitDerTableNew_DiskMem.tab";
-    ofstream outD(fnameD);
-    if (outD.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameD;
+    ofstream outD = openfile(settings_.tablePath(), "FitDerTableNew_DiskMem.tab", __FILE__, __LINE__);
 
     nbits = 7;
     for (int tmp1 : DiskMem_) {
@@ -397,10 +383,7 @@ void TrackDerTable::fillTable() {
     }
     outD.close();
 
-    const string fnameLD = settings_.tablePath() + "FitDerTableNew_LayerDiskMem.tab";
-    ofstream outLD(fnameLD);
-    if (outLD.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fnameLD;
+    ofstream outLD = openfile(settings_.tablePath(), "FitDerTableNew_LayerDiskMem.tab", __FILE__, __LINE__);
 
     nbits = 15;
     for (int tmp1 : LayerDiskMem_) {

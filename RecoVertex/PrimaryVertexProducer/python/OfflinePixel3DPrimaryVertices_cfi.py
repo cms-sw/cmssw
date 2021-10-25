@@ -1,34 +1,23 @@
 import FWCore.ParameterSet.Config as cms
+import RecoVertex.PrimaryVertexProducer.primaryVertexProducer_cfi as _mod
 
-pixelVertices = cms.EDProducer("PrimaryVertexProducer",
+pixelVertices = _mod.primaryVertexProducer.clone(
+    TrackLabel = "pixelTracks",
 
-    verbose = cms.untracked.bool(False),
-    TrackLabel = cms.InputTag("pixelTracks"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-                                        
-    TkFilterParameters = cms.PSet(
-        algorithm=cms.string('filter'),
-        maxNormalizedChi2 = cms.double(100.0),
-        minPixelLayersWithHits=cms.int32(3),
-        minSiliconLayersWithHits = cms.int32(3),
-        maxD0Significance = cms.double(100.0), 
-        minPt = cms.double(0.0),
-        maxEta = cms.double(100.),
-        trackQuality = cms.string("any")
+    TkFilterParameters = dict(
+        maxNormalizedChi2 = 100.0,
+        minPixelLayersWithHits=3,
+        minSiliconLayersWithHits = 3,
+        maxD0Significance = 100.0, 
+        maxEta = 100.,
     ),
 
-    TkClusParameters = cms.PSet(
-        algorithm = cms.string('DA_vect'),
-        TkDAClusParameters = cms.PSet(
-            dzCutOff = cms.double(4.0),
-            d0CutOff = cms.double(3.0),
-            Tmin = cms.double(2.4),
-            Tpurge = cms.double(2.0),
-            Tstop = cms.double(0.5),
-            coolingFactor = cms.double(0.6),
-            vertexSize = cms.double(0.01),
-            zmerge = cms.double(0.01),
-            uniquetrkweight = cms.double(0.9)
+    TkClusParameters = dict(
+        TkDAClusParameters = dict(
+            dzCutOff = 4.0,
+            Tmin = 2.4,
+            vertexSize = 0.01,
+            uniquetrkweight = 0.9
         )
     ),
 
@@ -42,9 +31,4 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
                )
       ]
     )
-                                        
-
-                                        
 )
-
-

@@ -49,12 +49,12 @@ public:
   void setData(const edm::ObjectWithDict&) override;
   void reset() override;
 
-private:
   FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&) = delete;  // stop default
 
   const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&) =
       delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const TClass* m_type;
   std::shared_ptr<TVirtualCollectionProxy> m_colProxy;  //should be something other than shared_ptr

@@ -19,16 +19,21 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 class DTSurvey;
 
-class DTSurveyConvert : public edm::EDAnalyzer {
+class DTSurveyConvert : public edm::one::EDAnalyzer<> {
 public:
   explicit DTSurveyConvert(const edm::ParameterSet &);
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeoToken_;
+
   std::vector<DTSurvey *> wheelList;
   std::string nameWheel_m2;
   std::string nameWheel_m1;
@@ -47,6 +52,10 @@ private:
   bool wheel_p1;
   bool wheel_p2;
   bool WriteToDB;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 #endif

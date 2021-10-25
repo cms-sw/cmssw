@@ -110,12 +110,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #--------------------------------
     # Heavy Ion Configuration Changes
     #--------------------------------
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel   = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siStripDigis.ProductLabel   = "rawDataRepacker"
+    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
 else :
-    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
-    process.siStripDigis.InputLabel     = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+    process.siStripDigis.ProductLabel     = cms.InputTag("rawDataCollector") 
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -127,6 +127,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -155,11 +158,11 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*' , 'HLT_HICentralityVeto*' , 'HLT_HIMinimumBias*','HLT_HIPhysics*')
+    process.hltHighLevel.HLTPaths = ['HLT_ZeroBias_*' , 'HLT_HIZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*' , 'HLT_HICentralityVeto*' , 'HLT_HIMinimumBias*','HLT_HIPhysics*']
 else:
-    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*')
-process.hltHighLevel.andOr = cms.bool(True)
-process.hltHighLevel.throw =  cms.bool(False)
+    process.hltHighLevel.HLTPaths = ['HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*']
+process.hltHighLevel.andOr = True
+process.hltHighLevel.throw =  False
 
 #--------------------------
 # Scheduling
@@ -252,3 +255,4 @@ process = customise(process)
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+print("Final Source settings:", process.source)

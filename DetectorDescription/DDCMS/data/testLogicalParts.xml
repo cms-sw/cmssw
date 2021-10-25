@@ -126,7 +126,14 @@
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:extrudedpgon"/>
     </LogicalPart>
-
+    <LogicalPart name="assembly1">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:assembly1"/>
+    </LogicalPart>
+    <LogicalPart name="assembly2">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:assembly2"/>
+    </LogicalPart>
     <LogicalPart name="V_1101" category="unspecified">
       <rSolid name="testSolids:V_1101"/>
       <rMaterial name="materials:Air"/>

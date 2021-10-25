@@ -1,4 +1,3 @@
-<use name="CommonTools/Egamma"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>
@@ -17,6 +16,7 @@
 <use name="CondFormats/GBRForest"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/ParticleFlowReco"/>
+<use name="PhysicsTools/TensorFlow" />
 <export>
   <lib name="1"/>
 </export>

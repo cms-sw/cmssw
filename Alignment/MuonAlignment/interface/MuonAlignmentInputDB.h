@@ -28,9 +28,23 @@
 
 class MuonAlignmentInputDB : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputDB();
-  MuonAlignmentInputDB(
-      std::string dtLabel, std::string cscLabel, std::string gemLabel, std::string idealLabel, bool getAPEs);
+  MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                       const CSCGeometry* cscGeometry,
+                       const GEMGeometry* gemGeometry,
+                       const Alignments* dtAlignments,
+                       const Alignments* cscAlignments,
+                       const Alignments* gemAlignments,
+                       const Alignments* globalPositionRcd);
+  MuonAlignmentInputDB(const DTGeometry* dtGeometry,
+                       const CSCGeometry* cscGeometry,
+                       const GEMGeometry* gemGeometry,
+                       const Alignments* dtAlignments,
+                       const Alignments* cscAlignments,
+                       const Alignments* gemAlignments,
+                       const Alignments* globalPositionRcd,
+                       const AlignmentErrorsExtended* dtAlignmentErrorsExtended,
+                       const AlignmentErrorsExtended* cscAlignmentErrorsExtended,
+                       const AlignmentErrorsExtended* gemAlignmentErrorsExtended);
   ~MuonAlignmentInputDB() override;
 
   // ---------- const member functions ---------------------
@@ -39,17 +53,26 @@ public:
 
   // ---------- member functions ---------------------------
 
-  AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+  AlignableMuon* newAlignableMuon() const override;
+
+  MuonAlignmentInputDB(const MuonAlignmentInputDB&) = delete;  // stop default
+
+  const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&) = delete;  // stop default
 
 private:
-  MuonAlignmentInputDB(const MuonAlignmentInputDB &) = delete;  // stop default
-
-  const MuonAlignmentInputDB &operator=(const MuonAlignmentInputDB &) = delete;  // stop default
-
   // ---------- member data --------------------------------
+  const DTGeometry* dtGeometry_;
+  const CSCGeometry* cscGeometry_;
+  const GEMGeometry* gemGeometry_;
+  const Alignments* dtAlignments_;
+  const Alignments* cscAlignments_;
+  const Alignments* gemAlignments_;
+  const Alignments* globalPositionRcd_;
+  const AlignmentErrorsExtended* dtAlignmentErrorsExtended_;
+  const AlignmentErrorsExtended* cscAlignmentErrorsExtended_;
+  const AlignmentErrorsExtended* gemAlignmentErrorsExtended_;
 
-  std::string m_dtLabel, m_cscLabel, m_gemLabel, idealGeometryLabel;
-  bool m_getAPEs;
+  const bool m_getAPEs;
 };
 
 #endif

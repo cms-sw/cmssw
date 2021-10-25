@@ -17,6 +17,8 @@ class SiStripNoisesRcd;
 class SiStripNoiseESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripNoiseESSource(const edm::ParameterSet&);
+  SiStripNoiseESSource(const SiStripNoiseESSource&) = delete;
+  const SiStripNoiseESSource& operator=(const SiStripNoiseESSource&) = delete;
   ~SiStripNoiseESSource() override { ; }
 
   virtual std::unique_ptr<SiStripNoises> produce(const SiStripNoisesRcd&);
@@ -27,9 +29,6 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  SiStripNoiseESSource(const SiStripNoiseESSource&) = delete;
-  const SiStripNoiseESSource& operator=(const SiStripNoiseESSource&) = delete;
-
   virtual SiStripNoises* makeNoise() = 0;
 };
 

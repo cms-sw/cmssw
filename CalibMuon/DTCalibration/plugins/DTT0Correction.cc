@@ -20,6 +20,7 @@
 
 #include "CalibMuon/DTCalibration/interface/DTT0CorrectionFactory.h"
 #include "CalibMuon/DTCalibration/interface/DTT0BaseCorrection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,7 +30,10 @@ using namespace std;
 
 DTT0Correction::DTT0Correction(const ParameterSet& pset)
     : correctionAlgo_{DTT0CorrectionFactory::get()->create(pset.getParameter<string>("correctionAlgo"),
-                                                           pset.getParameter<ParameterSet>("correctionAlgoConfig"))} {
+                                                           pset.getParameter<ParameterSet>("correctionAlgoConfig"),
+                                                           consumesCollector())},
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      t0Token_(esConsumes<edm::Transition::BeginRun>()) {
   LogVerbatim("Calibration") << "[DTT0Correction] Constructor called" << endl;
 }
 
@@ -38,12 +42,12 @@ DTT0Correction::~DTT0Correction() { LogVerbatim("Calibration") << "[DTT0Correcti
 void DTT0Correction::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get t0 record from DB
   ESHandle<DTT0> t0H;
-  setup.get<DTT0Rcd>().get(t0H);
-  t0Map_ = &*t0H;
+  t0H = setup.getHandle(t0Token_);
+  t0Map_ = &setup.getData(t0Token_);
   LogVerbatim("Calibration") << "[DTT0Correction]: T0 version: " << t0H->version() << endl;
 
   // Get geometry from Event Setup
-  setup.get<MuonGeometryRecord>().get(muonGeom_);
+  muonGeom_ = setup.getHandle(dtGeomToken_);
 
   // Pass EventSetup to correction Algo
   correctionAlgo_->setES(setup);

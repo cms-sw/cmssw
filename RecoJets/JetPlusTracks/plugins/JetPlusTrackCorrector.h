@@ -90,6 +90,8 @@ namespace jpt {
   public:
     Efficiency(const jpt::Map& response, const jpt::Map& efficiency, const jpt::Map& leakage);
 
+    Efficiency() = delete;
+
     typedef std::pair<uint16_t, double> Pair;
 
     uint16_t nTrks(uint32_t eta_bin, uint32_t pt_bin) const;
@@ -109,8 +111,6 @@ namespace jpt {
     void print() const;
 
   private:
-    Efficiency() = delete;
-
     double sumE(uint32_t eta_bin, uint32_t pt_bin) const;
     double meanE(uint32_t eta_bin, uint32_t pt_bin) const;
 

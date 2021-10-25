@@ -147,6 +147,9 @@
  <class name="edm::StoredMergeableRunProductMetadata" ClassVersion="3">
   <version ClassVersion="3" checksum="2293482595"/>
  </class>
+ <class name="edm::StoredProcessBlockHelper" ClassVersion="3">
+  <version ClassVersion="3" checksum="3443065706"/>
+ </class>
  <class name="edm::ProcessHistoryID"/>
  <class name="std::set<edm::ProcessHistoryID >"/>
  <class name="std::vector<edm::ProcessHistory>"/>
@@ -217,6 +220,10 @@
  <class name="edm::ThinnedAssociationsHelper" ClassVersion="10">
   <version ClassVersion="10" checksum="3444973106"/>
  </class>
+ <class name="edm::EventToProcessBlockIndexes" ClassVersion="3">
+  <version ClassVersion="3" checksum="1281389788"/>
+ </class>
+
  <ioread sourceClass="edm::ProductRegistry" targetClass="edm::ProductRegistry" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();

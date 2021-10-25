@@ -37,7 +37,7 @@ namespace edm {
     void rewind_() override;
     ItemType getNextItemType() override;
     void closeFile_() final;
-    std::unique_ptr<FileBlock> readFile_() final;
+    std::shared_ptr<FileBlock> readFile_() final;
     virtual void genuineCloseFile() {}
     virtual void genuineReadFile() {}
 

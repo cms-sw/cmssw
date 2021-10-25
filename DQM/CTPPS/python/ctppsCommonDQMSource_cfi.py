@@ -9,5 +9,7 @@ ctppsCommonDQMSource = DQMEDAnalyzer('CTPPSCommonDQMSource',
 
     makeProtonRecoPlots = cms.bool(True),
 
+    perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
+
     verbosity = cms.untracked.uint32(0),
 )

@@ -32,6 +32,9 @@
 class PrintLoadingPlugins {
 public:
   PrintLoadingPlugins();
+  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete;                   // stop default
+  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete;  // stop default
+
   virtual ~PrintLoadingPlugins();
 
   void goingToLoad(const std::filesystem::path&);
@@ -46,10 +49,6 @@ public:
   // ---------- member functions ---------------------------
 
 private:
-  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete;  // stop default
-
-  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete;  // stop default
-
   // ---------- member data --------------------------------
 };
 

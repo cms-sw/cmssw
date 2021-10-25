@@ -17,6 +17,7 @@ class DDTestSpecParsFilter : public one::EDAnalyzer<> {
 public:
   explicit DDTestSpecParsFilter(const ParameterSet& iConfig)
       : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
+        m_token(esConsumes(m_tag)),
         m_attribute(iConfig.getUntrackedParameter<string>("attribute", "")),
         m_value(iConfig.getUntrackedParameter<string>("value", "")) {}
 
@@ -26,14 +27,14 @@ public:
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<dd4hep::SpecParRegistry, DDSpecParRegistryRcd> m_token;
   const string m_attribute;
   const string m_value;
 };
 
 void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag;
-  ESTransientHandle<dd4hep::SpecParRegistry> registry;
-  iEventSetup.get<DDSpecParRegistryRcd>().get(m_tag, registry);
+  ESTransientHandle<dd4hep::SpecParRegistry> registry = iEventSetup.getTransientHandle(m_token);
 
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag << " for attribute " << m_attribute
                           << " and value " << m_value;

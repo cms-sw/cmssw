@@ -28,8 +28,6 @@
 // Base Class Headers --
 //----------------------
 
-#include "L1Trigger/L1TMuonBarrel/interface/L1AbstractProcessor.h"
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -42,22 +40,22 @@ class L1MuBMSecProcId;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuBMWedgeSorter : public L1AbstractProcessor {
+class L1MuBMWedgeSorter {
 public:
   /// constructor
   L1MuBMWedgeSorter(const L1MuBMTrackFinder&, int id);
 
   /// destructor
-  ~L1MuBMWedgeSorter() override;
+  ~L1MuBMWedgeSorter();
 
   /// return Wedge Sorter identifier (0-11)
   inline int id() const { return m_wsid; }
 
   /// run Wedge Sorter
-  void run() override;
+  void run();
 
   /// reset Wedge Sorter
-  void reset() override;
+  void reset();
 
   /// print results after sorting
   void print() const;

@@ -15,6 +15,8 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 
@@ -40,14 +42,18 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
+  DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset, edm::ConsumesCollector cc) {
     string residualsRootFile = pset.getParameter<string>("residualsRootFile");
     rootFile_ = new TFile(residualsRootFile.c_str(), "READ");
     rootBaseDir_ = pset.getUntrackedParameter<string>("rootBaseDir", "/DQMData/DT/DTCalibValidation");
     useFit_ = pset.getParameter<bool>("useFitToResiduals");
     //useConstantvDrift_ = pset.getParameter<bool>("useConstantDriftVelocity");
-    dbLabel_ = pset.getUntrackedParameter<string>("dbLabel", "");
     useSlopesCalib_ = pset.getUntrackedParameter<bool>("useSlopesCalib", false);
+    readLegacyVDriftDB = pset.getParameter<bool>("readLegacyVDriftDB");
+    ttrigToken_ =
+        cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
+    mTimeMapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
+    vDriftMapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
 
     // Load external slopes
     if (useSlopesCalib_) {
@@ -78,14 +84,24 @@ namespace dtCalibration {
   void DTTTrigResidualCorrection::setES(const EventSetup& setup) {
     // Get tTrig record from DB
     ESHandle<DTTtrig> tTrig;
-    //setup.get<DTTtrigRcd>().get(tTrig);
-    setup.get<DTTtrigRcd>().get(dbLabel_, tTrig);
+    tTrig = setup.getHandle(ttrigToken_);
     tTrigMap_ = &*tTrig;
 
     // Get vDrift record
-    ESHandle<DTMtime> mTimeHandle;
-    setup.get<DTMtimeRcd>().get(mTimeHandle);
-    mTimeMap_ = &*mTimeHandle;
+    if (readLegacyVDriftDB) {
+      ESHandle<DTMtime> mTimeHandle;
+      mTimeMap_ = &setup.getData(mTimeMapToken_);
+      vDriftMap_ = nullptr;
+    } else {
+      ESHandle<DTRecoConditions> hVdrift;
+      vDriftMap_ = &setup.getData(vDriftMapToken_);
+      mTimeMap_ = nullptr;
+      // Consistency check: no parametrization is implemented for the time being
+      int version = vDriftMap_->version();
+      if (version != 1) {
+        throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+      }
+    }
   }
 
   DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
@@ -94,10 +110,15 @@ namespace dtCalibration {
     if (status != 0)
       throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find tTrig entry in DB for" << slId << endl;
 
-    float vDrift, hitResolution;
-    status = mTimeMap_->get(slId, vDrift, hitResolution, DTVelocityUnits::cm_per_ns);
-    if (status != 0)
-      throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for" << slId << endl;
+    float vDrift, hitResolution = 0.;
+    if (readLegacyVDriftDB) {  // Legacy format
+      status = mTimeMap_->get(slId, vDrift, hitResolution, DTVelocityUnits::cm_per_ns);
+      if (status != 0)
+        throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for" << slId << endl;
+    } else {
+      vDrift = vDriftMap_->get(DTWireId(slId.rawId()));
+    }
+
     TH1F residualHisto = *(getHisto(slId));
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
                             << "   Mean, RMS     = " << residualHisto.GetMean() << ", " << residualHisto.GetRMS();

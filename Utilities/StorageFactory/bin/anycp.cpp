@@ -23,6 +23,8 @@ typedef std::lock_guard<std::mutex> ScopedLock;
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
+using namespace edm::storage;
+
 struct IsDoneWriting {
   int &flag_;
   IsDoneWriting(int &flag) : flag_(flag) {}

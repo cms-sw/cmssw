@@ -1,4 +1,4 @@
-#include "HcalZSAlgoRealistic.h"
+#include "SimCalorimetry/HcalZeroSuppressionProducers/interface/HcalZSAlgoRealistic.h"
 #include <iostream>
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,

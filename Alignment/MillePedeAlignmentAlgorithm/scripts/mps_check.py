@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  This script checks outputs from jobs that have FETCH status and updates if errors occured
 #  -> check STDOUT files
@@ -24,7 +24,7 @@ lib.read_db()
 # create a list of eos ls entries containing files on eos binary store
 command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
 try:
-    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).decode().split('\n')
 except subprocess.CalledProcessError:
     eoslsoutput = ""
 
@@ -136,7 +136,7 @@ for i in range(len(lib.JOBID)):
                                                   "RemoteSysCpu",
                                                   "JobStatus",
                                                   "RemoveReason"],
-                                                 stderr = subprocess.STDOUT)
+                                                 stderr = subprocess.STDOUT).decode()
             condor_log = condor_log.split()
 
             cputime = int(round(float(condor_log[0])))
@@ -242,7 +242,7 @@ for i in range(len(lib.JOBID)):
             for line in eoslsoutput:
                 if milleOut in line:
                     columns = line.split()
-                    mOutSize = columns[4] # 5th column = size
+                    mOutSize = int(columns[4]) # 5th column = size
             if not (mOutSize>0):
                 emptyDatErr = 1
 

@@ -69,6 +69,7 @@ protected:
   hcaldqm::Container1D _cEtData_TTSubdet;
   hcaldqm::Container1D _cEtEmul_TTSubdet;
   hcaldqm::Container2D _cEtCorr_TTSubdet;
+  hcaldqm::Container2D _cSOIEtCorr_TTSubdet;
   hcaldqm::Container2D _cEtCorr2x3_TTSubdet;  //	online only
   hcaldqm::Container2D _cFGCorr_TTSubdet[hcaldqm::constants::NUM_FGBITS];
   hcaldqm::ContainerProf1D _cEtCutDatavsLS_TTSubdet;  // online only!
@@ -76,9 +77,7 @@ protected:
   hcaldqm::ContainerProf1D _cEtCutDatavsBX_TTSubdet;  // online only!
   hcaldqm::ContainerProf1D _cEtCutEmulvsBX_TTSubdet;  // online only!
 
-  hcaldqm::ContainerProf2D _cEtData_ElectronicsVME;
   hcaldqm::ContainerProf2D _cEtData_ElectronicsuTCA;
-  hcaldqm::ContainerProf2D _cEtEmul_ElectronicsVME;
   hcaldqm::ContainerProf2D _cEtEmul_ElectronicsuTCA;
 
   //	depth like
@@ -88,21 +87,16 @@ protected:
   hcaldqm::ContainerSingleProf2D _cEtCutEmul_depthlike;
 
   //	Et Correlation Ratio
-  hcaldqm::ContainerProf2D _cEtCorrRatio_ElectronicsVME;
   hcaldqm::ContainerProf2D _cEtCorrRatio_ElectronicsuTCA;
   hcaldqm::ContainerSingleProf2D _cEtCorrRatio_depthlike;
   hcaldqm::ContainerProf1D _cEtCorrRatiovsLS_TTSubdet;  // online only!
   hcaldqm::ContainerProf1D _cEtCorrRatiovsBX_TTSubdet;  // online only!
 
   //	Occupancies
-  hcaldqm::Container2D _cOccupancyData_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyData_ElectronicsuTCA;
-  hcaldqm::Container2D _cOccupancyEmul_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyEmul_ElectronicsuTCA;
 
-  hcaldqm::Container2D _cOccupancyCutData_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyCutData_ElectronicsuTCA;
-  hcaldqm::Container2D _cOccupancyCutEmul_ElectronicsVME;
   hcaldqm::Container2D _cOccupancyCutEmul_ElectronicsuTCA;
 
   //	depth like
@@ -116,9 +110,7 @@ protected:
   hcaldqm::ContainerSingle2D _cOccupancyEmul2x3_depthlike;  // online only!
 
   //	Mismatches: Et and FG
-  hcaldqm::Container2D _cEtMsm_ElectronicsVME;
   hcaldqm::Container2D _cEtMsm_ElectronicsuTCA;
-  hcaldqm::Container2D _cFGMsm_ElectronicsVME;
   hcaldqm::Container2D _cFGMsm_ElectronicsuTCA;
   hcaldqm::ContainerSingle2D _cEtMsm_depthlike;
   hcaldqm::ContainerSingle2D _cFGMsm_depthlike;
@@ -132,7 +124,6 @@ protected:
   hcaldqm::ContainerSingle1D _cEtMsm_uHTR_L1T_LS;
 
   //	Missing Data w.r.t. Emulator
-  hcaldqm::Container2D _cMsnData_ElectronicsVME;
   hcaldqm::Container2D _cMsnData_ElectronicsuTCA;
   hcaldqm::ContainerSingle2D _cMsnData_depthlike;
   hcaldqm::ContainerProf1D _cMsnDatavsLS_TTSubdet;     //	online only
@@ -141,7 +132,6 @@ protected:
   hcaldqm::ContainerProf1D _cMsnCutDatavsBX_TTSubdet;  // online only
 
   //	Missing Emulator w.r.t. Data
-  hcaldqm::Container2D _cMsnEmul_ElectronicsVME;
   hcaldqm::Container2D _cMsnEmul_ElectronicsuTCA;
   hcaldqm::ContainerSingle2D _cMsnEmul_depthlike;
   hcaldqm::ContainerProf1D _cMsnEmulvsLS_TTSubdet;     // online only

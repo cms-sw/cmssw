@@ -8,9 +8,6 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 
 class CSCBaseboard {
@@ -33,6 +30,8 @@ public:
 
   std::string getCSCName() const { return theCSCName_; }
 
+  CSCDetId id() const { return cscId_; }
+
 protected:
   void checkConfigParameters(unsigned int& var,
                              const unsigned int var_max,
@@ -45,7 +44,7 @@ protected:
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-  unsigned theRegion;
+  int theRegion;
   unsigned theRing;
   unsigned theChamber;
 

@@ -204,7 +204,7 @@ void HGCalPhotonIDValueMapProducer::endStream() {}
 void HGCalPhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalPhotonIDValueMap
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("photons", edm::InputTag("photonsFromMultiCl"));
+  desc.add<edm::InputTag>("photons", edm::InputTag("photonsHGC"));
   desc.add<double>("pcaRadius", 3.0);
   desc.add<std::vector<std::string>>("variables", valuesProduced_);
   desc.add<std::vector<double>>("dEdXWeights")

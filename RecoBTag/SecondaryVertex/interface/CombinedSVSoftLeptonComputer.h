@@ -27,7 +27,9 @@ private:
   bool SoftLeptonFlip;
 };
 
-double CombinedSVSoftLeptonComputer::flipSoftLeptonValue(double value) const { return SoftLeptonFlip ? -value : value; }
+inline double CombinedSVSoftLeptonComputer::flipSoftLeptonValue(double value) const {
+  return SoftLeptonFlip ? -value : value;
+}
 
 template <class IPTI, class SVTI>
 reco::TaggingVariableList CombinedSVSoftLeptonComputer::operator()(const IPTI &ipInfo,

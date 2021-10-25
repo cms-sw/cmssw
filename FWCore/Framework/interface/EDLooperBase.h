@@ -74,6 +74,8 @@ namespace edm {
   class ModuleChanger;
   class ProcessingController;
   class ActivityRegistry;
+  class ServiceToken;
+  class WaitingTaskHolder;
 
   class EDLooperBase : public EDConsumerBase {
   public:
@@ -100,6 +102,17 @@ namespace edm {
     virtual void beginOfJob();
 
     virtual void endOfJob();
+
+    void prefetchAsync(WaitingTaskHolder iTask,
+                       ServiceToken const& token,
+                       Transition iTrans,
+                       Principal const& iPrincipal,
+                       EventSetupImpl const& iImpl) const;
+
+    void esPrefetchAsync(WaitingTaskHolder iTask,
+                         EventSetupImpl const& iImpl,
+                         Transition iTrans,
+                         ServiceToken const& iToken) const;
 
     ///Override this method if you need to monitor the state of the processing
     virtual void attachTo(ActivityRegistry&);
@@ -145,6 +158,8 @@ namespace edm {
 
     ///Called after all event modules have processed the end of a LuminosityBlock
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+
+    void edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const;
 
     unsigned int iCounter_;
     ExceptionToActionTable const* act_table_;

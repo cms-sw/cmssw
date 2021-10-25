@@ -26,9 +26,7 @@ RecoEcalAOD = cms.PSet(
         'keep recoCaloClusters_particleFlowSuperClusterOOTECAL_*_*')
 )
 _phase2_hgcal_scCommandsAOD = ['keep recoSuperClusters_particleFlowSuperClusterHGCal__*',
-                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*',
-                               'keep recoSuperClusters_particleFlowSuperClusterHGCalFromMultiCl__*',
-                               'keep recoCaloClusters_particleFlowSuperClusterHGCalFromMultiCl__*']
+                               'keep recoCaloClusters_particleFlowSuperClusterHGCal__*']
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(RecoEcalAOD,
@@ -65,8 +63,7 @@ RecoEcalRECO = cms.PSet(
         'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
 RecoEcalRECO.outputCommands.extend(RecoEcalAOD.outputCommands)
-_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*',
-                            'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*']
+_phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*']
 phase2_hgcal.toModify(RecoEcalRECO,
     outputCommands = RecoEcalRECO.outputCommands + _phase2_hgcal_scCommands)
 

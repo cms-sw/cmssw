@@ -14,6 +14,7 @@
 class HFNoseNumberingScheme {
 public:
   HFNoseNumberingScheme(const HGCalDDDConstants& hgc);
+  HFNoseNumberingScheme() = delete;
   ~HFNoseNumberingScheme() {}
 
   /**
@@ -24,7 +25,6 @@ public:
 private:
   void checkPosition(uint32_t index, const G4ThreeVector& pos) const;
 
-  HFNoseNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode mode_;
 };

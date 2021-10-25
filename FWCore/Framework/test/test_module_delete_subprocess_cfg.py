@@ -168,7 +168,10 @@ process.addSubProcess( cms.SubProcess(
 subprocessB.consumerEventFromA = intEventConsumer.clone(moduleLabel = "producerAEventConsumedInB", valueMustMatch = 1)
 subprocessB.consumerBeginLumiFromA = nonEventConsumer("beginLumi", "producerA%sConsumedInB", 2)
 subprocessB.consumerEndRunFromA = nonEventConsumer("endRun", "producerA%sConsumedInB", 5)
-subprocessB.consumerBeginProcessBlockFromA = nonEventConsumer("beginProcessBlock", "producerA%sConsumedInB", 6)
+subprocessB.consumerBeginProcessBlockFromA = intNonEventProducer.clone(
+    consumesAccessInputProcessBlock = cms.InputTag("producerABeginProcessBlockConsumedInB", "beginProcessBlock"),
+    expectAccessInputProcessBlock = cms.untracked.int32(6)
+)
 
 subprocessB.consumerAEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [
@@ -288,8 +291,14 @@ subprocessBA.consumerBeginLumiFromA = nonEventConsumer("beginLumi", "producerA%s
 subprocessBA.consumerEndLumiFromA = nonEventConsumer("endLumi", "producerA%sConsumedInBA", 30)
 subprocessBA.consumerBeginRunFromA = nonEventConsumer("beginRun", "producerA%sConsumedInBA", 40)
 subprocessBA.consumerEndRunFromA = nonEventConsumer("endRun", "producerA%sConsumedInBA", 50)
-subprocessBA.consumerBeginProcessBlockFromA = nonEventConsumer("beginProcessBlock", "producerA%sConsumedInBA", 60)
-subprocessBA.consumerEndProcessBlockFromA = nonEventConsumer("endProcessBlock", "producerA%sConsumedInBA", 70)
+subprocessBA.consumerBeginProcessBlockFromA = intNonEventProducer.clone(
+    consumesAccessInputProcessBlock = cms.InputTag("producerABeginProcessBlockConsumedInBA", "beginProcessBlock"),
+    expectAccessInputProcessBlock = cms.untracked.int32(60)
+)
+subprocessBA.consumerEndProcessBlockFromA = intNonEventProducer.clone(
+    consumesAccessInputProcessBlock = cms.InputTag("producerAEndProcessBlockConsumedInBA", "endProcessBlock"),
+    expectAccessInputProcessBlock = cms.untracked.int32(70)
+)
 
 subprocessBA.consumerABEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [
@@ -389,7 +398,10 @@ process.addSubProcess( cms.SubProcess(
 
 subprocessC.consumerEndLumiFromA = nonEventConsumer("endLumi", "producerA%sConsumedInC", 3)
 subprocessC.consumerBeginRunFromA = nonEventConsumer("beginRun", "producerA%sConsumedInC", 4)
-subprocessC.consumerEndProcessBlockFromA = nonEventConsumer("endProcessBlock", "producerA%sConsumedInC", 7)
+subprocessC.consumerEndProcessBlockFromA = intNonEventProducer.clone(
+    consumesAccessInputProcessBlock = cms.InputTag("producerAEndProcessBlockConsumedInC", "endProcessBlock"),
+    expectAccessInputProcessBlock = cms.untracked.int32(7)
+)
 
 subprocessC.consumerAEventNotConsumed = intGenericConsumer.clone(
     srcEvent = [

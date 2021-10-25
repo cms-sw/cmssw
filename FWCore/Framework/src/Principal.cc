@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
-#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "ProductResolvers.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -562,6 +562,10 @@ namespace edm {
   Principal::ConstProductResolverPtr Principal::getProductResolverByIndex(ProductResolverIndex const& index) const {
     ConstProductResolverPtr const phb = productResolvers_[index].get();
     return phb;
+  }
+
+  unsigned int Principal::processBlockIndex(std::string const&) const {
+    throw Exception(errors::LogicError) << "Principal::processBlockIndex not implemented for this type of Principal";
   }
 
   BasicHandle Principal::getByLabel(KindOfType kindOfType,

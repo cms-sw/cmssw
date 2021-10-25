@@ -43,8 +43,6 @@ EcalTBGeometryBuilder::~EcalTBGeometryBuilder() {}
 
 // ------------ method called to produce the data  ------------
 EcalTBGeometryBuilder::ReturnType EcalTBGeometryBuilder::produce(const IdealGeometryRecord& iRecord) {
-  edm::ESHandle<CaloSubdetectorGeometry> pG;
-
   auto pCaloGeom = std::make_unique<CaloGeometry>();
 
   // TODO: Look for ECAL parts

@@ -13,7 +13,7 @@ protected:
   using FWSimpleProxyBuilderTemplate<reco::Jet>::build;
   void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 
-private:
+public:
   FWJetLegoProxyBuilder(const FWJetLegoProxyBuilder&) = delete;                   // stop default
   const FWJetLegoProxyBuilder& operator=(const FWJetLegoProxyBuilder&) = delete;  // stop default
 };

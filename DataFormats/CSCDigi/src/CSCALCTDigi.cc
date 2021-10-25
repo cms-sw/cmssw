@@ -43,7 +43,6 @@ CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
   clear();  // set contents to zero
-  version_ = Version::Legacy;
 }
 
 /// Clears this ALCT.
@@ -58,6 +57,7 @@ void CSCALCTDigi::clear() {
   fullbx_ = 0;
   hmt_ = 0;
   hits_.resize(NUM_LAYERS);
+  version_ = Version::Legacy;
   for (auto& p : hits_) {
     p.resize(ALCT_PATTERN_WIDTH);
   }
@@ -97,8 +97,7 @@ bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getAccelerator() == rhs.getAccelerator() &&
-      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX() &&
-      getHMT() == rhs.getHMT()) {
+      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX()) {
     returnValue = true;
   }
   return returnValue;
@@ -119,8 +118,7 @@ void CSCALCTDigi::print() const {
                                 << " Quality = " << setw(2) << getQuality() << " Accel. = " << setw(1)
                                 << getAccelerator() << " PatternB = " << setw(1) << getCollisionB()
                                 << " Key wire group = " << setw(3) << getKeyWG() << " BX = " << setw(2) << getBX()
-                                << " Full BX = " << std::setw(1) << getFullBX() << " HMT = " << std::setw(1)
-                                << getHMT();
+                                << " Full BX = " << std::setw(1) << getFullBX();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
@@ -129,5 +127,5 @@ void CSCALCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi) {
   return o << "CSC ALCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " Accel. = " << digi.getAccelerator() << " PatternB = " << digi.getCollisionB()
-           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX() << " HMT = " << digi.getHMT();
+           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX();
 }

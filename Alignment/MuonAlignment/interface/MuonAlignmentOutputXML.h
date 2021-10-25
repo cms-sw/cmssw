@@ -28,13 +28,18 @@
 // user include files
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
-
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 // forward declarations
 class AlignableObjectId;
 
 class MuonAlignmentOutputXML {
 public:
-  MuonAlignmentOutputXML(const edm::ParameterSet &iConfig);
+  MuonAlignmentOutputXML(const edm::ParameterSet &iConfig,
+                         const DTGeometry *dtGeometry,
+                         const CSCGeometry *cscGeometry,
+                         const GEMGeometry *gemGeometry);
   virtual ~MuonAlignmentOutputXML();
 
   // ---------- const member functions ---------------------
@@ -43,18 +48,19 @@ public:
 
   // ---------- member functions ---------------------------
 
-  void write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const;
+  void write(AlignableMuon *alignableMuon) const;
 
-private:
   MuonAlignmentOutputXML(const MuonAlignmentOutputXML &) = delete;  // stop default
 
   const MuonAlignmentOutputXML &operator=(const MuonAlignmentOutputXML &) = delete;  // stop default
 
+private:
+  enum { doDT, doCSC, doGEM };
   void writeComponents(align::Alignables &alignables,
                        align::Alignables &ideals,
                        std::map<align::ID, CLHEP::HepSymMatrix> &errors,
                        std::ofstream &outputFile,
-                       bool DT,
+                       const int doDet,
                        const AlignableObjectId &) const;
 
   // ---------- member data --------------------------------
@@ -65,7 +71,12 @@ private:
   bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers,
       m_suppressDTLayers;
   bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
-  std::string idealGeometryLabel;
+  bool m_suppressGEMEndcaps, m_suppressGEMStations, m_suppressGEMRings, m_suppressGEMSuperChambers,
+      m_suppressGEMChambers, m_suppressGEMEtaPartitions;
+
+  const DTGeometry *dtGeometry_;
+  const CSCGeometry *cscGeometry_;
+  const GEMGeometry *gemGeometry_;
 };
 
 #endif

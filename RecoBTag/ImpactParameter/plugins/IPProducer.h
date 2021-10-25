@@ -441,7 +441,7 @@ void IPProducer<Container, Base, Helper>::checkEventSetup(const edm::EventSetup&
 // Specialized templates used to fill 'descriptions'
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 template <>
-void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(
+inline void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("maximumTransverseImpactParameter", 0.2);
@@ -462,7 +462,8 @@ void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJ
 }
 
 template <>
-void IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
+inline void
+IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("maximumTransverseImpactParameter", 0.2);

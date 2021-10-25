@@ -29,6 +29,7 @@ class GeometricSearchTracker;
 class DirectTrackerNavigation;
 struct TrajectoryStateTransform;
 class TrackerTopology;
+class TrackerRecoGeometryRecord;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
 public:
@@ -105,15 +106,10 @@ private:
     }
   };
 
-  unsigned long long theCacheId_MT;
   unsigned long long theCacheId_TG;
 
   const std::string theCategory;
 
-  edm::ESHandle<GeometricSearchTracker> theTracker;
-
-  const std::string theMeasTrackerName;
-  edm::ESHandle<MeasurementTracker> theMeasTracker;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
 
   std::unique_ptr<const DirectTrackerNavigation> theNavigation;
@@ -150,6 +146,7 @@ private:
   edm::Handle<reco::BeamSpot> beamSpot;
   const edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
   const edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
+  const edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> theTrackerToken;
 };
 
 #endif

@@ -7,6 +7,7 @@ int main() {
   testSerialization<PCaloGeometry>();
   testSerialization<PGeometricDet>();
   //testSerialization<PGeometricDet::Item>(); has uninitialized booleans
+  testSerialization<PTrackerAdditionalParametersPerDet>();
   testSerialization<RecoIdealGeometry>();
   testSerialization<std::vector<PGeometricDet::Item>>();
   testSerialization<PTrackerParameters>();

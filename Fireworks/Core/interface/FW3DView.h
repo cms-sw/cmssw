@@ -41,11 +41,11 @@ public:
 
   // ---------- member functions ---------------------------
 
-private:
   FW3DView(const FW3DView&) = delete;  // stop default
 
   const FW3DView& operator=(const FW3DView&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   TEveCalo3D* m_calo;
 };

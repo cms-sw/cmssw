@@ -16,12 +16,12 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
+//#define EDM_ML_DEBUG
+
 HFChamberSD::HFChamberSD(const std::string& name,
-                         const edm::EventSetup& es,
-                         const SensitiveDetectorCatalog& clg,
-                         edm::ParameterSet const& p,
-                         const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, clg), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
+						       const SensitiveDetectorCatalog& clg,
+						       const SimTrackManager* manager)
+    : SensitiveCaloDetector(name, clg), theHCID(-1), theHC(nullptr), theNSteps(0) {
   edm::LogVerbatim("FiberSim") << "HFChamberSD : Instantiated for " << name;
 }
 
@@ -33,8 +33,7 @@ void HFChamberSD::Initialize(G4HCofThisEvent* HCE) {
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
-  edm::LogVerbatim("FiberSim") << "HFChamberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
-                               << theHC;
+  edm::LogVerbatim("FiberSim") << "HFChamberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":" << theHC;
 }
 
 G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -64,11 +63,9 @@ G4bool HFChamberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   aHit->setGlobalPos(globalPos);
   aHit->setPrimMomDir(momDir);
 
-  edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName()
-                               << ")  ID " << detID << " Track " << trackID << " Edep: " << edep / CLHEP::MeV
-                               << " MeV; Time: " << time << " ns; Position (local) " << localPos << " (global ) "
-                               << globalPos << " direction " << momDir;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FiberSim") << "HFChamberSD: Hit created in (" << touch->GetVolume(0)->GetLogicalVolume()->GetName() << ")  ID " << detID << " Track " << trackID << " Edep: " << edep / CLHEP::MeV << " MeV; Time: " << time << " ns; Position (local) " << localPos << " (global ) " << globalPos << " direction " << momDir;
+#endif
   theHC->insert(aHit);
   return true;
 }

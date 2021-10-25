@@ -11,10 +11,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+class TrackerTopology;
 
 class TrackerAlignment {
 public:
-  TrackerAlignment(const edm::EventSetup& setup);
+  TrackerAlignment(const TrackerTopology* tTopo, const TrackerGeometry* tGeom);
 
   ~TrackerAlignment();
 
@@ -44,7 +48,6 @@ public:
 
 private:
   AlignableTracker* theAlignableTracker;
-
   std::string theAlignRecordName, theErrorRecordName;
 };
 #endif  //TrackerAlignment_H

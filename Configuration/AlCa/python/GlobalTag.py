@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 import sys
-import six
 
 def checkPrefix(mainList, inputGTParams):
     """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
@@ -131,7 +130,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(six.iteritems(custom_conditions)):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.items()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

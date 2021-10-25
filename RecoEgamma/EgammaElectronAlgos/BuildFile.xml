@@ -13,6 +13,7 @@
 <use name="DataFormats/CaloRecHit"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
 <use name="RecoTracker/MeasurementDet"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/GsfTools"/>

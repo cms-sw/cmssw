@@ -33,8 +33,10 @@ private:
 HcalSimParametersESModule::HcalSimParametersESModule(const edm::ParameterSet& ps) {
   fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
   auto cc = setWhatProduced(this);
-  cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
-  cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4Hep_)
+    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  else
+    cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalSimParametersESModule::HcalSimParametersESModule called with dd4hep: "

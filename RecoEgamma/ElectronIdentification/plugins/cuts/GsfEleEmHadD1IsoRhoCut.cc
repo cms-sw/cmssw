@@ -51,7 +51,7 @@ void GsfEleEmHadD1IsoRhoCut::getEventContent(const edm::EventBase& ev) {
 CutApplicatorBase::result_type GsfEleEmHadD1IsoRhoCut::operator()(const reco::GsfElectronPtr& cand) const {
   const double rho = (*rhoHandle_);
 
-  const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalDepth1TowerSumEt();
+  const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalTowerSumEt(1);
 
   const float sinTheta = cand->p() != 0. ? cand->pt() / cand->p() : 0.;
   const float et = energyRetriever_(*cand) * sinTheta;
@@ -63,5 +63,5 @@ CutApplicatorBase::result_type GsfEleEmHadD1IsoRhoCut::operator()(const reco::Gs
 
 double GsfEleEmHadD1IsoRhoCut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
-  return ele->dr03EcalRecHitSumEt() + ele->dr03HcalDepth1TowerSumEt();
+  return ele->dr03EcalRecHitSumEt() + ele->dr03HcalTowerSumEt(1);
 }

@@ -78,7 +78,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFEcalClusterLegoProxyBuilder(const FWPFEcalClusterLegoProxyBuilder&) = delete;
   const FWPFEcalClusterLegoProxyBuilder& operator=(const FWPFEcalClusterLegoProxyBuilder&) = delete;
 };
@@ -100,7 +99,6 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFHcalClusterLegoProxyBuilder(const FWPFHcalClusterLegoProxyBuilder&) = delete;
   const FWPFHcalClusterLegoProxyBuilder& operator=(const FWPFHcalClusterLegoProxyBuilder&) = delete;
 };

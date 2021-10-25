@@ -9,7 +9,6 @@
 class TotemT2ScintSD : public CaloSD {
 public:
   TotemT2ScintSD(const std::string &,
-                 const edm::EventSetup &,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);

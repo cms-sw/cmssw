@@ -82,23 +82,20 @@ hiHighPtTripletStepPixelTracksFilter = hiFilter.clone(
     tipMax = 1.0,
     ptMin = 1.0, #seeding region is 0.6
 )
-hiHighPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
-    passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
+hiHighPtTripletStepPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel detached tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiHighPtTripletStepTracksHitTripletsCA"),
-	
+    SeedingHitSets = "hiHighPtTripletStepTracksHitTripletsCA",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiHighPtTripletStepPixelTracksFilter"),
-	
+    Filter = "hiHighPtTripletStepPixelTracksFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
-
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 hiHighPtTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(

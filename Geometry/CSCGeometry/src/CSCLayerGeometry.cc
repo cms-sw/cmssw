@@ -5,7 +5,7 @@
 
 #include <Geometry/CSCGeometry/src/CSCUngangedStripTopology.h>
 #include <Geometry/CSCGeometry/src/CSCGangedStripTopology.h>
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include <Geometry/CSCGeometry/interface/CSCWireGroupPackage.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

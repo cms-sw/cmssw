@@ -1,7 +1,7 @@
 #ifndef CommonAlignmentMonitor_AlignmentStats_H
 #define CommonAlignmentMonitor_AlignmentStats_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,7 +26,7 @@
 //trivial change to trigger checks
 //using namespace edm;
 
-class AlignmentStats : public edm::EDAnalyzer {
+class AlignmentStats : public edm::one::EDAnalyzer<> {
 public:
   AlignmentStats(const edm::ParameterSet &iConfig);
   ~AlignmentStats() override;
@@ -35,6 +35,10 @@ public:
   void endJob() override;
 
 private:
+  // esToken
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTTopo_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenTkGeo_;
+
   //////inputs from config file
   edm::InputTag src_;
   edm::InputTag overlapAM_;
@@ -60,9 +64,8 @@ private:
   DetHitMap hitmap_;
   DetHitMap overlapmap_;
 
-  //  edm::ESHandle<TrackerGeometry> trackerGeometry_;
-  const TrackerGeometry *trackerGeometry_;
-  const TrackerTopology *trackerTopology_;
+  std::unique_ptr<TrackerTopology> trackerTopology_;
+  std::unique_ptr<TrackerGeometry> trackerGeometry_;
 };
 
 #endif

@@ -89,7 +89,8 @@ namespace edm {
   }
 
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
-                               eventsetup::ESRecordsToProxyIndices const& iESIndices) {
+                               eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                               ProcessBlockHelperBase const& processBlockHelperBase) {
     auto const processBlockLookup = iRegistry.productLookup(InProcess);
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
@@ -110,6 +111,7 @@ namespace edm {
         worker->resolvePutIndicies(InRun, runModuleToIndicies);
         worker->resolvePutIndicies(InLumi, lumiModuleToIndicies);
         worker->resolvePutIndicies(InEvent, eventModuleToIndicies);
+        worker->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
       }
 
       for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));

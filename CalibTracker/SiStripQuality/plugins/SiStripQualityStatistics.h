@@ -6,30 +6,29 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CalibTracker/SiStripQuality/interface/SiStripQualityWithFromFedErrorsHelper.h"
 
-class SiStripDetInfoFileReader;
 class SiStripFedCabling;
 
 class SiStripQualityStatistics : public DQMEDHarvester {
 public:
   explicit SiStripQualityStatistics(const edm::ParameterSet&);
-  ~SiStripQualityStatistics() override;
+  ~SiStripQualityStatistics() override = default;
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void updateAndSave(const SiStripQuality* siStripQuality);
   void SetBadComponents(int, int, SiStripQuality::BadComponent&);
 
-  unsigned long long m_cacheID_;
   edm::RunID run_;
   std::string dataLabel_;
   std::string TkMapFileName_;
@@ -43,17 +42,11 @@ private:
   std::stringstream ssV[4][19];
 
   TrackerMap *tkMap, *tkMapFullIOVs;
-  SiStripDetInfoFileReader* reader;
+  SiStripDetInfo detInfo_;
   std::unique_ptr<TkHistoMap> tkhisto;
-  bool addBadCompFromFedErr_;
-  float fedErrCutoff_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
-  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
-  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
-  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
-  const TrackerTopology* tTopo_;
-  const SiStripFedCabling* fedCabling_;
-  const SiStripQuality* siStripQuality_;
+  std::unique_ptr<TrackerTopology> tTopo_;
+  SiStripQualityWithFromFedErrorsHelper withFedErrHelper_;
 };
 #endif

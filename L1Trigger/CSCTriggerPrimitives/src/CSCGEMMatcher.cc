@@ -1,5 +1,4 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMatcher.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/GEMInternalCluster.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
@@ -10,12 +9,14 @@
 #include <cmath>
 
 CSCGEMMatcher::CSCGEMMatcher(
-    int endcap, unsigned station, unsigned chamber, const edm::ParameterSet& tmbParams, const edm::ParameterSet& luts)
+    int endcap, unsigned station, unsigned chamber, const edm::ParameterSet& tmbParams, const edm::ParameterSet& conf)
     : endcap_(endcap), station_(station), chamber_(chamber) {
   isEven_ = (chamber_ % 2 == 0);
 
   maxDeltaBXALCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXALCTGEM");
   maxDeltaBXCLCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXCLCTGEM");
+
+  matchWithHS_ = tmbParams.getParameter<bool>("matchWithHS");
 
   maxDeltaHsEven_ = tmbParams.getParameter<unsigned>("maxDeltaHsEven");
   maxDeltaHsOdd_ = tmbParams.getParameter<unsigned>("maxDeltaHsOdd");
@@ -25,36 +26,13 @@ CSCGEMMatcher::CSCGEMMatcher(
     maxDeltaHsOddME1a_ = tmbParams.getParameter<unsigned>("maxDeltaHsOddME1a");
   }
 
+  mitigateSlopeByCosi_ = tmbParams.getParameter<bool>("mitigateSlopeByCosi");
   assign_gem_csc_bending_ = tmbParams.getParameter<bool>("assignGEMCSCBending");
-
-  gemCscSlopeCorrectionFiles_ = luts.getParameter<std::vector<std::string>>("gemCscSlopeCorrectionFiles");
-
-  gem_csc_slope_corr_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[0]);
-  gem_csc_slope_corr_L2_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[1]);
-  gem_csc_slope_corr_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[2]);
-  gem_csc_slope_corr_L2_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCorrectionFiles_[3]);
-
-  if (assign_gem_csc_bending_) {
-    esDiffToSlopeME1aFiles_ = luts.getParameter<std::vector<std::string>>("esDiffToSlopeME1aFiles");
-    esDiffToSlopeME1bFiles_ = luts.getParameter<std::vector<std::string>>("esDiffToSlopeME1bFiles");
-    esDiffToSlopeME21Files_ = luts.getParameter<std::vector<std::string>>("esDiffToSlopeME21Files");
-
-    es_diff_slope_L1_ME1a_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[0]);
-    es_diff_slope_L1_ME1a_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[1]);
-    es_diff_slope_L2_ME1a_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[2]);
-    es_diff_slope_L2_ME1a_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1aFiles_[3]);
-
-    es_diff_slope_L1_ME1b_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[0]);
-    es_diff_slope_L1_ME1b_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[1]);
-    es_diff_slope_L2_ME1b_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[2]);
-    es_diff_slope_L2_ME1b_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME1bFiles_[3]);
-
-    es_diff_slope_L1_ME21_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[0]);
-    es_diff_slope_L1_ME21_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[1]);
-    es_diff_slope_L2_ME21_even_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[2]);
-    es_diff_slope_L2_ME21_odd_ = std::make_unique<CSCLUTReader>(esDiffToSlopeME21Files_[3]);
-  }
 }
+
+void CSCGEMMatcher::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) { lookupTableME11ILT_ = conf; }
+
+void CSCGEMMatcher::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) { lookupTableME21ILT_ = conf; }
 
 unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const {
   // difference in 1/8-strip number
@@ -66,14 +44,14 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
   if (station_ == 2) {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME21_even_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L1_ME21_even(diff);
       else
-        slope = es_diff_slope_L2_ME21_even_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L2_ME21_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME21_odd_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L1_ME21_odd(diff);
       else
-        slope = es_diff_slope_L2_ME21_odd_->lookup(diff);
+        slope = lookupTableME21ILT_->es_diff_slope_L2_ME21_odd(diff);
     }
   }
 
@@ -82,26 +60,26 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
   if (station_ == 1 and isME1a) {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1a_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_even(diff);
       else
-        slope = es_diff_slope_L2_ME1a_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1a_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1a_odd(diff);
       else
-        slope = es_diff_slope_L2_ME1a_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1a_odd(diff);
     }
   } else {
     if (isEven_) {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1b_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_even(diff);
       else
-        slope = es_diff_slope_L2_ME1b_even_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_even(diff);
     } else {
       if (cluster.id().layer() == 1)
-        slope = es_diff_slope_L1_ME1b_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L1_ME1b_odd(diff);
       else
-        slope = es_diff_slope_L2_ME1b_odd_->lookup(diff);
+        slope = lookupTableME11ILT_->es_diff_slope_L2_ME1b_odd(diff);
     }
   }
 
@@ -112,7 +90,7 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
 void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
-  if (!alct.isValid())
+  if (!alct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in time
@@ -127,7 +105,7 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBX(const CSCCLCTDigi& clct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
-  if (!clct.isValid())
+  if (!clct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in time
@@ -144,7 +122,7 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
   // both need to be valid
-  if (!alct.isValid() or !clct.isValid())
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
     return;
 
   // get the single matches
@@ -165,34 +143,43 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
-  if (!alct.isValid())
+  if (!alct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in wiregroup
   for (const auto& cl : clusters) {
-    if (cl.min_wg() <= alct.getKeyWG() and alct.getKeyWG() <= cl.max_wg())
+    // for now add 10 wiregroups to make sure the matching can be done
+    // this should be quite generous
+    unsigned deltaWG(station_ == 1 ? 10 : 20);
+    if (cl.min_wg() <= alct.getKeyWG() and alct.getKeyWG() <= cl.max_wg() + deltaWG) {
       output.push_back(cl);
+    }
   }
 }
 
 void CSCGEMMatcher::matchingClustersLoc(const CSCCLCTDigi& clct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
-  if (!clct.isValid())
+  if (!clct.isValid() or clusters.empty())
     return;
 
   // select clusters matched by 1/2-strip or 1/8-strip
   for (const auto& cl : clusters) {
-    const bool isMatched(clct.isRun3() ? matchedClusterLocES(clct, cl) : matchedClusterLocHS(clct, cl));
-    if (isMatched)
+    const bool isMatched(matchWithHS_ ? matchedClusterLocHS(clct, cl) : matchedClusterLocES(clct, cl));
+    if (isMatched) {
       output.push_back(cl);
+    }
   }
 }
 
 // match by 1/2-strip
 bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMInternalCluster& cluster) const {
-  const unsigned halfStripDiff = std::abs(int(clct.getKeyStrip(2)) - int(cluster.getKeyStrip(2)));
   const bool isME1a(station_ == 1 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
+
+  unsigned halfStripDiff = std::abs(int(clct.getKeyStrip(2)) - int(cluster.getKeyStrip(2)));
+  if (isME1a) {
+    halfStripDiff = std::abs(int(clct.getKeyStrip(2)) - int(cluster.getKeyStripME1a(2)));
+  }
 
   // 98% acceptance cuts
   unsigned halfStripCut;
@@ -211,7 +198,7 @@ bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMIntern
   // 98% acceptance for clusters in odd/even chambers for muons with 5 GeV
   // {5, 0.02123785, 0.00928431}
   // This corresponds to 0.12 and 0.052 fractions of the chamber
-  // or 20 and 9 half-strips
+  // or 16 and 7 half-strips
 
   // 20 degree chamber is ~0.35 radian wide
   // 98% acceptance for clusters in odd/even chambers for muons with 5 GeV
@@ -219,7 +206,7 @@ bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMIntern
   // This corresponds to 0.031 and 0.018 fractions of the chamber
   // or 5 and 3 half-strips
 
-  return halfStripDiff < halfStripCut;
+  return halfStripDiff <= halfStripCut;
 }
 
 // match by 1/8-strip
@@ -229,7 +216,12 @@ bool CSCGEMMatcher::matchedClusterLocES(const CSCCLCTDigi& clct, const GEMIntern
 
   //modification of DeltaStrip by CLCT slope
   int SlopeShift = 0;
-  float clctSlope = pow(-1, clct.getBend()) * clct.getSlope();
+  uint16_t baseSlope = 0;
+  if (mitigateSlopeByCosi_)
+    baseSlope = mitigatedSlopeByConsistency(clct);
+  else
+    baseSlope = clct.getSlope();
+  int clctSlope = pow(-1, clct.getBend()) * baseSlope;
 
   // for coincidences or single clusters in L1
   if (cl.isCoincidence() or cl.id().layer() == 1) {
@@ -238,8 +230,8 @@ bool CSCGEMMatcher::matchedClusterLocES(const CSCCLCTDigi& clct, const GEMIntern
       key_es = cl.layer1_middle_es_me1a();
 
     //set SlopeShift for L1 or Copad case
-    SlopeShift = CSCGEMSlopeCorrector(
-        true, true, clctSlope);  // currently fixed to facing detectors, must be determined at motherboard level
+    SlopeShift =
+        CSCGEMSlopeCorrector(true, clctSlope);  // fixed to facing detectors, must be determined at motherboard level
   }
 
   // for single clusters in L2
@@ -249,8 +241,8 @@ bool CSCGEMMatcher::matchedClusterLocES(const CSCCLCTDigi& clct, const GEMIntern
       key_es = cl.layer2_middle_es_me1a();
 
     //set SlopeShift for L2 case
-    SlopeShift = CSCGEMSlopeCorrector(
-        true, false, clctSlope);  // currently fixed to facing detectors, must be determined at motherboard level
+    SlopeShift =
+        CSCGEMSlopeCorrector(false, clctSlope);  // fixed to facing detectors, must be determined at motherboard level
 
   }
 
@@ -269,7 +261,7 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
   // both need to be valid
-  if (!alct.isValid() or !clct.isValid())
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
     return;
 
   // get the single matches
@@ -290,6 +282,9 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& output) const {
+  if (!alct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(alct, clusters, clustersBX);
@@ -301,6 +296,9 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBXLoc(const CSCCLCTDigi& clct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& output) const {
+  if (!clct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(clct, clusters, clustersBX);
@@ -313,6 +311,10 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
                                           const CSCCLCTDigi& clct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& selected) const {
+  // both need to be valid
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(alct, clct, clusters, clustersBX);
@@ -324,39 +326,139 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
                                      const GEMInternalClusters& clusters,
                                      GEMInternalCluster& best) const {
-  GEMInternalClusters alctClustersBXLoc;
-  matchingClustersBXLoc(alct, clusters, alctClustersBXLoc);
+  if (!alct.isValid() or clusters.empty())
+    return;
 
-  if (!alctClustersBXLoc.empty())
-    best = alctClustersBXLoc[0];
+  GEMInternalClusters clustersBXLoc;
+  matchingClustersBXLoc(alct, clusters, clustersBXLoc);
+
+  // simply pick the first matching one
+  if (!clustersBXLoc.empty())
+    best = clustersBXLoc[0];
 }
 
 void CSCGEMMatcher::bestClusterBXLoc(const CSCCLCTDigi& clct,
                                      const GEMInternalClusters& clusters,
                                      GEMInternalCluster& best) const {
-  // const auto& clctClusters = matchingClustersBX(clct, clusters);
+  if (!clct.isValid() or clusters.empty())
+    return;
 
-  // check all matches
-  // return cluster with smallest bending angle after slope corrections
+  // match by BX
+  GEMInternalClusters clustersBXLoc;
+  matchingClustersBXLoc(clct, clusters, clustersBXLoc);
+
+  // FIXME - for now: pick the first matching one
+  if (!clustersBXLoc.empty())
+    best = clustersBXLoc[0];
 }
 
 void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
                                      const CSCCLCTDigi& clct,
                                      const GEMInternalClusters& clusters,
-                                     GEMInternalCluster& best) const {}
+                                     GEMInternalCluster& best) const {
+  // match by BX
+  GEMInternalClusters clustersBXLoc;
+  matchingClustersBXLoc(alct, clct, clusters, clustersBXLoc);
 
-int CSCGEMMatcher::CSCGEMSlopeCorrector(bool isFacing, bool isL1orCoincidence, int cscSlope) const {
-  //Slope correction fit values for GEM to any CSC combinations
-  float Erf[4][2] = {{63., 9.6}, {118., 7.4}, {52., 9.5}, {106., 7.1}};   //constants for facing layers
-  float Lin[4][2] = {{1.1, 5.8}, {0.7, 16.7}, {-1.3, 4.2}, {-7.4, 14.}};  //constants for off-side layers
+  // FIXME - for now: pick the first matching one
+  if (!clustersBXLoc.empty())
+    best = clustersBXLoc[0];
+}
 
-  //determine shift by slope correction
-  float SlopeShift = 0.;
-  int ChooseCorr = (chamber_ % 2) + (isL1orCoincidence ? 0 : 2);  //chooses applicable constants
-  if (isFacing)
-    SlopeShift = Erf[ChooseCorr][0] * std::erf(cscSlope / Erf[ChooseCorr][1]);
-  else
-    SlopeShift = Lin[ChooseCorr + 1][0] + Lin[ChooseCorr + 1][1] * cscSlope;
+uint16_t CSCGEMMatcher::mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) const {
+  //extract hit values from CLCT hit matrix
+  std::vector<std::vector<uint16_t>> CLCTHitMatrix = clct.getHits();
+  int CLCTHits[6] = {-1, -1, -1, -1, -1, -1};
 
-  return round(SlopeShift * endcap_);
+  for (unsigned layer = 0; layer < CLCTHitMatrix.size(); ++layer) {
+    for (unsigned position = 0; position < CLCTHitMatrix.at(layer).size(); ++position) {
+      const uint16_t value = CLCTHitMatrix.at(layer).at(position);
+      if (value != 0 && value != 65535) {
+        CLCTHits[layer] = (int)value;
+        break;
+      }
+    }
+  }
+
+  //calculate slope consistency
+  float MinMaxPairDifferences[2] = {999., -999.};
+  for (unsigned First = 0; First < 5; ++First) {
+    //skip empty layers
+    if (CLCTHits[First] == -1)
+      continue;
+    for (unsigned Second = First + 1; Second < 6; ++Second) {
+      //skip empty layers
+      if (CLCTHits[Second] == -1)
+        continue;
+      float PairDifference = (CLCTHits[First] - CLCTHits[Second]) / (float)(Second - First);
+      if (PairDifference < MinMaxPairDifferences[0])
+        MinMaxPairDifferences[0] = PairDifference;
+      if (PairDifference > MinMaxPairDifferences[1])
+        MinMaxPairDifferences[1] = PairDifference;
+    }
+  }
+
+  //calculate consistency of slope indicator: cosi
+  uint16_t cosi = std::ceil(std::abs(MinMaxPairDifferences[1] - MinMaxPairDifferences[0]));
+
+  //disambiguate cosi cases
+
+  //extremely inconsistent track, deprecate slope
+  if (cosi > 3)
+    return 0;
+  //consistent slope, do not change
+  else if (cosi < 2)
+    return clct.getSlope();
+  //need to look up in table 2->1
+  else if (cosi == 2) {
+    if (chamber_ % 2 == 0)
+      return lookupTableME11ILT_->CSC_slope_cosi_2to1_L1_ME11_even(clct.getSlope());
+    else
+      return lookupTableME11ILT_->CSC_slope_cosi_2to1_L1_ME11_odd(clct.getSlope());
+  }
+  //need to look up in table 3->1
+  else if (cosi == 3) {
+    if (chamber_ % 2 == 0)
+      return lookupTableME11ILT_->CSC_slope_cosi_3to1_L1_ME11_even(clct.getSlope());
+    else
+      return lookupTableME11ILT_->CSC_slope_cosi_3to1_L1_ME11_odd(clct.getSlope());
+  }
+  //just to avoid compiler errors an error code
+  else {
+    return 999;
+  }
+}
+
+int CSCGEMMatcher::CSCGEMSlopeCorrector(bool isL1orCoincidence, int cscSlope) const {
+  int SlopeShift = 0;
+  int SlopeSign = cscSlope / std::abs(cscSlope);
+  //account for slope mitigation by cosi, if opted-in
+  if (mitigateSlopeByCosi_) {
+    //determine cosi-based slope correction
+    if (chamber_ % 2 == 0) {
+      if (isL1orCoincidence)
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L1_ME11_even(std::abs(cscSlope));
+      else
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L2_ME11_even(std::abs(cscSlope));
+    } else {
+      if (isL1orCoincidence)
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L1_ME11_odd(std::abs(cscSlope));
+      else
+        SlopeShift = lookupTableME11ILT_->CSC_slope_cosi_corr_L2_ME11_odd(std::abs(cscSlope));
+    }
+  } else {
+    //determine shift by slope correction
+    if (chamber_ % 2 == 0) {
+      if (isL1orCoincidence)
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L1_ME11_even(std::abs(cscSlope));
+      else
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L2_ME11_even(std::abs(cscSlope));
+    } else {
+      if (isL1orCoincidence)
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L1_ME11_odd(std::abs(cscSlope));
+      else
+        SlopeShift = lookupTableME11ILT_->CSC_slope_corr_L2_ME11_odd(std::abs(cscSlope));
+    }
+  }
+  return std::round(SlopeShift * SlopeSign * endcap_);
 }

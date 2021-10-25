@@ -6,7 +6,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "TMath.h"
 #include "TVector2.h"
 
 namespace egammaTools {
@@ -25,7 +24,7 @@ namespace egammaTools {
         caloGeometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
     const math::XYZPoint &position_ = bclus.position();
-    double Theta = -position_.theta() + 0.5 * TMath::Pi();
+    double Theta = -position_.theta() + 0.5 * M_PI;
     double Eta = position_.eta();
     double Phi = TVector2::Phi_mpi_pi(position_.phi());
 
@@ -69,14 +68,14 @@ namespace egammaTools {
     GlobalPoint center_pos = cpyr->getPosition(depth);
 
     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-    double PhiWidth = (TMath::Pi() / 180.);
+    double PhiWidth = (M_PI / 180.);
     phicry = (TVector2::Phi_mpi_pi(Phi - PhiCentr)) / PhiWidth;
     //Some flips to take into account ECAL barrel symmetries:
     if (ieta < 0)
       phicry *= -1.;
 
-    double ThetaCentr = -center_pos.theta() + 0.5 * TMath::Pi();
-    double ThetaWidth = (TMath::Pi() / 180.) * TMath::Cos(ThetaCentr);
+    double ThetaCentr = -center_pos.theta() + 0.5 * M_PI;
+    double ThetaWidth = (M_PI / 180.) * std::cos(ThetaCentr);
     etacry = (Theta - ThetaCentr) / ThetaWidth;
     //flip to take into account ECAL barrel symmetries:
     if (ieta < 0)
@@ -99,7 +98,7 @@ namespace egammaTools {
         caloGeometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);  //EcalBarrel = 1
 
     const math::XYZPoint &position_ = bclus.position();
-    //double Theta = -position_.theta()+0.5*TMath::Pi();
+    //double Theta = -position_.theta()+0.5*M_PI;
     double Eta = position_.eta();
     double Phi = TVector2::Phi_mpi_pi(position_.phi());
     double X = position_.x();
@@ -110,7 +109,7 @@ namespace egammaTools {
     const float X0 = 0.89;
     float T0 = 1.2;
     //different T0 value if outside of preshower coverage
-    if (TMath::Abs(bclus.eta()) < 1.653)
+    if (std::abs(bclus.eta()) < 1.653)
       T0 = 3.1;
 
     double depth = X0 * (T0 + log(bclus.energy()));

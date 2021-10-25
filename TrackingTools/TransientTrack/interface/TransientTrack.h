@@ -75,8 +75,6 @@ namespace reco {
                    const MagneticField* field,
                    const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
-    void setES(const edm::EventSetup& es) { sharedData().setES(es); }
-
     void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg) { sharedData().setTrackingGeometry(tg); }
 
     void setBeamSpot(const reco::BeamSpot& beamSpot) { sharedData().setBeamSpot(beamSpot); }

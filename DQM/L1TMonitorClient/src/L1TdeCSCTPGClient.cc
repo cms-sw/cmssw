@@ -27,8 +27,12 @@ L1TdeCSCTPGClient::L1TdeCSCTPGClient(const edm::ParameterSet &ps)
       alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
       clctMaxBin_(ps.getParameter<std::vector<double>>("clctMaxBin")),
       lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-      B904Setup_(ps.getParameter<bool>("B904Setup")),
-      isRun3_(ps.getParameter<bool>("isRun3")) {}
+      useB904ME11_(ps.getParameter<bool>("useB904ME11")),
+      useB904ME21_(ps.getParameter<bool>("useB904ME21")),
+      useB904ME234s2_(ps.getParameter<bool>("useB904ME234s2")),
+      isRun3_(ps.getParameter<bool>("isRun3")) {
+  useB904_ = useB904ME11_ or useB904ME21_ or useB904ME234s2_;
+}
 
 L1TdeCSCTPGClient::~L1TdeCSCTPGClient() {}
 
@@ -49,20 +53,31 @@ void L1TdeCSCTPGClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorDir_);
 
-  // do not analyze Run-3 properties in Run-1 and Run-2 eras
-  if (!isRun3_) {
-    clctVars_.resize(4);
-    lctVars_.resize(5);
-  }
-
-  // remove the non-ME1/1 chambers from the list when B904Setup is set to true
-  if (B904Setup_) {
+  // remove the non-ME1/1 chambers from the list when useB904ME11 is set to true
+  if (useB904ME11_) {
     chambers_.resize(1);
   }
-  // do not analyze the 1/4-strip bit, 1/8-strip bit
-  else {
+  // similar for ME2/1
+  else if (useB904ME21_) {
+    auto temp = chambers_[3];
+    chambers_.resize(1);
+    chambers_[0] = temp;
+  }
+  // similar for ME4/2
+  else if (useB904ME234s2_) {
+    auto temp = chambers_.back();
+    chambers_.resize(1);
+    chambers_[0] = temp;
+  }
+  // collision data in Run-3
+  else if (isRun3_) {
     clctVars_.resize(9);
     lctVars_.resize(9);
+  }
+  // do not analyze Run-3 properties in Run-1 and Run-2 eras
+  else {
+    clctVars_.resize(4);
+    lctVars_.resize(5);
   }
 
   // chamber type

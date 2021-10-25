@@ -155,7 +155,7 @@ namespace TopSingleLepton {
     std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
 
     /// jetCorrector
-    std::string jetCorrector_;
+    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
 
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;

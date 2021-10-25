@@ -37,7 +37,6 @@ public:
 
   // ---------- member functions ---------------------------
 
-private:
   FWHFView(const FWHFView&) = delete;  // stop default
 
   const FWHFView& operator=(const FWHFView&) = delete;  // stop default

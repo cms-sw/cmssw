@@ -219,6 +219,16 @@ int RecHitTools::getSiThickIndex(const DetId& id) const {
   return thickIndex;
 }
 
+std::pair<float, float> RecHitTools::getScintDEtaDPhi(const DetId& id) const {
+  if (!isScintillator(id)) {
+    LogDebug("getScintDEtaDPhi::InvalidScintDetid")
+        << "det id: " << std::hex << id.rawId() << std::dec << ":" << id.det() << " is not HGCal scintillator!";
+    return {0.f, 0.f};
+  }
+  auto cellGeom = getSubdetectorGeometry(id)->getGeometry(id);
+  return {cellGeom->etaSpan(), cellGeom->phiSpan()};
+}
+
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
@@ -416,6 +426,8 @@ bool RecHitTools::isSilicon(const DetId& id) const {
   return (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi ||
           (id.det() == DetId::Forward && id.subdetId() == static_cast<int>(HFNose)));
 }
+
+bool RecHitTools::isScintillator(const DetId& id) const { return id.det() == DetId::HGCalHSc; }
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO

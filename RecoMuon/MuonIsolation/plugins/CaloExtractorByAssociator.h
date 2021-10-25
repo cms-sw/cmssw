@@ -25,6 +25,11 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
 class MuonServiceProxy;
@@ -99,6 +104,9 @@ namespace muonisolation {
     //! associator, its' parameters and the propagator
     TrackAssociatorParameters* theAssociatorParameters;
     TrackDetectorAssociator* theAssociator;
+
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
     //! flag to turn on/off printing of a time report
     bool thePrintTimeReport;

@@ -30,8 +30,7 @@
 using namespace edm;
 using namespace std;
 
-DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
-    : mTimeMapToken_(esConsumes<edm::Transition::BeginRun>()) {
+DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet) {
   LogVerbatim("DTDQM|DTMonitorClient|DTRunConditionVarClient") << "DTRunConditionVarClient: Constructor called";
 
   minRangeVDrift = pSet.getUntrackedParameter<double>("minRangeVDrift");
@@ -49,9 +48,17 @@ DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
   maxGoodT0Sigma = pSet.getUntrackedParameter<double>("maxGoodT0Sigma");
   minBadT0Sigma = pSet.getUntrackedParameter<double>("minBadT0Sigma");
 
+  readLegacyVDriftDB = pSet.getParameter<bool>("readLegacyVDriftDB");
+
   nevents = 0;
 
   bookingdone = false;
+
+  if (readLegacyVDriftDB) {
+    mTimeMapToken_ = esConsumes<edm::Transition::BeginRun>();
+  } else {
+    vDriftToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 DTRunConditionVarClient::~DTRunConditionVarClient() {
@@ -61,7 +68,18 @@ DTRunConditionVarClient::~DTRunConditionVarClient() {
 void DTRunConditionVarClient::beginRun(const Run& run, const EventSetup& context) {
   LogTrace("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "[DTRunConditionVarClient]: BeginRun";
   // Get the map of vdrift from the setup
-  mTimeMap_ = &context.getData(mTimeMapToken_);
+  if (readLegacyVDriftDB) {
+    mTimeMap_ = &context.getData(mTimeMapToken_);
+    vDriftMap_ = nullptr;
+  } else {
+    vDriftMap_ = &context.getData(vDriftToken_);
+    mTimeMap_ = nullptr;
+    // Consistency check: no parametrization is implemented for the time being
+    int version = vDriftMap_->version();
+    if (version != 1) {
+      throw cms::Exception("Configuration") << "only version 1 is presently supported for VDriftDB";
+    }
+  }
 }
 
 void DTRunConditionVarClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
@@ -251,12 +269,17 @@ void DTRunConditionVarClient::percDevVDrift(
 
   float vDriftPhi1(0.), vDriftPhi2(0.);
   float ResPhi1(0.), ResPhi2(0.);
-  int status1 = mTimeMap_->get(indexSLPhi1, vDriftPhi1, ResPhi1, DTVelocityUnits::cm_per_ns);
-  int status2 = mTimeMap_->get(indexSLPhi2, vDriftPhi2, ResPhi2, DTVelocityUnits::cm_per_ns);
+  if (readLegacyVDriftDB) {  // Legacy format
+    int status1 = mTimeMap_->get(indexSLPhi1, vDriftPhi1, ResPhi1, DTVelocityUnits::cm_per_ns);
+    int status2 = mTimeMap_->get(indexSLPhi2, vDriftPhi2, ResPhi2, DTVelocityUnits::cm_per_ns);
 
-  if (status1 != 0 || status2 != 0) {
-    DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
-    throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for" << sl << endl;
+    if (status1 != 0 || status2 != 0) {
+      DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
+      throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for" << sl << endl;
+    }
+  } else {
+    vDriftPhi1 = vDriftMap_->get(DTWireId(indexSLPhi1.rawId()));
+    vDriftPhi2 = vDriftMap_->get(DTWireId(indexSLPhi2.rawId()));
   }
 
   float vDriftMed = (vDriftPhi1 + vDriftPhi2) / 2.;

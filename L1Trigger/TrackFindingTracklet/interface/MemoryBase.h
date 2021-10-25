@@ -12,7 +12,7 @@ namespace trklet {
 
   class MemoryBase {
   public:
-    MemoryBase(std::string name, Settings const& settings, unsigned int iSector);
+    MemoryBase(std::string name, Settings const& settings);
 
     virtual ~MemoryBase() = default;
 

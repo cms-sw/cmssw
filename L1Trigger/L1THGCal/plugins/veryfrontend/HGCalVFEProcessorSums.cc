@@ -26,14 +26,13 @@ HGCalVFEProcessorSums::HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HG
 }
 
 void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
-                                l1t::HGCalTriggerCellBxCollection& triggerCellColl,
-                                const edm::EventSetup& es) {
-  vfeSummationImpl_->eventSetup(es);
-  calibrationEE_->eventSetup(es);
-  calibrationHEsi_->eventSetup(es);
-  calibrationHEsc_->eventSetup(es);
-  calibrationNose_->eventSetup(es);
-  triggerTools_.eventSetup(es);
+                                l1t::HGCalTriggerCellBxCollection& triggerCellColl) {
+  vfeSummationImpl_->setGeometry(geometry());
+  calibrationEE_->setGeometry(geometry());
+  calibrationHEsi_->setGeometry(geometry());
+  calibrationHEsc_->setGeometry(geometry());
+  calibrationNose_->setGeometry(geometry());
+  triggerTools_.setGeometry(geometry());
 
   std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t>> linearized_dataframes;
@@ -44,13 +43,13 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   for (const auto& digiData : digiColl) {
     if (DetId(digiData.id()).det() == DetId::Hcal && HcalDetId(digiData.id()).subdetId() != HcalEndcap)
       continue;
-    if (!geometry_->validCell(digiData.id()))
+    if (!geometry()->validCell(digiData.id()))
       continue;
-    uint32_t module = geometry_->getModuleFromCell(digiData.id());
+    uint32_t module = geometry()->getModuleFromCell(digiData.id());
 
     // no disconnected layer for HFNose
     if (DetId(digiData.id()).subdetId() != ForwardSubdetector::HFNose) {
-      if (geometry_->disconnectedModule(module))
+      if (geometry()->disconnectedModule(module))
         continue;
     }
 
@@ -66,7 +65,7 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   bool isSilicon = triggerTools_.isSilicon(dataframes[0].id());
   bool isEM = triggerTools_.isEm(dataframes[0].id());
   bool isNose = triggerTools_.isNose(dataframes[0].id());
-  int thickness = triggerTools_.thicknessIndex(dataframes[0].id(), true);
+  int thickness = triggerTools_.thicknessIndex(dataframes[0].id());
   // Linearization of ADC and TOT values to the same LSB
   if (isSilicon) {
     vfeLinearizationSiImpl_->linearize(dataframes, linearized_dataframes);
@@ -89,7 +88,7 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
       l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), tc_compressed_value, 0, 0, 0, tc_id);
       triggerCell.setCompressedCharge(tc_compressed_code);
       triggerCell.setUncompressedCharge(tc_value);
-      GlobalPoint point = geometry_->getTriggerCellPosition(tc_id);
+      GlobalPoint point = geometry()->getTriggerCellPosition(tc_id);
 
       // 'value' is hardware, so p4 is meaningless, except for eta and phi
       math::PtEtaPhiMLorentzVector p4((double)tc_compressed_value / cosh(point.eta()), point.eta(), point.phi(), 0.);

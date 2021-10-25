@@ -11,7 +11,6 @@ import RecoTauTag.Configuration.HPSPFTaus_cff as RecoModules #Working point indi
 
 
 """
-import six
 
    RecoTauValidation_cfi.py
 
@@ -466,7 +465,7 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in six.iteritems(myDrawJobs):
+   for drawJobName, drawJobData in myDrawJobs.items():
       print(drawJobData)
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue

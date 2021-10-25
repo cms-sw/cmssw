@@ -8,6 +8,7 @@ namespace hcaldqm {
                      edm::ConsumesCollector &iC)
       : DQModule(ps),
         _taskname(taskname),
+        _totalLS(0),
         _maxProcessedLS(0),
         hcalDbServiceToken_(iC.esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
         runInfoToken_(iC.esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),

@@ -8,8 +8,8 @@
 
 #include <TString.h>
 
-AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg)
-    : AlignmentMonitorBase(cfg, "AlignmentMonitorGeneric") {}
+AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+    : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorGeneric") {}
 
 void AlignmentMonitorGeneric::book() {
   std::vector<std::string> residNames;  // names of residual histograms

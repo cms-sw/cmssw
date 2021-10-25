@@ -41,11 +41,11 @@ public:
 
   mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
 
-private:
   FWViewContext(const FWViewContext&) = delete;  // stop default
 
   const FWViewContext& operator=(const FWViewContext&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
 
   FWViewEnergyScale* m_energyScale;

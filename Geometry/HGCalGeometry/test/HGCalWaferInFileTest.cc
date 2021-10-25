@@ -18,20 +18,17 @@
 //
 
 // system include files
-#include <fstream>
-#include <iostream>
-#include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -76,8 +73,8 @@ HGCalWaferInFileTest::HGCalWaferInFileTest(const edm::ParameterSet& iC)
       nameDetector_(iC.getParameter<std::string>("NameDevice")),
       verbosity_(iC.getParameter<int>("Verbosity")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  std::cout << "Test wafer characteristics for " << nameDetector_ << " using constants of " << nameSense_
-            << " with verbosity " << verbosity_ << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Test wafer characteristics for " << nameDetector_ << " using constants of "
+                                << nameSense_ << " with verbosity " << verbosity_;
 }
 
 void HGCalWaferInFileTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -96,10 +93,11 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
   double delX = 0.5 * hgdc.getParameter()->waferSize_;
   double delY = 2.0 * delX / std::sqrt(3.0);
 
-  std::cout << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_ << std::endl << std::endl;
+  edm::LogVerbatim("HGCalGeom") << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_
+                                << std::endl;
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
-    static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "X"};
+    static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "am", "bm", "X"};
     int layers = hgdc.layers(true);
     int layerf = hgdc.firstLayer();
     std::vector<int> miss(layers, 0);
@@ -119,26 +117,28 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
         const auto& rr = hgdc.rangeRLayer(layer, true);
         auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
         auto rpos = getCorners(xy.first, xy.second, delX, delY);
-        std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", "
-                  << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
-                  << hgdc.waferZ(layer, true) << ") not present with " << points.size() << " points:";
+        std::ostringstream st1;
+        st1 << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ", "
+            << typex << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+            << hgdc.waferZ(layer, true) << ") not present with " << points.size() << " points:";
         for (auto point : points)
-          std::cout << " " << point;
-        std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
+          st1 << " " << point;
+        st1 << " in the region " << rr.first << ":" << rr.second << " Corners";
         for (auto point : rpos)
-          std::cout << " " << point;
-        std::cout << std::endl;
+          st1 << " " << point;
+        edm::LogVerbatim("HGCalGeom") << st1.str();
         ++bad1;
         if ((layer - layerf) < layers)
           ++miss[layer - layerf];
       }
     }
-    std::cout << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize() << " wafers in the list\n";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << bad1 << " invalid wafers among " << hgdc.waferFileSize()
+                                  << " wafers in the list";
     for (unsigned int k = 0; k < miss.size(); ++k) {
       if (miss[k] > 0)
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << miss[k] << std::endl;
+        edm::LogVerbatim("HGCalGeom") << "Layer[" << k << ":" << (layerf + k) << "] " << miss[k];
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("HGCalGeom") << std::endl;
 
     // Now cross check the content (first type only)
     int allG(0), badT(0), badT1(0), badT2(0);
@@ -160,14 +160,15 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
           else if (type2 == 0)
             ++badT2;
           const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-          std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
-                    << ", " << type1 << ":" << type2 << ") at (" << std::setprecision(4) << xy.first << ", "
-                    << xy.second << ", " << hgdc.waferZ(layer, true) << ") failure flag " << typeOK << std::endl;
+          edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU
+                                        << ", " << waferV << ", " << type1 << ":" << type2 << ") at ("
+                                        << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+                                        << hgdc.waferZ(layer, true) << ") failure flag " << typeOK;
         }
       }
     }
-    std::cout << "\n\nFinds " << badT << "[" << badT1 << ":" << badT2 << "] mismatch in type among " << allG
-              << " wafers with the same indices\n\n";
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badT << "[" << badT1 << ":" << badT2 << "] mismatch in type among "
+                                  << allG << " wafers with the same indices\n";
 
     // Now cross check the content (partial and orientation)
     int allX(0), badG(0), badP(0), badP2(0), badR(0), badR2(0);
@@ -224,30 +225,31 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
             std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
             auto points = getPoints(xy.first, xy.second, delX, delY, rr.first, rr.second, layer, waferU, waferV);
             auto rpos = getCorners(xy.first, xy.second, delX, delY);
-            std::cout << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV
-                      << "," << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", "
-                      << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second
-                      << ", " << hgdc.waferZ(layer, true) << ") failure flags (part = " << partOK << ":" << partOK2
-                      << " rotn " << rotnOK << ":" << rotnOK2 << " at " << miss << " with " << points.size()
-                      << " points:";
+            std::ostringstream st1;
+            st1 << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU << ", " << waferV << ","
+                << type2 << ", " << partx1 << ":" << partx2 << ":" << part1 << ":" << part2 << ", " << rotn1 << ":"
+                << rotn2 << ") at (" << std::setprecision(4) << xy.first << ", " << xy.second << ", "
+                << hgdc.waferZ(layer, true) << ") failure flags (part = " << partOK << ":" << partOK2 << " rotn "
+                << rotnOK << ":" << rotnOK2 << " at " << miss << " with " << points.size() << " points:";
             for (auto point : points)
-              std::cout << " " << point;
-            std::cout << " in the region " << rr.first << ":" << rr.second << " Corners";
+              st1 << " " << point;
+            st1 << " in the region " << rr.first << ":" << rr.second << " Corners";
             for (auto point : rpos)
-              std::cout << " " << point;
-            std::cout << std::endl;
+              st1 << " " << point;
+            edm::LogVerbatim("HGCalGeom") << st1.str();
           }
         }
       }
     }
-    std::cout << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ":" << badR2
-              << ") mismatch in partial|orientation among " << allX << " wafers with the same indices" << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "\n\nFinds " << badG << " (" << badP << ":" << badP2 << ":" << badR << ":" << badR2
+                                  << ") mismatch in partial|orientation among " << allX
+                                  << " wafers with the same indices";
     for (int k = 0; k < layers; ++k) {
       if ((wrongP[k] > 0) || (wrongR[k] > 0))
-        std::cout << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k] << ":" << wrongR[k]
-                  << ":" << wrongR2[k] << std::endl;
+        edm::LogVerbatim("HGCalGeom") << "Layer[" << k << ":" << (layerf + k) << "] " << wrongP[k] << ":" << wrongP2[k]
+                                      << ":" << wrongR[k] << ":" << wrongR2[k];
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("HGCalGeom") << std::endl;
   }
 }
 
@@ -280,8 +282,9 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
     }
   }
   if (verbosity_ > 1)
-    std::cout << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos << ":" << delX << ":"
-              << delY << ":" << rin << ":" << rout << " Corners " << ncor << " iok " << iok << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos
+                                  << ":" << delX << ":" << delY << ":" << rin << ":" << rout << " Corners " << ncor
+                                  << " iok " << iok;
 
   static const int parts = 3;
   static const std::string c1[parts] = {"A1", "A2", "A3"};
@@ -719,8 +722,9 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos,
     }
   }
   if (verbosity_ > 1)
-    std::cout << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos << ":" << delX << ":"
-              << delY << ":" << rin << ":" << rout << " Results " << ok << " point " << point << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "I/p " << layer << ":" << waferU << ":" << waferV << ":" << xpos << ":" << ypos
+                                  << ":" << delX << ":" << delY << ":" << rin << ":" << rout << " Results " << ok
+                                  << " point " << point;
   return std::make_pair(ok, point);
 }
 

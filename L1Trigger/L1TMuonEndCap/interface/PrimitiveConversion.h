@@ -23,7 +23,8 @@ public:
                  bool fixZonePhi,
                  bool useNewZones,
                  bool fixME11Edges,
-                 bool bugME11Dupes);
+                 bool bugME11Dupes,
+                 bool useRun3CCLUT);
 
   void process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map, EMTFHitCollection& conv_hits) const;
 
@@ -103,6 +104,8 @@ private:
   int zoneOverlap_;
   bool duplicateTheta_, fixZonePhi_, useNewZones_, fixME11Edges_;
   bool bugME11Dupes_;
+  // Run 3 CCLUT algorithm
+  bool useRun3CCLUT_;
 };
 
 #endif

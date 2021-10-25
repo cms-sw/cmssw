@@ -29,8 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -58,9 +56,13 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
 };
 
-RPCGEO2::RPCGEO2(const edm::ParameterSet& /*iConfig*/) {}
+RPCGEO2::RPCGEO2(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 RPCGEO2::~RPCGEO2() {}
 
@@ -68,9 +70,8 @@ RPCGEO2::~RPCGEO2() {}
 void RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::cout << " Getting the RPC Geometry" << std::endl;
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  edm::LogVerbatim("RPCGeometry") << " Getting the RPC Geometry";
+  const RPCGeometry* rpcGeo = &iSetup.getData(tokRPC_);
 
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
@@ -83,18 +84,18 @@ void RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetu
         if (rpcId.region() == 0) {
           const BoundPlane& RPCSurface = (*r)->surface();
           GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0, 0, 0));
-          std::cout << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " " << CenterPointRollGlobal.y() << " "
-                    << CenterPointRollGlobal.z() << std::endl;
+          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " "
+                                          << CenterPointRollGlobal.y() << " " << CenterPointRollGlobal.z();
           GlobalPoint i = RPCSurface.toGlobal(LocalPoint(1, 0, 0));
           GlobalPoint j = RPCSurface.toGlobal(LocalPoint(0, 1, 0));
-          std::cout << " i " << i.x() << " " << i.y() << " " << i.z() << std::endl;
-          std::cout << " j " << j.x() << " " << j.y() << " " << j.z() << std::endl;
+          edm::LogVerbatim("RPCGeometry") << " i " << i.x() << " " << i.y() << " " << i.z();
+          edm::LogVerbatim("RPCGeometry") << " j " << j.x() << " " << j.y() << " " << j.z();
 
         } else {
           const BoundPlane& RPCSurface = (*r)->surface();
           GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0, 0, 0));
-          std::cout << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " " << CenterPointRollGlobal.y() << " "
-                    << CenterPointRollGlobal.z() << std::endl;
+          edm::LogVerbatim("RPCGeometry") << rpcsrv.name() << " " << CenterPointRollGlobal.x() << " "
+                                          << CenterPointRollGlobal.y() << " " << CenterPointRollGlobal.z();
         }
       }
     }

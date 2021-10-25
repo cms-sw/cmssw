@@ -67,7 +67,7 @@ RecoParticleFlowRECO = cms.PSet(
 RecoParticleFlowRECO.outputCommands.extend(RecoParticleFlowAOD.outputCommands)
 
 phase2_hgcal.toModify( RecoParticleFlowRECO,
-    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
+    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCal_*_*',
                                                             'keep recoPFBlocks_simPFProducer_*_*'])
 
 # Full Event content

@@ -1,171 +1,106 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
+#include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <cmath>
+#include <bitset>
 
 using namespace std;
 using namespace trklet;
 
 Stub::Stub(Settings const& settings) : settings_(settings) {}
 
-Stub::Stub(L1TStub& stub, Settings const& settings, double phiminsec, double phimaxsec) : settings_(settings) {
-  double r = stub.r();
-  double z = stub.z();
-  double sbend = stub.bend();
+Stub::Stub(L1TStub& stub, Settings const& settings, Globals& globals) : settings_(settings) {
+  const string& stubwordhex = stub.stubword();
+
+  const string stubwordbin = convertHexToBin(stubwordhex);
+
+  layerdisk_ = stub.layerdisk();
+
+  int nbendbits = stub.isPSmodule() ? N_BENDBITS_PS : N_BENDBITS_2S;
+
+  int nalphabits = 0;
+
+  int nrbits = settings_.nrbitsstub(layerdisk_);
+  int nzbits = settings_.nzbitsstub(layerdisk_);
+  int nphibits = settings_.nphibitsstub(layerdisk_);
+
+  if (layerdisk_ >= N_LAYER && !stub.isPSmodule()) {
+    nalphabits = settings.nbitsalpha();
+    nrbits = 7;
+  }
+
+  assert(nbendbits + nalphabits + nrbits + nzbits + nphibits == 36);
+
+  bitset<32> rbits(stubwordbin.substr(0, nrbits));
+  bitset<32> zbits(stubwordbin.substr(nrbits, nzbits));
+  bitset<32> phibits(stubwordbin.substr(nrbits + nzbits, nphibits));
+  bitset<32> alphabits(stubwordbin.substr(nphibits + nzbits + nrbits, nalphabits));
+  bitset<32> bendbits(stubwordbin.substr(nphibits + nzbits + nrbits + nalphabits, nbendbits));
+
+  int newbend = bendbits.to_ulong();
+
+  int newr = rbits.to_ulong();
+  if (layerdisk_ < N_LAYER) {
+    if (newr >= (1 << (nrbits - 1)))
+      newr = newr - (1 << nrbits);
+  }
+
+  int newz = zbits.to_ulong();
+  if (newz >= (1 << (nzbits - 1)))
+    newz = newz - (1 << nzbits);
+
+  int newphi = phibits.to_ulong();
+
+  int newalpha = alphabits.to_ulong();
+  if (newalpha >= (1 << (nalphabits - 1)))
+    newalpha = newalpha - (1 << nalphabits);
 
   l1tstub_ = &stub;
 
-  int bendbits = 4;
-  if (stub.isPSmodule())
-    bendbits = 3;
+  bend_.set(newbend, nbendbits, true, __LINE__, __FILE__);
 
-  int ibend = bendencode(sbend, stub.isPSmodule());
-
-  bend_.set(ibend, bendbits, true, __LINE__, __FILE__);
-
-  int layer = stub.layer() + 1;
-
-  // hold the real values from L1Stub
-  double stubphi = stub.phi();
-
-  if (layer < 999) {
-    disk_.set(0, 4, false, __LINE__, __FILE__);
-
-    assert(layer > 0 && layer <= N_LAYER);
-    double rmin = settings_.rmean(layer - 1) - settings_.drmax();
-    double rmax = settings_.rmean(layer - 1) + settings_.drmax();
-
-    if (r < rmin || r > rmax) {
-      edm::LogProblem("Tracklet") << "Error r, rmin, rmeas,  rmax :" << r << " " << rmin << " " << 0.5 * (rmin + rmax)
-                                  << " " << rmax;
-    }
-
-    int irbits = settings_.nrbitsstub(layer - 1);
-
-    int ir = lround((1 << irbits) * ((r - settings_.rmean(layer - 1)) / (rmax - rmin)));
-
-    double zmin = -settings_.zlength();
-    double zmax = settings_.zlength();
-
-    if (z < zmin || z > zmax) {
-      edm::LogProblem("Tracklet") << "Error z, zmin, zmax :" << z << " " << zmin << " " << zmax;
-    }
-
-    int izbits = settings_.nzbitsstub(layer - 1);
-
-    int iz = lround((1 << izbits) * z / (zmax - zmin));
-
-    if (z < zmin || z > zmax) {
-      edm::LogProblem("Tracklet") << "Error z, zmin, zmax :" << z << " " << zmin << " " << zmax;
-    }
-
-    assert(phimaxsec - phiminsec > 0.0);
-
-    if (stubphi < phiminsec - (phimaxsec - phiminsec) / 6.0) {
-      stubphi += 2 * M_PI;
-    }
-    assert((phimaxsec - phiminsec) > 0.0);
-
-    int iphibits = settings_.nphibitsstub(layer - 1);
-
-    double deltaphi = reco::reduceRange(stubphi - phiminsec);
-
-    int iphi = (1 << iphibits) * deltaphi / (phimaxsec - phiminsec);
-
-    layer_.set(layer - 1, 3, true, __LINE__, __FILE__);
-    r_.set(ir, irbits, false, __LINE__, __FILE__);
-    z_.set(iz, izbits, false, __LINE__, __FILE__);
-    phi_.set(iphi, iphibits, true, __LINE__, __FILE__);
-
-    phicorr_.set(iphi, iphibits, true, __LINE__, __FILE__);
-
-  } else {
-    // Here we handle the hits on disks.
-
-    int disk = stub.module();
-    assert(disk > 0 && disk <= N_DISK);
-    int sign = 1;
-    if (z < 0.0)
-      sign = -1;
-
-    double zmin = sign * (settings_.zmean(disk - 1) - sign * settings_.dzmax());
-    double zmax = sign * (settings_.zmean(disk - 1) + sign * settings_.dzmax());
-
-    if ((z > zmax) || (z < zmin)) {
-      edm::LogProblem("Tracklet") << "Error disk z, zmax, zmin: " << z << " " << zmax << " " << zmin;
-    }
-
-    int iz =
-        (1 << settings.nzbitsstub(disk + N_DISK)) * ((z - sign * settings_.zmean(disk - 1)) / std::abs(zmax - zmin));
-
-    assert(phimaxsec - phiminsec > 0.0);
-    if (stubphi < phiminsec - (phimaxsec - phiminsec) / 6.0) {
-      stubphi += 2 * M_PI;
-    }
-
-    assert(phimaxsec - phiminsec > 0.0);
-    if (stubphi < phiminsec - (phimaxsec - phiminsec) / 6.0) {
-      stubphi += 2 * M_PI;
-    }
-
-    int iphibits = settings_.nphibitsstub(disk + 5);
-
-    double deltaphi = reco::reduceRange(stubphi - phiminsec);
-
-    int iphi = (1 << iphibits) * deltaphi / (phimaxsec - phiminsec);
-
-    double rmin = 0;
-    double rmax = settings_.rmaxdisk();
-
-    if (r < rmin || r > rmax) {
-      edm::LogProblem("Tracklet") << "Error disk r, rmin, rmax :" << r << " " << rmin << " " << rmax;
-    }
-
-    int ir = (1 << settings_.nrbitsstub(disk + 5)) * (r - rmin) / (rmax - rmin);
-
-    int irSS = -1;
+  phi_.set(newphi, nphibits, true, __LINE__, __FILE__);
+  phicorr_.set(newphi, nphibits, true, __LINE__, __FILE__);
+  bool pos = false;
+  if (layerdisk_ >= N_LAYER) {
+    pos = true;
+    int disk = layerdisk_ - N_LAYER + 1;
+    if (stub.z() < 0.0)
+      disk = -disk;
+    disk_.set(disk, 4, false, __LINE__, __FILE__);
     if (!stub.isPSmodule()) {
-      for (unsigned int i = 0; i < N_DSS_MOD * 2; ++i) {
-        if (disk <= 2) {
-          if (std::abs(r - settings_.rDSSinner(i)) < 0.2) {
-            irSS = i;
-            break;
-          }
-        } else {
-          if (std::abs(r - settings_.rDSSouter(i)) < 0.2) {
-            irSS = i;
-            break;
-          }
-        }
-      }
-      if (irSS < 0) {
-        throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " didn't find rDSS value! r = " << r
-                                          << " Check that correct geometry is used!";
+      alpha_.set(newalpha, nalphabits, false, __LINE__, __FILE__);
+      nrbits = 4;
+    }
+  } else {
+    disk_.set(0, 4, false, __LINE__, __FILE__);
+    layer_.set(layerdisk_, 3, true, __LINE__, __FILE__);
+  }
+  r_.set(newr, nrbits, pos, __LINE__, __FILE__);
+  z_.set(newz, nzbits, false, __LINE__, __FILE__);
+
+  if (settings.writeMonitorData("StubBend")) {
+    unsigned int nsimtrks = globals.event()->nsimtracks();
+
+    for (unsigned int isimtrk = 0; isimtrk < nsimtrks; isimtrk++) {
+      const L1SimTrack& simtrk = globals.event()->simtrack(isimtrk);
+      if (stub.tpmatch2(simtrk.trackid())) {
+        double dr = 0.18;
+        double rinv = simtrk.charge() * 0.01 * settings_.c() * settings_.bfield() / simtrk.pt();
+        double pitch = settings_.stripPitch(stub.isPSmodule());
+        double bend = stub.r() * dr * 0.5 * rinv / pitch;
+
+        globals.ofstream("stubbend.dat") << layerdisk_ << " " << stub.isPSmodule() << " "
+                                         << simtrk.pt() * simtrk.charge() << " " << bend << " " << newbend << " "
+                                         << settings.benddecode(newbend, layerdisk_, stub.isPSmodule()) << " "
+                                         << settings.bendcut(newbend, layerdisk_, stub.isPSmodule()) << endl;
       }
     }
-    if (irSS < 0) {
-      //PS modules
-      r_.set(ir, settings_.nrbitsstub(disk + N_DISK), true, __LINE__, __FILE__);
-    } else {
-      //SS modules
-      r_.set(irSS, 4, true, __LINE__, __FILE__);  // in case of SS modules, store index, not r itself
-    }
-
-    z_.set(iz, settings.nzbitsstub(disk + 5), false, __LINE__, __FILE__);
-    phi_.set(iphi, iphibits, true, __LINE__, __FILE__);
-    phicorr_.set(iphi, iphibits, true, __LINE__, __FILE__);
-
-    disk_.set(sign * disk, 4, false, __LINE__, __FILE__);
-
-    double alphanorm = stub.alphanorm();
-    assert(std::abs(alphanorm) < 1.0);
-    int ialphanew = alphanorm * (1 << (settings.nbitsalpha() - 1));
-    assert(ialphanew < (1 << (settings.nbitsalpha() - 1)));
-    assert(ialphanew >= -(1 << (settings.nbitsalpha() - 1)));
-    alphanew_.set(ialphanew, settings.nbitsalpha(), false, __LINE__, __FILE__);
   }
 }
 
@@ -186,13 +121,13 @@ std::string Stub::phiregionaddressstr() const {
 }
 
 void Stub::setAllStubIndex(int nstub) {
-  if (nstub >= (1 << 7)) {
+  if (nstub >= (1 << N_BITSMEMADDRESS)) {
     if (settings_.debugTracklet())
       edm::LogPrint("Tracklet") << "Warning too large stubindex!";
-    nstub = (1 << 7) - 1;
+    nstub = (1 << N_BITSMEMADDRESS) - 1;
   }
 
-  stubindex_.set(nstub, 7);
+  stubindex_.set(nstub, N_BITSMEMADDRESS);
 }
 
 void Stub::setPhiCorr(int phiCorr) {
@@ -249,6 +184,6 @@ double Stub::phiapprox(double phimin, double) const {
 
 unsigned int Stub::layerdisk() const {
   if (layer_.value() == -1)
-    return 5 + abs(disk_.value());
+    return N_LAYER - 1 + abs(disk_.value());
   return layer_.value();
 }

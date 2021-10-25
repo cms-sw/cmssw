@@ -26,7 +26,8 @@
 
 class PPSTimingCalibrationAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit PPSTimingCalibrationAnalyzer(const edm::ParameterSet&) {}
+  explicit PPSTimingCalibrationAnalyzer(const edm::ParameterSet&)
+      : tokenCalibration_(esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>()) {}
 
 private:
   void beginJob() override {}
@@ -34,15 +35,14 @@ private:
   void endJob() override {}
 
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
+
+  edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> tokenCalibration_;
 };
 
 void PPSTimingCalibrationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get timing calibration parameters
-  edm::ESHandle<PPSTimingCalibration> hTimingCalib;
   if (calibWatcher_.check(iSetup)) {
-    iSetup.get<PPSTimingCalibrationRcd>().get(hTimingCalib);
-
-    edm::LogInfo("PPSTimingCalibrationAnalyzer") << "Calibrations retrieved:\n" << *hTimingCalib;
+    edm::LogInfo("PPSTimingCalibrationAnalyzer") << "Calibrations retrieved:\n" << iSetup.getData(tokenCalibration_);
   }
 }
 

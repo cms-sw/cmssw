@@ -412,7 +412,7 @@ public:  // interface
       double e_muf = 0.0;
       nch = 0;
       nconstituents = 0;
-      for (reco::Jet::const_iterator ibegin = basicJet->begin(), iend = patJet->end(), isub = ibegin; isub != iend;
+      for (reco::Jet::const_iterator ibegin = basicJet->begin(), iend = basicJet->end(), isub = ibegin; isub != iend;
            ++isub) {
         reco::PFJet const *pfsub = dynamic_cast<reco::PFJet const *>(&*isub);
         e_chf += pfsub->chargedHadronEnergy();

@@ -1,7 +1,6 @@
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/Notification"/>
 <use name="SimG4Core/Physics"/>
-<use name="Geometry/Records"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="geant4core"/>
 <use name="SimDataFormats/SimHitMaker"/>

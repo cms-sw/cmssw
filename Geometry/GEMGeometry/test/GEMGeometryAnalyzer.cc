@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -42,12 +41,16 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> tokGeom_;
   std::ofstream ofos;
 };
 
 using namespace std;
 GEMGeometryAnalyzer::GEMGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-    : dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("GEMGeometryAnalyzer") {
+    : dashedLineWidth_(104),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("GEMGeometryAnalyzer"),
+      tokGeom_{esConsumes<GEMGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {
   ofos.open("GEMtestOutput.out");
   ofos << "======================== Opening output file" << std::endl;
 }
@@ -58,33 +61,32 @@ GEMGeometryAnalyzer::~GEMGeometryAnalyzer() {
 }
 
 void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<GEMGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const auto& pDD = iSetup.getData(tokGeom_);
 
   ofos << myName() << ": Analyzer..." << std::endl;
   ofos << "start " << dashedLine_ << std::endl;
 
-  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << endl;
-  ofos << " detTypes       \t" << pDD->detTypes().size() << endl;
-  ofos << " GeomDetUnit       \t" << pDD->detUnits().size() << endl;
-  ofos << " GeomDet           \t" << pDD->dets().size() << endl;
-  ofos << " GeomDetUnit DetIds\t" << pDD->detUnitIds().size() << endl;
-  ofos << " eta partitions \t" << pDD->etaPartitions().size() << endl;
-  ofos << " chambers       \t" << pDD->chambers().size() << endl;
-  ofos << " super chambers  \t" << pDD->superChambers().size() << endl;
-  ofos << " rings  \t\t" << pDD->rings().size() << endl;
-  ofos << " stations  \t\t" << pDD->stations().size() << endl;
-  ofos << " regions  \t\t" << pDD->regions().size() << endl;
+  ofos << " Geometry node for GEMGeom is  " << &pDD << endl;
+  ofos << " detTypes       \t" << pDD.detTypes().size() << endl;
+  ofos << " GeomDetUnit       \t" << pDD.detUnits().size() << endl;
+  ofos << " GeomDet           \t" << pDD.dets().size() << endl;
+  ofos << " GeomDetUnit DetIds\t" << pDD.detUnitIds().size() << endl;
+  ofos << " eta partitions \t" << pDD.etaPartitions().size() << endl;
+  ofos << " chambers       \t" << pDD.chambers().size() << endl;
+  ofos << " super chambers  \t" << pDD.superChambers().size() << endl;
+  ofos << " rings  \t\t" << pDD.rings().size() << endl;
+  ofos << " stations  \t\t" << pDD.stations().size() << endl;
+  ofos << " regions  \t\t" << pDD.regions().size() << endl;
 
   // checking uniqueness of roll detIds
   bool flagNonUniqueRollID = false;
   bool flagNonUniqueRollRawID = false;
   int nstrips = 0;
   int npads = 0;
-  for (auto roll1 : pDD->etaPartitions()) {
+  for (auto roll1 : pDD.etaPartitions()) {
     nstrips += roll1->nstrips();
     npads += roll1->npads();
-    for (auto roll2 : pDD->etaPartitions()) {
+    for (auto roll2 : pDD.etaPartitions()) {
       if (roll1 != roll2) {
         if (roll1->id() == roll2->id())
           flagNonUniqueRollID = true;
@@ -102,8 +104,8 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
   // checking uniqueness of chamber detIds
   bool flagNonUniqueChID = false;
   bool flagNonUniqueChRawID = false;
-  for (auto ch1 : pDD->chambers()) {
-    for (auto ch2 : pDD->chambers()) {
+  for (auto ch1 : pDD.chambers()) {
+    for (auto ch2 : pDD.chambers()) {
       if (ch1 != ch2) {
         if (ch1->id() == ch2->id())
           flagNonUniqueChID = true;
@@ -121,7 +123,7 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
   //----------------------- Global GEMGeometry TEST -------------------------------------------------------
   ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
 
-  for (auto region : pDD->regions()) {
+  for (auto region : pDD.regions()) {
     ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
     for (auto station : region->stations()) {
       ofos << "    GEMStation " << station->getName() << " has " << station->nRings() << " rings." << endl;

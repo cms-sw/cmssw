@@ -15,7 +15,7 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
 l1t::RegionalMuonShower::~RegionalMuonShower() {}
 
 bool l1t::RegionalMuonShower::isValid() const {
-  return isTwoLooseInTime_ or isTwoLooseOutOfTime_ or isTwoLooseOutOfTime_ or isOneNominalOutOfTime_;
+  return isOneNominalInTime_ or isTwoLooseInTime_ or isOneNominalOutOfTime_ or isTwoLooseOutOfTime_;
 }
 
 bool l1t::RegionalMuonShower::operator==(const l1t::RegionalMuonShower& rhs) const {

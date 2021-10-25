@@ -72,6 +72,7 @@
  <Constant name="Zpos37"     value="5058.26*mm"/>
  <Constant name="Rmax37"     value="2485.0*mm"/>
  <Constant name="Zpos38"     value="5237.0*mm"/>
+ <Constant name="Rmax38"     value="2710.0*mm"/>
  <Constant name="Rmin100"    value="[Rmin11]"/>
  <Constant name="Rmax100"    value="[Rmax10]"/>
  <Constant name="Zpos100"    value="[Zpos10]"/>
@@ -185,10 +186,8 @@
     <ZSection z="[Zpos33]" rMin="[Rmin33]" rMax="[Rmax33]"/>
     <ZSection z="[Zpos34]" rMin="[Rmin33]" rMax="[Rmax34]"/>
     <ZSection z="[Zpos34]" rMin="[Rmin34]" rMax="[Rmax34]"/>
-    <ZSection z="[Zpos36]" rMin="[Rmin34]" rMax="[Rmax36]"/>
-    <ZSection z="[Zpos37]" rMin="[Rmin34]" rMax="[Rmax36]"/>
-    <ZSection z="[Zpos37]" rMin="[Rmin34]" rMax="[Rmax37]"/>
-    <ZSection z="[Zpos38]" rMin="[Rmin34]" rMax="[Rmax37]"/>
+    <ZSection z="[Zpos2H]" rMin="[Rmin34]" rMax="[Rmax38]"/>
+    <ZSection z="[Zpos38]" rMin="[Rmin34]" rMax="[Rmax38]"/>
   </Polycone>
 </SolidSection>
 

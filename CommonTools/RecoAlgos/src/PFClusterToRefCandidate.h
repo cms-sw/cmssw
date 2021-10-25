@@ -1,7 +1,7 @@
 #ifndef RecoAlgos_PFClusterToRefCandidate_h
 #define RecoAlgos_PFClusterToRefCandidate_h
-#include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
-#include "CommonTools/RecoAlgos/src/CandidateProducer.h"
+#include "CommonTools/RecoAlgos/interface/MassiveCandidateConverter.h"
+#include "CommonTools/RecoAlgos/interface/CandidateProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
@@ -13,7 +13,8 @@ namespace converter {
     typedef reco::PFCluster value_type;
     typedef reco::PFClusterCollection Components;
     typedef reco::RecoPFClusterRefCandidate Candidate;
-    PFClusterToRefCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    PFClusterToRefCandidate(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+        : MassiveCandidateConverter(cfg, iC) {}
     void convert(reco::PFClusterRef pfclusterRef, reco::RecoPFClusterRefCandidate& c) const {
       c = reco::RecoPFClusterRefCandidate(pfclusterRef, sqrt(massSqr_));
     }

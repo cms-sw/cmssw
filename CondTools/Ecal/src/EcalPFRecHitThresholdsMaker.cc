@@ -1,102 +1,27 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Framework/interface/Event.h"
-
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
 #include "CondTools/Ecal/interface/EcalPFRecHitThresholdsMaker.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
-#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
-#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
-#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
-#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
-#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
-#include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
-#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
-#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
-
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
-#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
-#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
-
-#include "DataFormats/Provenance/interface/Timestamp.h"
-
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
 #include <vector>
 
 EcalPFRecHitThresholdsMaker::EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig)
-    : m_timetype(iConfig.getParameter<std::string>("timetype")) {
-  std::string container;
-  std::string tag;
-  std::string record;
-
+    : m_timetype(iConfig.getParameter<std::string>("timetype")),
+      ecalPedestalsToken_(esConsumes()),
+      ecalADCToGeVConstantToken_(esConsumes()),
+      ecalIntercalibConstantsToken_(esConsumes()),
+      ecalLaserDbServiceToken_(esConsumes()) {
   m_nsigma = iConfig.getParameter<double>("NSigma");
 }
 
@@ -108,23 +33,16 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
     throw cms::Exception("PoolDBOutputService is not available");
   }
 
-  edm::ESHandle<EcalPedestals> handle1;
-  evtSetup.get<EcalPedestalsRcd>().get(handle1);
-  const EcalPedestals* ped_db = handle1.product();
-  std::cout << "ped pointer is: " << ped_db << std::endl;
+  const EcalPedestals* ped_db = &evtSetup.getData(ecalPedestalsToken_);
+  edm::LogInfo("EcalPFRecHitThresholdsMaker") << "ped pointer is: " << ped_db << std::endl;
 
-  edm::ESHandle<EcalADCToGeVConstant> handle2;
-  evtSetup.get<EcalADCToGeVConstantRcd>().get(handle2);
-  const EcalADCToGeVConstant* adc_db = handle2.product();
-  std::cout << "adc pointer is: " << adc_db << std::endl;
+  const EcalADCToGeVConstant* adc_db = &evtSetup.getData(ecalADCToGeVConstantToken_);
+  edm::LogInfo("EcalPFRecHitThresholdsMaker") << "adc pointer is: " << adc_db << std::endl;
 
-  edm::ESHandle<EcalIntercalibConstants> handle3;
-  evtSetup.get<EcalIntercalibConstantsRcd>().get(handle3);
-  const EcalIntercalibConstants* ical_db = handle3.product();
-  std::cout << "inter pointer is: " << ical_db << std::endl;
+  const EcalIntercalibConstants* ical_db = &evtSetup.getData(ecalIntercalibConstantsToken_);
+  edm::LogInfo("EcalPFRecHitThresholdsMaker") << "inter pointer is: " << ical_db << std::endl;
 
-  edm::ESHandle<EcalLaserDbService> laser;
-  evtSetup.get<EcalLaserDbRecord>().get(laser);
+  const auto laser = evtSetup.getHandle(ecalLaserDbServiceToken_);
 
   EcalPFRecHitThresholds* pfthresh = new EcalPFRecHitThresholds();
 
@@ -155,7 +73,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
         EcalPFRecHitThreshold thresh = aped.rms_x12 * calib * adc_EB * lasercalib * m_nsigma;
 
         if (iPhi == 100)
-          std::cout << "Thresh(GeV)=" << thresh << std::endl;
+          edm::LogInfo("EcalPFRecHitThresholdsMaker") << "Thresh(GeV)=" << thresh << std::endl;
 
         pfthresh->insert(std::make_pair(ebdetid.rawId(), thresh));
       }
@@ -198,7 +116,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
         pfthresh->insert(std::make_pair(eedetid.rawId(), thresh));
 
         if (iX == 50)
-          std::cout << "Thresh(GeV)=" << thresh << std::endl;
+          edm::LogInfo("EcalPFRecHitThresholdsMaker") << "Thresh(GeV)=" << thresh << std::endl;
       }
     }
   }
@@ -206,5 +124,5 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
   dbOutput->createNewIOV<const EcalPFRecHitThresholds>(
       pfthresh, dbOutput->beginOfTime(), dbOutput->endOfTime(), "EcalPFRecHitThresholdsRcd");
 
-  std::cout << "EcalPFRecHitThresholdsMaker wrote it " << std::endl;
+  edm::LogInfo("EcalPFRecHitThresholdsMaker") << "EcalPFRecHitThresholdsMaker wrote it " << std::endl;
 }

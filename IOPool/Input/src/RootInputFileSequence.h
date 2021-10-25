@@ -43,6 +43,9 @@ namespace edm {
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     void readRun_(RunPrincipal& runPrincipal);
+    void fillProcessBlockHelper_();
+    bool nextProcessBlock_(ProcessBlockPrincipal&);
+    void readProcessBlock_(ProcessBlockPrincipal&);
     bool skipToItem(RunNumber_t run,
                     LuminosityBlockNumber_t lumi,
                     EventNumber_t event,
@@ -50,6 +53,8 @@ namespace edm {
                     bool currentFileFirst = true);
     std::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     std::shared_ptr<BranchIDListHelper const> fileBranchIDListHelper() const;
+
+    void closeFile();
 
   protected:
     typedef std::shared_ptr<RootFile> RootFileSharedPtr;

@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
@@ -270,6 +271,7 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
                                     selectorRules_,
                                     InputType::Primary,
                                     branchIDListHelper(),
+                                    nullptr,
                                     thinnedAssociationsHelper(),
                                     nullptr,  // associationsFromSecondary
                                     duplicateChecker,
@@ -330,6 +332,7 @@ void RepeatingCachedRootSource::readEvent_(EventPrincipal& eventPrincipal) {
                                     history,
                                     selectionIDs_,
                                     branchListIndexes_,
+                                    EventToProcessBlockIndexes(),
                                     provRetriever_,
                                     &delayedReaders_[eventPrincipal.streamID().value()]);
 }

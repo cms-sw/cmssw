@@ -25,9 +25,9 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/DetSetVectorThinningTest1_cfg.py || die "cmsRun DetSetVectorThinningTest1_cfg.py" $?
   cmsRun -p ${LOCAL_TEST_DIR}/DetSetVectorThinningTest2_cfg.py || die "cmsRun DetSetVectorThinningTest2_cfg.py" $?
 
-  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestSiblings_cfg.py && die "cmsRun SlimmingTestSiblings_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestSiblings_cfg.py && die "cmsRun SlimmingTestSiblings_cfg.py"1
 
-  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestFartherSiblings_cfg.py && die "cmsRun SlimmingTestFartherSiblings_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTestFartherSiblings_cfg.py && die "cmsRun SlimmingTestFartherSiblings_cfg.py" 1
 
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest1_cfg.py || die "cmsRun SlimmingTest1_cfg.py" $?
 
@@ -49,7 +49,7 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest3I_cfg.py || die "cmsRun SlimmingTest3I_cfg.py" $?
 
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4B_cfg.py || die "cmsRun SlimmingTest4B_cfg.py" $?
-  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4F_cfg.py && die "cmsRun SlimmingTest4F_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4F_cfg.py && die "cmsRun SlimmingTest4F_cfg.py" 1
 
 popd
 

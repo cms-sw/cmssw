@@ -1,17 +1,21 @@
-#include "FWCore/MessageService/test/UnitTestClient_C.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include <iostream>
-#include <string>
 #include <iomanip>
 
 namespace edmtest {
 
-  void UnitTestClient_C::analyze(edm::Event const& /*unused*/
-                                 ,
-                                 edm::EventSetup const& /*unused*/
-  ) {
+  class UnitTestClient_C : public edm::global::EDAnalyzer<> {
+  public:
+    explicit UnitTestClient_C(edm::ParameterSet const&) {}
+
+    void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+  };
+
+  void UnitTestClient_C::analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const {
     int i = 145;
     edm::LogWarning("cat_A") << "Test of std::hex:" << i << std::hex << "in hex is" << i;
     edm::LogWarning("cat_A") << "Test of std::setw(n) and std::setfill('c'):"
@@ -31,7 +35,7 @@ namespace edmtest {
     edm::LogWarning("cat_A").format("Test of format precision:Pi with precision 12 is {:.12g}", d);
     edm::LogWarning("cat_A").format(
         "Test of format spacing: The following should read a b cc: {} {:+>} {:>2}", "a", "b", "cc");
-  }  // MessageLoggerClient::analyze()
+  }
 
 }  // namespace edmtest
 

@@ -201,6 +201,8 @@ private:
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID>> jetID_ValueMapToken_;
 
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> l1gtTrigMenuToken_;
+
   JetIDSelectionFunctor jetIDFunctorLoose;
   PFJetIDSelectionFunctor pfjetIDFunctorLoose;
 

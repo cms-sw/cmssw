@@ -714,7 +714,7 @@ class DirWalkerFile(object):
             #print  self.ls().keys()
             first_run_dir = ""
             try:
-                first_run_dir = filter(lambda k: "Run " in k, self.ls().keys())[0]
+                first_run_dir = list(filter(lambda k: "Run " in k, self.ls().keys()))[0]
             except:
                 print("\nRundir not there: Is this a generic rootfile?\n")
             rundir=first_run_dir

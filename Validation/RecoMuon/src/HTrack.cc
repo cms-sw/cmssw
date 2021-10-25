@@ -237,7 +237,7 @@ void HTrack::computeTDRResolution(const FreeTrajectoryState& fts, SimTrack& simT
 
 void HTrack::computePull(const FreeTrajectoryState& fts, SimTrack& simTrack, HResolution* hReso) {
   // x,y,z, px,py,pz
-  AlgebraicSymMatrix66 const& errors = fts.cartesianError().matrix();
+  AlgebraicSymMatrix66 const errors = fts.cartesianError().matrix();
 
   double partialPterror = errors[3][3] * pow(fts.momentum().x(), 2) + errors[4][4] * pow(fts.momentum().y(), 2);
 

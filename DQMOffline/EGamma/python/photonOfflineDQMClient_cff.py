@@ -10,7 +10,7 @@ stdPhotonOfflineClient.analyzerName = cms.string('stdPhotonAnalyzer')
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 stdPhotonOfflineClientHGCal = stdPhotonOfflineClient.clone()
-stdPhotonOfflineClientHGCal.analyzerName = 'stdPhotonAnalyzerHGCalFromMultiCl'
+stdPhotonOfflineClientHGCal.analyzerName = 'stdPhotonAnalyzerHGCal'
 from DQMOffline.EGamma.egammaDQMOffline_cff import stdPhotonAnalysisHGCal
 stdPhotonOfflineClientHGCal.etaBin = stdPhotonAnalysisHGCal.etaBin
 stdPhotonOfflineClientHGCal.etaMin = stdPhotonAnalysisHGCal.etaMin

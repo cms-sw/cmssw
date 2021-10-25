@@ -45,11 +45,12 @@ public:
 protected:
   void DoRedraw() override;
 
-private:
+public:
   FWBoxIconButton(const FWBoxIconButton&) = delete;  // stop default
 
   const FWBoxIconButton& operator=(const FWBoxIconButton&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   FWBoxIconBase* m_iconBase;
 };

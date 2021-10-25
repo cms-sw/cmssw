@@ -6,7 +6,7 @@
 // Class  :     FWHLTValidator
 //
 
-#include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/interface/FWValidatorBase.h"
 
 namespace edm {
   class TriggerNames;
@@ -25,10 +25,10 @@ public:
                    const char* iEnd,
                    std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const override;
 
-private:
   FWHLTValidator(const FWHLTValidator&) = delete;                   // stop default
   const FWHLTValidator& operator=(const FWHLTValidator&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   std::string m_process;
   mutable std::vector<std::string> m_triggerNames;

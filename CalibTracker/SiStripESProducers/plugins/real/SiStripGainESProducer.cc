@@ -92,18 +92,17 @@ SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig) :
 }
 
 std::unique_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd& iRecord) {
-  edm::FileInPath fp(SiStripDetInfoFileReader::kDefaultFile);
-  SiStripDetInfoFileReader reader(fp.fullPath());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
 
   const auto& apvGain = gainGetters_[0]->gain(iRecord);
   // Create a new gain object and insert the ApvGain
-  auto gain =
-      std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel(), reader.info());
+  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel(), detInfo);
 
   for (unsigned int i = 1; i < gainGetters_.size(); ++i) {
     const auto& apvGain = gainGetters_[i]->gain(iRecord);
     // Add the new ApvGain to the gain object
-    gain->multiply(apvGain, factor_.get(apvGain, i), gainGetters_[i]->recordLabel(), reader.info());
+    gain->multiply(apvGain, factor_.get(apvGain, i), gainGetters_[i]->recordLabel(), detInfo);
   }
 
   return gain;

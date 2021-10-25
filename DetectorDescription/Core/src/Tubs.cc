@@ -1,11 +1,11 @@
-#include "DetectorDescription/Core/src/Tubs.h"
+#include "DetectorDescription/Core/interface/Tubs.h"
 
 #include <cmath>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/Solid.h"
 
 using std::fabs;
 using namespace geant_units::operators;

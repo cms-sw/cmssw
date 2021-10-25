@@ -88,7 +88,8 @@ void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas) {
   canvas.SetBottomMargin(0.02);
   canvas.SetLeftMargin(0.02);
   canvas.SetRightMargin(0.14);
-  m_BaseTrackerMap->Draw("AC COLZ L");
+  m_BaseTrackerMap->Draw("AL");
+  m_BaseTrackerMap->Draw("AC COLZ0 L SAME");
 
   //### z arrow
   arrow = TArrow(0.05, 27.0, 0.05, -30.0, 0.02, "|>");

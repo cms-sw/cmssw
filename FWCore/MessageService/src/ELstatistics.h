@@ -56,6 +56,7 @@ namespace edm {
       ELstatistics(int spaceLimit);
       ELstatistics(int spaceLimit, std::ostream& osp);
       ELstatistics(const ELstatistics& orig);
+      ELstatistics& operator=(const ELstatistics& orig) = delete;  // verboten
       ~ELstatistics() override;
 
       // -----  Methods invoked by the ELadministrator:
@@ -100,7 +101,6 @@ namespace edm {
       //
     private:
       std::string dualLogName(std::string const& s);
-      ELstatistics& operator=(const ELstatistics& orig) = delete;  // verboten
 
       void summary(std::ostream& os, std::string_view title);
 

@@ -74,6 +74,8 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     sdet = "ME0";
   } else {
     theRotation = new MuonFrameRotation();
+    if (detector->isBarrel())
+      sdet = "Barrel";
   }
   slaveMuon = new MuonSlaveSD(detector, theManager);
   numbering = new MuonSimHitNumberingScheme(detector, constants);

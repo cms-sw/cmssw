@@ -61,6 +61,6 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  backendProcess_->run(trigCellBxColl, *be_cluster_output, es);
+  backendProcess_->run(trigCellBxColl, *be_cluster_output);
   e.put(std::move(be_cluster_output), backendProcess_->name());
 }

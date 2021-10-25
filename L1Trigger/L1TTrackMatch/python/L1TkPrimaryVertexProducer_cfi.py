@@ -24,6 +24,8 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
      MonteCarloVertex = cms.bool( False ),    #  when True: dont run the vxt finding algo but pick up the MC generated vtx
      doPtComp = cms.bool( True ),       # track-stubs PT compatibility cut
      doTightChi2 = cms.bool( False ),    # chi2dof < 5 for tracks with PT > 10
+     trk_ptTightChi2 = cms.double(10.0),
+     trk_chi2dofTightChi2 = cms.double(5.0),
      WEIGHT = cms.int32(1)            # WEIGHT can be set to 0, 1 or 2 for unweighted, pT weighted
                                       # or pT2 weighted tracks respectively.
 

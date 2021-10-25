@@ -69,7 +69,7 @@
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
-#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowTaskExecutor.h"
 
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
@@ -85,7 +85,7 @@
 
 #include "FWCore/Common/interface/EventBase.h"
 
-#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 // constants, enums and typedefs

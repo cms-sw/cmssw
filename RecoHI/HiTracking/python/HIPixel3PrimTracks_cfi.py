@@ -53,22 +53,19 @@ hiPixel3PrimTracksHitQuadrupletsCA = _caHitQuadrupletEDProducer.clone(
     CAPhiCut   = 0.2,
 ) 
 
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod 
+
 # Pixel tracks
-hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
-
-    passLabel  = cms.string('Pixel triplet primary tracks with vertex constraint'),
-
+hiPixel3PrimTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel triplet primary tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiPixel3PrimTracksHitTriplets"),
-	
+    SeedingHitSets = "hiPixel3PrimTracksHitTriplets",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiFilter"),
-	
+    Filter = "hiFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 trackingPhase1.toModify(hiPixel3PrimTracks,
     SeedingHitSets = "hiPixel3PrimTracksHitQuadrupletsCA",

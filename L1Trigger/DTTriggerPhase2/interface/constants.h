@@ -53,6 +53,8 @@ namespace cmsdt {
                   double tan,
                   double ph,
                   double phb,
+                  double ph_cmssw,
+                  double phb_cmssw,
                   double chi,
                   int q,
                   int w1,
@@ -87,6 +89,8 @@ namespace cmsdt {
           tanPhi(tan),
           phi(ph),
           phiB(phb),
+          phi_cmssw(ph_cmssw),
+          phiB_cmssw(phb_cmssw),
           chi2(chi),
           quality(q),
           wi1(w1),
@@ -122,6 +126,8 @@ namespace cmsdt {
     double tanPhi;
     double phi;
     double phiB;
+    double phi_cmssw;
+    double phiB_cmssw;
     double chi2;
     int quality;
     int wi1;

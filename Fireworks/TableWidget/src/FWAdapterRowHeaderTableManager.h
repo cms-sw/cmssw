@@ -45,11 +45,11 @@ public:
   // ---------- member functions ---------------------------
   void implSort(int col, bool sortOrder) override;
 
-private:
   FWAdapterRowHeaderTableManager(const FWAdapterRowHeaderTableManager&) = delete;  // stop default
 
   const FWAdapterRowHeaderTableManager& operator=(const FWAdapterRowHeaderTableManager&) = delete;  // stop default
 
+private:
   // ---------- member data --------------------------------
   const FWTableManagerBase* m_table;
 };

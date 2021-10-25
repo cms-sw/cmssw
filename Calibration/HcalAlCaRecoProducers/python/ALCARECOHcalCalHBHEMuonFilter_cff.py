@@ -9,7 +9,7 @@ ALCARECOHcalCalHBHEMuonFilterHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHigh
     throw = False #dont throw except on unknown path name
 )
 
-from Calibration.HcalAlCaRecoProducers.alcaHBHEMuonFilter_cfi import *
+from Calibration.HcalAlCaRecoProducers.AlcaHBHEMuonFilter_cfi import *
 
 seqALCARECOHcalCalHBHEMuonFilter = cms.Sequence(ALCARECOHcalCalHBHEMuonFilterHLT *
                                                 AlcaHBHEMuonFilter)

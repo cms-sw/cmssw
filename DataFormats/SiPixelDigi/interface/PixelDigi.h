@@ -19,6 +19,7 @@ public:
   explicit PixelDigi(PackedDigiType packed_value) : theData(packed_value) {}
 
   PixelDigi(int row, int col, int adc) { init(row, col, adc); }
+  PixelDigi(int row, int col, int adc, int flag) { init(row, col, adc, flag); }
 
   PixelDigi(int chan, int adc) {
     std::pair<int, int> rc = channelToPixel(chan);
@@ -27,7 +28,7 @@ public:
 
   PixelDigi() : theData(0) {}
 
-  void init(int row, int col, int adc) {
+  void init(int row, int col, int adc, int flag = 0) {
 #ifdef FIXME_DEBUG
     // This check is for the maximal row or col number that can be packed
     // in a PixelDigi. The actual number of rows or columns in a detector
@@ -45,7 +46,8 @@ public:
 
     theData = (row << PixelChannelIdentifier::thePacking.row_shift) |
               (col << PixelChannelIdentifier::thePacking.column_shift) |
-              (adc << PixelChannelIdentifier::thePacking.adc_shift);
+              (adc << PixelChannelIdentifier::thePacking.adc_shift) |
+              (flag << PixelChannelIdentifier::thePacking.flag_shift);
   }
 
   // Access to digi information
@@ -56,7 +58,9 @@ public:
     return (theData >> PixelChannelIdentifier::thePacking.column_shift) &
            PixelChannelIdentifier::thePacking.column_mask;
   }
-  //int time() const    {return (theData >> PixelChannelIdentifier::thePacking.time_shift) & PixelChannelIdentifier::thePacking.time_mask;}
+  int flag() const {
+    return (theData >> PixelChannelIdentifier::thePacking.flag_shift) & PixelChannelIdentifier::thePacking.flag_mask;
+  }
   unsigned short adc() const {
     return (theData >> PixelChannelIdentifier::thePacking.adc_shift) & PixelChannelIdentifier::thePacking.adc_mask;
   }

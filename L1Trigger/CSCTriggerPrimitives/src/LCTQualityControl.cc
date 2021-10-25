@@ -1,4 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityAssignment.h"
 #include <unordered_map>
 
 // constructor
@@ -201,7 +202,7 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, unsigned sta
   }
 
   // non-GEM-CSC stations ALWAYS send out ALCTCLCT type LCTs
-  if (!(ring == 1 and (station == 1 or station == 2))) {
+  if (!isME11_ and !isME21_) {
     if (lct.getType() != CSCCorrelatedLCTDigi::ALCTCLCT) {
       edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid type (SIM) in this station: "
                                          << lct.getType() << "; allowed [" << CSCCorrelatedLCTDigi::ALCTCLCT << "]";
@@ -210,14 +211,73 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, unsigned sta
   }
 
   // GEM-CSC stations can send out GEM-type LCTs ONLY when the ILT is turned on!
-  if (ring == 1 and lct.getType() != CSCCorrelatedLCTDigi::ALCTCLCT) {
-    if ((station == 1 and !runME11ILT_) or (station == 2 and !runME21ILT_)) {
+  if ((isME11_ and !runME11ILT_) or (isME21_ and !runME21ILT_)) {
+    if (lct.getType() != CSCCorrelatedLCTDigi::ALCTCLCT) {
       edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with invalid type (SIM) with GEM-CSC trigger not on: "
                                          << lct.getType() << "; allowed [" << CSCCorrelatedLCTDigi::ALCTCLCT << "]";
       errors++;
     }
   }
 
+  // GEM-CSC types must have at least one valid GEM hit
+  if ((lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM or lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM or
+       lct.getType() == CSCCorrelatedLCTDigi::ALCT2GEM or lct.getType() == CSCCorrelatedLCTDigi::CLCT2GEM) and
+      !lct.getGEM1().isValid() and !lct.getGEM2().isValid()) {
+    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with valid GEM-CSC type (SIM) has no valid GEM hits: "
+                                       << lct.getType();
+    errors++;
+  }
+
+  // LCT type does not agree with the LCT quality when CCLUT is on
+  if (runCCLUT_) {
+    const bool ME11ILT(isME11_ and runME11ILT_);
+    const bool ME21ILT(isME21_ and runME21ILT_);
+
+    // GEM-CSC cases
+    if (ME11ILT or ME21ILT) {
+      const bool case1(lct.getType() == CSCCorrelatedLCTDigi::ALCT2GEM and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_2GEM));
+      const bool case2(lct.getType() == CSCCorrelatedLCTDigi::CLCT2GEM and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::CLCT_2GEM));
+      const bool case3(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM and
+                       lct.getQuality() ==
+                           static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_1GEM_CSCBend));
+      const bool case4(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM and
+                       lct.getQuality() ==
+                           static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_1GEM_GEMCSCBend));
+      const bool case5(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM and
+                       lct.getQuality() ==
+                           static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_CSCBend));
+      const bool case6(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM and
+                       lct.getQuality() ==
+                           static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_GEMCSCBend));
+      const bool case7(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT));
+
+      if (!(case1 or case2 or case3 or case4 or case5 or case6 or case7)) {
+        edm::LogError("LCTQualityControl")
+            << "CSCCorrelatedLCTDigi with valid GEM-CSC type (SIM) has no matching Run-3 quality: " << lct.getType()
+            << " " << lct.getQuality();
+        errors++;
+      }
+    }
+
+    // regular cases
+    else {
+      const bool case1(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::LowQ));
+      const bool case2(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::MedQ));
+      const bool case3(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT and
+                       lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::HighQ));
+      if (!(case1 or case2 or case3)) {
+        edm::LogError("LCTQualityControl")
+            << "CSCCorrelatedLCTDigi with invalid CSC type (SIM) has no matching Run-3 quality: " << lct.getType()
+            << " " << lct.getQuality();
+        errors++;
+      }
+    }
+  }
   reportErrors(lct, errors);
 }
 
@@ -426,20 +486,22 @@ std::pair<unsigned, unsigned> LCTQualityControl::get_csc_lct_min_max_quality(uns
   unsigned min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun2::HQ_PATTERN_2_3);
   unsigned max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun2::HQ_PATTERN_10);
 
+  const bool GEMCSC = (isME11_ and runME11ILT_) or (isME21_ and runME21ILT_);
+
   // Run-3 with CCLUT on
-  if (runCCLUT_) {
+  if (runCCLUT_ and !GEMCSC) {
     min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::LowQ);
     max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::HighQ);
   }
 
   // Run-3 with GEM-CSC on (low-quality CLCTs are permitted, but use Run-2 data format)
-  const bool GEMCSC = (station == 1 and ring == 1 and runME11ILT_) or (station == 2 and ring == 1 and runME11ILT_);
-  if (GEMCSC) {
+  if (!runCCLUT_ and GEMCSC) {
     min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun2::HQ_ANODE_MARGINAL_CATHODE);
+    max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun2::HQ_PATTERN_10);
   }
 
-  // Run-3 CSC with GEM-CSC on and CCLUT on: use Run-3 data format
-  if (GEMCSC and runCCLUT_) {
+  // Run-3 CSC with GEM-CSC on and CCLUT on
+  if (runCCLUT_ and GEMCSC) {
     min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_2GEM);
     max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_GEMCSCBend);
   }

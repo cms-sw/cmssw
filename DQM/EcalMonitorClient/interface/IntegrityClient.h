@@ -2,10 +2,10 @@
 #define IntegrityClient_H
 
 #include "DQWorkerClient.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 namespace ecaldqm {
   class IntegrityClient : public DQWorkerClient {
@@ -18,7 +18,9 @@ namespace ecaldqm {
 
   private:
     void setParams(edm::ParameterSet const&) override;
-    edm::ESHandle<EcalChannelStatus> chStatus;
+    edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> chStatusToken;
+    const EcalChannelStatus* chStatus;
+    void setTokens(edm::ConsumesCollector&) override;
 
     float errFractionThreshold_;
   };

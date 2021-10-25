@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import sys
@@ -196,7 +196,7 @@ for i in range(len(Run_Number)):
         print('Using DQM file: '+File_Name)
     else:
         print('*****************Warning: DQM file is not ready************************')
-        input_var = raw_input("DQM file is incompleted, do you want to continue? (y/n): ")
+        input_var = input("DQM file is incompleted, do you want to continue? (y/n): ")
         if (input_var == 'y') or (input_var == 'Y'):
             print('Using DQM file: '+File_Name)
         else:
@@ -206,7 +206,7 @@ for i in range(len(Run_Number)):
             print(' ')
             print(' ')
             print('*****************Warning: PCL file is not ready************************')
-            input_var = raw_input("PCL file is not ready, you will need to re-run the script later for PCL plots, do you want to continue? (y/n): ")
+            input_var = input("PCL file is not ready, you will need to re-run the script later for PCL plots, do you want to continue? (y/n): ")
             if (input_var == 'y') or (input_var == 'Y'):
                 print('-------->   Remember to re-run the script later!!!!!')
             else:

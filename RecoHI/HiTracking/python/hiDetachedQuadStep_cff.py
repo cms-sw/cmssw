@@ -83,21 +83,19 @@ hiDetachedQuadStepPixelTracksFilter = hiFilter.clone(
     tipMax = 1.0,
     ptMin = 0.95, #seeding region is 0.3
 )
-hiDetachedQuadStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
-    passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
+import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
 
+hiDetachedQuadStepPixelTracks = _mod.pixelTracks.clone(
+    passLabel  = 'Pixel detached tracks with vertex constraint',
     # Ordered Hits
-    SeedingHitSets = cms.InputTag("hiDetachedQuadStepTracksHitQuadrupletsCA"),
-	
+    SeedingHitSets = "hiDetachedQuadStepTracksHitQuadrupletsCA",
     # Fitter
-    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
-	
+    Fitter = "pixelFitterByHelixProjections",
     # Filter
-    Filter = cms.InputTag("hiDetachedQuadStepPixelTracksFilter"),
-	
+    Filter = "hiDetachedQuadStepPixelTracksFilter",
     # Cleaner
-    Cleaner = cms.string("trackCleaner")
+    Cleaner = "trackCleaner"
 )
 
 

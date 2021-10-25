@@ -18,9 +18,6 @@
 //         Created:  Thu, 01 Aug 2013 21:41:42 GMT
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/AbilityToImplementor.h"
 #include "FWCore/Framework/interface/stream/CacheContexts.h"
@@ -28,35 +25,32 @@
 #include "FWCore/Framework/interface/stream/AbilityChecker.h"
 #include "FWCore/Framework/interface/stream/EDFilterBase.h"
 #include "FWCore/Framework/interface/stream/ProducingModuleHelper.h"
-// forward declarations
+
 namespace edm {
 
   class WaitingTaskWithArenaHolder;
 
   namespace stream {
+
     template <typename... T>
     class EDFilter : public AbilityToImplementor<T>::Type..., public EDFilterBase {
     public:
-      typedef CacheContexts<T...> CacheTypes;
+      using CacheTypes = CacheContexts<T...>;
 
-      typedef typename CacheTypes::GlobalCache GlobalCache;
-      typedef typename CacheTypes::RunCache RunCache;
-      typedef typename CacheTypes::LuminosityBlockCache LuminosityBlockCache;
-      typedef RunContextT<RunCache, GlobalCache> RunContext;
-      typedef LuminosityBlockContextT<LuminosityBlockCache, RunCache, GlobalCache> LuminosityBlockContext;
-      typedef typename CacheTypes::RunSummaryCache RunSummaryCache;
-      typedef typename CacheTypes::LuminosityBlockSummaryCache LuminosityBlockSummaryCache;
+      using GlobalCache = typename CacheTypes::GlobalCache;
+      using InputProcessBlockCache = typename CacheTypes::InputProcessBlockCache;
+      using RunCache = typename CacheTypes::RunCache;
+      using LuminosityBlockCache = typename CacheTypes::LuminosityBlockCache;
+      using RunContext = RunContextT<RunCache, GlobalCache>;
+      using LuminosityBlockContext = LuminosityBlockContextT<LuminosityBlockCache, RunCache, GlobalCache>;
+      using RunSummaryCache = typename CacheTypes::RunSummaryCache;
+      using LuminosityBlockSummaryCache = typename CacheTypes::LuminosityBlockSummaryCache;
 
-      typedef AbilityChecker<T...> HasAbility;
+      using HasAbility = AbilityChecker<T...>;
 
       EDFilter() = default;
-      //virtual ~EDFilter();
-
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
+      EDFilter(const EDFilter&) = delete;
+      const EDFilter& operator=(const EDFilter&) = delete;
 
       bool hasAbilityToProduceInBeginProcessBlocks() const final {
         return HasAbilityToProduceInBeginProcessBlocks<T...>::value;
@@ -72,15 +66,9 @@ namespace edm {
       bool hasAbilityToProduceInEndLumis() const final { return HasAbilityToProduceInEndLumis<T...>::value; }
 
     private:
-      EDFilter(const EDFilter&) = delete;  // stop default
-
-      const EDFilter& operator=(const EDFilter&) = delete;  // stop default
-
       void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) final {
         doAcquireIfNeeded(this, ev, es, holder);
       }
-
-      // ---------- member data --------------------------------
     };
 
   }  // namespace stream

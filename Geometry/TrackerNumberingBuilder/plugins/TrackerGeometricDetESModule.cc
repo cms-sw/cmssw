@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -35,6 +36,8 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule(const edm::ParameterSet& p)
     : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
+  edm::LogVerbatim("TrackerGeom") << "TrackerGeometricDetESModule::fromDDD " << fromDDD_ << "  fromDD4hep "
+                                  << fromDD4hep_;
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
     ddToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());

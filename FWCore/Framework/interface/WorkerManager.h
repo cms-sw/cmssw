@@ -5,11 +5,12 @@
 
 */
 
+#include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/UnscheduledCallProducer.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -72,7 +73,9 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(ProductRegistry const& iRegistry,
+                  eventsetup::ESRecordsToProxyIndices const&,
+                  ProcessBlockHelperBase const&);
     void endJob();
     void endJob(ExceptionCollector& collector);
 

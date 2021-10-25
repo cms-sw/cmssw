@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 The script compares two releases, generates SQLite3 database file with release
 comparison information.

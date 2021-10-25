@@ -19,6 +19,9 @@
  */
 
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
@@ -50,6 +53,9 @@ public:
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
+  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
+  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry* g) { csc_g = g; }
@@ -103,8 +109,9 @@ private:
   static const int min_chamber;  // chambers per trigger subsector
   static const int max_chamber;
 
-  //debug
+  // debug
   int infoV;
+
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
@@ -112,16 +119,11 @@ private:
   bool runPhase2_;
 
   /** Phase2: special switch for disabling ME42 */
-  bool disableME1a_;
-
-  /** Phase2: special switch for disabling ME42 */
   bool disableME42_;
 
   /** Phase2: individual switches */
   bool runME11Up_;
   bool runME21Up_;
-  bool runME31Up_;
-  bool runME41Up_;
 
   /** Phase2: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;

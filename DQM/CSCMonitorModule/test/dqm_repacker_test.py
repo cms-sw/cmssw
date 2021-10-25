@@ -197,7 +197,7 @@ process.cscpacker = cms.EDProducer("CSCDigiToRawModule",
 )
 
 process.cscpacker.usePreTriggers = cms.untracked.bool(False)
-process.cscpacker.useFormatVersion = cms.untracked.uint32(2013)
+process.cscpacker.formatVersion = cms.untracked.uint32(2013)
 
 #----------------------------
 # Event Source

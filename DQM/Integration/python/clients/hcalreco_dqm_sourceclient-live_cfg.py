@@ -68,8 +68,9 @@ process.dqmSaverPB.tag = "HcalReco"
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
-if not useFileInput and not unitTest:
-	process.source.minEventsPerLumi = 5
+if not unitTest and not useFileInput:
+  if not options.BeamSplashRun :
+    process.source.minEventsPerLumi = 5
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -102,11 +103,11 @@ runTypeName		= process.runType.getRunTypeName()
 isCosmicRun     = runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon      = runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
-rawTag			= cms.InputTag("rawDataCollector")
-rawTagUntracked	= cms.untracked.InputTag("rawDataCollector")
+rawTag			= "rawDataCollector"
+rawTagUntracked	= "rawDataCollector"
 if isHeavyIon:
-	rawTag			= cms.InputTag("rawDataRepacker")
-	rawTagUntracked	= cms.untracked.InputTag("rawDataRepacker")
+	rawTag			= "rawDataRepacker"
+	rawTagUntracked	= "rawDataRepacker"
 
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag
@@ -139,15 +140,15 @@ if useMap:
 #	Settings for the Primary Modules
 #-------------------------------------
 oldsubsystem = subsystem
-process.recHitTask.tagHBHE = cms.untracked.InputTag("hbheprereco")
-process.recHitTask.tagHO = cms.untracked.InputTag("horeco")
-process.recHitTask.tagHF = cms.untracked.InputTag("hfreco")
+process.recHitTask.tagHBHE = "hbheprereco"
+process.recHitTask.tagHO = "horeco"
+process.recHitTask.tagHF = "hfreco"
 process.recHitTask.runkeyVal = runType
 process.recHitTask.runkeyName = runTypeName
 process.recHitTask.tagRaw = rawTagUntracked
-process.recHitTask.subsystem = cms.untracked.string(subsystem)
+process.recHitTask.subsystem = subsystem
 
-process.hcalOnlineHarvesting.subsystem = cms.untracked.string(subsystem)
+process.hcalOnlineHarvesting.subsystem = subsystem
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -196,4 +197,7 @@ process.options = cms.untracked.PSet(
 			"TooFewProducts"
 		)
 )
-process.options.wantSummary = cms.untracked.bool(True)
+
+process.options.wantSummary = True
+print("Final Source settings:", process.source)
+

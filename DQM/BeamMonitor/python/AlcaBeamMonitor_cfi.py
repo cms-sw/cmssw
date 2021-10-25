@@ -4,6 +4,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 AlcaBeamMonitor = DQMEDAnalyzer('AlcaBeamMonitor',
                                  MonitorName        = cms.untracked.string('AlcaBeamMonitor'),
                                  PrimaryVertexLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+                                 perLSsaving        = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
                                  #TrackLabel         = cms.untracked.InputTag('ALCARECOTkAlMinBias'),
                                  TrackLabel         = cms.untracked.InputTag('generalTracks'),
                                  ScalerLabel        = cms.untracked.InputTag('scalerBeamSpot'),

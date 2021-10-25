@@ -12,11 +12,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
-
-#include <string>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -58,7 +53,13 @@ constexpr int dccNum[12][12] = {
 using namespace std;
 
 EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps)
-    : ps_(ps), hSrToken_(esConsumes<EcalSRSettings, EcalSRSettingsRcd>()), done_(false) {}
+    : ps_(ps), mode_(ps.getParameter<string>("mode")), iomode_write_(true), done_(false) {
+  if (mode_ == "read") {
+    iomode_write_ = false;
+    hSrToken_ = esConsumes();
+    tpgPhysicsConstToken_ = esConsumes();
+  }
+}
 
 EcalSRCondTools::~EcalSRCondTools() {}
 
@@ -67,10 +68,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     return;
   EcalSRSettings* sr = new EcalSRSettings;
 
-  string mode = ps_.getParameter<string>("mode");
-
-  bool iomode_write = true;
-  if (mode == "online_config" || mode == "combine_config") {
+  if (mode_ == "online_config" || mode_ == "combine_config") {
     string fname = ps_.getParameter<string>("onlineSrpConfigFile");
     ifstream f(fname.c_str());
     if (!f.good()) {
@@ -79,20 +77,16 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     importSrpConfigFile(*sr, f, true);
   }
 
-  if (mode == "python_config" || mode == "combine_config") {
+  if (mode_ == "python_config" || mode_ == "combine_config") {
     importParameterSet(*sr, ps_);
   }
 
-  if (mode == "read") {
-    iomode_write = false;
-  }
-
-  if (!(mode == "python_config" || mode == "online_config" || mode == "combine_config" || (mode == "read"))) {
-    throw cms::Exception("Config") << "Invalid value," << mode << ",  for parameter mode. "
+  if (!(mode_ == "python_config" || mode_ == "online_config" || mode_ == "combine_config" || (mode_ == "read"))) {
+    throw cms::Exception("Config") << "Invalid value," << mode_ << ",  for parameter mode. "
                                    << "Valid values: online_config, python_config, combine_config, read";
   }
 
-  if (iomode_write) {
+  if (iomode_write_) {
     sr->bxGlobalOffset_ = ps_.getParameter<int>("bxGlobalOffset");
     sr->automaticSrpSelect_ = ps_.getParameter<int>("automaticSrpSelect");
     sr->automaticMasks_ = ps_.getParameter<int>("automaticMasks");
@@ -104,10 +98,10 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     //fillup DB
     //create new infinite IOV
     cond::Time_t firstSinceTime = db->beginOfTime();
-    db->writeOne(sr, firstSinceTime, "EcalSRSettingsRcd");
+    db->writeOneIOV(*sr, firstSinceTime, "EcalSRSettingsRcd");
     done_ = true;
   } else {  //read mode
-    edm::ESHandle<EcalSRSettings> hSr = es.getHandle(hSrToken_);
+    const edm::ESHandle<EcalSRSettings> hSr = es.getHandle(hSrToken_);
     if (!hSr.isValid()) {
       cout << "EcalSRSettings record not found. Check the Cond DB Global tag.\n";
     } else {
@@ -117,8 +111,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     }
 
     //trigger tower thresholds (from FENIX configuration):
-    edm::ESHandle<EcalTPGPhysicsConst> hTp;
-    es.get<EcalTPGPhysicsConstRcd>().get(hTp);
+    const edm::ESHandle<EcalTPGPhysicsConst> hTp = es.getHandle(tpgPhysicsConstToken_);
     if (!hTp.isValid()) {
       cout << "EcalTPGPhysicsConst record not found. Check the Cond DB Global tag.\n";
     } else {

@@ -101,8 +101,8 @@ namespace TopSingleLepton {
       edm::ParameterSet jetExtras = cfg.getParameter<edm::ParameterSet>("jetExtras");
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
-      if (jetExtras.existsAs<edm::InputTag>("jetCorrector")) {
-        mJetCorrector = iC.consumes<reco::JetCorrector>(jetExtras.getParameter<edm::InputTag>("jetCorrector"));
+      if (jetExtras.existsAs<std::string>("jetCorrector")) {
+        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -516,17 +516,43 @@ namespace TopSingleLepton {
   ------------------------------------------------------------
   */
 
+    const JetCorrector* corrector = nullptr;
+    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
+      // check whether a jet correcto is in the event setup or not
+      if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
+        corrector = &setup.getData(jetCorrector_);
+      } else {
+        edm::LogVerbatim("TopDiLeptonOfflineDQM") << "\n"
+                                                  << "-----------------------------------------------------------------"
+                                                     "-------------------- \n"
+                                                  << " No JetCorrectionsRecord available from EventSetup:              "
+                                                     "                     \n"
+                                                  << "  - Jets will not be corrected.                                  "
+                                                     "                     \n"
+                                                  << "  - If you want to change this add the following lines to your "
+                                                     "cfg file:              \n"
+                                                  << "                                                                 "
+                                                     "                     \n"
+                                                  << "  ## load jet corrections                                        "
+                                                     "                     \n"
+                                                  << "  "
+                                                     "process.load(\"JetMETCorrections.Configuration."
+                                                     "JetCorrectionServicesAllAlgos_cff\") \n"
+                                                  << "  process.prefer(\"ak5CaloL2L3\")                                "
+                                                     "                     \n"
+                                                  << "                                                                 "
+                                                     "                     \n"
+                                                  << "-----------------------------------------------------------------"
+                                                     "-------------------- \n";
+      }
+    }
+
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
     if (includeBTag_) {
       if (!event.getByToken(btagCSV_, btagCSV))
         return;
     }
-
-    edm::Handle<reco::JetCorrector> corrector;
-    event.getByToken(mJetCorrector, corrector);
-    if (!event.getByToken(mJetCorrector, corrector))
-      return;
 
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
@@ -545,7 +571,7 @@ namespace TopSingleLepton {
         reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
         if ((*jetlooseSelection_)(sel))
           isLoose = true;
-        sel.scaleEnergy(corrector->correction(*jet));
+        sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
         if (!(*jetSelection_)(sel))
           continue;
       }
@@ -554,7 +580,7 @@ namespace TopSingleLepton {
       reco::Jet monitorJet = *jet;
 
       ++mult;  // determine jet (no Id) multiplicity
-      monitorJet.scaleEnergy(corrector->correction(*jet));
+      monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 
       if (isLoose) {  //Loose Id
         unsigned int idx = jet - jets->begin();

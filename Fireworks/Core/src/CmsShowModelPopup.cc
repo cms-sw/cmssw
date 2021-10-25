@@ -32,7 +32,7 @@
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"

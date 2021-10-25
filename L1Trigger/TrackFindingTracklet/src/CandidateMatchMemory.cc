@@ -11,8 +11,7 @@
 using namespace std;
 using namespace trklet;
 
-CandidateMatchMemory::CandidateMatchMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {}
+CandidateMatchMemory::CandidateMatchMemory(string name, Settings const& settings) : MemoryBase(name, settings) {}
 
 void CandidateMatchMemory::addMatch(std::pair<Tracklet*, int> tracklet, const Stub* stub) {
   std::pair<std::pair<Tracklet*, int>, const Stub*> tmp(tracklet, stub);
@@ -28,7 +27,8 @@ void CandidateMatchMemory::addMatch(std::pair<Tracklet*, int> tracklet, const St
   matches_.push_back(tmp);
 }
 
-void CandidateMatchMemory::writeCM(bool first) {
+void CandidateMatchMemory::writeCM(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirM = settings_.memPath() + "Matches/";
 
   std::ostringstream oss;
@@ -36,21 +36,7 @@ void CandidateMatchMemory::writeCM(bool first) {
       << ".dat";
   auto const& fname = oss.str();
 
-  if (first) {
-    bx_ = 0;
-    event_ = 1;
-
-    if (not std::filesystem::exists(dirM)) {
-      int fail = system((string("mkdir -p ") + dirM).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirM;
-    }
-    out_.open(fname);
-    if (out_.fail())
-      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
-
-  } else
-    out_.open(fname, std::ofstream::app);
+  openfile(out_, first, dirM, fname, __FILE__, __LINE__);
 
   out_ << "BX = " << (bitset<3>)bx_ << " Event : " << event_ << endl;
 

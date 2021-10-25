@@ -32,7 +32,7 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet &pset) {
   theSTAMuonLabel = pset.getUntrackedParameter<string>("StandAloneTrackCollectionLabel");
   theSeedCollectionLabel = pset.getUntrackedParameter<string>("MuonSeedCollectionLabel");
   theDataType = pset.getUntrackedParameter<string>("DataType");
-
+  magFiledToken_ = esConsumes();
   if (theDataType != "RealData" && theDataType != "SimData")
     edm::LogInfo("PhysicsObjectsMonitor") << "Error in Data Type!!" << endl;
 
@@ -80,8 +80,7 @@ void PhysicsObjectsMonitor::analyze(const Event &event, const EventSetup &eventS
   Handle<reco::TrackCollection> staTracks;
   event.getByToken(theSTAMuonToken_, staTracks);
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  const auto &theMGField = eventSetup.getHandle(magFiledToken_);
 
   double recPt = 0.;
   double simPt = 0.;

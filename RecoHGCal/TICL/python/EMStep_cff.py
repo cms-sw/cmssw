@@ -43,13 +43,17 @@ ticlEMStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersEM
     ,ticlTrackstersEM)
 
+# HFNOSE CLUSTER FILTERING/MASKING
+
 filteredLayerClustersHFNoseEM = filteredLayerClustersEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = 'ticlTrackstersHFNoseTrkEM',
-    iteration_label = "EMn",
-    min_cluster_size = 2, # inclusive
-    algo_number = 9
+    min_cluster_size = 3, # inclusive
+    algo_number = 9,
+    iteration_label = "EMn"
 )
+
+# HFNOSE CA - PATTERN RECOGNITION
 
 ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     detector = "HFNose",
@@ -64,7 +68,8 @@ ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
        filter_on_categories = [0, 1],
        min_layers_per_trackster = 5,
        pid_threshold = 0.,
-       shower_start_max_layer = 5 ### inclusive
+       min_cos_pointing = 0.9845, # ~10 degrees
+       shower_start_max_layer = 4 ### inclusive
     )
 )
 

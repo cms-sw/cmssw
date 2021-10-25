@@ -21,7 +21,6 @@ Implementation:
 
 // user include files
 
-#include "DQM/Physics/src/EwkDQM.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

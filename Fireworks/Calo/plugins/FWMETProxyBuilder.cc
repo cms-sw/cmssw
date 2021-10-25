@@ -45,41 +45,36 @@ public:
 
   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
-  void cleanLocal() override { m_lines.clear(); }
-
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWMETProxyBuilder(const FWMETProxyBuilder&) = delete;                   // stop default
   const FWMETProxyBuilder& operator=(const FWMETProxyBuilder&) = delete;  // stop default
 
+private:
   using FWSimpleProxyBuilderTemplate<reco::MET>::buildViewType;
   void buildViewType(const reco::MET& iData,
                      unsigned int iIndex,
                      TEveElement& oItemHolder,
                      FWViewType::EType type,
                      const FWViewContext*) override;
-
-  std::vector<fireworks::scaleMarker> m_lines;
 };
 
-void FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc) {
-  typedef std::vector<fireworks::scaleMarker> Lines_t;
-  FWViewEnergyScale* caloScale = vc->getEnergyScale();
-
-  //   printf("MET %s %p -> %f\n",  item()->name().c_str(),  vc, caloScale->getScaleFactor3D() );
-  for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
-    if (vc == (*i).m_vc) {
-      // printf("lineset %s  %p val %f ...%f\n", item()->name().c_str(), (*i).m_ls , (*i).m_et, caloScale->getScaleFactor3D()*(*i).m_et);
-      float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-
-      (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
-
-      TEveProjectable* pable = static_cast<TEveProjectable*>((*i).m_ls);
-      for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j) {
+void FWMETProxyBuilder::scaleProduct(TEveElementList* product, FWViewType::EType type, const FWViewContext* vc) {
+  int idx = 0;
+  for (auto& c : product->RefChildren()) {
+    // line set element is added at the end of the buildViewType function, therefore last child
+    TEveScalableStraightLineSet* lineSet = dynamic_cast<TEveScalableStraightLineSet*>(c->LastChild());
+    if (lineSet) {
+      // compund index in the product is an index of model data in the collection
+      const void* modelData = item()->modelData(idx);
+      const reco::MET* met = (const reco::MET*)(modelData);
+      float value = vc->getEnergyScale()->getPlotEt() ? met->et() : met->energy();
+      lineSet->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value);
+      for (TEveProjectable::ProjList_i j = lineSet->BeginProjecteds(); j != lineSet->EndProjecteds(); ++j) {
         (*j)->UpdateProjection();
       }
     }
+    idx++;
   }
 }
 
@@ -159,7 +154,6 @@ void FWMETProxyBuilder::buildViewType(const reco::MET& met,
   setupAddElement(marker, &oItemHolder);
 
   // printf("add line %s  %f %f .... eta %f theta %f\n", item()->name().c_str(), met.et(), met.energy(), met.eta(), met.theta());
-  m_lines.push_back(fireworks::scaleMarker(marker, met.et(), met.energy(), vc));  // register for scales
 
   context().voteMaxEtAndEnergy(met.et(), met.energy());
 }

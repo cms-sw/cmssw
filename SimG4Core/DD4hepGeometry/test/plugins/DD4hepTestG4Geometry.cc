@@ -28,23 +28,22 @@ public:
 
 private:
   const ESInputTag m_tag;
+  const ESGetToken<DDVectorRegistry, DDVectorRegistryRcd> m_registryToken;
+  const ESGetToken<DDDetector, IdealGeometryRecord> m_detectorToken;
   const string m_detElementPath;
   const string m_placedVolPath;
 };
 
 DD4hepTestG4Geometry::DD4hepTestG4Geometry(const ParameterSet& iConfig)
-    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
+      m_registryToken(esConsumes(m_tag)),
+      m_detectorToken(esConsumes(m_tag)) {}
 
 void DD4hepTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "\nDD4hepTestG4Geometry::analyze: " << m_tag;
 
-  const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
-  ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(m_tag.module(), reg);
-
-  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
-  ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_tag.module(), ddd);
+  ESTransientHandle<DDVectorRegistry> reg = iEventSetup.getTransientHandle(m_registryToken);
+  ESTransientHandle<DDDetector> ddd = iEventSetup.getTransientHandle(m_detectorToken);
 
   const dd4hep::Detector& detector = *ddd->description();
   dd4hep::sim::Geant4Converter g4Geo = dd4hep::sim::Geant4Converter(detector);

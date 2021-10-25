@@ -38,14 +38,14 @@ run2_miniAOD_80XLegacy.toModify(
     barrelEcalHits = "reducedEcalRecHitsEB",
     endcapEcalHits = "reducedEcalRecHitsEE",
     preshowerHits = "reducedEcalRecHitsES",
-    hcalTowers = ""
+    hbheRecHits = ""
 )
 run2_miniAOD_80XLegacy.toModify(
     ootPhotons, 
     barrelEcalHits = "reducedEcalRecHitsEB",
     endcapEcalHits = "reducedEcalRecHitsEE",
     preshowerHits = "reducedEcalRecHitsES",
-    hcalTowers = "",
+    hbheRecHits = "",
     pfECALClusIsolation = None,
     pfHCALClusIsolation = None
 )
@@ -53,7 +53,7 @@ run2_miniAOD_80XLegacy.toModify(
     ootPhotonsTmp.isolationSumsCalculatorSet, 
     barrelEcalRecHitCollection = "reducedEcalRecHitsEB",
     endcapEcalRecHitCollection = "reducedEcalRecHitsEE",
-    HcalRecHitCollection = ""
+    HBHERecHitCollection = ""
 )
 run2_miniAOD_80XLegacy.toModify(
     ootPhotonsTmp.mipVariableSet,

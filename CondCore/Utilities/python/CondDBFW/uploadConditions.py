@@ -1,7 +1,10 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3
 """
-
+Primary Author:
 Joshua Dawes - CERN, CMS - The University of Manchester
+
+Debugging, Integration and Maintenance:
+Andres Cardenas - CERN, CMS - Universidad San Francisco
 
 Upload script wrapper - controls the automatic update system.
 
@@ -15,10 +18,17 @@ Takes user arguments and passes them to the main upload module CondDBFW.uploads,
 4. Invoke the CondDBFW.uploads module with the arguments given to this script.
 
 """
-from __future__ import print_function
 
-import pycurl
-from StringIO import StringIO
+__version__ = 1
+
+#import pycurl
+import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+try:
+	from StringIO import StringIO
+except:
+	pass
 import traceback
 import sys
 import os
@@ -28,146 +38,18 @@ import argparse
 import netrc
 import shutil
 import getpass
+import errno
+import sqlite3
 
-def get_version_info(url):
-	"""
-	Queries the server-side for the commit hash it is currently using.
-	Note: this is the commit hash used by /data/services/common/CondDBFW on the server-side.
-	"""
-	request = pycurl.Curl()
-	request.setopt(request.CONNECTTIMEOUT, 60)
-	user_agent = "User-Agent: ConditionWebServices/1.0 python/%d.%d.%d PycURL/%s" % (sys.version_info[ :3 ] + (pycurl.version_info()[1],))
-	request.setopt(request.USERAGENT, user_agent)
-	# we don't need to verify who signed the certificate or who the host is
-	request.setopt(request.SSL_VERIFYPEER, 0)
-	request.setopt(request.SSL_VERIFYHOST, 0)
-	response_buffer = StringIO()
-	request.setopt(request.WRITEFUNCTION, response_buffer.write)
-	request.setopt(request.URL, url + "conddbfw_version/")
-	request.perform()
-	return json.loads(response_buffer.getvalue())
-
-def get_local_commit_hash():
-	"""
-	Gets the commit hash used by the local repository CondDBFW/.git/.
-	"""
-	directory = os.path.abspath("CondDBFW")
-
-	# get the commit hash of the code in `directory`
-	# by reading the .commit_hash file
-	try:
-		commit_hash_file_handle = open(os.path.join(directory, ".commit_hash"), "r")
-		commit_hash = commit_hash_file_handle.read().strip()
-
-		# validate length of the commit hash
-		if len(commit_hash) != 40:
-			print("Commit hash found is not valid.  Must be 40 characters long.")
-			exit()
-
-		#commit_hash = run_in_shell("git --git-dir=%s rev-parse HEAD" % (os.path.join(directory, ".git")), shell=True).strip()
-
-		return commit_hash
-	except Exception:
-		return None
-
-def get_directory_to_pull_to(default_directory, commit_hash):
-	"""
-	Finds out which directory we can safely use - either CondDBFW/ or a temporary directory.
-	"""
-	# try to write a file (and then delete it)
-	try:
-		handle = open(os.path.join(default_directory, "test_file"), "w")
-		handle.write("test")
-		handle.close()
-		os.remove(os.path.join(default_directory, "test_file"))
-		sys.path.insert(0, default_directory)
-		return default_directory
-	except IOError as io:
-		# cannot write to default directory, so set up a directory in /tmp/
-		new_path = os.path.join("tmp", commit_hash[0:10])
-		if not(os.path.exists(new_path)):
-			os.mkdir(new_path)
-			sys.path.insert(0, new_path)
-			return new_path
-		else:
-			# for now, fail
-			exit("Can't find anywhere to pull the new code base to.")
 
 horizontal_rule = "="*60
-
-def pull_code_from_git(target_directory, repository_url, hash):
-	"""
-	Pulls CondDBFW from the git repository specified by the upload server.
-	"""
-	# make directory
-	target = os.path.abspath(target_directory)
-	sys.path.append(target)
-	conddbfw_directory = os.path.join(target, "CondDBFW")
-	git_directory = os.path.join(conddbfw_directory, ".git")
-	if not(os.path.exists(conddbfw_directory)):
-		os.mkdir(conddbfw_directory)
-	else:
-		# if the directory exists, it may contain things - prompt the user
-		force_pull = str(raw_input("CondDBFW directory isn't empty - empty it, and update to new version? [y/n] "))
-		if force_pull == "y":
-			# empty directory and delete it
-			run_in_shell("rm -rf CondDBFW", shell=True)
-			# remake the directory - it will be empty
-			os.mkdir(conddbfw_directory)
-
-	print("Pulling code back from repository...")
-	print(horizontal_rule)
-
-	run_in_shell("git --git-dir=%s clone %s CondDBFW" % (git_directory, repository_url), shell=True)
-	# --force makes sure we ignore any conflicts that
-	# could occur and overwrite everything in the checkout
-	run_in_shell("cd %s && git checkout --force -b version_used %s" % (conddbfw_directory, hash), shell=True)
-
-	# write the hash to a file in the CondDBFW directory so we can delete the git repository
-	hash_file_handle = open(os.path.join(conddbfw_directory, ".commit_hash"), "w")
-	hash_file_handle.write(hash)
-	hash_file_handle.close()
-
-	# can now delete .git directory
-	shutil.rmtree(git_directory)
-
-	print(horizontal_rule)
-	print("Creating local log directories (if required)...")
-	if not(os.path.exists(os.path.join(target, "upload_logs"))):
-		os.mkdir(os.path.join(target, "upload_logs"))
-	if not(os.path.exists(os.path.join(target, "server_side_logs"))):
-		os.mkdir(os.path.join(target, "server_side_logs"))
-	print("Finished with log directories.")
-	print("Update of CondDBFW complete.")
-
-	print(horizontal_rule)
-
-	return True
-
-def run_in_shell(*popenargs, **kwargs):
-	"""
-	Runs string-based commands in the shell and returns the result.
-	"""
-	out = subprocess.PIPE if kwargs.get("stdout") == None else kwargs.get("stdout")
-	new_kwargs = kwargs
-	if new_kwargs.get("stdout"):
-		del new_kwargs["stdout"]
-	process = subprocess.Popen(*popenargs, stdout=out, **new_kwargs)
-	stdout = process.communicate()[0]
-	returnCode = process.returncode
-	cmd = kwargs.get('args')
-	if cmd is None:
-		cmd = popenargs[0]
-	if returnCode:
-		raise subprocess.CalledProcessError(returnCode, cmd)
-	return stdout
 
 def run_upload(**parameters):
 	"""
 	Imports CondDBFW.uploads and runs the upload with the upload metadata obtained.
 	"""
 	try:
-		import CondDBFW.uploads as uploads
+		import CondCore.Utilities.CondDBFW.uploads as uploads
 	except Exception as e:
 		traceback.print_exc()
 		exit("CondDBFW or one of its dependencies could not be imported.\n"\
@@ -175,6 +57,177 @@ def run_upload(**parameters):
 	# we have CondDBFW, so just call the module with the parameters given in the command line
 	uploader = uploads.uploader(**parameters)
 	result = uploader.upload()
+
+def getInput(default, prompt = ''):
+    '''Like raw_input() but with a default and automatic strip().
+    '''
+
+    answer = raw_input(prompt)
+    if answer:
+        return answer.strip()
+
+    return default.strip()
+
+
+def getInputWorkflow(prompt = ''):
+    '''Like getInput() but tailored to get target workflows (synchronization options).
+    '''
+
+    while True:
+        workflow = getInput(defaultWorkflow, prompt)
+
+        if workflow in frozenset(['offline', 'hlt', 'express', 'prompt', 'pcl']):
+            return workflow
+
+        print('Please specify one of the allowed workflows. See above for the explanation on each of them.')
+
+
+def getInputChoose(optionsList, default, prompt = ''):
+    '''Makes the user choose from a list of options.
+    '''
+
+    while True:
+        index = getInput(default, prompt)
+
+        try:
+            return optionsList[int(index)]
+        except ValueError:
+            print('Please specify an index of the list (i.e. integer).')
+        except IndexError:
+            print('The index you provided is not in the given list.')
+
+
+def getInputRepeat(prompt = ''):
+    '''Like raw_input() but repeats if nothing is provided and automatic strip().
+    '''
+
+    while True:
+        answer = raw_input(prompt)
+        if answer:
+            return answer.strip()
+
+        print('You need to provide a value.')
+
+def runWizard(basename, dataFilename, metadataFilename):
+    while True:
+        print('''\nWizard for metadata for %s
+
+I will ask you some questions to fill the metadata file. For some of the questions there are defaults between square brackets (i.e. []), leave empty (i.e. hit Enter) to use them.''' % basename)
+
+        # Try to get the available inputTags
+        try:
+            dataConnection = sqlite3.connect(dataFilename)
+            dataCursor = dataConnection.cursor()
+            dataCursor.execute('select name from sqlite_master where type == "table"')
+            tables = set(zip(*dataCursor.fetchall())[0])
+
+            # only conddb V2 supported...
+            if 'TAG' in tables:
+                dataCursor.execute('select NAME from TAG')
+            # In any other case, do not try to get the inputTags
+            else:
+                raise Exception()
+
+            inputTags = dataCursor.fetchall()
+            if len(inputTags) == 0:
+                raise Exception()
+            inputTags = list(zip(*inputTags))[0]
+
+        except Exception:
+            inputTags = []
+
+        if len(inputTags) == 0:
+            print('\nI could not find any input tag in your data file, but you can still specify one manually.')
+
+            inputTag = getInputRepeat(
+                '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. BeamSpotObject_ByRun\ninputTag: ')
+
+        else:
+            print('\nI found the following input tags in your SQLite data file:')
+            for (index, inputTag) in enumerate(inputTags):
+                print('   %s) %s' % (index, inputTag))
+
+            inputTag = getInputChoose(inputTags, '0',
+                                      '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. 0 (you select the first in the list)\ninputTag [0]: ')
+
+        databases = {
+            'oraprod': 'oracle://cms_orcon_prod/CMS_CONDITIONS',
+			'prod': 'oracle://cms_orcon_prod/CMS_CONDITIONS',
+            'oradev': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
+			'prep': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
+        }
+
+        destinationDatabase = ''
+        ntry = 0
+        print('\nWhich is the destination database where the tags should be exported?')
+        print('\n%s) %s' % ('oraprod', databases['oraprod']))
+        print('\n%s) %s' % ('oradev', databases['oradev']))
+            
+        while ( destinationDatabase not in databases.values() ): 
+            if ntry==0:
+                inputMessage = \
+                '\nPossible choices: oraprod or oradev \ndestinationDatabase: '
+            elif ntry==1:
+                inputMessage = \
+                '\nPlease choose one of the two valid destinations: oraprod or oradev \ndestinationDatabase: '
+            else:
+                raise Exception('No valid destination chosen. Bailing out...')
+			
+            databaseInput = getInputRepeat(inputMessage).lower()
+            if databaseInput in databases.keys():
+                destinationDatabase = databases[databaseInput]
+            ntry += 1
+
+        while True:
+            since = getInput('',
+                             '\nWhich is the given since? (if not specified, the one from the SQLite data file will be taken -- note that even if specified, still this may not be the final since, depending on the synchronization options you select later: if the synchronization target is not offline, and the since you give is smaller than the next possible one (i.e. you give a run number earlier than the one which will be started/processed next in prompt/hlt/express), the DropBox will move the since ahead to go to the first safe run instead of the value you gave)\ne.g. 1234\nsince []: ')
+            if not since:
+                since = None
+                break
+            else:
+                try:
+                    since = int(since)
+                    break
+                except ValueError:
+                    print('The since value has to be an integer or empty (null).')
+
+        userText = getInput('',
+                            '\nWrite any comments/text you may want to describe your request\ne.g. Muon alignment scenario for...\nuserText []: ')
+
+        destinationTags = {}
+        while True:
+            destinationTag = getInput('',
+                                      '\nWhich is the next destination tag to be added (leave empty to stop)?\ne.g. BeamSpotObjects_PCL_byRun_v0_offline\ndestinationTag []: ')
+            if not destinationTag:
+                if len(destinationTags) == 0:
+                    print('There must be at least one destination tag.')
+                    continue
+                break
+
+            if destinationTag in destinationTags:
+                print(
+                    'You already added this destination tag. Overwriting the previous one with this new one.')
+
+            destinationTags[destinationTag] = {
+            }
+
+        metadata = {
+            'destinationDatabase': destinationDatabase,
+            'destinationTags': destinationTags,
+            'inputTag': inputTag,
+            'since': since,
+            'userText': userText,
+        }
+
+        metadata = json.dumps(metadata, sort_keys=True, indent=4)
+        print('\nThis is the generated metadata:\n%s' % metadata)
+
+        if getInput('n',
+                    '\nIs it fine (i.e. save in %s and *upload* the conditions if this is the latest file)?\nAnswer [n]: ' % metadataFilename).lower() == 'y':
+            break
+    print('Saving generated metadata in %s...', metadataFilename)
+    with open(metadataFilename, 'wb') as metadataFile:
+        metadataFile.write(metadata)
 
 def parse_arguments():
 	# read in command line arguments, and build metadata dictionary from them
@@ -210,19 +263,36 @@ def parse_arguments():
 
 	parser.add_argument("--review-options", required=False, action="store_true")
 
+	parser.add_argument("--replay-file", required=False)
+
 	command_line_data = parser.parse_args()
+
+	if command_line_data.replay_file:
+		dictionary = json.loads("".join(open(command_line_data.replay_file, "r").readlines()))
+		command_line_data.tier0_response = dictionary["tier0_response"]
 
 	# default is the production server, which can point to either database anyway
 	server_alias_to_url = {
 		"prep" : "https://cms-conddb-dev.cern.ch/cmsDbCondUpload/",
-		"prod" : "https://cms-conddb.cern.ch/cmsDbCondUpload/",
-		None : "https://cms-conddb.cern.ch/cmsDbCondUpload/"
+		"dev" : "https://cms-conddb-dev.cern.ch/cmsDbCondUpload/",
+		"prod" : "https://cms-conddb.cern.ch/cmsDbCondUpload/"
 	}
 
 	# if prep, prod or None were given, convert to URLs in dictionary server_alias_to_url
 	# if not, assume a URL has been given and use this instead
 	if command_line_data.server in server_alias_to_url.keys():
 		command_line_data.server = server_alias_to_url[command_line_data.server]
+
+	# resolve destination databases
+	database_alias_to_connection = {
+		"prep": "oracle://cms_orcoff_prep/CMS_CONDITIONS",
+		"dev": "oracle://cms_orcoff_prep/CMS_CONDITIONS",
+		"prod": "oracle://cms_orcon_adg/CMS_CONDITIONS"
+	}
+	
+	if command_line_data.destinationDatabase in database_alias_to_connection.keys():
+		command_line_data.destinationDatabase = database_alias_to_connection[command_line_data.destinationDatabase]
+
 
 	# use netrc to get username and password
 	try:
@@ -264,23 +334,63 @@ def parse_arguments():
 	since these override the options set in the metadata file.
 
 	"""
+
+	# Hash to use, entirely from command line
 	if command_line_data.hashToUse != None:
 		command_line_data.userText = ""
 		metadata_dictionary = command_line_data.__dict__
 	elif command_line_data.metadataFile == None:
-		command_line_data.userText = command_line_data.userText\
-									if command_line_data.userText != None\
-									else str(raw_input("Tag's description [can be empty]:"))
-		metadata_dictionary = command_line_data.__dict__
-	else:
+		if command_line_data.sourceDB != None and (command_line_data.inputTag == None or command_line_data.destinationTag == None or command_line_data.destinationDatabase == None):
+			basepath = command_line_data.sourceDB.rsplit('.db', 1)[0].rsplit('.txt', 1)[0]
+			basename = os.path.basename(basepath)
+			dataFilename = '%s.db' % basepath
+			metadataFilename = '%s.txt' % basepath
+			# Data file
+			try:
+				with open(dataFilename, 'rb') as dataFile:
+					pass
+			except IOError as e:
+				errMsg = 'Impossible to open SQLite data file %s' %dataFilename
+				print( errMsg )
+				ret['status'] = -3
+				ret['error'] = errMsg
+				return ret
+
+			# Metadata file
+
+			try:
+				with open(metadataFilename, 'rb') as metadataFile:
+					pass
+			except IOError as e:
+				if e.errno != errno.ENOENT:
+					errMsg = 'Impossible to open file %s (for other reason than not existing)' %metadataFilename
+					ret = {}
+					ret['status'] = -4
+					ret['error'] = errMsg
+					exit (ret)
+
+				if getInput('y', '\nIt looks like the metadata file %s does not exist and not enough parameters were received in the command line. Do you want me to create it and help you fill it?\nAnswer [y]: ' % metadataFilename).lower() != 'y':
+					errMsg = 'Metadata file %s does not exist' %metadataFilename
+					ret = {}
+					ret['status'] = -5
+					ret['error'] = errMsg
+					exit(ret)
+				# Wizard
+				runWizard(basename, dataFilename, metadataFilename)
+			command_line_data.metadataFile = metadataFilename
+		else:
+			command_line_data.userText = command_line_data.userText\
+										if command_line_data.userText != None\
+										else str(raw_input("Tag's description [can be empty]:"))
+			metadata_dictionary = command_line_data.__dict__
+
+	if command_line_data.metadataFile != None:
 		metadata_dictionary = json.loads("".join(open(os.path.abspath(command_line_data.metadataFile), "r").readlines()))
 		metadata_dictionary["username"] = username
 		metadata_dictionary["password"] = password
 		metadata_dictionary["userText"] = metadata_dictionary.get("userText")\
 											if metadata_dictionary.get("userText") != None\
 											else str(raw_input("Tag's description [can be empty]:"))
-		# set the server to use to be the default one
-		metadata_dictionary["server"] = server_alias_to_url[None]
 
 		# go through command line options and, if they are set, overwrite entries
 		for (option_name, option_value) in command_line_data.__dict__.items():
@@ -314,7 +424,17 @@ def parse_arguments():
 		if raw_input("\nDo you want to continue? [y/n] ") != "y":
 			exit()
 
+	if metadata_dictionary["server"] == None:
+		if metadata_dictionary["destinationDatabase"] == "oracle://cms_orcoff_prep/CMS_CONDITIONS":
+			metadata_dictionary["server"] = server_alias_to_url["prep"]
+		else:
+			metadata_dictionary["server"] = server_alias_to_url["prod"]
+
 	return metadata_dictionary
+
+def get_version(url):
+	return requests.get(url + "script_version/", verify=False)
+
 
 if __name__ == "__main__":
 
@@ -322,39 +442,33 @@ if __name__ == "__main__":
 
 	# upload_metadata should be used to decide the service url
 	final_service_url = upload_metadata["server"]
+	try:
+		response = get_version(final_service_url)
+		server_version = response.json()
+	except Exception as e:
+		print(horizontal_rule)
+		print(e)
+		print("Could not connect to server at %s"%final_service_url)
+		print("If you specified a server please check it is correct. If that is not the issue please contact the AlcaDB team.")
+		print(horizontal_rule)
+		exit(1)
 
-	conddbfw_version = get_version_info(final_service_url)
-	local_version = get_local_commit_hash()
+	if server_version["version"] != __version__:
+		print(horizontal_rule)
+		print("Local upload script is different than server version. Please run the following command to get the latest script.")
+		print("curl --insecure -o uploadConditions.py %sget_upload_script/ && chmod +x uploadConditions.py;"%final_service_url)
+		print(horizontal_rule)
+		exit(1)
 
-	"""
-	Todo - case where we don't have write permission in the current directory (local_version == None and hashes don't match)
-	"""
-	# target_directory is only used if we don't find a version of CondDBFW locally,
-	# but is set here so we can access it later if we need to delete a temporary directory
-	target_directory = ""
-	# check if we have a persistent local version of CondDBFW
-	if local_version != None:
-		if conddbfw_version["hash"] == local_version:
-			# no update is required, pass for now
-			print("No change of version of CondDBFW is required - performing the upload.")
-			# add CondDBFW to the system paths (local_version != None, so we know it's in this directory)
-			sys.path.append(os.path.abspath(os.getcwd()))
-		elif conddbfw_version["hash"] != local_version:
-			# this is the case where CondDBFW is in the directory working_dir/CondDBFW, but there is an update available
-			# CondDBFW isn't in this directory, and the local commit hash doesn't match the latest one on the server
-			print("The server uses a different version of CondDBFW - changing to commit '%s' of CondDBFW." % conddbfw_version["hash"])
-			shell_response = pull_code_from_git(os.getcwd(), conddbfw_version["repo"], conddbfw_version["hash"])
-	else:
-		# no CondDBFW version - we should pull the code and start from scratch
-		# we can't look for temporary versions of it in /tmp/, since we can't guess the hash used to make the directory name
-		print("No CondDBFW version found locally - pulling one.")
-		target_directory = get_directory_to_pull_to(os.getcwd(), conddbfw_version["hash"])
-		shell_response = pull_code_from_git(target_directory, conddbfw_version["repo"], conddbfw_version["hash"])
-
-	import CondDBFW.data_sources as data_sources
+	import CondCore.Utilities.CondDBFW.data_sources as data_sources
 
 	upload_metadata["sqlite_file"] = upload_metadata.get("sourceDB")
-	
+
+	try:
+		os.mkdir('upload_logs')
+	except OSError as e:
+		pass
+
 	# make new dictionary, and copy over everything except "metadata_source"
 	upload_metadata_argument = {}
 	for (key, value) in upload_metadata.items():
@@ -362,15 +476,15 @@ if __name__ == "__main__":
 			upload_metadata_argument[key] = value
 
 	upload_metadata["metadata_source"] = data_sources.json_data_node.make(upload_metadata_argument)
-
-	# pass dictionary as arguments to match keywords - the constructor has a **kwargs parameter to deal with stray arguments
-	run_upload(**upload_metadata)
-
-	# if the directory was temporary, delete it
-	if "tmp" in target_directory:
+	try:
+		# pass dictionary as arguments to match keywords - the constructor has a **kwargs parameter to deal with stray arguments
+		run_upload(**upload_metadata)
 		print(horizontal_rule)
-		print("Removing directory %s..." % target_directory)
-		try:
-			run_in_shell("rm -rf %s" % target_directory, shell=True)
-		except Exception as e:
-			print("Couldn't delete the directory %s - try to manually delete it." % target_directory)
+		print("Process completed without issues. Please check logs for further details.")
+		print(horizontal_rule)
+	except SystemExit as e:
+		print(horizontal_rule)
+		print("Process exited abnormally. Please check logs for details.")
+		print(horizontal_rule)
+		exit(1)
+	exit(0)

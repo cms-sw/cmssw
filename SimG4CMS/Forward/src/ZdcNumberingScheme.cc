@@ -6,19 +6,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
-#undef debug
+
+//#define EDM_ML_DEBUG
 
 ZdcNumberingScheme::ZdcNumberingScheme(int iv) {
   verbosity = iv;
   if (verbosity > 0)
-    std::cout << "Creating ZDCNumberingScheme" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "Creating ZDCNumberingScheme";
 }
 
 ZdcNumberingScheme::~ZdcNumberingScheme() {
   if (verbosity > 0)
-    std::cout << " Deleting ZdcNumberingScheme" << std::endl;
+    edm::LogVerbatim("ForwardSim") << " Deleting ZdcNumberingScheme";
 }
 
 void ZdcNumberingScheme::setVerbosity(const int iv) { verbosity = iv; }
@@ -47,7 +49,7 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
           zside = -1;
       } else if (name[ich] == "ZDC_EMLayer") {
         section = HcalZDCDetId::EM;
-#ifdef debug
+#ifdef EDM_ML_DEBUG
         layer = copyno[ich];
 #endif
       } else if (name[ich] == "ZDC_EMFiber") {
@@ -78,7 +80,7 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
         else
           channel = 4;
       }
-#ifdef debug
+#ifdef EDM_ML_DEBUG
       else if (name[ich] == "ZDC_LumGas") {
         fiber = 1;
       } else if (name[ich] == "ZDC_HadFiber") {
@@ -87,7 +89,7 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
 #endif
     }
 
-#ifdef debug
+#ifdef EDM_ML_DEBUG
     unsigned intindex = 0;
     intindex = packZdcIndex(section, layer, fiber, channel, zside);
 #endif
@@ -99,16 +101,16 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     HcalZDCDetId zdcId(section, true_for_positive_eta, channel);
     index = zdcId.rawId();
 
-#ifdef debug
-    std::cout << "DetectorId: ";
-    std::cout << zdcId << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("ForwardSim") << "DetectorId: " << zdcId;
 
-    std::cout << "ZdcNumberingScheme:"
-              << "  getUnitID - # of levels = " << level << std::endl;
+    edm::LogVerbatim("ForwardSim") << "ZdcNumberingScheme:"
+                                   << "  getUnitID - # of levels = " << level;
     for (int ich = 0; ich < level; ich++)
-      std::cout << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich] << "  section " << section
-                << " zside " << zside << " layer " << layer << " fiber " << fiber << " channel " << channel
-                << "packedIndex =" << intindex << " detId raw: " << index << std::endl;
+      edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich]
+                                     << "  section " << section << " zside " << zside << " layer " << layer << " fiber "
+                                     << fiber << " channel " << channel << "packedIndex =" << intindex
+                                     << " detId raw: " << std::hex << index << std::dec;
 
 #endif
 
@@ -126,9 +128,9 @@ unsigned ZdcNumberingScheme::packZdcIndex(int section, int layer, int fiber, int
   idx += (layer & 127) << 2;               //bits 2-8
   idx += (section & 3);                    //bits 0-1
 
-#ifdef debug
-  std::cout << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber << " channel " << channel
-            << " zside " << z << "idx: " << idx << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber
+                                 << " channel " << channel << " zside " << z << "idx: " << std::hex << idx << std::dec;
   int newsubdet, newlayer, newfiber, newchannel, newz;
   unpackZdcIndex(idx, newsubdet, newlayer, newfiber, newchannel, newz);
 #endif
@@ -144,9 +146,9 @@ void ZdcNumberingScheme::unpackZdcIndex(
   layer = (idx >> 2) & 127;
   section = idx & 3;
 
-#ifdef debug
-  std::cout << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer << " fiber " << fiber
-            << " channel " << channel << " zside " << z << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ForwardSim") << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer
+                                 << " fiber " << fiber << " channel " << channel << " zside " << z;
 #endif
 }
 

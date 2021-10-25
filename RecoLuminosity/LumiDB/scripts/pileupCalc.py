@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import range
 VERSION='1.00'
@@ -6,9 +6,8 @@ import os, sys, time
 import argparse
 from RecoLuminosity.LumiDB import pileupParser
 from RecoLuminosity.LumiDB import selectionParser
-from math import exp
-from math import sqrt
-import six
+import numpy as np
+from scipy.special import loggamma
 
 def parseInputFile(inputfilename):
     '''
@@ -22,10 +21,9 @@ def parseInputFile(inputfilename):
     runlsbyfile=p.runsandls()
     return runlsbyfile
 
-def MyErf(input):
-
+def MyErf(xInput):
     # Abramowitz and Stegun approximations for Erf (equations 7.1.25-28)
-    X = abs(input)
+    X = np.abs(xInput)
 
     p = 0.47047
     b1 = 0.3480242
@@ -33,12 +31,9 @@ def MyErf(input):
     b3 = 0.7478556
 
     T = 1.0/(1.0+p*X)
-    cErf = 1.0 - (b1*T + b2*T*T + b3*T*T*T)*exp(-1.0*X*X)
-    if input<0:
-        cErf = -1.0*cErf
+    cErf = 1.0 - (b1*T + b2*T*T + b3*T*T*T)*np.exp(-1.0*X*X)
 
     # Alternate Erf approximation:
-    
     #A1 = 0.278393
     #A2 = 0.230389
     #A3 = 0.000972
@@ -48,13 +43,30 @@ def MyErf(input):
     #denom = term*term*term*term
 
     #dErf = 1.0 - 1.0/denom
-    #if input<0:
-    #    dErf = -1.0*dErf
-        
-    return cErf
 
+    return np.where(xInput < 0, -cErf, cErf)
 
-def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins, run, ls):
+def poisson(x, par):
+    ## equivalent to TMath::Poisson (without x<0 and par<0 checks)
+    return np.where(x == 0., np.exp(-par),
+           np.exp(x*np.log(par)-loggamma(x+1)-par))
+
+class EquidistantBinning(object):
+    def __init__(self, num, xMin, xMax):
+        self.num = num
+        self.xMin = xMin
+        self.xMax = xMax
+        self.edges = np.linspace(xMin, xMax, num=num+1)
+        self.centers = .5*(self.edges[:-1] + self.edges[1:])
+    @property
+    def width(self):
+        return (self.xMax-self.xMin)/self.num
+    def find(self, x):
+        return np.floor((x-self.xMin)*self.num/(self.xMax-self.xMin)).astype(np.int)
+
+Sqrt2 = np.sqrt(2)
+
+def fillPileupHistogram(lumiInfo, calcOption, binning, hContents, minbXsec, run, ls):
     '''
     lumiinfo:[intlumi per LS, mean interactions ]
 
@@ -65,96 +77,39 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins, run, ls):
     RMSInt = lumiInfo[1]*minbXsec
     AveNumInt = lumiInfo[2]*minbXsec
 
-    #coeff = 0
-
-    #if RMSInt > 0:
-    #    coeff = 1.0/RMSInt/sqrt(6.283185)
-
-    #expon = 2.0*RMSInt*RMSInt
-
-    Sqrt2 = sqrt(2)
-
-    ##Nbins = hist.GetXaxis().GetNbins()
-
-    ProbFromRMS = []
-    BinWidth = hist.GetBinWidth(1)
-
     # First, re-constitute lumi distribution for this LS from RMS:
     if RMSInt > 0:
-
-        AreaLnew = -10.
-        AreaL = 0
-
-        for obs in range (Nbins):
-            #Old Gaussian normalization; inaccurate for small rms and large bins
-            #val = hist.GetBinCenter(obs+1)
-            #prob = coeff*exp(-1.0*(val-AveNumInt)*(val-AveNumInt)/expon)
-            #ProbFromRMS.append(prob)
-            
-            left = hist.GetBinLowEdge(obs+1)
-            right = left+BinWidth
-
-            argR = (AveNumInt-right)/Sqrt2/RMSInt
-            AreaR = MyErf(argR)
-
-            if AreaLnew<-5.:
-                argL = (AveNumInt-left)/Sqrt2/RMSInt
-                AreaL = MyErf(argL)
-            else:
-                AreaL = AreaLnew
-                AreaLnew = AreaR  # save R bin value for L next time
-
-            NewProb = (AreaL-AreaR)*0.5
-
-            ProbFromRMS.append(NewProb)
-
-            #print left, right, argL, argR, AreaL, AreaR, NewProb
-
+        areaAbove = MyErf((AveNumInt-binning.edges)/Sqrt2/RMSInt)
+        ## area above edge, so areaAbove[i]-areaAbove[i+1] = area in bin
+        ProbFromRMS = .5*(areaAbove[:-1]-areaAbove[1:])
     else:
-        obs = hist.FindBin(AveNumInt)
-        for bin in range (Nbins):
-            ProbFromRMS.append(0.0)
-        if obs<Nbins+1:            
+        ProbFromRMS = np.zeros(hContents.shape)
+        obs = binning.find(AveNumInt)
+        if ( obs < binning.num ) and ( AveNumInt >= 1.0E-5 ): # just ignore zero values
             ProbFromRMS[obs] = 1.0
-        if AveNumInt < 1.0E-5:
-           ProbFromRMS[obs] = 0.  # just ignore zero values
         
     if calcOption == 'true':  # Just put distribution into histogram
         if RMSInt > 0:
-            totalProb = 0
-            for obs in range (Nbins):
-                prob = ProbFromRMS[obs]
-                val = hist.GetBinCenter(obs+1)
-                #print obs, val, RMSInt,coeff,expon,prob
-                totalProb += prob
-                hist.Fill (val, prob * LSintLumi)
-                
+            hContents += ProbFromRMS*LSintLumi
+            totalProb = np.sum(ProbFromRMS)
+
             if 1.0-totalProb > 0.01:
                 print("Run %d, LS %d: Significant probability density outside of your histogram (mean %.2f," % (run, ls, AveNumInt))
                 print("rms %.2f, integrated probability %.3f). Consider using a higher value of --maxPileupBin." % (RMSInt, totalProb))
         else:
-            hist.Fill(AveNumInt,LSintLumi)
+            hContents[obs] += LSintLumi ## obs = FindBin(AveNumInt), -1 because hContents has no overflows
     else: # have to convolute with a poisson distribution to get observed Nint
-        totalProb = 0
-        Peak = 0
-        BinWidth = hist.GetBinWidth(1)
-        for obs in range (Nbins):
-            Peak = hist.GetBinCenter(obs+1)
-            RMSWeight = ProbFromRMS[obs]
-            for bin in range (Nbins):
-                val = hist.GetBinCenter(bin+1)-0.5*BinWidth
-                prob = ROOT.TMath.Poisson (val, Peak)
-                totalProb += prob
-                hist.Fill (val, prob * LSintLumi * RMSWeight)
-
-        if 1.0-totalProb > 0.01:
-            print("Run %d, LS %d: significant probability density outside of your histogram" % (run, ls))
-            print("Consider using a higher value of --maxPileupBin")
-
-
-    return hist
-
-
+        if not hasattr(binning, "poissConv"): ## only depends on binning, cache
+            ## poissConv[i,j] = TMath.Poisson(e[i], c[j])
+            binning.poissConv = poisson(
+                binning.edges[:-1,np.newaxis], ## e'[i,] = e[i]
+                binning.centers[np.newaxis,:]) ## c'[,j] = c[j]
+        # prob[i] = sum_j ProbFromRMS[j]*TMath.Poisson(e[i], c[j])
+        prob = np.sum(binning.poissConv * ProbFromRMS[np.newaxis,:], axis=1)
+        hContents += prob*LSintLumi
+        #if ( not np.all(ProbFromRMS == 0) ) and 1.0-np.sum(prob) > 0.01:
+        #    print("Run %d, LS %d: significant probability density outside of your histogram, %f" % (run, ls, np.sum(prob)))
+        #    print("Consider using a higher value of --maxPileupBin")
 
 ##############################
 ## ######################## ##
@@ -205,13 +160,8 @@ if __name__ == '__main__':
         print('\tmaxPileupBin:', options.maxPileupBin)
         print('\tnumPileupBins:', options.numPileupBins)
 
-    import ROOT 
-    pileupHist = ROOT.TH1D (options.pileupHistName,options.pileupHistName,
-                      options.numPileupBins,
-                      0., options.maxPileupBin)
-
-    nbins = options.numPileupBins
-    upper = options.maxPileupBin
+    binning = EquidistantBinning(options.numPileupBins, 0., options.maxPileupBin)
+    hContents = np.zeros(binning.centers.shape)
 
     inpf = open(options.inputfile, 'r')
     inputfilecontent = inpf.read()
@@ -224,7 +174,7 @@ if __name__ == '__main__':
     # now, we have to find the information for the input runs and lumi sections
     # in the Lumi/Pileup list. First, loop over inputs
 
-    for (run, lslist) in sorted (six.iteritems(inputRange)):
+    for (run, lslist) in sorted (inputRange.items()):
         # now, look for matching run, then match lumi sections
         # print "searching for run %d" % (run)
         if run in inputPileupRange.keys():
@@ -236,8 +186,9 @@ if __name__ == '__main__':
                     #print "found LS %d" % (LSnumber)
                     lumiInfo = LSPUlist[LSnumber]
                     # print lumiInfo
-                    fillPileupHistogram(lumiInfo, options.calcMode, pileupHist,
-                                        options.minBiasXsec, nbins, run, LSnumber)
+                    fillPileupHistogram(lumiInfo, options.calcMode,
+                                        binning, hContents,
+                                        options.minBiasXsec, run, LSnumber)
                 else: # trouble
                     print("Run %d, LumiSection %d not found in Lumi/Pileup input file. Check your files!" \
                             % (run,LSnumber))
@@ -248,11 +199,16 @@ if __name__ == '__main__':
         # print run
         # print lslist
 
+    ## convert hContents to TH1F
+    import ROOT
+    pileupHist = ROOT.TH1D(options.pileupHistName, options.pileupHistName,
+            options.numPileupBins, 0., options.maxPileupBin)
+    for i,ct in enumerate(hContents):
+        pileupHist.SetBinContent(i+1, ct)
+
     histFile = ROOT.TFile.Open(output, 'recreate')
     if not histFile:
         raise RuntimeError("Could not open '%s' as an output root file" % output)
     pileupHist.Write()
-    #for hist in histList:
-    #    hist.Write()
     histFile.Close()
     print("Wrote output histogram to", output)

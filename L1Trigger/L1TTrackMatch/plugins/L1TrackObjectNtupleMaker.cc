@@ -9,6 +9,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -94,15 +95,15 @@ using namespace edm;
 //                          //
 //////////////////////////////
 
-class L1TrackObjectNtupleMaker : public edm::EDAnalyzer {
+class L1TrackObjectNtupleMaker : public edm::stream::EDAnalyzer<> {
 public:
   // Constructor/destructor
   explicit L1TrackObjectNtupleMaker(const edm::ParameterSet& iConfig);
   ~L1TrackObjectNtupleMaker() override;
 
   // Mandatory methods
-  void beginJob() override;
-  void endJob() override;
+  void beginJob();
+  void endJob();
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 protected:
@@ -1700,7 +1701,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     float tmp_tp_rp = sqrt(tmp_tp_x0p * tmp_tp_x0p + tmp_tp_y0p * tmp_tp_y0p);
     float tmp_tp_d0 = tmp_tp_charge * tmp_tp_rp - (1. / (2. * K));
     tmp_tp_d0 = tmp_tp_d0 * (-1);  //fix d0 sign
-    static double pi = 4.0 * atan(1.0);
+    const double pi = 4.0 * atan(1.0);
     float delphi = tmp_tp_phi - atan2(-K * tmp_tp_x0p, K * tmp_tp_y0p);
     if (delphi < -pi)
       delphi += 2.0 * pi;

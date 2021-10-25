@@ -15,7 +15,12 @@ if [[ -n $1 && -n $2 ]]; then
   THREADS="--threads 1"
 fi
 
-cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION $SECTION --dbfile "$DBFILE" $THREADS
+INFILE=""
+if [[ -n $3 ]] ; then
+  INFILE="--infile $3"
+fi
+
+cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION $INFILE $SECTION --dbfile "$DBFILE" $THREADS
 sqlite3 "$DBFILE"  > "legacymodules-${DBFILE}.txt" <<SQL
 SELECT edmfamily, edmbase, classname, instancename, step, seqname, wfid 
 FROM plugin 

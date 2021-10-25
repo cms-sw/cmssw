@@ -13,6 +13,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -60,36 +61,39 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY(unsigned int rawid,
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 using Phase2TrackerTopology = PixelTopology;
 
-#define ADD_SISTRIP_TOPOLOGY(rawid, detUnit)                                                               \
-  const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(detUnit);                            \
-  if (det) {                                                                                               \
-    if (const StripTopology* topo = dynamic_cast<const StripTopology*>(&det->specificTopology())) {        \
-      fwRecoGeometry.idToName[rawid].topology[0] = 0;                                                      \
-      fwRecoGeometry.idToName[rawid].topology[1] = topo->nstrips();                                        \
-      fwRecoGeometry.idToName[rawid].topology[2] = topo->stripLength();                                    \
-    } else if (const RadialStripTopology* rtop =                                                           \
-                   dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology()))) {  \
-      fwRecoGeometry.idToName[rawid].topology[0] = 1;                                                      \
-      fwRecoGeometry.idToName[rawid].topology[3] = rtop->yAxisOrientation();                               \
-      fwRecoGeometry.idToName[rawid].topology[4] = rtop->originToIntersection();                           \
-      fwRecoGeometry.idToName[rawid].topology[5] = rtop->phiOfOneEdge();                                   \
-      fwRecoGeometry.idToName[rawid].topology[6] = rtop->angularWidth();                                   \
-    } else if (dynamic_cast<const RectangularStripTopology*>(&(det->specificType().specificTopology()))) { \
-      fwRecoGeometry.idToName[rawid].topology[0] = 2;                                                      \
-      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                          \
-    } else if (dynamic_cast<const TrapezoidalStripTopology*>(&(det->specificType().specificTopology()))) { \
-      fwRecoGeometry.idToName[rawid].topology[0] = 3;                                                      \
-      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                          \
-    }                                                                                                      \
-  } else {                                                                                                 \
-    const Phase2TrackerGeomDetUnit* det = dynamic_cast<const Phase2TrackerGeomDetUnit*>(detUnit);          \
-    if (det) {                                                                                             \
-      if (const Phase2TrackerTopology* topo =                                                              \
-              dynamic_cast<const Phase2TrackerTopology*>(&(det->specificTopology()))) {                    \
-        fwRecoGeometry.idToName[rawid].topology[0] = topo->pitch().first;                                  \
-        fwRecoGeometry.idToName[rawid].topology[1] = topo->pitch().second;                                 \
-      }                                                                                                    \
-    }                                                                                                      \
+#define ADD_SISTRIP_TOPOLOGY(rawid, detUnit)                                                                   \
+  const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(detUnit);                                \
+  if (det) {                                                                                                   \
+    if (const StripTopology* topo = dynamic_cast<const StripTopology*>(&det->specificTopology())) {            \
+      fwRecoGeometry.idToName[rawid].topology[0] = 0;                                                          \
+      fwRecoGeometry.idToName[rawid].topology[1] = topo->nstrips();                                            \
+      fwRecoGeometry.idToName[rawid].topology[2] = topo->stripLength();                                        \
+    }                                                                                                          \
+    if (const RadialStripTopology* rtop =                                                                      \
+            dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology()))) {             \
+      fwRecoGeometry.idToName[rawid].topology[0] = 1;                                                          \
+      fwRecoGeometry.idToName[rawid].topology[3] = rtop->yAxisOrientation();                                   \
+      fwRecoGeometry.idToName[rawid].topology[4] = rtop->originToIntersection();                               \
+      fwRecoGeometry.idToName[rawid].topology[5] = rtop->phiOfOneEdge();                                       \
+      fwRecoGeometry.idToName[rawid].topology[6] = rtop->angularWidth();                                       \
+    } else if (const RectangularStripTopology* topo =                                                          \
+                   dynamic_cast<const RectangularStripTopology*>(&(det->specificType().specificTopology()))) { \
+      fwRecoGeometry.idToName[rawid].topology[0] = 2;                                                          \
+      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                              \
+    } else if (const TrapezoidalStripTopology* topo =                                                          \
+                   dynamic_cast<const TrapezoidalStripTopology*>(&(det->specificType().specificTopology()))) { \
+      fwRecoGeometry.idToName[rawid].topology[0] = 3;                                                          \
+      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();                                              \
+    }                                                                                                          \
+  } else {                                                                                                     \
+    const Phase2TrackerGeomDetUnit* det = dynamic_cast<const Phase2TrackerGeomDetUnit*>(detUnit);              \
+    if (det) {                                                                                                 \
+      if (const Phase2TrackerTopology* topo =                                                                  \
+              dynamic_cast<const Phase2TrackerTopology*>(&(det->specificTopology()))) {                        \
+        fwRecoGeometry.idToName[rawid].topology[0] = topo->pitch().first;                                      \
+        fwRecoGeometry.idToName[rawid].topology[1] = topo->pitch().second;                                     \
+      }                                                                                                        \
+    }                                                                                                          \
   }
 
 namespace {
@@ -489,6 +493,8 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       int subdet = (((DetId::HGCalEE == det) || (DetId::HGCalHSi == det) || (DetId::HGCalHSc == det)) ? ForwardEmpty
                                                                                                       : it->subdetId());
       const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det, subdet));
+      hgcal::RecHitTools rhtools;
+      rhtools.setGeometry(*m_caloGeom);
       const auto cor = geom->getNewCorners(*it);
 
       // roll = yaw = pitch = 0
@@ -514,6 +520,22 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
       // total points
       fwRecoGeometry.idToName[id].topology[0] = cor.size() - 1;
+
+      // Layer with Offset
+      fwRecoGeometry.idToName[id].topology[1] = rhtools.getLayerWithOffset(it->rawId());
+
+      // Zside, +/- 1
+      fwRecoGeometry.idToName[id].topology[2] = rhtools.zside(it->rawId());
+
+      // Is Silicon
+      fwRecoGeometry.idToName[id].topology[3] = rhtools.isSilicon(it->rawId());
+
+      // Silicon index
+      fwRecoGeometry.idToName[id].topology[4] =
+          rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
+
+      // Last EE layer
+      fwRecoGeometry.idToName[id].topology[5] = rhtools.lastLayerEE();
     }
   }
 }

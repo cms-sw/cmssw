@@ -36,7 +36,6 @@ Implementation:
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -84,22 +83,22 @@ public:
   void endJob() override {}
 
 private:
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokCSC_;
   std::map<CSCStationIndex, std::set<RPCDetId> > rollstoreCSC;
 };
 
-RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/) {}
+RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/)
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      tokCSC_{esConsumes<CSCGeometry, MuonGeometryRecord>(edm::ESInputTag{})} {}
 
 RPCCSC::~RPCCSC() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   using namespace std;
-  edm::ESHandle<RPCGeometry> pRPCGeom;
-  iSetup.get<MuonGeometryRecord>().get(pRPCGeom);
-  const RPCGeometry* rpcGeometry = (const RPCGeometry*)&*pRPCGeom;
-  edm::ESHandle<CSCGeometry> pCSCGeom;
-  iSetup.get<MuonGeometryRecord>().get(pCSCGeom);
-  const CSCGeometry* cscGeometry = (const CSCGeometry*)&*pCSCGeom;
+  const RPCGeometry* rpcGeometry = &iSetup.getData(tokRPC_);
+  const CSCGeometry* cscGeometry = &iSetup.getData(tokCSC_);
 
   for (TrackingGeometry::DetContainer::const_iterator it = rpcGeometry->dets().begin(); it < rpcGeometry->dets().end();
        it++) {

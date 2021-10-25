@@ -6,6 +6,8 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProce
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
+from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
+
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
@@ -196,14 +198,12 @@ def miniAOD_customizeCommon(process):
     # ================== NoHF pfMET
 
     #  ==================  CHSMET 
-    process.CHSCands = cms.EDFilter("CandPtrSelector",
-                                    src=cms.InputTag("packedPFCandidates"),
-                                    cut=cms.string("fromPV(0) > 0")
-                                    )
-    task.add(process.CHSCands)
+    process.load("CommonTools.ParticleFlow.pfCHS_cff")
+    task.add(process.packedPrimaryVertexAssociationJME)
+    task.add(process.pfCHS)
 
     from RecoMET.METProducers.pfMet_cfi import pfMet
-    process.pfMetCHS = pfMet.clone(src = 'CHSCands')
+    process.pfMetCHS = pfMet.clone(src = 'pfCHS')
     task.add(process.pfMetCHS)
 
     addMETCollection(process,
@@ -216,10 +216,7 @@ def miniAOD_customizeCommon(process):
     #  ==================  CHSMET 
 
     #  ==================  TrkMET 
-    process.TrkCands = cms.EDFilter("CandPtrSelector",
-                                    src=cms.InputTag("packedPFCandidates"),
-                                    cut=cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0")
-                                    )
+    process.TrkCands = chargedPackedCandsForTkMet.clone()
     task.add(process.TrkCands)
 
     process.pfMetTrk = pfMet.clone(src = 'TrkCands')
@@ -534,8 +531,8 @@ def miniAOD_customizeCommon(process):
     # EGamma objects from HGCal are not yet in GED
     # so add companion collections for Phase-II MiniAOD production
     from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-    process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
-    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
+    process.load("RecoEgamma.EgammaTools.slimmedEgammaHGC_cff")
+    phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaHGCTask))
 
     # L1 pre-firing weights for 2016, 2017, and 2018
     from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring

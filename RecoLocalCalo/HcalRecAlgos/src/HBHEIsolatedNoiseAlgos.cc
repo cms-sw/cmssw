@@ -16,7 +16,6 @@ Original Author: John Paul Chou (Brown University)
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"

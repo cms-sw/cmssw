@@ -13,7 +13,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/GEMDigi/interface/AMC13Event.h"
+#include "DataFormats/GEMDigi/interface/GEMAMC13.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,8 +48,6 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GEMDigiToRawModule);
-
-using namespace gem;
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
@@ -97,15 +95,15 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
   auto gemROMap = runCache(iEvent.getRun().index());
 
-  std::vector<std::unique_ptr<AMC13Event>> amc13Events;
-  amc13Events.reserve(FEDNumbering::MAXGEMFEDID - FEDNumbering::MINGEMFEDID + 1);
+  std::vector<std::unique_ptr<GEMAMC13>> amc13s;
+  amc13s.reserve(FEDNumbering::MAXGEMFEDID - FEDNumbering::MINGEMFEDID + 1);
 
   int LV1_id = iEvent.id().event();
   uint8_t BX_id(iEvent.bunchCrossing());
   int OrN = iEvent.orbitNumber();
 
   // making map of bx GEMDigiCollection
-  // each bx will be saved as new AMC13Event, so GEMDigiCollection needs to be split into bx
+  // each bx will be saved as new GEMAMC13, so GEMDigiCollection needs to be split into bx
   std::map<int, GEMDigiCollection> gemBxMap;
   for (auto const& etaPart : *gemDigis) {
     GEMDetId gemId = etaPart.first;
@@ -125,14 +123,14 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
 
   for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     uint32_t amc13EvtLength = 0;
-    std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
+    std::unique_ptr<GEMAMC13> amc13 = std::make_unique<GEMAMC13>();
 
     for (uint8_t amcNum = 0; amcNum <= GEMeMap::maxAMCs_; ++amcNum) {
       uint32_t amcSize = 0;
-      std::unique_ptr<AMCdata> amcData = std::make_unique<AMCdata>();
+      std::unique_ptr<GEMAMC> amc = std::make_unique<GEMAMC>();
 
       for (uint8_t gebId = 0; gebId <= GEMeMap::maxGEBs_; ++gebId) {
-        std::unique_ptr<GEBdata> gebData = std::make_unique<GEBdata>();
+        std::unique_ptr<GEMOptoHybrid> optoH = std::make_unique<GEMOptoHybrid>();
         GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
 
         if (!gemROMap->isValidChamber(geb_ec))
@@ -173,56 +171,56 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                 msData |= 1UL << (chMap.chNum - 64);
 
               LogDebug("GEMDigiToRawModule")
-                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                  << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat id:" << int(vfatId)
+                  << ",type:" << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
+                  << " bx:" << digi.bx();
             }
 
             if (!hasDigi)
               continue;
             // only make vfat with hits
             amcSize += 3;
-            auto vfatData = std::make_unique<VFATdata>(geb_dc.vfatVer, bc, 0, vfatId, lsData, msData);
-            gebData->addVFAT(*vfatData);
+            auto vfat = std::make_unique<GEMVFAT>(geb_dc.vfatVer, bc, LV1_id, vfatId, lsData, msData);
+            optoH->addVFAT(*vfat);
           }
         }  // end of vfats in GEB
 
-        if (!gebData->vFATs()->empty()) {
+        if (!optoH->vFATs()->empty()) {
           amcSize += 2;
-          gebData->setChamberHeader(gebData->vFATs()->size() * 3, gebId);
-          gebData->setChamberTrailer(LV1_id, BX_id, gebData->vFATs()->size() * 3);
-          amcData->addGEB(*gebData);
+          optoH->setChamberHeader(optoH->vFATs()->size() * 3, gebId);
+          optoH->setChamberTrailer(LV1_id, BX_id, optoH->vFATs()->size() * 3);
+          amc->addGEB(*optoH);
         }
       }  // end of GEB loop
 
-      if (!amcData->gebs()->empty()) {
+      if (!amc->gebs()->empty()) {
         amcSize += 5;
-        amcData->setAMCheader1(amcSize, BX_id, LV1_id, amcNum);
-        amcData->setAMCheader2(amcNum, OrN, 1);
-        amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
-        amc13Event->addAMCpayload(*amcData);
-        // AMC header in AMC13Event
-        amc13Event->addAMCheader(amcSize, 0, amcNum, 0);
+        amc->setAMCheader1(amcSize, BX_id, LV1_id, amcNum);
+        amc->setAMCheader2(amcNum, OrN, 1);
+        amc->setGEMeventHeader(amc->gebs()->size(), 0);
+        amc13->addAMCpayload(*amc);
+        // AMC header in GEMAMC13
+        amc13->addAMCheader(amcSize, 0, amcNum, 0);
         amc13EvtLength += amcSize + 1;  // AMC data size + AMC header size
       }
     }  // end of AMC loop
 
-    if (!amc13Event->getAMCpayloads()->empty()) {
+    if (!amc13->getAMCpayloads()->empty()) {
       // CDFHeader
-      amc13Event->setCDFHeader(event_type_, LV1_id, BX_id, fedId);
+      amc13->setCDFHeader(event_type_, LV1_id, BX_id, fedId);
       // AMC13header
-      uint8_t nAMC = amc13Event->getAMCpayloads()->size();
-      amc13Event->setAMC13Header(1, nAMC, OrN);
-      amc13Event->setAMC13Trailer(BX_id, LV1_id, BX_id);
+      uint8_t nAMC = amc13->getAMCpayloads()->size();
+      amc13->setAMC13Header(1, nAMC, OrN);
+      amc13->setAMC13Trailer(BX_id, LV1_id, BX_id);
       //CDF trailer
       uint32_t EvtLength = amc13EvtLength + 4;  // 2 header and 2 trailer
-      amc13Event->setCDFTrailer(EvtLength);
-      amc13Events.emplace_back(std::move(amc13Event));
-    }  // finished making amc13Event data
+      amc13->setCDFTrailer(EvtLength);
+      amc13s.emplace_back(std::move(amc13));
+    }  // finished making amc13 data
   }    // end of FED loop
 
-  // read out amc13Events into fedRawData
-  for (const auto& amc13e : amc13Events) {
+  // read out amc13s into fedRawData
+  for (const auto& amc13e : amc13s) {
     std::vector<uint64_t> words;
     words.emplace_back(amc13e->getCDFHeader());
     words.emplace_back(amc13e->getAMC13Header());

@@ -66,6 +66,9 @@ public:
   static const int maxVFatGE0_ = 12;     // vFat per eta partition, not known yet for ME0
   static const int maxVFatGE11_ = 3;     // vFat per eta partition in GE11
   static const int maxVFatGE21_ = 6;     // vFat per eta partition in GE21
+  static const int maxiEtaIdGE0_ = 8;    // no. eta partitions for GE0
+  static const int maxiEtaIdGE11_ = 8;   // no. eta partitions for GE11
+  static const int maxiEtaIdGE21_ = 16;  // no. eta partitions for GE21
   static const int maxChan_ = 128;       // channels per vFat
 };
 #endif  // GEMeMap_H

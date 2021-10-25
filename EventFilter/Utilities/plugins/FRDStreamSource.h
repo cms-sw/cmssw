@@ -35,6 +35,7 @@ private:
 private:
   // member data
   std::vector<std::string>::const_iterator itFileName_;
+  std::vector<std::string>::const_iterator endFileName_;
   std::ifstream fin_;
   std::unique_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;

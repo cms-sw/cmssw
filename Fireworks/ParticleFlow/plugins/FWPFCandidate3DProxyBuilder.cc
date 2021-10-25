@@ -19,7 +19,6 @@
 // User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
@@ -35,10 +34,10 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWPFCandidate3DProxyBuilder(const FWPFCandidate3DProxyBuilder&) = delete;                   // Stop default
   const FWPFCandidate3DProxyBuilder& operator=(const FWPFCandidate3DProxyBuilder&) = delete;  // Stop default
 
+private:
   // --------------------- Member Functions --------------------------
   using FWSimpleProxyBuilderTemplate<reco::PFCandidate>::build;
   void build(const reco::PFCandidate& iData,

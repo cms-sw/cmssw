@@ -6,7 +6,6 @@ import os
 from glob import glob
 import re
 import pprint
-import six
 import commands
 countRE = re.compile (r'^count_(\w+)')
 avoid = ['index', 'print']
@@ -19,7 +18,7 @@ def summaryOK (summary):
     compared = summary.get('eventsCompared', -1)
     if len( summary) != 2:
         retval = False
-    for key,value in six.iteritems(summary):
+    for key,value in summary.items():
         if countRE.search(key):
             count = value
     return (retval, {'count':count, 'compared':compared})
@@ -148,7 +147,7 @@ if __name__ == "__main__":
             if success1RE.search (line) or success2RE.search(line):
                 success = True
                 continue
-            for key, regex in six.iteritems(problemDict):
+            for key, regex in problemDict.items():
                 #print "considering %s for %s" % (key, line)
                 if regex.search(line):
                     if key in problemSet:
@@ -211,7 +210,7 @@ if __name__ == "__main__":
     print("weird:      ", weird)
     print("Tool issue types:")
     total = 0
-    for key, value in sorted (six.iteritems(problemTypes)):
+    for key, value in sorted (problemTypes.items()):
         print("  %-15s: %4d" % (key, value))
         total += value
     print(" ", '-'*13, " : ----")
@@ -221,7 +220,7 @@ if __name__ == "__main__":
     
     if not options.counts:
         print("\nDetailed Problems list:")
-        for key, problemList in sorted (six.iteritems(problems)):
+        for key, problemList in sorted (problems.items()):
             if options.problem and problemList[0] != options.problem:
                 continue
             if options.mismatch and not isinstance (problemList, str):
@@ -236,5 +235,5 @@ if __name__ == "__main__":
         if not options.problem and not options.mismatch:
             print("\n", '='*78, '\n')
             print("Success list:")
-            for key, successesList in sorted (six.iteritems(successes)):
+            for key, successesList in sorted (successes.items()):
                 print("   %s:\n   %s\n" % (key, successesList))

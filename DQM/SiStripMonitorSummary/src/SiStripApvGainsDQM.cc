@@ -35,7 +35,7 @@ void SiStripApvGainsDQM::fillMEsForDet(const ModMEs &_selModME_, uint32_t selDet
 
   const auto gainRange = condObj_->getRange(selDetId_);
 
-  int nApv = reader->getNumberOfApvsAndStripLength(selDetId_).first;
+  int nApv = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first;
 
   getModMEs(selModME_, selDetId_);
 
@@ -99,7 +99,7 @@ void SiStripApvGainsDQM::fillMEsForLayer(
   getSummaryMEs(selME_, selDetId_);
 
   const auto gainRange = condObj_->getRange(selDetId_);
-  int nApv = reader->getNumberOfApvsAndStripLength(selDetId_).first;
+  int nApv = detInfo_.getNumberOfApvsAndStripLength(selDetId_).first;
 
   float meanApvGain = 0;
 

@@ -33,7 +33,6 @@ private:
      also gets cancelled if it has the same quality as the one on the
      previous wire (this has not been done in 2003 test beam).  The
      cancellation is done separately for collision and accelerator patterns. */
-  void ghostCancellationLogic() override;
   void ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared) override;
 
   /* Quality definition that includes hits in GE1/1 or GE2/1 */

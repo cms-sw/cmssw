@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
@@ -107,6 +108,8 @@ private:
   edm::EDGetTokenT<L1MuRegionalCandCollection> tokenMuRegionalCandRPCf_[2];
   edm::EDGetTokenT<L1MuGMTCandCollection> tokenMuGMTCand_[2];
   edm::EDGetTokenT<L1MuGMTReadoutCollection> tokenMuReadoutCand_[2];
+
+  const edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> tokenTriggerKey_;
 
   const std::array<bool, dedefs::DEnsys> m_doSys;
   const std::string m_dumpFileName;

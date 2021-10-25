@@ -165,11 +165,12 @@ namespace gs {
     const ClassId *catalogEntryClassId() const { return storedEntryId_; }
     const ClassId *itemLocationClassId() const { return storedLocationId_; }
 
-  private:
+  public:
     BinaryArchiveBase() = delete;
     BinaryArchiveBase(const BinaryArchiveBase &) = delete;
     BinaryArchiveBase &operator=(const BinaryArchiveBase &) = delete;
 
+  private:
     static bool parseArchiveOptions(std::ostringstream &errmes,
                                     const char *mode,
                                     CStringStream::CompressionMode *m,

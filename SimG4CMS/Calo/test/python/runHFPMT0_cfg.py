@@ -8,7 +8,9 @@ process.load("Geometry.CMSCommonData.cmsHFPMTAverageXML_cfi")
 #process.load("SimG4CMS.Calo.cmsHFPMTXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -94,7 +96,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hfPMTHitAnalyzer)
+process.analysis_step   = cms.Path(process.HFPMTHitAnalyzer)
 process.out_step = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
@@ -105,10 +107,10 @@ process.g4SimHits.HCalSD.UsePMTHits         = True
 process.g4SimHits.HFShower.UseShowerLibrary = True
 process.g4SimHits.HFShower.UseHFGflash      = False
 process.g4SimHits.HFShower.TrackEM          = False
-process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
+process.g4SimHits.HFShower.HFShowerBlock.OnlyLong = cms.bool(True)
 process.g4SimHits.HFShower.ApplyFiducialCut = False
-process.g4SimHits.HFShowerLibrary.ApplyFiducialCut = False
+process.g4SimHits.HFShowerLibrary.HFLibraryFileBlock.ApplyFiducialCut = cms.bool(False)
 
 # Schedule definition                                                          
 process.schedule = cms.Schedule(process.generation_step,

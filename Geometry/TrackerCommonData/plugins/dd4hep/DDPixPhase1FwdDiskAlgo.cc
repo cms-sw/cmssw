@@ -35,6 +35,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 0;
   nBlades = args.value<int>("NumberOfBlades");
   bladeAngle = args.value<double>("BladeAngle");
+
   bladeTilt = -1. * args.value<double>("BladeTilt");
   zPlane = args.value<double>("BladeCommonZ");
   anchorR = args.value<double>("AnchorRadius");
@@ -47,15 +48,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
   dd4hep::Volume child = ns.volume(childName);
 
-  edm::LogVerbatim("TrackerGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name() << "\tChild " << child.name()
-                                  << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
-                                  << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle)
-                                  << ", " << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
-                                  << anchorR;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo debug: Parent " << mother.name() << "\tChild " << child.name()
+                                << " NameSpace " << ns.name() << "\tRot Name " << rotName << "\tCopyNo (Start/Total) "
+                                << startCopyNo << ", " << nBlades << "\tAngles " << convertRadToDeg(bladeAngle) << ", "
+                                << convertRadToDeg(bladeTilt) << "\tZshifts " << zPlane << "\tAnchor Radius "
+                                << anchorR;
 
   for (int iBlade = 0; iBlade < nBlades; ++iBlade) {
-    edm::LogVerbatim("TrackerGeom") << "DDPixFwdDiskAlgo: Blade " << iBlade << " flag " << flagString[iBlade]
-                                    << " zshift " << bladeZShift[iBlade];
+    edm::LogVerbatim("PixelGeom") << "DDPixFwdDiskAlgo: Blade " << iBlade << " flag " << flagString[iBlade]
+                                  << " zshift " << bladeZShift[iBlade];
   }
 
   double deltaPhi = 360.0_deg / (double)nBlades;

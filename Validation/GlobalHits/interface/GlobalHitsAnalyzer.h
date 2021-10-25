@@ -62,7 +62,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -70,6 +69,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "TString.h"
 
+class HcalDDDRecConstants;
+class CaloGeometryRecord;
+class HcalRecNumberingRecord;
 class GlobalHitsAnalyzer : public DQMEDAnalyzer {
 public:
   // typedef std::vector<float> FloatVector;
@@ -142,6 +144,13 @@ private:
   edm::InputTag G4TrkSrc_;
   edm::EDGetTokenT<edm::SimVertexContainer> G4VtxSrc_Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> G4TrkSrc_Token_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcaldddRecToken_;
 
   // Electromagnetic info
   // ECal info

@@ -22,11 +22,11 @@ public:
 
   REGISTER_PROXYBUILDER_METHODS();
 
-private:
   FWHGCalTriggerClusterProxyBuilder(const FWHGCalTriggerClusterProxyBuilder &) = delete;  // stop default
   const FWHGCalTriggerClusterProxyBuilder &operator=(const FWHGCalTriggerClusterProxyBuilder &) =
       delete;  // stop default
 
+private:
   void build(const l1t::HGCalMulticluster &iData,
              unsigned int iIndex,
              TEveElement &oItemHolder,

@@ -19,6 +19,8 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace edm {
   class ParameterSet;
@@ -31,7 +33,7 @@ public:
   typedef std::vector<std::vector<int> > intDVector;
 
   //constructor
-  SegmentToTrackAssociator(const edm::ParameterSet&);
+  SegmentToTrackAssociator(const edm::ParameterSet&, const GlobalTrackingGeometry* GlobalTrackingGeometry);
 
   //destructor
   virtual ~SegmentToTrackAssociator();
@@ -51,6 +53,8 @@ private:
 
   edm::InputTag theDTSegmentLabel;
   edm::InputTag theCSCSegmentLabel;
+
+  const GlobalTrackingGeometry* globalTrackingGeometry_;
 };
 
 #endif

@@ -21,8 +21,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -156,14 +156,6 @@ namespace edm {
       this->doEndLuminosityBlock_(cnstLb, c);
     }
 
-    void EDAnalyzerBase::doRespondToOpenInputFile(FileBlock const& fb) {
-      //respondToOpenInputFile(fb);
-    }
-
-    void EDAnalyzerBase::doRespondToCloseInputFile(FileBlock const& fb) {
-      //respondToCloseInputFile(fb);
-    }
-
     void EDAnalyzerBase::doBeginProcessBlock_(ProcessBlock const&) {}
     void EDAnalyzerBase::doAccessInputProcessBlock_(ProcessBlock const&) {}
     void EDAnalyzerBase::doEndProcessBlock_(ProcessBlock const&) {}
@@ -172,6 +164,8 @@ namespace edm {
     void EDAnalyzerBase::doEndRun_(Run const& rp, EventSetup const& c) {}
     void EDAnalyzerBase::doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
     void EDAnalyzerBase::doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c) {}
+
+    void EDAnalyzerBase::clearInputProcessBlockCaches() {}
 
     void EDAnalyzerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

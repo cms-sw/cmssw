@@ -29,6 +29,7 @@ higPhotonJetHLTOfflineSource = DQMEDAnalyzer(
 #    dirname = cms.untracked.string("HLT/Higgs/PhotonJet"), 
     dirname = cms.untracked.string("HLT/HIG/PhotonJet"), 
     verbose = cms.untracked.bool(False), # default: False
+    perLSsaving = cms.untracked.bool(False), #driven by DQMServices/Core/python/DQMStore_cfi.py
     triggerAccept = cms.untracked.bool(True), # default: True 
     triggerResultsToken = cms.InputTag("TriggerResults","","HLT"),
     pvToken = cms.InputTag("offlinePrimaryVertices"),

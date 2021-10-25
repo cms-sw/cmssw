@@ -33,6 +33,7 @@
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>
 </iftool>
 
+<test name="import-anyio" command="python3 -c 'import anyio'"/>
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
 <test name="import-keras" command="python3 -c 'import keras'"/>
 <test name="import-markupsafe" command="python3 -c 'import markupsafe'"/>
@@ -106,6 +107,7 @@
 <test name="import-pycodestyle" command="python3 -c 'import pycodestyle'"/>
 <test name="import-pycurl" command="python3 -c 'import pycurl'"/>
 <test name="import-pyparsing" command="python3 -c 'import pyparsing'"/>
+<test name="import-pytest" command="python3 -m pytest --version"/>
 <test name="import-sqlite3" command="python3 -c 'import sqlite3'"/>
 <test name="import-pytz" command="python3 -c 'import pytz'"/>
 <test name="import-zmq" command="python3 -c 'import zmq'"/>
@@ -120,7 +122,7 @@
 <test name="import-send2trash" command="python3 -c 'import send2trash'"/>
 <test name="import-simplegeneric" command="python3 -c 'import simplegeneric'"/>
 <test name="import-singledispatch" command="python3 -c 'import singledispatch'"/>
-<test name="import-six" command="python3 -c 'import six'"/>
+<test name="import-sniffio" command="python3 -c 'import sniffio'"/>
 <test name="import-sqlalchemy" command="python3 -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python3 -c 'import sympy'"/>
 <test name="import-tables" command="python3 -c 'import tables'"/>
@@ -145,5 +147,5 @@
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython3" command="ipython3 -h"/>
-<test name="run-pylint3" command="pylint3 -h"/>
+<test name="run-ipython" command="ipython -h"/>
+<test name="run-pylint" command="pylint -h"/>

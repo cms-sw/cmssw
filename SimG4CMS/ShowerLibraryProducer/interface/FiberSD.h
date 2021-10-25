@@ -1,6 +1,9 @@
 #ifndef SimG4CMS_ShowerLibraryProducer_FiberSD_h
 #define SimG4CMS_ShowerLibraryProducer_FiberSD_h
 
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalSimulationConstants.h"
+
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
@@ -24,16 +27,17 @@ class G4Step;
 class G4HCofThisEvent;
 
 class FiberSD : public SensitiveCaloDetector,
-                public Observer<const BeginOfJob *>,
-                public Observer<const BeginOfRun *>,
-                public Observer<const BeginOfEvent *>,
-                public Observer<const EndOfEvent *> {
+                               public Observer<const BeginOfJob *>,
+                               public Observer<const BeginOfRun *>,
+                               public Observer<const BeginOfEvent *>,
+                               public Observer<const EndOfEvent *> {
 public:
   explicit FiberSD(const std::string &,
-                   const edm::EventSetup &,
-                   const SensitiveDetectorCatalog &,
-                   edm::ParameterSet const &,
-                   const SimTrackManager *);
+                                  const HcalSimulationConstants *,
+                                  const HcalDDDSimConstants *,
+                                  const SensitiveDetectorCatalog &,
+                                  edm::ParameterSet const &,
+                                  const SimTrackManager *);
   ~FiberSD() override;
 
   void Initialize(G4HCofThisEvent *HCE) override;
@@ -54,7 +58,6 @@ protected:
   void update(const ::EndOfEvent *) override;
 
 private:
-  const SimTrackManager *m_trackManager;
   HFShower *theShower;
 
   G4int theHCID;

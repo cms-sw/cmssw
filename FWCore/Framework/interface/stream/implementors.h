@@ -19,14 +19,24 @@
 //
 
 // system include files
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 // user include files
+#include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 // forward declarations
 namespace edm {
@@ -53,19 +63,96 @@ namespace edm {
         C const* cache_;
       };
 
-      template <typename C>
+      template <typename... CacheTypes>
       class InputProcessBlockCacheHolder {
       public:
         InputProcessBlockCacheHolder() = default;
         InputProcessBlockCacheHolder(InputProcessBlockCacheHolder const&) = delete;
         InputProcessBlockCacheHolder& operator=(InputProcessBlockCacheHolder const&) = delete;
-        //void setProcessBlockCache(C const* iCache) { cache_ = iCache; }
 
-      protected:
-        //C const* inputProcessBlockCache() const { return cache_; }
+        std::tuple<CacheHandle<CacheTypes>...> processBlockCaches(Event const& event) const {
+          return cacheImpl_->processBlockCaches(event);
+        }
+
+        template <std::size_t N>
+        using CacheTypeT = typename std::tuple_element<N, std::tuple<CacheTypes...>>::type;
+
+        template <std::size_t ICacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& cacheFiller) {
+          registerProcessBlockCacheFiller<ICacheType, CacheTypeT<ICacheType>, DataType, Func>(
+              token, std::forward<Func>(cacheFiller));
+        }
+
+        template <typename CacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& cacheFiller) {
+          static_assert(edm::impl::countTypeInParameterPack<CacheType, CacheTypes...>() == 1u,
+                        "If registerProcessBlockCacheFiller is called with a type template parameter\n"
+                        "then that type must appear exactly once in the template parameters of InputProcessBlockCache");
+
+          // Find the index into the parameter pack from the CacheType
+          constexpr unsigned int I = edm::impl::indexInputProcessBlockCache<CacheType, CacheTypes...>();
+
+          registerProcessBlockCacheFiller<I, CacheType, DataType, Func>(token, std::forward<Func>(cacheFiller));
+        }
 
       private:
-        //C const* cache_;
+        template <typename T, bool, bool>
+        friend struct edm::stream::CallInputProcessBlockImpl;
+
+        void setProcessBlockCache(edm::impl::InputProcessBlockCacheImpl<CacheTypes...> const* cacheImpl) {
+          cacheImpl_ = cacheImpl;
+        }
+
+        bool cacheFillersRegistered() const { return registrationInfo_ ? true : false; }
+        std::vector<edm::impl::TokenInfo>& tokenInfos() { return registrationInfo_->tokenInfos_; }
+        std::tuple<edm::impl::CacheFiller<CacheTypes>...>& cacheFillers() { return registrationInfo_->cacheFillers_; }
+
+        void clearRegistration() { registrationInfo_.reset(); }
+
+        // The next two functions exist so that it is optional whether modules
+        // with this ability implement them.
+
+        static void accessInputProcessBlock(edm::ProcessBlock const&) {}
+
+        template <typename GlobalCacheType>
+        static void accessInputProcessBlock(edm::ProcessBlock const&, GlobalCacheType*) {}
+
+        template <std::size_t ICacheType, typename CacheType, typename DataType, typename Func>
+        void registerProcessBlockCacheFiller(EDGetTokenT<DataType> const& token, Func&& cacheFiller) {
+          if (!registrationInfo_) {
+            registrationInfo_ = std::make_unique<RegistrationInfo>();
+            tokenInfos().resize(sizeof...(CacheTypes));
+          }
+
+          if (!tokenInfos()[ICacheType].token_.isUninitialized()) {
+            throw Exception(errors::LogicError)
+                << "registerProcessBlockCacheFiller should only be called once per cache type";
+          }
+
+          tokenInfos()[ICacheType] = edm::impl::TokenInfo{EDGetToken(token), TypeID(typeid(DataType))};
+
+          std::get<ICacheType>(cacheFillers()).func_ =
+              std::function<std::shared_ptr<CacheType>(ProcessBlock const&, std::shared_ptr<CacheType> const&)>(
+                  std::forward<Func>(cacheFiller));
+        }
+
+        // ------------ Data members --------------------
+
+        edm::impl::InputProcessBlockCacheImpl<CacheTypes...> const* cacheImpl_;
+
+        // The RegistrationInfo is filled while the module constructor runs.
+        // Later this information is copied to the InputProcessBlockCacheImpl
+        // object owned by the adaptor and then registrationInfo_ is cleared.
+        // Note that this is really only needed for one of the stream instances,
+        // but we fill for all streams so registerProcessBlockCacheFiller can
+        // be called in the constructor. This keeps the interface as simple as
+        // possible and makes it similar to the consumes interface.
+        class RegistrationInfo {
+        public:
+          std::vector<edm::impl::TokenInfo> tokenInfos_;
+          std::tuple<edm::impl::CacheFiller<CacheTypes>...> cacheFillers_;
+        };
+        std::unique_ptr<RegistrationInfo> registrationInfo_;
       };
 
       template <typename C>

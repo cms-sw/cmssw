@@ -4,6 +4,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
+#include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +19,6 @@
 #include <string>
 #include <iostream>
 
-class SimTrackManager;
 class BeginOfEvent;
 class G4LogicalVolume;
 class G4Step;
@@ -28,9 +29,17 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
                           public Observer<const G4Step*> {
 public:
   CaloTrkProcessing(const std::string& aSDname,
-                    const edm::EventSetup& es,
+                    const CaloSimulationParameters& csps,
                     const SensitiveDetectorCatalog& clg,
-                    edm::ParameterSet const& p,
+                    bool testBeam,
+                    double eMin,
+                    bool putHistory,
+                    bool doFineCalo,
+                    double eMinFine,
+                    int addlevel,
+                    const std::vector<std::string>& fineNames,
+                    const std::vector<int>& fineLevels,
+                    const std::vector<int>& useFines,
                     const SimTrackManager*);
   ~CaloTrkProcessing() override;
   void Initialize(G4HCofThisEvent*) override {}
@@ -61,8 +70,12 @@ private:
   G4LogicalVolume* detLV(const G4VTouchable*, int) const;
   void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
 
-  bool testBeam_, putHistory_, doFineCalo_;
-  double eMin_, eMinFine_;
+  const bool testBeam_;
+  const double eMin_;
+  const bool putHistory_;
+  bool doFineCalo_;
+  const double eMinFine_;
+  const int addlevel_;
   int lastTrackID_;
   std::vector<Detector> detectors_, fineDetectors_;
 };

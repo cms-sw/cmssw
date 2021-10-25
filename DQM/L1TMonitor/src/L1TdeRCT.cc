@@ -85,12 +85,16 @@ L1TdeRCT::L1TdeRCT(const ParameterSet& ps)
       ecalTPGData_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<InputTag>("ecalTPGData"))),
       hcalTPGData_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<InputTag>("hcalTPGData"))),
       gtDigisLabel_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<InputTag>("gtDigisLabel"))),
+      runInfoToken_(esConsumes<edm::Transition::BeginRun>()),
+      runInfolumiToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       gtEGAlgoName_(ps.getParameter<std::string>("gtEGAlgoName")),
       doubleThreshold_(ps.getParameter<int>("doubleThreshold")),
       filterTriggerType_(ps.getParameter<int>("filterTriggerType")),
       selectBX_(ps.getUntrackedParameter<int>("selectBX", 2)),
       dataInputTagName_(ps.getParameter<InputTag>("rctSourceData").label()) {
   singlechannelhistos_ = ps.getUntrackedParameter<bool>("singlechannelhistos", false);
+
+  perLSsaving_ = (ps.getUntrackedParameter<bool>("perLSsaving", false));
 
   if (singlechannelhistos_)
     if (verbose_)
@@ -1959,18 +1963,22 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, c
 
   ibooker.setCurrentFolder(histFolder_ + "/DBData");
   fedVectorMonitorRUN_ = ibooker.book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run", 108, 0, 108, 2, 0, 2);
-  fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS", 108, 0, 108, 2, 0, 2);
+  if (!perLSsaving_)
+    fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS", 108, 0, 108, 2, 0, 2);
 
   for (unsigned int i = 0; i < 108; ++i) {
     char fed[10];
     sprintf(fed, "%d", crateFED[i]);
     fedVectorMonitorRUN_->setBinLabel(i + 1, fed);
-    fedVectorMonitorLS_->setBinLabel(i + 1, fed);
+    if (!perLSsaving_)
+      fedVectorMonitorLS_->setBinLabel(i + 1, fed);
   }
   fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(1, "OUT");
   fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(2, "IN");
-  fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(1, "OUT");
-  fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(2, "IN");
+  if (!perLSsaving_) {
+    fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(1, "OUT");
+    fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(2, "IN");
+  }
 
   // for single channels
 
@@ -2076,19 +2084,21 @@ void L1TdeRCT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, c
   notrigCount = 0;
   trigCount = 0;
 
-  readFEDVector(fedVectorMonitorRUN_, es);
+  readFEDVector(fedVectorMonitorRUN_, es, false);
 }
 
 std::shared_ptr<l1tderct::Empty> L1TdeRCT::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
                                                                       const edm::EventSetup& es) const {
-  readFEDVector(fedVectorMonitorLS_, es);
+  if (!perLSsaving_)
+    readFEDVector(fedVectorMonitorLS_, es);
   return std::shared_ptr<l1tderct::Empty>();
 }
 
-void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& es) const {
+void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& es, const bool isLumitransition) const {
   // adding fed mask into channel mask
-  edm::ESHandle<RunInfo> sum;
-  es.get<RunInfoRcd>().get(sum);
+  //edm::ESHandle<RunInfo> sum;
+  //es.get<RunInfoRcd>().get(sum);
+  const auto& sum = isLumitransition ? es.getHandle(runInfolumiToken_) : es.getHandle(runInfoToken_);
   const RunInfo* summary = sum.product();
 
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones

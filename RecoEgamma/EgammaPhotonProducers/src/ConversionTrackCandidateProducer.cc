@@ -28,7 +28,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
@@ -43,6 +42,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
 #include <vector>
 
@@ -69,10 +69,14 @@ private:
   edm::EDGetTokenT<edm::View<reco::CaloCluster>> bcEndcapCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster>> scHybridBarrelProducer_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster>> scIslandEndcapProducer_;
-  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkEvtToken_;
+
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theCaloGeomToken_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> sevlvToken_;
 
   double hOverEConeSize_;
   double maxHOverE_;
@@ -108,12 +112,14 @@ private:
   std::vector<edm::Ref<reco::SuperClusterCollection>> vecOfSCRefForOutIn;
   std::vector<edm::Ref<reco::SuperClusterCollection>> vecOfSCRefForInOut;
 
+  std::unique_ptr<ElectronHcalHelper> hcalHelper_;
+
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                         const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
                         const EcalRecHitCollection& ecalRecHits,
                         const EcalSeverityLevelAlgo* sevLev,
-                        CaloTowerCollection const& hcalTowers,
+                        ElectronHcalHelper const& hcalHelper,
                         TrackCandidateCollection& outInTracks,
                         TrackCandidateCollection& inOutTracks,
                         std::vector<edm::Ptr<reco::CaloCluster>>& vecRecOI,
@@ -135,17 +141,21 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
       scHybridBarrelProducer_{consumes(config.getParameter<edm::InputTag>("scHybridBarrelProducer"))},
       scIslandEndcapProducer_{consumes(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))},
 
-      hcalTowers_{consumes(config.getParameter<edm::InputTag>("hcalTowers"))},
+      hbheRecHits_{consumes(config.getParameter<edm::InputTag>("hbheRecHits"))},
       barrelecalCollection_{consumes(config.getParameter<edm::InputTag>("barrelEcalRecHitCollection"))},
       endcapecalCollection_{consumes(config.getParameter<edm::InputTag>("endcapEcalRecHitCollection"))},
       measurementTrkEvtToken_{consumes(edm::InputTag("MeasurementTrackerEvent"))},
 
+      navToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SimpleNavigationSchool"))),
+      theCaloGeomToken_(esConsumes()),
+      sevlvToken_(esConsumes()),
+
       theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(
           config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
       outInSeedFinder_{config, consumesCollector()},
-      outInTrackFinder_{config, theTrajectoryBuilder_.get()},
+      outInTrackFinder_{config, theTrajectoryBuilder_.get(), consumesCollector()},
       inOutSeedFinder_{config, consumesCollector()},
-      inOutTrackFinder_{config, theTrajectoryBuilder_.get()} {
+      inOutTrackFinder_{config, theTrajectoryBuilder_.get(), consumesCollector()} {
   OutInTrackCandidateCollection_ = config.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = config.getParameter<std::string>("inOutTrackCandidateCollection");
 
@@ -184,6 +194,22 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 
   produces<reco::TrackCandidateCaloClusterPtrAssociation>(OutInTrackSCAssociationCollection_);
   produces<reco::TrackCandidateCaloClusterPtrAssociation>(InOutTrackSCAssociationCollection_);
+
+  ElectronHcalHelper::Configuration cfgCone;
+  cfgCone.hOverEConeSize = hOverEConeSize_;
+  if (cfgCone.hOverEConeSize > 0) {
+    cfgCone.onlyBehindCluster = false;
+    cfgCone.checkHcalStatus = false;
+
+    cfgCone.hbheRecHits = hbheRecHits_;
+
+    cfgCone.eThresHB = config.getParameter<EgammaHcalIsolation::arrayHB>("recHitEThresholdHB");
+    cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
+    cfgCone.eThresHE = config.getParameter<EgammaHcalIsolation::arrayHE>("recHitEThresholdHE");
+    cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
+  }
+
+  hcalHelper_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
 }
 
 void ConversionTrackCandidateProducer::setEventSetup(const edm::EventSetup& theEventSetup) {
@@ -194,9 +220,7 @@ void ConversionTrackCandidateProducer::setEventSetup(const edm::EventSetup& theE
 }
 
 void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) {
-  edm::ESHandle<NavigationSchool> nav;
-  theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  const NavigationSchool* navigation = nav.product();
+  const NavigationSchool* navigation = &theEventSetup.getData(navToken_);
   theTrajectoryBuilder_->setNavigationSchool(navigation);
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
@@ -256,16 +280,14 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   }
 
   // get the geometry from the event setup:
-  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  theCaloGeom_ = theEventSetup.getHandle(theCaloGeomToken_);
 
-  auto const& hcalTowers = theEvent.get(hcalTowers_);
+  hcalHelper_->beginEvent(theEvent, theEventSetup);
 
   auto const& ecalhitsCollEB = theEvent.get(barrelecalCollection_);
   auto const& ecalhitsCollEE = theEvent.get(endcapecalCollection_);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+  const EcalSeverityLevelAlgo* sevLevel = &theEventSetup.getData(sevlvToken_);
 
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
@@ -277,7 +299,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
                      bcBarrelHandle,
                      ecalhitsCollEB,
                      sevLevel,
-                     hcalTowers,
+                     *hcalHelper_,
                      *outInTrackCandidate_p,
                      *inOutTrackCandidate_p,
                      caloPtrVecOutIn_,
@@ -290,7 +312,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
                      bcEndcapHandle,
                      ecalhitsCollEE,
                      sevLevel,
-                     hcalTowers,
+                     *hcalHelper_,
                      *outInTrackCandidate_p,
                      *inOutTrackCandidate_p,
                      caloPtrVecOutIn_,
@@ -331,7 +353,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
                                                         const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
                                                         EcalRecHitCollection const& ecalRecHits,
                                                         const EcalSeverityLevelAlgo* sevLevel,
-                                                        CaloTowerCollection const& hcalTowers,
+                                                        ElectronHcalHelper const& hcalHelper,
                                                         TrackCandidateCollection& outInTrackCandidates,
                                                         TrackCandidateCollection& inOutTrackCandidates,
                                                         std::vector<edm::Ptr<reco::CaloCluster>>& vecRecOI,
@@ -349,8 +371,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    EgammaTowerIsolation towerIso(hOverEConeSize_, 0., 0., -1, &hcalTowers);
-    double HoE = towerIso.getTowerESum(sc) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 
@@ -429,7 +450,12 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("bcEtCut", 1.5);
   desc.add<double>("bcECut", 1.5);
   desc.add<bool>("useEtCut", true);
-  desc.add<edm::InputTag>("hcalTowers", {"towerMaker"});
+
+  desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
+  desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
+  desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<int>("maxHcalRecHitSeverity", 999999);
+
   desc.add<double>("minSCEt", 20.0);
   desc.add<double>("hOverEConeSize", 0.15);
   desc.add<double>("maxHOverE", 0.15);
@@ -466,7 +492,7 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("ValidHitBonus", 5.0);
   desc.add<double>("MissingHitPenalty", 20.0);
 
-  descriptions.add("conversionTrackCandidates", desc);
+  descriptions.add("conversionTrackCandidatesDefault", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }

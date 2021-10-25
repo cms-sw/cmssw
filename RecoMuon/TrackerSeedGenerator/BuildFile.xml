@@ -1,12 +1,16 @@
+<use name="CommonTools/MVAUtils"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrajectorySeed"/>
+<use name="DataFormats/TrajectoryState"/>
+<use name="DataFormats/RecoCandidate"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

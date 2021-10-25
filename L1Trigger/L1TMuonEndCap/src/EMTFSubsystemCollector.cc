@@ -490,42 +490,23 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
     const TriggerPrimitiveCollection& co_pads = found->second;
     for (auto p = pads.begin(); p != pads.end(); ++p) {
       bool has_copad = false;
-      int bend = 999999;
 
-      for (auto co_p = co_pads.begin(); co_p != co_pads.end(); ++co_p) {
-        unsigned int deltaPad = calculate_delta(p->getGEMData().pad, co_p->getGEMData().pad);
-        unsigned int deltaBX = calculate_delta(p->getGEMData().bx, co_p->getGEMData().bx);
-        unsigned int deltaRoll = calculate_delta(p->detId<GEMDetId>().roll(), co_p->detId<GEMDetId>().roll());
-
+      for (auto co_p = co_pads.begin(); co_p != co_pads.end() && !has_copad; ++co_p) {
         // check the match in pad
+        unsigned int deltaPad = calculate_delta(p->getGEMData().pad, co_p->getGEMData().pad);
         if ((detid.station() == 1 && deltaPad > maxDeltaPadGE11) ||
             (detid.station() == 2 && deltaPad > maxDeltaPadGE21))
           continue;
-
         // check the match in BX
+        unsigned int deltaBX = calculate_delta(p->getGEMData().bx, co_p->getGEMData().bx);
         if (deltaBX > maxDeltaBX)
           continue;
-
         // check the match in roll
+        unsigned int deltaRoll = calculate_delta(p->detId<GEMDetId>().roll(), co_p->detId<GEMDetId>().roll());
         if (deltaRoll > maxDeltaRoll)
           continue;
-
         has_copad = true;
-
-        // recover the bend sign
-        if (static_cast<unsigned int>(std::abs(bend)) > deltaPad) {
-          if (co_p->getGEMData().pad >= p->getGEMData().pad)
-            bend = deltaPad;
-          else
-            bend = -deltaPad;
-        }
       }  // end loop over co_pads
-
-      // Need to flip the bend sign depending on the parity
-      bool isEven = (detid.chamber() % 2 == 0);
-      if (!isEven) {
-        bend = -bend;
-      }
 
       // make a new coincidence pad digi
       if (has_copad) {

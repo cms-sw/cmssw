@@ -10,7 +10,6 @@
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -39,6 +38,7 @@ public:
   const std::string& myName() { return myName_; }
 
 private:
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokRPC_;
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
@@ -46,7 +46,10 @@ private:
 };
 
 RPCGeometryAnalyzer::RPCGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
-    : dashedLineWidth_(104), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("RPCGeometryAnalyzer") {
+    : tokRPC_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+      dashedLineWidth_(104),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("RPCGeometryAnalyzer") {
   ofos.open("MytestOutput.out");
   std::cout << "======================== Opening output file" << std::endl;
 }
@@ -57,8 +60,7 @@ RPCGeometryAnalyzer::~RPCGeometryAnalyzer() {
 }
 
 void RPCGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RPCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const RPCGeometry* pDD = &iSetup.getData(tokRPC_);
 
   std::cout << myName() << ": Analyzer..." << std::endl;
   std::cout << "start " << dashedLine_ << std::endl;
