@@ -33,7 +33,7 @@ namespace ecaldqm {
     energyThresholdEEFwd_ = _params.getUntrackedParameter<double>("energyThresholdEEFwd");
     timingVsBXThreshold_ = _params.getUntrackedParameter<double>("timingVsBXThreshold");
     timeErrorThreshold_ = _params.getUntrackedParameter<double>("timeErrorThreshold");
-    splashSwitch_ = _params.getUntrackedParameter<bool>("splashSwitch");
+    splashSwitch_ = _params.getUntrackedParameter<bool>("splashSwitch", false);
   }
 
   bool TimingTask::filterRunType(short const* _runType) {

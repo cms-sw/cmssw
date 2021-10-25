@@ -40,7 +40,6 @@ namespace edm {
     RootPrimaryFileSequence& operator=(RootPrimaryFileSequence const&) = delete;  // Disallow copying and moving
 
     std::shared_ptr<FileBlock> readFile_();
-    void closeFile_() override;
     void endJob();
     InputSource::ItemType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
     void skipEventsAtBeginning(int offset);
@@ -57,6 +56,7 @@ namespace edm {
     bool nextFile();
     bool previousFile();
     void rewindFile();
+    void closeFile_() override;
 
     int remainingEvents() const;
     int remainingLuminosityBlocks() const;
