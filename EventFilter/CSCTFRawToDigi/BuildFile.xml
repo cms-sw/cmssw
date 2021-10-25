@@ -1,7 +1,3 @@
-<use name="DataFormats/CSCDigi"/>
-<use name="FWCore/Framework"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/L1CSCTrackFinder"/>
 <export>
   <lib name="1"/>
 </export>
