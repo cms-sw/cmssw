@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import urllib
 import string
 import os
 import sys
-import commands
+import subprocess
 import time
 import optparse
 import submitCalibTree.Config
@@ -71,7 +71,7 @@ cleanUpMessage = "Unable to clean up folder. Bad clean-up integrity?"
 
 if config.integrity:
    print("Cleaning up directory...")
-   cleanUpMessage = commands.getstatusoutput("cd %s; python cleanFolders.py; cd -"%config.RUNDIR)[1]
+   cleanUpMessage = subprocess.getstatusoutput("cd %s; python cleanFolders.py; cd -"%config.RUNDIR)[1]
    print(cleanUpMessage)
    with open("LastRun.txt","r") as lastRun:
       for line in lastRun:

@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import commands,string,time,thread,random,math,sys
+import string,time,thread,random,math,sys
 
 #global variables
 MINRES=0.04
