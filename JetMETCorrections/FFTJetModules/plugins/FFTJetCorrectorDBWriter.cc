@@ -81,7 +81,7 @@ void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent, const edm::Event
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(fcp.release(), poolDbService->currentTime(), record);
+    poolDbService->writeOneIOV(*fcp, poolDbService->currentTime(), record);
   else
     throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
                                                << "please configure it properly" << std::endl;

@@ -133,7 +133,7 @@ void SiPhase2OuterTrackerLorentzAngleWriter::analyze(const edm::Event& iEvent, c
   auto lorentzAngle = std::make_unique<SiPhase2OuterTrackerLorentzAngle>();
   lorentzAngle->putLorentzAngles(detsLAtoDB);
   edm::LogInfo("SiPhase2OuterTrackerLorentzAngleWriter") << "currentTime " << mydbservice->currentTime() << std::endl;
-  mydbservice->writeOne(lorentzAngle.release(), mydbservice->currentTime(), m_record);
+  mydbservice->writeOneIOV(*lorentzAngle, mydbservice->currentTime(), m_record);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

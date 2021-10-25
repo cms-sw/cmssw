@@ -41,8 +41,8 @@ void L1TGlobalPrescalesVetosWriter::analyze(const edm::Event& iEvent, const edm:
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOne(
-        ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TGlobalPrescalesVetosO2ORcd" : "L1TGlobalPrescalesVetosRcd"));
+    poolDb->writeOneIOV(
+        *ptr1, firstSinceTime, (isO2Opayload ? "L1TGlobalPrescalesVetosO2ORcd" : "L1TGlobalPrescalesVetosRcd"));
   }
 }
 

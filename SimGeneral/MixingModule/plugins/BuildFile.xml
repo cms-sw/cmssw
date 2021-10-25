@@ -15,7 +15,6 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="clhep"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondCore/DBOutputService"/>
 <use name="DataFormats/TrackerRecHit2D"/>
