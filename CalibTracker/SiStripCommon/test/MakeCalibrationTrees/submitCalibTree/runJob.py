@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import absolute_import
 from __future__ import print_function
 import os
 import sys
-import commands
+import subprocess
 import time
 import optparse
 from . import Config
@@ -68,7 +68,7 @@ if(int(exit_code)!=0):
    print("Job Failed with ExitCode "+str(exit_code))
    os.system('echo %i %i %i >> FailledRun%s.txt' % (run, firstFile, firstFile+nFiles,'_Aag' if AAG else ''))
 else:
-   FileSizeInKBytes =commands.getstatusoutput('ls  -lth --block-size=1024 '+PWDDIR+'/'+outfile)[1].split()[4]
+   FileSizeInKBytes = subprocess.getstatusoutput('ls  -lth --block-size=1024 '+PWDDIR+'/'+outfile)[1].split()[4]
    if(int(FileSizeInKBytes)>10 and stageout):
       print("Preparing for stageout of " + PWDDIR+'/'+outfile + ' on ' + conf.CASTORDIR+'/'+outfile + '.  The file size is %d KB' % int(FileSizeInKBytes))
       cpCmd = "eos cp %s/%s "%(PWDDIR,outfile)
