@@ -239,7 +239,7 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
+    poolDbService->writeOneIOV(*theAPVGains, poolDbService->currentTime(), m_Record);
   else
     throw std::runtime_error("PoolDBService required.");
 }

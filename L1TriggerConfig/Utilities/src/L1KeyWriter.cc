@@ -31,7 +31,7 @@ void L1KeyWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSet
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOne(ptr1.get(), firstSinceTime, "L1TriggerKeyExtRcd");
+    poolDb->writeOneIOV(*ptr1, firstSinceTime, "L1TriggerKeyExtRcd");
   }
 }
 

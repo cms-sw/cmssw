@@ -71,7 +71,7 @@ void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent, const edm::Eve
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(datum.release(), poolDbService->currentTime(), record_);
+    poolDbService->writeOneIOV(*datum, poolDbService->currentTime(), record_);
   else
     throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
                                                << "please configure it properly" << std::endl;
