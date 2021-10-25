@@ -377,7 +377,7 @@ void SiStripLorentzAngleCalibration::endOfJob() {
     if (saveToDB_) {  // If requested, write out to DB
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-        dbService->writeOne(&output, firstRunOfIOV, recordNameDBwrite_);
+        dbService->writeOneIOV(output, firstRunOfIOV, recordNameDBwrite_);
       } else {
         edm::LogError("BadConfig") << "@SUB=SiStripLorentzAngleCalibration::endOfJob"
                                    << "No PoolDBOutputService available, but saveToDB true!";

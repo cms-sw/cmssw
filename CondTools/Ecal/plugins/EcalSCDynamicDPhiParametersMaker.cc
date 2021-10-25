@@ -54,7 +54,8 @@ void EcalSCDynamicDPhiParametersMaker::analyze(const edm::Event& iEvent, const e
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(esParamsHandle_.product(), poolDbService->currentTime(), "EcalSCDynamicDPhiParametersRcd");
+    poolDbService->writeOneIOV(
+        *esParamsHandle_.product(), poolDbService->currentTime(), "EcalSCDynamicDPhiParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
   }
