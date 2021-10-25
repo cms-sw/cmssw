@@ -36,6 +36,7 @@ L1TPhase2CorrelatorOffline::L1TPhase2CorrelatorOffline(const edm::ParameterSet& 
     : genJetToken_(consumes<std::vector<reco::GenJet>>(ps.getUntrackedParameter<edm::InputTag>("genJetsInputTag"))),
       genParticleToken_(
           consumes<std::vector<reco::GenParticle>>(ps.getUntrackedParameter<edm::InputTag>("genParticlesInputTag"))),
+      BFieldTag_{esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()},
       objs_(ps.getParameter<edm::ParameterSet>("objects")),
       isParticleGun_(ps.getParameter<bool>("isParticleGun")),
       histFolder_(ps.getParameter<std::string>("histFolder")),
@@ -114,9 +115,7 @@ L1TPhase2CorrelatorOffline::~L1TPhase2CorrelatorOffline() {
 void L1TPhase2CorrelatorOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   edm::LogInfo("L1TPhase2CorrelatorOffline") << "L1TPhase2CorrelatorOffline::beginRun" << std::endl;
 
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  bZ_ = magneticField->inTesla(GlobalPoint(0, 0, 0)).z();
+  bZ_ = iSetup.getData(BFieldTag_).inTesla(GlobalPoint(0, 0, 0)).z();
 }
 
 //

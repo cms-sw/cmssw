@@ -193,6 +193,7 @@ private:
   // variables from config file
   edm::EDGetTokenT<std::vector<reco::GenJet>> genJetToken_;
   edm::EDGetTokenT<std::vector<reco::GenParticle>> genParticleToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> BFieldTag_;
   edm::ParameterSet objs_;
   bool isParticleGun_;
   std::string histFolder_;
