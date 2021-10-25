@@ -2,7 +2,6 @@
 # ## Basic (but usually unnecessary) imports
 # import os
 # import sys
-# import commands
 
 import subprocess
 
