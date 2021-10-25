@@ -1,8 +1,8 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3 
 from __future__ import print_function
 from __future__ import absolute_import
 from sys import stderr, exit
-import commands
+import subprocess
 
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog [options] Trigger_Path")
@@ -22,7 +22,7 @@ edmCfgFromDB = "edmConfigFromDB  --orcoff --format summary.ascii --paths " + pat
 def getPrescalesFromKey(key):
     #stderr.write("\t%s ...\n" % key);
     cmd = ( edmCfgFromDB +" --configName "+key + " | grep -i "+ path + " | tail -1 | awk ' $2 ==\"%s\" {print $NL}' " ) % path
-    res = commands.getoutput(cmd)
+    res = subprocess.getoutput(cmd)
     res_split = res.split()
     psCols = []
     if len(res)>0:
