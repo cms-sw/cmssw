@@ -10,7 +10,7 @@ from __future__ import print_function
 from builtins import range
 from optparse import OptionParser
 import sys
-import commands
+import subprocess
 import re
 
 word2num = {'One': 1, 'Two': 2, 'Ten': 10, 'Twenty': 20, 'Fifty': 50}
@@ -88,7 +88,7 @@ class FileProducer(object):
         f.Close()
         print('Wrote %d histograms in %d folders' % (len(self.histos_), len(self.folders_)))
         for i in range(1, self.numFiles_):
-            commands.getoutput("cp %s_0.root %s_%d.root" % (self.prefix_,
+            subprocess.getoutput("cp %s_0.root %s_%d.root" % (self.prefix_,
                                                             self.prefix_,
                                                             i))
             print('x')
