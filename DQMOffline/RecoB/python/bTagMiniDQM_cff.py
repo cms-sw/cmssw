@@ -62,12 +62,12 @@ addSequences(bTagMiniDQMSource,
              globalPSet=bTagMiniDQMGlobal,
              label='bTagDeepFlavourDQM')
 
-#addSequences(bTagMiniDQMSource,
-             #bTagMiniDQMHarvesting,
-             #discriminators=DeepCSVDiscriminators,
-             #regions=Etaregions,
-             #globalPSet=bTagMiniDQMGlobal,
-             #label='bTagDeepCSVDQM')
+addSequences(bTagMiniDQMSource,
+             bTagMiniDQMHarvesting,
+             discriminators=DeepCSVDiscriminators,
+             regions=Etaregions,
+             globalPSet=bTagMiniDQMGlobal,
+             label='bTagDeepCSVDQM')
 
 
 
@@ -88,9 +88,9 @@ addSequences(bTagMiniValidationSource,
              globalPSet=bTagMiniValidationGlobal,
              label='bTagDeepFlavourValidation')
 
-#addSequences(bTagMiniValidationSource,
-             #bTagMiniValidationHarvesting,
-             #discriminators=DeepCSVDiscriminators,
-             #regions={'Global': Etaregions['Global']}, # only for global Eta range
-             #globalPSet=bTagMiniValidationGlobal,
-             #label='bTagDeepCSVValidation')
+addSequences(bTagMiniValidationSource,
+             bTagMiniValidationHarvesting,
+             discriminators=DeepCSVDiscriminators,
+             regions={'Global': Etaregions['Global']}, # only for global Eta range
+             globalPSet=bTagMiniValidationGlobal,
+             label='bTagDeepCSVValidation')
