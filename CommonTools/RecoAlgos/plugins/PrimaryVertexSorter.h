@@ -22,6 +22,9 @@
 #include "CommonTools/RecoAlgos/interface/PrimaryVertexSorting.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 /**\class PrimaryVertexSorter
  * \author Andrea Rizzi
 
@@ -56,6 +59,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> tokenTrackTimeTag_;
   edm::EDGetTokenT<edm::ValueMap<float>> tokenTrackTimeResoTag_;
 
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> tokenBuilder_;
+
   bool produceOriginalMapping_;
   bool produceSortedVertices_;
   bool producePFPileUp_;
@@ -75,8 +80,6 @@ private:
 };
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -90,6 +93,7 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
       tokenCandidates_(consumes<ParticlesCollection>(iConfig.getParameter<edm::InputTag>("particles"))),
       tokenVertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       tokenJets_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("jets"))),
+      tokenBuilder_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       produceOriginalMapping_(iConfig.getParameter<bool>("produceAssociationToOriginalVertices")),
       produceSortedVertices_(iConfig.getParameter<bool>("produceSortedVertices")),
       producePFPileUp_(iConfig.getParameter<bool>("producePileUpCollection")),
@@ -140,8 +144,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
   Handle<edm::View<reco::Candidate>> jets;
   iEvent.getByToken(tokenJets_, jets);
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  TransientTrackBuilder const& builder = iSetup.getData(tokenBuilder_);
 
   Handle<VertexCollection> vertices;
   iEvent.getByToken(tokenVertices_, vertices);
@@ -174,7 +177,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
 
   for (auto const& pf : particles) {
     std::pair<int, PrimaryVertexAssignment::Quality> vtxWithQuality =
-        runAlgo(*vertices, pf, trackTimeTag, trackTimeResoTag, *jets, *builder);
+        runAlgo(*vertices, pf, trackTimeTag, trackTimeResoTag, *jets, builder);
     pfToPVVector.push_back(vtxWithQuality.first);
     pfToPVQualityVector.push_back(vtxWithQuality.second);
   }

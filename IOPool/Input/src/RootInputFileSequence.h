@@ -54,6 +54,8 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     std::shared_ptr<BranchIDListHelper const> fileBranchIDListHelper() const;
 
+    void closeFile();
+
   protected:
     typedef std::shared_ptr<RootFile> RootFileSharedPtr;
     void initFile(bool skipBadFiles) { initFile_(skipBadFiles); }
