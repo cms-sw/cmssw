@@ -829,7 +829,6 @@ void FedRawDataInputSource::readSupervisor() {
 
     //entering loop which tries to grab new file from ramdisk
     while (status == evf::EvFDaqDirector::noFile) {
-
       //check if hltd has signalled to throttle input
       counter = 0;
       while (daqDirector_->inputThrottled()) {

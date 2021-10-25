@@ -2059,7 +2059,7 @@ namespace evf {
 
   bool EvFDaqDirector::inputThrottled() {
     struct stat buf;
-    return (stat(input_throttled_file_.c_str() , &buf) == 0);
+    return (stat(input_throttled_file_.c_str(), &buf) == 0);
   }
 
 }  // namespace evf
