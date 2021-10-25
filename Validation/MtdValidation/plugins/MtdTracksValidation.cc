@@ -361,7 +361,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
   const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
   double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
-  double zt = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
+  double tsim = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
 
   auto pdt = iSetup.getHandle(particleTableToken_);
   const HepPDT::ParticleDataTable* pdTable = pdt.product();
@@ -386,7 +386,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               double dT(-9999.);
               double pullT(-9999.);
               if (Sigmat0Pid[trackref] > 0.) {
-                dT = t0Pid[trackref] - zt;
+                dT = t0Pid[trackref] - tsim;
                 pullT = dT / Sigmat0Pid[trackref];
               }
               meTrackZposResTot_->Fill(dZ);
@@ -527,7 +527,7 @@ const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
   bool match = false;
   match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
   if (st0 > 0.) {
-    match = match && std::abs(t0 - vtx.t() * CLHEP::mm / CLHEP::c_light) < 3. * st0;
+    match = match && std::abs(t0 - vtx.t()) < 3. * st0;
   }
   return match;
 }
@@ -538,7 +538,7 @@ const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
   bool match = false;
   double dR2 = reco::deltaR2(genP.momentum(), trk.momentum());
   double genPT = genP.momentum().perp();
-  match = std::abs(genPT - trk.pt()) < genPT * deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
+  match = std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
           std::abs(trk.vz() - zsim) < deltaZcut_;
   return match;
 }
