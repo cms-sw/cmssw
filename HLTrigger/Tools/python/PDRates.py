@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 from __future__ import print_function
 import sys, imp
 import os
-import commands
+import subprocess
 
 from optparse import OptionParser
 
@@ -32,7 +32,7 @@ def PrimaryDatasets(Run):
 
     dbs_cmd = """ dbs search --query='find primds.name 
           	where run=%d and dataset like */RAW' """ % (Run)
-    rows = commands.getoutput(dbs_cmd)
+    rows = subprocess.getoutput(dbs_cmd)
     lines = rows.split("\n")
     j=0
     print("\nThe primary datasets for this run are: \n")
@@ -52,7 +52,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 		where run=%d and dataset like /%s/*/RAW 
 		and lumi >= %d and lumi <= %d
 		and file.status=VALID '""" % (Run, PrimaryDataset,lsMin, lsMax)
-    rows = commands.getoutput(dbs_cmd)
+    rows = subprocess.getoutput(dbs_cmd)
     lines = rows.split("\n")
     j=0
     LumiSections = []
