@@ -158,18 +158,18 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, const int fedMi
     histo->setBinLabel(10, "TDC hit err.", 1);
     histo->setBinLabel(11, "TDC hit rej.", 1);
 
-    histo->setBinLabel(1, "ROS1", 2);
-    histo->setBinLabel(2, "ROS2", 2);
-    histo->setBinLabel(3, "ROS3", 2);
-    histo->setBinLabel(4, "ROS4", 2);
-    histo->setBinLabel(5, "ROS5", 2);
-    histo->setBinLabel(6, "ROS6", 2);
-    histo->setBinLabel(7, "ROS7", 2);
-    histo->setBinLabel(8, "ROS8", 2);
-    histo->setBinLabel(9, "ROS9", 2);
-    histo->setBinLabel(10, "ROS10", 2);
-    histo->setBinLabel(11, "ROS11", 2);
-    histo->setBinLabel(12, "ROS12", 2);
+    histo->setBinLabel(1, "Sector1", 2);
+    histo->setBinLabel(2, "Sector2", 2);
+    histo->setBinLabel(3, "Sector3", 2);
+    histo->setBinLabel(4, "Sector4", 2);
+    histo->setBinLabel(5, "Sector5", 2);
+    histo->setBinLabel(6, "Sector6", 2);
+    histo->setBinLabel(7, "Sector7", 2);
+    histo->setBinLabel(8, "Sector8", 2);
+    histo->setBinLabel(9, "Sector9", 2);
+    histo->setBinLabel(10, "Sector10", 2);
+    histo->setBinLabel(11, "Sector11", 2);
+    histo->setBinLabel(12, "Sector12", 2);
   }
 }
 
@@ -309,14 +309,14 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, string folder, 
 void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wheel, const int ros) {
   string wheel_s = to_string(wheel);
   string ros_s = to_string(ros);
-  ibooker.setCurrentFolder(topFolder(false) + "Wheel" + wheel_s + "/ROS" + ros_s);
+  ibooker.setCurrentFolder(topFolder(false) + "Wheel" + wheel_s + "/Sector" + ros_s);
 
   string histoType = "ROSError";
   int linkDown = 0;
   string linkDown_s = to_string(linkDown);
   int linkUp = linkDown + 24;
   string linkUp_s = to_string(linkUp);
-  string histoName = "W" + wheel_s + "_" + "ROS" + ros_s + "_" + histoType;
+  string histoName = "W" + wheel_s + "_" + "Sector" + ros_s + "_" + histoType;
   string histoTitle = histoName + " (Link " + linkDown_s + "-" + linkUp_s + " error summary)";
   unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + (ros - 1);
   if (mode < 1)  // Online only
@@ -341,10 +341,50 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
     histo->setBinLabel(10, "TDC hit err.", 1);
     histo->setBinLabel(11, "TDC hit rej.", 1);
   }
-  for (int link = linkDown; link < (linkUp + 1); ++link) {
-    string link_s = to_string(link);
-    histo->setBinLabel(link + 1, "Link" + link_s, 2);
+  for (int link = linkDown; link < linkUp ; ++link) {
+    int sector = ros;
+
+    int station = int(link/6) +1;
+    if(link==18) station = 3;
+
+    int rob = link % 6; 
+    if(link==18) rob = 6;
+    else if(link>18) rob = rob -1;
+
+    //Sector 4 exceptions
+    if(ros==4){
+      if(link>18 && link<22) rob = rob+2;
+      else if(link==22 || link ==23){
+          sector = 13;
+          rob = rob -1;
+      }
+    }
+
+    //Sector 9 exceptions
+    if(ros==9 && (link==22 || link==23)) rob = rob -3;
+
+    //Sector 10 exceptions
+    if(ros==10){
+       if(link>18 && link<22) sector = 14;
+       else if(link==22 || link ==23) rob = rob -1;
+    }
+
+    //Sector 11 exceptions
+    if(ros==11 && (link==22 || link==23)){
+        sector = 4;
+        rob = rob -3;
+    }
+
+    string sector_s = to_string(sector);
+    string st_s = to_string(station);
+    string rob_s = to_string(rob);
+    histo->setBinLabel(link + 1, "S" + sector_s + " MB" + st_s + " ROB" + rob_s, 2);
   }
+
+  int link25 = linkUp;
+  string label25[12] = {"S1 MB4 ROB5", "S2 MB4 ROB5", "S3 MB4 ROB5", "S13 MB4 ROB4", "S5 MB4 ROB5", "S6 MB4 ROB5", 
+  "S7 MB4 ROB5", "S8 MB4 ROB5", "S10 MB4 ROB3", "S10 MB4 ROB2", "S14 MB4 ROB3", "S12 MB4 ROB5"};
+  histo->setBinLabel(link25+1, label25[ros-1], 2);
 
   if (mode > 1)
     return;
@@ -385,10 +425,51 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
   histo->setBinLabel(23, "hit err.", 1);
   histo->setBinLabel(24, "hit rej.", 1);
 
-  for (int link = linkDown; link < (linkUp + 1); ++link) {
-    string link_s = to_string(link);
-    histo->setBinLabel(link + 1, "Link" + link_s, 2);
+  for (int link = linkDown; link < linkUp ; ++link) {
+    int sector = ros;
+
+    int station = int(link/6) +1;
+    if(link==18) station = 3;
+
+    int rob = link % 6;
+    if(link==18) rob = 6;
+    else if(link>18) rob = rob -1;
+
+    //Sector 4 exceptions
+    if(ros==4){
+      if(link>18 && link<22) rob = rob+2;
+      else if(link==22 || link ==23){
+          sector = 13;
+          rob = rob -1;
+      }
+    }
+
+    //Sector 9 exceptions
+    if(ros==9 && (link==22 || link==23)) rob = rob -3;
+
+    //Sector 10 exceptions
+    if(ros==10){
+       if(link>18 && link<22) sector = 14;
+       else if(link==22 || link ==23) rob = rob -1;
+    }
+
+    //Sector 11 exceptions
+    if(ros==11 && (link==22 || link==23)){
+        sector = 4;
+        rob = rob -3;
+    }
+
+    string sector_s = to_string(sector);
+    string st_s = to_string(station);
+    string rob_s = to_string(rob);
+    histo->setBinLabel(link + 1, "S" + sector_s + " MB" + st_s + " ROB" + rob_s, 2);
   }
+
+
+  link25 = linkUp;
+  histo->setBinLabel(link25+1, label25[ros-1], 2);
+
+
 }  //bookHistosROS
 
 void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker& ibooker, const int fed, const int uRos) {
