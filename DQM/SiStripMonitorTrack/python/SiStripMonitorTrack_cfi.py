@@ -19,6 +19,7 @@ SiStripMonitorTrack = DQMEDAnalyzer(
     ModulesToBeExcluded = cms.vuint32(),
 
     Mod_On        = cms.bool(False),
+    VertexCut = cms.untracked.bool(True),
     OffHisto_On   = cms.bool(True),
     Trend_On      = cms.bool(False),
     HistoFlag_On  = cms.bool(False),
