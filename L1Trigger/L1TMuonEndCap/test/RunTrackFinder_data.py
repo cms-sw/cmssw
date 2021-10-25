@@ -4,7 +4,6 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os
 import sys
-import commands
 import subprocess
 
 process = cms.Process('L1TMuonEmulation')

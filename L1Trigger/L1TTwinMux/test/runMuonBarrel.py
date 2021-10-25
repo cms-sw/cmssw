@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("L1TMuonEmulation")
 import os
 import sys
-import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
