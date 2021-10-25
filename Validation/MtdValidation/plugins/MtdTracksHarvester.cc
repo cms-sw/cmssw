@@ -30,6 +30,8 @@ private:
   MonitorElement* meEtlEtaEff_[2];
   MonitorElement* meEtlPhiEff_[2];
   MonitorElement* meEtlPtEff_[2];
+  MonitorElement* mePtMatchEff_;
+  MonitorElement* meEtaMatchEff_;
 };
 
 // ------------ constructor and destructor --------------
@@ -59,12 +61,17 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   MonitorElement* meETLTrackEffEtaMtdZpos = igetter.get(folder_ + "TrackETLEffEtaMtdZpos");
   MonitorElement* meETLTrackEffPhiMtdZpos = igetter.get(folder_ + "TrackETLEffPhiMtdZpos");
   MonitorElement* meETLTrackEffPtMtdZpos = igetter.get(folder_ + "TrackETLEffPtMtdZpos");
+  MonitorElement* meTrackMatchedEffPtTot = igetter.get(folder_ + "MatchedEffPtTot");
+  MonitorElement* meTrackMatchedEffPtMtd = igetter.get(folder_ + "MatchedEffPtMtd");
+  MonitorElement* meTrackMatchedEffEtaTot = igetter.get(folder_ + "MatchedEffEtaTot");
+  MonitorElement* meTrackMatchedEffEtaMtd = igetter.get(folder_ + "MatchedEffEtaMtd");
 
   if (!meBTLTrackEffEtaTot || !meBTLTrackEffPhiTot || !meBTLTrackEffPtTot || !meBTLTrackEffEtaMtd ||
       !meBTLTrackEffPhiMtd || !meBTLTrackEffPtMtd || !meETLTrackEffEtaTotZneg || !meETLTrackEffPhiTotZneg ||
       !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZneg || !meETLTrackEffPhiMtdZneg || !meETLTrackEffPtMtdZneg ||
       !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos || !meETLTrackEffPtTotZpos || !meETLTrackEffEtaMtdZpos ||
-      !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos) {
+      !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos || !meTrackMatchedEffPtTot || !meTrackMatchedEffPtMtd ||
+      !meTrackMatchedEffEtaTot || !meTrackMatchedEffEtaMtd) {
     edm::LogError("MtdTracksHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -116,6 +123,16 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
                                 meETLTrackEffPtTotZpos->getNbinsX(),
                                 meETLTrackEffPtTotZpos->getTH1()->GetXaxis()->GetXmin(),
                                 meETLTrackEffPtTotZpos->getTH1()->GetXaxis()->GetXmax());
+  mePtMatchEff_ = ibook.book1D("PtMatchEff",
+                               "Track matched to GEN efficiency VS Pt;Pt [GeV];Efficiency",
+                               meTrackMatchedEffPtTot->getNbinsX(),
+                               meTrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                               meTrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmax());
+  meEtaMatchEff_ = ibook.book1D("EtaMatchEff",
+                                "Track matched to GEN efficiency VS Eta;Eta;Efficiency",
+                                meTrackMatchedEffEtaTot->getNbinsX(),
+                                meTrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                meTrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmax());
 
   meBtlEtaEff_->getTH1()->SetMinimum(0.);
   meBtlPhiEff_->getTH1()->SetMinimum(0.);
@@ -125,6 +142,8 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
     meEtlPhiEff_[i]->getTH1()->SetMinimum(0.);
     meEtlPtEff_[i]->getTH1()->SetMinimum(0.);
   }
+  mePtMatchEff_->getTH1()->SetMinimum(0.);
+  meEtaMatchEff_->getTH1()->SetMinimum(0.);
 
   // --- Calculate efficiency BTL
   for (int ibin = 1; ibin <= meBTLTrackEffEtaTot->getNbinsX(); ibin++) {
@@ -246,6 +265,34 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
     }
     meEtlPtEff_[1]->setBinContent(ibin, eff);
     meEtlPtEff_[1]->setBinError(ibin, bin_err);
+  }
+
+  for (int ibin = 1; ibin <= meTrackMatchedEffPtTot->getNbinsX(); ibin++) {
+    double eff = meTrackMatchedEffPtMtd->getBinContent(ibin) / meTrackMatchedEffPtTot->getBinContent(ibin);
+    double bin_err =
+        sqrt((meTrackMatchedEffPtMtd->getBinContent(ibin) *
+              (meTrackMatchedEffPtTot->getBinContent(ibin) - meTrackMatchedEffPtMtd->getBinContent(ibin))) /
+             pow(meTrackMatchedEffPtTot->getBinContent(ibin), 3));
+    if (meTrackMatchedEffPtTot->getBinContent(ibin) == 0) {
+      eff = 0;
+      bin_err = 0;
+    }
+    mePtMatchEff_->setBinContent(ibin, eff);
+    mePtMatchEff_->setBinError(ibin, bin_err);
+  }
+
+  for (int ibin = 1; ibin <= meTrackMatchedEffEtaTot->getNbinsX(); ibin++) {
+    double eff = meTrackMatchedEffEtaMtd->getBinContent(ibin) / meTrackMatchedEffEtaTot->getBinContent(ibin);
+    double bin_err =
+        sqrt((meTrackMatchedEffEtaMtd->getBinContent(ibin) *
+              (meTrackMatchedEffEtaTot->getBinContent(ibin) - meTrackMatchedEffEtaMtd->getBinContent(ibin))) /
+             pow(meTrackMatchedEffEtaTot->getBinContent(ibin), 3));
+    if (meTrackMatchedEffEtaTot->getBinContent(ibin) == 0) {
+      eff = 0;
+      bin_err = 0;
+    }
+    meEtaMatchEff_->setBinContent(ibin, eff);
+    meEtaMatchEff_->setBinError(ibin, bin_err);
   }
 }
 

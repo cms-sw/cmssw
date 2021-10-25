@@ -361,6 +361,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
   const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
   double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
+  double zt = (*(mc->vertices_begin()))->position().t() * CLHEP::mm / CLHEP::c_light;
 
   auto pdt = iSetup.getHandle(particleTableToken_);
   const HepPDT::ParticleDataTable* pdTable = pdt.product();
@@ -376,17 +377,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if (mvaRecSel(trackGen, primRecoVtx, t0Pid[trackref], Sigmat0Pid[trackref])) {
         for (const auto& genP : mc->particle_range()) {
-
           // select status 1 genParticles and match them to the reconstructed track
 
           float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge();
           if (mvaGenSel(*genP, charge)) {
             if (mvaGenRecMatch(*genP, zsim, trackGen)) {
-              double dZ = trackGen.vz() - convertMmToCm(genP->production_vertex()->position().z());
+              double dZ = trackGen.vz() - zsim;
               double dT(-9999.);
               double pullT(-9999.);
-              if ( Sigmat0Pid[trackref] > 0.) {
-                dT = t0Pid[trackref] - genP->production_vertex()->position().t() * CLHEP::mm / CLHEP::c_light;
+              if (Sigmat0Pid[trackref] > 0.) {
+                dT = t0Pid[trackref] - zt;
                 pullT = dT / Sigmat0Pid[trackref];
               }
               meTrackZposResTot_->Fill(dZ);
@@ -477,10 +477,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       "MatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
   meTrackResTot_ =
       ibook.book1D("TrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
-  meTrackPullTot_ =
-      ibook.book1D("TrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
-  meTrackZposResTot_ =
-      ibook.book1D("TrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
+  meTrackPullTot_ = ibook.book1D("TrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
+  meTrackZposResTot_ = ibook.book1D(
+      "TrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -521,11 +520,14 @@ const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const fl
   return match;
 }
 
-const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk, const reco::Vertex& vtx, const double& t0, const double& st0) {
+const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
+                                          const reco::Vertex& vtx,
+                                          const double& t0,
+                                          const double& st0) {
   bool match = false;
   match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
-  if ( st0 > 0.) {
-    match = match && std::abs(t0 - vtx.t()* CLHEP::mm / CLHEP::c_light) < 3. * st0;
+  if (st0 > 0.) {
+    match = match && std::abs(t0 - vtx.t() * CLHEP::mm / CLHEP::c_light) < 3. * st0;
   }
   return match;
 }
