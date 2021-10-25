@@ -56,8 +56,8 @@ public:
     return std::make_pair(decodePed(s.ped & 0xFF), decodeGain(s.gain & 0xFF));
   }
 
-  constexpr float decodeGain(unsigned int gain) const { return gain * gainPrecision_ + minGain_; }
-  constexpr float decodePed(unsigned int ped) const { return ped * pedPrecision_ + minPed_; }
+  constexpr float decodeGain(unsigned int gain) const { return float(gain) * gainPrecision_ + minGain_; }
+  constexpr float decodePed(unsigned int ped) const { return float(ped) * pedPrecision_ + minPed_; }
 
   DecodingStructure* v_pedestals_;
   std::pair<Range, int> rangeAndCols_[gpuClustering::maxNumModules];
