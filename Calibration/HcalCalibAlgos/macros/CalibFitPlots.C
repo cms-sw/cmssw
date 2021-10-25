@@ -872,7 +872,7 @@ void FitHistExtended(const char* infile,
               fitLanGau(hist3, debug);
               hists.push_back(hist3);
             }
-	    //            results meaner0 = fitTwoGauss(hist, debug);
+            //            results meaner0 = fitTwoGauss(hist, debug);
             results meaner0 = fitOneGauss(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;

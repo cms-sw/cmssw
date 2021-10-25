@@ -1640,11 +1640,11 @@ void GetEntries::Init(TTree *tree, const char *dupFileName) {
       std::cout << "Cannot open " << dupFileName << std::endl;
     } else {
       while (1) {
-	Long64_t jentry;
-	infile >> jentry;
-	if (!infile.good())
-	  break;
-	entries_.push_back(jentry);
+        Long64_t jentry;
+        infile >> jentry;
+        if (!infile.good())
+          break;
+        entries_.push_back(jentry);
       }
       infile.close();
       std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;

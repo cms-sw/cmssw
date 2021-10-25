@@ -493,11 +493,11 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
       std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
     } else {
       while (1) {
-	Long64_t jentry;
-	infil1 >> jentry;
-	if (!infil1.good())
-	  break;
-	entries_.push_back(jentry);
+        Long64_t jentry;
+        infil1 >> jentry;
+        if (!infil1.good())
+          break;
+        entries_.push_back(jentry);
       }
       infil1.close();
       std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
