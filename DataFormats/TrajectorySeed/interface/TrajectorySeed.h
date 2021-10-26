@@ -59,7 +59,7 @@ public:
 private:
   RecHitContainer hits_;
   PTrajectoryStateOnDet tsos_;
-  PropagationDirection dir_;
+  PropagationDirection dir_ = invalidDirection;
 };
 
 inline void swap(TrajectorySeed& rh, TrajectorySeed& lh) noexcept { rh.swap(lh); }
