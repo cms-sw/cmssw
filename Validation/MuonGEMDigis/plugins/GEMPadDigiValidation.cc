@@ -184,10 +184,6 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
     ME3IdsKey key3(region_id, station_id, layer_id);
 
     for (auto digi = range.first; digi != range.second; ++digi) {
-      // ignore 16-partition GE2/1 pads
-      if (gemid.isGE21() and digi->nPartitions() == GEMPadDigi::GE21SplitStrip)
-        continue;
-
       total_pad[key3]++;
 
       Int_t pad = digi->pad();
