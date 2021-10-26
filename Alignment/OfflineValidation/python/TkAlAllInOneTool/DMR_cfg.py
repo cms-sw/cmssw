@@ -4,8 +4,6 @@ from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIM
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
-
 import json
 import os
 
@@ -27,7 +25,9 @@ if options.config == "":
               "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+        config = json.load(configFile)
+
+print(config)
 
 ##Read filenames from given TXT file and define input source
 readFiles = []
@@ -43,7 +43,7 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                             )
 else:
-    print ">>>>>>>>>> DMR_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!"
+    print(">>>>>>>>>> DMR_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!")
     process.source = cms.Source("PoolSource",
                                 fileNames = filesRelValTTbarPileUpGENSIMRECO,
                                 skipEvents = cms.untracked.uint32(0)
@@ -290,6 +290,3 @@ if valiMode == "DQM":
 
 ##Let all sequences run
 process.p = cms.Path(process.seqTrackselRefit*seqTrackerOfflineValidation)
-
-for i in str(process.p).split("+"):
-    print(getattr(process, i).dumpPython())
