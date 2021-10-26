@@ -1,5 +1,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorDRN.h"
 
+#include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
+
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -11,9 +13,14 @@
 
 #include <vdt/vdtMath.h>
 
-#include <iostream>
-
 static const float RHO_MAX=15.0f;
+static const float X_MAX=150.0f;
+static const float X_RANGE=300.0f;
+static const float Y_MAX=150.0f;
+static const float Y_RANGE=300.0f;
+static const float Z_MAX=330.0f;
+static const float Z_RANGE=660.0f;
+static const float E_RANGE=250.0f;
 
 SCEnergyCorrectorDRN::SCEnergyCorrectorDRN()
     : caloTopo_(nullptr),
@@ -49,7 +56,8 @@ void SCEnergyCorrectorDRN::setEvent(const edm::Event& event) {
 
 void SCEnergyCorrectorDRN::makeInput(const edm::Event& iEvent, TritonInputMap& iInput, const reco::SuperClusterCollection& inputSCs ) const {
 
-    std::vector<unsigned> nHits = {};
+    std::vector<unsigned> nHits;
+    nHits.reserve(inputSCs.size());
     unsigned totalHits = 0;
     unsigned n;
     for(const auto& inputSC : inputSCs){
@@ -85,14 +93,16 @@ void SCEnergyCorrectorDRN::makeInput(const edm::Event& iEvent, TritonInputMap& i
             En = EcalClusterTools::recHitEnergy(hit.first, recHitsProduct);
             frac = hit.second;
             GlobalPoint position = caloGeom_->getGeometry(hit.first)->getPosition();
-            x = (position.x()+150.0)/300.0;
-            y = (position.y()+150.0)/300.0;
-            z = (position.z()+330.0)/660.0;
+            x = (position.x()+X_MAX)/X_RANGE;
+            y = (position.y()+Y_MAX)/Y_RANGE;
+            z = (position.z()+Z_MAX)/Z_RANGE;
             vdata1.push_back(x);
             vdata1.push_back(y);
             vdata1.push_back(z);
-            vdata1.push_back(En*frac/250.0);
-            vdata2.push_back(batchNum);
+            vdata1.push_back(En*frac/E_RANGE);
+            //Triton does not currently support batching for pytorch GNNs
+            //We pass batch indices explicitely
+            vdata2.push_back(batchNum); 
         }
         vdata3.push_back(*rhoHandle_/ RHO_MAX );
         vdata3.push_back(0.0);
