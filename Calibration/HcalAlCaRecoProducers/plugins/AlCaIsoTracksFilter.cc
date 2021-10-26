@@ -66,7 +66,7 @@ namespace AlCaIsoTracks {
   };
 }  // namespace AlCaIsoTracks
 
-class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracks::Counters> > {
+class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracks::Counters>> {
 public:
   explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
   ~AlCaIsoTracksFilter() override = default;
@@ -128,7 +128,7 @@ private:
 // constructors and destructor
 //
 AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const AlCaIsoTracks::Counters* count)
-    : trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+    : trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
       labelGenTrack_(iConfig.getParameter<edm::InputTag>("labelTrack")),
       labelRecVtx_(iConfig.getParameter<edm::InputTag>("labelVertex")),
       labelEB_(iConfig.getParameter<edm::InputTag>("labelEBRecHit")),
@@ -230,10 +230,13 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
   bool accept(false);
   ++nAll_;
 #ifdef EDM_ML_DEBUG
-  bool debug = (debEvents_.empty()) ? true : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
-  if (debug) 
-    edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-				     << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  bool debug = (debEvents_.empty())
+                   ? true
+                   : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
+  if (debug)
+    edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event()
+                                     << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                     << iEvent.bunchCrossing();
 #endif
 
   //Step1: Find if the event passes one of the chosen triggers
@@ -261,9 +264,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
               if (hlt > 0)
                 triggerSatisfied = true;
 #ifdef EDM_ML_DEBUG
-	      if (debug) 
-		edm::LogVerbatim("HcalIsoTrack")
-                  << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied;
+              if (debug)
+                edm::LogVerbatim("HcalIsoTrack")
+                    << triggerNames_[iHLT] << " has got HLT flag " << hlt << ":" << triggerSatisfied;
 #endif
               if (triggerSatisfied)
                 break;
@@ -274,7 +277,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     }
   }
 #ifdef EDM_ML_DEBUG
-  if (debug) 
+  if (debug)
     edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: triggerSatisfied: " << triggerSatisfied;
 #endif
 
@@ -303,7 +306,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       leadPV = beamSpotH->position();
     }
 #ifdef EDM_ML_DEBUG
-    if (debug) 
+    if (debug)
       edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV;
 #endif
 
@@ -324,7 +327,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
       foundCollections = false;
     }
 #ifdef EDM_ML_DEBUG
-    if (debug) 
+    if (debug)
       edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: foundCollections: " << foundCollections;
 #endif
 
@@ -337,9 +340,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 
       std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
 #ifdef EDM_ML_DEBUG
-      if (debug) 
-	edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: Has " << trkCaloDirections.size()
-					 << " propagated tracks from a total of " << trkCollection->size();
+      if (debug)
+        edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: Has " << trkCaloDirections.size()
+                                         << " propagated tracks from a total of " << trkCollection->size();
 #endif
       unsigned int nTracks(0), nselTracks(0), ntrin(0), ntrout(0), ntrH(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
@@ -347,10 +350,10 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
         const reco::Track* pTrack = &(*(trkDetItr->trkItr));
         math::XYZTLorentzVector v4(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
 #ifdef EDM_ML_DEBUG
-	if (debug) 
-	  edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << pTrack->pt() << "|"
-					   << pTrack->eta() << "|" << pTrack->phi() << "|" << pTrack->p() << " OK HCAL "
-					   << trkDetItr->okHCAL;
+        if (debug)
+          edm::LogVerbatim("HcalIsoTrack")
+              << "This track : " << nTracks << " (pt|eta|phi|p) : " << pTrack->pt() << "|" << pTrack->eta() << "|"
+              << pTrack->phi() << "|" << pTrack->p() << " OK HCAL " << trkDetItr->okHCAL;
 #endif
         //Selection of good track
         int ieta(0);
@@ -360,9 +363,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
         }
         bool qltyFlag = spr::goodTrack(pTrack, leadPV, selectionParameter_, false);
 #ifdef EDM_ML_DEBUG
-	if (debug) 
-	  edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
-					   << trkDetItr->okHCAL;
+        if (debug)
+          edm::LogVerbatim("HcalIsoTrack")
+              << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|" << trkDetItr->okHCAL;
 #endif
         if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
           double t_p = pTrack->p();
@@ -402,11 +405,13 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
           if (eIsolation < eIsolate_)
             eIsolation = eIsolate_;
 #ifdef EDM_ML_DEBUG
-	  std::string ctype = (t_p > pTrackMin_ && eMipDR < eEcalMax_ && hmaxNearP < eIsolation) ? " ***** ACCEPT *****" : "";
-	  if (debug) 
-	    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << pTrack->pt() << "|"
-					     << pTrack->eta() << "|" << pTrack->phi() << "|" << t_p << " e_MIP " << eMipDR
-					     << ":" << eEcal << " Chg Isolation " << hmaxNearP << ":" << eIsolation << ctype;
+          std::string ctype =
+              (t_p > pTrackMin_ && eMipDR < eEcalMax_ && hmaxNearP < eIsolation) ? " ***** ACCEPT *****" : "";
+          if (debug)
+            edm::LogVerbatim("HcalIsoTrack")
+                << "This track : " << nTracks << " (pt|eta|phi|p) : " << pTrack->pt() << "|" << pTrack->eta() << "|"
+                << pTrack->phi() << "|" << t_p << " e_MIP " << eMipDR << ":" << eEcal << " Chg Isolation " << hmaxNearP
+                << ":" << eIsolation << ctype;
 #endif
           if (t_p > pTrackMin_ && eMipDR < eEcalMax_ && hmaxNearP < eIsolation) {
             if (t_p > pTrackLow_ && t_p < pTrackHigh_)
@@ -434,8 +439,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
           accept = true;
       }
 #ifdef EDM_ML_DEBUG
-      if (debug) 
-	edm::LogVerbatim("HcalIsoTrack") << "Summary Range " << ntrout << " Low " << ntrin << " High " << ntrH << " Accept " << accept;
+      if (debug)
+        edm::LogVerbatim("HcalIsoTrack") << "Summary Range " << ntrout << " Low " << ntrin << " High " << ntrH
+                                         << " Accept " << accept;
 #endif
     }
   }
@@ -487,7 +493,7 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("labelTriggerEvent", edm::InputTag("hltTriggerSummaryAOD", "", "HLT"));
   desc.add<edm::InputTag>("labelTriggerResult", edm::InputTag("TriggerResults", "", "HLT"));
   std::vector<std::string> trigger;
-  desc.add<std::vector<std::string> >("triggers", trigger);
+  desc.add<std::vector<std::string>>("triggers", trigger);
   desc.add<std::string>("processName", "HLT");
   // following 10 parameters are parameters to select good tracks
   desc.add<std::string>("trackQuality", "highPurity");
@@ -525,7 +531,7 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("momentumHigh", 60.0);
   desc.add<int>("preScaleHigh", 1);
   std::vector<int> events;
-  desc.add<std::vector<int> >("debugEvents", events);
+  desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("alcaIsoTracksFilter", desc);
 }
 
