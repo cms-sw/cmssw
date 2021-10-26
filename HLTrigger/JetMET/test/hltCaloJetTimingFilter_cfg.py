@@ -6,8 +6,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi");
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi");
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -44,7 +42,7 @@ process.hltTimingFilter = cms.EDFilter('HLTCaloJetTimingFilter',
 )
 process.output = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "timingOutput.root" ),
-    )
+)
 
 process.p = cms.Path(process.hltTimingProducer+process.hltTimingFilter)
 process.Output = cms.EndPath(process.output)
