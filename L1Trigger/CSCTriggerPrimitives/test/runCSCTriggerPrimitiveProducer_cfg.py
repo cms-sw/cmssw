@@ -18,6 +18,8 @@ options.register("dqm", False, VarParsing.multiplicity.singleton, VarParsing.var
                  "Set to True when you want to run the CSC DQM")
 options.register("dqmGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when you want to run the GEM DQM")
+options.register("useEmtfGEM", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when you want to use GEM clusters from the EMTF in the DQM")
 options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when using B904 ME1/1 data.")
 options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
@@ -59,6 +61,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
 process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
+process.load('EventFilter.L1TRawToDigi.emtfStage2Digis_cfi')
 process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
 process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
 process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
@@ -144,7 +147,13 @@ if options.dqm:
       process.l1tdeCSCTPG.preTriggerAnalysis = options.preTriggerAnalysis
 
 if options.dqmGEM:
-      process.l1tdeGEMTPG.data = "muonCSCDigis"
+      ## GEM pad clusters from the EMTF
+      if options.useEmtfGEM:
+            process.l1tdeGEMTPG.data = "emtfStage2Digis"
+      ## GEM pad clusters from the CSC TPG
+      else:
+            process.l1tdeGEMTPG.data = "muonCSCDigis"
+      ## GEM pad clusters from the GEM TPG
       process.l1tdeGEMTPG.emul = "simMuonGEMPadDigiClusters"
 
 # Output
@@ -187,7 +196,11 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 ## schedule and path definition
 process.unpacksequence = cms.Sequence(process.muonCSCDigis)
 if options.unpackGEM:
+      ## unpack GEM strip digis
       process.unpacksequence += process.muonGEMDigis
+      ## unpack GEM pad clusters from the EMTF
+      if options.useEmtfGEM:
+            process.unpacksequence += process.emtfStage2Digis
 process.p1 = cms.Path(process.unpacksequence)
 
 process.l1sequence = cms.Sequence(l1csc)
