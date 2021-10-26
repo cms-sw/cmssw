@@ -767,6 +767,7 @@ void FedRawDataInputSource::readSupervisor() {
   while (!stop) {
     //wait for at least one free thread and chunk
     int counter = 0;
+
     while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() ||
            readingFilesCount_ >= maxBufferedFiles_) {
       //report state to monitoring
@@ -828,6 +829,18 @@ void FedRawDataInputSource::readSupervisor() {
 
     //entering loop which tries to grab new file from ramdisk
     while (status == evf::EvFDaqDirector::noFile) {
+      //check if hltd has signalled to throttle input
+      counter = 0;
+      while (daqDirector_->inputThrottled()) {
+        if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed))
+          break;
+        setMonStateSup(inThrottled);
+        if (!(counter % 50))
+          edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, reading files is paused...";
+        usleep(100000);
+        counter++;
+      }
+
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
         stop = true;
         break;
