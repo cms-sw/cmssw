@@ -28,11 +28,24 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+L1GetHistLimits::Tokens::Tokens(edm::ConsumesCollector iC, bool doEtaOrPhi)
+    : m_muPTScaleToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_etScaleToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_jetScaleToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_jetFinderParamsToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_htMissScaleToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_hfRingEtScaleToken(iC.esConsumes<edm::Transition::BeginRun>()) {
+  if (doEtaOrPhi) {
+    m_muScalesToken = iC.esConsumes<edm::Transition::BeginRun>();
+    m_caloGeomESHToken = iC.esConsumes<edm::Transition::BeginRun>();
+  }
+}
+
 // constructor
-L1GetHistLimits::L1GetHistLimits(const edm::EventSetup& evSetup) : m_evSetup(evSetup) {
+L1GetHistLimits::L1GetHistLimits(const Tokens& tokens, const edm::EventSetup& evSetup)
+    : m_tokens(tokens), m_evSetup(evSetup) {
   //
 }
 
@@ -71,17 +84,16 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
   switch (l1GtObject) {
     case Mu: {
       if (quantity == "PT") {
-        edm::ESHandle<L1MuTriggerPtScale> muPtScale;
-        m_evSetup.get<L1MuTriggerPtScaleRcd>().get(muPtScale);
+        const L1MuTriggerPtScale& muPtScale = m_evSetup.getData(m_tokens.m_muPTScaleToken);
 
-        m_l1HistLimits.nrBins = muPtScale->getPtScale()->getNBins();
-        m_l1HistLimits.lowerBinValue = muPtScale->getPtScale()->getScaleMin();
-        m_l1HistLimits.upperBinValue = muPtScale->getPtScale()->getScaleMax();
+        m_l1HistLimits.nrBins = muPtScale.getPtScale()->getNBins();
+        m_l1HistLimits.lowerBinValue = muPtScale.getPtScale()->getScaleMin();
+        m_l1HistLimits.upperBinValue = muPtScale.getPtScale()->getScaleMax();
 
         m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins + 1);
 
         for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-          m_l1HistLimits.binThresholds[iBin] = muPtScale->getPtScale()->getValue(iBin);
+          m_l1HistLimits.binThresholds[iBin] = muPtScale.getPtScale()->getValue(iBin);
         }
 
         // last limit for muon is set too high (10^6) - resize the last bin
@@ -103,14 +115,13 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
         m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
       } else if (quantity == "eta" || quantity == "phi") {
-        edm::ESHandle<L1MuTriggerScales> muScales;
-        m_evSetup.get<L1MuTriggerScalesRcd>().get(muScales);
+        const L1MuTriggerScales& muScales = m_evSetup.getData(m_tokens.m_muScalesToken);
 
         if (quantity == "eta") {
           // eta scale defined for positive values - need to be symmetrized
-          int histNrBinsHalf = muScales->getGMTEtaScale()->getNBins();
-          m_l1HistLimits.lowerBinValue = muScales->getGMTEtaScale()->getScaleMin();
-          m_l1HistLimits.upperBinValue = muScales->getGMTEtaScale()->getScaleMax();
+          int histNrBinsHalf = muScales.getGMTEtaScale()->getNBins();
+          m_l1HistLimits.lowerBinValue = muScales.getGMTEtaScale()->getScaleMin();
+          m_l1HistLimits.upperBinValue = muScales.getGMTEtaScale()->getScaleMax();
 
           m_l1HistLimits.nrBins = 2 * histNrBinsHalf;
           m_l1HistLimits.lowerBinValue = -m_l1HistLimits.upperBinValue;
@@ -119,24 +130,24 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
 
           int iBin = 0;
           for (int j = histNrBinsHalf; j > 0; j--, iBin++) {
-            m_l1HistLimits.binThresholds[iBin] = (-1) * muScales->getGMTEtaScale()->getValue(j);
+            m_l1HistLimits.binThresholds[iBin] = (-1) * muScales.getGMTEtaScale()->getValue(j);
           }
           for (int j = 0; j <= histNrBinsHalf; j++, iBin++) {
-            m_l1HistLimits.binThresholds[iBin] = muScales->getGMTEtaScale()->getValue(j);
+            m_l1HistLimits.binThresholds[iBin] = muScales.getGMTEtaScale()->getValue(j);
           }
 
           // set last bin upper edge
           m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
         } else {
-          m_l1HistLimits.nrBins = muScales->getPhiScale()->getNBins();
-          m_l1HistLimits.lowerBinValue = rad2deg(muScales->getPhiScale()->getScaleMin());
-          m_l1HistLimits.upperBinValue = rad2deg(muScales->getPhiScale()->getScaleMax());
+          m_l1HistLimits.nrBins = muScales.getPhiScale()->getNBins();
+          m_l1HistLimits.lowerBinValue = rad2deg(muScales.getPhiScale()->getScaleMin());
+          m_l1HistLimits.upperBinValue = rad2deg(muScales.getPhiScale()->getScaleMax());
 
           m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins + 1);
 
           for (int iBin = 0; iBin <= m_l1HistLimits.nrBins; iBin++) {
-            m_l1HistLimits.binThresholds[iBin] = rad2deg(muScales->getPhiScale()->getValue(iBin));
+            m_l1HistLimits.binThresholds[iBin] = rad2deg(muScales.getPhiScale()->getValue(iBin));
           }
 
           // set last bin upper edge
@@ -149,10 +160,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     case IsoEG: {
       // common scales for NoIsoEG and IsoEG
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> emScale;
-        m_evSetup.get<L1EmEtScaleRcd>().get(emScale);
+        const L1CaloEtScale& emScale = m_evSetup.getData(m_tokens.m_etScaleToken);
 
-        std::vector<double> emThresholds = emScale->getThresholds();
+        std::vector<double> emThresholds = emScale.getThresholds();
         m_l1HistLimits.nrBins = emThresholds.size();
         m_l1HistLimits.lowerBinValue = emThresholds.at(0);
 
@@ -172,9 +182,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
         m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
       } else if (quantity == "eta" || quantity == "phi") {
-        edm::ESHandle<L1CaloGeometry> caloGeomESH;
-        m_evSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
-        const L1CaloGeometry* caloGeomScales = caloGeomESH.product();
+        const L1CaloGeometry* caloGeomScales = &m_evSetup.getData(m_tokens.m_caloGeomESHToken);
 
         if (quantity == "eta") {
           m_l1HistLimits.nrBins =
@@ -219,10 +227,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     case TauJet: {
       // common scales for all jets
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> jetScale;
-        m_evSetup.get<L1JetEtScaleRcd>().get(jetScale);
+        const L1CaloEtScale& jetScale = m_evSetup.getData(m_tokens.m_jetScaleToken);
 
-        std::vector<double> jetThresholds = jetScale->getThresholds();
+        std::vector<double> jetThresholds = jetScale.getThresholds();
         m_l1HistLimits.nrBins = jetThresholds.size();
         m_l1HistLimits.lowerBinValue = jetThresholds.at(0);
 
@@ -242,9 +249,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
         m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
       } else if (quantity == "eta" || quantity == "phi") {
-        edm::ESHandle<L1CaloGeometry> caloGeomESH;
-        m_evSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
-        const L1CaloGeometry* caloGeomScales = caloGeomESH.product();
+        const L1CaloGeometry* caloGeomScales = &m_evSetup.getData(m_tokens.m_caloGeomESHToken);
 
         if (quantity == "eta") {
           m_l1HistLimits.nrBins =
@@ -285,10 +290,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     } break;
     case ETM: {
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> etMissScale;
-        m_evSetup.get<L1JetEtScaleRcd>().get(etMissScale);
+        const L1CaloEtScale& etMissScale = m_evSetup.getData(m_tokens.m_jetScaleToken);
 
-        const double etSumLSB = etMissScale->linearLsb();
+        const double etSumLSB = etMissScale.linearLsb();
 
         m_l1HistLimits.nrBins = L1GctEtMiss::kEtMissMaxValue;
 
@@ -305,9 +309,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
         m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
       } else if (quantity == "eta" || quantity == "phi") {
-        edm::ESHandle<L1CaloGeometry> caloGeomESH;
-        m_evSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
-        const L1CaloGeometry* caloGeomScales = caloGeomESH.product();
+        const L1CaloGeometry* caloGeomScales = &m_evSetup.getData(m_tokens.m_caloGeomESHToken);
 
         if (quantity == "eta") {
           // do nothing, eta is not defined for ETM
@@ -331,10 +333,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     } break;
     case ETT: {
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> etMissScale;
-        m_evSetup.get<L1JetEtScaleRcd>().get(etMissScale);
+        const L1CaloEtScale& etMissScale = m_evSetup.getData(m_tokens.m_jetScaleToken);
 
-        const double etSumLSB = etMissScale->linearLsb();
+        const double etSumLSB = etMissScale.linearLsb();
 
         m_l1HistLimits.nrBins = L1GctEtTotal::kEtTotalMaxValue;
 
@@ -357,9 +358,8 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     } break;
     case HTT: {
       if (quantity == "ET") {
-        edm::ESHandle<L1GctJetFinderParams> jetFinderParams;
-        m_evSetup.get<L1GctJetFinderParamsRcd>().get(jetFinderParams);
-        double htSumLSB = jetFinderParams->getHtLsbGeV();
+        const L1GctJetFinderParams& jetFinderParams = m_evSetup.getData(m_tokens.m_jetFinderParamsToken);
+        double htSumLSB = jetFinderParams.getHtLsbGeV();
 
         m_l1HistLimits.nrBins = L1GctEtHad::kEtHadMaxValue;
 
@@ -381,10 +381,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     } break;
     case HTM: {
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> htMissScale;
-        m_evSetup.get<L1HtMissScaleRcd>().get(htMissScale);
+        const L1CaloEtScale& htMissScale = m_evSetup.getData(m_tokens.m_htMissScaleToken);
 
-        const std::vector<double>& htThresholds = htMissScale->getThresholds();
+        const std::vector<double>& htThresholds = htMissScale.getThresholds();
         m_l1HistLimits.nrBins = htThresholds.size();
         m_l1HistLimits.lowerBinValue = htThresholds[0];
 
@@ -404,9 +403,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
         m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins] = m_l1HistLimits.upperBinValue;
 
       } else if (quantity == "eta" || quantity == "phi") {
-        edm::ESHandle<L1CaloGeometry> caloGeomESH;
-        m_evSetup.get<L1CaloGeometryRecord>().get(caloGeomESH);
-        const L1CaloGeometry* caloGeomScales = caloGeomESH.product();
+        const L1CaloGeometry* caloGeomScales = &m_evSetup.getData(m_tokens.m_caloGeomESHToken);
 
         if (quantity == "eta") {
           // do nothing, eta is not defined for HTM
@@ -452,10 +449,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject, const std::str
     } break;
     case HfRingEtSums: {
       if (quantity == "ET") {
-        edm::ESHandle<L1CaloEtScale> hfRingEtScale;
-        m_evSetup.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);
+        const L1CaloEtScale& hfRingEtScale = m_evSetup.getData(m_tokens.m_hfRingEtScaleToken);
 
-        const std::vector<double>& hfRingEtThresholds = hfRingEtScale->getThresholds();
+        const std::vector<double>& hfRingEtThresholds = hfRingEtScale.getThresholds();
         m_l1HistLimits.nrBins = hfRingEtThresholds.size();
         m_l1HistLimits.lowerBinValue = hfRingEtThresholds[0];
 

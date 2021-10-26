@@ -36,9 +36,9 @@ L1ExtraDQM::L1ExtraDQM(const edm::ParameterSet& paramSet)
       m_currentRun(-99),
       //
       m_nrEvJob(0),
-      m_nrEvRun(0)
-
-{
+      m_nrEvRun(0),
+      //
+      m_histTokens(consumesCollector(), true) {
   //
   if ((m_nrBxInEventGmt > 0) && ((m_nrBxInEventGmt % 2) == 0)) {
     m_nrBxInEventGmt = m_nrBxInEventGmt - 1;
@@ -348,7 +348,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGmt; ++iBxInEvent) {
     m_meAnalysisL1ExtraMuon.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1MuonParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1MuonParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -370,7 +370,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraIsoEG.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EmParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -392,7 +392,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraNoIsoEG.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EmParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -416,7 +416,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraCenJet.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -437,7 +437,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraForJet.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -458,7 +458,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraTauJet.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -480,7 +480,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
       m_meAnalysisL1ExtraIsoTauJet.push_back(
-          new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+          new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(m_histTokens, nrMonElements));
 
       int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
       int bxInEventHex = (bxInEvent + 16) % 16;
@@ -506,7 +506,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraETT.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(m_histTokens, nrMonElements));
 
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
@@ -531,7 +531,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraETM.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(m_histTokens, nrMonElements));
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
 
@@ -555,7 +555,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraHTT.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(m_histTokens, nrMonElements));
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
 
@@ -579,7 +579,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraHTM.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(m_histTokens, nrMonElements));
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
 
@@ -607,7 +607,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraHfBitCounts.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>(m_histTokens, nrMonElements));
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
 
@@ -632,7 +632,7 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm
 
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
     m_meAnalysisL1ExtraHfRingEtSums.push_back(
-        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>(evSetup, nrMonElements));
+        new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>(m_histTokens, nrMonElements));
     int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
     int bxInEventHex = (bxInEvent + 16) % 16;
 
@@ -786,8 +786,10 @@ void L1ExtraDQM::dqmEndRun(const edm::Run& run, const edm::EventSetup& evSetup) 
 
 // constructor L1ExtraMonElement
 template <class CollectionType>
-L1ExtraDQM::L1ExtraMonElement<CollectionType>::L1ExtraMonElement(const edm::EventSetup& evSetup, const int nrElements)
-    : m_indexNrObjects(-1),
+L1ExtraDQM::L1ExtraMonElement<CollectionType>::L1ExtraMonElement(const L1GetHistLimits::Tokens& tokens,
+                                                                 const int nrElements)
+    : m_tokens(tokens),
+      m_indexNrObjects(-1),
       m_indexPt(-1),
       m_indexEt(-1),
       m_indexPhi(-1),
@@ -826,7 +828,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(const edm::Ev
   int indexHistogram = -1;
 
   if (gtObj == HfBitCounts) {
-    L1GetHistLimits l1GetHistLimits(evSetup);
+    L1GetHistLimits l1GetHistLimits(m_tokens, evSetup);
     const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
     const int histNrBins = histLimits.nrBins;
@@ -855,7 +857,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(const edm::Ev
       (gtObj == TauJet)) {
     quantity = "NrObjects";
 
-    L1GetHistLimits l1GetHistLimits(evSetup);
+    L1GetHistLimits l1GetHistLimits(m_tokens, evSetup);
     const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
     const int histNrBins = histLimits.nrBins;
@@ -885,7 +887,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(const edm::Ev
     quantityLongName = " transverse momentum ";
   }
 
-  L1GetHistLimits l1GetHistLimits(evSetup);
+  L1GetHistLimits l1GetHistLimits(m_tokens, evSetup);
   const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
   const int histNrBinsET = histLimits.nrBins;
@@ -946,7 +948,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(const edm::Ev
     quantity = "phi";
 
     // get limits and binning from L1Extra
-    L1GetHistLimits l1GetHistLimits(evSetup);
+    L1GetHistLimits l1GetHistLimits(m_tokens, evSetup);
     const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
     const int histNrBinsPhi = histLimits.nrBins;
@@ -987,7 +989,7 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(const edm::Ev
     quantity = "eta";
 
     // get limits and binning from L1Extra
-    L1GetHistLimits l1GetHistLimits(evSetup);
+    L1GetHistLimits l1GetHistLimits(m_tokens, evSetup);
     const L1GetHistLimits::L1HistLimits& histLimits = l1GetHistLimits.l1HistLimits(gtObj, quantity);
 
     const int histNrBinsEta = histLimits.nrBins;
