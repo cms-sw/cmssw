@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
 from __future__ import print_function
 from future.utils import lmap
@@ -24,7 +24,6 @@ def parser():
     parser.add_argument("-e", "--example", action = "store_true", help ="Print example of config in JSON format")
     parser.add_argument("-f", "--force", action = "store_true", help ="Force creation of enviroment, possible overwritten old configuration")
     parser.add_argument("-j", "--job-flavour", action = "store", default = "longlunch", choices = ["espresso", "microcentury", "longlunch", "workday", "tomorrow", "testmatch", "nextweek"], help ="Job flavours for HTCondor at CERN, default is 'longlunch'")
-
 
     return parser.parse_args()
 
@@ -79,7 +78,7 @@ def main():
         
     ##Create working directory
     if os.path.isdir(config["name"]) and not args.force:
-	raise Exception("Validation directory '{}' already exists! Please choose another name for your directory.".format(config["name"]))	
+        raise Exception("Validation directory '{}' already exists! Please choose another name for your directory.".format(config["name"]))	
 
     validationDir = os.path.abspath(config["name"])
     exeDir = "{}/executables".format(validationDir)

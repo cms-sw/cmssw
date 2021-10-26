@@ -101,15 +101,15 @@ if "dataset" in configuration["validation"]:
 
 # If no text file with dataset given, read default file
 else:
-    print ">>>>>>>>>> JetHT_cfg.py: msg%-i: dataset not specified in configuration! Loading default file!"
+    print(">>>>>>>>>> JetHT_cfg.py: msg%-i: dataset not specified in configuration! Loading default file!")
 
     if useMC:
-        print ">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for 2017 MC from 170-300 pT hat bin."
+        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for 2017 MC from 170-300 pT hat bin.")
         process.source = cms.Source("PoolSource",
                               fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/mc/RunIIWinter19PFCalibDRPremix/QCD_Pt_170to300_TuneCP5_13TeV_pythia8/ALCARECO/TkAlMinBias-2017Conditions_105X_mc2017_realistic_v5-v1/10000/A4C71578-282D-384C-AF19-9A685808EEB8.root')
                               )
     else:
-        print ">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from 2018D JetHT dataset."
+        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from 2018D JetHT dataset.")
         process.source = cms.Source("PoolSource",
                               fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/data/Run2018D/JetHT/ALCARECO/TkAlMinBias-12Nov2019_UL2018-v4/00000/009085FF-603B-044D-8879-0599B156831D.root') # A file from 2018 JetHT file in DESY
 

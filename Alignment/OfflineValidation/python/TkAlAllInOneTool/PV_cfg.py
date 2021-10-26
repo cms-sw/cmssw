@@ -43,7 +43,7 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                             )
 else:
-    print ">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!"
+    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default MC simulation -> filesRelValTTbarPileUpGENSIMRECO!")
     process.source = cms.Source("PoolSource",
                                 fileNames = filesRelValTTbarPileUpGENSIMRECO,
                                 skipEvents = cms.untracked.uint32(0)
@@ -62,7 +62,7 @@ else:
     goodLumiSecs = cms.untracked.VLuminosityBlockRange()
 
 if isMC:
-     print ">>>>>>>>>> PV_cfg.py: msg%-i: This is simulation!"
+     print(">>>>>>>>>> PV_cfg.py: msg%-i: This is simulation!")
      runboundary = 1
 else:
      process.source.lumisToProcess = goodLumiSecs
@@ -70,7 +70,7 @@ else:
 isMultipleRuns=False
 if(isinstance(runboundary, (list, tuple))):
      isMultipleRuns=True
-     print "Multiple Runs are selected"       
+     print("Multiple Runs are selected")       
 if(isMultipleRuns):
      process.source.firstRun = cms.untracked.uint32(runboundary[0])
 else:
