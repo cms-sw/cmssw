@@ -32,9 +32,9 @@
 static float sigmoid(float x){
     return 1.0f/(1.0f + exp(-x));
 }
-static float ln2 = log(2);
 
 static float logcorrection(float x){
+    static float ln2 = log(2);
     return ln2 * 2 * (sigmoid(x) - 0.5);
 }
 
@@ -98,7 +98,6 @@ void SCEnergyCorrectorDRNProducer::produce(edm::Event& iEvent, const edm::EventS
         corrSCs->push_back(inputSC);
         corrSCs->back().setEnergy(corrEn);
         corrSCs->back().setCorrectedEnergy(corrEn);
-        //corrSCs->back().setCorrectedEnergyUncertainty(-1.0);
         ++i;
     }
 

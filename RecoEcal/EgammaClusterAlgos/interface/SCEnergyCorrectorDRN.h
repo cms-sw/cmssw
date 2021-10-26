@@ -13,8 +13,6 @@
 #ifndef Progression_EGM_DRN_SCEnergyCorrectorDRN_h
 #define Progression_EGM_DRN_SCEnergyCorrectorDRN_h
 
-#include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -60,12 +58,8 @@ public:
     void setEventSetup(const edm::EventSetup& es);
     void setEvent(const edm::Event& e);
 
-    //std::pair<double, double> getCorrections(const reco::SuperCluster& sc) const;
-
     void makeInput(const edm::Event& iEvent, TritonInputMap& iInput, const reco::SuperClusterCollection& inputSCs) const;
     TritonOutput<float> getOutput(const TritonOutputMap& iOutput);
-
-    //void modifyObject(reco::SuperCluster& sc) const;
 
 private:
     const CaloTopology* caloTopo_;
