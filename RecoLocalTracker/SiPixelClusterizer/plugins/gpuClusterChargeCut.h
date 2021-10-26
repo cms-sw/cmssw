@@ -118,10 +118,10 @@ namespace gpuClustering {
           continue;  // not valid
         if (id[i] != thisModuleId)
           break;  // end of module
-	if (clusterId[i] == invalidModuleId){
+        if (clusterId[i] == invalidModuleId) {
           id[i] = invalidModuleId;
-	  continue;
-	}
+          continue;
+        }
         clusterId[i] = newclusId[clusterId[i]] - 1;
         if (clusterId[i] == invalidModuleId)
           id[i] = invalidModuleId;
