@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #____________________________________________________________
 #
 #  
@@ -32,7 +32,7 @@ from __future__ import print_function
 
 
 import sys,os, re
-import commands
+import subprocess
 
 #_______________OPTIONS________________
 import optparse
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     elif option.globaltag:
         globaltag = option.globaltag
         cmd = 'cmscond_tagtree_list -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_GLOBALTAG -P /afs/cern.ch/cms/DB/conddb -T '+globaltag+' | grep BeamSpot'
-        outcmd = commands.getstatusoutput( cmd )
+        outcmd = subprocess.getstatusoutput( cmd )
         atag = outcmd[1].split()
         atag = atag[2]
         tagname = atag.replace("tag:","")
@@ -200,7 +200,7 @@ process.p = cms.Path(process.beamspot)
 ''')
 
     rnewfile.close()
-    status_rDB = commands.getstatusoutput('cmsRun '+ readdb_out)
+    status_rDB = subprocess.getstatusoutput('cmsRun '+ readdb_out)
 
     outtext = status_rDB[1]
     print(outtext)
