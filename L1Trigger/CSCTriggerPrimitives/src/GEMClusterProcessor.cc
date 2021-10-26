@@ -36,6 +36,11 @@ void GEMClusterProcessor::run(const GEMPadDigiClusterCollection* in_clusters) {
   // Step 1: clear the GEMInternalCluster vector
   clear();
 
+  if (in_clusters == nullptr) {
+    edm::LogWarning("GEMClusterProcessor") << "Attempt to run without valid in_clusters pointer.";
+    return;
+  }
+
   // Step 2: put coincidence clusters in GEMInternalCluster vector
   addCoincidenceClusters(in_clusters);
 

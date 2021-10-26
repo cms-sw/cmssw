@@ -24,23 +24,23 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   : '121X_mcRun2_pA_v7',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    : '121X_dataRun2_v8',
+    'run2_data'                    : '121X_dataRun2_v10',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'             : '121X_dataRun2_HEfail_v8',
+    'run2_data_HEfail'             : '121X_dataRun2_HEfail_v10',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'             : '121X_dataRun2_relval_v8',
+    'run2_data_relval'             : '121X_dataRun2_relval_v10',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi'      : '121X_dataRun2_PromptLike_HI_v8',
+    'run2_data_promptlike_hi'      : '121X_dataRun2_PromptLike_HI_v9',
     # GlobalTag for Run3 HLT: it points to the online GT
-    'run3_hlt'                     : '121X_dataRun3_HLT_v8',
+    'run3_hlt'                     : '121X_dataRun3_HLT_v9',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'              : '121X_dataRun2_HLT_relval_v8',
+    'run2_hlt_relval'              : '121X_dataRun2_HLT_relval_v9',
     # GlobalTag for Run3 data relvals (express GT)
-    'run3_data_express'            : '121X_dataRun3_Express_v9',
+    'run3_data_express'            : '121X_dataRun3_Express_v10',
     # GlobalTag for Run3 data relvals
-    'run3_data_prompt'             : '121X_dataRun3_Prompt_v8',
+    'run3_data_prompt'             : '121X_dataRun3_Prompt_v9',
     # GlobalTag for Run3 offline data reprocessing
-    'run3_data'                    : '121X_dataRun3_v7',
+    'run3_data'                    : '121X_dataRun3_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '121X_mc2017_design_v7',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
