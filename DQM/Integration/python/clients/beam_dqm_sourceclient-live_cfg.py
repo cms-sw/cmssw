@@ -338,11 +338,12 @@ process.tracking_FirstStep = cms.Sequence(
     * process.recopixelvertexing)
 
 # triggerName for selecting pv for DIP publication, no wildcard needed here
-# it will pick all triggers which has these strings in theri name
+# it will pick all triggers which have these strings in their name
 process.dqmBeamMonitor.jetTrigger  = [
          "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet",
          "HLT_ZeroBias_",
-         "HLT_HI"]
+         "HLT_HI",
+         "HLT_PixelClusters"]
 
 # for HI only: select events based on the pixel cluster multiplicity
 if (process.runType.getRunType() == process.runType.hi_run):
