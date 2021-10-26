@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-import sys,os,commands
+#!/usr/bin/env python3
+import sys,os
 from CommonMethods import *
 def main():
     if len(sys.argv) < 3:
