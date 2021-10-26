@@ -108,7 +108,7 @@ autoCond = autoCond0T(autoCond)
 from Configuration.AlCa.autoCondModifiers import autoCondHLTHI
 autoCond = autoCondHLTHI(autoCond)
 
-# special GT for 2021 DDD geometry
+# special GT for Run3 DDD geometry
 from Configuration.AlCa.autoCondModifiers import autoCondDDD
 autoCond = autoCondDDD(autoCond)
 
