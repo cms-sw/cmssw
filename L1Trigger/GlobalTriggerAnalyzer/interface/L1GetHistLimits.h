@@ -27,6 +27,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // scales
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
@@ -50,8 +51,21 @@
 // class declaration
 class L1GetHistLimits {
 public:
+  struct Tokens {
+    Tokens(edm::ConsumesCollector, bool doEtaOrPhi);
+
+    const edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> m_muPTScaleToken;
+    edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> m_muScalesToken;  //eta,phi
+    const edm::ESGetToken<L1CaloEtScale, L1EmEtScaleRcd> m_etScaleToken;
+    edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> m_caloGeomESHToken;  //eta,phi
+    const edm::ESGetToken<L1CaloEtScale, L1JetEtScaleRcd> m_jetScaleToken;
+    const edm::ESGetToken<L1GctJetFinderParams, L1GctJetFinderParamsRcd> m_jetFinderParamsToken;
+    const edm::ESGetToken<L1CaloEtScale, L1HtMissScaleRcd> m_htMissScaleToken;
+    const edm::ESGetToken<L1CaloEtScale, L1HfRingEtScaleRcd> m_hfRingEtScaleToken;
+  };
+
   // constructor(s)
-  explicit L1GetHistLimits(const edm::EventSetup& evSetup);
+  explicit L1GetHistLimits(const Tokens&, const edm::EventSetup& evSetup);
 
   // destructor
   virtual ~L1GetHistLimits();
@@ -103,6 +117,7 @@ private:
   void getHistLimits(const L1GtObject& l1GtObject, const std::string& quantity);
 
 private:
+  const Tokens& m_tokens;
   const edm::EventSetup& m_evSetup;
 
   /// all limits for a histogram
