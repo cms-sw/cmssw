@@ -28,7 +28,7 @@ class BTagCalibration {
 public:
   BTagCalibration() {}
   BTagCalibration(const std::string &tagger);
-  BTagCalibration(const std::string &tagger, const std::string &filename);
+  BTagCalibration(const std::string &tagger, const std::string &filename, bool validate);
   ~BTagCalibration() {}
 
   std::string tagger() const { return tagger_; }
@@ -36,8 +36,8 @@ public:
   void addEntry(const BTagEntry &entry);
   const std::vector<BTagEntry> &getEntries(const BTagEntry::Parameters &par) const;
 
-  void readCSV(std::istream &s);
-  void readCSV(const std::string &s);
+  void readCSV(std::istream &s, bool validate);
+  void readCSV(const std::string &s, bool validate);
   void makeCSV(std::ostream &s) const;
   std::string makeCSV() const;
 
