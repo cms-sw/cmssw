@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 from builtins import range
-import sys,commands,os,calendar
+import sys,os,calendar
 from ROOT import gDirectory,TFile
 
 from online_beamspot_reader import BeamspotMeasurement

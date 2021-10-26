@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import sys,os,commands,re
+import sys,os,subprocess,re
 import xmlrpclib
 from CommonMethods import *
 
@@ -16,7 +16,7 @@ except:
 #####################################################################################
 def getUploadedIOVs(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
     listIOVCommand = "cmscond_list_iov -c " + destDB + " -P /afs/cern.ch/cms/DB/conddb -t " + tagName
-    dbError = commands.getstatusoutput( listIOVCommand )
+    dbError = subprocess.getstatusoutput( listIOVCommand )
     if dbError[0] != 0 :
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist") != -1:
             exit(dbError[1])
@@ -26,7 +26,7 @@ def getUploadedIOVs(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSP
 
     aCommand = listIOVCommand + " | grep DB= | awk \'{print $1}\'"
     #print aCommand
-    output = commands.getstatusoutput( aCommand )
+    output = subprocess.getstatusoutput( aCommand )
 
     #WARNING when we pass to lumi IOV this should be long long
     if output[1] == '':
