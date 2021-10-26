@@ -4,7 +4,6 @@
  *  produced by HLTCaloJetTimingProducer
  *  \author Matthew Citron
  *
- *
  */
 
 // system include files
@@ -38,66 +37,51 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
-  //Input collections
-  edm::InputTag jetLabel_;
-  edm::InputTag jetTimeLabel_;
-  edm::InputTag jetCellsForTimingLabel_;
-  edm::InputTag jetEcalEtForTimingLabel_;
-  //Thresholds for selection
-  unsigned int minJets_;
-  double jetTimeThresh_;
-  double jetEcalEtForTimingThresh_;
-  unsigned int jetCellsForTimingThresh_;
-  double minPt_;
+  // Input collections
+  const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken_;
+  const edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> jetEcalEtForTimingInputToken_;
 
-  edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken;
-  edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken;
-  edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken;
-  edm::EDGetTokenT<edm::ValueMap<float>> jetEcalEtForTimingInputToken;
+  // Thresholds for selection
+  const unsigned int minJets_;
+  const double jetTimeThresh_;
+  const double jetEcalEtForTimingThresh_;
+  const unsigned int jetCellsForTimingThresh_;
+  const double minPt_;
 };
 
 //Constructor
-HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  jetLabel_ = iConfig.getParameter<edm::InputTag>("jets");
-  jetTimeLabel_ = iConfig.getParameter<edm::InputTag>("jetTimes");
-  jetCellsForTimingLabel_ = iConfig.getParameter<edm::InputTag>("jetCellsForTiming");
-  jetEcalEtForTimingLabel_ = iConfig.getParameter<edm::InputTag>("jetEcalEtForTiming");
-  minJets_ = iConfig.getParameter<unsigned int>("minJets");
-  jetTimeThresh_ = iConfig.getParameter<double>("jetTimeThresh");
-  jetCellsForTimingThresh_ = iConfig.getParameter<unsigned int>("jetCellsForTimingThresh");
-  jetEcalEtForTimingThresh_ = iConfig.getParameter<double>("jetEcalEtForTimingThresh");
-  minPt_ = iConfig.getParameter<double>("minJetPt");
-  jetInputToken = consumes<std::vector<reco::CaloJet>>(jetLabel_);
-  jetTimesInputToken = consumes<edm::ValueMap<float>>(jetTimeLabel_);
-  jetCellsForTimingInputToken = consumes<edm::ValueMap<unsigned int>>(jetCellsForTimingLabel_);
-  jetEcalEtForTimingInputToken = consumes<edm::ValueMap<float>>(jetEcalEtForTimingLabel_);
-  //now do what ever initialization is needed
-}
+HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig) :
+  jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
+  jetTimesInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetTimes"))},
+  jetCellsForTimingInputToken_{consumes<edm::ValueMap<unsigned int>>(iConfig.getParameter<edm::InputTag>("jetCellsForTiming"))},
+  jetEcalEtForTimingInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetEcalEtForTiming"))},
+  minJets_{iConfig.getParameter<unsigned int>("minJets")},
+  jetTimeThresh_{iConfig.getParameter<double>("jetTimeThresh")},
+  jetEcalEtForTimingThresh_{iConfig.getParameter<double>("jetEcalEtForTimingThresh")},
+  jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
+  minPt_{iConfig.getParameter<double>("minJetPt")}
+{}
 
 //Filter
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
                                        const edm::EventSetup& iSetup,
                                        trigger::TriggerFilterObjectWithRefs& filterproduct) const {
-  bool accept = false;
-  int ijet = 0;
-  edm::Handle<reco::CaloJetCollection> jets;
-  iEvent.getByToken(jetInputToken, jets);
-  edm::Handle<edm::ValueMap<float>> jetTimes;
-  iEvent.getByToken(jetTimesInputToken, jetTimes);
-  edm::Handle<edm::ValueMap<unsigned int>> jetCellsForTiming;
-  iEvent.getByToken(jetCellsForTimingInputToken, jetCellsForTiming);
-  edm::Handle<edm::ValueMap<float>> jetEcalEtForTiming;
-  iEvent.getByToken(jetEcalEtForTimingInputToken, jetEcalEtForTiming);
-  unsigned int njets = 0;
-  for (auto const& c : *jets) {
-    reco::CaloJetRef calojetref(jets, ijet);
-    if ((*jetTimes)[calojetref] > jetTimeThresh_ && (*jetEcalEtForTiming)[calojetref] > jetEcalEtForTimingThresh_ &&
-        (*jetCellsForTiming)[calojetref] > jetCellsForTimingThresh_ && c.pt() > minPt_)
-      njets++;
-    ijet++;
+  auto const& jets = iEvent.get(jetInputToken_);
+  auto const& jetTimes = iEvent.get(jetTimesInputToken_);
+  auto const& jetCellsForTiming = iEvent.get(jetCellsForTimingInputToken_);
+  auto const& jetEcalEtForTiming = iEvent.getByToken(jetEcalEtForTimingInputToken_);
+
+  uint njets = 0;
+  for (size_t ijet=0; ijet<jets.size(); ++ijet) {
+    auto const& jet = jets[ijet];
+    reco::CaloJetRef const calojetref(jets, ijet);
+    if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and jetCellsForTiming[calojetref] > jetCellsForTimingThresh_)
+      ++njets;
   }
-  accept = njets >= minJets_;
-  return accept;
+
+  return njets >= minJets_;
 }
 
 // Fill descriptions
@@ -115,7 +99,7 @@ void HLTCaloJetTimingFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<unsigned int>("jetCellsForTimingThresh", 5);
   desc.add<double>("jetEcalEtForTimingThresh", 10.);
   desc.add<double>("minJetPt", 40.);
-  descriptions.add("caloJetTimingFilter", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // declare this class as a framework plugin
