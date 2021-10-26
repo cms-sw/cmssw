@@ -28,7 +28,7 @@ BTagEntry::Parameters::Parameters(OperatingPoint op,
   std::transform(sysType.begin(), sysType.end(), sysType.begin(), ::tolower);
 }
 
-BTagEntry::BTagEntry(const std::string& csvLine) {
+BTagEntry::BTagEntry(const std::string& csvLine, bool validate) {
   // make tokens
   std::stringstream buff(csvLine);
   std::vector<std::string> vec;
@@ -54,9 +54,11 @@ BTagEntry::BTagEntry(const std::string& csvLine) {
 
   // make formula
   formula = vec[10];
-  TF1 f1("", formula.c_str());  // compile formula to check validity
-  if (f1.IsZombie()) {
-    throw cms::Exception("BTagCalibration") << "Invalid csv line; formula does not compile: " << csvLine;
+  if (validate) {
+    TF1 f1("", formula.c_str());  // compile formula to check validity
+    if (f1.IsZombie()) {
+      throw cms::Exception("BTagCalibration") << "Invalid csv line; formula does not compile: " << csvLine;
+    }
   }
 
   // make parameters
