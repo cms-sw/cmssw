@@ -234,6 +234,9 @@ namespace reco::mlpf {
       particleType = reco::PFCandidate::egamma_HF;
 
     reco::PFCandidate cand(charge, math::XYZTLorentzVector(p4.X(), p4.Y(), p4.Z(), p4.E()), particleType);
+    cand.setMass(0.0);
+    if (pred_pid == 211)
+      cand.setMass(PI_MASS);
     //cand.setPdgId(pred_pid);
     //cand.setCharge(charge);
 

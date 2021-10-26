@@ -42,6 +42,11 @@ particleFlowReco = cms.Sequence(particleFlowRecoTask)
 particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
+# for MLPF
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
+mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
+
 #
 # for phase 2
 particleFlowTmpBarrel = particleFlowTmp.clone()
@@ -135,8 +140,3 @@ def replaceTICLwithSimPF(process):
     )
 
     return process
-
-# for MLPF
-from Configuration.ProcessModifiers.mlpf_cff import mlpf
-from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
-mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)

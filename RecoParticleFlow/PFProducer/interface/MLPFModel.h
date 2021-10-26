@@ -35,6 +35,9 @@ namespace reco::mlpf {
   static constexpr unsigned int IDX_COS_PHI = 12;
   static constexpr unsigned int IDX_ENERGY = 13;
 
+  //for consistency with the baseline PFAlgo
+  static constexpr float PI_MASS = 0.13957;
+
   //index [0, N_pdgids) -> PDGID
   //this maps the absolute values of the predicted PDGIDs to an array of ascending indices
   static const std::vector<int> pdgid_encoding = {0, 211, 130, 1, 2, 22, 11, 13};
