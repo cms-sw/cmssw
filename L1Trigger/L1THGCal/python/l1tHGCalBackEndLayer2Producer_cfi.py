@@ -79,13 +79,13 @@ histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
                                binSumsHisto=binSums,
                                kROverZMin=cms.double(0.076),
                                kROverZMax=cms.double(0.58),
-                               threshold_histo_multicluster=cms.double(10.),
+                               threshold_histo_multicluster=cms.double(20.),
                                neighbour_weights=neighbour_weights_1stOrder,
                                seed_position=cms.string("TCWeighted"),#BinCentre, TCWeighted
                                seeding_space=cms.string("RPhi"),# RPhi, XY
                                seed_smoothing_ecal=seed_smoothing_ecal,
                                seed_smoothing_hcal=seed_smoothing_hcal,
-                               seeds_norm_by_area=cms.bool(True)
+                               seeds_norm_by_area=cms.bool(False)
                               )
 
 histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
@@ -102,14 +102,6 @@ histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
 histoMax_C3d_sorting_truncation_params = cms.PSet(AlgoName = cms.string('HGCalSortingTruncationWrapper'),
                                                   maxTCs=cms.uint32(80),
                                )
-
-# >= V9 samples have a different definition of the dEdx calibrations. To account for it
-# we rescale the thresholds of the clustering seeds
-# (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
-# for more details)
-phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
-                        threshold_histo_multicluster=8.5,  # MipT
-                        )
 
 
 histoMaxVariableDR_C3d_params = histoMax_C3d_clustering_params.clone(
