@@ -35,6 +35,7 @@ class Eras (object):
                  'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
                  'Run3_dd4hep',
+                 'Run3_DDD',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
