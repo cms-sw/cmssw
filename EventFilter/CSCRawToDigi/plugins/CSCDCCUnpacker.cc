@@ -584,20 +584,16 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                 if (useGEMs_ && cscData[iCSC].tmbData()->hasGEM()) {
                   for (int unsigned igem = 0; igem < (int unsigned)(cscData[iCSC].tmbData()->gemData()->numGEMs());
                        ++igem) {
-                    /// !!! TODO: Needs mapping for CSCDetId to GEMDetId
                     int gem_chamber = layer.chamber();
                     int gem_region = (layer.endcap() == 1) ? 1 : -1;
-                    // if (b904Setup) {
                     for (unsigned ieta = 0; ieta < 8; ieta++) {
-                      GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, ieta);
-                      //    gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, 0);  /// Dummy id for b904
-                      // std::vector<GEMPadDigiCluster> gemDigis = cscData[iCSC].tmbData()->gemData()->digis(igem);
+                      // GE11 eta needs to be reversed from 0-7 to 8-1
+                      GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, 8 - ieta);
                       std::vector<GEMPadDigiCluster> gemDigis =
                           cscData[iCSC].tmbData()->gemData()->etaDigis(igem, ieta);
                       if (!gemDigis.empty())
                         gemProduct->move(std::make_pair(gemDigis.begin(), gemDigis.end()), gemid);
                     }
-                    // }
                   }
                 }
               } else
@@ -687,7 +683,6 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(std::move(alctProduct), "MuonCSCALCTDigi");
   e.put(std::move(clctProduct), "MuonCSCCLCTDigi");
   e.put(std::move(comparatorProduct), "MuonCSCComparatorDigi");
-  // e.put(std::move(rpcProduct), "MuonCSCRPCDigi");
   e.put(std::move(corrlctProduct), "MuonCSCCorrelatedLCTDigi");
 
   if (useFormatStatus)

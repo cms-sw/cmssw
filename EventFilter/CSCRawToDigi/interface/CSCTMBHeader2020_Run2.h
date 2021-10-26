@@ -5,7 +5,7 @@
 
 struct CSCTMBHeader2020_Run2 : public CSCVTMBHeaderFormat {
   enum { NWORDS = 43 };
-  CSCTMBHeader2020_Run2();
+  CSCTMBHeader2020_Run2(int firmware_revision = 0x421);
   CSCTMBHeader2020_Run2(const unsigned short* buf);
   void setEventInformation(const CSCDMBHeader& dmbHeader) override;
 
@@ -56,9 +56,6 @@ struct CSCTMBHeader2020_Run2 : public CSCVTMBHeaderFormat {
   /// returns the first data word
   unsigned short* data() override { return (unsigned short*)(&bits); }
   bool check() const override { return bits.e0bline == 0x6e0b; }
-
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
 
   /// for data packing
   void addCLCT0(const CSCCLCTDigi& digi) override;

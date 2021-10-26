@@ -57,9 +57,6 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
   unsigned short* data() override { return (unsigned short*)(&bits); }
   bool check() const override { return bits.e0bline == 0x6e0b; }
 
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
-
   /// for data packing
   void addCLCT0(const CSCCLCTDigi& digi) override;
   void addCLCT1(const CSCCLCTDigi& digi) override;

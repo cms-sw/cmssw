@@ -111,9 +111,6 @@ public:
 
   bool check() const { return theHeaderFormat->check(); }
 
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
-
   /// for data packing
   void addCLCT0(const CSCCLCTDigi& digi) { theHeaderFormat->addCLCT0(digi); }
   void addCLCT1(const CSCCLCTDigi& digi) { theHeaderFormat->addCLCT1(digi); }
