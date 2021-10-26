@@ -146,6 +146,8 @@ namespace evf {
       inWaitChunk_newFileWaitThread,
       inWaitChunk_newFileWaitChunkCopying,
       inWaitChunk_newFileWaitChunk,
+      inSupThrottled,
+      inThrottled,
       inCOUNT
     };
   }  // namespace FastMonState
