@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("L1TMuonEmulation")
 import os
 import sys
-import commands
 import re
 from os import listdir
 from os.path import isfile, join
