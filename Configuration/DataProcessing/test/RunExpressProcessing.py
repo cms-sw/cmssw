@@ -29,6 +29,7 @@ class RunExpressProcessing:
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
+        self.dqmSeq = None
         self.alcaRecos = None
         self.nThreads = None
 
@@ -86,6 +87,9 @@ class RunExpressProcessing:
                                      'eventContent' : dataTier,
                                      'moduleLabel' : "write_%s" % dataTier })
                 kwds['outputs'] = outputs
+                
+                if self.dqmSeq:
+                    kwds['dqmSeq'] = self.dqmSeq
 
                 if self.alcaRecos:
                     kwds['skims'] = self.alcaRecos
@@ -135,7 +139,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
-             "global-tag=", "lfn=", 'alcarecos=', "nThreads="]
+             "global-tag=", "lfn=", 'alcarecos=', "dqmSeq=", "nThreads="]
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -149,6 +153,7 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
+ --dqmSeq=dqmSeq_plus_separated_list
  --alcarecos=plus_seprated_list
  --nThreads=Number_of_cores_or_Threads_used
 
@@ -156,7 +161,7 @@ Examples:
 
 python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
 
-python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --dqmSeq=@express --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
@@ -188,6 +193,8 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
+        if opt == "--dqmSeq":
+            expressinator.dqmSeq = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--alcarecos":
             expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--nThreads":
