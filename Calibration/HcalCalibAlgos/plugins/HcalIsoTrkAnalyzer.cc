@@ -175,7 +175,7 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk> > tok_alg_;
+  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
 
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
@@ -213,7 +213,7 @@ private:
 };
 
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
-    : trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+    : trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
       theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
       processName_(iConfig.getParameter<std::string>("processName")),
       l1Filter_(iConfig.getParameter<std::string>("l1Filter")),
@@ -259,8 +259,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
       labelTower_(iConfig.getParameter<std::string>("labelCaloTower")),
       l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName", "L1_SingleJet60")),
-      oldID_(iConfig.getUntrackedParameter<std::vector<int> >("oldID")),
-      newDepth_(iConfig.getUntrackedParameter<std::vector<int> >("newDepth")),
+      oldID_(iConfig.getUntrackedParameter<std::vector<int>>("oldID")),
+      newDepth_(iConfig.getUntrackedParameter<std::vector<int>>("newDepth")),
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
       debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
       nRun_(0),
@@ -313,7 +313,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   tok_parts_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
   tok_cala_ = consumes<CaloTowerCollection>(labelTower_);
-  tok_alg_ = consumes<BXVector<GlobalAlgBlk> >(algTag);
+  tok_alg_ = consumes<BXVector<GlobalAlgBlk>>(algTag);
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon);
 
   if (modnam.empty()) {
@@ -402,11 +402,14 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
   t_DataType = dataType_;
-  debug_ = (debEvents_.empty()) ? true : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
+  debug_ = (debEvents_.empty())
+               ? true
+               : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
 #ifdef EDM_ML_DEBUG
   if (debug_)
     edm::LogVerbatim("HcalIsoTrack") << "Run " << t_Run << " Event " << t_Event << " type " << t_DataType
-				     << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+                                     << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                     << iEvent.bunchCrossing();
 #endif
   //Get magnetic field and ECAL channel status
   const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
@@ -511,7 +514,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 #ifdef EDM_ML_DEBUG
   if (debug_)
     edm::LogVerbatim("HcalIsoTrack") << "# of propagated tracks " << t_TracksProp << " out of " << t_Tracks
-				     << " with Trigger " << ignoreTrigger_;
+                                     << " with Trigger " << ignoreTrigger_;
 #endif
 
   //Trigger
@@ -525,7 +528,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-    const std::vector<std::pair<std::string, bool> >& finalDecisions = l1GtUtils_->decisionsFinal();
+    const std::vector<std::pair<std::string, bool>>& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
         t_L1Bit = decision.second;
@@ -535,7 +538,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 #ifdef EDM_ML_DEBUG
     if (debug_)
       edm::LogVerbatim("HcalIsoTrack") << "Trigger Information for " << l1TrigName_ << " is " << t_L1Bit
-				       << " from a list of " << finalDecisions.size() << " decisions";
+                                       << " from a list of " << finalDecisions.size() << " decisions";
 #endif
 
     //HLT
@@ -553,8 +556,9 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
               if (hlt > 0)
                 t_TrigPass = true;
 #ifdef EDM_ML_DEBUG
-	      if (debug_)
-		edm::LogVerbatim("HcalIsoTrack") << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << t_trgbits->at(i);
+              if (debug_)
+                edm::LogVerbatim("HcalIsoTrack")
+                    << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << t_trgbits->at(i);
 #endif
             }
           }
@@ -564,7 +568,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 #ifdef EDM_ML_DEBUG
     if (debug_)
       edm::LogVerbatim("HcalIsoTrack") << "HLT Information shows " << t_TrigPass << ":" << trigNames_.empty() << ":"
-				       << okC;
+                                       << okC;
 #endif
   }
 
@@ -623,8 +627,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
               for (unsigned int imodule = 0; imodule < moduleLabels.size(); imodule++) {
                 if (label.find(moduleLabels[imodule]) != std::string::npos) {
 #ifdef EDM_ML_DEBUG
-		  if (debug_)
-		    edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
+                  if (debug_)
+                    edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
 #endif
                   for (unsigned int ifiltrKey = 0; ifiltrKey < triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
                     Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
@@ -638,13 +642,16 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
                       vecL1.push_back(v4);
                     }
 #ifdef EDM_ML_DEBUG
-		    if (debug_)
-		      edm::LogVerbatim("HcalIsoTrack") << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi() << " mass " << TO.mass() << " Id " << TO.id();
+                    if (debug_)
+                      edm::LogVerbatim("HcalIsoTrack")
+                          << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi()
+                          << " mass " << TO.mass() << " Id " << TO.id();
 #endif
                   }
 #ifdef EDM_ML_DEBUG
-		  if (debug_)
-		    edm::LogVerbatim("HcalIsoTrack") << "sizes " << vecL1.size() << ":" << vecL2.size() << ":" << vecL3.size();
+                  if (debug_)
+                    edm::LogVerbatim("HcalIsoTrack")
+                        << "sizes " << vecL1.size() << ":" << vecL2.size() << ":" << vecL3.size();
 #endif
                 }
               }
@@ -655,8 +662,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
             for (unsigned int i = 0; i < vecL2.size(); i++) {
               double dr = dR(vecL1[0], vecL2[i]);
 #ifdef EDM_ML_DEBUG
-	      if (debug_)
-		edm::LogVerbatim("HcalIsoTrack") << "lvl2[" << i << "] dR " << dr;
+              if (debug_)
+                edm::LogVerbatim("HcalIsoTrack") << "lvl2[" << i << "] dR " << dr;
 #endif
               if (dr < mindR1) {
                 mindR1 = dr;
@@ -664,8 +671,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
               }
             }
 #ifdef EDM_ML_DEBUG
-	    if (debug_)
-	      edm::LogVerbatim("HcalIsoTrack") << "L2 object closest to L1 " << mindRvec1 << " at Dr " << mindR1;
+            if (debug_)
+              edm::LogVerbatim("HcalIsoTrack") << "L2 object closest to L1 " << mindRvec1 << " at Dr " << mindR1;
 #endif
 
             if (!vecL1.empty()) {
@@ -713,7 +720,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   }
 #ifdef EDM_ML_DEBUG
   if (debug_)
-    edm::LogVerbatim("HcalIsoTrack") << "Final results on selected tracks " << t_TracksSaved << ":" << t_TracksLoose << ":" << t_TracksTight;
+    edm::LogVerbatim("HcalIsoTrack") << "Final results on selected tracks " << t_TracksSaved << ":" << t_TracksLoose
+                                     << ":" << t_TracksTight;
 #endif
   t_TrigPassSel = (t_TracksSaved > 0);
   tree2->Fill();
@@ -847,7 +855,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
                                    "HLT_PFJet400",
                                    "HLT_PFJet450",
                                    "HLT_PFJet500"};
-  desc.add<std::vector<std::string> >("triggers", trig);
+  desc.add<std::vector<std::string>>("triggers", trig);
   desc.add<std::string>("processName", "HLT");
   desc.add<std::string>("l1Filter", "");
   desc.add<std::string>("l2Filter", "L2Filter");
@@ -918,11 +926,11 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
   desc.addUntracked<int>("outMode", 11);
   std::vector<int> dummy;
-  desc.addUntracked<std::vector<int> >("oldID", dummy);
-  desc.addUntracked<std::vector<int> >("newDepth", dummy);
+  desc.addUntracked<std::vector<int>>("oldID", dummy);
+  desc.addUntracked<std::vector<int>>("newDepth", dummy);
   desc.addUntracked<bool>("hep17", false);
   std::vector<int> events;
-  desc.add<std::vector<int> >("debugEvents", events);
+  desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("HcalIsoTrkAnalyzer", desc);
 }
 
@@ -959,7 +967,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
 
 #ifdef EDM_ML_DEBUG
     if (debug_)
-      edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << t_pt << "|" << pTrack->eta() << "|" << t_phi << "|" << t_p;
+      edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << t_pt << "|"
+                                       << pTrack->eta() << "|" << t_phi << "|" << t_p;
 #endif
     t_mindR2 = 999;
     for (unsigned int k = 0; k < vecL3.size(); ++k) {
@@ -1005,7 +1014,8 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       eIsolation = eIsolate2_;
 #ifdef EDM_ML_DEBUG
     if (debug_)
-      edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|" << trkDetItr->okHCAL << " eIsolation " << eIsolation;
+      edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
+                                       << trkDetItr->okHCAL << " eIsolation " << eIsolation;
 #endif
     t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
     bool notMuon = (muonh.isValid()) ? notaMuon(pTrack, muonh) : true;
@@ -1031,7 +1041,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       }
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR << ":" << eEcal;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR << ":" << eEcal;
 #endif
       t_eMipDR = eEcal;
       ////////////////////////////////-MIP STUFF-///////////////////////////////
@@ -1054,7 +1064,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       }
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR2 << ":" << eEcal2;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR2 << ":" << eEcal2;
 #endif
       t_eMipDR2 = eEcal2;
       ////////////////////////////////-MIP STUFF-2/////////////////////////////
@@ -1077,7 +1087,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       }
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR3 << ":" << eEcal3;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR3 << ":" << eEcal3;
 #endif
       t_eMipDR3 = eEcal3;
       ////////////////////////////////-MIP STUFF-3/////////////////////////////
@@ -1100,7 +1110,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       }
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR4 << ":" << eEcal4;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR4 << ":" << eEcal4;
 #endif
       t_eMipDR4 = eEcal4;
       ////////////////////////////////-MIP STUFF-4/////////////////////////////
@@ -1123,7 +1133,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       }
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR5 << ":" << eEcal5;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR5 << ":" << eEcal5;
 #endif
       t_eMipDR5 = eEcal5;
       ////////////////////////////////-MIP STUFF-5/////////////////////////////
@@ -1170,9 +1180,9 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
       t_hAnnular = h7x7 - h5x5;
 #ifdef EDM_ML_DEBUG
       if (debug_)
-	edm::LogVerbatim("HcalIsoTrack") << "max p Near (Ecal) " << t_emaxNearP << " (Hcal) " << t_hmaxNearP
-					 << " Annular E (Ecal) " << e11x11P.first << ":" << e15x15P.first << ":"
-					 << t_eAnnular << " (Hcal) " << h5x5 << ":" << h7x7 << ":" << t_hAnnular;
+        edm::LogVerbatim("HcalIsoTrack") << "max p Near (Ecal) " << t_emaxNearP << " (Hcal) " << t_hmaxNearP
+                                         << " Annular E (Ecal) " << e11x11P.first << ":" << e15x15P.first << ":"
+                                         << t_eAnnular << " (Hcal) " << h5x5 << ":" << h7x7 << ":" << t_hAnnular;
 #endif
       t_gentrackP = trackP(pTrack, genParticles);
       if (t_eMipDR < eEcalMax_ && t_hmaxNearP < eIsolation) {
@@ -1236,26 +1246,26 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
         storeEnergy(3, respCorrs, ids3, edet3, t_eHcal30, t_DetIds3, t_HitEnergies3);
 
 #ifdef EDM_ML_DEBUG
-	if (debug_) {
-	  edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << t_pt << "|"
-					   << pTrack->eta() << "|" << t_phi << "|" << t_p << " Generator Level p "
-					   << t_gentrackP;
-	  edm::LogVerbatim("HcalIsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal"
-					   << t_eHcal << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":"
-					   << t_qltyPVFlag << ":" << t_selectTk;
-	  for (unsigned int ll = 0; ll < t_DetIds->size(); ll++) {
-	    edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << t_DetIds->at(ll) << "   hit enery is  = " << t_HitEnergies->at(ll);
-	  }
-	  for (unsigned int ll = 0; ll < t_DetIds1->size(); ll++) {
-	    edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << t_DetIds1->at(ll) << "   hit enery is  = " << t_HitEnergies1->at(ll);
-	  }
-	  for (unsigned int ll = 0; ll < t_DetIds3->size(); ll++) {
-	    edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << t_DetIds3->at(ll) << "   hit enery is  = " << t_HitEnergies3->at(ll);
-	  }
-	}
+        if (debug_) {
+          edm::LogVerbatim("HcalIsoTrack")
+              << "This track : " << nTracks << " (pt|eta|phi|p) : " << t_pt << "|" << pTrack->eta() << "|" << t_phi
+              << "|" << t_p << " Generator Level p " << t_gentrackP;
+          edm::LogVerbatim("HcalIsoTrack")
+              << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal" << t_eHcal << " ieta " << t_ieta
+              << " Quality " << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
+          for (unsigned int ll = 0; ll < t_DetIds->size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << t_DetIds->at(ll) << "   hit enery is  = " << t_HitEnergies->at(ll);
+          }
+          for (unsigned int ll = 0; ll < t_DetIds1->size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << t_DetIds1->at(ll) << "   hit enery is  = " << t_HitEnergies1->at(ll);
+          }
+          for (unsigned int ll = 0; ll < t_DetIds3->size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << t_DetIds3->at(ll) << "   hit enery is  = " << t_HitEnergies3->at(ll);
+          }
+        }
 #endif
         bool accept(false);
         if (t_p > pTrackMin_) {
@@ -1277,7 +1287,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
         }
         if (accept) {
           tree->Fill();
-	  edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_RunNo << " Event " << t_EventNo;
+          edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_RunNo << " Event " << t_EventNo;
           nSave++;
           int type(0);
           if (t_eMipDR < 1.0) {
@@ -1295,11 +1305,11 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
             t_trackType->emplace_back(type);
           }
 #ifdef EDM_ML_DEBUG
-	  if (debug_) {
-	    for (unsigned int k = 0; k < t_trgbits->size(); k++) {
-	      edm::LogVerbatim("HcalIsoTrack") << "trigger bit is  = " << t_trgbits->at(k);
-	    }
-	  }
+          if (debug_) {
+            for (unsigned int k = 0; k < t_trgbits->size(); k++) {
+              edm::LogVerbatim("HcalIsoTrack") << "trigger bit is  = " << t_trgbits->at(k);
+            }
+          }
 #endif
         }
       }

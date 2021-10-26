@@ -96,7 +96,8 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-                                   << "\t dataType_      " << dataType_ << " and " << debEvents_.size() << " events to be debugged";
+                                   << "\t dataType_      " << dataType_ << " and " << debEvents_.size()
+                                   << " events to be debugged";
 }
 
 void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -104,10 +105,13 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
   t_Event = iEvent.id().event();
   t_DataType = dataType_;
 #ifdef EDM_ML_DEBUG
-  bool debug = (debEvents_.empty()) ? true : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
+  bool debug = (debEvents_.empty())
+                   ? true
+                   : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
   if (debug)
     edm::LogVerbatim("HcalIsoTrack") << "Run " << t_Run << " Event " << t_Event << " type " << t_DataType
-				     << " Luminosity " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+                                     << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                     << iEvent.bunchCrossing();
 #endif
 
   // Fill from IsoTrkCalibVariables collection
@@ -117,7 +121,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 #ifdef EDM_ML_DEBUG
     if (debug)
       edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << isotrkCalib->size()
-				       << " entries";
+                                       << " entries";
     int k(0);
 #endif
     for (auto itr = isotrkCalib->begin(); itr != isotrkCalib->end(); ++itr) {
@@ -133,7 +137,9 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 #ifdef EDM_ML_DEBUG
       ++k;
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "Track " << k << " p:pt:phi " << t_p << ":" << t_pt << ":" << t_phi << " nvtx:ntrk:goodPV:wt " << t_nVtx << ":" << t_nTrk << ":" << t_goodPV << ":" << t_EventWeight << " ieta:iphi " << t_ieta << ":" << t_iphi;
+        edm::LogVerbatim("HcalIsoTrack") << "Track " << k << " p:pt:phi " << t_p << ":" << t_pt << ":" << t_phi
+                                         << " nvtx:ntrk:goodPV:wt " << t_nVtx << ":" << t_nTrk << ":" << t_goodPV << ":"
+                                         << t_EventWeight << " ieta:iphi " << t_ieta << ":" << t_iphi;
 #endif
       t_l1pt = itr->l1pt_;
       t_l1eta = itr->l1eta_;
@@ -145,7 +151,9 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_mindR2 = itr->mindR2_;
 #ifdef EDM_ML_DEBUG
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "L1 pt:eta:phi " << t_l1pt << ":" << t_l1eta << ":" << t_l1phi << " L3 pt:eta:phi " << t_l3pt << ":" << t_l3eta << ":" << t_l3phi << " R1:R2 " << t_mindR1 << ":" << t_mindR2;
+        edm::LogVerbatim("HcalIsoTrack") << "L1 pt:eta:phi " << t_l1pt << ":" << t_l1eta << ":" << t_l1phi
+                                         << " L3 pt:eta:phi " << t_l3pt << ":" << t_l3eta << ":" << t_l3phi << " R1:R2 "
+                                         << t_mindR1 << ":" << t_mindR2;
 #endif
       t_eMipDR = itr->eMipDR_[0];
       t_eMipDR2 = itr->eMipDR_[1];
@@ -154,7 +162,8 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_eMipDR5 = itr->eMipDR_[4];
 #ifdef EDM_ML_DEBUG
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "eMIPDR 1:2:3:4:5 " << t_eMipDR << ":" << t_eMipDR2 << ":" << t_eMipDR3 << ":" << t_eMipDR4 << ":" << t_eMipDR5;
+        edm::LogVerbatim("HcalIsoTrack") << "eMIPDR 1:2:3:4:5 " << t_eMipDR << ":" << t_eMipDR2 << ":" << t_eMipDR3
+                                         << ":" << t_eMipDR4 << ":" << t_eMipDR5;
 #endif
       t_hmaxNearP = itr->hmaxNearP_;
       t_emaxNearP = itr->emaxNearP_;
@@ -162,7 +171,8 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_hAnnular = itr->hAnnular_;
 #ifdef EDM_ML_DEBUG
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "emaxNearP:hmaxNearP " << t_emaxNearP << ":" << t_hmaxNearP << " eAnnlar:hAnnular"  << t_eAnnular << ":" << t_hAnnular;
+        edm::LogVerbatim("HcalIsoTrack") << "emaxNearP:hmaxNearP " << t_emaxNearP << ":" << t_hmaxNearP
+                                         << " eAnnlar:hAnnular" << t_eAnnular << ":" << t_hAnnular;
 #endif
       t_gentrackP = itr->gentrackP_;
       t_rhoh = itr->rhoh_;
@@ -172,7 +182,9 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_qltyPVFlag = itr->qltyPVFlag_;
 #ifdef EDM_ML_DEBUG
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "gentrackP " << t_gentrackP << " rhoh " << t_rhoh << " qltyFlag:qltyMissFlag:qltyPVFlag:selectTk "  << t_qltyFlag << ":" << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
+        edm::LogVerbatim("HcalIsoTrack") << "gentrackP " << t_gentrackP << " rhoh " << t_rhoh
+                                         << " qltyFlag:qltyMissFlag:qltyPVFlag:selectTk " << t_qltyFlag << ":"
+                                         << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
 #endif
       t_trgbits = itr->trgbits_;
       t_DetIds = itr->detIds_;
@@ -202,7 +214,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       }
 #ifdef EDM_ML_DEBUG
       if (debug)
-	edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
+        edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
 #endif
       tree->Fill();
       edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event;
@@ -226,7 +238,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 #ifdef EDM_ML_DEBUG
     if (debug)
       edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkEventVariablesCollection with " << isotrkEvent->size()
-				       << " entries";
+                                       << " entries";
 #endif
     auto itr = isotrkEvent->begin();
     if (itr != isotrkEvent->end()) {
@@ -340,7 +352,7 @@ void HcalIsoTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("isoTrackVarLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrack"));
   desc.add<edm::InputTag>("isoTrackEvtLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrackEvent"));
   std::vector<int> events;
-  desc.add<std::vector<int> >("debugEvents", events);
+  desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("hcalIsoTrackAnalyzer", desc);
 }
 
