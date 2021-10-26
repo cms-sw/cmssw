@@ -181,10 +181,6 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
     const auto& pads_in_det = pads.get(p_id);
 
     for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
-      // ignore 16-partition GE2/1 pads
-      if (p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip)
-        continue;
-
       // check that the pad BX is within the range
       if (pad->bx() < minBXPad_ || pad->bx() > maxBXPad_)
         continue;
@@ -194,7 +190,20 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection& pads) {
 
       // check that it matches a pad that was hit by SimHits from our track
       for (auto digi : detid_to_digis_[p_id.rawId()]) {
-        if (digi.strip() / 2 == pad->pad()) {
+        // for 8-partition geometries, the pad number equals the strip number divided by two
+        const bool match8Partition(digi.strip() / 2 == pad->pad());
+        // for 16-partition geometries, the pad number is the strip number itself
+        const bool match16Partition(digi.strip() == pad->pad());
+
+        // now consider the different cases separately
+        const bool matchGE0(p_id.isME0() and match8Partition);
+        const bool matchGE11(p_id.isGE11() and match8Partition);
+        const bool matchGE21_8(p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21 and match8Partition);
+        const bool matchGE21_16(p_id.isGE21() and pad->nPartitions() == GEMPadDigi::GE21SplitStrip and
+                                match16Partition);
+
+        // OR them together
+        if (matchGE0 or matchGE11 or matchGE21_8 or matchGE21_16) {
           detid_to_pads_[p_id.rawId()].push_back(*pad);
           chamber_to_pads_[p_id.chamberId().rawId()].push_back(*pad);
           superchamber_to_pads_[p_id.superChamberId().rawId()].push_back(*pad);
