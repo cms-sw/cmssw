@@ -1,7 +1,5 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorDRN.h"
 
-#include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
-
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
