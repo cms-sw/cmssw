@@ -4,7 +4,6 @@ from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 process = cms.Process("L1TMuonEmulation", Run2_2016)
 import os
 import sys
-import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
