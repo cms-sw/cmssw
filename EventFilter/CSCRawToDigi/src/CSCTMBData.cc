@@ -195,6 +195,7 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
 
     if (isGEMfirmware) {
       GEMFibersMask = buf[b0cLine + 36] & 0xf;  // GEM enabled fibers 4-bits mask
+      /// Handling of enabled GEM fibers is not yet properly implemented in the firmware
       // for (int i = 0; i < 4; i++)
       //  NGEMEnabled += (buf[b0cLine + 36] >> i) & 0x1;  // Get number of enabled GEM fibers
       NGEMEnabled = 4;                              // Currently always assume that all 4 fibers are enabled
@@ -252,9 +253,6 @@ int CSCTMBData::UnpackTMB(const uint16_t* buf) {
   } else {
     currentPosition += theComparatorData.sizeInWords();
   }
-
-  //int i = currentPosition-1;
-  //printf ( "%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i] ) ;
 
   // look for RPC data
   int b04Line = currentPosition;

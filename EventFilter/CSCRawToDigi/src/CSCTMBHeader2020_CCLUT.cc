@@ -16,7 +16,7 @@ CSCTMBHeader2020_CCLUT::CSCTMBHeader2020_CCLUT() {
   bits.nHeaderFrames = 42;
   bits.e0bline = 0x6E0B;
   bits.b0cline = 0xDB0C;
-  bits.firmRevCode = 0x1000;
+  bits.firmRevCode = 0x401;
   bits.nTBins = 12;
   bits.nCFEBs = 7;
 }
@@ -26,7 +26,7 @@ CSCTMBHeader2020_CCLUT::CSCTMBHeader2020_CCLUT(const unsigned short* buf) { memc
 void CSCTMBHeader2020_CCLUT::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
   bits.l1aNumber = dmbHeader.l1a();
-  bits.bxnCount = dmbHeader.bxn();
+  bits.bxnCount = dmbHeader.bxn12();
 }
 
 ///returns CLCT digis
@@ -63,7 +63,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_CCLUT::CLCTDigis(uint32_t idlayer) {
                     eighthstrip,
                     run3_pattern,
                     slope);
-  //digi0.setFullBX(bits.bxnPreTrigger);
 
   halfstrip = bits.clct1_key_low + (bits.clct1_key_high << 7);
   strip = halfstrip % 32;
@@ -96,7 +95,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_CCLUT::CLCTDigis(uint32_t idlayer) {
                     eighthstrip,
                     run3_pattern,
                     slope);
-  //digi1.setFullBX(bits.bxnPreTrigger);
 
   result.push_back(digi0);
   result.push_back(digi1);
@@ -285,11 +283,8 @@ void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
   os << std::hex << "BOC LINE " << bits.b0cline << " EOB " << bits.e0bline << "\n";
   os << std::hex << "FW revision: 0x" << bits.firmRevCode << "\n";
   os << std::dec << "fifoMode = " << bits.fifoMode << ", nTBins = " << bits.nTBins << "\n";
-  //  os << "dumpCFEBs = " << dumpCFEBs << ", nHeaderFrames = "
-  //     << nHeaderFrames << "\n";
   os << "boardID = " << bits.boardID << ", cscID = " << bits.cscID << "\n";
   os << "l1aNumber = " << bits.l1aNumber << ", bxnCount = " << bits.bxnCount << "\n";
-  //  os << "preTrigTBins = " << preTrigTBins << ", nCFEBs = "<< nCFEBs<< " ";
   os << "trigSourceVect = " << bits.trigSourceVect << ", run3_trig_df = " << bits.run3_trig_df << ", activeCFEBs = 0x"
      << std::hex << (bits.activeCFEBs | (bits.activeCFEBs_2 << 5)) << ", readCFEBs = 0x" << std::hex
      << (bits.readCFEBs | (bits.readCFEBs_2 << 5)) << std::dec << "\n";
@@ -305,11 +300,6 @@ void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
      << ", buf_q_adr_err: " << bits.buf_q_adr_err << ", buf_stalled: " << bits.buf_stalled << ",\nbuf_fence_cnt: 0x"
      << bits.buf_fence_cnt << ", reverse_hs_csc: " << bits.reverse_hs_csc
      << ", reverse_hs_me1a: " << bits.reverse_hs_me1a << ", reverse_hs_me1b: " << bits.reverse_hs_me1b << "\n";
-
-  //     << " alctMatchTime = " << alctMatchTime << " ";
-  //  os << "hs_thresh = " << hs_thresh << ", ds_thresh = " << ds_thresh
-  //     << " ";
-  //
   os << "CLCT Words:\n"
      << " bits.clct0_valid = " << bits.clct0_valid << " bits.clct0_shape = " << bits.clct0_shape
      << " bits.clct0_quality = " << bits.clct0_quality

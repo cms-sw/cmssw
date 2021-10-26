@@ -59,18 +59,18 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
 
       if (isGEM_fw) {
         if (isRun2_df) {
-          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(firmwareRevision));
         } else {
           theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_GEM());
         }
       } else if (isCCLUT_HMT_fw) {
         if (isRun2_df) {
-          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+          theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(firmwareRevision));
         } else {
           theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT());
         }
       } else if (isOTMB_Run2_fw || isTMB_Run2_fw || isRun2_df) {
-        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2());
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(firmwareRevision));
       } else if (isTMB_Run3_fw) {
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB());
       }
@@ -376,11 +376,13 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
         if (major_ver == 1) {
           isRun2_df = true;
         }
-        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
+        if ((isGEM_fw || isCCLUT_HMT_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
           clct0 = CSCCLCTDigi(
               1, 6, 6, 1, 0, (120 % 32), (120 / 32), 2, 1, 3, 0xebf, CSCCLCTDigi::Version::Run3, true, false, 2, 6);
           clct1 = CSCCLCTDigi(
               1, 6, 3, 1, 1, (132 % 32), (132 / 32), 2, 2, 3, 0xe54, CSCCLCTDigi::Version::Run3, false, true, 1, 15);
+        }
+        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
           lct0 = CSCCorrelatedLCTDigi(
               1, 1, 3, 85, 120, 6, 0, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, true, false, 2, 6);
           lct1 = CSCCorrelatedLCTDigi(

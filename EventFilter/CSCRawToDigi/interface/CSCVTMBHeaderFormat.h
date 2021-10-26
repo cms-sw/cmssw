@@ -65,9 +65,6 @@ public:
   virtual unsigned short* data() = 0;
   virtual bool check() const = 0;
 
-  /// Needed before data packing
-  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
-
   /// for data packing
   virtual void addCLCT0(const CSCCLCTDigi& digi) = 0;
   virtual void addCLCT1(const CSCCLCTDigi& digi) = 0;
