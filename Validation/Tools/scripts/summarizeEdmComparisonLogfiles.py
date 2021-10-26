@@ -6,7 +6,7 @@ import os
 from glob import glob
 import re
 import pprint
-import commands
+import subprocess
 countRE = re.compile (r'^count_(\w+)')
 avoid = ['index', 'print']
 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
                 print("diffTree %s %s" % (goShlib, compRoot))
             diffCmd = diffOutput.get(key)
             if diffCmd:                
-                print(commands.getoutput (diffCmd))
+                print(subprocess.getoutput (diffCmd))
         if not options.problem and not options.mismatch:
             print("\n", '='*78, '\n')
             print("Success list:")
