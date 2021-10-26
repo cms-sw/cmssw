@@ -13,6 +13,8 @@
 #ifndef Progression_EGM_DRN_SCEnergyCorrectorDRN_h
 #define Progression_EGM_DRN_SCEnergyCorrectorDRN_h
 
+#include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
