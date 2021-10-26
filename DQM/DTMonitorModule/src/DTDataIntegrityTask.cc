@@ -317,7 +317,7 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
   int linkUp = linkDown + 24;
   string linkUp_s = to_string(linkUp);
   string histoName = "W" + wheel_s + "_" + "Sector" + ros_s + "_" + histoType;
-  string histoTitle = histoName + " (Link " + linkDown_s + "-" + linkUp_s + " error summary)";
+  string histoTitle = histoName + " (Channel " + linkDown_s + "-" + linkUp_s + " error summary)";
   unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + (ros - 1);
   if (mode < 1)  // Online only
     urosHistos[keyHisto] = ibooker.book2D(histoName, histoTitle, 11, 0, 11, 25, 0, 25);
@@ -394,8 +394,8 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
   linkDown_s = to_string(linkDown);
   linkUp = linkDown + 24;
   linkUp_s = to_string(linkUp);
-  histoName = "W" + wheel_s + "_" + "ROS" + ros_s + "_" + histoType;
-  histoTitle = histoName + " (Link " + linkDown_s + "-" + linkUp_s + " error summary)";
+  histoName = "W" + wheel_s + "_" + "Sector" + ros_s + "_" + histoType;
+  histoTitle = histoName + " (Channel " + linkDown_s + "-" + linkUp_s + " error summary)";
   keyHisto = (TDCError)*1000 + (wheel + 2) * 100 + (ros - 1);
   urosHistos[keyHisto] = ibooker.book2D(histoName, histoTitle, 24, 0, 24, 25, 0, 25);
   histo = urosHistos[keyHisto];
@@ -539,6 +539,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
   MonitorElement* uROSError0 = nullptr;
   MonitorElement* uROSError1 = nullptr;
   MonitorElement* uROSError2 = nullptr;
+  MonitorElement* uROSErrorS4 = nullptr;
 
   if (mode <= 2) {
     if (uRos > 2) {  //sectors 1-12
@@ -546,6 +547,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         uROSError0 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros - 1)];  //links 0-23
         uROSError1 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros)];      //links 24-47
         uROSError2 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (ros + 1)];  //links 48-71
+        uROSErrorS4 = urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + 3];
 
         if ((!uROSError2) || (!uROSError1) || (!uROSError0)) {
           LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -559,6 +561,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         for (unsigned int flag = 0; flag < 5; ++flag) {
           if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
             int value = flag;
+            int sector4 = 3;
+            
             if (flag == 0)
               value = 5;  //move it to the 5th bin
 
@@ -568,9 +572,12 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
                 if (mode != 1)
                   uROSError0->Fill(value - 1, link);  //bins start at 0 despite labeling
               } else if (link < 48) {
-                errorX[value - 1][ros][wheel + 2] += 1;
-                if (mode != 1)
-                  uROSError1->Fill(value - 1, link - 23);
+                  if((link==46 || link==57) && ros == 10) errorX[value - 1][sector4][wheel + 2] += 1;
+                  else errorX[value - 1][ros][wheel + 2] += 1;
+                if (mode != 1){
+                  if((link==46 || link==57) && ros == 10) uROSErrorS4->Fill(value - 1, link - 23);
+                  else uROSError1->Fill(value - 1, link - 23);
+                  }
               } else if (link < 72) {
                 errorX[value - 1][ros + 1][wheel + 2] += 1;
                 if (mode != 1)
@@ -582,19 +589,21 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
       }        //loop on links
     }          //uROS>2
 
-    else {  //uRos<3
+    else {  //uRos<3  25th Channel slot
 
       for (unsigned int link = 0; link < 12; ++link) {
         for (unsigned int flag = 0; flag < 5; ++flag) {
           if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
             int value = flag;
-            int sc = 24;
+            int ch25 = 24;
+            int sector = link+1;
             if (flag == 0)
               value = 5;  //move it to the 5th bin
 
             if (value > 0) {
               if (mode != 1) {
-                unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + link;  //ros -1 = link in this case
+                if(sector==9) sector = 10;
+                unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + abs(sector-1);  //ros -1 = link in this case
                 uROSError0 = urosHistos[keyHisto];
                 if (!uROSError0) {
                   LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -602,9 +611,9 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
                   return;
                 }
               }
-              errorX[value - 1][link][wheel + 2] += 1;  // ros-1=link in this case
+              errorX[value - 1][sector-1][wheel + 2] += 1;  // ros-1=link in this case
               if (mode != 1)
-                uROSError0->Fill(value - 1, sc);  //bins start at 0 despite labeling, this is the old SC
+                uROSError0->Fill(value - 1, ch25);  //bins start at 0 despite labeling, this is the old SC
             }
           }  //flag values
         }    //loop on flags
