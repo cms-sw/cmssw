@@ -42,25 +42,21 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 				     #'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
 				     #'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
 				     #'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
-				     ### parp(85) & parp(86) are N/A in Py8
 				     #'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
 				     'BeamRemnants:primordialKT=on',          # D; mstp(91)=1
 				     'BeamRemnants:primordialKThard=2.1',     # parp(91)=2.1
 				     'BeamRemnants:primordialKTremnant=15.',  # parp(93)=15.
 				     'SpaceShower:pTmin=1.25',                # parp(62)=1.25
-				     ### parp(64) is N/A in Py8
-				     'SpaceShower:pTmaxFudge=2.'              # should this be instead of parp(67)=2.5 ??? 
-				                                              # In Py6, D==parp(67)=4.
-				                                              # and in Py8 for this D=1, max=2
+				     'SpaceShower:pTmaxFudge=2.'              # should this be instead of parp(67)=2.5?
 	),
-        py8SpecialSettings   = cms.vstring( 'HadronLevel:Hadronize = off',     # mstp(111)=1
+        py8SpecialSettings   = cms.vstring( 'HadronLevel:Hadronize = off',
 				          #'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles
 				          #'ParticleDecays:tau0Max   = 10.', # parj(71)=10.- for which ctau < 10 mm
 					  'PartonLevel:ISR = off',
 					  'PartonLevel:FSR = off',
-					  'PartonLevel:MI = on'           # mstp(81)=0
-					  # for pp intractions, SpaceShower things are not important,
-					  # but TimeShower settings are relevat
+					  'PartonLevel:MPI = on'             # mstp(81)
+					  # for pp interactions, SpaceShower things are not important,
+					  # but TimeShower settings are relevant
 					  'TimeShower:QEDshowerByL = off',
 					  'TimeShower:QEDshowerByQ = off',
 					  'SpaceShower:QEDshowerByL = off',
@@ -83,7 +79,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 					  '15:onIfAny = 13'  # turn ON tau -> mu
 	),
         parameterSets = cms.vstring(   'py8UESettings',
-	                            #'py8SpecialSettings',
+	                           # 'py8SpecialSettings',
 	                            'py8ProcessSettings',
 				    'py8ZDecaySettings')
     )
