@@ -151,7 +151,11 @@ class InputInfo(object):
       if self.ls:
         for run in self.ls.keys():
           run_lumis = []
-          for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
+          for rng in self.ls[run]:
+              if isinstance(rng, int):
+                  run_lumis.append(str(rng))
+              else:
+                  run_lumis.append(str(rng[0])+","+str(rng[1]))
           query_lumis.append(":".join(run_lumis))
       return query_lumis
 
