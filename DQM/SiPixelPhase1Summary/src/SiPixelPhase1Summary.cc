@@ -283,13 +283,8 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       nROCs = tempProfile->GetBinContent(i + 1);
     }
     deadROCSummary->setBinContent(xBin, yBin, nROCs / nRocsPerTrend[i]);
-<<<<<<< HEAD
     deadROCSummary->setBinContent(2, 3, -1);
     deadROCSummary->setBinContent(2, 4, -1);
-=======
-    deadROCSummary->setBinContent(2, 3, -1);
-    deadROCSummary->setBinContent(2, 4, -1);
->>>>>>> c133370fadb77d8f7a171d98ca7ee4ab5600c34d
   }
 
   //Sum of non-negative bins for the reportSummary
@@ -333,7 +328,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       }
       for (int j = 0; j < 4; j++) {  // !??!?!? yAxisLabels_.size() ?!?!?!
         //Ignore the bins without detectors in them
-<<<<<<< HEAD
         if (i == 1 && j > 1) {
           summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
         } else {
@@ -349,7 +343,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
 
           sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
         }
-=======
         if (i == 1 && j > 1) {
           summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
         } else {
@@ -365,7 +358,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
 
           sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
         }
->>>>>>> c133370fadb77d8f7a171d98ca7ee4ab5600c34d
       }
     }
   }
