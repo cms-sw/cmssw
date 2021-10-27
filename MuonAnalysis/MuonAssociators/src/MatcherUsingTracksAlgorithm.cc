@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet &iConfig)
+MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC)
     : whichTrack1_(None),
       whichTrack2_(None),
       whichState1_(AtVertex),
@@ -27,7 +27,10 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
                       ? iConfig.getParameter<std::string>("matchedPreselection")
                       : ""),
       requireSameCharge_(iConfig.existsAs<bool>("requireSameCharge") ? iConfig.getParameter<bool>("requireSameCharge")
-                                                                     : false) {
+                                                                     : false),
+      magfieldToken_(iC.esConsumes()),
+      propagatorToken_(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
+      geometryToken_(iC.esConsumes()) {
   std::string algo = iConfig.getParameter<std::string>("algorithm");
   if (algo == "byTrackRef") {
     algo_ = ByTrackRef;
@@ -300,9 +303,9 @@ int MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1,
 }
 
 void MatcherUsingTracksAlgorithm::init(const edm::EventSetup &iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator_);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
+  magfield_ = iSetup.getHandle(magfieldToken_);
+  propagator_ = iSetup.getHandle(propagatorToken_);
+  geometry_ = iSetup.getHandle(geometryToken_);
 }
 
 reco::TrackRef MatcherUsingTracksAlgorithm::getTrack(const reco::Candidate &reco, WhichTrack whichTrack) const {

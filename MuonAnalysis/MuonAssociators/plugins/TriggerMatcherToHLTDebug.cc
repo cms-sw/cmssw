@@ -49,7 +49,7 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -61,7 +61,7 @@
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class TriggerMatcherToHLTDebug : public edm::EDProducer {
+class TriggerMatcherToHLTDebug : public edm::stream::EDProducer<> {
 public:
   // Constructor
   explicit TriggerMatcherToHLTDebug(const edm::ParameterSet &pset);
@@ -71,7 +71,6 @@ public:
 
   // Operations
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
-  void beginRun(const edm::Run &run, const edm::EventSetup &eventSetup) override;
 
 private:
   typedef edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>, std::vector<L2MuonTrajectorySeed> > >
@@ -132,7 +131,7 @@ using namespace reco;
 TriggerMatcherToHLTDebug::TriggerMatcherToHLTDebug(const edm::ParameterSet &pset)
     : tagToken_(consumes<View<reco::Muon> >(pset.getParameter<edm::InputTag>("tags"))),
       l1Token_(consumes<L1MuonParticleCollection>(pset.getParameter<edm::InputTag>("l1s"))),
-      l1matcher_(pset.getParameter<edm::ParameterSet>("l1matcherConfig")),
+      l1matcher_(pset.getParameter<edm::ParameterSet>("l1matcherConfig"), consumesCollector()),
       deltaR_(pset.getParameter<double>("deltaR")),
       minL1Quality_(pset.getParameter<int32_t>("MinL1Quality")),
       beamspotToken_(consumes<BeamSpot>(pset.getParameter<edm::InputTag>("BeamSpotTag"))),
@@ -180,6 +179,8 @@ TriggerMatcherToHLTDebug::~TriggerMatcherToHLTDebug() {}
 
 // Analyzer
 void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetup) {
+  l1matcher_.init(eventSetup);
+
   Handle<View<reco::Muon> > muons;
   event.getByToken(tagToken_, muons);
 
@@ -417,10 +418,6 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
   storeValueMap<reco::CandidatePtr>(event, muons, l2ptr, "l2Candidate");
   storeValueMap<reco::CandidatePtr>(event, muons, l3ptr, "l3Candidate");
 }  // METHOD
-
-void TriggerMatcherToHLTDebug::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  l1matcher_.init(iSetup);
-}
 
 template <typename T>
 void TriggerMatcherToHLTDebug::storeValueMap(edm::Event &iEvent,
