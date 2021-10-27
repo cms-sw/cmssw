@@ -277,7 +277,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
-    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(id.iType, id.iSec1);
+    int type = std::min(id.iType, 1);
+    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide * m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
@@ -329,7 +330,8 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
-    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(id.iType, id.iSec1);
+    int type = std::min(id.iType, 1);
+    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = id.zSide * m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
@@ -372,7 +374,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
     GlobalPoint v = getPosition(detid);
-    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(id.iType, id.iSec1);
+    int type = std::min(id.iType, 1);
+    std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
     float dfi = m_cellVec2[cellIndex].param()[FlatTrd::k_Cell];
     float dz = -id.zSide * m_cellVec2[cellIndex].param()[FlatTrd::k_dZ];
