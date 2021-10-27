@@ -386,7 +386,7 @@ workflows[136.8642] = ['',['RunJetHT2018BHEfail','HLTDR2_2018','RECODR2_2018reHL
 ### run 2018C ###
 workflows[136.873] = ['',['RunHLTPhy2018C','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
 workflows[136.874] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM_DQMM','HARVEST2018_L1TEgDQM_DQMM']]
-workflows[136.875] = ['',['RunDoubleMuon2018C','HLTDR2_2018','RECODR2_2018reHLT_Offline_DQMM','HARVEST2018']]
+workflows[136.875] = ['',['RunDoubleMuon2018C','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
 workflows[136.876] = ['',['RunJetHT2018C','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Offline_DQMM','HARVEST2018_skimJetHT_DQMM']]
 workflows[136.877] = ['',['RunMET2018C','HLTDR2_2018','RECODR2_2018reHLT_skimMET_Offline_DQMM','HARVEST2018_skimMET_DQMM']]
 workflows[136.878] = ['',['RunMuonEG2018C','HLTDR2_2018','RECODR2_2018reHLT_skimMuonEG_Offline_DQMM','HARVEST2018_skimMuonEG_DQMM']]
