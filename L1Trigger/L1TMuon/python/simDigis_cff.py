@@ -20,6 +20,13 @@ simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitive
     CSCComparatorDigiProducer = 'simMuonCSCDigis:MuonCSCComparatorDigi',
     CSCWireDigiProducer       = 'simMuonCSCDigis:MuonCSCWireDigi'
 )
+# For Run-3: turn on CCLUT in the MEX/1 chambers
+simCscTriggerPrimitiveDigisRun3 = simCscTriggerPrimitiveDigis.clone()
+simCscTriggerPrimitiveDigisRun3.commonParam.runCCLUT_OTMB = True
+
+# For Phase-2: turn on CCLUT in the ME1/3 and MEX/2 chambers
+simCscTriggerPrimitiveDigisPhase2 = simCscTriggerPrimitiveDigisRun3.clone()
+simCscTriggerPrimitiveDigisPhase2.commonParam.runCCLUT_TMB = True
 
 SimL1TMuonCommonTask = cms.Task(simDtTriggerPrimitiveDigis, simCscTriggerPrimitiveDigis)
 SimL1TMuonCommon = cms.Sequence(SimL1TMuonCommonTask)
@@ -106,16 +113,16 @@ phase2_trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simT
 ## GEM TPs
 from L1Trigger.L1TGEM.simGEMDigis_cff import *
 _run3_SimL1TMuonTask = SimL1TMuonTask.copy()
-#_run3_SimL1TMuonTask.add(simMuonGEMPadTask)
+_run3_SimL1TMuonTask.add(simCscTriggerPrimitiveDigisRun3)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-#(stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, _run3_SimL1TMuonTask )
 (stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, cms.Task(simMuonGEMPadTask,_run3_SimL1TMuonTask) )
 
 ## ME0 TPs
 from L1Trigger.L1TGEM.me0TriggerDigis_cff import *
 _phase2_SimL1TMuonTask = SimL1TMuonTask.copy()
 _phase2_SimL1TMuonTask.add(me0TriggerAllDigiTask)
+_phase2_SimL1TMuonTask.add(simCscTriggerPrimitiveDigisPhase2)
 _phase2_GE0_SimL1TMuonTask = SimL1TMuonTask.copyAndExclude([me0TriggerAllDigiTask])
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
