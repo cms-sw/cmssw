@@ -38,7 +38,7 @@ public:
 
 private:
   // Input collections
-  edm::InputTag jetInput_;
+  const edm::InputTag jetInput_;
   const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken_;
@@ -72,30 +72,25 @@ HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
                                        const edm::EventSetup& iSetup,
                                        trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  if (saveTags())
+    filterproduct.addCollectionTag(jetInput_);
+
   auto const jets = iEvent.getHandle(jetInputToken_);
   auto const& jetTimes = iEvent.get(jetTimesInputToken_);
   auto const& jetCellsForTiming = iEvent.get(jetCellsForTimingInputToken_);
   auto const& jetEcalEtForTiming = iEvent.get(jetEcalEtForTimingInputToken_);
-  if (saveTags())
-    filterproduct.addCollectionTag(jetInput_);
 
   uint njets = 0;
-  uint ijet = 0;
   for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
-    auto const& jet = jets->at(ijet);
-    reco::CaloJetRef const calojetref(jets, ijet);
-    if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and
-        jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and
-        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_) {
-      // Get a ref to the delayed jet
-      reco::CaloJetRef ref = reco::CaloJetRef(jets, distance(jets->begin(), iterJet));
-      //add ref to event
-      filterproduct.addObject(trigger::TriggerJet, ref);
+    reco::CaloJetRef const caloJetRef(jets, std::distance(jets->begin(), iterJet));
+    if (iterJet->pt() > minPt_ and jetTimes[caloJetRef] > jetTimeThresh_ and
+        jetEcalEtForTiming[caloJetRef] > jetEcalEtForTimingThresh_ and
+        jetCellsForTiming[caloJetRef] > jetCellsForTimingThresh_) {
+      // add caloJetRef to the event
+      filterproduct.addObject(trigger::TriggerJet, caloJetRef);
       ++njets;
     }
-    ijet++;
   }
-
   return njets >= minJets_;
 }
 
