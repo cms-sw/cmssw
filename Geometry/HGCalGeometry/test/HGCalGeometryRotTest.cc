@@ -15,10 +15,10 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class HGCalGeometryRotTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:

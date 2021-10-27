@@ -96,8 +96,8 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     }
   }
 #ifdef EDM_ML_DEBUG
-  bool matchOnly = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
-  bool debug = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
+  bool matchOnly = (mode_ == HGCalGeometryMode::Hexagon8Module);
+  bool debug = (mode_ == HGCalGeometryMode::Hexagon8Module);
   if (debug)
     edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
                                << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
