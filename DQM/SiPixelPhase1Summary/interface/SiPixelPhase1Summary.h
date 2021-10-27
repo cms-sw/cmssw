@@ -78,6 +78,7 @@ private:
 
   //Error thresholds for the dead ROC plots
   std::vector<double> deadRocThresholds_;
+  std::vector<double> deadRocWarnThresholds_;
 
   //book the summary plots
   void bookSummaries(DQMStore::IBooker& iBooker);
