@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_1_0/PRef --type PRef
 
-# /dev/CMSSW_12_1_0/PRef/V4 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_1_0/PRef/V10 (CMSSW_12_1_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V4')
+  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V10')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -3907,6 +3907,21 @@ fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
+fragment.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
+    RunType = cms.string( "Run3" ),
+    PitchSimY = cms.double( 0.15 ),
+    PitchSimX = cms.double( 0.1 ),
+    thickness = cms.double( 0.23 ),
+    noOfPixelSimX = cms.int32( 160 ),
+    noOfPixelSimY = cms.int32( 104 ),
+    noOfPixels = cms.int32( 16640 ),
+    simXWidth = cms.double( 16.6 ),
+    simYWidth = cms.double( 16.2 ),
+    deadEdgeWidth = cms.double( 0.2 ),
+    activeEdgeSigma = cms.double( 0.02 ),
+    physActiveEdgeDist = cms.double( 0.15 ),
+    appendToDataLabel = cms.string( "" )
+)
 
 fragment.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -4094,6 +4109,11 @@ fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorES
 fragment.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
 )
+fragment.XMLIdealGeometryESSource_CTPPS = cms.ESProducer( "XMLIdealGeometryESProducer",
+  rootDDName = cms.string( "cms:CMSE" ),
+  label = cms.string( "CTPPS" ),
+  appendToDataLabel = cms.string( "XMLIdealGeometryESSource_CTPPS" )
+)
 fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
   etaBinSize = cms.double( 0.087 ),
@@ -4107,6 +4127,21 @@ fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 fragment.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   SimpleMagneticField = cms.string( "" )
+)
+fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
+  verbosity = cms.untracked.uint32( 1 ),
+  buildMisalignedGeometry = cms.bool( False ),
+  isRun2 = cms.bool( False ),
+  dbTag = cms.string( "" ),
+  compactViewTag = cms.string( "XMLIdealGeometryESSource_CTPPS" ),
+  fromPreprocessedDB = cms.untracked.bool( False ),
+  fromDD4hep = cms.untracked.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+fragment.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
+  lhcInfoLabel = cms.string( "" ),
+  opticsLabel = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
