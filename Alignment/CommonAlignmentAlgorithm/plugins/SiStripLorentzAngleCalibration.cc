@@ -192,7 +192,6 @@ void SiStripLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
   const SiStripLorentzAngle *lorentzAngleHandle;
   lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
   const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
-  // const SiStripLorentzAngle lorentzAngleRcd = setup.getData(lorentzAngleToken_);
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiStripLorentzAngle(*lorentzAngleHandle));
   } else {
