@@ -38,6 +38,7 @@ public:
 
 private:
   // Input collections
+  edm::InputTag jetInput_;
   const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken_;
@@ -54,7 +55,8 @@ private:
 //Constructor
 HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
-      jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
+      jetInput_{iConfig.getParameter<edm::InputTag>("jets")},
+      jetInputToken_{consumes<std::vector<reco::CaloJet>>(jetInput_)},
       jetTimesInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetTimes"))},
       jetCellsForTimingInputToken_{
           consumes<edm::ValueMap<unsigned int>>(iConfig.getParameter<edm::InputTag>("jetCellsForTiming"))},
@@ -64,7 +66,8 @@ HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
       jetTimeThresh_{iConfig.getParameter<double>("jetTimeThresh")},
       jetEcalEtForTimingThresh_{iConfig.getParameter<double>("jetEcalEtForTimingThresh")},
       jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
-      minPt_{iConfig.getParameter<double>("minJetPt")} {}
+      minPt_{iConfig.getParameter<double>("minJetPt")} {
+      }
 
 //Filter
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
@@ -75,15 +78,24 @@ bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
   auto const& jetTimes = iEvent.get(jetTimesInputToken_);
   auto const& jetCellsForTiming = iEvent.get(jetCellsForTimingInputToken_);
   auto const& jetEcalEtForTiming = iEvent.get(jetEcalEtForTimingInputToken_);
+  if (saveTags())
+    filterproduct.addCollectionTag(jetInput_);
 
   uint njets = 0;
-  for (size_t ijet = 0; ijet < jets->size(); ++ijet) {
+  uint ijet = 0;
+  for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
     auto const& jet = jets->at(ijet);
     reco::CaloJetRef const calojetref(jets, ijet);
     if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and
         jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and
-        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_)
+        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_){
+      // Get a ref to the delayed jet
+      reco::CaloJetRef ref = reco::CaloJetRef(jets, distance(jets->begin(), iterJet));
+      //add ref to event
+      filterproduct.addObject(trigger::TriggerJet, ref);
       ++njets;
+    }
+    ijet++;
   }
 
   return njets >= minJets_;
