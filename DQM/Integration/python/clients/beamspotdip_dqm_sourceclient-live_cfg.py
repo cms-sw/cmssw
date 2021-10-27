@@ -45,6 +45,7 @@ process.GlobalTag.toGet = cms.VPSet(
 
 # module
 process.load("DQM.BeamMonitor.BeamSpotDipServer_cff")
+
 process.beamSpotDipServer.verbose = cms.untracked.bool(True)
 
 # process customizations included here
