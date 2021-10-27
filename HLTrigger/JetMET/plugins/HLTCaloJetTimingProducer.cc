@@ -53,6 +53,8 @@ private:
   // Include barrel, endcap jets or both
   const bool barrelJets_;
   const bool endcapJets_;
+
+  // Configurables for timing definition
   const double ecalCellEnergyThresh_;
   const double ecalCellTimeThresh_;
   const double ecalCellTimeErrorThresh_;
