@@ -72,8 +72,7 @@ HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
                                        const edm::EventSetup& iSetup,
                                        trigger::TriggerFilterObjectWithRefs& filterproduct) const {
-  edm::Handle<reco::CaloJetCollection> jets;
-  iEvent.getByToken(jetInputToken_, jets);
+  auto const jets = iEvent.getHandle(jetInputToken_);
   auto const& jetTimes = iEvent.get(jetTimesInputToken_);
   auto const& jetCellsForTiming = iEvent.get(jetCellsForTimingInputToken_);
   auto const& jetEcalEtForTiming = iEvent.get(jetEcalEtForTimingInputToken_);
