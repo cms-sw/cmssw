@@ -142,7 +142,7 @@ void PPSAlignmentWorker::fillDescriptions(edm::ConfigurationDescriptions& descri
 
   desc.add<std::string>("label", "");
   desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"));
-  desc.add<std::string>("folder", "CalibPPS/Common");
+  desc.add<std::string>("folder", "AlCaReco/PPSAlignment");
   desc.add<bool>("debug", false);
 
   descriptions.addWithDefaultLabel(desc);
