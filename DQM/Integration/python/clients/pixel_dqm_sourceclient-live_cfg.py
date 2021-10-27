@@ -13,7 +13,7 @@ if 'unitTest=True' in sys.argv:
     unitTest=True
 
 #set to false for lxplus offline testing
-#live=False
+live=False
 offlineTesting=not live
 
 TAG ="PixelPhase1" 
