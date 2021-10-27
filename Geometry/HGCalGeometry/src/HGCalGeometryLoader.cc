@@ -115,7 +115,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
             const HepGeom::Transform3D ht3d(mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
-	      << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":" << type << " DetId "
+                << "HGCalGeometryLoader::rad:phi:type " << ring * zside << ":" << iphi << ":" << type << " DetId "
                 << HGCScintillatorDetId(detId) << " " << std::hex << detId.rawId() << std::dec << " transf "
                 << ht3d.getTranslation() << " R " << ht3d.getTranslation().perp() << " and " << ht3d.getRotation();
 #endif
