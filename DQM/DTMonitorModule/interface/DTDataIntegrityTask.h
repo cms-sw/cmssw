@@ -100,7 +100,7 @@ private:
   int FEDIDmax;
 
   int errorX[6][12][5] = {{{0}}};  //5th is notOK flag and 6th is TDC Fatal; Second index is ROS. Last index is wheel
-  int nROSfatal;  //Minumum number of ROS/wheel with notOKFlag or TDC fatal errors to consider a FEDfatal event
+  int nLinksForFatal;  //Minumum number of Links/wheel with notOKFlag or TDC fatal errors to consider a FEDfatal event
 
   // Number of uROS per FED
   const int NuROS = 12;
