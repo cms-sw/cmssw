@@ -252,6 +252,7 @@ class ConfigBuilder(object):
         self.create_process()
         self.define_Configs()
         self.schedule = list()
+        self.scheduleIndexOfFirstHLTPath = None
 
         # we are doing three things here:
         # creating a process to catch errors
@@ -1574,9 +1575,10 @@ class ConfigBuilder(object):
         if self.process.schedule == None:
             raise Exception('the HLT step did not attach a valid schedule to the process')
 
+        self.scheduleIndexOfFirstHLTPath = len(self.schedule)
         [self.blacklist_paths.append(path) for path in self.process.schedule if isinstance(path,(cms.Path,cms.EndPath))]
 
-        #this is a fake, to be removed with fastim migration and HLT menu dump
+        # this is a fake, to be removed with fastim migration and HLT menu dump
         if self._options.fast:
             if not hasattr(self.process,'HLTEndSequence'):
                 self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
@@ -2247,16 +2249,24 @@ class ConfigBuilder(object):
         pathNames = ['process.'+p.label_() for p in self.schedule]
         if self.process.schedule == None:
             self.process.schedule = cms.Schedule()
+            for item in self.schedule:
+                self.process.schedule.append(item)
             result = 'process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         else:
-            result = "# process.schedule imported from cff in HLTrigger.Configuration\n"
-            result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+            if not isinstance(self.scheduleIndexOfFirstHLTPath, int):
+                raise Exception('the schedule was imported from a cff in HLTrigger.Configuration, but the final index of the first HLT path is undefined')
 
-        for item in self.schedule:
-            if not isinstance(item, cms.Schedule):
-                self.process.schedule.append(item)
-            else:
-                self.process.schedule.extend(item)
+            for index, item in enumerate(self.schedule):
+                if index < self.scheduleIndexOfFirstHLTPath:
+                    self.process.schedule.insert(index, item)
+                else:
+                    self.process.schedule.append(item)
+
+            result = "# process.schedule imported from cff in HLTrigger.Configuration\n"
+            for index, item in enumerate(pathNames[:self.scheduleIndexOfFirstHLTPath]):
+                result += 'process.schedule.insert('+str(index)+', '+item+')\n'
+            if self.scheduleIndexOfFirstHLTPath < len(pathNames):
+                result += 'process.schedule.extend(['+','.join(pathNames[self.scheduleIndexOfFirstHLTPath:])+'])\n'
 
         self.pythonCfgCode += result
 
