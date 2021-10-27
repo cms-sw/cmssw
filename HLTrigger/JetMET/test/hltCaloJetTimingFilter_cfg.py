@@ -30,7 +30,7 @@ process.hltTimingProducer = cms.EDProducer('HLTCaloJetTimingProducer',
         ecalCellEnergyThresh =cms.double(0.5),
         ecalCellTimeThresh = cms.double(12.5),
         ecalCellTimeErrorThresh = cms.double(100.),
-        matchingRadius2 = cms.double(0.16),
+        matchingRadius = cms.double(0.4),
 )
 
 process.hltTimingFilter = cms.EDFilter('HLTCaloJetTimingFilter',
