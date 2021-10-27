@@ -55,7 +55,7 @@
 class SiStripBackplaneCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC);
+  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiStripBackplaneCalibration() override;
@@ -136,18 +136,17 @@ private:
 
   TkModuleGroupSelector *moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
-  const edm::ESGetToken<SiStripLatency,SiStripLatencyRcd> latencyToken_;
-  const edm::ESGetToken<SiStripLorentzAngle,SiStripLorentzAngleRcd>lorentzAngleToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-  const edm::ESGetToken<SiStripBackPlaneCorrection,SiStripBackPlaneCorrectionRcd>backPlaneCorrToken_;
-
+  const edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrToken_;
 };
 
 //======================================================================
 //======================================================================
 //======================================================================
 
-SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC)
+SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
@@ -160,7 +159,7 @@ SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet
       latencyToken_(iC.esConsumes()),
       lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))),
       magFieldToken_(iC.esConsumes()),
-      backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))){
+      backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
   // 1: all in peak, 0: all in deco, -1: mixed state
   // (in principle one could treat even mixed state APV by APV...)
@@ -197,7 +196,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
 
   outDerivInds.clear();
 
-  const SiStripLatency* latency;
+  const SiStripLatency *latency;
   latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
 
@@ -207,16 +206,15 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
       const int index =
           moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
       if (index >= 0) {  // otherwise not treated
-        const MagneticField* magneticField = &setup.getData(magFieldToken_);
+        const MagneticField *magneticField = &setup.getData(magFieldToken_);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         //std::cout << "SiStripBackplaneCalibration derivatives " << readoutModeName_ << std::endl;
         const double dZ = hit.det()->surface().bounds().thickness();          // it's a float only...
         const double tanPsi = tsos.localParameters().mixedFormatVector()[1];  //float...
 
-
-        const SiStripLorentzAngle* lorentzAngleHandle;
-        lorentzAngleHandle = &setup.getData(lorentzAngleToken_); 
+        const SiStripLorentzAngle *lorentzAngleHandle;
+        lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
         // Yes, mobility (= LA/By) stored in object called LA...
         const double mobility = lorentzAngleHandle->getLorentzAngle(hit.det()->geographicalId());
         // shift due to dead back plane has two parts:
@@ -403,7 +401,7 @@ void SiStripBackplaneCalibration::endOfJob() {
 //======================================================================
 bool SiStripBackplaneCalibration::checkBackPlaneCorrectionInput(const edm::EventSetup &setup,
                                                                 const EventInfo &eventInfo) {
-  const SiStripBackPlaneCorrection * backPlaneCorrHandle;
+  const SiStripBackPlaneCorrection *backPlaneCorrHandle;
   if (!siStripBackPlaneCorrInput_) {
     backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
     siStripBackPlaneCorrInput_ = new SiStripBackPlaneCorrection(*backPlaneCorrHandle);
