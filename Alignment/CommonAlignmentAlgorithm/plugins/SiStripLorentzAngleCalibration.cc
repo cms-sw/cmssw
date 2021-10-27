@@ -53,7 +53,7 @@
 class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC);
+  explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiStripLorentzAngleCalibration() override = default;
@@ -131,18 +131,17 @@ private:
   std::unique_ptr<TkModuleGroupSelector> moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
 
-  const edm::ESGetToken<SiStripLatency,SiStripLatencyRcd> latencyToken_;
-  const edm::ESGetToken<SiStripLorentzAngle,SiStripLorentzAngleRcd>lorentzAngleToken_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-  const edm::ESGetToken<SiStripBackPlaneCorrection,SiStripBackPlaneCorrectionRcd>backPlaneCorrToken_;
-
+  const edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrToken_;
 };
 
 //======================================================================
 //======================================================================
 //======================================================================
 
-SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC)
+SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
@@ -190,10 +189,10 @@ void SiStripLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-    const SiStripLorentzAngle* lorentzAngleHandle;
-    lorentzAngleHandle= &setup.getData(lorentzAngleToken_);
-    const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
- // const SiStripLorentzAngle lorentzAngleRcd = setup.getData(lorentzAngleToken_);
+  const SiStripLorentzAngle *lorentzAngleHandle;
+  lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
+  const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
+  // const SiStripLorentzAngle lorentzAngleRcd = setup.getData(lorentzAngleToken_);
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiStripLorentzAngle(*lorentzAngleHandle));
   } else {
@@ -223,7 +222,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
                                                          const EventInfo &eventInfo) const {
   outDerivInds.clear();
 
-  const SiStripLatency* latency;
+  const SiStripLatency *latency;
   latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
   if (mode == readoutMode_) {
@@ -232,7 +231,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
       const int index =
           moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
       if (index >= 0) {  // otherwise not treated
-        const MagneticField* magneticField = &setup.getData(magFieldToken_);
+        const MagneticField *magneticField = &setup.getData(magFieldToken_);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         const double dZ = this->effectiveThickness(hit.det(), mode, setup);

@@ -54,7 +54,7 @@
 class SiPixelLorentzAngleCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC);
+  explicit SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiPixelLorentzAngleCalibration() override = default;
@@ -116,7 +116,7 @@ private:
   const std::string outFileName_;
   const std::vector<std::string> mergeFileNames_;
   const std::string lorentzAngleLabel_;
-  const edm::ESGetToken<SiPixelLorentzAngle,SiPixelLorentzAngleRcd>lorentzAngleToken_;
+  const edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   edm::ESWatcher<SiPixelLorentzAngleRcd> watchLorentzAngleRcd_;
 
@@ -135,7 +135,7 @@ private:
 //======================================================================
 //======================================================================
 
-SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC)
+SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
       recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
@@ -168,9 +168,9 @@ void SiPixelLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-    const SiPixelLorentzAngle* lorentzAngleHandle;
-    lorentzAngleHandle= &setup.getData(lorentzAngleToken_);
-    const auto &lorentzAngleRcd = setup.get<SiPixelLorentzAngleRcd>();
+  const SiPixelLorentzAngle *lorentzAngleHandle;
+  lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
+  const auto &lorentzAngleRcd = setup.get<SiPixelLorentzAngleRcd>();
 
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiPixelLorentzAngle(*lorentzAngleHandle));
@@ -207,7 +207,7 @@ unsigned int SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
         moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
     if (index >= 0) {  // otherwise not treated
 
-      const MagneticField* magneticField = &setup.getData(magFieldToken_);
+      const MagneticField *magneticField = &setup.getData(magFieldToken_);
       const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
       const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
       const double dZ = hit.det()->surface().bounds().thickness();  // it is a float only...
