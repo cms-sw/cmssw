@@ -80,8 +80,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double dy1 = r;
   double dy2 = 0.5 * dy1;
   double dy3 = 1.5 * dy1;
-  std::vector<double> xx = {dx1, dx2, -dx2, -dx1, -dx2,  dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4,  dx4,  dx1,  dx3};
-  std::vector<double> yy = { 0, dy1,   dy1,    0, -dy1, -dy1, dy2, dy1, dy3,  dy3,  dy1,  dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
+  std::vector<double> xx = {
+      dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4, dx4, dx1, dx3};
+  std::vector<double> yy = {
+      0, dy1, dy1, 0, -dy1, -dy1, dy2, dy1, dy3, dy3, dy1, dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
   double zpos = (posSens == 0) ? -0.5 * (waferT - cellT) : 0.5 * (waferT - cellT);
   dd4hep::Position tran(0, 0, zpos);
 
