@@ -250,12 +250,12 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
                        << ((i > 3) ? ((minus) ? "-" : "+") : "") << (j + 1);
         histName = histNameStream.str();
         MonitorElement* me = iGetter.get(histName);
-
+	
         if (!me) {
           edm::LogWarning("SiPixelPhase1Summary") << "ME " << histName << " is not available !!";
           continue;  // Ignore non-existing MEs, as this can cause the whole thing to crash
         }
-
+	
         if (summaryMap_[name] == nullptr) {
           edm::LogWarning("SiPixelPhase1Summary") << "Summary map " << name << " is not available !!";
           continue;  // Based on reported errors it seems possible that we're trying to access a non-existant summary map, so if the map doesn't exist but we're trying to access it here we'll skip it instead.
@@ -283,10 +283,15 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       nROCs = tempProfile->GetBinContent(i + 1);
     }
     deadROCSummary->setBinContent(xBin, yBin, nROCs / nRocsPerTrend[i]);
+<<<<<<< HEAD
     deadROCSummary->setBinContent(2, 3, -1);
     deadROCSummary->setBinContent(2, 4, -1);
+=======
+    deadROCSummary->setBinContent( 2, 3, -1 );
+    deadROCSummary->setBinContent( 2, 4, -1 );
+>>>>>>> c133370fadb77d8f7a171d98ca7ee4ab5600c34d
   }
-
+  
   //Sum of non-negative bins for the reportSummary
   float sumOfNonNegBins = 0.;
   //Now we will use the other summary maps to create the overall map.
@@ -299,9 +304,9 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       }
       for (int j = 0; j < 4; j++) {  // !??!?!? yAxisLabels_.size() ?!?!?!
         summaryMap_["Grand"]->setBinContent(
-            i + 1,
-            j + 1,
-            1);  // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
+					    i + 1,
+					    j + 1,
+					    1);  // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
         for (auto const& mapInfo : summaryPlotName_) {  //Check summary maps
           auto name = mapInfo.first;
           if (summaryMap_[name] == nullptr) {
@@ -328,6 +333,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       }
       for (int j = 0; j < 4; j++) {  // !??!?!? yAxisLabels_.size() ?!?!?!
         //Ignore the bins without detectors in them
+<<<<<<< HEAD
         if (i == 1 && j > 1) {
           summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
         } else {
@@ -343,6 +349,25 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
 
           sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
         }
+=======
+        if (i == 1 && j > 1)
+	  {
+	    summaryMap_["Grand"]->setBinContent( i+1,  j+1,  -1);
+	  }
+	else
+	  { 
+	    if (deadROCSummary->getBinContent(i + 1, j + 1) < deadRocWarnThresholds_[i * 4 + j])
+	      summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 1);
+	    
+	    else if (deadROCSummary->getBinContent(i + 1, j + 1) > deadRocWarnThresholds_[i*4 + j] && deadROCSummary->getBinContent(i + 1, j + 1) < deadRocThresholds_[i * 4 + j])
+	      summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0.8);
+	    
+	    else
+	      summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0);
+	    
+	    sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
+	  }
+>>>>>>> c133370fadb77d8f7a171d98ca7ee4ab5600c34d
       }
     }
   }
@@ -354,7 +379,7 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker& iBooker, DQMStore::
   // If we're running in online mode and the lumi section is not modulo 10, return. Offline running always uses lumiSec=0, so it will pass this test.
   if (lumiSec % 10 != 0)
     return;
-
+  
   if (runOnEndLumi_) {
     MonitorElement* nClustersAll = iGetter.get("PixelPhase1/Phase1_MechanicalView/num_clusters_per_Lumisection_PXAll");
     if (nClustersAll == nullptr) {
