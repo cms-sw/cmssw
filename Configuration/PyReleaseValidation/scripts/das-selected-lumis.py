@@ -17,7 +17,10 @@ lumi_data = lumi_data['data']
 
 def match_in(sub_list,lumi_list):
   for i in range(int(sub_list[0]),int(sub_list[1])+1):
-    if i >= int(lumi_list[0]) and i <= int(lumi_list[1]): return True
+    if len(lumi_list) == 1:
+      if i == int(lumi_list[0]): return True
+    else:
+      if i >= int(lumi_list[0]) and i <= int(lumi_list[1]): return True
   return False
 
 def check_lumi_ranges(given_lumi_list , sub_range):
