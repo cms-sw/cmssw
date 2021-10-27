@@ -41,10 +41,9 @@ private:
                             float&,
                             float&,
                             uint&);
-  virtual void beginRun(edm::Run const&, 
-	  edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
-  edm::ESHandle<CaloGeometry> _pG;
+  edm::ESHandle<CaloGeometry> caloGeometry_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   // Input collections
   const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
@@ -58,29 +57,29 @@ private:
   const double ecalCellTimeThresh_;
   const double ecalCellTimeErrorThresh_;
   const double matchingRadius2_;
-
 };
 
 //Constructor
-HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iConfig) : 
-  caloGeometryToken_(esConsumes<edm::Transition::BeginRun>()),
-  jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
-  ecalRecHitsEBToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(iConfig.getParameter<edm::InputTag>("ebRecHitsColl"))},
-  ecalRecHitsEEToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(iConfig.getParameter<edm::InputTag>("eeRecHitsColl"))},
-  barrelJets_{iConfig.getParameter<bool>("barrelJets")},
-  endcapJets_{iConfig.getParameter<bool>("endcapJets")}, 
-  ecalCellEnergyThresh_{iConfig.getParameter<double>("ecalCellEnergyThresh")},
-  ecalCellTimeThresh_{iConfig.getParameter<double>("ecalCellTimeThresh")},
-  ecalCellTimeErrorThresh_{iConfig.getParameter<double>("ecalCellTimeErrorThresh")},
-  matchingRadius2_{std::pow(iConfig.getParameter<double>("matchingRadius"), 2)}{
+HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iConfig)
+    : caloGeometryToken_(esConsumes<edm::Transition::BeginRun>()),
+      jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
+      ecalRecHitsEBToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(
+          iConfig.getParameter<edm::InputTag>("ebRecHitsColl"))},
+      ecalRecHitsEEToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(
+          iConfig.getParameter<edm::InputTag>("eeRecHitsColl"))},
+      barrelJets_{iConfig.getParameter<bool>("barrelJets")},
+      endcapJets_{iConfig.getParameter<bool>("endcapJets")},
+      ecalCellEnergyThresh_{iConfig.getParameter<double>("ecalCellEnergyThresh")},
+      ecalCellTimeThresh_{iConfig.getParameter<double>("ecalCellTimeThresh")},
+      ecalCellTimeErrorThresh_{iConfig.getParameter<double>("ecalCellTimeErrorThresh")},
+      matchingRadius2_{std::pow(iConfig.getParameter<double>("matchingRadius"), 2)} {
   produces<edm::ValueMap<float>>("");
   produces<edm::ValueMap<unsigned int>>("jetCellsForTiming");
   produces<edm::ValueMap<float>>("jetEcalEtForTiming");
 }
 
-void HLTCaloJetTimingProducer::beginRun(const edm::Run &run, 
-	const edm::EventSetup &iSetup) {
-    _pG = iSetup.getHandle(caloGeometryToken_);
+void HLTCaloJetTimingProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
+  caloGeometry_ = iSetup.getHandle(caloGeometryToken_);
 }
 
 //calculateJetTime
@@ -101,7 +100,7 @@ void HLTCaloJetTimingProducer::jetTimeFromEcalCells(
       continue;
     if (fabs(ecalRH.time()) > ecalCellTimeThresh_)
       continue;
-    auto const pos = _pG->getPosition(ecalRH.detid());
+    auto const pos = caloGeometry_->getPosition(ecalRH.detid());
     if (reco::deltaR2(jet, pos) > matchingRadius2_)
       continue;
     weightedTimeCell += ecalRH.time() * ecalRH.energy() * sin(pos.theta());
@@ -169,10 +168,10 @@ void HLTCaloJetTimingProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("jets", edm::InputTag(""));
   desc.add<bool>("barrelJets", false);
   desc.add<bool>("endcapJets", false);
-  desc.add<double>("ecalCellEnergyThresh",0.5);
-  desc.add<double>("ecalCellTimeThresh",12.5);
-  desc.add<double>("ecalCellTimeErrorThresh",100.);
-  desc.add<double>("matchingRadius",0.4);
+  desc.add<double>("ecalCellEnergyThresh", 0.5);
+  desc.add<double>("ecalCellTimeThresh", 12.5);
+  desc.add<double>("ecalCellTimeErrorThresh", 100.);
+  desc.add<double>("matchingRadius", 0.4);
   desc.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
   descriptions.addWithDefaultLabel(desc);

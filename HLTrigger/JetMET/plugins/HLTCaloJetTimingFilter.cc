@@ -66,8 +66,7 @@ HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
       jetTimeThresh_{iConfig.getParameter<double>("jetTimeThresh")},
       jetEcalEtForTimingThresh_{iConfig.getParameter<double>("jetEcalEtForTimingThresh")},
       jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
-      minPt_{iConfig.getParameter<double>("minJetPt")} {
-      }
+      minPt_{iConfig.getParameter<double>("minJetPt")} {}
 
 //Filter
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
@@ -88,7 +87,7 @@ bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
     reco::CaloJetRef const calojetref(jets, ijet);
     if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and
         jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and
-        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_){
+        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_) {
       // Get a ref to the delayed jet
       reco::CaloJetRef ref = reco::CaloJetRef(jets, distance(jets->begin(), iterJet));
       //add ref to event
