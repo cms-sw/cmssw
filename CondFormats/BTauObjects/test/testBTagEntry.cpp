@@ -39,7 +39,7 @@ int main() {
 
   // csv constructor
   string csv = "0, comb, up, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n";
-  auto b4 = BTagEntry(csv);
+  auto b4 = BTagEntry(csv, true);
   auto csv2 = b4.makeCSVLine();
   assert(b4.params.etaMin == 1);
   assert(b4.params.etaMax == 2);
