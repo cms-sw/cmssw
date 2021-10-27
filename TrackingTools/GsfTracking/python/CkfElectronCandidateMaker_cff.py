@@ -27,6 +27,14 @@ TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilte
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
 )
 
+# Phase2 has extended outer-tracker coverage
+# so no need to relax cuts on number of hits at high eta 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(TrajectoryFilterForElectrons, 
+    highEtaSwitch = 5.0,
+    minHitsAtHighEta = 5
+)
+
 # Trajectory Builder
 import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone(
