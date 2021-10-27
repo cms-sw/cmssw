@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_1_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_1_0/PIon/V4 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_1_0/PIon/V10 (CMSSW_12_1_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PIon/V4')
+  tableName = cms.string('/dev/CMSSW_12_1_0/PIon/V10')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3864,6 +3864,21 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
+process.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
+    RunType = cms.string( "Run3" ),
+    PitchSimY = cms.double( 0.15 ),
+    PitchSimX = cms.double( 0.1 ),
+    thickness = cms.double( 0.23 ),
+    noOfPixelSimX = cms.int32( 160 ),
+    noOfPixelSimY = cms.int32( 104 ),
+    noOfPixels = cms.int32( 16640 ),
+    simXWidth = cms.double( 16.6 ),
+    simYWidth = cms.double( 16.2 ),
+    deadEdgeWidth = cms.double( 0.2 ),
+    activeEdgeSigma = cms.double( 0.02 ),
+    physActiveEdgeDist = cms.double( 0.15 ),
+    appendToDataLabel = cms.string( "" )
+)
 
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -4179,6 +4194,11 @@ process.VolumeBasedMagneticFieldESProducer = cms.ESProducer( "VolumeBasedMagneti
   debugBuilder = cms.untracked.bool( False ),
   valueOverride = cms.int32( -1 )
 )
+process.XMLIdealGeometryESSource_CTPPS = cms.ESProducer( "XMLIdealGeometryESProducer",
+  rootDDName = cms.string( "cms:CMSE" ),
+  label = cms.string( "CTPPS" ),
+  appendToDataLabel = cms.string( "XMLIdealGeometryESSource_CTPPS" )
+)
 process.ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
@@ -4195,6 +4215,21 @@ process.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 process.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   SimpleMagneticField = cms.string( "" )
+)
+process.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
+  verbosity = cms.untracked.uint32( 1 ),
+  buildMisalignedGeometry = cms.bool( False ),
+  isRun2 = cms.bool( False ),
+  dbTag = cms.string( "" ),
+  compactViewTag = cms.string( "XMLIdealGeometryESSource_CTPPS" ),
+  fromPreprocessedDB = cms.untracked.bool( False ),
+  fromDD4hep = cms.untracked.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
+  lhcInfoLabel = cms.string( "" ),
+  opticsLabel = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
