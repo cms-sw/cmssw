@@ -41,7 +41,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   neventsuROS = 0;
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
-  nROSfatal = ps.getUntrackedParameter<int>("nROSfatal", 3);
+  nLinksForFatal = ps.getUntrackedParameter<int>("nLinksForFatal", 15);  //per wheel
 
   string processingMode = ps.getUntrackedParameter<string>("processingMode", "Online");
 
@@ -341,38 +341,47 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
     histo->setBinLabel(10, "TDC hit err.", 1);
     histo->setBinLabel(11, "TDC hit rej.", 1);
   }
-  for (int link = linkDown; link < linkUp ; ++link) {
+  for (int link = linkDown; link < linkUp; ++link) {
     int sector = ros;
 
-    int station = int(link/6) +1;
-    if(link==18) station = 3;
+    int station = int(link / 6) + 1;
+    if (link == 18)
+      station = 3;
 
-    int rob = link % 6; 
-    if(link==18) rob = 6;
-    else if(link>18) rob = rob -1;
+    int rob = link % 6;
+    if (link == 18)
+      rob = 6;
+    else if (link > 18)
+      rob = rob - 1;
 
     //Sector 4 exceptions
-    if(ros==4){
-      if(link>18 && link<22) rob = rob+2;
-      else if(link==22 || link ==23){
-          sector = 13;
-          rob = rob -1;
+    if (ros == 4) {
+      if (link > 18 && link < 22)
+        rob = rob + 2;
+      else if (link == 22 || link == 23) {
+        sector = 13;
+        rob = rob - 1;
       }
     }
 
     //Sector 9 exceptions
-    if(ros==9 && (link==22 || link==23)) rob = rob -3;
+    if (ros == 9 && (link == 22 || link == 23)) {
+      sector = 13;
+      rob = rob - 3;
+    }
 
     //Sector 10 exceptions
-    if(ros==10){
-       if(link>18 && link<22) sector = 14;
-       else if(link==22 || link ==23) rob = rob -1;
+    if (ros == 10) {
+      if (link > 18 && link < 22)
+        sector = 14;
+      else if (link == 22 || link == 23)
+        rob = rob - 1;
     }
 
     //Sector 11 exceptions
-    if(ros==11 && (link==22 || link==23)){
-        sector = 4;
-        rob = rob -3;
+    if (ros == 11 && (link == 22 || link == 23)) {
+      sector = 4;
+      rob = rob - 3;
     }
 
     string sector_s = to_string(sector);
@@ -382,9 +391,19 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
   }
 
   int link25 = linkUp;
-  string label25[12] = {"S1 MB4 ROB5", "S2 MB4 ROB5", "S3 MB4 ROB5", "S13 MB4 ROB4", "S5 MB4 ROB5", "S6 MB4 ROB5", 
-  "S7 MB4 ROB5", "S8 MB4 ROB5", "S10 MB4 ROB3", "S10 MB4 ROB2", "S14 MB4 ROB3", "S12 MB4 ROB5"};
-  histo->setBinLabel(link25+1, label25[ros-1], 2);
+  string label25[12] = {"S1 MB4 ROB5",
+                        "S2 MB4 ROB5",
+                        "S3 MB4 ROB5",
+                        "S13 MB4 ROB4",
+                        "S5 MB4 ROB5",
+                        "S6 MB4 ROB5",
+                        "S7 MB4 ROB5",
+                        "S8 MB4 ROB5",
+                        "S10 MB4 ROB3",
+                        "S10 MB4 ROB2",
+                        "S14 MB4 ROB3",
+                        "S12 MB4 ROB5"};
+  histo->setBinLabel(link25 + 1, label25[ros - 1], 2);
 
   if (mode > 1)
     return;
@@ -425,38 +444,45 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
   histo->setBinLabel(23, "hit err.", 1);
   histo->setBinLabel(24, "hit rej.", 1);
 
-  for (int link = linkDown; link < linkUp ; ++link) {
+  for (int link = linkDown; link < linkUp; ++link) {
     int sector = ros;
 
-    int station = int(link/6) +1;
-    if(link==18) station = 3;
+    int station = int(link / 6) + 1;
+    if (link == 18)
+      station = 3;
 
     int rob = link % 6;
-    if(link==18) rob = 6;
-    else if(link>18) rob = rob -1;
+    if (link == 18)
+      rob = 6;
+    else if (link > 18)
+      rob = rob - 1;
 
     //Sector 4 exceptions
-    if(ros==4){
-      if(link>18 && link<22) rob = rob+2;
-      else if(link==22 || link ==23){
-          sector = 13;
-          rob = rob -1;
+    if (ros == 4) {
+      if (link > 18 && link < 22)
+        rob = rob + 2;
+      else if (link == 22 || link == 23) {
+        sector = 13;
+        rob = rob - 1;
       }
     }
 
     //Sector 9 exceptions
-    if(ros==9 && (link==22 || link==23)) rob = rob -3;
+    if (ros == 9 && (link == 22 || link == 23))
+      rob = rob - 3;
 
     //Sector 10 exceptions
-    if(ros==10){
-       if(link>18 && link<22) sector = 14;
-       else if(link==22 || link ==23) rob = rob -1;
+    if (ros == 10) {
+      if (link > 18 && link < 22)
+        sector = 14;
+      else if (link == 22 || link == 23)
+        rob = rob - 1;
     }
 
     //Sector 11 exceptions
-    if(ros==11 && (link==22 || link==23)){
-        sector = 4;
-        rob = rob -3;
+    if (ros == 11 && (link == 22 || link == 23)) {
+      sector = 4;
+      rob = rob - 3;
     }
 
     string sector_s = to_string(sector);
@@ -465,10 +491,8 @@ void DTDataIntegrityTask::bookHistosROS(DQMStore::IBooker& ibooker, const int wh
     histo->setBinLabel(link + 1, "S" + sector_s + " MB" + st_s + " ROB" + rob_s, 2);
   }
 
-
   link25 = linkUp;
-  histo->setBinLabel(link25+1, label25[ros-1], 2);
-
+  histo->setBinLabel(link25 + 1, label25[ros - 1], 2);
 
 }  //bookHistosROS
 
@@ -532,6 +556,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
   int ros = theROS(slotMap, 0);  //first sector correspondign to link 0
   int ddu = theDDU(fed, slotMap, 0, false);
   int wheel = (ddu - 770) % 5 - 2;
+  int sector4 = 3;  //Asymmetry  in mapping
+
   MonitorElement* ROSSummary = nullptr;
   ROSSummary = summaryHistos["ROSSummary"][wheel];
 
@@ -561,8 +587,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         for (unsigned int flag = 0; flag < 5; ++flag) {
           if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
             int value = flag;
-            int sector4 = 3;
-            
+
             if (flag == 0)
               value = 5;  //move it to the 5th bin
 
@@ -572,12 +597,16 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
                 if (mode != 1)
                   uROSError0->Fill(value - 1, link);  //bins start at 0 despite labeling
               } else if (link < 48) {
-                  if((link==46 || link==57) && ros == 10) errorX[value - 1][sector4][wheel + 2] += 1;
-                  else errorX[value - 1][ros][wheel + 2] += 1;
-                if (mode != 1){
-                  if((link==46 || link==57) && ros == 10) uROSErrorS4->Fill(value - 1, link - 23);
-                  else uROSError1->Fill(value - 1, link - 23);
-                  }
+                if ((link == 46 || link == 57) && ros == 10)
+                  errorX[value - 1][sector4][wheel + 2] += 1;
+                else
+                  errorX[value - 1][ros][wheel + 2] += 1;
+                if (mode != 1) {
+                  if ((link == 46 || link == 57) && ros == 10)
+                    uROSErrorS4->Fill(value - 1, link - 23);
+                  else
+                    uROSError1->Fill(value - 1, link - 23);
+                }
               } else if (link < 72) {
                 errorX[value - 1][ros + 1][wheel + 2] += 1;
                 if (mode != 1)
@@ -596,14 +625,16 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
           if ((data.getokxflag(link) >> flag) & 0x1) {  // Undefined Flag 1-4 64bits word for each MTP (12 channels)
             int value = flag;
             int ch25 = 24;
-            int sector = link+1;
+            int sector = link + 1;
             if (flag == 0)
               value = 5;  //move it to the 5th bin
 
             if (value > 0) {
               if (mode != 1) {
-                if(sector==9) sector = 10;
-                unsigned int keyHisto = (uROSError)*1000 + (wheel + 2) * 100 + abs(sector-1);  //ros -1 = link in this case
+                if (sector == 9)
+                  sector = 10;
+                unsigned int keyHisto =
+                    (uROSError)*1000 + (wheel + 2) * 100 + abs(sector - 1);  //ros -1 = link in this case
                 uROSError0 = urosHistos[keyHisto];
                 if (!uROSError0) {
                   LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -611,7 +642,7 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
                   return;
                 }
               }
-              errorX[value - 1][sector-1][wheel + 2] += 1;  // ros-1=link in this case
+              errorX[value - 1][sector - 1][wheel + 2] += 1;  // ros-1=link in this case
               if (mode != 1)
                 uROSError0->Fill(value - 1, ch25);  //bins start at 0 despite labeling, this is the old SC
             }
@@ -704,15 +735,18 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
     }
 
     if (uRos < 3) {
+      int sector = link + 1;
       errorX[5][link][wheel + 2] += 1;
       if (mode != 1) {
-        ROSSummary->Fill(tdcError_ROSSummary, link + 1);  //link 0 = ROS 1
-        int sc = 24;
+        if (sector == 9)
+          sector = 10;
+        ROSSummary->Fill(tdcError_ROSSummary, sector - 1);  //link 0 = ROS 1
+        int ch25 = 24;
         if (mode <= 2) {
-          urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (link)]->Fill(tdcError_ROSError, sc);
+          urosHistos[(uROSError)*1000 + (wheel + 2) * 100 + (sector - 1)]->Fill(tdcError_ROSError, ch25);
           if (mode <= 1)
-            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (link)]->Fill(tdcError_TDCHisto + 6 * tdc,
-                                                                           sc);  // ros-1=link in this case
+            urosHistos[(TDCError)*1000 + (wheel + 2) * 100 + (sector - 1)]->Fill(tdcError_TDCHisto + 6 * tdc,
+                                                                                 ch25);  // ros-1=link in this case
         }
       }     //mode<=2
     }       //uRos<3
@@ -722,9 +756,16 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         if (mode != 1)
           ROSSummary->Fill(tdcError_ROSSummary, ros);
       } else if (link < 48) {
-        errorX[5][ros][wheel + 2] += 1;
-        if (mode != 1)
-          ROSSummary->Fill(tdcError_ROSSummary, ros + 1);
+        if ((link == 46 || link == 57) && ros == 10)
+          errorX[5][sector4][wheel + 2] += 1;
+        else
+          errorX[5][ros][wheel + 2] += 1;
+        if (mode != 1) {
+          if ((link == 46 || link == 57) && ros == 10)
+            ROSSummary->Fill(tdcError_ROSSummary, sector4);
+          else
+            ROSSummary->Fill(tdcError_ROSSummary, ros + 1);
+        }
       } else if (link < 72) {
         errorX[5][ros + 1][wheel + 2] += 1;
         if (mode != 1)
@@ -735,7 +776,10 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
         if (link < 24)
           uROSError0->Fill(tdcError_ROSError, link);
         else if (link < 48)
-          uROSError1->Fill(tdcError_ROSError, link - 23);
+          if ((link == 46 || link == 57) && ros == 10)
+            uROSError1->Fill(tdcError_ROSError, sector4);
+          else
+            uROSError1->Fill(tdcError_ROSError, link - 23);
         else if (link < 72)
           uROSError2->Fill(tdcError_ROSError, link - 47);
 
@@ -869,22 +913,23 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
 
   float sumTDC = 0., sumNotOKFlag = 0.;
   for (int ros = 0; ros < 12; ros++) {
-    sumNotOKFlag += (errorX[4][ros][wheel + 2] > 0) ? 1 : 0;
-    sumTDC += (errorX[5][ros][wheel + 2] > 0) ? 1 : 0;
+    sumNotOKFlag += errorX[4][ros][wheel + 2];
+    sumTDC += errorX[5][ros][wheel + 2];
   }
 
   if (wheel != 0) {  // consider both wheels for FEDs 1369 & 1371
     wheel += 1;
     for (int ros = 0; ros < 12; ros++) {
-      sumNotOKFlag += (errorX[4][ros][wheel + 2] > 0) ? 1 : 0;
-      sumTDC += (errorX[5][ros][wheel + 2] > 0) ? 1 : 0;
+      sumNotOKFlag += errorX[4][ros][wheel + 2];
+      sumTDC += errorX[5][ros][wheel + 2];
     }
   }
 
+  //Divide by 2 for egde FEDs to normalize per wheel
   sumNotOKFlag = sumNotOKFlag / ((wheel != 0) ? 2. : 1.);
   sumTDC = sumTDC / ((wheel != 0) ? 2. : 1.);
 
-  if (sumNotOKFlag > nROSfatal || sumTDC > nROSfatal)
+  if (sumNotOKFlag > nLinksForFatal || sumTDC > nLinksForFatal)
     hFEDFatal->Fill(fed);
 }
 
