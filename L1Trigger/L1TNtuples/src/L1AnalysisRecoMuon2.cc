@@ -7,9 +7,9 @@
 using namespace std;
 using namespace muon;
 
-L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset)
-    : muPropagator1st_(pset.getParameter<edm::ParameterSet>("muProp1st")),
-      muPropagator2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd")) {}
+L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : muPropagator1st_(pset.getParameter<edm::ParameterSet>("muProp1st"), iC),
+      muPropagator2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd"), iC) {}
 
 L1Analysis::L1AnalysisRecoMuon2::~L1AnalysisRecoMuon2() {}
 

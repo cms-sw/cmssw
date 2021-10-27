@@ -108,7 +108,7 @@ double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet& ps)
-    : m_propagator(ps.getParameter<edm::ParameterSet>("muProp")),
+    : m_propagator(ps.getParameter<edm::ParameterSet>("muProp"), consumesCollector()),
       m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
       m_resTypes({kResPt, kResQOverPt, kResPhi, kResEta}),
       m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
@@ -179,7 +179,6 @@ void L1TMuonDQMOffline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& 
     cout << "[L1TMuonDQMOffline:] Called beginRun." << endl;
   bool changed = true;
   m_hltConfig.init(run, iSetup, m_trigProcess, changed);
-  m_propagator.init(iSetup);
 }
 
 //_____________________________________________________________________
@@ -211,6 +210,8 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetup) {
+  m_propagator.init(eventSetup);
+
   Handle<reco::MuonCollection> muons;
   iEvent.getByToken(m_MuonInputTag, muons);
   Handle<BeamSpot> beamSpot;
