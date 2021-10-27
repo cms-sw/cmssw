@@ -15,7 +15,7 @@ def customizeHLTforNewDatasetDefinition(process):
             datasetPath = 'Dataset_'+dataset+'_v1'
             setattr( process, datasetPath, cms.Path( process.hltGtStage2Digis + getattr( process , 'hltPreDataset'+dataset ) +  getattr( process, 'hltDataset'+dataset ) + process.HLTEndSequence ) )
             # Append dataset path
-            process.HLTSchedule.insert( process.HLTSchedule.index( process.HLTriggerFinalPath ), getattr( process, datasetPath ) )
+            process.schedule.insert( process.schedule.index( process.HLTriggerFinalPath ), getattr( process, datasetPath ) )
             setattr( process.datasets, dataset, cms.vstring( datasetPath ) )
             streamPaths.append( datasetPath )
         # Set stream paths
