@@ -38,8 +38,7 @@ void SiPixelGainCalibrationForHLTService::calibrate(
     if (isDeadColumn | isNoisyColumn)
       electron[i++] = 0;
     else {
-      float vcal = di->adc() * gain - pedestal * gain;
-      //    float vcal = (di->adc()  - DBpedestal) * DBgain;
+      float vcal = float(di->adc()) * gain - pedestal * gain;
       electron[i++] = int(vcal * conversionFactor + offset);
     }
   }
