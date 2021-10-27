@@ -1,23 +1,61 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalCellDumpDDD_cfg.py geometry=D86
+#
+#   Options for geometry D49, D68, D77, D83, D84, D86
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("HcalGeometryTest",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D86",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D49, D68, D84, D77, D83, D86")
 
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D71XML_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDRecConstants_cfi")
-process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+if (options.geometry == "D49"):
+    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+    process = cms.Process('PROD',Phase2C9)
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+elif (options.geometry == "D68"):
+    from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
+    process = cms.Process('PROD',Phase2C12)
+    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+elif (options.geometry == "D83"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+elif (options.geometry == "D84"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('PROD',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
+elif (options.geometry == "D86"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+else:
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+
 process.load("Geometry.HGCalGeometry.hgcalGeometryDump_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
