@@ -19,13 +19,18 @@ process.source = cms.Source("PoolSource",
     )
 )
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = '120X_mcRun3_2021_realistic_v2'
+process.GlobalTag.globaltag = '121X_mcRun3_2021_realistic_v1'
 
 process.hltTimingProducer = cms.EDProducer('HLTCaloJetTimingProducer',
         jets = cms.InputTag( "ak4CaloJets" ),
         ebRecHitsColl = cms.InputTag( 'ecalRecHit','EcalRecHitsEB' ),
         eeRecHitsColl = cms.InputTag( 'ecalRecHit','EcalRecHitsEE' ),
-        barrelOnly = cms.bool(True),
+        barrelJets = cms.bool(True),
+        endcapJets = cms.bool(False),
+        ecalCellEnergyThresh =cms.double(0.5),
+        ecalCellTimeThresh = cms.double(12.5),
+        ecalCellTimeErrorThresh = cms.double(100.),
+        matchingRadius2 = cms.double(0.16),
 )
 
 process.hltTimingFilter = cms.EDFilter('HLTCaloJetTimingFilter',

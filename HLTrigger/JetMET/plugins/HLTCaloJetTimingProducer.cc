@@ -37,14 +37,22 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void jetTimeFromEcalCells(const reco::CaloJet&, const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,float& ,float& ,uint& );
 
   // Input collections
   const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
   const edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEBToken_;
   const edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEEToken_;
 
-  // Include endcap jets or only barrel
-  const bool barrelOnly_;
+  // Include barrel, endcap jets or both
+  const bool barrelJets_;
+  const bool endcapJets_;
+  const double ecalCellEnergyThresh_;
+  const double ecalCellTimeThresh_;
+  const double ecalCellTimeErrorThresh_;
+  const double matchingRadius2_;
+
+  edm::ESHandle<CaloGeometry> _pG;
 };
 
 //Constructor
@@ -52,15 +60,44 @@ HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iCon
   jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
   ecalRecHitsEBToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(iConfig.getParameter<edm::InputTag>("ebRecHitsColl"))},
   ecalRecHitsEEToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(iConfig.getParameter<edm::InputTag>("eeRecHitsColl"))},
-  barrelOnly_{iConfig.getParameter<bool>("barrelOnly")} {
+  barrelJets_{iConfig.getParameter<bool>("barrelJets")},
+  endcapJets_{iConfig.getParameter<bool>("endcapJets")}, 
+  ecalCellEnergyThresh_{iConfig.getParameter<double>("ecalCellEnergyThresh")},
+  ecalCellTimeThresh_{iConfig.getParameter<double>("ecalCellTimeThresh")},
+  ecalCellTimeErrorThresh_{iConfig.getParameter<double>("ecalCellTimeErrorThresh")},
+  matchingRadius2_{iConfig.getParameter<double>("matchingRadius2")}{
   produces<edm::ValueMap<float>>("");
   produces<edm::ValueMap<unsigned int>>("jetCellsForTiming");
   produces<edm::ValueMap<float>>("jetEcalEtForTiming");
 }
 
+//calculateJetTime
+void HLTCaloJetTimingProducer::jetTimeFromEcalCells(const reco::CaloJet& jet, const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>& ecalRecHits,float& weightedTimeCell,float& totalEmEnergyCell,uint& nCells){
+    for (auto const& ecalRH : ecalRecHits) {
+      if (ecalRH.checkFlag(EcalRecHit::kSaturated) || ecalRH.checkFlag(EcalRecHit::kLeadingEdgeRecovered) ||
+	  ecalRH.checkFlag(EcalRecHit::kPoorReco) || ecalRH.checkFlag(EcalRecHit::kWeird) ||
+	  ecalRH.checkFlag(EcalRecHit::kDiWeird))
+	continue;
+      if (ecalRH.energy() < ecalCellEnergyThresh_)
+	continue;
+      if (ecalRH.timeError() <= 0. || ecalRH.timeError() > ecalCellTimeErrorThresh_)
+	continue;
+      if (fabs(ecalRH.time()) > ecalCellTimeThresh_)
+	continue;
+      auto const pos = _pG->getPosition(ecalRH.detid());
+      if (reco::deltaR2(jet, pos) > matchingRadius2_)
+	continue;
+      weightedTimeCell += ecalRH.time() * ecalRH.energy() * sin(pos.theta());
+      totalEmEnergyCell += ecalRH.energy() * sin(pos.theta());
+      nCells++;
+    }
+    if (totalEmEnergyCell > 0){weightedTimeCell /= totalEmEnergyCell;}
+}
+
 //Producer
 void HLTCaloJetTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto const& jets = iEvent.get(jetInputToken_);
+  edm::Handle<reco::CaloJetCollection> jets;
+  iEvent.getByToken(jetInputToken_, jets);
   auto const& ecalRecHitsEB = iEvent.get(ecalRecHitsEBToken_);
   auto const& ecalRecHitsEE = iEvent.get(ecalRecHitsEEToken_);
 
@@ -68,55 +105,23 @@ void HLTCaloJetTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<unsigned int> jetCellsForTiming;
   std::vector<float> jetEcalEtForTiming;
 
-  jetTimings.reserve(jets.size());
-  jetEcalEtForTiming.reserve(jets.size());
-  jetCellsForTiming.reserve(jets.size());
-  for (auto const& jet : jets) {
+  jetTimings.reserve(jets->size());
+  jetEcalEtForTiming.reserve(jets->size());
+  jetCellsForTiming.reserve(jets->size());
+
+  iSetup.get<CaloGeometryRecord>().get(_pG);
+  for (auto const& jet : *jets) {
     float weightedTimeCell = 0;
     float totalEmEnergyCell = 0;
     unsigned int nCells = 0;
-    for (auto const& ecalRH : ecalRecHitsEB) {
-      if (ecalRH.checkFlag(EcalRecHit::kSaturated) || ecalRH.checkFlag(EcalRecHit::kLeadingEdgeRecovered) ||
-          ecalRH.checkFlag(EcalRecHit::kPoorReco) || ecalRH.checkFlag(EcalRecHit::kWeird) ||
-          ecalRH.checkFlag(EcalRecHit::kDiWeird))
-        continue;
-      if (ecalRH.energy() < 0.5)
-        continue;
-      if (ecalRH.timeError() <= 0. || ecalRH.timeError() > 100)
-        continue;
-      if (ecalRH.time() < -12.5 || ecalRH.time() > 12.5)
-        continue;
-      auto const pos = pG->getPosition(ecalRH.detid());
-      if (reco::deltaR2(jet, pos) > 0.16)
-        continue;
-      weightedTimeCell += ecalRH.time() * ecalRH.energy() * sin(p.theta());
-      totalEmEnergyCell += ecalRH.energy() * sin(p.theta());
-      nCells++;
-    }
-
-    if (!barrelOnly_) {
-      for (auto const& ecalRH : ecalRecHitsEE) {
-        if (ecalRH.checkFlag(EcalRecHit::kSaturated) || ecalRH.checkFlag(EcalRecHit::kLeadingEdgeRecovered) ||
-            ecalRH.checkFlag(EcalRecHit::kPoorReco) || ecalRH.checkFlag(EcalRecHit::kWeird) ||
-            ecalRH.checkFlag(EcalRecHit::kDiWeird))
-          continue;
-        if (ecalRH.energy() < 0.5)
-          continue;
-        if (ecalRH.timeError() <= 0. || ecalRH.timeError() > 100)
-          continue;
-        if (ecalRH.time() < -12.5 || ecalRH.time() > 12.5)
-          continue;
-        auto const pos = pG->getPosition(ecalRH.detid());
-        if (reco::deltaR2(jet, pos) > 0.16)
-          continue;
-        weightedTimeCell += ecalRH.time() * ecalRH.energy() * sin(p.theta());
-        totalEmEnergyCell += ecalRH.energy() * sin(p.theta());
-        nCells++;
-      }
+    if (barrelJets_) jetTimeFromEcalCells(jet,ecalRecHitsEB, weightedTimeCell, totalEmEnergyCell, nCells);
+    if (endcapJets_) {
+	weightedTimeCell *= totalEmEnergyCell;
+	jetTimeFromEcalCells(jet,ecalRecHitsEE, weightedTimeCell, totalEmEnergyCell, nCells);
     }
 
     // If there is at least one ecal cell passing selection, calculate timing
-    jetTimings.emplace_back(totalEmEnergyCell > 0 ? weightedTimeCell / totalEmEnergyCell : -50);
+    jetTimings.emplace_back(totalEmEnergyCell > 0 ? weightedTimeCell : -50);
     jetEcalEtForTiming.emplace_back(totalEmEnergyCell);
     jetCellsForTiming.emplace_back(nCells);
   }
@@ -144,7 +149,12 @@ void HLTCaloJetTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
 void HLTCaloJetTimingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag(""));
-  desc.add<bool>("barrelOnly", false);
+  desc.add<bool>("barrelJets", false);
+  desc.add<bool>("endcapJets", false);
+  desc.add<double>("ecalCellEnergyThresh",0.5);
+  desc.add<double>("ecalCellTimeThresh",12.5);
+  desc.add<double>("ecalCellTimeErrorThresh",100.);
+  desc.add<double>("matchingRadius2",0.16);
   desc.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
   descriptions.addWithDefaultLabel(desc);
