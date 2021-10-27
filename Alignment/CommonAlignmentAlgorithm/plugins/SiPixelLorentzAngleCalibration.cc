@@ -142,7 +142,7 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
       outFileName_(cfg.getParameter<std::string>("treeFile")),
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
       lorentzAngleLabel_(cfg.getParameter<std::string>("lorentzAngleLabel")),
-      lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", lorentzAngleLabel_))),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", lorentzAngleLabel_))),
       magFieldToken_(iC.esConsumes()),
       moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")) {}
 
@@ -168,8 +168,7 @@ void SiPixelLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-  const SiPixelLorentzAngle *lorentzAngleHandle;
-  lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
+  const SiPixelLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
   const auto &lorentzAngleRcd = setup.get<SiPixelLorentzAngleRcd>();
 
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
