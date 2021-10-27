@@ -52,19 +52,19 @@ private:
 };
 
 //Constructor
-HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig) :
-  HLTFilter(iConfig),
-  jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
-  jetTimesInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetTimes"))},
-  jetCellsForTimingInputToken_{consumes<edm::ValueMap<unsigned int>>(iConfig.getParameter<edm::InputTag>("jetCellsForTiming"))},
-  jetEcalEtForTimingInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetEcalEtForTiming"))},
-  minJets_{iConfig.getParameter<unsigned int>("minJets")},
-  jetTimeThresh_{iConfig.getParameter<double>("jetTimeThresh")},
-  jetEcalEtForTimingThresh_{iConfig.getParameter<double>("jetEcalEtForTimingThresh")},
-  jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
-  minPt_{iConfig.getParameter<double>("minJetPt")}
-{
-}
+HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
+      jetTimesInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetTimes"))},
+      jetCellsForTimingInputToken_{
+          consumes<edm::ValueMap<unsigned int>>(iConfig.getParameter<edm::InputTag>("jetCellsForTiming"))},
+      jetEcalEtForTimingInputToken_{
+          consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetEcalEtForTiming"))},
+      minJets_{iConfig.getParameter<unsigned int>("minJets")},
+      jetTimeThresh_{iConfig.getParameter<double>("jetTimeThresh")},
+      jetEcalEtForTimingThresh_{iConfig.getParameter<double>("jetEcalEtForTimingThresh")},
+      jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
+      minPt_{iConfig.getParameter<double>("minJetPt")} {}
 
 //Filter
 bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
@@ -77,10 +77,12 @@ bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
   auto const& jetEcalEtForTiming = iEvent.get(jetEcalEtForTimingInputToken_);
 
   uint njets = 0;
-  for (size_t ijet=0; ijet<jets->size(); ++ijet) {
+  for (size_t ijet = 0; ijet < jets->size(); ++ijet) {
     auto const& jet = jets->at(ijet);
     reco::CaloJetRef const calojetref(jets, ijet);
-    if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and jetCellsForTiming[calojetref] > jetCellsForTimingThresh_)
+    if (jet.pt() > minPt_ and jetTimes[calojetref] > jetTimeThresh_ and
+        jetEcalEtForTiming[calojetref] > jetEcalEtForTimingThresh_ and
+        jetCellsForTiming[calojetref] > jetCellsForTimingThresh_)
       ++njets;
   }
 
