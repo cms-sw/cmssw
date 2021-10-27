@@ -65,7 +65,7 @@ HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iCon
   ecalCellEnergyThresh_{iConfig.getParameter<double>("ecalCellEnergyThresh")},
   ecalCellTimeThresh_{iConfig.getParameter<double>("ecalCellTimeThresh")},
   ecalCellTimeErrorThresh_{iConfig.getParameter<double>("ecalCellTimeErrorThresh")},
-  matchingRadius2_{iConfig.getParameter<double>("matchingRadius2")}{
+  matchingRadius2_{std::pow(iConfig.getParameter<double>("matchingRadius"), 2)}{
   produces<edm::ValueMap<float>>("");
   produces<edm::ValueMap<unsigned int>>("jetCellsForTiming");
   produces<edm::ValueMap<float>>("jetEcalEtForTiming");
@@ -154,7 +154,7 @@ void HLTCaloJetTimingProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("ecalCellEnergyThresh",0.5);
   desc.add<double>("ecalCellTimeThresh",12.5);
   desc.add<double>("ecalCellTimeErrorThresh",100.);
-  desc.add<double>("matchingRadius2",0.16);
+  desc.add<double>("matchingRadius",0.4);
   desc.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
   descriptions.addWithDefaultLabel(desc);
