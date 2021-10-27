@@ -156,7 +156,7 @@ SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet
       moduleGroupSelector_(nullptr),
       moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups")),
       latencyToken_(iC.esConsumes()),
-      lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", readoutModeName_))),
       magFieldToken_(iC.esConsumes()),
       backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
@@ -195,8 +195,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
 
   outDerivInds.clear();
 
-  const SiStripLatency *latency;
-  latency = &setup.getData(latencyToken_);
+  const SiStripLatency *latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
 
   if (mode == readoutMode_) {
@@ -212,8 +211,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
         const double dZ = hit.det()->surface().bounds().thickness();          // it's a float only...
         const double tanPsi = tsos.localParameters().mixedFormatVector()[1];  //float...
 
-        const SiStripLorentzAngle *lorentzAngleHandle;
-        lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
+        const SiStripLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
         // Yes, mobility (= LA/By) stored in object called LA...
         const double mobility = lorentzAngleHandle->getLorentzAngle(hit.det()->geographicalId());
         // shift due to dead back plane has two parts:
@@ -400,7 +398,7 @@ void SiStripBackplaneCalibration::endOfJob() {
 //======================================================================
 bool SiStripBackplaneCalibration::checkBackPlaneCorrectionInput(const edm::EventSetup &setup,
                                                                 const EventInfo &eventInfo) {
-  const SiStripBackPlaneCorrection *backPlaneCorrHandle;
+  const SiStripBackPlaneCorrection *backPlaneCorrHandle = nullptr;
   if (!siStripBackPlaneCorrInput_) {
     backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
     siStripBackPlaneCorrInput_ = new SiStripBackPlaneCorrection(*backPlaneCorrHandle);

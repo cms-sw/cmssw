@@ -150,7 +150,7 @@ SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::Parame
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
       moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")),
       latencyToken_(iC.esConsumes()),
-      lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", readoutModeName_))),
       magFieldToken_(iC.esConsumes()),
       backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
@@ -189,8 +189,7 @@ void SiStripLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-  const SiStripLorentzAngle *lorentzAngleHandle;
-  lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
+  const SiStripLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
   const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiStripLorentzAngle(*lorentzAngleHandle));
@@ -221,8 +220,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
                                                          const EventInfo &eventInfo) const {
   outDerivInds.clear();
 
-  const SiStripLatency *latency;
-  latency = &setup.getData(latencyToken_);
+  const SiStripLatency *latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
   if (mode == readoutMode_) {
     if (hit.det()) {  // otherwise 'constraint hit' or whatever
