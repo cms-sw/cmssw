@@ -11,17 +11,19 @@
  *
  */
 
-#include <string>
-#include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include <CLHEP/Geometry/Point3D.h>
 
+#include <string>
+#include <vector>
 #include <unordered_map>
 
 class HGCalDDDConstants {
@@ -109,6 +111,12 @@ public:
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   int sectors() const { return hgpar_->nSectors_; }
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
+  bool tileExist(int zside, int layer, int ring, int phi) const {
+    int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
+    auto itr = hgpar_->tileInfoMap_.find(indx);
+    bool ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
+    return ok;
+  }
   int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
@@ -180,6 +188,21 @@ public:
   bool waferFileInfoExist(int kk) const { return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end()); }
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
+  }
+  GlobalPoint waferLocal2Global(
+      HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
+    HGCSiliconDetId detid(id);
+    double x(0), y(0);
+    if (useWafer) {
+      auto xyw = waferPositionNoRot(detid.layer(), detid.waferU(), detid.waferV(), reco, debug);
+      x = xyw.first;
+      y = xyw.second;
+    }
+    auto xy = getXY(detid.layer(), (x + loc.x()), (y + loc.y()), false);
+    double zz =
+        (detid.zside() < 0) ? -(loc.z() + waferZ(detid.layer(), reco)) : (loc.z() + waferZ(detid.layer(), reco));
+    double xx = (detid.zside() < 0) ? -xy.first : xy.first;
+    return GlobalPoint(xx, xy.second, zz);
   }
   double waferSize(bool reco) const {
     return (reco ? hgpar_->waferSize_ : HGCalParameters::k_ScaleToDDD * hgpar_->waferSize_);
