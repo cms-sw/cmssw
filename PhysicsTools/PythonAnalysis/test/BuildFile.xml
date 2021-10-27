@@ -3,6 +3,7 @@
 
 <test name="testPandas" command="testPandas.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
+<test name="test_bs4" command="test_bs4.py"/>
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
 <test name="testTables" command="testTables.py"/>
