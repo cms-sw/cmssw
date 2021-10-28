@@ -1201,6 +1201,7 @@ def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
         if not os.path.exists(newdir):
             os.makedirs(newdir, exist_ok=True)
 
+        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
         proc.append((plotterFolder, dqmSubFolder, p))
         p.start()
@@ -1294,7 +1295,6 @@ class SimpleValidation:
             self._openFiles = []
 
     def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
-        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         if len(fileList) == 0:
@@ -1362,7 +1362,6 @@ class SeparateValidation:
             self._openFiles = []
 
     def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
-        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # check if plots are produced
