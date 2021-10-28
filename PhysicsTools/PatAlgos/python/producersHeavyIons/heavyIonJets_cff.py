@@ -36,7 +36,6 @@ genJetSubEvent.toReplaceWith(hiGenJetsTask,hiCleanedGenJetsTask_)
 
 from RecoHI.HiJetAlgos.PackedPFTowers_cfi import PackedPFTowers
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import pfEmptyCollection, ak4PFJetsForFlow, hiPuRho, hiFJRhoFlowModulation, akCs4PFJets
-hiPuRho.src = "PackedPFTowers"
 from RecoHI.HiTracking.highPurityGeneralTracks_cfi import highPurityGeneralTracks
 from RecoJets.JetAssociationProducers.ak5JTA_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import impactParameterTagInfos, trackCountingHighEffBJetTags, trackCountingHighPurBJetTags, jetProbabilityBJetTags, jetBProbabilityBJetTags, secondaryVertexTagInfos, combinedSecondaryVertexV2BJetTags, simpleSecondaryVertexHighEffBJetTags, simpleSecondaryVertexHighPurBJetTags
