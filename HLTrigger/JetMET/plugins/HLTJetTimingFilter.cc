@@ -1,7 +1,7 @@
-/** \class HLTCaloJetTimingFilter
+/** \class HLTJetTimingFilter
  *
  *  \brief  This makes selections on the timing and associated ecal cells 
- *  produced by HLTCaloJetTimingProducer
+ *  produced by HLTJetTimingProducer
  *  \author Matthew Citron
  *
  */
@@ -28,9 +28,10 @@ namespace edm {
 //
 // class declaration
 //
-class HLTCaloJetTimingFilter : public HLTFilter {
+template <typename T>
+class HLTJetTimingFilter : public HLTFilter {
 public:
-  explicit HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig);
+  explicit HLTJetTimingFilter(const edm::ParameterSet& iConfig);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool hltFilter(edm::Event&,
                  const edm::EventSetup&,
@@ -39,7 +40,7 @@ public:
 private:
   // Input collections
   const edm::InputTag jetInput_;
-  const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
+  const edm::EDGetTokenT<std::vector<T>> jetInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<float>> jetTimesInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<unsigned int>> jetCellsForTimingInputToken_;
   const edm::EDGetTokenT<edm::ValueMap<float>> jetEcalEtForTimingInputToken_;
@@ -53,10 +54,11 @@ private:
 };
 
 //Constructor
-HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
+template <typename T>
+HLTJetTimingFilter<T>::HLTJetTimingFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       jetInput_{iConfig.getParameter<edm::InputTag>("jets")},
-      jetInputToken_{consumes<std::vector<reco::CaloJet>>(jetInput_)},
+      jetInputToken_{consumes<std::vector<T>>(jetInput_)},
       jetTimesInputToken_{consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("jetTimes"))},
       jetCellsForTimingInputToken_{
           consumes<edm::ValueMap<unsigned int>>(iConfig.getParameter<edm::InputTag>("jetCellsForTiming"))},
@@ -69,9 +71,12 @@ HLTCaloJetTimingFilter::HLTCaloJetTimingFilter(const edm::ParameterSet& iConfig)
       minPt_{iConfig.getParameter<double>("minJetPt")} {}
 
 //Filter
-bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
+template <typename T>
+bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
                                        const edm::EventSetup& iSetup,
                                        trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  typedef vector<T> TCollection;
+  typedef edm::Ref<TCollection> TRef;
   if (saveTags())
     filterproduct.addCollectionTag(jetInput_);
 
@@ -82,7 +87,7 @@ bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
 
   uint njets = 0;
   for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
-    reco::CaloJetRef const caloJetRef(jets, std::distance(jets->begin(), iterJet));
+    TRef caloJetRef =  TRef(jets, std::distance(jets->begin(), iterJet));
     if (iterJet->pt() > minPt_ and jetTimes[caloJetRef] > jetTimeThresh_ and
         jetEcalEtForTiming[caloJetRef] > jetEcalEtForTimingThresh_ and
         jetCellsForTiming[caloJetRef] > jetCellsForTimingThresh_) {
@@ -95,7 +100,8 @@ bool HLTCaloJetTimingFilter::hltFilter(edm::Event& iEvent,
 }
 
 // Fill descriptions
-void HLTCaloJetTimingFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T>
+void HLTJetTimingFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("jets", edm::InputTag("hltDisplacedHLTCaloJetCollectionProducerMidPt"));
@@ -112,5 +118,9 @@ void HLTCaloJetTimingFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   descriptions.addWithDefaultLabel(desc);
 }
 
-// declare this class as a framework plugin
+typedef HLTJetTimingFilter<reco::CaloJet> HLTCaloJetTimingFilter;
+typedef HLTJetTimingFilter<reco::PFJet> HLTPFJetTimingFilter;
+
+// declare classes as framework plugins
 DEFINE_FWK_MODULE(HLTCaloJetTimingFilter);
+DEFINE_FWK_MODULE(HLTPFJetTimingFilter);
