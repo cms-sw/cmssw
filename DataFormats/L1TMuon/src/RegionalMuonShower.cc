@@ -19,12 +19,10 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
 l1t::RegionalMuonShower::~RegionalMuonShower() {}
 
 bool l1t::RegionalMuonShower::isValid() const {
-  return (isOneNominalInTime_ or isTwoLooseInTime_ or isOneTightInTime_ or isOneNominalOutOfTime_ or
-          isTwoLooseOutOfTime_ or isOneTightOutOfTime_);
+  return (isOneNominalInTime_ or isTwoLooseInTime_ or isOneTightInTime_);
 }
 
 bool l1t::RegionalMuonShower::operator==(const l1t::RegionalMuonShower& rhs) const {
   return (isTwoLooseInTime_ == rhs.isTwoLooseInTime() and isOneNominalInTime_ == rhs.isOneNominalInTime() and
-          isOneNominalInTime_ == rhs.isOneNominalInTime() and isTwoLooseOutOfTime_ == rhs.isTwoLooseOutOfTime() and
-          isOneTightOutOfTime_ == rhs.isOneTightOutOfTime() and isOneTightOutOfTime_ == rhs.isOneTightOutOfTime());
+          isOneNominalInTime_ == rhs.isOneNominalInTime());
 }
