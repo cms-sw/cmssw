@@ -159,6 +159,17 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   if (alctV.empty() and clctV.empty())
     return;
 
+  // step 3: match the ALCTs to the CLCTs
+  // note that the bunch_crossing_mask is irrelevant for regular ALCT-CLCT
+  // matching
+  bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS] = {false};
+  matchALCTCLCT(bunch_crossing_mask);
+
+  // Step 4: Select at most 2 LCTs per BX
+  selectLCTs();
+}
+
+void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // array to mask CLCTs
   bool used_clct_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
 
@@ -207,6 +218,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
           if (allLCTs_(bx_alct, mbx, 0).isValid()) {
             is_matched = true;
             used_clct_mask[bx_clct] = true;
+            bunch_crossing_mask[bx_alct] = true;
+            bx_clct_matched = bx_clct;
             if (match_earliest_clct_only_)
               break;
           }
@@ -249,9 +262,6 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       }
     }
   }
-
-  // Step 4: Select at most 2 LCTs per BX
-  selectLCTs();
 }
 
 // Returns vector of read-out correlated LCTs, if any.  Starts with
