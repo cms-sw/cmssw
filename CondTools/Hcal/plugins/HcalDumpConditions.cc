@@ -16,7 +16,7 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -35,7 +35,7 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 namespace edmtest {
-  class HcalDumpConditions : public edm::EDAnalyzer {
+  class HcalDumpConditions : public edm::one::EDAnalyzer<> {
   public:
     explicit HcalDumpConditions(edm::ParameterSet const& p) {
       front = p.getUntrackedParameter<std::string>("outFilePrefix", "Dump");
