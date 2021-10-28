@@ -39,8 +39,12 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void jetTimeFromEcalCells(
-      const T&, const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,const edm::ESHandle<CaloGeometry>&, float&, float&, uint&);
+  void jetTimeFromEcalCells(const T&,
+                            const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,
+                            const edm::ESHandle<CaloGeometry>&,
+                            float&,
+                            float&,
+                            uint&);
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   // Input collections
@@ -114,7 +118,6 @@ void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
 //Producer
 template <typename T>
 void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::ESHandle<CaloGeometry> caloGeometry = iSetup.getHandle(caloGeometryToken_);
   auto const jets = iEvent.getHandle(jetInputToken_);
   auto const& ecalRecHitsEB = iEvent.get(ecalRecHitsEBToken_);
@@ -133,10 +136,10 @@ void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
     float totalEmEnergyCell = 0;
     unsigned int nCells = 0;
     if (barrelJets_)
-      jetTimeFromEcalCells(jet, ecalRecHitsEB,caloGeometry, weightedTimeCell, totalEmEnergyCell, nCells);
+      jetTimeFromEcalCells(jet, ecalRecHitsEB, caloGeometry, weightedTimeCell, totalEmEnergyCell, nCells);
     if (endcapJets_) {
       weightedTimeCell *= totalEmEnergyCell;
-      jetTimeFromEcalCells(jet, ecalRecHitsEE,caloGeometry, weightedTimeCell, totalEmEnergyCell, nCells);
+      jetTimeFromEcalCells(jet, ecalRecHitsEE, caloGeometry, weightedTimeCell, totalEmEnergyCell, nCells);
     }
 
     // If there is at least one ecal cell passing selection, calculate timing

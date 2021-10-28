@@ -88,7 +88,7 @@ bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
 
   uint njets = 0;
   for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
-      edm::Ref<vector<T>> const caloJetRef(jets, std::distance(jets->begin(), iterJet));
+    edm::Ref<vector<T>> const caloJetRef(jets, std::distance(jets->begin(), iterJet));
     if (iterJet->pt() > minPt_ and jetTimes[caloJetRef] > jetTimeThresh_ and
         jetEcalEtForTiming[caloJetRef] > jetEcalEtForTimingThresh_ and
         jetCellsForTiming[caloJetRef] > jetCellsForTimingThresh_) {
