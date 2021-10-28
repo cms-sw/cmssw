@@ -46,9 +46,8 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meMVATrackMatchedEffEtaTot = igetter.get(folder_ + "MVAMatchedEffEtaTot");
   MonitorElement* meMVATrackMatchedEffEtaMtd = igetter.get(folder_ + "MVAMatchedEffEtaMtd");
 
-  if (
-      !meMVATrackEffPtTot || !meMVATrackMatchedEffPtTot || !meMVATrackMatchedEffPtMtd ||
-      !meMVATrackEffEtaTot || !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd) {
+  if (!meMVATrackEffPtTot || !meMVATrackMatchedEffPtTot || !meMVATrackMatchedEffPtMtd || !meMVATrackEffEtaTot ||
+      !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -56,25 +55,25 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   // --- Book  histograms
   ibook.cd(folder_);
   meMVAPtSelEff_ = ibook.book1D("MVAPtSelEff",
-                               "Track selected efficiency VS Pt;Pt [GeV];Efficiency",
-                               meMVATrackEffPtTot->getNbinsX(),
-                               meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmin(),
-                               meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmax());
+                                "Track selected efficiency VS Pt;Pt [GeV];Efficiency",
+                                meMVATrackEffPtTot->getNbinsX(),
+                                meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                                meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmax());
   meMVAEtaSelEff_ = ibook.book1D("MVAEtaSelEff",
-                                "Track selected efficiency VS Eta;Eta;Efficiency",
-                                meMVATrackEffEtaTot->getNbinsX(),
-                                meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
-                                meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmax());
+                                 "Track selected efficiency VS Eta;Eta;Efficiency",
+                                 meMVATrackEffEtaTot->getNbinsX(),
+                                 meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                 meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmax());
   meMVAPtMatchEff_ = ibook.book1D("MVAPtMatchEff",
-                               "Track matched to GEN efficiency VS Pt;Pt [GeV];Efficiency",
-                               meMVATrackMatchedEffPtTot->getNbinsX(),
-                               meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmin(),
-                               meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmax());
+                                  "Track matched to GEN efficiency VS Pt;Pt [GeV];Efficiency",
+                                  meMVATrackMatchedEffPtTot->getNbinsX(),
+                                  meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                                  meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmax());
   meMVAEtaMatchEff_ = ibook.book1D("MVAEtaMatchEff",
-                                "Track matched to GEN efficiency VS Eta;Eta;Efficiency",
-                                meMVATrackMatchedEffEtaTot->getNbinsX(),
-                                meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
-                                meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmax());
+                                   "Track matched to GEN efficiency VS Eta;Eta;Efficiency",
+                                   meMVATrackMatchedEffEtaTot->getNbinsX(),
+                                   meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                   meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmax());
 
   meMVAPtSelEff_->getTH1()->SetMinimum(0.);
   meMVAEtaSelEff_->getTH1()->SetMinimum(0.);
@@ -83,10 +82,9 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
 
   for (int ibin = 1; ibin <= meMVATrackEffPtTot->getNbinsX(); ibin++) {
     double eff = meMVATrackMatchedEffPtTot->getBinContent(ibin) / meMVATrackEffPtTot->getBinContent(ibin);
-    double bin_err =
-        sqrt((meMVATrackMatchedEffPtTot->getBinContent(ibin) *
-              (meMVATrackEffPtTot->getBinContent(ibin) - meMVATrackMatchedEffPtTot->getBinContent(ibin))) /
-             pow(meMVATrackEffPtTot->getBinContent(ibin), 3));
+    double bin_err = sqrt((meMVATrackMatchedEffPtTot->getBinContent(ibin) *
+                           (meMVATrackEffPtTot->getBinContent(ibin) - meMVATrackMatchedEffPtTot->getBinContent(ibin))) /
+                          pow(meMVATrackEffPtTot->getBinContent(ibin), 3));
     if (meMVATrackEffPtTot->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
