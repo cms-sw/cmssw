@@ -570,34 +570,30 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
   // get the high multiplicity
   // for anode this reflects what is already in the anode CSCShowerDigi object
   unsigned cathodeInTime = clctProc->getInTimeHMT();
-  unsigned cathodeOutTime = clctProc->getOutTimeHMT();
   unsigned anodeInTime = alctProc->getInTimeHMT();
-  unsigned anodeOutTime = alctProc->getOutTimeHMT();
 
   // assign the bits
   unsigned inTimeHMT_;
-  unsigned outTimeHMT_;
 
   // set the value according to source
   switch (showerSource_) {
     case 0:
       inTimeHMT_ = cathodeInTime;
-      outTimeHMT_ = cathodeOutTime;
       break;
     case 1:
       inTimeHMT_ = anodeInTime;
-      outTimeHMT_ = anodeOutTime;
       break;
     case 2:
       inTimeHMT_ = anodeInTime | cathodeInTime;
-      outTimeHMT_ = anodeOutTime | cathodeOutTime;
+      break;
+    case 3:
+      inTimeHMT_ = anodeInTime & cathodeInTime;
       break;
     default:
       inTimeHMT_ = cathodeInTime;
-      outTimeHMT_ = cathodeOutTime;
       break;
   };
 
   // create a new object
-  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
+  shower_ = CSCShowerDigi(inTimeHMT_, 0, theTrigChamber);
 }
