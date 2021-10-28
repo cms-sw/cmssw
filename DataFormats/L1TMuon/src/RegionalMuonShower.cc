@@ -24,5 +24,5 @@ bool l1t::RegionalMuonShower::isValid() const {
 
 bool l1t::RegionalMuonShower::operator==(const l1t::RegionalMuonShower& rhs) const {
   return (isTwoLooseInTime_ == rhs.isTwoLooseInTime() and isOneNominalInTime_ == rhs.isOneNominalInTime() and
-          isOneNominalInTime_ == rhs.isOneNominalInTime());
+          isOneTightInTime_ == rhs.isOneTightInTime());
 }
