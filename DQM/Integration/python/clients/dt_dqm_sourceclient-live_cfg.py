@@ -41,7 +41,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 #Enable HLT*Mu* filtering to monitor on Muon events
 #OR HLT_Physics* to monitor FEDs in commissioning runs
 if not unitTest:
-    process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*",'HLT_ZeroBias*')
+    process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*","HLT_ZeroBias*")
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
