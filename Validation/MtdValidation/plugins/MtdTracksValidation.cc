@@ -63,7 +63,8 @@ private:
   const float trackMinEta_;
   const float trackMaxEta_;
 
-  static constexpr double etacut_ = 4;         // |eta| < 4;
+  static constexpr double etacutGEN_ = 4;      // |eta| < 4;
+  static constexpr double etacutREC_ = 3;      // |eta| < 3;
   static constexpr double pTcut_ = 0.7;        // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
   static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
@@ -379,9 +380,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       // select the reconstructed track
 
-      //if (primRecoVtx.trackWeight(trackref) < 0.5) {
-        //continue;
-      //}  // ONLY FOR TEST !!!!
+      if (primRecoVtx.trackWeight(trackref) < 0.5 || trackAssoc[trackref] == -1) {
+        continue;
+      }  // ONLY FOR TEST !!!!
 
       if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
         meMVATrackEffPtTot_->Fill(trackGen.pt());
@@ -531,7 +532,7 @@ const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const fl
   if (gp.status() != 1) {
     return match;
   }
-  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < etacut_;
+  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < etacutGEN_;
   return match;
 }
 
@@ -540,7 +541,7 @@ const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
                                           const double& t0,
                                           const double& st0) {
   bool match = false;
-  match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
   if (st0 > 0.) {
     match = match && std::abs(t0 - vtx.t()) < 3. * st0;
   }

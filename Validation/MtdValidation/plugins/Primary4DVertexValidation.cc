@@ -216,7 +216,8 @@ private:
   static constexpr double maxRank_ = 8;
   static constexpr double maxTry_ = 10;
   static constexpr double zWosMatchMax_ = 1;
-  static constexpr double etacut_ = 4;       // |eta| < 4;
+  static constexpr double etacutGEN_ = 4;    // |eta| < 4;
+  static constexpr double etacutREC_ = 3;    // |eta| < 3;
   static constexpr double pTcut_ = 0.7;      // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
 
@@ -1209,7 +1210,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
       bool selectedVtxMatching = recopv.at(iv).sim == iev && simpv.at(iev).rec == iv &&
                                  simpv.at(iev).eventId.bunchCrossing() == 0 && simpv.at(iev).eventId.event() == 0 &&
-                                 iv == 0;
+                                 recopv.at(iv).OriginalIndex == 0;
       if (selectedVtxMatching && !recopv.at(iv).is_signal()) {
         edm::LogWarning("Primary4DVertexValidation")
             << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
@@ -1587,7 +1588,7 @@ const bool Primary4DVertexValidation::mvaTPSel(const TrackingParticle& tp) {
   if (tp.status() != 1) {
     return match;
   }
-  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacut_;
+  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_;
   return match;
 }
 
@@ -1596,7 +1597,7 @@ const bool Primary4DVertexValidation::mvaRecSel(const reco::TrackBase& trk,
                                                 const double& t0,
                                                 const double& st0) {
   bool match = false;
-  match = trk.pt() > pTcut_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
+  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && std::abs(trk.vz() - vtx.z()) <= deltaZcut_;
   if (st0 > 0.) {
     match = match && std::abs(t0 - vtx.t()) < 3. * st0;
   }
