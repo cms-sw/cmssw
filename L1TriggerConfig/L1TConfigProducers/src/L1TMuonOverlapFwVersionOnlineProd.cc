@@ -75,7 +75,6 @@ std::unique_ptr<const L1TMuonOverlapFwVersion> L1TMuonOverlapFwVersionOnlineProd
   try {
 
     payload = l1t::OnlineDBqueryHelper::fetch({"CONF"}, "OMTF_CLOBS", objectKey, m_omdsReader)["CONF"];
-//    removeAll(payload,"<!--","-->");
 
   } catch (std::runtime_error& e) {
     edm::LogError("L1-O2O: L1TMuonOverlapFwVersionOnlineProd") << e.what();
@@ -129,14 +128,6 @@ std::unique_ptr<const L1TMuonOverlapFwVersion> L1TMuonOverlapFwVersionOnlineProd
   layersV_string = conf["layersVer"].getValueAsStr();
   patternsV_string = conf["patternsVer"].getValueAsStr();
   synthDate = conf["synthDate"].getValueAsStr();
-
-// DEBUG PRINTOUTS TO BE REMOVED LATER
-//    std::cout<<" *** objectKey: "<<objectKey<<std::endl;
-//    std::cout<<" *** payload: "<<payload<<std::endl;
-//    std::cout<<" *** algorithmVer: "<<algoV_string<<std::endl;
-//    std::cout<<" *** layersVer: "<<layersV_string<<std::endl;
-//    std::cout<<" *** patternsVer: "<<patternsV_string<<std::endl;
-//    std::cout<<" *** synthDate: "<<synthDate<<std::endl;
 
   unsigned algoV, layersV, patternsV;
   std::stringstream ssalgoV, sslayersV, sspatternsV;
