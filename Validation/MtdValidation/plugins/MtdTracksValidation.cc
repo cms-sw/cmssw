@@ -52,9 +52,9 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  const bool mvaGenSel(const HepMC::GenParticle&, const float& charge);
-  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double& t0, const double& st0);
-  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double& zsim, const reco::TrackBase&);
+  const bool mvaGenSel(const HepMC::GenParticle&, const float&);
+  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
+  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&);
 
   // ------------ member data ------------
 
@@ -124,13 +124,15 @@ private:
   MonitorElement* meVerZ_;
   MonitorElement* meVerTime_;
 
-  MonitorElement* meTrackMatchedEffPtTot_;
-  MonitorElement* meTrackMatchedEffPtMtd_;
-  MonitorElement* meTrackMatchedEffEtaTot_;
-  MonitorElement* meTrackMatchedEffEtaMtd_;
-  MonitorElement* meTrackResTot_;
-  MonitorElement* meTrackPullTot_;
-  MonitorElement* meTrackZposResTot_;
+  MonitorElement* meMVATrackEffPtTot_;
+  MonitorElement* meMVATrackMatchedEffPtTot_;
+  MonitorElement* meMVATrackMatchedEffPtMtd_;
+  MonitorElement* meMVATrackEffEtaTot_;
+  MonitorElement* meMVATrackMatchedEffEtaTot_;
+  MonitorElement* meMVATrackMatchedEffEtaMtd_;
+  MonitorElement* meMVATrackResTot_;
+  MonitorElement* meMVATrackPullTot_;
+  MonitorElement* meMVATrackZposResTot_;
 };
 
 // ------------ constructor and destructor --------------
@@ -368,6 +370,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // select events with reco vertex close to true simulated primary vertex
   if (std::abs(primRecoVtx.z() - zsim) < deltaZcut_) {
+    edm::LogPrint("MtdTracksValidation") << "Reco z,t = " << primRecoVtx.z() << " " << primRecoVtx.t()
+                                         << " Sim z,t = " << zsim << " " << tsim;
     index = 0;
     for (const auto& trackGen : *GenRecTrackHandle) {
       const reco::TrackRef trackref(iEvent.getHandle(GenRecTrackToken_), index);
@@ -375,29 +379,37 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       // select the reconstructed track
 
-      if (mvaRecSel(trackGen, primRecoVtx, t0Pid[trackref], Sigmat0Pid[trackref])) {
+      //if (primRecoVtx.trackWeight(trackref) < 0.5) {
+        //continue;
+      //}  // ONLY FOR TEST !!!!
+
+      if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
+        meMVATrackEffPtTot_->Fill(trackGen.pt());
+        meMVATrackEffEtaTot_->Fill(std::abs(trackGen.eta()));
+
+        double dZ = trackGen.vz() - zsim;
+        double dT(-9999.);
+        double pullT(-9999.);
+        if (Sigmat0Safe[trackref] != -1) {
+          dT = t0Safe[trackref] - tsim;
+          pullT = dT / Sigmat0Safe[trackref];
+        }
         for (const auto& genP : mc->particle_range()) {
           // select status 1 genParticles and match them to the reconstructed track
 
           float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge();
           if (mvaGenSel(*genP, charge)) {
             if (mvaGenRecMatch(*genP, zsim, trackGen)) {
-              double dZ = trackGen.vz() - zsim;
-              double dT(-9999.);
-              double pullT(-9999.);
-              if (Sigmat0Pid[trackref] > 0.) {
-                dT = t0Pid[trackref] - tsim;
-                pullT = dT / Sigmat0Pid[trackref];
-              }
-              meTrackZposResTot_->Fill(dZ);
-              meTrackMatchedEffPtTot_->Fill(trackGen.pt());
-              meTrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
+              meMVATrackZposResTot_->Fill(dZ);
+              meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
+              meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
               if (pullT > -9999.) {
-                meTrackResTot_->Fill(dT);
-                meTrackPullTot_->Fill(pullT);
-                meTrackMatchedEffPtMtd_->Fill(trackGen.pt());
-                meTrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
+                meMVATrackResTot_->Fill(dT);
+                meMVATrackPullTot_->Fill(pullT);
+                meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
+                meMVATrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
               }
+              break;
             }
           }
         }
@@ -467,19 +479,22 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meVerZ_ = ibook.book1D("VerZ", "RECO Vertex Z;Z_{RECO} [cm]", 180, -18, 18);
   meVerTime_ = ibook.book1D("VerTime", "RECO Vertex Time;t0 [ns]", 100, -1, 1);
   meVerNumber_ = ibook.book1D("VerNumber", "RECO Vertex Number: Number of vertices", 100, 0, 500);
-  meTrackMatchedEffPtTot_ =
-      ibook.book1D("MatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
-  meTrackMatchedEffPtMtd_ = ibook.book1D(
-      "MatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
-  meTrackMatchedEffEtaTot_ =
-      ibook.book1D("MatchedEffEtaTot", "Pt of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
-  meTrackMatchedEffEtaMtd_ = ibook.book1D(
-      "MatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
-  meTrackResTot_ =
-      ibook.book1D("TrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
-  meTrackPullTot_ = ibook.book1D("TrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
-  meTrackZposResTot_ = ibook.book1D(
-      "TrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
+  meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackMatchedEffPtTot_ =
+      ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackMatchedEffPtMtd_ = ibook.book1D(
+      "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
+  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meMVATrackMatchedEffEtaTot_ =
+      ibook.book1D("MVAMatchedEffEtaTot", "Pt of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
+  meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
+      "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
+  meMVATrackResTot_ = ibook.book1D(
+      "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
+  meMVATrackPullTot_ =
+      ibook.book1D("MVATrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
+  meMVATrackZposResTot_ = ibook.book1D(
+      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -516,7 +531,7 @@ const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const fl
   if (gp.status() != 1) {
     return match;
   }
-  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < 4;
+  match = charge != 0.f && gp.momentum().perp() > pTcut_ && std::abs(gp.momentum().eta()) < etacut_;
   return match;
 }
 
@@ -536,10 +551,10 @@ const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
                                                const double& zsim,
                                                const reco::TrackBase& trk) {
   bool match = false;
-  double dR2 = reco::deltaR2(genP.momentum(), trk.momentum());
+  double dR = reco::deltaR(genP.momentum(), trk.momentum());
   double genPT = genP.momentum().perp();
-  match = std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR2 < deltaDRcut_ * deltaDRcut_ &&
-          std::abs(trk.vz() - zsim) < deltaZcut_;
+  match =
+      std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ && std::abs(trk.vz() - zsim) < deltaZcut_;
   return match;
 }
 
