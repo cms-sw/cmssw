@@ -73,8 +73,8 @@ HLTJetTimingFilter<T>::HLTJetTimingFilter(const edm::ParameterSet& iConfig)
 //Filter
 template <typename T>
 bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
-                                       const edm::EventSetup& iSetup,
-                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                      const edm::EventSetup& iSetup,
+                                      trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   typedef vector<T> TCollection;
   typedef edm::Ref<TCollection> TRef;
   if (saveTags())
@@ -87,7 +87,7 @@ bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
 
   uint njets = 0;
   for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
-    TRef caloJetRef =  TRef(jets, std::distance(jets->begin(), iterJet));
+    TRef caloJetRef = TRef(jets, std::distance(jets->begin(), iterJet));
     if (iterJet->pt() > minPt_ and jetTimes[caloJetRef] > jetTimeThresh_ and
         jetEcalEtForTiming[caloJetRef] > jetEcalEtForTimingThresh_ and
         jetCellsForTiming[caloJetRef] > jetCellsForTimingThresh_) {
