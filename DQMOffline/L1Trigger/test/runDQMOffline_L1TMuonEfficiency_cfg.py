@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("L1TDQMOffline")
 import os
 import sys
-import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("DQMServices.Core.DQM_cfg")

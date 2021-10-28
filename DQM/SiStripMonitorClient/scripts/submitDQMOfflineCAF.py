@@ -14,7 +14,7 @@ from __future__ import print_function
 import sys
 import os
 import os.path
-import commands
+import subprocess
 import shutil
 import string
 import math
@@ -459,7 +459,7 @@ if LSTR_optionLetters[10] in Dict_arguments        and\
 
 # on use CRAB
 if Bool_CRAB:
-  str_buffer  = commands.getoutput('which crab')
+  str_buffer  = subprocess.getoutput('which crab')
   if str_buffer.find('which: no crab in') >= 0:
     str_suffixShell          = 'csh'
     if not os.getenv('SHELL')[-3:] == str_suffixShell:
