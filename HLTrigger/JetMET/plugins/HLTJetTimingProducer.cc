@@ -38,11 +38,8 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void jetTimeFromEcalCells(const T&,
-                            const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,
-                            float&,
-                            float&,
-                            uint&);
+  void jetTimeFromEcalCells(
+      const T&, const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&, float&, float&, uint&);
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
   edm::ESHandle<CaloGeometry> caloGeometry_;
