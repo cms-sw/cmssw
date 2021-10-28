@@ -51,25 +51,18 @@ void GEMClusterProcessor::run(const GEMPadDigiClusterCollection* in_clusters) {
   doCoordinateConversion();
 }
 
-std::vector<GEMInternalCluster> GEMClusterProcessor::getClusters(int bx) const {
-  std::vector<GEMInternalCluster> output;
-
-  for (const auto& cl : clusters_) {
-    // valid single clusters with the right BX
-    if (cl.bx() == bx and cl.isValid()) {
-      output.push_back(cl);
-    }
-  }
-
-  return output;
-}
-
-std::vector<GEMInternalCluster> GEMClusterProcessor::getClusters(int bx, int deltaBX) const {
+std::vector<GEMInternalCluster> GEMClusterProcessor::getClusters(int bx, int deltaBX, ClusterTypes option) const {
   std::vector<GEMInternalCluster> output;
 
   for (const auto& cl : clusters_) {
     // valid single clusters with the right BX
     if (std::abs(cl.bx() - bx) <= deltaBX and cl.isValid()) {
+      // ignore the single clusters
+      if (option == SingleClusters and !cl.isCoincidence())
+        continue;
+      // ignore the coincidence clusters
+      if (option == CoincidenceClusters and cl.isCoincidence())
+        continue;
       output.push_back(cl);
     }
   }
