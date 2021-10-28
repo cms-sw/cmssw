@@ -173,7 +173,7 @@ public:
   void setCompCode(const int16_t code) { compCode_ = code; }
 
   // comparator hits in this CLCT
-  const ComparatorContainer& getHits() const { return hits_; }
+  const ComparatorContainer& getHits() const { return hits_.empty() ? emptyContainer() : hits_; }
 
   void setHits(const ComparatorContainer& hits) { hits_ = hits; }
 
@@ -197,6 +197,7 @@ public:
   void setRun3(bool isRun3);
 
 private:
+  static const ComparatorContainer& emptyContainer();
   uint16_t valid_;
   uint16_t quality_;
   // Run-1/2 pattern number.
@@ -232,7 +233,6 @@ private:
 
   // which hits are in this CLCT?
   ComparatorContainer hits_;
-
   Version version_;
 };
 
