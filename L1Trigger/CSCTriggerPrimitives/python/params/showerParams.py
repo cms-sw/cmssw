@@ -9,7 +9,11 @@ showerPSet = cms.PSet(
     ##    loose -> 'loose anode or loose cathode'
     ##    nominal -> 'nominal anode or nominal cathode'
     ##    tight -> 'tight anode or tight cathode'
-    source  = cms.uint32(0),
+    ## 3: cathode and anode showers
+    ##    loose -> 'loose anode and loose cathode'
+    ##    nominal -> 'nominal anode and nominal cathode'
+    ##    tight -> 'tight anode and tight cathode'
+    source  = cms.uint32(3),
 
     ## settings for cathode showers (counting CSCComparatorDigi)
     cathodeShower = cms.PSet(
@@ -21,53 +25,55 @@ showerPSet = cms.PSet(
             # ME1/1
             100, 100, 100,
             # ME1/2
-            54, 55, 61,
+            19, 38, 42,
             # ME1/3
-            20, 20, 30,
+            8, 11, 15,
             # ME2/1
-            35, 35, 35,
+            17, 33, 35,
             # ME2/2
-            29, 29, 35,
+            10, 20, 24,
             # ME3/1
-            35, 35, 40,
+            15, 31, 33,
             # ME3/2
-            24, 25, 30,
+            9, 18, 22,
             # ME4/1
-            36, 40, 40,
+            17, 34, 36,
             # ME4/2
-            26, 30, 30
+            11, 22, 26
         ),
         showerMinInTBin = cms.uint32(6),
         showerMaxInTBin = cms.uint32(8),
         showerMinOutTBin = cms.uint32(2),
         showerMaxOutTBin = cms.uint32(5),
+        minLayersCentralTBin = cms.uint32(5),
     ),
     ## settings for anode showers (counting CSCWireDigi)
     anodeShower = cms.PSet(
         ## {loose, nominal, tight} thresholds for hit counters
         showerThresholds = cms.vuint32(
             # ME1/1
-            104, 105, 107,
+            140, 140, 140,
             # ME1/2
-            92, 100, 102,
+            20, 41, 45,
             # ME1/3
-            32, 33, 48,
+            8, 12, 16,
             # ME2/1
-            133, 134, 136,
+            28, 56, 58,
             # ME2/2
-            83, 84, 86,
+            9, 18, 22,
             # ME3/1
-            130, 131, 133,
+            26, 55, 57,
             # ME3/2
-            74, 80, 87,
+            8, 16, 20,
             # ME4/1
-            127, 128, 130,
+            31, 62, 64,
             # ME4/2
-            88, 89, 94
+            13, 27, 31
         ),
         showerMinInTBin = cms.uint32(8),
-        showerMaxInTBin = cms.uint32(10),
+        showerMaxInTBin = cms.uint32(8),
         showerMinOutTBin = cms.uint32(4),
         showerMaxOutTBin = cms.uint32(7),
+        minLayersCentralTBin = cms.uint32(5),
     )
 )
