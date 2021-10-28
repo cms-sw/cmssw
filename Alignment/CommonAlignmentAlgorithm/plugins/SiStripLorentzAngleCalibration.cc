@@ -400,10 +400,9 @@ double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
     return 0.;
   double dZ = det->surface().bounds().thickness();  // it is a float only...
   const SiStripDetId id(det->geographicalId());
-  edm::ESHandle<SiStripBackPlaneCorrection> backPlaneHandle;
+  const SiStripBackPlaneCorrection *backPlaneHandle = &setup.getData(backPlaneCorrToken_);
   // FIXME: which one? DepRcd->get(handle) or Rcd->get(readoutModeName_, handle)??
   // setup.get<SiStripBackPlaneCorrectionDepRcd>().get(backPlaneHandle); // get correct mode
-  setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneHandle);
   const double bpCor = backPlaneHandle->getBackPlaneCorrection(id);  // it's a float...
   //  std::cout << "bpCor " << bpCor << " in subdet " << id.subdetId() << std::endl;
   dZ *= (1. - bpCor);
