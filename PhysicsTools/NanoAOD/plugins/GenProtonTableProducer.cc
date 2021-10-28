@@ -92,9 +92,10 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
 
 void GenProtonTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("srcPruned", edm::InputTag())
+  desc.add<edm::InputTag>("srcPruned", edm::InputTag("prunedGenParticles"))
       ->setComment("input source for pruned gen-level particle candidates");
-  desc.add<edm::InputTag>("srcPUProtons", edm::InputTag())->setComment("input source for pileup protons collection");
+  desc.add<edm::InputTag>("srcPUProtons", edm::InputTag("genPUProtons"))
+      ->setComment("input source for pileup protons collection");
   desc.add<std::string>("cut", "")->setComment("proton kinematic selection");
   desc.add<std::string>("name", "GenProton")->setComment("flat table name");
   desc.add<double>("tolerance", 1.e-3)
