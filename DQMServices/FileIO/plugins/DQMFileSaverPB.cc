@@ -311,19 +311,16 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     GzipOutputStream gzip_stream(&file_stream, options);
     dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
 
-    // Flush the internal streams
+    // Flush the internal streams & Close the file descriptor
     gzip_stream.Close();
     file_stream.Close();
   } else {
     // We zlib compressed individual MEs so no need to compress the entire file again.
     dqmstore_message.SerializeToZeroCopyStream(&file_stream);
 
-    // Flush the internal stream
+    // Flush the internal stream & Close the file descriptor
     file_stream.Close();
   }
-
-  // Close the file descriptor
-  ::close(filedescriptor);
 
   // Maybe make some noise.
   edm::LogInfo("DQMFileSaverPB") << "savePB: successfully wrote " << nme << " objects  "
