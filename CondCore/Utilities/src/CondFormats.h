@@ -262,6 +262,8 @@
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
