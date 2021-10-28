@@ -66,8 +66,6 @@ public:
 private:
   // HSc trigger cell grouping
   unsigned hSc_triggercell_size_ = 2;
-  unsigned hSc_module_size_ = 12;  // in TC units (144 TC / panel = 36 e-links)
-  //  unsigned hSc_wafers_per_module_ = 3;
   static constexpr unsigned hSc_num_panels_per_sector_ = 12;
   static constexpr unsigned hSc_tcs_per_module_phi_ = 4;
   static constexpr unsigned hSc_front_layers_split_ = 12;
@@ -127,12 +125,7 @@ private:
 HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& conf)
     : HGCalTriggerGeometryBase(conf),
       hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
-      hSc_module_size_(conf.getParameter<unsigned>("ScintillatorModuleSize")),
       jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")) {
-  //hSc_wafers_per_module_ = std::round(hSc_module_size_ * hSc_module_size_ / float(ntc_per_wafer_));
-  //  if (ntc_per_wafer_ * hSc_wafers_per_module_ < hSc_module_size_ * hSc_module_size_) {
-  //    hSc_wafers_per_module_++;
-  //  }
   std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
 }
