@@ -1,4 +1,4 @@
-/** \class HLTCaloJetTimingProducer
+/** \class HLTJetTimingProducer
  *
  *  \brief  This produces timing and associated ecal cell information for calo jets 
  *  \author Matthew Citron
@@ -20,6 +20,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -29,14 +30,15 @@
 //
 // class declaration
 //
-class HLTCaloJetTimingProducer : public edm::stream::EDProducer<> {
+template <typename T>
+class HLTJetTimingProducer : public edm::stream::EDProducer<> {
 public:
-  explicit HLTCaloJetTimingProducer(const edm::ParameterSet&);
+  explicit HLTJetTimingProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void jetTimeFromEcalCells(const reco::CaloJet&,
+  void jetTimeFromEcalCells(const T&,
                             const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,
                             float&,
                             float&,
@@ -46,7 +48,7 @@ private:
   edm::ESHandle<CaloGeometry> caloGeometry_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   // Input collections
-  const edm::EDGetTokenT<reco::CaloJetCollection> jetInputToken_;
+  const edm::EDGetTokenT<std::vector<T>> jetInputToken_;
   const edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEBToken_;
   const edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>> ecalRecHitsEEToken_;
 
@@ -62,9 +64,10 @@ private:
 };
 
 //Constructor
-HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iConfig)
+template <typename T>
+HLTJetTimingProducer<T>::HLTJetTimingProducer(const edm::ParameterSet& iConfig)
     : caloGeometryToken_(esConsumes<edm::Transition::BeginRun>()),
-      jetInputToken_{consumes<std::vector<reco::CaloJet>>(iConfig.getParameter<edm::InputTag>("jets"))},
+      jetInputToken_{consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("jets"))},
       ecalRecHitsEBToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(
           iConfig.getParameter<edm::InputTag>("ebRecHitsColl"))},
       ecalRecHitsEEToken_{consumes<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>>(
@@ -80,13 +83,15 @@ HLTCaloJetTimingProducer::HLTCaloJetTimingProducer(const edm::ParameterSet& iCon
   produces<edm::ValueMap<float>>("jetEcalEtForTiming");
 }
 
-void HLTCaloJetTimingProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
+template <typename T>
+void HLTJetTimingProducer<T>::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   caloGeometry_ = iSetup.getHandle(caloGeometryToken_);
 }
 
 //calculateJetTime
-void HLTCaloJetTimingProducer::jetTimeFromEcalCells(
-    const reco::CaloJet& jet,
+template <typename T>
+void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
+    const T& jet,
     const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>& ecalRecHits,
     float& weightedTimeCell,
     float& totalEmEnergyCell,
@@ -115,7 +120,8 @@ void HLTCaloJetTimingProducer::jetTimeFromEcalCells(
 }
 
 //Producer
-void HLTCaloJetTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <typename T>
+void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto const jets = iEvent.getHandle(jetInputToken_);
   auto const& ecalRecHitsEB = iEvent.get(ecalRecHitsEBToken_);
   auto const& ecalRecHitsEE = iEvent.get(ecalRecHitsEEToken_);
@@ -165,7 +171,8 @@ void HLTCaloJetTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 // Fill descriptions
-void HLTCaloJetTimingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T>
+void HLTJetTimingProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag(""));
   desc.add<bool>("barrelJets", false);
@@ -179,5 +186,9 @@ void HLTCaloJetTimingProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.addWithDefaultLabel(desc);
 }
 
-// declare this class as a framework plugin
+typedef HLTJetTimingProducer<reco::CaloJet> HLTCaloJetTimingProducer;
+typedef HLTJetTimingProducer<reco::PFJet> HLTPFJetTimingProducer;
+
+// declare classes as framework plugins
 DEFINE_FWK_MODULE(HLTCaloJetTimingProducer);
+DEFINE_FWK_MODULE(HLTPFJetTimingProducer);
