@@ -110,7 +110,6 @@
 <test name="import-pytz" command="python3 -c 'import pytz'"/>
 <test name="import-zmq" command="python3 -c 'import zmq'"/>
 <test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
-<test name="import-rep" command="python3 -c 'import rep'"/>
 <test name="import-requests" command="python3 -c 'import requests'"/>
 <test name="import-scandir" command="python3 -c 'import scandir'"/>
 <test name="import-schema" command="python3 -c 'import schema'"/>
