@@ -127,10 +127,10 @@ private:
 // Main class
 // --------------------------------------------
 
-class GammaJetAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class GammaJetAnalysis : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit GammaJetAnalysis(const edm::ParameterSet&);
-  ~GammaJetAnalysis();
+  ~GammaJetAnalysis() override;
 
   float pfEcalIso(const reco::Photon* localPho1,
                   edm::Handle<reco::PFCandidateCollection> pfHandle,
@@ -161,10 +161,11 @@ public:
                                        reco::PFCandidate::ParticleType pfToUse);
 
 private:
-  virtual void beginJob();  //(const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginJob() override;  //(const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   // parameters
   int debug_;  // print debug statements
