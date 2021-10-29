@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_1_0/PRef --type PRef
 
-# /dev/CMSSW_12_1_0/PRef/V11 (CMSSW_12_1_0_pre5)
+# /dev/CMSSW_12_1_0/PRef/V12 (CMSSW_12_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V11')
+  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V12')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4128,7 +4128,7 @@ fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
   buildMisalignedGeometry = cms.bool( False ),
   isRun2 = cms.bool( False ),
   dbTag = cms.string( "" ),
-  compactViewTag = cms.string( "XMLIdealGeometryESSource_CTPPS" ),
+  compactViewTag = cms.string( "" ),
   fromPreprocessedDB = cms.untracked.bool( True ),
   fromDD4hep = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
