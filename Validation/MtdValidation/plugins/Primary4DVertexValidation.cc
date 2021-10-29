@@ -425,36 +425,36 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
         "TrackPullMassTrue-HighMVA", "Pull for tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   }
   meMVATrackZposResTot_ = ibook.book1D(
-      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for tracks from LV MVA sel.;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
+      "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for tracks from LV MVA sel.;Z_{PCA} - Z_{sim} [cm] ", 50, -0.1, 0.1);
   meTrackZposResTot_ =
-      ibook.book1D("TrackZposResTot", "Z_{PCA} - Z_{sim} for tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
+      ibook.book1D("TrackZposResTot", "Z_{PCA} - Z_{sim} for tracks;Z_{PCA} - Z_{sim} [cm] ", 50, -0.5, 0.5);
   meTrackZposRes_[0] = ibook.book1D(
-      "TrackZposRes-LowMVA", "Z_{PCA} - Z_{sim} for tracks with MVA < 0.5;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
+      "TrackZposRes-LowMVA", "Z_{PCA} - Z_{sim} for tracks with MVA < 0.5;Z_{PCA} - Z_{sim} [cm] ", 50, -0.5, 0.5);
   meTrackZposRes_[1] = ibook.book1D("TrackZposRes-MediumMVA",
                                     "Z_{PCA} - Z_{sim} for tracks with 0.5 < MVA < 0.8 ;Z_{PCA} - Z_{sim} [cm] ",
-                                    100,
-                                    -1.,
-                                    1.);
+                                    50,
+                                    -0.5,
+                                    0.5);
   meTrackZposRes_[2] = ibook.book1D(
-      "TrackZposRes-HighMVA", "Z_{PCA} - Z_{sim} for tracks with MVA > 0.8 ;Z_{PCA} - Z_{sim} [cm] ", 100, -1., 1.);
+      "TrackZposRes-HighMVA", "Z_{PCA} - Z_{sim} for tracks with MVA > 0.8 ;Z_{PCA} - Z_{sim} [cm] ", 50, -0.5, 0.5);
   meTrack3DposRes_[0] =
       ibook.book1D("Track3DposRes-LowMVA",
                    "3dPos_{PCA} - 3dPos_{sim} for tracks with MVA < 0.5 ;3dPos_{PCA} - 3dPos_{sim} [cm] ",
-                   100,
-                   -1.,
-                   1.);
+                   50,
+                   -0.5,
+                   0.5);
   meTrack3DposRes_[1] =
       ibook.book1D("Track3DposRes-MediumMVA",
                    "3dPos_{PCA} - 3dPos_{sim} for tracks with 0.5 < MVA < 0.8 ;3dPos_{PCA} - 3dPos_{sim} [cm] ",
-                   100,
-                   -1.,
-                   1.);
+                   50,
+                   -0.5,
+                   0.5);
   meTrack3DposRes_[2] =
       ibook.book1D("Track3DposRes-HighMVA",
                    "3dPos_{PCA} - 3dPos_{sim} for tracks with MVA > 0.8;3dPos_{PCA} - 3dPos_{sim} [cm] ",
-                   100,
-                   -1.,
-                   1.);
+                   50,
+                   -0.5,
+                   0.5);
   meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
   meTimePull_ = ibook.book1D("TimePull", "Pull; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   meTimeSignalRes_ =
