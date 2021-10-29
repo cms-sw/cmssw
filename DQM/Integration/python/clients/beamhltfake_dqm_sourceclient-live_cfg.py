@@ -10,8 +10,8 @@ BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:li
 useLockRecords = True
 
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("FakeBeamMonitor", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("FakeBeamMonitor", Run3)
 
 # Configure tag and jobName if running Playback system
 if "dqm_cmssw/playback" in str(sys.argv[1]):

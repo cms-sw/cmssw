@@ -9,11 +9,9 @@ BSOnlineJobName = 'BeamSpotOnlineLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
-#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-#process = cms.Process("BeamMonitor", Run2_2018) FIXME
 import sys
-from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
-process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 # Configure tag and jobName if running Playback system
 if "dqm_cmssw/playback" in str(sys.argv[1]):
