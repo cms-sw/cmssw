@@ -83,7 +83,8 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerHT::AnalyzerHT(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerHT::AnalyzerHT(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelHT");
@@ -190,7 +191,7 @@ namespace trackerTFP {
     vector<TPPtr> recovered;
     recovered.reserve(tpPtrsLost.size());
     set_intersection(tpPtrsLost.begin(), tpPtrsLost.end(), tpPtrs.begin(), tpPtrs.end(), back_inserter(recovered));
-    for(const TPPtr& tpPtr : recovered)
+    for (const TPPtr& tpPtr : recovered)
       tpPtrsLost.erase(tpPtr);
     prof_->Fill(4, allMatched);
     prof_->Fill(5, allTracks);
@@ -228,8 +229,10 @@ namespace trackerTFP {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         HT  SUMMARY                         " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost << endl;
+    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
+         << endl;
+    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
+         << endl;
     log_ << "     max  tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
@@ -247,17 +250,20 @@ namespace trackerTFP {
     for (auto it = stubs.begin(); it != stubs.end();) {
       const auto start = it;
       const int id = it->trackId();
-      auto different = [id](const StubHT& stub){ return id != stub.trackId(); };
+      auto different = [id](const StubHT& stub) { return id != stub.trackId(); };
       it = find_if(it, stubs.end(), different);
       vector<TTStubRef> ttStubRefs;
       ttStubRefs.reserve(distance(start, it));
-      transform(start, it, back_inserter(ttStubRefs), [](const StubHT& stub){ return stub.ttStubRef(); });
+      transform(start, it, back_inserter(ttStubRefs), [](const StubHT& stub) { return stub.ttStubRef(); });
       tracks.push_back(ttStubRefs);
     }
   }
 
   //
-  void AnalyzerHT::associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const {
+  void AnalyzerHT::associate(const vector<vector<TTStubRef>>& tracks,
+                             const StubAssociation* ass,
+                             set<TPPtr>& tps,
+                             int& sum) const {
     for (const vector<TTStubRef>& ttStubRefs : tracks) {
       const vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
       if (tpPtrs.empty())

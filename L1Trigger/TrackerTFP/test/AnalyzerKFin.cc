@@ -49,7 +49,10 @@ namespace trackerTFP {
 
   private:
     //
-    void formTracks(const StreamsTrack& streamsTrack, const StreamsStub& streamsStubs, vector<vector<TTStubRef>>& tracks, int channel) const;
+    void formTracks(const StreamsTrack& streamsTrack,
+                    const StreamsStub& streamsStubs,
+                    vector<vector<TTStubRef>>& tracks,
+                    int channel) const;
     //
     void associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const;
 
@@ -88,7 +91,8 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerKFin::AnalyzerKFin(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerKFin::AnalyzerKFin(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelKFin");
@@ -186,7 +190,9 @@ namespace trackerTFP {
         vector<vector<TTStubRef>> lost;
         formTracks(lostTracks, lostStubs, lost, offset + channel);
         nTracks += tracks.size();
-        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const vector<TTStubRef>& track){ return sum += (int)track.size(); });
+        nStubs += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const vector<TTStubRef>& track) {
+          return sum += (int)track.size();
+        });
         nLost += lost.size();
         allTracks += tracks.size();
         if (!useMCTruth_)
@@ -203,7 +209,7 @@ namespace trackerTFP {
     vector<TPPtr> recovered;
     recovered.reserve(tpPtrsLost.size());
     set_intersection(tpPtrsLost.begin(), tpPtrsLost.end(), tpPtrs.begin(), tpPtrs.end(), back_inserter(recovered));
-    for(const TPPtr& tpPtr : recovered)
+    for (const TPPtr& tpPtr : recovered)
       tpPtrsLost.erase(tpPtr);
     prof_->Fill(4, allMatched);
     prof_->Fill(5, allTracks);
@@ -241,8 +247,10 @@ namespace trackerTFP {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                        KFin  SUMMARY                        " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost << endl;
+    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
+         << endl;
+    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
+         << endl;
     log_ << "     max  tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
@@ -252,21 +260,31 @@ namespace trackerTFP {
   }
 
   //
-  void AnalyzerKFin::formTracks(const StreamsTrack& streamsTrack, const StreamsStub& streamsStubs, vector<vector<TTStubRef>>& tracks, int channel) const {
+  void AnalyzerKFin::formTracks(const StreamsTrack& streamsTrack,
+                                const StreamsStub& streamsStubs,
+                                vector<vector<TTStubRef>>& tracks,
+                                int channel) const {
     const int offset = channel * setup_->numLayers();
     const StreamTrack& streamTrack = streamsTrack[channel];
-    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& frame){ return sum += (frame.first.isNonnull() ? 1 : 0); });
+    const int numTracks = accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const FrameTrack& frame) {
+      return sum += (frame.first.isNonnull() ? 1 : 0);
+    });
     tracks.reserve(numTracks);
     for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
       const FrameTrack& frameTrack = streamTrack[frame];
       if (frameTrack.first.isNull())
         continue;
-      const auto end = find_if(next(streamTrack.begin(), frame + 1), streamTrack.end(), [](const FrameTrack& frame){ return frame.first.isNonnull(); });
+      const auto end = find_if(next(streamTrack.begin(), frame + 1), streamTrack.end(), [](const FrameTrack& frame) {
+        return frame.first.isNonnull();
+      });
       const int size = distance(next(streamTrack.begin(), frame), end);
       int numStubs(0);
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
         const StreamStub& stream = streamsStubs[offset + layer];
-        numStubs += accumulate(stream.begin() + frame, stream.begin() + frame + size, 0, [](int& sum, const FrameStub& frame){ return sum += (frame.first.isNonnull() ? 1 : 0); });
+        numStubs +=
+            accumulate(stream.begin() + frame, stream.begin() + frame + size, 0, [](int& sum, const FrameStub& frame) {
+              return sum += (frame.first.isNonnull() ? 1 : 0);
+            });
       }
       vector<TTStubRef> stubs;
       stubs.reserve(numStubs);
@@ -282,7 +300,10 @@ namespace trackerTFP {
   }
 
   //
-  void AnalyzerKFin::associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const {
+  void AnalyzerKFin::associate(const vector<vector<TTStubRef>>& tracks,
+                               const StubAssociation* ass,
+                               set<TPPtr>& tps,
+                               int& sum) const {
     for (const vector<TTStubRef>& ttStubRefs : tracks) {
       const vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
       if (tpPtrs.empty())

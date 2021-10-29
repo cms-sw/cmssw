@@ -14,20 +14,29 @@ namespace trackerTFP {
   // Class to do helix fit to all tracks in a region.
   class KalmanFilter {
   public:
-    KalmanFilter(const edm::ParameterSet& iConfig, const tt::Setup* setup, const DataFormats* dataFormats, KalmanFilterFormats* kalmanFilterFormats, int region);
-    ~KalmanFilter(){}
+    KalmanFilter(const edm::ParameterSet& iConfig,
+                 const tt::Setup* setup,
+                 const DataFormats* dataFormats,
+                 KalmanFilterFormats* kalmanFilterFormats,
+                 int region);
+    ~KalmanFilter() {}
 
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
     // fill output products
-    void produce(tt::StreamsStub& accpetedStubs, tt::StreamsTrack& acceptedTracks, tt::StreamsStub& lostStubs, tt::StreamsTrack& lostTracks, int& numAcceptedStates, int& numLostStates);
+    void produce(tt::StreamsStub& accpetedStubs,
+                 tt::StreamsTrack& acceptedTracks,
+                 tt::StreamsStub& lostStubs,
+                 tt::StreamsTrack& lostTracks,
+                 int& numAcceptedStates,
+                 int& numLostStates);
 
   private:
     // remove and return first element of deque, returns nullptr if empty
-    template<class T>
+    template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // remove and return first element of vector, returns nullptr if empty
-    template<class T>
+    template <class T>
     T* pop_front(std::vector<T*>& ts) const;
 
     // adds a layer to states
@@ -98,9 +107,8 @@ namespace trackerTFP {
     DataFormatKF* C22_;
     DataFormatKF* C23_;
     DataFormatKF* C33_;
- 
   };
 
-}
+}  // namespace trackerTFP
 
 #endif

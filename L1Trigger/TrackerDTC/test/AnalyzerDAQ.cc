@@ -41,7 +41,6 @@ namespace trackerDTC {
     void endJob() override {}
 
   private:
-
     // ED input token of accepted TTClusters
     EDGetTokenT<TTClusterDetSetVec> edGetToken_;
     // Setup token
@@ -96,7 +95,7 @@ namespace trackerDTC {
     iEvent.getByToken<TTClusterDetSetVec>(edGetToken_, handle);
     // apply cabling map, reorganise cluster collections
     vector<vector<deque<TTClusterRef>>> dtcs(setup_->numDTCs(),
-                                              vector<deque<TTClusterRef>>(setup_->numModulesPerDTC()));
+                                             vector<deque<TTClusterRef>>(setup_->numModulesPerDTC()));
     for (auto itModule = handle->begin(); itModule != handle->end(); itModule++) {
       // DetSetVec->detId - 1 or + 0 = tk layout det id depending from which of both sensor planes the cluster has been constructed
       const DetId& detIdModule = itModule->detId();

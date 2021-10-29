@@ -13,8 +13,11 @@ namespace trackerTFP {
   // Class to refine MHT track candidates in r-z
   class ZHoughTransform {
   public:
-    ZHoughTransform(const edm::ParameterSet& iConfig, const tt::Setup* setup, const DataFormats* dataFormats, int region);
-    ~ZHoughTransform(){}
+    ZHoughTransform(const edm::ParameterSet& iConfig,
+                    const tt::Setup* setup,
+                    const DataFormats* dataFormats,
+                    int region);
+    ~ZHoughTransform() {}
 
     // read in and organize input product (fill vector input_)
     void consume(const tt::StreamsStub& streams);
@@ -23,7 +26,7 @@ namespace trackerTFP {
 
   private:
     // remove and return first element of deque, returns nullptr if empty
-    template<class T>
+    template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // perform finer pattern recognition per track
     void fill(int channel, const std::deque<StubZHT*>& input, std::vector<std::deque<StubZHT*>>& output);
@@ -48,6 +51,6 @@ namespace trackerTFP {
     int stage_;
   };
 
-}
+}  // namespace trackerTFP
 
 #endif

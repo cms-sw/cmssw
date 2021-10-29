@@ -25,9 +25,13 @@ namespace tt {
     // insert a TPPtr and its associated collection of TTstubRefs into the underlayering maps
     void insert(const TPPtr& tpPtr, const std::vector<TTStubRef>& ttSTubRefs);
     // returns map containing TTStubRef and their associated collection of TPPtrs
-    const std::map<TTStubRef, std::vector<TPPtr>>& getTTStubToTrackingParticlesMap() const { return mapTTStubRefsTPPtrs_; }
+    const std::map<TTStubRef, std::vector<TPPtr>>& getTTStubToTrackingParticlesMap() const {
+      return mapTTStubRefsTPPtrs_;
+    }
     // returns map containing TPPtr and their associated collection of TTStubRefs
-    const std::map<TPPtr, std::vector<TTStubRef>>& getTrackingParticleToTTStubsMap() const { return mapTPPtrsTTStubRefs_; }
+    const std::map<TPPtr, std::vector<TTStubRef>>& getTrackingParticleToTTStubsMap() const {
+      return mapTPPtrsTTStubRefs_;
+    }
     // returns collection of TPPtrs associated to given TTstubRef
     const std::vector<TPPtr>& findTrackingParticlePtrs(const TTStubRef& ttStubRef) const;
     // returns collection of TTStubRefs associated to given TPPtr
@@ -54,6 +58,6 @@ namespace tt {
     const std::vector<TTStubRef> emptyTTStubRefs_;
   };
 
-} // namespace tt
+}  // namespace tt
 
 #endif

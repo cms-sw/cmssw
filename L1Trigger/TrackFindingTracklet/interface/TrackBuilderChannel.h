@@ -20,11 +20,12 @@ namespace trackFindingTracklet {
   public:
     TrackBuilderChannel() {}
     TrackBuilderChannel(const edm::ParameterSet& iConfig);
-    ~TrackBuilderChannel(){}
+    ~TrackBuilderChannel() {}
     // sets channelId of given TTTrack, return false if track outside pt range
     bool channelId(const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack, int& channelId);
     // number of used channels
     int numChannels() const { return numChannels_; }
+
   private:
     // use tracklet seed type as channel id if False, binned track pt used if True
     bool useDuplicateRemoval_;
@@ -34,7 +35,7 @@ namespace trackFindingTracklet {
     int numChannels_;
   };
 
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet
 
 EVENTSETUP_DATA_DEFAULT_RECORD(trackFindingTracklet::TrackBuilderChannel, trackFindingTracklet::TrackBuilderChannelRcd);
 

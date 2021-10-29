@@ -36,9 +36,12 @@ namespace trackerTFP {
 
   private:
     //
-    void convert(const Event& iEvent, const EDGetTokenT<StreamsTrack>& tokenTracks, const EDGetTokenT<StreamsStub>& tokenStubs, vector<vector<Frame>>& bits) const;
+    void convert(const Event& iEvent,
+                 const EDGetTokenT<StreamsTrack>& tokenTracks,
+                 const EDGetTokenT<StreamsStub>& tokenStubs,
+                 vector<vector<Frame>>& bits) const;
     //
-    template<typename T>
+    template <typename T>
     void convert(const T& collection, vector<vector<Frame>>& bits) const;
     // ED input token of Tracks
     EDGetTokenT<StreamsStub> edGetTokenStubsIn_;
@@ -66,9 +69,11 @@ namespace trackerTFP {
     edGetTokenStubsIn_ = consumes<StreamsStub>(InputTag(labelIn, branchStubs));
     if (labelOut != "TrackFindingTrackletProducerKFout")
       edGetTokenStubsOut_ = consumes<StreamsStub>(InputTag(labelOut, branchStubs));
-    if (labelIn == "TrackerTFPProducerKFin" || labelIn == "TrackerTFPProducerKF" || labelIn == "TrackFindingTrackletProducerKFin" || labelIn == "TrackFindingTrackletProducerKF")
+    if (labelIn == "TrackerTFPProducerKFin" || labelIn == "TrackerTFPProducerKF" ||
+        labelIn == "TrackFindingTrackletProducerKFin" || labelIn == "TrackFindingTrackletProducerKF")
       edGetTokenTracksIn_ = consumes<StreamsTrack>(InputTag(labelIn, branchTracks));
-    if (labelOut == "TrackerTFPProducerKF" || labelOut == "TrackerTFPProducerDR" || labelOut == "TrackFindingTrackletProducerKF" || labelOut == "TrackFindingTrackletProducerKFout")
+    if (labelOut == "TrackerTFPProducerKF" || labelOut == "TrackerTFPProducerDR" ||
+        labelOut == "TrackFindingTrackletProducerKF" || labelOut == "TrackFindingTrackletProducerKFout")
       edGetTokenTracksOut_ = consumes<StreamsTrack>(InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
@@ -94,13 +99,16 @@ namespace trackerTFP {
   }
 
   //
-  void AnalyzerDemonstrator::convert(const Event& iEvent, const EDGetTokenT<StreamsTrack>& tokenTracks, const EDGetTokenT<StreamsStub>& tokenStubs, vector<vector<Frame>>& bits) const {
+  void AnalyzerDemonstrator::convert(const Event& iEvent,
+                                     const EDGetTokenT<StreamsTrack>& tokenTracks,
+                                     const EDGetTokenT<StreamsStub>& tokenStubs,
+                                     vector<vector<Frame>>& bits) const {
     const bool tracks = !tokenTracks.isUninitialized();
     const bool stubs = !tokenStubs.isUninitialized();
     Handle<StreamsStub> handleStubs;
     Handle<StreamsTrack> handleTracks;
     int numChannelStubs(0);
-    if (stubs){
+    if (stubs) {
       iEvent.getByToken<StreamsStub>(tokenStubs, handleStubs);
       numChannelStubs = handleStubs->size();
     }
@@ -118,7 +126,7 @@ namespace trackerTFP {
         const int offsetStubs = (region * numChannelTracks + channelTracks) * numChannelStubs;
         if (tracks)
           convert(handleTracks->at(offsetTracks + channelTracks), bits);
-        if (stubs){
+        if (stubs) {
           for (int channelStubs = 0; channelStubs < numChannelStubs; channelStubs++)
             convert(handleStubs->at(offsetStubs + channelStubs), bits);
         }
@@ -126,14 +134,13 @@ namespace trackerTFP {
     }
   }
 
-
   //
-  template<typename T>
+  template <typename T>
   void AnalyzerDemonstrator::convert(const T& collection, vector<vector<Frame>>& bits) const {
     bits.emplace_back();
     vector<Frame>& bvs = bits.back();
     bvs.reserve(collection.size());
-    transform(collection.begin(), collection.end(), back_inserter(bvs), [](const auto& frame){ return frame.second; });
+    transform(collection.begin(), collection.end(), back_inserter(bvs), [](const auto& frame) { return frame.second; });
   }
 
 }  // namespace trackerTFP

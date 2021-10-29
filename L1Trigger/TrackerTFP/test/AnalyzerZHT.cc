@@ -87,7 +87,8 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerZHT::AnalyzerZHT(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerZHT::AnalyzerZHT(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelZHT");
@@ -178,7 +179,9 @@ namespace trackerTFP {
         const StreamStub& accepted = handleAccepted->at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
-        nStubs += accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameStub& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+        nStubs += accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameStub& frame) {
+          return sum += frame.first.isNonnull() ? 1 : 0;
+        });
         vector<vector<TTStubRef>> tracks;
         vector<vector<TTStubRef>> lost;
         formTracks(accepted, tracks);
@@ -202,7 +205,7 @@ namespace trackerTFP {
     vector<TPPtr> recovered;
     recovered.reserve(tpPtrsLost.size());
     set_intersection(tpPtrsLost.begin(), tpPtrsLost.end(), tpPtrs.begin(), tpPtrs.end(), back_inserter(recovered));
-    for(const TPPtr& tpPtr : recovered)
+    for (const TPPtr& tpPtr : recovered)
       tpPtrsLost.erase(tpPtr);
     prof_->Fill(4, allMatched);
     prof_->Fill(5, allTracks);
@@ -211,7 +214,7 @@ namespace trackerTFP {
     prof_->Fill(8, tpPtrsLost.size());
     nEvents_++;
     //if ((int)tpPtrsSelection.size() != selection->numTPs())
-      //throw cms::Exception("...");
+    //throw cms::Exception("...");
   }
 
   void AnalyzerZHT::endJob() {
@@ -219,7 +222,7 @@ namespace trackerTFP {
       return;
     // effi
     eff_->SetPassedHistogram(*hisEff_, "f");
-    eff_->SetTotalHistogram (*hisEffTotal_, "f");
+    eff_->SetTotalHistogram(*hisEffTotal_, "f");
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
@@ -245,8 +248,10 @@ namespace trackerTFP {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         ZHT SUMMARY                         " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost << endl;
+    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
+         << endl;
+    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
+         << endl;
     log_ << "     max  tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
@@ -260,22 +265,25 @@ namespace trackerTFP {
     vector<StubZHT> stubs;
     stubs.reserve(stream.size());
     for (const FrameStub& frame : stream)
-      if(frame.first.isNonnull())
+      if (frame.first.isNonnull())
         stubs.emplace_back(frame, dataFormats_);
     for (auto it = stubs.begin(); it != stubs.end();) {
       const auto start = it;
       const int id = it->trackId();
-      auto different = [id](const StubZHT& stub){ return id != stub.trackId(); };
+      auto different = [id](const StubZHT& stub) { return id != stub.trackId(); };
       it = find_if(it, stubs.end(), different);
       vector<TTStubRef> ttStubRefs;
       ttStubRefs.reserve(distance(start, it));
-      transform(start, it, back_inserter(ttStubRefs), [](const StubZHT& stub){ return stub.ttStubRef(); });
+      transform(start, it, back_inserter(ttStubRefs), [](const StubZHT& stub) { return stub.ttStubRef(); });
       tracks.push_back(ttStubRefs);
     }
   }
 
   //
-  void AnalyzerZHT::associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const {
+  void AnalyzerZHT::associate(const vector<vector<TTStubRef>>& tracks,
+                              const StubAssociation* ass,
+                              set<TPPtr>& tps,
+                              int& sum) const {
     for (const vector<TTStubRef>& ttStubRefs : tracks) {
       const vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
       if (tpPtrs.empty())

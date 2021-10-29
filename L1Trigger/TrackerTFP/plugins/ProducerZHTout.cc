@@ -35,8 +35,8 @@ namespace trackerTFP {
     ~ProducerZHTout() override {}
 
   private:
-    virtual void beginRun(const Run&, const EventSetup&) override;
-    virtual void produce(Event&, const EventSetup&) override;
+    void beginRun(const Run&, const EventSetup&) override;
+    void produce(Event&, const EventSetup&) override;
     virtual void endJob() {}
 
     // ED input token of sf stubs
@@ -55,9 +55,7 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
   };
 
-  ProducerZHTout::ProducerZHTout(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerZHTout::ProducerZHTout(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelZHT");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -96,7 +94,7 @@ namespace trackerTFP {
       Handle<StreamsStub> handle;
       iEvent.getByToken<StreamsStub>(edGetToken_, handle);
       const StreamsStub& streams = *handle.product();
-      for (int region = 0; region < setup_->numRegions(); region++ ) {
+      for (int region = 0; region < setup_->numRegions(); region++) {
         for (int channel = 0; channel < dataFormats_->numChannel(Process::zht); channel++) {
           const int index = region * dataFormats_->numChannel(Process::zht) + channel;
           // convert stream to stubs
@@ -104,18 +102,18 @@ namespace trackerTFP {
           vector<StubZHT> stubs;
           stubs.reserve(stream.size());
           for (const FrameStub& frame : stream)
-            if(frame.first.isNonnull())
+            if (frame.first.isNonnull())
               stubs.emplace_back(frame, dataFormats_);
           // form tracks
           int i(0);
           for (auto it = stubs.begin(); it != stubs.end();) {
             const auto start = it;
             const int id = it->trackId();
-            auto different = [id](const StubZHT& stub){ return id != stub.trackId(); };
+            auto different = [id](const StubZHT& stub) { return id != stub.trackId(); };
             it = find_if(it, stubs.end(), different);
             vector<TTStubRef> ttStubRefs;
             ttStubRefs.reserve(distance(start, it));
-            transform(start, it, back_inserter(ttStubRefs), [](const StubZHT& stub){ return stub.ttStubRef(); });
+            transform(start, it, back_inserter(ttStubRefs), [](const StubZHT& stub) { return stub.ttStubRef(); });
             const double zT = dfZT.floating(start->zT());
             const double cot = dfCot.floating(start->cot());
             const double phiT = dfPhiT.floating(start->phiT());
@@ -135,6 +133,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutToken_, ttTracks.begin(), ttTracks.end());
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerZHTout);

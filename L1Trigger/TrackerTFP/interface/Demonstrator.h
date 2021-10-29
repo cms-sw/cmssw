@@ -18,11 +18,13 @@ namespace trackerTFP {
    */
   class Demonstrator {
   public:
-    Demonstrator(){}
+    Demonstrator() {}
     Demonstrator(const edm::ParameterSet& iConfig, const tt::Setup* setup);
-    ~Demonstrator(){}
+    ~Demonstrator() {}
     // plays input through modelsim and compares result with output
-    void analyze(const std::vector<std::vector<tt::Frame>>& input, const std::vector<std::vector<tt::Frame>>& output) const;
+    void analyze(const std::vector<std::vector<tt::Frame>>& input,
+                 const std::vector<std::vector<tt::Frame>>& output) const;
+
   private:
     // converts streams of bv into stringstream
     void convert(const std::vector<std::vector<tt::Frame>>& bits, std::stringstream& ss) const;
@@ -59,7 +61,7 @@ namespace trackerTFP {
     int numRegions_;
   };
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, trackerTFP::DemonstratorRcd);
 

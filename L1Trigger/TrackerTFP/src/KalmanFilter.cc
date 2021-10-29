@@ -15,55 +15,59 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  KalmanFilter::KalmanFilter(const ParameterSet& iConfig, const Setup* setup, const DataFormats* dataFormats, KalmanFilterFormats* kalmanFilterFormats, int region) :
-    enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-    setup_(setup),
-    dataFormats_(dataFormats),
-    kalmanFilterFormats_(kalmanFilterFormats),
-    region_(region),
-    input_(dataFormats_->numChannel(Process::kf)),
-    layer_(0),
-    x0_(&kalmanFilterFormats_->format(VariableKF::x0)),
-    x1_(&kalmanFilterFormats_->format(VariableKF::x1)),
-    x2_(&kalmanFilterFormats_->format(VariableKF::x2)),
-    x3_(&kalmanFilterFormats_->format(VariableKF::x3)),
-    H00_(&kalmanFilterFormats_->format(VariableKF::H00)),
-    H12_(&kalmanFilterFormats_->format(VariableKF::H12)),
-    m0_(&kalmanFilterFormats_->format(VariableKF::m0)),
-    m1_(&kalmanFilterFormats_->format(VariableKF::m1)),
-    v0_(&kalmanFilterFormats_->format(VariableKF::v0)),
-    v1_(&kalmanFilterFormats_->format(VariableKF::v1)),
-    r0_(&kalmanFilterFormats_->format(VariableKF::r0)),
-    r1_(&kalmanFilterFormats_->format(VariableKF::r1)),
-    S00_(&kalmanFilterFormats_->format(VariableKF::S00)),
-    S01_(&kalmanFilterFormats_->format(VariableKF::S01)),
-    S12_(&kalmanFilterFormats_->format(VariableKF::S12)),
-    S13_(&kalmanFilterFormats_->format(VariableKF::S13)),
-    K00_(&kalmanFilterFormats_->format(VariableKF::K00)),
-    K10_(&kalmanFilterFormats_->format(VariableKF::K10)),
-    K21_(&kalmanFilterFormats_->format(VariableKF::K21)),
-    K31_(&kalmanFilterFormats_->format(VariableKF::K31)),
-    R00_(&kalmanFilterFormats_->format(VariableKF::R00)),
-    R11_(&kalmanFilterFormats_->format(VariableKF::R11)),
-    R00Rough_(&kalmanFilterFormats_->format(VariableKF::R00Rough)),
-    R11Rough_(&kalmanFilterFormats_->format(VariableKF::R11Rough)),
-    invR00Approx_(&kalmanFilterFormats_->format(VariableKF::invR00Approx)),
-    invR11Approx_(&kalmanFilterFormats_->format(VariableKF::invR11Approx)),
-    invR00Cor_(&kalmanFilterFormats_->format(VariableKF::invR00Cor)),
-    invR11Cor_(&kalmanFilterFormats_->format(VariableKF::invR11Cor)),
-    invR00_(&kalmanFilterFormats_->format(VariableKF::invR00)),
-    invR11_(&kalmanFilterFormats_->format(VariableKF::invR11)),
-    C00_(&kalmanFilterFormats_->format(VariableKF::C00)),
-    C01_(&kalmanFilterFormats_->format(VariableKF::C01)),
-    C11_(&kalmanFilterFormats_->format(VariableKF::C11)),
-    C22_(&kalmanFilterFormats_->format(VariableKF::C22)),
-    C23_(&kalmanFilterFormats_->format(VariableKF::C23)),
-    C33_(&kalmanFilterFormats_->format(VariableKF::C33)) {}
+  KalmanFilter::KalmanFilter(const ParameterSet& iConfig,
+                             const Setup* setup,
+                             const DataFormats* dataFormats,
+                             KalmanFilterFormats* kalmanFilterFormats,
+                             int region)
+      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        setup_(setup),
+        dataFormats_(dataFormats),
+        kalmanFilterFormats_(kalmanFilterFormats),
+        region_(region),
+        input_(dataFormats_->numChannel(Process::kf)),
+        layer_(0),
+        x0_(&kalmanFilterFormats_->format(VariableKF::x0)),
+        x1_(&kalmanFilterFormats_->format(VariableKF::x1)),
+        x2_(&kalmanFilterFormats_->format(VariableKF::x2)),
+        x3_(&kalmanFilterFormats_->format(VariableKF::x3)),
+        H00_(&kalmanFilterFormats_->format(VariableKF::H00)),
+        H12_(&kalmanFilterFormats_->format(VariableKF::H12)),
+        m0_(&kalmanFilterFormats_->format(VariableKF::m0)),
+        m1_(&kalmanFilterFormats_->format(VariableKF::m1)),
+        v0_(&kalmanFilterFormats_->format(VariableKF::v0)),
+        v1_(&kalmanFilterFormats_->format(VariableKF::v1)),
+        r0_(&kalmanFilterFormats_->format(VariableKF::r0)),
+        r1_(&kalmanFilterFormats_->format(VariableKF::r1)),
+        S00_(&kalmanFilterFormats_->format(VariableKF::S00)),
+        S01_(&kalmanFilterFormats_->format(VariableKF::S01)),
+        S12_(&kalmanFilterFormats_->format(VariableKF::S12)),
+        S13_(&kalmanFilterFormats_->format(VariableKF::S13)),
+        K00_(&kalmanFilterFormats_->format(VariableKF::K00)),
+        K10_(&kalmanFilterFormats_->format(VariableKF::K10)),
+        K21_(&kalmanFilterFormats_->format(VariableKF::K21)),
+        K31_(&kalmanFilterFormats_->format(VariableKF::K31)),
+        R00_(&kalmanFilterFormats_->format(VariableKF::R00)),
+        R11_(&kalmanFilterFormats_->format(VariableKF::R11)),
+        R00Rough_(&kalmanFilterFormats_->format(VariableKF::R00Rough)),
+        R11Rough_(&kalmanFilterFormats_->format(VariableKF::R11Rough)),
+        invR00Approx_(&kalmanFilterFormats_->format(VariableKF::invR00Approx)),
+        invR11Approx_(&kalmanFilterFormats_->format(VariableKF::invR11Approx)),
+        invR00Cor_(&kalmanFilterFormats_->format(VariableKF::invR00Cor)),
+        invR11Cor_(&kalmanFilterFormats_->format(VariableKF::invR11Cor)),
+        invR00_(&kalmanFilterFormats_->format(VariableKF::invR00)),
+        invR11_(&kalmanFilterFormats_->format(VariableKF::invR11)),
+        C00_(&kalmanFilterFormats_->format(VariableKF::C00)),
+        C01_(&kalmanFilterFormats_->format(VariableKF::C01)),
+        C11_(&kalmanFilterFormats_->format(VariableKF::C11)),
+        C22_(&kalmanFilterFormats_->format(VariableKF::C22)),
+        C23_(&kalmanFilterFormats_->format(VariableKF::C23)),
+        C33_(&kalmanFilterFormats_->format(VariableKF::C33)) {}
 
   // read in and organize input product (fill vector input_)
   void KalmanFilter::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
-    auto valid = [](const auto& frame){ return frame.first.isNonnull(); };
-    auto acc = [](int& sum, const auto& frame){ return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](const auto& frame) { return frame.first.isNonnull(); };
+    auto acc = [](int& sum, const auto& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     int nTracks(0);
     int nStubs(0);
     const int offset = region_ * dataFormats_->numChannel(Process::kf);
@@ -116,8 +120,14 @@ namespace trackerTFP {
   }
 
   // fill output products
-  void KalmanFilter::produce(StreamsStub& acceptedStubs, StreamsTrack& acceptedTracks, StreamsStub& lostStubs, StreamsTrack& lostTracks, int& numAcceptedStates, int& numLostStates) {
-    auto put = [this](const deque<State*>& states, StreamsStub& streamsStubs, StreamsTrack& streamsTracks, int channel) {
+  void KalmanFilter::produce(StreamsStub& acceptedStubs,
+                             StreamsTrack& acceptedTracks,
+                             StreamsStub& lostStubs,
+                             StreamsTrack& lostTracks,
+                             int& numAcceptedStates,
+                             int& numLostStates) {
+    auto put = [this](
+                   const deque<State*>& states, StreamsStub& streamsStubs, StreamsTrack& streamsTracks, int channel) {
       const int streamId = region_ * dataFormats_->numChannel(Process::kf) + channel;
       const int offset = streamId * setup_->numLayers();
       StreamTrack& tracks = streamsTracks[streamId];
@@ -169,7 +179,11 @@ namespace trackerTFP {
       // storing of best states missed due to truncation
       sort(untruncatedStream.begin(), untruncatedStream.end());
       sort(truncatedStream.begin(), truncatedStream.end());
-      set_difference(untruncatedStream.begin(), untruncatedStream.end(), truncatedStream.begin(), truncatedStream.end(), back_inserter(lost));
+      set_difference(untruncatedStream.begin(),
+                     untruncatedStream.end(),
+                     truncatedStream.begin(),
+                     truncatedStream.end(),
+                     back_inserter(lost));
       // store found tracks
       put(stream, acceptedStubs, acceptedTracks, channel);
       // store lost tracks
@@ -193,7 +207,8 @@ namespace trackerTFP {
     vector<State*> delay(latency, nullptr);
     // each trip corresponds to a f/w clock tick
     // done if no states to process left, taking as much time as needed
-    while (!stream.empty() || !stack.empty() || !all_of(delay.begin(), delay.end(), [](const State* state){ return state == nullptr; })) {
+    while (!stream.empty() || !stack.empty() ||
+           !all_of(delay.begin(), delay.end(), [](const State* state) { return state == nullptr; })) {
       State* state = pop_front(stream);
       // Process a combinatoric state if no (non-combinatoric?) state available
       if (!state)
@@ -201,7 +216,7 @@ namespace trackerTFP {
       streamOutput.push_back(state);
       // The remainder of the code in this loop deals with combinatoric states.
       //if (!state || !state->stub() || state->layer() != layer_)
-        //state = nullptr;
+      //state = nullptr;
       if (state != nullptr)
         // Assign next combinatoric stub to state
         comb(state);
@@ -212,7 +227,7 @@ namespace trackerTFP {
     }
     stream = streamOutput;
     for (State*& state : stream) {
-      if (!state || !state->stub() || state->layer() != layer_ )
+      if (!state || !state->stub() || state->layer() != layer_)
         continue;
       // Update state with next stub using KF maths
       update(state);
@@ -242,7 +257,8 @@ namespace trackerTFP {
         if (hitPattern.count() == setup_->kfMaxLayers())
           valid = false;
         // Impossible for this state to ever get enough layers to form valid track
-        if (hitPattern.count() + track->hitPattern().count(stub->layer() + 1, setup_->numLayers()) < setup_->kfMinLayers())
+        if (hitPattern.count() + track->hitPattern().count(stub->layer() + 1, setup_->numLayers()) <
+            setup_->kfMinLayers())
           valid = false;
         if (layer_ == setup_->numLayers() - 1)
           valid = false;
@@ -269,7 +285,11 @@ namespace trackerTFP {
   void KalmanFilter::accumulator(deque<State*>& stream) {
     // accumulator delivers contigious stream of best state per track
     // remove gaps and not final states
-    stream.erase(remove_if(stream.begin(), stream.end(), [this](State* state){ return !state || state->hitPattern().count() < setup_->kfMinLayers(); }), stream.end());
+    stream.erase(
+        remove_if(stream.begin(),
+                  stream.end(),
+                  [this](State* state) { return !state || state->hitPattern().count() < setup_->kfMinLayers(); }),
+        stream.end());
     // Determine quality of completed state
     for (State* state : stream)
       state->finish();
@@ -277,12 +297,16 @@ namespace trackerTFP {
     auto lessSkippedLayers = [](State* lhs, State* rhs) { return lhs->numSkippedLayers() < rhs->numSkippedLayers(); };
     stable_sort(stream.begin(), stream.end(), lessSkippedLayers);
     // sort in number of consistent stubs
-    auto moreConsistentLayers = [](State* lhs, State* rhs) { return lhs->numConsistentLayers() > rhs->numConsistentLayers(); };
+    auto moreConsistentLayers = [](State* lhs, State* rhs) {
+      return lhs->numConsistentLayers() > rhs->numConsistentLayers();
+    };
     stable_sort(stream.begin(), stream.end(), moreConsistentLayers);
     // sort in track id
-    stable_sort(stream.begin(), stream.end(), [](State* lhs, State* rhs){ return lhs->trackId() < rhs->trackId(); });
+    stable_sort(stream.begin(), stream.end(), [](State* lhs, State* rhs) { return lhs->trackId() < rhs->trackId(); });
     // keep first state (best due to previous sorts) per track id
-    stream.erase(unique(stream.begin(), stream.end(), [](State* lhs, State* rhs){ return lhs->track() == rhs->track(); }), stream.end());
+    stream.erase(
+        unique(stream.begin(), stream.end(), [](State* lhs, State* rhs) { return lhs->track() == rhs->track(); }),
+        stream.end());
   }
 
   // updates state
@@ -319,11 +343,11 @@ namespace trackerTFP {
     const double r0C = x1_->digi(m0 - x1);
     const double r0 = r0_->digi(r0C - x0 * H00);
     // stub z residual wrt current state
-    const double r1C = x3_->digi(m1  - x3);
+    const double r1C = x3_->digi(m1 - x3);
     const double r1 = r1_->digi(r1C - x2 * H12);
     // matrix S = H*C
-    const double S00 = S00_->digi(C01  + H00 * C00);
-    const double S01 = S01_->digi(C11  + H00 * C01);
+    const double S00 = S00_->digi(C01 + H00 * C00);
+    const double S01 = S01_->digi(C11 + H00 * C01);
     const double S12 = S12_->digi(C23 + H12 * C22);
     const double S13 = S13_->digi(C33 + H12 * C23);
     // Cov. matrix of predicted residuals R = V+HCHt = C+H*St
@@ -401,7 +425,7 @@ namespace trackerTFP {
   }
 
   // remove and return first element of deque, returns nullptr if empty
-  template<class T>
+  template <class T>
   T* KalmanFilter::pop_front(deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
@@ -412,7 +436,7 @@ namespace trackerTFP {
   }
 
   // remove and return first element of vector, returns nullptr if empty
-  template<class T>
+  template <class T>
   T* KalmanFilter::pop_front(vector<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
@@ -422,4 +446,4 @@ namespace trackerTFP {
     return t;
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

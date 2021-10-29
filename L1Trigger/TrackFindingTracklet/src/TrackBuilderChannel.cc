@@ -7,11 +7,10 @@ using namespace edm;
 
 namespace trackFindingTracklet {
 
-  TrackBuilderChannel::TrackBuilderChannel(const edm::ParameterSet& iConfig) :
-    useDuplicateRemoval_(iConfig.getParameter<bool>("UseDuplicateRemoval")),
-    boundaries_(iConfig.getParameter<vector<double>>("PtBoundaries")),
-    numChannels_(useDuplicateRemoval_ ? 2 * boundaries_.size() : iConfig.getParameter<int>("NumSeedTypes"))
-  {}
+  TrackBuilderChannel::TrackBuilderChannel(const edm::ParameterSet& iConfig)
+      : useDuplicateRemoval_(iConfig.getParameter<bool>("UseDuplicateRemoval")),
+        boundaries_(iConfig.getParameter<vector<double>>("PtBoundaries")),
+        numChannels_(useDuplicateRemoval_ ? 2 * boundaries_.size() : iConfig.getParameter<int>("NumSeedTypes")) {}
 
   // sets channelId of given TTTrack, return false if track outside pt range
   bool TrackBuilderChannel::channelId(const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack, int& channelId) {
@@ -32,4 +31,4 @@ namespace trackFindingTracklet {
     return true;
   }
 
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet

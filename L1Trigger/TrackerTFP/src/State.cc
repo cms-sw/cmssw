@@ -6,68 +6,64 @@ using namespace tt;
 namespace trackerTFP {
 
   // default constructor
-  State::State(State* state) :
-    dataFormats_(state->dataFormats_),
-    setup_(state->setup_),
-    track_(state->track_),
-    trackId_(state->trackId_),
-    parent_(state->parent_),
-    stub_(state->stub_),
-    layerMap_(state->layerMap_),
-    hitPattern_(state->hitPattern_),
-    x0_(state->x0_),
-    x1_(state->x1_),
-    x2_(state->x2_),
-    x3_(state->x3_),
-    C00_(state->C00_),
-    C01_(state->C01_),
-    C11_(state->C11_),
-    C22_(state->C22_),
-    C23_(state->C23_),
-    C33_(state->C33_),
-    numSkippedLayers_(state->numSkippedLayers_),
-    numConsistentLayers_(state->numConsistentLayers_)
-  {}
+  State::State(State* state)
+      : dataFormats_(state->dataFormats_),
+        setup_(state->setup_),
+        track_(state->track_),
+        trackId_(state->trackId_),
+        parent_(state->parent_),
+        stub_(state->stub_),
+        layerMap_(state->layerMap_),
+        hitPattern_(state->hitPattern_),
+        x0_(state->x0_),
+        x1_(state->x1_),
+        x2_(state->x2_),
+        x3_(state->x3_),
+        C00_(state->C00_),
+        C01_(state->C01_),
+        C11_(state->C11_),
+        C22_(state->C22_),
+        C23_(state->C23_),
+        C33_(state->C33_),
+        numSkippedLayers_(state->numSkippedLayers_),
+        numConsistentLayers_(state->numConsistentLayers_) {}
 
   // proto state constructor
-  State::State(const DataFormats* dataFormats, TrackKFin* track, int trackId) :
-    dataFormats_(dataFormats),
-    setup_(dataFormats->setup()),
-    track_(track),
-    trackId_(trackId),
-    parent_(nullptr),
-    stub_(nullptr),
-    layerMap_(setup_->numLayers()),
-    hitPattern_(0, setup_->numLayers()),
-    numSkippedLayers_(0),
-    numConsistentLayers_(0)
-  {
+  State::State(const DataFormats* dataFormats, TrackKFin* track, int trackId)
+      : dataFormats_(dataFormats),
+        setup_(dataFormats->setup()),
+        track_(track),
+        trackId_(trackId),
+        parent_(nullptr),
+        stub_(nullptr),
+        layerMap_(setup_->numLayers()),
+        hitPattern_(0, setup_->numLayers()),
+        numSkippedLayers_(0),
+        numConsistentLayers_(0) {
     // initial track parameter residuals w.r.t. found track
     x0_ = 0.;
     x1_ = 0.;
     x2_ = 0.;
     x3_ = 0.;
     // initial uncertainties
-    C00_  = pow(dataFormats_->base(Variable::inv2R, Process::zht), 2);
-    C11_  = pow(dataFormats_->base(Variable::phiT, Process::zht), 2);
-    C22_  = pow(dataFormats_->base(Variable::cot, Process::zht), 2);
-    C33_  = pow(dataFormats_->base(Variable::zT, Process::zht), 2);
-    C01_  = 0.;
-    C23_  = 0.;
+    C00_ = pow(dataFormats_->base(Variable::inv2R, Process::zht), 2);
+    C11_ = pow(dataFormats_->base(Variable::phiT, Process::zht), 2);
+    C22_ = pow(dataFormats_->base(Variable::cot, Process::zht), 2);
+    C33_ = pow(dataFormats_->base(Variable::zT, Process::zht), 2);
+    C01_ = 0.;
+    C23_ = 0.;
     // first stub from first layer on input track with stubs
     stub_ = track->layerStub(track->hitPattern().plEncode());
   }
 
   // combinatoric state constructor
-  State::State(State* state, StubKFin* stub) : State(state)
-  {
+  State::State(State* state, StubKFin* stub) : State(state) {
     parent_ = state->parent();
     stub_ = stub;
   }
 
   // updated state constructor
-  State::State(State* state, const std::vector<double>& doubles) : State(state)
-  {
+  State::State(State* state, const std::vector<double>& doubles) : State(state) {
     parent_ = state;
     // updated track parameter and uncertainties
     x0_ = doubles[0];
@@ -113,10 +109,12 @@ namespace trackerTFP {
   void State::finish() {
     const vector<StubKF> stubs = this->stubs();
     auto consistent = [this](int& sum, const StubKF& stub) {
-      auto inConsistentRange = [](float v, float r, float d){ return abs(v) <= (r + d) / 2.; };
+      auto inConsistentRange = [](float v, float r, float d) { return abs(v) <= (r + d) / 2.; };
       // Check stub consistent with helix, allowing for stub & digi uncertainty
-      const bool inRange0 = inConsistentRange(stub.phi(), stub.dPhi(), dataFormats_->format(Variable::dPhi, Process::kf).base());
-      const bool inRange1 = inConsistentRange(stub.z(), stub.dZ(), dataFormats_->format(Variable::dZ, Process::kf).base());
+      const bool inRange0 =
+          inConsistentRange(stub.phi(), stub.dPhi(), dataFormats_->format(Variable::dPhi, Process::kf).base());
+      const bool inRange1 =
+          inConsistentRange(stub.z(), stub.dZ(), dataFormats_->format(Variable::dZ, Process::kf).base());
       return sum += (inRange0 && inRange1 ? 1 : 0);
     };
     numConsistentLayers_ = accumulate(stubs.begin(), stubs.end(), 0, consistent);
@@ -126,4 +124,4 @@ namespace trackerTFP {
     numSkippedLayers_ = pattern.count(0, hitPattern_.pmEncode(), false);
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

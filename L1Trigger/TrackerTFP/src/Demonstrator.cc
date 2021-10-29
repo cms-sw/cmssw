@@ -11,16 +11,16 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  Demonstrator::Demonstrator(const ParameterSet& iConfig, const Setup* setup) :
-    dirIPBB_(iConfig.getParameter<string>("DirIPBB")),
-    runTime_(iConfig.getParameter<double>("RunTime")),
-    dirIn_(dirIPBB_ + "in.txt"),
-    dirOut_(dirIPBB_ + "out.txt"),
-    dirPre_(dirIPBB_ + "pre.txt"),
-    dirDiff_(dirIPBB_ + "diff.txt"),
-    numFrames_(setup->numFramesIO()),
-    numFramesInfra_(setup->numFramesInfra()),
-    numRegions_(setup->numRegions()) {}
+  Demonstrator::Demonstrator(const ParameterSet& iConfig, const Setup* setup)
+      : dirIPBB_(iConfig.getParameter<string>("DirIPBB")),
+        runTime_(iConfig.getParameter<double>("RunTime")),
+        dirIn_(dirIPBB_ + "in.txt"),
+        dirOut_(dirIPBB_ + "out.txt"),
+        dirPre_(dirIPBB_ + "pre.txt"),
+        dirDiff_(dirIPBB_ + "diff.txt"),
+        numFrames_(setup->numFramesIO()),
+        numFramesInfra_(setup->numFramesInfra()),
+        numRegions_(setup->numRegions()) {}
 
   // plays input through modelsim and compares result with output
   void Demonstrator::analyze(const vector<vector<Frame>>& input, const vector<vector<Frame>>& output) const {
@@ -101,7 +101,6 @@ namespace trackerTFP {
       exception << "Bit error detected.";
       throw exception;
     }
-
   }
 
   // creates emp file header
@@ -127,7 +126,7 @@ namespace trackerTFP {
     for (int gap = 0; gap < numFramesInfra_; gap++) {
       ss << frame(nFrame);
       for (int link = 0; link < numLinks; link++)
-        ss << " 0v" << string(TTBV::S_ / 4, '0' );
+        ss << " 0v" << string(TTBV::S_ / 4, '0');
       ss << endl;
     }
     return ss.str();
@@ -147,4 +146,4 @@ namespace trackerTFP {
     return ss.str();
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

@@ -15,22 +15,25 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  MiniHoughTransform::MiniHoughTransform(const ParameterSet& iConfig, const Setup* setup, const DataFormats* dataFormats, int region) :
-    enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-    setup_(setup),
-    dataFormats_(dataFormats),
-    inv2R_(dataFormats_->format(Variable::inv2R, Process::ht)),
-    phiT_(dataFormats_->format(Variable::phiT, Process::ht)),
-    region_(region),
-    numBinsInv2R_(setup_->htNumBinsInv2R()),
-    numCells_(setup_->mhtNumCells()),
-    numNodes_(setup_->mhtNumDLBNodes()),
-    numChannel_(setup_->mhtNumDLBChannel()),
-    input_(numBinsInv2R_) {}
+  MiniHoughTransform::MiniHoughTransform(const ParameterSet& iConfig,
+                                         const Setup* setup,
+                                         const DataFormats* dataFormats,
+                                         int region)
+      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        setup_(setup),
+        dataFormats_(dataFormats),
+        inv2R_(dataFormats_->format(Variable::inv2R, Process::ht)),
+        phiT_(dataFormats_->format(Variable::phiT, Process::ht)),
+        region_(region),
+        numBinsInv2R_(setup_->htNumBinsInv2R()),
+        numCells_(setup_->mhtNumCells()),
+        numNodes_(setup_->mhtNumDLBNodes()),
+        numChannel_(setup_->mhtNumDLBChannel()),
+        input_(numBinsInv2R_) {}
 
   // read in and organize input product (fill vector input_)
   void MiniHoughTransform::consume(const StreamsStub& streams) {
-    auto valid = [](int& sum, const FrameStub& frame){ return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     int nStubsHT(0);
     for (int binInv2R = 0; binInv2R < numBinsInv2R_; binInv2R++) {
       const StreamStub& stream = streams[region_ * numBinsInv2R_ + binInv2R];
@@ -107,8 +110,8 @@ namespace trackerTFP {
     if (stubs.empty())
       return;
     int id;
-    auto differentHT = [&id](StubHT* stub){ return id != stub->trackId(); };
-    auto differentMHT = [&id](StubMHT* stub){ return !stub || id != stub->trackId(); };
+    auto differentHT = [&id](StubHT* stub) { return id != stub->trackId(); };
+    auto differentMHT = [&id](StubMHT* stub) { return !stub || id != stub->trackId(); };
     for (auto it = stubs.begin(); it != stubs.end();) {
       const auto start = it;
       id = (*it)->trackId();
@@ -129,10 +132,34 @@ namespace trackerTFP {
         const bool compA = 2. * abs(chi) < phiT_.base();
         const bool compB = 2. * abs(chi) < abs(r * inv2R_.base());
         const bool compAB = compA && compB;
-        if (chi >= 0. && r >= 0.) { cells.push_back(3); if (compA) cells.push_back(1); if(compAB) cells.push_back(2); }
-        if (chi >= 0. && r <  0.) { cells.push_back(1); if (compA) cells.push_back(3); if(compAB) cells.push_back(0); }
-        if (chi <  0. && r >= 0.) { cells.push_back(0); if (compA) cells.push_back(2); if(compAB) cells.push_back(1); }
-        if (chi <  0. && r <  0.) { cells.push_back(2); if (compA) cells.push_back(0); if(compAB) cells.push_back(3); }
+        if (chi >= 0. && r >= 0.) {
+          cells.push_back(3);
+          if (compA)
+            cells.push_back(1);
+          if (compAB)
+            cells.push_back(2);
+        }
+        if (chi >= 0. && r < 0.) {
+          cells.push_back(1);
+          if (compA)
+            cells.push_back(3);
+          if (compAB)
+            cells.push_back(0);
+        }
+        if (chi < 0. && r >= 0.) {
+          cells.push_back(0);
+          if (compA)
+            cells.push_back(2);
+          if (compAB)
+            cells.push_back(1);
+        }
+        if (chi < 0. && r < 0.) {
+          cells.push_back(2);
+          if (compA)
+            cells.push_back(0);
+          if (compAB)
+            cells.push_back(3);
+        }
         // organise stubs in finer track candidates
         for (int cell : cells) {
           const int inv2R = cell / setup_->mhtNumBinsPhiT();
@@ -146,7 +173,7 @@ namespace trackerTFP {
         deque<StubMHT*>& stream = streams[channel * numCells_ + sel];
         vector<StubMHT*>& mhtCell = mhtCells[sel];
         set<int> layers;
-        auto toLayer = [](StubMHT* stub){ return stub->layer(); };
+        auto toLayer = [](StubMHT* stub) { return stub->layer(); };
         transform(mhtCell.begin(), mhtCell.end(), inserter(layers, layers.begin()), toLayer);
         if ((int)layers.size() < setup_->mhtMinLayers())
           mhtCell.clear();
@@ -158,7 +185,7 @@ namespace trackerTFP {
     for (int sel = 0; sel < numCells_; sel++) {
       deque<StubMHT*>& stream = streams[channel * numCells_ + sel];
       // remove all gaps between end and last stub
-      for(auto it = stream.end(); it != stream.begin();)
+      for (auto it = stream.end(); it != stream.begin();)
         it = (*--it) ? stream.begin() : stream.erase(it);
       // read out fine track cannot start before rough track has read in completely, add gaps to take this into account
       int pos(0);
@@ -175,8 +202,7 @@ namespace trackerTFP {
           const int diff = pos - d;
           it = stream.insert(it, diff, nullptr);
           it = next(it, diff);
-        }
-        else
+        } else
           it = stream.erase(remove(next(stream.begin(), pos), it, nullptr), it);
         it = next(it, s);
       }
@@ -188,9 +214,9 @@ namespace trackerTFP {
 
   // Static load balancing of inputs: mux 4 streams to 1 stream
   void MiniHoughTransform::slb(vector<deque<StubMHT*>>& inputs, vector<StubMHT*>& accepted, StreamStub& lost) const {
-    if (all_of(inputs.begin(), inputs.end(), [](const deque<StubMHT*>& stubs){ return stubs.empty(); }))
+    if (all_of(inputs.begin(), inputs.end(), [](const deque<StubMHT*>& stubs) { return stubs.empty(); }))
       return;
-    auto size = [](int& sum, const deque<StubMHT*>& stubs){ return sum += stubs.size(); };
+    auto size = [](int& sum, const deque<StubMHT*>& stubs) { return sum += stubs.size(); };
     const int nFrames = accumulate(inputs.begin(), inputs.end(), 0, size);
     accepted.reserve(nFrames);
     // input fifos
@@ -199,10 +225,10 @@ namespace trackerTFP {
     TTBV empty(-1, numCells_, true);
     TTBV enable(0, numCells_);
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-    while(!all_of(inputs.begin(), inputs.end(), [](const deque<StubMHT*>& d){ return d.empty(); }) or
-          !all_of(stacks.begin(), stacks.end(), [](const deque<StubMHT*>& d){ return d.empty(); })) {
+    while (!all_of(inputs.begin(), inputs.end(), [](const deque<StubMHT*>& d) { return d.empty(); }) or
+           !all_of(stacks.begin(), stacks.end(), [](const deque<StubMHT*>& d) { return d.empty(); })) {
       // store stub in fifo
-      for(int channel = 0; channel < numCells_; channel++){
+      for (int channel = 0; channel < numCells_; channel++) {
         StubMHT* stub = pop_front(inputs[channel]);
         if (stub)
           stacks[channel].push_back(stub);
@@ -225,12 +251,11 @@ namespace trackerTFP {
       else
         // gap if no fifo has been chosen
         accepted.push_back(nullptr);
-
     }
     // perform truncation if desired
     if (enableTruncation_ && (int)accepted.size() > setup_->numFrames()) {
       const auto limit = next(accepted.begin(), setup_->numFrames());
-      auto valid = [](int& sum, StubMHT* stub){ return sum += stub ? 1 : 0; };
+      auto valid = [](int& sum, StubMHT* stub) { return sum += stub ? 1 : 0; };
       const int nLost = accumulate(limit, accepted.end(), 0, valid);
       lost.reserve(nLost);
       for (auto it = limit; it != accepted.end(); it++)
@@ -239,15 +264,15 @@ namespace trackerTFP {
       accepted.erase(limit, accepted.end());
     }
     // cosmetics -- remove gaps at the end of stream
-    for(auto it = accepted.end(); it != accepted.begin();)
+    for (auto it = accepted.end(); it != accepted.begin();)
       it = (*--it) == nullptr ? accepted.erase(it) : accepted.begin();
   }
 
   // Dynamic load balancing of inputs: swapping parts of streams to balance the amount of tracks per stream
   void MiniHoughTransform::dlb(vector<vector<StubMHT*>>& streams) const {
-    if (all_of(streams.begin(), streams.end(), [](const vector<StubMHT*>& stubs){ return stubs.empty(); }))
+    if (all_of(streams.begin(), streams.end(), [](const vector<StubMHT*>& stubs) { return stubs.empty(); }))
       return;
-    auto maxSize = [](int& size, const vector<StubMHT*>& stream){ return size = max(size, (int)stream.size()); };
+    auto maxSize = [](int& size, const vector<StubMHT*>& stream) { return size = max(size, (int)stream.size()); };
     const int nMax = accumulate(streams.begin(), streams.end(), 0, maxSize);
     for (vector<StubMHT*>& stream : streams)
       stream.resize(nMax, nullptr);
@@ -261,7 +286,8 @@ namespace trackerTFP {
           newTrks.set(k);
       for (int k = 0; k < numChannel_; k++)
         if (newTrks[k])
-          if ((swapping && loads[numChannel_ - k - 1] > loads[k]) || (!swapping && loads[k] > loads[numChannel_ - k - 1]))
+          if ((swapping && loads[numChannel_ - k - 1] > loads[k]) ||
+              (!swapping && loads[k] > loads[numChannel_ - k - 1]))
             swapping = !swapping;
       for (int k = 0; k < numChannel_; k++) {
         if (streams[k][i])
@@ -273,12 +299,12 @@ namespace trackerTFP {
     }
     // remove all gaps between end and last stub
     for (vector<StubMHT*>& stream : streams)
-      for(auto it = stream.end(); it != stream.begin();)
+      for (auto it = stream.end(); it != stream.begin();)
         it = (*--it) ? stream.begin() : stream.erase(it);
   }
 
   // remove and return first element of deque, returns nullptr if empty
-  template<class T>
+  template <class T>
   T* MiniHoughTransform::pop_front(deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
@@ -288,4 +314,4 @@ namespace trackerTFP {
     return t;
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

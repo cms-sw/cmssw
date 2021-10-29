@@ -9,7 +9,8 @@ namespace trackerTFP {
 
   typedef edm::mpl::Vector<DataFormatsRcd> RcdsKalmanFilterFormats;
 
-  class KalmanFilterFormatsRcd : public edm::eventsetup::DependentRecordImplementation<KalmanFilterFormatsRcd, RcdsKalmanFilterFormats> {};
+  class KalmanFilterFormatsRcd
+      : public edm::eventsetup::DependentRecordImplementation<KalmanFilterFormatsRcd, RcdsKalmanFilterFormats> {};
 
 }  // namespace trackerTFP
 

@@ -39,7 +39,7 @@ namespace trackerTFP {
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
     //void endStream() { kalmanFilterFormats_->endJob(); }
-    void endStream() {}
+    void endStream() override {}
 
     // ED input token of sf stubs and tracks
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
@@ -69,8 +69,7 @@ namespace trackerTFP {
     KalmanFilterFormats* kalmanFilterFormats_;
   };
 
-  ProducerKF::ProducerKF(const ParameterSet& iConfig) : iConfig_(iConfig)
-  {
+  ProducerKF::ProducerKF(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelKFin");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -139,10 +138,10 @@ namespace trackerTFP {
     iEvent.emplace(edPutTokenAcceptedTracks_, move(acceptedTracks));
     iEvent.emplace(edPutTokenLostStubs_, move(lostStubs));
     iEvent.emplace(edPutTokenLostTracks_, move(lostTracks));
-    iEvent.emplace(edPutTokenNumAcceptedStates_, move(numAcceptedStates));
-    iEvent.emplace(edPutTokenNumLostStates_, move(numLostStates));
+    iEvent.emplace(edPutTokenNumAcceptedStates_, numAcceptedStates);
+    iEvent.emplace(edPutTokenNumLostStates_, numLostStates);
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerKF);

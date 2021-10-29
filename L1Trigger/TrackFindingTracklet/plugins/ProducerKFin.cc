@@ -74,9 +74,7 @@ namespace trackFindingTracklet {
     bool enableTruncation_;
   };
 
-  ProducerKFin::ProducerKFin(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerKFin::ProducerKFin(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTag");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -180,13 +178,15 @@ namespace trackFindingTracklet {
           // get rphi parameter
           double inv2R = dfinv2R.digi(-ttTrackRef->rInv() / 2.);
           // calculcate track phi at radius hybridChosenRofPhi with respect to phi sector centre
-          double phiT = dfphiT.digi(deltaPhi(ttTrackRef->phi() + dataFormats_->chosenRofPhi() * inv2R - ttTrackRef->phiSector() * setup_->baseRegion()));
-          const int sectorPhi = phiT < 0. ? 0 : 1; // dirty hack
+          double phiT = dfphiT.digi(deltaPhi(ttTrackRef->phi() + dataFormats_->chosenRofPhi() * inv2R -
+                                             ttTrackRef->phiSector() * setup_->baseRegion()));
+          const int sectorPhi = phiT < 0. ? 0 : 1;  // dirty hack
           phiT -= (sectorPhi - .5) * setup_->baseSector();
           // cut on nonant size and pt
           if (!dfphiT.inRange(phiT) || !dfinv2R.inRange(inv2R))
             continue;
-          const double offsetPhi = (ttTrackRef->phiSector() * setup_->numSectorsPhi() + sectorPhi - .5) * setup_->baseSector();
+          const double offsetPhi =
+              (ttTrackRef->phiSector() * setup_->numSectorsPhi() + sectorPhi - .5) * setup_->baseSector();
           // check hitPattern
           TTBV hitPattern(0, setup_->numLayers());
           static constexpr double scalePhi = 4.0;
@@ -279,6 +279,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutTokenLostTracks_, move(streamLostTracks));
   }
 
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet
 
 DEFINE_FWK_MODULE(trackFindingTracklet::ProducerKFin);

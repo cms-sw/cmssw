@@ -36,8 +36,8 @@ namespace trackerTFP {
     ~ProducerGP() override {}
 
   private:
-    virtual void beginRun(const Run&, const EventSetup&) override;
-    virtual void produce(Event&, const EventSetup&) override;
+    void beginRun(const Run&, const EventSetup&) override;
+    void produce(Event&, const EventSetup&) override;
     virtual void endJob() {}
 
     // ED input token of DTC stubs
@@ -58,9 +58,7 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
   };
 
-  ProducerGP::ProducerGP(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerGP::ProducerGP(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelDTC");
     const string& branchAccepted = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchLost = iConfig.getParameter<string>("BranchLostStubs");
@@ -109,6 +107,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutTokenLost_, move(lost));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerGP);

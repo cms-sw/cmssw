@@ -50,9 +50,7 @@ namespace trackerTFP {
     const Setup* setup_;
   };
 
-  ProducerAS::ProducerAS(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerAS::ProducerAS(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& labelKF = iConfig.getParameter<string>("LabelKF");
     const string& labelTT = iConfig.getParameter<string>("LabelTT");
     const string& branch = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -96,6 +94,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutToken_, move(ttTrackMap));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerAS);

@@ -61,8 +61,7 @@ namespace trackerDTC {
     ParameterSet iConfig_;
   };
 
-  ProducerED::ProducerED(const ParameterSet& iConfig)
-      : iConfig_(iConfig) {
+  ProducerED::ProducerED(const ParameterSet& iConfig) : iConfig_(iConfig) {
     // book in- and output ED products
     const auto& inputTag = iConfig.getParameter<InputTag>("InputTag");
     const auto& branchAccepted = iConfig.getParameter<string>("BranchAccepted");

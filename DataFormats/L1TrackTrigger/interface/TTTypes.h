@@ -24,17 +24,17 @@
 
 /// Templated aliases
 template <typename T>
-using TTClusterDetSetVecT = edmNew::DetSetVector<TTCluster<T> >;
+using TTClusterDetSetVecT = edmNew::DetSetVector<TTCluster<T>>;
 template <typename T>
-using TTStubDetSetVecT = edmNew::DetSetVector<TTStub<T> >;
+using TTStubDetSetVecT = edmNew::DetSetVector<TTStub<T>>;
 
 template <typename T>
-using TTClusterRefT = edm::Ref<TTClusterDetSetVecT<T>, TTCluster<T> >;
+using TTClusterRefT = edm::Ref<TTClusterDetSetVecT<T>, TTCluster<T>>;
 template <typename T>
-using TTStubRefT = edm::Ref<TTStubDetSetVecT<T>, TTStub<T> >;
+using TTStubRefT = edm::Ref<TTStubDetSetVecT<T>, TTStub<T>>;
 
 template <typename T>
-using TTTrackPtrT = edm::Ptr<TTTrack<T> >;
+using TTTrackPtrT = edm::Ptr<TTTrack<T>>;
 
 /// Specialized aliases
 typedef edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> Ref_Phase2TrackerDigi_;
@@ -45,8 +45,8 @@ typedef TTStubDetSetVecT<Ref_Phase2TrackerDigi_> TTStubDetSetVec;
 typedef TTClusterRefT<Ref_Phase2TrackerDigi_> TTClusterRef;
 typedef TTStubRefT<Ref_Phase2TrackerDigi_> TTStubRef;
 
-typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSet;
-typedef edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_> > TTClusterDetSet;
+typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> TTStubDetSet;
+typedef edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> TTClusterDetSet;
 
 typedef edm::Ref<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>, TTTrack<Ref_Phase2TrackerDigi_>> TTTrackRef;
 typedef TTTrackPtrT<Ref_Phase2TrackerDigi_> TTTrackPtr;
@@ -66,6 +66,6 @@ namespace tt {
   typedef std::vector<StreamTrack> StreamsTrack;
   typedef std::map<TTTrackRef, TTTrackRef> TTTrackRefMap;
   typedef std::vector<TTTrack<Ref_Phase2TrackerDigi_>> TTTracks;
-} // namespace tt
+}  // namespace tt
 
 #endif

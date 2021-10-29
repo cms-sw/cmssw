@@ -15,17 +15,20 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  ZHoughTransform::ZHoughTransform(const ParameterSet& iConfig, const Setup* setup, const DataFormats* dataFormats, int region) :
-    enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-    setup_(setup),
-    dataFormats_(dataFormats),
-    region_(region),
-    input_(dataFormats->numChannel(Process::mht)),
-    stage_(0) {}
+  ZHoughTransform::ZHoughTransform(const ParameterSet& iConfig,
+                                   const Setup* setup,
+                                   const DataFormats* dataFormats,
+                                   int region)
+      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        setup_(setup),
+        dataFormats_(dataFormats),
+        region_(region),
+        input_(dataFormats->numChannel(Process::mht)),
+        stage_(0) {}
 
   // read in and organize input product (fill vector input_)
   void ZHoughTransform::consume(const StreamsStub& streams) {
-    auto valid = [](int& sum, const FrameStub& frame){ return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto valid = [](int& sum, const FrameStub& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
     const int offset = region_ * dataFormats_->numChannel(Process::mht);
     int nStubsMHT(0);
     for (int channel = 0; channel < dataFormats_->numChannel(Process::mht); channel++) {
@@ -82,13 +85,15 @@ namespace trackerTFP {
   void ZHoughTransform::fill(int channel, const deque<StubZHT*>& stubs, vector<deque<StubZHT*>>& streams) {
     if (stubs.empty())
       return;
-    const double baseZT = dataFormats_->format(Variable::zT, Process::zht).base() * pow(2, setup_->zhtNumStages() - stage_);
-    const double baseCot = dataFormats_->format(Variable::cot, Process::zht).base() * pow(2, setup_->zhtNumStages() - stage_);
+    const double baseZT =
+        dataFormats_->format(Variable::zT, Process::zht).base() * pow(2, setup_->zhtNumStages() - stage_);
+    const double baseCot =
+        dataFormats_->format(Variable::cot, Process::zht).base() * pow(2, setup_->zhtNumStages() - stage_);
     int id;
-    auto different = [&id](StubZHT* stub){ return !stub || id != stub->trackId(); };
+    auto different = [&id](StubZHT* stub) { return !stub || id != stub->trackId(); };
     for (auto it = stubs.begin(); it != stubs.end();) {
       if (!*it) {
-        const auto begin = find_if(it, stubs.end(), [](StubZHT* stub){ return stub; });
+        const auto begin = find_if(it, stubs.end(), [](StubZHT* stub) { return stub; });
         const int nGaps = distance(it, begin);
         for (deque<StubZHT*>& stream : streams)
           stream.insert(stream.end(), nGaps, nullptr);
@@ -116,10 +121,42 @@ namespace trackerTFP {
         const bool compA = 2. * abs(chi) < baseZT + dChi;
         const bool compB = 2. * abs(chi) < abs(r) * baseCot + dChi;
         const bool compC = 2. * abs(chi) < dChi;
-        if (chi >= 0. && r >= 0.) { cells.push_back(1); if (compA) cells.push_back(3); if(compB) cells.push_back(0); if(compC) cells.push_back(2); }
-        if (chi >= 0. && r <  0.) { cells.push_back(3); if (compA) cells.push_back(1); if(compB) cells.push_back(2); if(compC) cells.push_back(0); }
-        if (chi <  0. && r >= 0.) { cells.push_back(2); if (compA) cells.push_back(0); if(compB) cells.push_back(3); if(compC) cells.push_back(1); }
-        if (chi <  0. && r <  0.) { cells.push_back(0); if (compA) cells.push_back(2); if(compB) cells.push_back(1); if(compC) cells.push_back(3); }
+        if (chi >= 0. && r >= 0.) {
+          cells.push_back(1);
+          if (compA)
+            cells.push_back(3);
+          if (compB)
+            cells.push_back(0);
+          if (compC)
+            cells.push_back(2);
+        }
+        if (chi >= 0. && r < 0.) {
+          cells.push_back(3);
+          if (compA)
+            cells.push_back(1);
+          if (compB)
+            cells.push_back(2);
+          if (compC)
+            cells.push_back(0);
+        }
+        if (chi < 0. && r >= 0.) {
+          cells.push_back(2);
+          if (compA)
+            cells.push_back(0);
+          if (compB)
+            cells.push_back(3);
+          if (compC)
+            cells.push_back(1);
+        }
+        if (chi < 0. && r < 0.) {
+          cells.push_back(0);
+          if (compA)
+            cells.push_back(2);
+          if (compB)
+            cells.push_back(1);
+          if (compC)
+            cells.push_back(3);
+        }
         for (int cell : cells) {
           const double cot = (cell / setup_->zhtNumBinsZT() - .5) * baseCot / 2.;
           const double zT = (cell % setup_->zhtNumBinsZT() - .5) * baseZT / 2.;
@@ -132,7 +169,7 @@ namespace trackerTFP {
         deque<StubZHT*>& stream = streams[channel * setup_->zhtNumCells() + sel];
         vector<StubZHT*>& mhtCell = mhtCells[sel];
         set<int> layers;
-        auto toLayer = [](StubZHT* stub){ return stub->layer(); };
+        auto toLayer = [](StubZHT* stub) { return stub->layer(); };
         transform(mhtCell.begin(), mhtCell.end(), inserter(layers, layers.begin()), toLayer);
         if ((int)layers.size() < setup_->mhtMinLayers())
           mhtCell.clear();
@@ -144,7 +181,7 @@ namespace trackerTFP {
     for (int sel = 0; sel < setup_->zhtNumCells(); sel++) {
       deque<StubZHT*>& stream = streams[channel * setup_->zhtNumCells() + sel];
       // remove all gaps between end and last stub
-      for(auto it = stream.end(); it != stream.begin();)
+      for (auto it = stream.end(); it != stream.begin();)
         it = (*--it) ? stream.begin() : stream.erase(it);
       // read out fine track cannot start before rough track has read in completely, add gaps to take this into account
       int pos(0);
@@ -161,8 +198,7 @@ namespace trackerTFP {
           const int diff = pos - d;
           it = stream.insert(it, diff, nullptr);
           it = next(it, diff);
-        }
-        else
+        } else
           it = stream.erase(remove(next(stream.begin(), pos), it, nullptr), it);
         it = next(it, s);
       }
@@ -175,7 +211,7 @@ namespace trackerTFP {
   // Static load balancing of inputs: mux 4 streams to 1 stream
   void ZHoughTransform::slb(vector<deque<StubZHT*>>& inputs, deque<StubZHT*>& accepted, StreamStub& lost) const {
     accepted.clear();
-    if (all_of(inputs.begin(), inputs.end(), [](const deque<StubZHT*>& stubs){ return stubs.empty(); }))
+    if (all_of(inputs.begin(), inputs.end(), [](const deque<StubZHT*>& stubs) { return stubs.empty(); }))
       return;
     // input fifos
     vector<deque<StubZHT*>> stacks(setup_->zhtNumCells());
@@ -183,10 +219,10 @@ namespace trackerTFP {
     TTBV empty(-1, setup_->zhtNumCells(), true);
     TTBV enable(0, setup_->zhtNumCells());
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
-    while(!all_of(inputs.begin(), inputs.end(), [](const deque<StubZHT*>& d){ return d.empty(); }) or
-          !all_of(stacks.begin(), stacks.end(), [](const deque<StubZHT*>& d){ return d.empty(); })) {
+    while (!all_of(inputs.begin(), inputs.end(), [](const deque<StubZHT*>& d) { return d.empty(); }) or
+           !all_of(stacks.begin(), stacks.end(), [](const deque<StubZHT*>& d) { return d.empty(); })) {
       // store stub in fifo
-      for(int channel = 0; channel < setup_->zhtNumCells(); channel++){
+      for (int channel = 0; channel < setup_->zhtNumCells(); channel++) {
         StubZHT* stub = pop_front(inputs[channel]);
         if (stub)
           stacks[channel].push_back(stub);
@@ -209,12 +245,11 @@ namespace trackerTFP {
       else
         // gap if no fifo has been chosen
         accepted.push_back(nullptr);
-
     }
     // perform truncation if desired
     if (enableTruncation_ && (int)accepted.size() > setup_->numFrames()) {
       const auto limit = next(accepted.begin(), setup_->numFrames());
-      auto valid = [](int& sum, StubZHT* stub){ return sum += stub ? 1 : 0; };
+      auto valid = [](int& sum, StubZHT* stub) { return sum += stub ? 1 : 0; };
       const int nLost = accumulate(limit, accepted.end(), 0, valid);
       lost.reserve(nLost);
       for (auto it = limit; it != accepted.end(); it++)
@@ -223,7 +258,7 @@ namespace trackerTFP {
       accepted.erase(limit, accepted.end());
     }
     // cosmetics -- remove gaps at the end of stream
-    for(auto it = accepted.end(); it != accepted.begin();)
+    for (auto it = accepted.end(); it != accepted.begin();)
       it = (*--it) == nullptr ? accepted.erase(it) : accepted.begin();
   }
 
@@ -253,16 +288,20 @@ namespace trackerTFP {
       const int zT = (cotp.first + cotp.second) / 2;
       const int pos = distance(candidates.begin(), m);
       deque<FrameStub>& track = tracks[pos];
-      auto different = [id](const StubZHT* stub){ return id != stub->trackId(); };
+      auto different = [id](const StubZHT* stub) { return id != stub->trackId(); };
       it = find_if(it, stubs.end(), different);
       for (auto s = start; s != it; s++) {
-        if (find_if(track.begin(), track.end(), [s](const FrameStub& stub){ return (*s)->ttStubRef() == stub.first; }) != track.end())
+        if (find_if(track.begin(), track.end(), [s](const FrameStub& stub) {
+              return (*s)->ttStubRef() == stub.first;
+            }) != track.end())
           continue;
         const StubZHT stub(**s, cot, zT);
         track.push_back(stub.frame());
       }
     }
-    const int size = accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const deque<FrameStub>& stubs){ return sum += (int)stubs.size(); });
+    const int size = accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const deque<FrameStub>& stubs) {
+      return sum += (int)stubs.size();
+    });
     stream.reserve(size);
     for (deque<FrameStub>& track : tracks)
       for (const FrameStub& stub : track)
@@ -270,7 +309,7 @@ namespace trackerTFP {
   }
 
   // remove and return first element of deque, returns nullptr if empty
-  template<class T>
+  template <class T>
   T* ZHoughTransform::pop_front(deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
@@ -280,4 +319,4 @@ namespace trackerTFP {
     return t;
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

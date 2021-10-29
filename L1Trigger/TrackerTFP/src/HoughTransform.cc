@@ -15,20 +15,22 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  HoughTransform::HoughTransform(const ParameterSet& iConfig, const Setup* setup, const DataFormats* dataFormats, int region) :
-    enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
-    setup_(setup),
-    dataFormats_(dataFormats),
-    inv2R_(dataFormats_->format(Variable::inv2R, Process::ht)),
-    phiT_(dataFormats_->format(Variable::phiT, Process::ht)),
-    region_(region),
-    input_(dataFormats_->numChannel(Process::ht), vector<deque<StubGP*>>(dataFormats_->numChannel(Process::gp)))
-  {}
+  HoughTransform::HoughTransform(const ParameterSet& iConfig,
+                                 const Setup* setup,
+                                 const DataFormats* dataFormats,
+                                 int region)
+      : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
+        setup_(setup),
+        dataFormats_(dataFormats),
+        inv2R_(dataFormats_->format(Variable::inv2R, Process::ht)),
+        phiT_(dataFormats_->format(Variable::phiT, Process::ht)),
+        region_(region),
+        input_(dataFormats_->numChannel(Process::ht), vector<deque<StubGP*>>(dataFormats_->numChannel(Process::gp))) {}
 
   // read in and organize input product (fill vector input_)
   void HoughTransform::consume(const StreamsStub& streams) {
     const int offset = region_ * dataFormats_->numChannel(Process::gp);
-    auto validFrame = [](int& sum, const FrameStub& frame){ return sum += frame.first.isNonnull() ? 1 : 0; };
+    auto validFrame = [](int& sum, const FrameStub& frame) { return sum += frame.first.isNonnull() ? 1 : 0; };
     int nStubsGP(0);
     for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++) {
       const StreamStub& stream = streams[offset + sector];
@@ -50,11 +52,11 @@ namespace trackerTFP {
       }
     }
     // remove all gaps between end and last stub
-    for(vector<deque<StubGP*>>& input : input_)
-      for(deque<StubGP*>& stubs : input)
-        for(auto it = stubs.end(); it != stubs.begin();)
+    for (vector<deque<StubGP*>>& input : input_)
+      for (deque<StubGP*>& stubs : input)
+        for (auto it = stubs.end(); it != stubs.begin();)
           it = (*--it) ? stubs.begin() : stubs.erase(it);
-    auto validStub = [](int& sum, StubGP* stub){ return sum += stub ? 1 : 0; };
+    auto validStub = [](int& sum, StubGP* stub) { return sum += stub ? 1 : 0; };
     int nStubsHT(0);
     for (const vector<deque<StubGP*>>& binInv2R : input_)
       for (const deque<StubGP*>& sector : binInv2R)
@@ -82,11 +84,13 @@ namespace trackerTFP {
         readOut(acceptedSector, lostSector, acceptedAll, lostAll);
       }
       // truncate accepted stream
-      const auto limit = enableTruncation_ ? next(acceptedAll.begin(), min(setup_->numFrames(), (int)acceptedAll.size())) : acceptedAll.end();
-      copy_if(limit, acceptedAll.end(), back_inserter(lostAll), [](StubHT* stub){ return stub; });
+      const auto limit = enableTruncation_
+                             ? next(acceptedAll.begin(), min(setup_->numFrames(), (int)acceptedAll.size()))
+                             : acceptedAll.end();
+      copy_if(limit, acceptedAll.end(), back_inserter(lostAll), [](StubHT* stub) { return stub; });
       acceptedAll.erase(limit, acceptedAll.end());
       // store found tracks
-      auto put = [](const deque<StubHT*>& stubs, StreamStub& stream){
+      auto put = [](const deque<StubHT*>& stubs, StreamStub& stream) {
         stream.reserve(stubs.size());
         for (StubHT* stub : stubs)
           stream.emplace_back(stub ? stub->frame() : FrameStub());
@@ -99,7 +103,10 @@ namespace trackerTFP {
   }
 
   // associate stubs with phiT bins in this inv2R column
-  void HoughTransform::fillIn(int inv2R, deque<StubGP*>& inputSector, vector<StubHT*>& acceptedSector, vector<StubHT*>& lostSector) {
+  void HoughTransform::fillIn(int inv2R,
+                              deque<StubGP*>& inputSector,
+                              vector<StubHT*>& acceptedSector,
+                              vector<StubHT*>& lostSector) {
     // fifo, used to store stubs which belongs to a second possible track
     deque<StubHT*> stack;
     // clock accurate firmware emulation, each while trip describes one clock tick, one stub in and one stub out per tick
@@ -134,13 +141,18 @@ namespace trackerTFP {
       acceptedSector.push_back(stubHT ? stubHT : pop_front(stack));
     }
     // truncate to many input stubs
-    const auto limit = enableTruncation_ ? next(acceptedSector.begin(), min(setup_->numFrames(), (int)acceptedSector.size())) : acceptedSector.end();
-    copy_if(limit, acceptedSector.end(), back_inserter(lostSector), [](StubHT* stub){ return stub; });
+    const auto limit = enableTruncation_
+                           ? next(acceptedSector.begin(), min(setup_->numFrames(), (int)acceptedSector.size()))
+                           : acceptedSector.end();
+    copy_if(limit, acceptedSector.end(), back_inserter(lostSector), [](StubHT* stub) { return stub; });
     acceptedSector.erase(limit, acceptedSector.end());
   }
 
   // identify tracks
-  void HoughTransform::readOut(const vector<StubHT*>& acceptedSector, const vector<StubHT*>& lostSector, deque<StubHT*>& acceptedAll, deque<StubHT*>& lostAll) const {
+  void HoughTransform::readOut(const vector<StubHT*>& acceptedSector,
+                               const vector<StubHT*>& lostSector,
+                               deque<StubHT*>& acceptedAll,
+                               deque<StubHT*>& lostAll) const {
     // used to recognise in which order tracks are found
     TTBV trkFoundPhiTs(0, setup_->htNumBinsPhiT());
     // hitPattern for all possible tracks, used to find tracks
@@ -151,7 +163,7 @@ namespace trackerTFP {
     vector<vector<StubHT*>> tracks(setup_->htNumBinsPhiT());
     for (int binPhiT = 0; binPhiT < setup_->htNumBinsPhiT(); binPhiT++) {
       const int phiT = phiT_.toSigned(binPhiT);
-      auto samePhiT = [phiT](int& sum, StubHT* stub){ return sum += stub->phiT() == phiT; };
+      auto samePhiT = [phiT](int& sum, StubHT* stub) { return sum += stub->phiT() == phiT; };
       const int numAccepted = accumulate(acceptedSector.begin(), acceptedSector.end(), 0, samePhiT);
       const int numLost = accumulate(lostSector.begin(), lostSector.end(), 0, samePhiT);
       tracks[binPhiT].reserve(numAccepted + numLost);
@@ -181,7 +193,7 @@ namespace trackerTFP {
     for (int binPhiT : trkFoundPhiTs.ids(false)) {
       const vector<StubHT*>& track = tracks[binPhiT];
       set<int> layers;
-      auto toLayer = [](StubHT* stub){ return stub->layer(); };
+      auto toLayer = [](StubHT* stub) { return stub->layer(); };
       transform(track.begin(), track.end(), inserter(layers, layers.begin()), toLayer);
       if ((int)layers.size() >= setup_->htMinLayers())
         lostAll.insert(lostAll.end(), track.begin(), track.end());
@@ -189,7 +201,7 @@ namespace trackerTFP {
   }
 
   // remove and return first element of deque, returns nullptr if empty
-  template<class T>
+  template <class T>
   T* HoughTransform::pop_front(deque<T*>& ts) const {
     T* t = nullptr;
     if (!ts.empty()) {
@@ -199,4 +211,4 @@ namespace trackerTFP {
     return t;
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

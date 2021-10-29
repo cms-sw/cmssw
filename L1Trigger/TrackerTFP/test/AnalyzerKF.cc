@@ -51,7 +51,12 @@ namespace trackerTFP {
 
   private:
     //
-    void associate(const TTTracks& ttTracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum, const vector<TH1F*>& his, TProfile* prof) const;
+    void associate(const TTTracks& ttTracks,
+                   const StubAssociation* ass,
+                   set<TPPtr>& tps,
+                   int& sum,
+                   const vector<TH1F*>& his,
+                   TProfile* prof) const;
 
     // ED input token of accepted Tracks
     EDGetTokenT<StreamsStub> edGetTokenAcceptedStubs_;
@@ -106,11 +111,8 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerKF::AnalyzerKF(const ParameterSet& iConfig) :
-    useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")),
-    nEvents_(0),
-    hisRes_(4)
-  {
+  AnalyzerKF::AnalyzerKF(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0), hisRes_(4) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelKF");
@@ -122,8 +124,10 @@ namespace trackerTFP {
     edGetTokenAcceptedTracks_ = consumes<StreamsTrack>(InputTag(label, branchAcceptedTracks));
     edGetTokenLostStubs_ = consumes<StreamsStub>(InputTag(label, branchLostStubs));
     edGetTokenLostTracks_ = consumes<StreamsTrack>(InputTag(label, branchLostTracks));
-    edGetTokenNumAcceptedStates_ = consumes<int>(InputTag(label, branchAcceptedTracks));;
-    edGetTokenNumLostStates_ = consumes<int>(InputTag(label, branchLostTracks));;
+    edGetTokenNumAcceptedStates_ = consumes<int>(InputTag(label, branchAcceptedTracks));
+    ;
+    edGetTokenNumLostStates_ = consumes<int>(InputTag(label, branchLostTracks));
+    ;
     if (useMCTruth_) {
       const auto& inputTagSelecttion = iConfig.getParameter<InputTag>("InputTagSelection");
       const auto& inputTagReconstructable = iConfig.getParameter<InputTag>("InputTagReconstructable");
@@ -258,15 +262,21 @@ namespace trackerTFP {
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         TTTracks tracks;
-        const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameTrack& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+        const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameTrack& frame) {
+          return sum += frame.first.isNonnull() ? 1 : 0;
+        });
         nTracksRegion += nTracks;
         tracks.reserve(nTracks);
         consume(accepted, acceptedStubs, index, tracks);
         for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : tracks)
           hisPhi_->Fill(ttTrack.momentum().phi());
-        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const auto& ttTrack){ return sum += (int)ttTrack.getStubRefs().size(); });
+        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const auto& ttTrack) {
+          return sum += (int)ttTrack.getStubRefs().size();
+        });
         TTTracks tracksLost;
-        const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int& sum, const FrameTrack& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+        const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int& sum, const FrameTrack& frame) {
+          return sum += frame.first.isNonnull() ? 1 : 0;
+        });
         nLostRegion += nLost;
         tracksLost.reserve(nLost);
         consume(lost, lostStubs, index, tracksLost);
@@ -301,9 +311,9 @@ namespace trackerTFP {
       return;
     // effi
     effEta_->SetPassedHistogram(*hisEffEta_, "f");
-    effEta_->SetTotalHistogram (*hisEffEtaTotal_, "f");
+    effEta_->SetTotalHistogram(*hisEffEtaTotal_, "f");
     effInv2R_->SetPassedHistogram(*hisEffInv2R_, "f");
-    effInv2R_->SetTotalHistogram (*hisEffInv2RTotal_, "f");
+    effInv2R_->SetTotalHistogram(*hisEffInv2RTotal_, "f");
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
@@ -332,8 +342,10 @@ namespace trackerTFP {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         KF  SUMMARY                         " << endl;
     log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost << endl;
+    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
+         << endl;
+    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
+         << endl;
     log_ << "          tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
@@ -344,7 +356,12 @@ namespace trackerTFP {
   }
 
   //
-  void AnalyzerKF::associate(const TTTracks& ttTracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum, const vector<TH1F*>& his, TProfile* prof) const {
+  void AnalyzerKF::associate(const TTTracks& ttTracks,
+                             const StubAssociation* ass,
+                             set<TPPtr>& tps,
+                             int& sum,
+                             const vector<TH1F*>& his,
+                             TProfile* prof) const {
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks) {
       const vector<TTStubRef>& ttStubRefs = ttTrack.getStubRefs();
       const vector<TPPtr>& tpPtrs = ass->associateFinal(ttStubRefs);

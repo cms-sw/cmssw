@@ -56,9 +56,7 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
   };
 
-  ProducerTT::ProducerTT(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerTT::ProducerTT(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelKF");
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -99,7 +97,9 @@ namespace trackerTFP {
       const StreamsStub& streamsStubs = *handleStubs.product();
       int nTracks(0);
       for (const StreamTrack& stream : streamsTracks)
-        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame) {
+          return sum += frame.first.isNonnull() ? 1 : 0;
+        });
       ttTracks.reserve(nTracks);
       for (int channel = 0; channel < dataFormats_->numStreamsTracks(Process::kf); channel++) {
         int iTrk(0);
@@ -122,6 +122,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutToken_, move(ttTracks));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerTT);

@@ -50,7 +50,11 @@ namespace trackFindingTracklet {
 
   private:
     // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
-    void associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& nMatchTrk, bool perfect = false) const;
+    void associate(const vector<vector<TTStubRef>>& tracks,
+                   const StubAssociation* ass,
+                   set<TPPtr>& tps,
+                   int& nMatchTrk,
+                   bool perfect = false) const;
 
     // ED input token of tracks
     EDGetTokenT<TTTracks> edGetToken_;
@@ -86,7 +90,8 @@ namespace trackFindingTracklet {
     stringstream log_;
   };
 
-  AnalyzerTracklet::AnalyzerTracklet(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerTracklet::AnalyzerTracklet(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const InputTag& inputTag = iConfig.getParameter<InputTag>("InputTag");
@@ -171,7 +176,10 @@ namespace trackFindingTracklet {
       ttTrackRefsRegions[ttTrack.phiSector()].emplace_back(TTTrackRef(handle, i++));
     for (int region = 0; region < setup_->numRegions(); region++) {
       const vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
-      const int nStubs = accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef){ return sum += ttTrackRef->getStubRefs().size(); });
+      const int nStubs =
+          accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef) {
+            return sum += ttTrackRef->getStubRefs().size();
+          });
       const int nTracks = ttTrackRefs.size();
       hisChannel_->Fill(nTracks);
       profChannel_->Fill(region, nTracks);
@@ -188,7 +196,10 @@ namespace trackFindingTracklet {
     // convert vector of tracks to vector of vector of associated stubs
     vector<vector<TTStubRef>> tracks;
     tracks.reserve(ttTracks.size());
-    transform(ttTracks.begin(), ttTracks.end(), back_inserter(tracks), [](const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack){ return ttTrack.getStubRefs(); });
+    transform(
+        ttTracks.begin(), ttTracks.end(), back_inserter(tracks), [](const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack) {
+          return ttTrack.getStubRefs();
+        });
     if (useMCTruth_) {
       int tmp(0);
       associate(tracks, selection, tpPtrsSelection, tmp);
@@ -212,7 +223,7 @@ namespace trackFindingTracklet {
       return;
     // effi
     eff_->SetPassedHistogram(*hisEff_, "f");
-    eff_->SetTotalHistogram (*hisEffTotal_, "f");
+    eff_->SetTotalHistogram(*hisEffTotal_, "f");
     // printout SF summary
     const double totalTPs = prof_->GetBinContent(9);
     const double numStubs = prof_->GetBinContent(1);
@@ -237,7 +248,8 @@ namespace trackFindingTracklet {
     log_ << "                      Tracklet  SUMMARY                      " << endl;
     log_ << "number of stubs     per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
     log_ << "number of tracks    per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "current tracking efficiency = " << setw(wNums) << effPerfect << " +- " << setw(wErrs) << errEffPerfect << endl;
+    log_ << "current tracking efficiency = " << setw(wNums) << effPerfect << " +- " << setw(wErrs) << errEffPerfect
+         << endl;
     log_ << "max     tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "                  fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "             duplicate rate = " << setw(wNums) << fracDup << endl;
@@ -246,7 +258,11 @@ namespace trackFindingTracklet {
   }
 
   // gets all TPs associated too any of the tracks & number of tracks matching at least one TP
-  void AnalyzerTracklet::associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& nMatchTrk, bool perfect) const {
+  void AnalyzerTracklet::associate(const vector<vector<TTStubRef>>& tracks,
+                                   const StubAssociation* ass,
+                                   set<TPPtr>& tps,
+                                   int& nMatchTrk,
+                                   bool perfect) const {
     for (const vector<TTStubRef>& ttStubRefs : tracks) {
       const vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())

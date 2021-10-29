@@ -38,7 +38,6 @@ namespace trackFindingTracklet {
     void endJob() override {}
 
   private:
-
     // ED input token of TTTrackRefMap
     EDGetTokenT<TTTrackRefMap> edGetTokenTTTrackMap_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
@@ -47,9 +46,9 @@ namespace trackFindingTracklet {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // stores, calculates and provides run-time constants
     const Setup* setup_;
-  
+
     // histos
-    
+
     TH1F* hisQoverPt_;
     TH1F* hisPhi0_;
     TH1F* hisEta_;
@@ -58,7 +57,6 @@ namespace trackFindingTracklet {
     TProfile* profResPhi0OverEta_;
     TProfile* profResEtaOverEta_;
     TProfile* profResZ0OverEta_;
-  
   };
 
   AnalyzerTT::AnalyzerTT(const ParameterSet& iConfig) {
@@ -106,7 +104,7 @@ namespace trackFindingTracklet {
         continue;
       const TPPtr& tpPtr = tpPtrs.front();
       const math::XYZPointD& v = tpPtr->vertex();
-      const double qOverPtTT = ttTrackRef->rInv() /  setup_->invPtToDphi() / 2.0;
+      const double qOverPtTT = ttTrackRef->rInv() / setup_->invPtToDphi() / 2.0;
       const double qOverPtTP = tpPtr->charge() / tpPtr->pt();
       const double qOverPtDiff = qOverPtTP - qOverPtTT;
       const double phi0TT = deltaPhi(ttTrackRef->phi() + ttTrackRef->phiSector() * setup_->baseRegion());

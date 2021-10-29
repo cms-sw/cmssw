@@ -15,7 +15,7 @@ namespace trackerTFP {
   class HoughTransform {
   public:
     HoughTransform(const edm::ParameterSet& iConfig, const tt::Setup* setup, const DataFormats* dataFormats, int region);
-    ~HoughTransform(){}
+    ~HoughTransform() {}
 
     // read in and organize input product
     void consume(const tt::StreamsStub& streams);
@@ -24,12 +24,18 @@ namespace trackerTFP {
 
   private:
     // remove and return first element of deque, returns nullptr if empty
-    template<class T>
+    template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // associate stubs with phiT bins in this inv2R column
-    void fillIn(int inv2R, std::deque<StubGP*>& inputSector, std::vector<StubHT*>& acceptedSector, std::vector<StubHT*>& lostSector);
+    void fillIn(int inv2R,
+                std::deque<StubGP*>& inputSector,
+                std::vector<StubHT*>& acceptedSector,
+                std::vector<StubHT*>& lostSector);
     // identify tracks
-    void readOut(const std::vector<StubHT*>& acceptedSector, const std::vector<StubHT*>& lostSector, std::deque<StubHT*>& acceptedAll, std::deque<StubHT*>& lostAll) const;
+    void readOut(const std::vector<StubHT*>& acceptedSector,
+                 const std::vector<StubHT*>& lostSector,
+                 std::deque<StubHT*>& acceptedAll,
+                 std::deque<StubHT*>& lostAll) const;
     // identify lost tracks
     void analyze();
     // store tracks
@@ -55,6 +61,6 @@ namespace trackerTFP {
     std::vector<std::vector<std::deque<StubGP*>>> input_;
   };
 
-}
+}  // namespace trackerTFP
 
 #endif

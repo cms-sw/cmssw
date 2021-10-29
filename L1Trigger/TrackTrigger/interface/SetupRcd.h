@@ -15,11 +15,11 @@
 namespace tt {
 
   typedef edm::mpl::Vector<TrackerDigiGeometryRecord,
-                             TrackerTopologyRcd,
-                             IdealMagneticFieldRecord,
-                             IdealGeometryRecord,
-                             TrackerDetToDTCELinkCablingMapRcd,
-                             TTStubAlgorithmRecord>
+                           TrackerTopologyRcd,
+                           IdealMagneticFieldRecord,
+                           IdealGeometryRecord,
+                           TrackerDetToDTCELinkCablingMapRcd,
+                           TTStubAlgorithmRecord>
       Rcds;
 
   // record of tt::Setup

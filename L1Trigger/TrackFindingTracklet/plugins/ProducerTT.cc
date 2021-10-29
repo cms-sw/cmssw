@@ -56,9 +56,7 @@ namespace trackFindingTracklet {
     const DataFormats* dataFormats_;
   };
 
-  ProducerTT::ProducerTT(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerTT::ProducerTT(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelKF");
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -100,7 +98,9 @@ namespace trackFindingTracklet {
       // count number of kf tracks
       int nTracks(0);
       for (const StreamTrack& stream : streamsTracks)
-        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame) {
+          return sum += frame.first.isNonnull() ? 1 : 0;
+        });
       ttTracks.reserve(nTracks);
       // convert kf track frames per channel and stub frames per channel and layer to TTTracks
       for (int channel = 0; channel < (int)streamsTracks.size(); channel++) {
@@ -129,6 +129,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutToken_, move(ttTracks));
   }
 
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet
 
 DEFINE_FWK_MODULE(trackFindingTracklet::ProducerTT);

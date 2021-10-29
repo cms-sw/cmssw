@@ -82,10 +82,8 @@ namespace trackFindingTracklet {
     stringstream log_;
   };
 
-  AnalyzerKFout::AnalyzerKFout(const ParameterSet& iConfig) :
-    useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")),
-    nEvents_(0)
-  {
+  AnalyzerKFout::AnalyzerKFout(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelKFout");
@@ -171,7 +169,9 @@ namespace trackFindingTracklet {
           if (frame.first.isNonnull())
             tracks.insert(frame.first);
         nTracksRegion += tracks.size();
-        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef){ return sum += (int)ttTrackRef->getStubRefs().size(); });
+        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef) {
+          return sum += (int)ttTrackRef->getStubRefs().size();
+        });
         set<TTTrackRef> tracksLost;
         for (const FrameTrack& frame : lost)
           if (frame.first.isNonnull())
@@ -225,8 +225,10 @@ namespace trackFindingTracklet {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                        KFout SUMMARY                        " << endl;
     //log_ << "number of stubs       per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks << endl;
-    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost << endl;
+    log_ << "number of tracks      per TFP = " << setw(wNums) << numTracks << " +- " << setw(wErrs) << errTracks
+         << endl;
+    log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
+         << endl;
     log_ << "          tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
@@ -236,7 +238,10 @@ namespace trackFindingTracklet {
   }
 
   //
-  void AnalyzerKFout::associate(const set<TTTrackRef>& ttTracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const {
+  void AnalyzerKFout::associate(const set<TTTrackRef>& ttTracks,
+                                const StubAssociation* ass,
+                                set<TPPtr>& tps,
+                                int& sum) const {
     for (const TTTrackRef& ttTrack : ttTracks) {
       const vector<TTStubRef>& ttStubRefs = ttTrack->getStubRefs();
       const vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
