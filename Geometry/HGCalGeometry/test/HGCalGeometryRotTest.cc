@@ -15,7 +15,10 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+
+using namespace angle_units::operators;
 
 class HGCalGeometryRotTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
@@ -77,10 +80,12 @@ void HGCalGeometryRotTest::beginRun(const edm::Run&, const edm::EventSetup& iSet
     for (auto lay : layers_) {
       HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], cellU_[k], cellV_[k]);
       GlobalPoint global = geom->getPosition(DetId(detId));
+      double phi2 = global.phi();
       auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true);
+      double phi1 = std::atan2(xy.second, xy.first);
       edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position ("
-                                    << xy.first << ", " << xy.second << ")";
-      edm::LogVerbatim("HGCalGeom") << detId << " Position " << global;
+                                    << xy.first << ", " << xy.second << ") phi " << convertRadToDeg(phi1);
+      edm::LogVerbatim("HGCalGeom") << detId << " Position " << global << " phi " << convertRadToDeg(phi2);
     }
   }
 }

@@ -19,6 +19,8 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+//#define EDM_ML_DEBUG
+
 class HGCalSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit HGCalSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc)
@@ -49,6 +51,13 @@ public:
                                                                                                   : nullptr));
     auto sd = std::make_unique<HGCalSD>(iname, hgc, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
+#ifdef EDM_ML_DEBUG
+    const auto& dets = clg.logicalNames(iname);
+    edm::LogVerbatim("HGCSim") << "HGCalSensitiveDetectorBuilder for " << iname << " utilizes " << dets.size()
+                               << " detectors";
+    for (unsigned int k = 0; k < dets.size(); ++k)
+      edm::LogVerbatim("HGCSim") << "Detector [" << k << "] " << dets[k];
+#endif
     return sd;
   }
 
