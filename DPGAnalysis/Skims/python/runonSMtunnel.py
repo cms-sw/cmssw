@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
-import os,string,sys,commands,time
+import os,string,sys,time
 
 # template file to be used
 MODFILE="reco_skim_cfg_mod.py"
