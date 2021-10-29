@@ -85,7 +85,7 @@ namespace tt {
     GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
     // empty trackerDTC EDProduct
     TTDTC ttDTC() const { return TTDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_); }
-    // checks if stub collection is considered forming a reconstructable track 
+    // checks if stub collection is considered forming a reconstructable track
     bool reconstructable(const std::vector<TTStubRef>& ttStubRefs) const;
     // checks if tracking particle is selected for efficiency measurements
     bool useForAlgEff(const TrackingParticle& tp) const;
@@ -452,12 +452,12 @@ namespace tt {
     double kfRangeFactor() const { return kfRangeFactor_; }
 
     // Parameter specifying KalmanFilter Output Formatter
-    
-    // Final Chi2rphi digitization TODO extract from TTTrack Word 
+
+    // Final Chi2rphi digitization TODO extract from TTTrack Word
     std::vector<double> kfoutchi2rphiBins() const { return kfoutchi2rphiBins_; }
-    // Final Chi2rz digitization TODO extract from TTTrack Word 
+    // Final Chi2rz digitization TODO extract from TTTrack Word
     std::vector<double> kfoutchi2rzBins() const { return kfoutchi2rzBins_; }
-    // Conversion factor between dphi^2/weight and chi2rphi 
+    // Conversion factor between dphi^2/weight and chi2rphi
     int kfoutchi2rphiConv() const { return kfoutchi2rphiConv_; }
     // Conversion factor between dz^2/weight and chi2rz
     int kfoutchi2rzConv() const { return kfoutchi2rzConv_; }
@@ -829,18 +829,18 @@ namespace tt {
     // Parameter specifying KalmanFilter Output Formatter
     edm::ParameterSet pSetKFOut_;
     // Bins used to digitize dPhi for chi2 calculation
-    std::vector<int> kfoutdPhiBins_; 
+    std::vector<int> kfoutdPhiBins_;
     // Bins used to digitize dZ for chi2 calculation
     std::vector<int> kfoutdZBins_;
     // v0 weight Bins corresponding to dPhi Bins for chi2 calculation
     std::vector<int> kfoutv0Bins_;
     // v1 weight Bins corresponding to dZ Bins for chi2 calculation
     std::vector<int> kfoutv1Bins_;
-    // Final Chi2rphi digitization TODO extract from TTTrack Word 
+    // Final Chi2rphi digitization TODO extract from TTTrack Word
     std::vector<double> kfoutchi2rphiBins_;
-    // Final Chi2rz digitization TODO extract from TTTrack Word 
+    // Final Chi2rz digitization TODO extract from TTTrack Word
     std::vector<double> kfoutchi2rzBins_;
-    // Conversion factor between dphi^2/weight and chi2rphi 
+    // Conversion factor between dphi^2/weight and chi2rphi
     int kfoutchi2rphiConv_;
     // Conversion factor between dz^2/weight and chi2rz
     int kfoutchi2rzConv_;
@@ -998,7 +998,6 @@ namespace tt {
     // KF
 
     int kfWidthLayerCount_;
-
   };
 
 }  // namespace tt

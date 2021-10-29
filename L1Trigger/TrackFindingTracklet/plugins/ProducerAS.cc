@@ -50,9 +50,7 @@ namespace trackFindingTracklet {
     const Setup* setup_;
   };
 
-  ProducerAS::ProducerAS(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerAS::ProducerAS(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& labelKF = iConfig.getParameter<string>("LabelKF");
     const string& labelTT = iConfig.getParameter<string>("LabelTT");
     const string& branch = iConfig.getParameter<string>("BranchAcceptedTracks");
@@ -96,6 +94,6 @@ namespace trackFindingTracklet {
     iEvent.emplace(edPutToken_, move(ttTrackMap));
   }
 
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet
 
 DEFINE_FWK_MODULE(trackFindingTracklet::ProducerAS);

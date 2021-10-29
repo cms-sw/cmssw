@@ -14,8 +14,11 @@ namespace trackerTFP {
   // Class to refine HT track candidates in r-phi, by subdividing each HT cell into a finer granularity array
   class MiniHoughTransform {
   public:
-    MiniHoughTransform(const edm::ParameterSet& iConfig, const tt::Setup* setup, const DataFormats* dataFormats, int region);
-    ~MiniHoughTransform(){}
+    MiniHoughTransform(const edm::ParameterSet& iConfig,
+                       const tt::Setup* setup,
+                       const DataFormats* dataFormats,
+                       int region);
+    ~MiniHoughTransform() {}
 
     // read in and organize input product (fill vector input_)
     void consume(const tt::StreamsStub& streams);
@@ -24,7 +27,7 @@ namespace trackerTFP {
 
   private:
     // remove and return first element of deque, returns nullptr if empty
-    template<class T>
+    template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // perform finer pattern recognition per track
     void fill(int channel, const std::vector<StubHT*>& input, std::vector<std::deque<StubMHT*>>& output);
@@ -61,6 +64,6 @@ namespace trackerTFP {
     std::vector<std::vector<StubHT*>> input_;
   };
 
-}
+}  // namespace trackerTFP
 
 #endif

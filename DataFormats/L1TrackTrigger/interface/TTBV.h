@@ -268,7 +268,9 @@ public:
   double val(double base) const { return (this->val() + .5) * base; }
 
   // conversion: range based to double for given precision assuming biased (floor) representation, reinterpret sign
-  double val(double base, int start, int end = 0, bool twos = false) const { return (this->val(start, end, twos) + .5) * base; }
+  double val(double base, int start, int end = 0, bool twos = false) const {
+    return (this->val(start, end, twos) + .5) * base;
+  }
 
   // maniplulation and conversion: extracts range based to double reinterpret sign and removes these bits
   double extract(double base, int size, bool twos = false) {
@@ -332,7 +334,7 @@ public:
   std::vector<int> ids(bool b = true, bool singed = false) const {
     std::vector<int> v;
     v.reserve(bs_.count());
-    for(int i = 0; i < size_; i++)
+    for (int i = 0; i < size_; i++)
       if (bs_[i] == b)
         v.push_back(singed ? i + size_ / 2 : i);
     return v;
@@ -355,7 +357,5 @@ private:
     return lut[size_];
   }
 };
-
-
 
 #endif

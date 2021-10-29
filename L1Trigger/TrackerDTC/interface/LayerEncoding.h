@@ -20,9 +20,10 @@ namespace trackerDTC {
   public:
     LayerEncoding() {}
     LayerEncoding(const edm::ParameterSet& iConfig, const tt::Setup* setup);
-    ~LayerEncoding(){}
+    ~LayerEncoding() {}
     // decode layer id for given sensor module
     int decode(tt::SensorModule* sm) const;
+
   private:
     // helper class to store configurations
     const tt::Setup* setup_;
@@ -30,7 +31,7 @@ namespace trackerDTC {
     std::vector<std::vector<int>> encodingsLayerId_;
   };
 
-} // namespace trackerDTC
+}  // namespace trackerDTC
 
 EVENTSETUP_DATA_DEFAULT_RECORD(trackerDTC::LayerEncoding, trackerDTC::LayerEncodingRcd);
 

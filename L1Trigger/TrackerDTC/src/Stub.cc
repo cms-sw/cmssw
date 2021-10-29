@@ -11,8 +11,17 @@ using namespace tt;
 
 namespace trackerDTC {
 
-  Stub::Stub(const ParameterSet& iConfig, const Setup* setup, const LayerEncoding* layerEncoding, SensorModule* sm, const TTStubRef& ttStubRef)
-      : setup_(setup), layerEncoding_(layerEncoding), sm_(sm), ttStubRef_(ttStubRef), hybrid_(iConfig.getParameter<bool>("UseHybrid")), valid_(true) {
+  Stub::Stub(const ParameterSet& iConfig,
+             const Setup* setup,
+             const LayerEncoding* layerEncoding,
+             SensorModule* sm,
+             const TTStubRef& ttStubRef)
+      : setup_(setup),
+        layerEncoding_(layerEncoding),
+        sm_(sm),
+        ttStubRef_(ttStubRef),
+        hybrid_(iConfig.getParameter<bool>("UseHybrid")),
+        valid_(true) {
     regions_.reserve(setup->numOverlappingRegions());
     // get stub local coordinates
     const MeasurementPoint& mp = ttStubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
@@ -166,7 +175,7 @@ namespace trackerDTC {
     const TTBV hwValid(1, 1);
     // assemble final bitset
     return Frame(hwGap.str() + hwR.str() + hwZ.str() + hwPhi.str() + hwAlpha.str() + hwBend.str() + hwLayer.str() +
-                     hwValid.str());
+                 hwValid.str());
   }
 
   Frame Stub::formatTMTT(int region) const {
@@ -235,7 +244,9 @@ namespace trackerDTC {
     for (int sectorPhi = 0; sectorPhi < setup_->numSectorsPhi(); sectorPhi++)
       hwSectorPhis[sectorPhi] = sectorsPhi[region * setup_->numSectorsPhi() + sectorPhi];
     // assemble final bitset
-    return Frame(hwGap.str() + hwValid.str() + hwR.str() + hwPhi.str() + hwZ.str() + hwLayer.str() + hwSectorPhis.str() + hwSectorEtaMin.str() + hwSectorEtaMax.str() + hwInv2RMin.str() + hwInv2RMax.str());
+    return Frame(hwGap.str() + hwValid.str() + hwR.str() + hwPhi.str() + hwZ.str() + hwLayer.str() +
+                 hwSectorPhis.str() + hwSectorEtaMin.str() + hwSectorEtaMax.str() + hwInv2RMin.str() +
+                 hwInv2RMax.str());
   }
 
 }  // namespace trackerDTC

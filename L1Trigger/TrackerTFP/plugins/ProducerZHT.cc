@@ -35,8 +35,8 @@ namespace trackerTFP {
     ~ProducerZHT() override {}
 
   private:
-    virtual void beginRun(const Run&, const EventSetup&) override;
-    virtual void produce(Event&, const EventSetup&) override;
+    void beginRun(const Run&, const EventSetup&) override;
+    void produce(Event&, const EventSetup&) override;
     virtual void endJob() {}
 
     // ED input token of gp stubs
@@ -57,9 +57,7 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
   };
 
-  ProducerZHT::ProducerZHT(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerZHT::ProducerZHT(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& label = iConfig.getParameter<string>("LabelMHT");
     const string& branchAccepted = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchLost = iConfig.getParameter<string>("BranchLostStubs");
@@ -110,6 +108,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutTokenLost_, move(lost));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerZHT);

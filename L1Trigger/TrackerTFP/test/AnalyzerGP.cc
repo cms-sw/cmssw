@@ -69,7 +69,8 @@ namespace trackerTFP {
     stringstream log_;
   };
 
-  AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig) : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
+  AnalyzerGP::AnalyzerGP(const ParameterSet& iConfig)
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const string& label = iConfig.getParameter<string>("LabelGP");
@@ -179,7 +180,8 @@ namespace trackerTFP {
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "                         GP  SUMMARY                         " << endl;
     log_ << "number of stubs      per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs << endl;
-    log_ << "number of lost stubs per TFP = " << setw(wNums) << numStubsLost << " +- " << setw(wErrs) << errStubsLost << endl;
+    log_ << "number of lost stubs per TFP = " << setw(wNums) << numStubsLost << " +- " << setw(wErrs) << errStubsLost
+         << endl;
     log_ << "     max tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "=============================================================";
     LogPrint("L1Trigger/TrackerTFP") << log_.str();

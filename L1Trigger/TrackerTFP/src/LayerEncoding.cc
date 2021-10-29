@@ -11,14 +11,15 @@ using namespace tt;
 
 namespace trackerTFP {
 
-  LayerEncoding::LayerEncoding(const DataFormats* dataFormats) :
-    setup_(dataFormats->setup()),
-    dataFormats_(dataFormats),
-    zT_(&dataFormats->format(Variable::zT, Process::zht)),
-    cot_(&dataFormats->format(Variable::cot, Process::zht)),
-    layerEncoding_(setup_->numSectorsEta(), vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width())))),
-    maybeLayer_(setup_->numSectorsEta(), vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width()))))
-  {
+  LayerEncoding::LayerEncoding(const DataFormats* dataFormats)
+      : setup_(dataFormats->setup()),
+        dataFormats_(dataFormats),
+        zT_(&dataFormats->format(Variable::zT, Process::zht)),
+        cot_(&dataFormats->format(Variable::cot, Process::zht)),
+        layerEncoding_(setup_->numSectorsEta(),
+                       vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width())))),
+        maybeLayer_(setup_->numSectorsEta(),
+                    vector<vector<vector<int>>>(pow(2, zT_->width()), vector<vector<int>>(pow(2, cot_->width())))) {
     // number of boundaries of fiducial area in r-z plane for a given set of rough r-z track parameter
     static constexpr int boundaries = 2;
     // find unique sensor mouldes in r-z
@@ -28,9 +29,11 @@ namespace trackerTFP {
     sensorModules.reserve(setup_->sensorModules().size());
     for (const SensorModule& sm : setup_->sensorModules())
       sensorModules.push_back(&sm);
-    auto smallerR = [](const SensorModule* lhs, const SensorModule* rhs){ return lhs->r() < rhs->r(); };
-    auto smallerZ = [](const SensorModule* lhs, const SensorModule* rhs){ return lhs->z() < rhs->z(); };
-    auto equalRZ = [](const SensorModule* lhs, const SensorModule* rhs){ return abs(lhs->r() - rhs->r()) < delta && abs(lhs->z() - rhs->z()) < delta; };
+    auto smallerR = [](const SensorModule* lhs, const SensorModule* rhs) { return lhs->r() < rhs->r(); };
+    auto smallerZ = [](const SensorModule* lhs, const SensorModule* rhs) { return lhs->z() < rhs->z(); };
+    auto equalRZ = [](const SensorModule* lhs, const SensorModule* rhs) {
+      return abs(lhs->r() - rhs->r()) < delta && abs(lhs->z() - rhs->z()) < delta;
+    };
     stable_sort(sensorModules.begin(), sensorModules.end(), smallerR);
     stable_sort(sensorModules.begin(), sensorModules.end(), smallerZ);
     sensorModules.erase(unique(sensorModules.begin(), sensorModules.end(), equalRZ), sensorModules.end());
@@ -42,7 +45,8 @@ namespace trackerTFP {
       // z at radius choenRofZ of eta sector centre
       const double sectorZT = setup_->chosenRofZ() * sectorCot;
       // range of z at radius chosenRofZ this eta sector covers
-      const double rangeZT = setup_->chosenRofZ() * (sinh(setup_->boundarieEta(binEta + 1)) - sinh(setup_->boundarieEta(binEta))) / 2.;
+      const double rangeZT =
+          setup_->chosenRofZ() * (sinh(setup_->boundarieEta(binEta + 1)) - sinh(setup_->boundarieEta(binEta))) / 2.;
       // loop over bins in zT
       for (int binZT = 0; binZT < pow(2, zT_->width()); binZT++) {
         // z at radius chosenRofZ wrt zT of sectorZT of this bin centre
@@ -73,7 +77,8 @@ namespace trackerTFP {
               const double zTi = zTs[sm->r() > setup_->chosenRofZ() ? i : j];
               const double coti = cots[sm->r() > setup_->chosenRofZ() ? j : i];
               // distance between module and boundary in moudle tilt angle direction
-              const double d = (zTi - sm->z() + (sm->r() - setup_->chosenRofZ()) * coti) / (sm->cosTilt() - sm->sinTilt() * coti);
+              const double d =
+                  (zTi - sm->z() + (sm->r() - setup_->chosenRofZ()) * coti) / (sm->cosTilt() - sm->sinTilt() * coti);
               // compare distance with module size and add module layer id to layers if module is crossed
               if (abs(d) < sm->numColumns() * sm->pitchCol() / 2.)
                 layers[i].insert(sm->layerId());
@@ -81,10 +86,18 @@ namespace trackerTFP {
           }
           // mayber layers are given by layer ids crossed by only one booundary
           set<int> maybeLayer;
-          set_symmetric_difference(layers[0].begin(), layers[0].end(), layers[1].begin(), layers[1].end(), inserter(maybeLayer, maybeLayer.end()));
+          set_symmetric_difference(layers[0].begin(),
+                                   layers[0].end(),
+                                   layers[1].begin(),
+                                   layers[1].end(),
+                                   inserter(maybeLayer, maybeLayer.end()));
           // layerEncoding is given by sorted layer ids crossed by any booundary
           set<int> layerEncoding;
-          set_union(layers[0].begin(), layers[0].end(), layers[1].begin(), layers[1].end(), inserter(layerEncoding, layerEncoding.end()));
+          set_union(layers[0].begin(),
+                    layers[0].end(),
+                    layers[1].begin(),
+                    layers[1].end(),
+                    inserter(layerEncoding, layerEncoding.end()));
           vector<int>& le = layerEncoding_[binEta][binZT][binCot];
           le = vector<int>(layerEncoding.begin(), layerEncoding.end());
           vector<int>& ml = maybeLayer_[binEta][binZT][binCot];
@@ -114,4 +127,4 @@ namespace trackerTFP {
     return TTBV(0, setup_->numLayers()).set(maybeLayer(binEta, binZT, binCot));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP

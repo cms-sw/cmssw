@@ -40,8 +40,8 @@ namespace trackerTFP {
     ~ProducerKFin() override {}
 
   private:
-    virtual void beginRun(const Run&, const EventSetup&) override;
-    virtual void produce(Event&, const EventSetup&) override;
+    void beginRun(const Run&, const EventSetup&) override;
+    void produce(Event&, const EventSetup&) override;
     virtual void endJob() {}
 
     // ED input token of TTTracks
@@ -72,9 +72,7 @@ namespace trackerTFP {
     bool enableTruncation_;
   };
 
-  ProducerKFin::ProducerKFin(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerKFin::ProducerKFin(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& labelTTTracks = iConfig.getParameter<string>("LabelZHTout");
     const string& labelStubs = iConfig.getParameter<string>("LabelZHT");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
@@ -82,7 +80,8 @@ namespace trackerTFP {
     const string& branchLostStubs = iConfig.getParameter<string>("BranchLostStubs");
     const string& branchLostTracks = iConfig.getParameter<string>("BranchLostTracks");
     // book in- and output ED products
-    edGetTokenTTTracks_ = consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(InputTag(labelTTTracks, branchAcceptedTracks));
+    edGetTokenTTTracks_ =
+        consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(InputTag(labelTTTracks, branchAcceptedTracks));
     edGetTokenStubs_ = consumes<StreamsStub>(InputTag(labelStubs, branchAcceptedStubs));
     edPutTokenAcceptedStubs_ = produces<StreamsStub>(branchAcceptedStubs);
     edPutTokenAcceptedTracks_ = produces<StreamsTrack>(branchAcceptedTracks);
@@ -139,7 +138,9 @@ namespace trackerTFP {
         for (int channel = 0; channel < dataFormats_->numChannel(Process::zht); channel++) {
           const int index = region * dataFormats_->numChannel(Process::zht) + channel;
           const StreamStub& stream = streams[index];
-          nStubsZHR += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameStub& frame){ return sum += frame.first.isNonnull() ? 1 : 0; });
+          nStubsZHR += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameStub& frame) {
+            return sum += frame.first.isNonnull() ? 1 : 0;
+          });
         }
         vector<StubZHT> stubsZHT;
         stubsZHT.reserve(nStubsZHR);
@@ -171,7 +172,7 @@ namespace trackerTFP {
               continue;
             layerCounts[layerIdKF]++;
             deque<FrameStub>& stubs = dequesStubs[sectorPhi * setup_->numLayers() + layerIdKF];
-            auto identical = [ttStubRef, ttTrack](const StubZHT& stub){
+            auto identical = [ttStubRef, ttTrack](const StubZHT& stub) {
               return (int)ttTrack.trackSeedType() == stub.trackId() && ttStubRef == stub.ttStubRef();
             };
             stubZHT = &*find_if(stubsZHT.begin(), stubsZHT.end(), identical);
@@ -222,6 +223,6 @@ namespace trackerTFP {
     iEvent.emplace(edPutTokenLostTracks_, move(streamLostTracks));
   }
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerKFin);

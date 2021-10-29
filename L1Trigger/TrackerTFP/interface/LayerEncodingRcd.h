@@ -10,7 +10,8 @@ namespace trackerTFP {
   typedef edm::mpl::Vector<DataFormatsRcd> RcdsLayerEncoding;
 
   // record of trackerTFP::LayerEncoding
-  class LayerEncodingRcd : public edm::eventsetup::DependentRecordImplementation<LayerEncodingRcd, RcdsLayerEncoding> {};
+  class LayerEncodingRcd : public edm::eventsetup::DependentRecordImplementation<LayerEncodingRcd, RcdsLayerEncoding> {
+  };
 
 }  // namespace trackerTFP
 

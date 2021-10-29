@@ -469,7 +469,8 @@ namespace tt {
     constexpr bool stableOnly = false;
     tpSelector_ = TrackingParticleSelector(
         ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
-    tpSelectorLoose_ = TrackingParticleSelector(ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, false, false, false, stableOnly);
+    tpSelectorLoose_ =
+        TrackingParticleSelector(ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, false, false, false, stableOnly);
   }
 
   // stub layer id (barrel: 1 - 6, endcap: 11 - 15)
@@ -578,7 +579,6 @@ namespace tt {
     const double extra = sm->barrel() ? 0. : pow(sm->pitchCol() * inv2R, 2);
     const double digi = pow(tmttBasePhi_ / 12., 2);
     return sigma + scat + extra + digi;
-
   }
 
   // stub projected chi2z wheight
@@ -590,7 +590,7 @@ namespace tt {
     return sigma + digi;
   }
 
-  // checks if stub collection is considered forming a reconstructable track 
+  // checks if stub collection is considered forming a reconstructable track
   bool Setup::reconstructable(const vector<TTStubRef>& ttStubRefs) const {
     set<int> hitPattern;
     for (const TTStubRef& ttStubRef : ttStubRefs)
@@ -653,7 +653,8 @@ namespace tt {
     tmttWidthLayer_ = ceil(log2(numLayers_));
     tmttWidthSectorEta_ = ceil(log2(numSectorsEta_));
     tmttWidthInv2R_ = ceil(log2(htNumBinsInv2R_));
-    tmttNumUnusedBits_ = TTBV::S_ - tmttWidthLayer_ - 2 * tmttWidthSectorEta_ - tmttWidthR_ - tmttWidthPhi_ - tmttWidthZ_ - 2 *tmttWidthInv2R_ - numSectorsPhi_ - 1;
+    tmttNumUnusedBits_ = TTBV::S_ - tmttWidthLayer_ - 2 * tmttWidthSectorEta_ - tmttWidthR_ - tmttWidthPhi_ -
+                         tmttWidthZ_ - 2 * tmttWidthInv2R_ - numSectorsPhi_ - 1;
     // hybrid
     const double hybridRangeInv2R = 2. * invPtToDphi_ / hybridMinPtStub_;
     const double hybridRangeR =

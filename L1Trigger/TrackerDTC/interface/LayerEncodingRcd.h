@@ -10,7 +10,8 @@ namespace trackerDTC {
   typedef edm::mpl::Vector<tt::SetupRcd> RcdsLayerEncoding;
 
   // record of trackerDTC::LayerEncoding
-  class LayerEncodingRcd : public edm::eventsetup::DependentRecordImplementation<LayerEncodingRcd, RcdsLayerEncoding> {};
+  class LayerEncodingRcd : public edm::eventsetup::DependentRecordImplementation<LayerEncodingRcd, RcdsLayerEncoding> {
+  };
 
 }  // namespace trackerDTC
 

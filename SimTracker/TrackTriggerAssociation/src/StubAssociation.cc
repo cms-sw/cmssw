@@ -76,4 +76,4 @@ namespace tt {
     return tpPtrs;
   }
 
-} // namespace tt
+}  // namespace tt

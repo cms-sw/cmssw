@@ -33,7 +33,6 @@ namespace trackerTFP {
     void endJob() override {}
 
   private:
-
     // ED input token of tt::TTTrackRefMap
     EDGetTokenT<tt::TTTrackRefMap> edGetTokenTTTrackMap_;
     // ED input token of TTStubRef to TPPtr association for tracking efficiency
@@ -100,19 +99,31 @@ namespace trackerTFP {
         cout << gp.perp() << " " << gp.phi() << " " << gp.z() << " " << setup_->layerId(ttStubRef) << endl;
       }
       cout << found->hitPattern() << " " << found->trackSeedType() << endl;
-      cout << "m0SF = " << " " << -found->rInv() << endl;
-      cout << "c0SF = " << " " << deltaPhi(found->phi() + found->rInv() * setup_->chosenRofPhi() + off) << endl;
-      cout << "m1SF = " << " " << found->tanL() + setup_->sectorCot(found->etaSector()) << endl;
-      cout << "c1SF = " << " " << found->z0() - found->tanL() * setup_->chosenRofZ() << endl;
-      cout << "m0KF = " << " " << -fitted->rInv() * setup_->invPtToDphi() << endl;
-      cout << "c0KF = " << " " << fitted->phi() << endl;
-      cout << "m1KF = " << " " << fitted->tanL() << endl;
-      cout << "c1KF = " << " " << fitted->z0() << endl;
-      cout << "m0TP = " << " " << -tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi() << endl;
-      cout << "c0TP = " << " " << tpPtr->phi() << endl;
-      cout << "m1TP = " << " " << sinh(tpPtr->eta()) << endl;
+      cout << "m0SF = "
+           << " " << -found->rInv() << endl;
+      cout << "c0SF = "
+           << " " << deltaPhi(found->phi() + found->rInv() * setup_->chosenRofPhi() + off) << endl;
+      cout << "m1SF = "
+           << " " << found->tanL() + setup_->sectorCot(found->etaSector()) << endl;
+      cout << "c1SF = "
+           << " " << found->z0() - found->tanL() * setup_->chosenRofZ() << endl;
+      cout << "m0KF = "
+           << " " << -fitted->rInv() * setup_->invPtToDphi() << endl;
+      cout << "c0KF = "
+           << " " << fitted->phi() << endl;
+      cout << "m1KF = "
+           << " " << fitted->tanL() << endl;
+      cout << "c1KF = "
+           << " " << fitted->z0() << endl;
+      cout << "m0TP = "
+           << " " << -tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi() << endl;
+      cout << "c0TP = "
+           << " " << tpPtr->phi() << endl;
+      cout << "m1TP = "
+           << " " << sinh(tpPtr->eta()) << endl;
       const math::XYZPointD& v = tpPtr->vertex();
-      cout << "c1TP = " << " " << v.z() - sinh(tpPtr->eta()) * (v.x() * cos(tpPtr->phi()) + v.y() * sin(tpPtr->phi())) << endl;
+      cout << "c1TP = "
+           << " " << v.z() - sinh(tpPtr->eta()) * (v.x() * cos(tpPtr->phi()) + v.y() * sin(tpPtr->phi())) << endl;
       throw cms::Exception("...");
     }
   }

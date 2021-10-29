@@ -147,7 +147,9 @@ namespace trackerDTC {
   };
 
   Analyzer::Analyzer(const ParameterSet& iConfig)
-      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")), hybrid_(iConfig.getParameter<bool>("UseHybrid")), nEvents_(0) {
+      : useMCTruth_(iConfig.getParameter<bool>("UseMCTruth")),
+        hybrid_(iConfig.getParameter<bool>("UseHybrid")),
+        nEvents_(0) {
     usesResource("TFileService");
     // book in- and output ED products
     const auto& inputTagAccepted = iConfig.getParameter<InputTag>("InputTagAccepted");
@@ -453,7 +455,8 @@ namespace trackerDTC {
     constexpr bool stableOnly = false;
     tpSelector_ = TrackingParticleSelector(
         ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
-    tpSelectorLoose_ = TrackingParticleSelector(ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, false, false, false, stableOnly);
+    tpSelectorLoose_ =
+        TrackingParticleSelector(ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, false, false, false, stableOnly);
   }
 
   // book histograms

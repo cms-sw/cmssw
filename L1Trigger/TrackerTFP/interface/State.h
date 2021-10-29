@@ -7,7 +7,6 @@
 #include <vector>
 #include <numeric>
 
-
 namespace trackerTFP {
 
   // Class to represent a Kalman Filter State
@@ -21,7 +20,7 @@ namespace trackerTFP {
     State(State* state, StubKFin* stub);
     // updated state constructor
     State(State* state, const std::vector<double>& doubles);
-    ~State(){}
+    ~State() {}
 
     // Determine quality of completed state
     void finish();
@@ -127,6 +126,6 @@ namespace trackerTFP {
     int numConsistentLayers_;
   };
 
-}
+}  // namespace trackerTFP
 
 #endif

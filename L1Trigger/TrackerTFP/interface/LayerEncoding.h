@@ -19,15 +19,20 @@ namespace trackerTFP {
   public:
     LayerEncoding() {}
     LayerEncoding(const DataFormats* dataFormats);
-    ~LayerEncoding(){}
+    ~LayerEncoding() {}
     // Set of layers in each (zT,tanL) digi Bin of each eta sector numbered 0->N
-    const std::vector<int>& layerEncoding(int binEta, int binZT, int binCot) const { return layerEncoding_.at(binEta).at(binZT).at(binCot); }
+    const std::vector<int>& layerEncoding(int binEta, int binZT, int binCot) const {
+      return layerEncoding_.at(binEta).at(binZT).at(binCot);
+    }
     // maybe layers for given ets sector, bin in zT and bin in cotThea
-    const std::vector<int>& maybeLayer(int binEta, int binZT, int binCot) const { return maybeLayer_.at(binEta).at(binZT).at(binCot); }
+    const std::vector<int>& maybeLayer(int binEta, int binZT, int binCot) const {
+      return maybeLayer_.at(binEta).at(binZT).at(binCot);
+    }
     // encoded layer id for given eta sector, bin in zT, bin in cotThea and decoed layer id
     const int layerIdKF(int binEta, int binZT, int binCot, int layerId) const;
     // pattern of maybe layers for given eta sector, bin in zT and bin in cotThea
     TTBV maybePattern(int binEta, int binZT, int binCot) const;
+
   private:
     // helper class providing run-time constants
     const tt::Setup* setup_;
@@ -43,7 +48,7 @@ namespace trackerTFP {
     std::vector<std::vector<std::vector<std::vector<int>>>> maybeLayer_;
   };
 
-} // namespace trackerTFP
+}  // namespace trackerTFP
 
 EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::LayerEncoding, trackerTFP::LayerEncodingRcd);
 

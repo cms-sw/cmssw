@@ -33,8 +33,8 @@ namespace trackFindingTracklet {
   public:
     explicit ProducerKFout(const ParameterSet&);
     ~ProducerKFout() override {}
-    template<typename T>
-    int digitise(const vector<T> Bins, T Value, T factor = 1 );
+    template <typename T>
+    int digitise(const vector<T> Bins, T Value, T factor = 1);
 
   private:
     void beginRun(const Run&, const EventSetup&) override;
@@ -61,20 +61,18 @@ namespace trackFindingTracklet {
     const Setup* setup_;
     // helper class to extract structured data from TTDTC::Frames
     const DataFormats* dataFormats_;
-    // Bins for dPhi/dZ use to create weight LUT 
+    // Bins for dPhi/dZ use to create weight LUT
     vector<double> dPhiBins_;
     vector<double> dZBins_;
-    
+
     // Constant used throughout for partial ttrack words
     int partialTrackWordBits_;
 
-    // For convenience and keeping readable code, accessed many times 
+    // For convenience and keeping readable code, accessed many times
     int numWorkers_;
   };
 
-  ProducerKFout::ProducerKFout(const ParameterSet& iConfig) :
-    iConfig_(iConfig)
-  {
+  ProducerKFout::ProducerKFout(const ParameterSet& iConfig) : iConfig_(iConfig) {
     const string& labelKF = iConfig.getParameter<string>("LabelKF");
     const string& labelAS = iConfig.getParameter<string>("LabelAS");
     const string& branchStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
@@ -106,21 +104,28 @@ namespace trackFindingTracklet {
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
 
     // Calculate 1/dz**2 and 1/dphi**2 bins for v0 and v1 weightings
-    for (int i = 0; i < pow(2,dataFormats_->width(Variable::dPhi, Process::kfin)) / pow(2, setup_->weightBinFraction()); i++)
-        dPhiBins_.push_back( pow(dataFormats_->base(Variable::dPhi, Process::kfin) * ( i + 1) * pow(2, setup_->weightBinFraction()),-2));
+    for (int i = 0;
+         i < pow(2, dataFormats_->width(Variable::dPhi, Process::kfin)) / pow(2, setup_->weightBinFraction());
+         i++)
+      dPhiBins_.push_back(
+          pow(dataFormats_->base(Variable::dPhi, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2));
 
-    for (int i = 0; i < pow(2,dataFormats_->width(Variable::dZ, Process::kfin)) / pow(2, setup_->weightBinFraction()); i++)
-        dZBins_.push_back( pow(dataFormats_->base(Variable::dZ, Process::kfin) * ( i + 1) * pow(2, setup_->weightBinFraction()),-2));
+    for (int i = 0; i < pow(2, dataFormats_->width(Variable::dZ, Process::kfin)) / pow(2, setup_->weightBinFraction());
+         i++)
+      dZBins_.push_back(
+          pow(dataFormats_->base(Variable::dZ, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2));
 
-    partialTrackWordBits_ = TTBV::S_/2;
+    partialTrackWordBits_ = TTBV::S_ / 2;
     numWorkers_ = setup_->kfNumWorker();
   }
 
   // Helper function to convert floating chi2 to chi2 bin
-  template<typename T>
-  int ProducerKFout::digitise(const vector<T> Bins, T Value, T factor ) {
-    for (int i = 0; i < (int)Bins.size(); i++){
-      if (Value*factor > Bins[i] && Value*factor <= Bins[i+1]) {return i;}
+  template <typename T>
+  int ProducerKFout::digitise(const vector<T> Bins, T Value, T factor) {
+    for (int i = 0; i < (int)Bins.size(); i++) {
+      if (Value * factor > Bins[i] && Value * factor <= Bins[i + 1]) {
+        return i;
+      }
     }
     return -1;
   }
@@ -140,18 +145,18 @@ namespace trackFindingTracklet {
       Handle<TTTrackRefMap> handleTTTrackRefMap;
       iEvent.getByToken<TTTrackRefMap>(edGetTokenTTTrackRefMap_, handleTTTrackRefMap);
       const TTTrackRefMap& ttTrackRefMap = *handleTTTrackRefMap.product();
-      // 18 Output Links (First Vector) each has a vector of tracks per event (second vector) each track is 3 32 bit TTBV partial tracks 
-      vector<vector<TTBV>> SortedPartialTracks(setup_->numRegions() * setup_->tfpNumChannel(),vector<TTBV>(0));  
+      // 18 Output Links (First Vector) each has a vector of tracks per event (second vector) each track is 3 32 bit TTBV partial tracks
+      vector<vector<TTBV>> SortedPartialTracks(setup_->numRegions() * setup_->tfpNumChannel(), vector<TTBV>(0));
 
-      TrackKFOutSAPtrCollectionss  InTrackStreams;
+      TrackKFOutSAPtrCollectionss InTrackStreams;
       TrackKFOutSAPtrCollectionss OutTrackStreams;
 
       // Setup empty collections for input tracks to distribution server
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++){
+      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
         TrackKFOutSAPtrCollections temp_collection;
-        for (int iLink=0; iLink < setup_->tfpNumChannel(); iLink++){
+        for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
           TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO()* ((double)TTBV::S_/setup_->tttrackBits()); iTrack++)
+          for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()); iTrack++)
             temp.emplace_back(std::make_shared<TrackKFOut>());
           temp_collection.push_back(temp);
         }
@@ -159,11 +164,11 @@ namespace trackFindingTracklet {
       }
 
       // Setup empty collections for oiutpu tracks from distribution server
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++){
+      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
         TrackKFOutSAPtrCollections temp_collection;
-        for (int iLink=0; iLink < numWorkers_; iLink++){
+        for (int iLink = 0; iLink < numWorkers_; iLink++) {
           TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO()* ((double)TTBV::S_/setup_->tttrackBits()); iTrack++)
+          for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()); iTrack++)
             temp.emplace_back(std::make_shared<TrackKFOut>());
           temp_collection.push_back(temp);
         }
@@ -172,140 +177,158 @@ namespace trackFindingTracklet {
 
       StreamsTrack OutputStreamsTracks(setup_->numRegions() * setup_->tfpNumChannel());
 
-      for (int iLink = 0; iLink < (int)streamsTracks.size(); iLink++ ){
-
-        for (int iTrack = 0; iTrack < (int)streamsTracks[iLink].size(); iTrack++ ){
+      for (int iLink = 0; iLink < (int)streamsTracks.size(); iLink++) {
+        for (int iTrack = 0; iTrack < (int)streamsTracks[iLink].size(); iTrack++) {
           const auto& track = streamsTracks[iLink].at(iTrack);
-          TrackKF InTrack(track,dataFormats_);
-          
+          TrackKF InTrack(track, dataFormats_);
+
           double temp_z0 = InTrack.zT() - ((InTrack.cot() * setup_->chosenRofZ()));
 
           // Correction to Phi calcuation depending if +ve/-ve phi sector
-          const double baseSectorCorr = InTrack.sectorPhi() ? -setup_->baseSector(): setup_->baseSector();
+          const double baseSectorCorr = InTrack.sectorPhi() ? -setup_->baseSector() : setup_->baseSector();
 
           double temp_phi0 = InTrack.phiT() - ((InTrack.inv2R()) * setup_->hybridChosenRofPhi()) + baseSectorCorr;
-          
+
           double temp_tanL = InTrack.cotGlobal();
-        
-          TTBV HitPattern(0,setup_->numLayers());
+
+          TTBV HitPattern(0, setup_->numLayers());
 
           double tempchi2rphi = 0;
-          double tempchi2rz   = 0;
+          double tempchi2rz = 0;
 
-          for (int iStub = 0; iStub < setup_->numLayers() - 1; iStub++ ){
-            const auto& stub = streamsStubs[setup_->numLayers()*iLink+iStub].at(iTrack);
-            StubKF InStub(stub,dataFormats_,iStub);
+          for (int iStub = 0; iStub < setup_->numLayers() - 1; iStub++) {
+            const auto& stub = streamsStubs[setup_->numLayers() * iLink + iStub].at(iTrack);
+            StubKF InStub(stub, dataFormats_, iStub);
 
             if (!stub.first.isNonnull())
               continue;
 
             HitPattern.set(iStub);
-            double phiSquared = pow(InStub.phi(),2);
-            double zSquared   = pow(InStub.z(),2);
+            double phiSquared = pow(InStub.phi(), 2);
+            double zSquared = pow(InStub.z(), 2);
 
-            double tempv0 = dPhiBins_[(InStub.dPhi()/(dataFormats_->base(Variable::dPhi, Process::kfin)*pow(2,setup_->weightBinFraction())))];
-            double tempv1 = dZBins_[(InStub.dZ()/(dataFormats_->base(Variable::dZ, Process::kfin)*pow(2,setup_->weightBinFraction())))];
+            double tempv0 = dPhiBins_[(InStub.dPhi() / (dataFormats_->base(Variable::dPhi, Process::kfin) *
+                                                        pow(2, setup_->weightBinFraction())))];
+            double tempv1 = dZBins_[(
+                InStub.dZ() / (dataFormats_->base(Variable::dZ, Process::kfin) * pow(2, setup_->weightBinFraction())))];
 
             double tempRphi = phiSquared * tempv0;
-            double tempRz   = zSquared * tempv1;
+            double tempRz = zSquared * tempv1;
 
             tempchi2rphi += tempRphi;
-            tempchi2rz   += tempRz;
-          }   // Iterate over track stubs
+            tempchi2rz += tempRz;
+          }  // Iterate over track stubs
 
           // TODO extract TTTrack bit widths from TTTrack word pending update to the TTTrack_word class
-          TTBV TrackValid(1,1,false);
-          TTBV extraMVA(0,6,false);
-          TTBV TQMVA(0,3,false);
-          TTBV BendChi2(0,3,false); 
-          TTBV Chi2rphi(digitise(setup_->kfoutchi2rphiBins(),tempchi2rphi,(double)setup_->kfoutchi2rphiConv()),4,false);
-          TTBV Chi2rz(digitise(setup_->kfoutchi2rzBins(),tempchi2rz,(double)setup_->kfoutchi2rzConv()),4,false);
-          TTBV D0(0,13,false);
-          TTBV z0(temp_z0 ,dataFormats_->base(Variable::zT,Process::kf) ,12,true);
-          TTBV TanL(temp_tanL,dataFormats_->base(Variable::cot,Process::kf),16,true);
-          TTBV phi0(temp_phi0,dataFormats_->base(Variable::phiT,Process::kf),12,true);
-          TTBV InvR(-InTrack.inv2R(),dataFormats_->base(Variable::inv2R,Process::kf) ,16,true );
+          TTBV TrackValid(1, 1, false);
+          TTBV extraMVA(0, 6, false);
+          TTBV TQMVA(0, 3, false);
+          TTBV BendChi2(0, 3, false);
+          TTBV Chi2rphi(
+              digitise(setup_->kfoutchi2rphiBins(), tempchi2rphi, (double)setup_->kfoutchi2rphiConv()), 4, false);
+          TTBV Chi2rz(digitise(setup_->kfoutchi2rzBins(), tempchi2rz, (double)setup_->kfoutchi2rzConv()), 4, false);
+          TTBV D0(0, 13, false);
+          TTBV z0(temp_z0, dataFormats_->base(Variable::zT, Process::kf), 12, true);
+          TTBV TanL(temp_tanL, dataFormats_->base(Variable::cot, Process::kf), 16, true);
+          TTBV phi0(temp_phi0, dataFormats_->base(Variable::phiT, Process::kf), 12, true);
+          TTBV InvR(-InTrack.inv2R(), dataFormats_->base(Variable::inv2R, Process::kf), 16, true);
           InvR.resize(15);
-                            // 13   +   3   +   7        +  3       + 3
-          TTBV PartialTrack3((D0 + BendChi2 + HitPattern + TQMVA + extraMVA),partialTrackWordBits_,false);
-                             // 16   + 12    + 4
-          TTBV PartialTrack2((TanL + z0  + Chi2rz),partialTrackWordBits_,false);
-                             // 1        + 15   +  12 +    4
-          TTBV PartialTrack1(( TrackValid + InvR + phi0 + Chi2rphi ),partialTrackWordBits_,false);
+          // 13   +   3   +   7        +  3       + 3
+          TTBV PartialTrack3((D0 + BendChi2 + HitPattern + TQMVA + extraMVA), partialTrackWordBits_, false);
+          // 16   + 12    + 4
+          TTBV PartialTrack2((TanL + z0 + Chi2rz), partialTrackWordBits_, false);
+          // 1        + 15   +  12 +    4
+          TTBV PartialTrack1((TrackValid + InvR + phi0 + Chi2rphi), partialTrackWordBits_, false);
 
-          int sortKey = (InTrack.sectorEta() < (int)(setup_->numSectorsEta()/2)) ? 0 : 1;
+          int sortKey = (InTrack.sectorEta() < (int)(setup_->numSectorsEta() / 2)) ? 0 : 1;
           // Set correct bit to valid for track valid
-          TrackKFOut Temp_track(PartialTrack1.set(31),PartialTrack2,PartialTrack3,sortKey,track,iTrack,iLink,true);
+          TrackKFOut Temp_track(
+              PartialTrack1.set(31), PartialTrack2, PartialTrack3, sortKey, track, iTrack, iLink, true);
 
-          InTrackStreams[iLink/numWorkers_][iLink%numWorkers_][iTrack] = (std::make_shared<TrackKFOut>(Temp_track));
+          InTrackStreams[iLink / numWorkers_][iLink % numWorkers_][iTrack] = (std::make_shared<TrackKFOut>(Temp_track));
 
-        } // Iterate over Tracks
+        }  // Iterate over Tracks
 
         //Pad out input streams to Dist server with extra null track if odd number of tracks on a stream
         int iFinTrack = (int)streamsTracks[iLink].size();
         if (iFinTrack % numWorkers_ != 0) {
-          TrackKFOut null_track(0,0,0,iLink%numWorkers_,tt::FrameTrack(),iFinTrack+1,iLink,true);
-          InTrackStreams[iLink/numWorkers_][iLink%numWorkers_][iFinTrack] = (std::make_shared<TrackKFOut>(null_track));
+          TrackKFOut null_track(0, 0, 0, iLink % numWorkers_, tt::FrameTrack(), iFinTrack + 1, iLink, true);
+          InTrackStreams[iLink / numWorkers_][iLink % numWorkers_][iFinTrack] =
+              (std::make_shared<TrackKFOut>(null_track));
         }
-      } // Iterate over Links
+      }  // Iterate over Links
       // Fill products and match up tracks
 
       // One distribution server for every region, num inputs = num KF workers, num outputs = num output links
-      vector< DistServer > distServers(setup_->numRegions(), DistServer(numWorkers_, setup_->tfpNumChannel(),2)); //Magic number for interleaving in dist server  
+      vector<DistServer> distServers(
+          setup_->numRegions(),
+          DistServer(numWorkers_, setup_->tfpNumChannel(), 2));  //Magic number for interleaving in dist server
 
-      for (int iRegion = 0; iRegion<setup_->numRegions(); iRegion++){
-        for (int iTrack=0; iTrack<setup_->numFramesIO()* ((double)TTBV::S_/setup_->tttrackBits()); iTrack++){
+      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
+        for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()); iTrack++) {
           TrackKFOutSAPtrCollection DistIn;
-          for (int iWorker=0; iWorker<numWorkers_; iWorker++)
-            DistIn.push_back(InTrackStreams[iRegion][iWorker][iTrack]); // Reorganise input to distribution server
-          TrackKFOutSAPtrCollection DistOut = distServers[iRegion].clock(DistIn);  // Run dist server 
-          for (int iLink=0; iLink<setup_->tfpNumChannel(); iLink++)
-             OutTrackStreams[iRegion][iLink][iTrack] = DistOut[iLink]; // Reorganise output of distribution server in output streams
-        }     
+          for (int iWorker = 0; iWorker < numWorkers_; iWorker++)
+            DistIn.push_back(InTrackStreams[iRegion][iWorker][iTrack]);  // Reorganise input to distribution server
+          TrackKFOutSAPtrCollection DistOut = distServers[iRegion].clock(DistIn);  // Run dist server
+          for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++)
+            OutTrackStreams[iRegion][iLink][iTrack] =
+                DistOut[iLink];  // Reorganise output of distribution server in output streams
+        }
       }
 
       // Pack output of distribution server onto each link, with correct partial tracks in correct places
-      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++ ){
-        for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++ ){
-          for (int iTrack = 0; iTrack < (int)OutTrackStreams[iRegion][iLink].size(); iTrack++ ){
-              SortedPartialTracks[2*iRegion+iLink].push_back(OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack1());
-              SortedPartialTracks[2*iRegion+iLink].push_back(OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack2());
-              SortedPartialTracks[2*iRegion+iLink].push_back(OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack3());
-              OutputStreamsTracks[2*iRegion+iLink].emplace_back(OutTrackStreams[iRegion][iLink][iTrack]->track());
+      for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
+        for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
+          for (int iTrack = 0; iTrack < (int)OutTrackStreams[iRegion][iLink].size(); iTrack++) {
+            SortedPartialTracks[2 * iRegion + iLink].push_back(
+                OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack1());
+            SortedPartialTracks[2 * iRegion + iLink].push_back(
+                OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack2());
+            SortedPartialTracks[2 * iRegion + iLink].push_back(
+                OutTrackStreams[iRegion][iLink][iTrack]->PartialTrack3());
+            OutputStreamsTracks[2 * iRegion + iLink].emplace_back(OutTrackStreams[iRegion][iLink][iTrack]->track());
           }
         }
       }
 
-      const TTBV NullBitTrack(0,partialTrackWordBits_,false);
-      for (int iLink = 0; iLink < (int)OutputStreamsTracks.size(); iLink++ ){
+      const TTBV NullBitTrack(0, partialTrackWordBits_, false);
+      for (int iLink = 0; iLink < (int)OutputStreamsTracks.size(); iLink++) {
         // Iterate through partial tracks
         int numLinkTracks = (int)OutputStreamsTracks[iLink].size();
         if (numLinkTracks == 0)
           continue;  // Don't fill links if no tracks
         if ((numLinkTracks % 2 != 0)) {
           SortedPartialTracks[iLink].push_back(NullBitTrack);  //Pad out final set of bits
-          OutputStreamsTracks[iLink].emplace_back(OutputStreamsTracks[iLink][numLinkTracks++]); //Pad out with final repeated track
-        } //If there is an odd number of tracks 
-        for (int iTrack = 0; iTrack < (int)(SortedPartialTracks[iLink].size()); iTrack++ ){  
-          if (iTrack % 2 != 1) // Write to links every other partial track, 3 partial tracks per full TTTrack
+          OutputStreamsTracks[iLink].emplace_back(
+              OutputStreamsTracks[iLink][numLinkTracks++]);  //Pad out with final repeated track
+        }                                                    //If there is an odd number of tracks
+        for (int iTrack = 0; iTrack < (int)(SortedPartialTracks[iLink].size()); iTrack++) {
+          if (iTrack % 2 != 1)  // Write to links every other partial track, 3 partial tracks per full TTTrack
             continue;
           TTTrackRef TrackRef;
-          for (auto &it : ttTrackRefMap) {  //Iterate through ttTrackRefMap to find TTTrackRef Key by a TTTrack Value
-            if(it.second == OutputStreamsTracks[iLink][(int)(iTrack-1)/3].first) 
+          for (auto& it : ttTrackRefMap) {  //Iterate through ttTrackRefMap to find TTTrackRef Key by a TTTrack Value
+            if (it.second == OutputStreamsTracks[iLink][(int)(iTrack - 1) / 3].first)
               TrackRef = it.first;
           }
-          if ((int)iTrack/3 <= setup_->numFramesIO()* ((double)TTBV::S_/setup_->tttrackBits()))
-            accepted[iLink].emplace_back(std::make_pair(TrackRef,(SortedPartialTracks[iLink][iTrack-1].slice(partialTrackWordBits_) + SortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_)).bs()));
+          if ((int)iTrack / 3 <= setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()))
+            accepted[iLink].emplace_back(
+                std::make_pair(TrackRef,
+                               (SortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +
+                                SortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_))
+                                   .bs()));
           else
-            lost[iLink].emplace_back(std::make_pair(TrackRef,(SortedPartialTracks[iLink][iTrack-1].slice(partialTrackWordBits_) + SortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_)).bs()));
-        } //Iterate through sorted partial tracks
-      } // Iterate through links
-    } // Config Supported
+            lost[iLink].emplace_back(
+                std::make_pair(TrackRef,
+                               (SortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +
+                                SortedPartialTracks[iLink][iTrack].slice(partialTrackWordBits_))
+                                   .bs()));
+        }  //Iterate through sorted partial tracks
+      }    // Iterate through links
+    }      // Config Supported
     // store products
     iEvent.emplace(edPutTokenAccepted_, move(accepted));
     iEvent.emplace(edPutTokenLost_, move(lost));
   }
-} // namespace trackFindingTracklet
+}  // namespace trackFindingTracklet
 
 DEFINE_FWK_MODULE(trackFindingTracklet::ProducerKFout);
-

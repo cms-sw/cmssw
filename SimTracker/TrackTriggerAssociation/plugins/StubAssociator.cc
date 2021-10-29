@@ -59,8 +59,7 @@ namespace tt {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
   };
 
-  StubAssociator::StubAssociator(const ParameterSet& iConfig)
-  {
+  StubAssociator::StubAssociator(const ParameterSet& iConfig) {
     // book in- and output ed products
     getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec"));
     getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(iConfig.getParameter<InputTag>("InputTagTTClusterAssMap"));
@@ -82,15 +81,16 @@ namespace tt {
     Handle<TTStubAssMap> handleTTStubAssMap;
     iEvent.getByToken<TTClusterAssMap>(getTokenTTClusterAssMap_, handleTTClusterAssMap);
     map<TPPtr, vector<TTStubRef>> mapTPPtrsTTStubRefs;
-    auto isNonnull = [](const TPPtr& tpPtr){ return tpPtr.isNonnull(); };
+    auto isNonnull = [](const TPPtr& tpPtr) { return tpPtr.isNonnull(); };
     for (TTStubDetSetVec::const_iterator ttModule = handleTTStubDetSetVec->begin();
-        ttModule != handleTTStubDetSetVec->end();
-        ttModule++) {
+         ttModule != handleTTStubDetSetVec->end();
+         ttModule++) {
       for (TTStubDetSet::const_iterator ttStub = ttModule->begin(); ttStub != ttModule->end(); ttStub++) {
         const TTStubRef ttStubRef = makeRefTo(handleTTStubDetSetVec, ttStub);
         set<TPPtr> tpPtrs;
         for (unsigned int iClus = 0; iClus < 2; iClus++) {
-          const vector<TPPtr>& assocPtrs = handleTTClusterAssMap->findTrackingParticlePtrs(ttStubRef->clusterRef(iClus));
+          const vector<TPPtr>& assocPtrs =
+              handleTTClusterAssMap->findTrackingParticlePtrs(ttStubRef->clusterRef(iClus));
           copy_if(assocPtrs.begin(), assocPtrs.end(), inserter(tpPtrs, tpPtrs.begin()), isNonnull);
         }
         for (const TPPtr& tpPtr : tpPtrs)
@@ -111,6 +111,6 @@ namespace tt {
     iEvent.emplace(putTokenSelection_, move(selection));
   }
 
-} // namespace tt
+}  // namespace tt
 
 DEFINE_FWK_MODULE(tt::StubAssociator);

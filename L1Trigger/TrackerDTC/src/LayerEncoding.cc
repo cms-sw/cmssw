@@ -41,4 +41,4 @@ namespace trackerDTC {
     return distance(encoding.begin(), pos);
   }
 
-} // namespace trackerDTC
+}  // namespace trackerDTC

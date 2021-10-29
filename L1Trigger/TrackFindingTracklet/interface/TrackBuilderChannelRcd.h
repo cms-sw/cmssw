@@ -9,7 +9,8 @@ namespace trackFindingTracklet {
 
   typedef edm::mpl::Vector<tt::SetupRcd> RcdsTrackBuilderChannel;
 
-  class TrackBuilderChannelRcd : public edm::eventsetup::DependentRecordImplementation<TrackBuilderChannelRcd, RcdsTrackBuilderChannel> {};
+  class TrackBuilderChannelRcd
+      : public edm::eventsetup::DependentRecordImplementation<TrackBuilderChannelRcd, RcdsTrackBuilderChannel> {};
 
 }  // namespace trackFindingTracklet
 
