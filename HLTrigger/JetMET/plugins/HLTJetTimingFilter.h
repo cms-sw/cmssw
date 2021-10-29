@@ -21,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -76,8 +77,6 @@ template <typename T>
 bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
                                       trigger::TriggerFilterObjectWithRefs& filterproduct) const {
-  // typedef vector<T> TCollection;
-  // typedef edm::Ref<TCollection> TRef;
   if (saveTags())
     filterproduct.addCollectionTag(jetInput_);
 
@@ -88,7 +87,7 @@ bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
 
   uint njets = 0;
   for (auto iterJet = jets->begin(); iterJet != jets->end(); ++iterJet) {
-    edm::Ref<vector<T>> const caloJetRef(jets, std::distance(jets->begin(), iterJet));
+    edm::Ref<std::vector<T>> const caloJetRef(jets, std::distance(jets->begin(), iterJet));
     if (iterJet->pt() > minPt_ and jetTimes[caloJetRef] > jetTimeThresh_ and
         jetEcalEtForTiming[caloJetRef] > jetEcalEtForTimingThresh_ and
         jetCellsForTiming[caloJetRef] > jetCellsForTimingThresh_) {
@@ -117,7 +116,7 @@ void HLTJetTimingFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned int>("jetCellsForTimingThresh", 5);
   desc.add<double>("jetEcalEtForTimingThresh", 10.);
   desc.add<double>("minJetPt", 40.);
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add(defaultModuleLabel<HLTJetTimingFilter<T>>(),desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_HLTJetTimingFilter_h
