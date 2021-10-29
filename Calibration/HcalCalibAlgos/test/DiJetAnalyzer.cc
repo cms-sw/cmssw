@@ -1286,8 +1286,7 @@ void DiJetAnalyzer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void DiJetAnalyzer::endJob() {
-}
+void DiJetAnalyzer::endJob() {}
 
 // helper function
 
