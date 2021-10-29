@@ -487,19 +487,21 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infil1(dupFileName);
-  if (!infil1.is_open()) {
-    std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infil1 >> jentry;
-      if (!infil1.good())
-        break;
-      entries_.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infil1(dupFileName);
+    if (!infil1.is_open()) {
+      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
+    } else {
+      while (1) {
+        Long64_t jentry;
+        infil1 >> jentry;
+        if (!infil1.good())
+          break;
+        entries_.push_back(jentry);
+      }
+      infil1.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
     }
-    infil1.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
   }
 
   char name[20], title[200];
