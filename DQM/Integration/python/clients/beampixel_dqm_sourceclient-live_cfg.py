@@ -2,8 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("BeamPixel", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -213,7 +213,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------------
 # File to save beamspot info
 #----------------------------
-if process.dqmRunConfig.type.value() is "production":
+if process.dqmRunConfig.type.value() == "production":
     process.pixelVertexDQM.fileName = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt"
 else:
     process.pixelVertexDQM.fileName = "/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"
