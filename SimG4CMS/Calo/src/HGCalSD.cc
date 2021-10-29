@@ -141,9 +141,15 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       module = touch->GetReplicaNumber(3);
       cell = touch->GetReplicaNumber(1);
     } else {
-      layer = touch->GetReplicaNumber(2);
-      module = touch->GetReplicaNumber(1);
+      layer = touch->GetReplicaNumber(3);
+      module = touch->GetReplicaNumber(2);
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
+                               << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
+                               << module << ":" << cell;
+    printDetectorLevels(touch);
+#endif
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
 #ifdef EDM_ML_DEBUG

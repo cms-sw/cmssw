@@ -562,7 +562,7 @@
       0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="9"> 
       0, 1, 2, 3, 5, 3, 4, 3, 6 </Vector>
-    <String name="SenseName"    value="HGCalHECellSensitive0Fine"/>
+    <String name="SenseName"    value="HGCalHESiliconCellSensitive0Fine"/>
     <Numeric name="SenseType"    value="0"/>
     <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
     <Numeric name="PosSensitive" value="0"/>
@@ -598,7 +598,7 @@
       0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="9"> 
       0, 1, 2, 3, 5, 3, 4, 3, 6 </Vector>
-    <String name="SenseName"    value="HGCalHECellSensitive0Coarse1"/>
+    <String name="SenseName"    value="HGCalHESiliconCellSensitive0Coarse1"/>
     <Numeric name="SenseType"    value="1"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
     <Numeric name="PosSensitive" value="0"/>
@@ -634,7 +634,7 @@
       0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="9"> 
       0, 1, 2, 3, 5, 3, 4, 3, 6 </Vector>
-    <String name="SenseName"    value="HGCalHECellSensitive0Coarse2"/>
+    <String name="SenseName"    value="HGCalHESiliconCellSensitive0Coarse2"/>
     <Numeric name="SenseType"    value="2"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
     <Numeric name="PosSensitive" value="0"/>
