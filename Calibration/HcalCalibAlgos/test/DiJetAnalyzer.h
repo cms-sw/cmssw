@@ -83,7 +83,7 @@ public:
 private:
 };
 
-class DiJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class DiJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit DiJetAnalyzer(const edm::ParameterSet&);
   ~DiJetAnalyzer() override = default;
