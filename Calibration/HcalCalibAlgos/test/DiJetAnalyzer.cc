@@ -5,8 +5,10 @@
 //
 
 #include "DiJetAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   // set parameters
   pfJetCollName_ = iConfig.getParameter<std::string>("pfJetCollName");
   pfJetCorrName_ = iConfig.getParameter<std::string>("pfJetCorrName");
@@ -31,8 +33,6 @@ DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig) {
 
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
-
-DiJetAnalyzer::~DiJetAnalyzer() {}
 
 //
 // member functions
@@ -1131,11 +1131,11 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
 // ------------ method called once each job just before starting event loop  ------------
 void DiJetAnalyzer::beginJob() {
   // book histograms
-  rootfile_ = new TFile(rootHistFilename_.c_str(), "RECREATE");
 
-  h_PassSelPF_ = new TH1D("h_PassSelectionPF", "Selection Pass Failures PFJets", 200, -0.5, 199.5);
+  edm::Service<TFileService> fs;
+  h_PassSelPF_ = fs->make<TH1D>("h_PassSelectionPF", "Selection Pass Failures PFJets", 200, -0.5, 199.5);
 
-  tree_ = new TTree("dijettree", "tree for dijet balancing");
+  tree_ = fs->make<TTree>("dijettree", "tree for dijet balancing");
 
   tree_->Branch("tpfjet_pt", &tpfjet_pt_, "tpfjet_pt/F");
   tree_->Branch("tpfjet_p", &tpfjet_p_, "tpfjet_p/F");
@@ -1287,13 +1287,6 @@ void DiJetAnalyzer::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DiJetAnalyzer::endJob() {
-  // write histograms
-  rootfile_->cd();
-
-  h_PassSelPF_->Write();
-  tree_->Write();
-
-  rootfile_->Close();
 }
 
 // helper function
