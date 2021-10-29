@@ -212,12 +212,12 @@ private:
   static constexpr double c_ = 2.99792458e1;  //c in cm/ns
   static constexpr double mvaL_ = 0.5;        //MVA cuts for MVA categories
   static constexpr double mvaH_ = 0.8;
-  static constexpr double selNdof_ = 4;
-  static constexpr double maxRank_ = 8;
-  static constexpr double maxTry_ = 10;
-  static constexpr double zWosMatchMax_ = 1;
-  static constexpr double etacutGEN_ = 4;    // |eta| < 4;
-  static constexpr double etacutREC_ = 3;    // |eta| < 3;
+  static constexpr double selNdof_ = 4.;
+  static constexpr double maxRank_ = 8.;
+  static constexpr double maxTry_ = 10.;
+  static constexpr double zWosMatchMax_ = 1.;
+  static constexpr double etacutGEN_ = 4.;   // |eta| < 4;
+  static constexpr double etacutREC_ = 3.;   // |eta| < 3;
   static constexpr double pTcut_ = 0.7;      // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;  // dz separation 1 mm
 
@@ -367,8 +367,8 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
       "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
   meMVATrackResTot_ = ibook.book1D(
-      "MVATrackRes", "t_{rec} - t_{sim} for tracks from LV MVA sel.; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
-  meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
+      "MVATrackRes", "t_{rec} - t_{sim} for tracks from LV MVA sel.; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
+  meTrackResTot_ = ibook.book1D("TrackRes", "t_{rec} - t_{sim} for tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meTrackRes_[0] = ibook.book1D(
       "TrackRes-LowMVA", "t_{rec} - t_{sim} for tracks with MVA < 0.5; t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
   meTrackRes_[1] = ibook.book1D(
@@ -455,7 +455,7 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -1.,
                    1.);
-  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 100, -1., 1.);
+  meTimeRes_ = ibook.book1D("TimeRes", "t_{rec} - t_{sim} ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
   meTimePull_ = ibook.book1D("TimePull", "Pull; t_{rec} - t_{sim}/#sigma_{t rec}", 100, -10., 10.);
   meTimeSignalRes_ =
       ibook.book1D("TimeSignalRes", "t_{rec} - t_{sim} for signal ;t_{rec} - t_{sim} [ns] ", 40, -0.2, 0.2);
@@ -1218,10 +1218,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       }
       double vzsim = simpv.at(iev).z;
       double vtsim = simpv.at(iev).t * simUnit_;
-      if (selectedVtxMatching) {
-        edm::LogPrint("Primary4DVertexValidation")
-            << "Reco z,t = " << vertex->z() << " " << vertex->t() << " Sim z,t = " << vzsim << " " << vtsim;
-      }
 
       for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
         if (trackAssoc[*iTrack] == -1) {
