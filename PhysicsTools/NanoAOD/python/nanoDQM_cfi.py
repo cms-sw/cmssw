@@ -551,6 +551,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 NoPlot('_size'),
                 Plot1D('z', 'z', 20, -20, 20, 'Z position of other primary vertices, excluding the main PV'),
+                Plot1D('score', 'score', 20, 0, 300000, 'scores of other primary vertices, excluding the main PV'),
             )
         ),
         PPSLocalTrack = cms.PSet(
