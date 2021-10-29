@@ -26,6 +26,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 //
@@ -41,7 +42,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void jetTimeFromEcalCells(const T&,
                             const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>&,
-                            const edm::ESHandle<CaloGeometry>&,
+                            const CaloGeometry&,
                             float&,
                             float&,
                             uint&);
@@ -88,7 +89,7 @@ template <typename T>
 void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
     const T& jet,
     const edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit>>& ecalRecHits,
-    const edm::ESHandle<CaloGeometry>& caloGeometry,
+    const CaloGeometry& caloGeometry,
     float& weightedTimeCell,
     float& totalEmEnergyCell,
     uint& nCells) {
@@ -103,7 +104,7 @@ void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
       continue;
     if (fabs(ecalRH.time()) > ecalCellTimeThresh_)
       continue;
-    auto const pos = caloGeometry->getPosition(ecalRH.detid());
+    auto const pos = caloGeometry.getPosition(ecalRH.detid());
     if (reco::deltaR2(jet, pos) > matchingRadius2_)
       continue;
     weightedTimeCell += ecalRH.time() * ecalRH.energy() * sin(pos.theta());
@@ -118,7 +119,7 @@ void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
 //Producer
 template <typename T>
 void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> caloGeometry = iSetup.getHandle(caloGeometryToken_);
+  auto const& caloGeometry = iSetup.getData(caloGeometryToken_);
   auto const jets = iEvent.getHandle(jetInputToken_);
   auto const& ecalRecHitsEB = iEvent.get(ecalRecHitsEBToken_);
   auto const& ecalRecHitsEE = iEvent.get(ecalRecHitsEEToken_);
@@ -180,7 +181,7 @@ void HLTJetTimingProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("matchingRadius", 0.4);
   desc.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add(defaultModuleLabel<HLTJetTimingProducer<T>>(),desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_HLTJetTimingProducer_h
