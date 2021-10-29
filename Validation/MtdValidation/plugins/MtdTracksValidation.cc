@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -63,8 +61,8 @@ private:
   const float trackMinEta_;
   const float trackMaxEta_;
 
-  static constexpr double etacutGEN_ = 4;      // |eta| < 4;
-  static constexpr double etacutREC_ = 3;      // |eta| < 3;
+  static constexpr double etacutGEN_ = 4.;     // |eta| < 4;
+  static constexpr double etacutREC_ = 3.;     // |eta| < 3;
   static constexpr double pTcut_ = 0.7;        // PT > 0.7 GeV
   static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
   static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
@@ -371,8 +369,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // select events with reco vertex close to true simulated primary vertex
   if (std::abs(primRecoVtx.z() - zsim) < deltaZcut_) {
-    edm::LogPrint("MtdTracksValidation") << "Reco z,t = " << primRecoVtx.z() << " " << primRecoVtx.t()
-                                         << " Sim z,t = " << zsim << " " << tsim;
     index = 0;
     for (const auto& trackGen : *GenRecTrackHandle) {
       const reco::TrackRef trackref(iEvent.getHandle(GenRecTrackToken_), index);
@@ -380,9 +376,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       // select the reconstructed track
 
-      if (primRecoVtx.trackWeight(trackref) < 0.5 || trackAssoc[trackref] == -1) {
+      if (trackAssoc[trackref] == -1) {
         continue;
-      }  // ONLY FOR TEST !!!!
+      }
 
       if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
         meMVATrackEffPtTot_->Fill(trackGen.pt());
@@ -391,7 +387,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         double dZ = trackGen.vz() - zsim;
         double dT(-9999.);
         double pullT(-9999.);
-        if (Sigmat0Safe[trackref] != -1) {
+        if (Sigmat0Safe[trackref] != -1.) {
           dT = t0Safe[trackref] - tsim;
           pullT = dT / Sigmat0Safe[trackref];
         }
@@ -491,7 +487,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
       "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
   meMVATrackResTot_ = ibook.book1D(
-      "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 70, -0.15, 0.15);
+      "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meMVATrackPullTot_ =
       ibook.book1D("MVATrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
   meMVATrackZposResTot_ = ibook.book1D(
