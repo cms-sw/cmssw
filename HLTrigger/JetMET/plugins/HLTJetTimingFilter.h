@@ -116,7 +116,7 @@ void HLTJetTimingFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned int>("jetCellsForTimingThresh", 5);
   desc.add<double>("jetEcalEtForTimingThresh", 10.);
   desc.add<double>("minJetPt", 40.);
-  descriptions.add(defaultModuleLabel<HLTJetTimingFilter<T>>(),desc);
+  descriptions.add(defaultModuleLabel<HLTJetTimingFilter<T>>(), desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_HLTJetTimingFilter_h
