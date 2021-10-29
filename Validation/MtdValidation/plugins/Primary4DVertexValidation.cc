@@ -242,7 +242,6 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> momentumToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> timeToken_;
-  edm::EDGetTokenT<edm::ValueMap<float>> sigmatimeToken_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> t0SafePidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> sigmat0SafePidToken_;
@@ -266,9 +265,7 @@ private:
   MonitorElement* meTrackRes_[3];
   MonitorElement* meTrackPull_[3];
   MonitorElement* meTrackResMass_[3];
-  MonitorElement* meTrackPullMass_[3];
   MonitorElement* meTrackResMassTrue_[3];
-  MonitorElement* meTrackPullMassTrue_[3];
   MonitorElement* meMVATrackZposResTot_;
   MonitorElement* meTrackZposResTot_;
   MonitorElement* meTrackZposRes_[3];
@@ -307,13 +304,9 @@ private:
   MonitorElement* meTrackPullHighP_[3];
 
   MonitorElement* meTrackResMassProtons_[3];
-  MonitorElement* meTrackPullMassProtons_[3];
   MonitorElement* meTrackResMassTrueProtons_[3];
-  MonitorElement* meTrackPullMassTrueProtons_[3];
   MonitorElement* meTrackResMassPions_[3];
-  MonitorElement* meTrackPullMassPions_[3];
   MonitorElement* meTrackResMassTruePions_[3];
-  MonitorElement* meTrackPullMassTruePions_[3];
 };
 
 // constructors and destructor
@@ -340,7 +333,6 @@ Primary4DVertexValidation::Primary4DVertexValidation(const edm::ParameterSet& iC
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   momentumToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("momentumSrc"));
   timeToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("timeSrc"));
-  sigmatimeToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmaSrc"));
   t0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0SafePID"));
   sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
@@ -407,23 +399,6 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
       "TrackPull-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
   meTrackPull_[2] =
       ibook.book1D("TrackPull-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-  if (optionalPlots_) {
-    meTrackPullMass_[0] = ibook.book1D(
-        "TrackPullMass-LowMVA", "Pull for tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-    meTrackPullMass_[1] = ibook.book1D(
-        "TrackPullMass-MediumMVA", "Pull for tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-    meTrackPullMass_[2] = ibook.book1D(
-        "TrackPullMass-HighMVA", "Pull for tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}", 100, -10., 10.);
-    meTrackPullMassTrue_[0] = ibook.book1D(
-        "TrackPullMassTrue-LowMVA", "Pull for tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-    meTrackPullMassTrue_[1] = ibook.book1D("TrackPullMassTrue-MediumMVA",
-                                           "Pull for tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                                           100,
-                                           -10.,
-                                           10.);
-    meTrackPullMassTrue_[2] = ibook.book1D(
-        "TrackPullMassTrue-HighMVA", "Pull for tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}", 100, -10., 10.);
-  }
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for tracks from LV MVA sel.;Z_{PCA} - Z_{sim} [cm] ", 50, -0.1, 0.1);
   meTrackZposResTot_ =
@@ -642,71 +617,6 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                      100,
                      -1.,
                      1.);
-
-    meTrackPullMassProtons_[0] = ibook.book1D("TrackPullMass-Protons-LowMVA",
-                                              "Pull for proton tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}",
-                                              100,
-                                              -10.,
-                                              10.);
-    meTrackPullMassProtons_[1] =
-        ibook.book1D("TrackPullMass-Protons-MediumMVA",
-                     "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                     100,
-                     -10.,
-                     10.);
-    meTrackPullMassProtons_[2] = ibook.book1D("TrackPullMass-Protons-HighMVA",
-                                              "Pull for proton tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                                              100,
-                                              -10.,
-                                              10.);
-    meTrackPullMassTrueProtons_[0] = ibook.book1D("TrackPullMassTrue-Protons-LowMVA",
-                                                  "Pull for proton tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}",
-                                                  100,
-                                                  -10.,
-                                                  10.);
-    meTrackPullMassTrueProtons_[1] =
-        ibook.book1D("TrackPullMassTrue-Protons-MediumMVA",
-                     "Pull for proton tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                     100,
-                     -10.,
-                     10.);
-    meTrackPullMassTrueProtons_[2] = ibook.book1D("TrackPullMassTrue-Protons-HighMVA",
-                                                  "Pull for proton tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                                                  100,
-                                                  -10.,
-                                                  10.);
-
-    meTrackPullMassPions_[0] = ibook.book1D("TrackPullMass-Pions-LowMVA",
-                                            "Pull for pion tracks with MVA < 0.5; (t_{rec}-t_{est})/#sigma_{t}",
-                                            100,
-                                            -10.,
-                                            10.);
-    meTrackPullMassPions_[1] = ibook.book1D("TrackPullMass-Pions-MediumMVA",
-                                            "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                                            100,
-                                            -10.,
-                                            10.);
-    meTrackPullMassPions_[2] = ibook.book1D("TrackPullMass-Pions-HighMVA",
-                                            "Pull for pion tracks with MVA > 0.8; (t_{rec}-t_{est})/#sigma_{t}",
-                                            100,
-                                            -10.,
-                                            10.);
-    meTrackPullMassTruePions_[0] = ibook.book1D("TrackPullMassTrue-Pions-LowMVA",
-                                                "Pull for pion tracks with MVA < 0.5; (t_{est}-t_{sim})/#sigma_{t}",
-                                                100,
-                                                -10.,
-                                                10.);
-    meTrackPullMassTruePions_[1] =
-        ibook.book1D("TrackPullMassTrue-Pions-MediumMVA",
-                     "Pull for pion tracks with 0.5 < MVA < 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                     100,
-                     -10.,
-                     10.);
-    meTrackPullMassTruePions_[2] = ibook.book1D("TrackPullMassTrue-Pions-HighMVA",
-                                                "Pull for pion tracks with MVA > 0.8; (t_{est}-t_{sim})/#sigma_{t}",
-                                                100,
-                                                -10.,
-                                                10.);
   }
 }
 
@@ -1193,7 +1103,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   const auto& pathLength = iEvent.get(pathLengthToken_);
   const auto& momentum = iEvent.get(momentumToken_);
   const auto& time = iEvent.get(timeToken_);
-  const auto& sigmatime = iEvent.get(sigmatimeToken_);
   const auto& t0Safe = iEvent.get(t0SafePidToken_);
   const auto& sigmat0Safe = iEvent.get(sigmat0SafePidToken_);
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
@@ -1290,9 +1199,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
             if (optionalPlots_) {
               meTrackResMass_[0]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackPullMass_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
               meTrackResMassTrue_[0]->Fill(tEst - tsim);
-              meTrackPullMassTrue_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
             }
 
             if ((*iTrack)->p() <= 2) {
@@ -1306,14 +1213,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             if (optionalPlots_) {
               if (std::abs((*tp_info)->pdgId()) == 2212) {
                 meTrackResMassProtons_[0]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassProtons_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTrueProtons_[0]->Fill(tEst - tsim);
-                meTrackPullMassTrueProtons_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               } else if (std::abs((*tp_info)->pdgId()) == 211) {
                 meTrackResMassPions_[0]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassPions_[0]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTruePions_[0]->Fill(tEst - tsim);
-                meTrackPullMassTruePions_[0]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               }
             }
 
@@ -1325,9 +1228,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
             if (optionalPlots_) {
               meTrackResMass_[1]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackPullMass_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
               meTrackResMassTrue_[1]->Fill(tEst - tsim);
-              meTrackPullMassTrue_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
             }
 
             if ((*iTrack)->p() <= 2) {
@@ -1341,14 +1242,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             if (optionalPlots_) {
               if (std::abs((*tp_info)->pdgId()) == 2212) {
                 meTrackResMassProtons_[1]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassProtons_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTrueProtons_[1]->Fill(tEst - tsim);
-                meTrackPullMassTrueProtons_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               } else if (std::abs((*tp_info)->pdgId()) == 211) {
                 meTrackResMassPions_[1]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassPions_[1]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTruePions_[1]->Fill(tEst - tsim);
-                meTrackPullMassTruePions_[1]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               }
             }
 
@@ -1360,9 +1257,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
             if (optionalPlots_) {
               meTrackResMass_[2]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackPullMass_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
               meTrackResMassTrue_[2]->Fill(tEst - tsim);
-              meTrackPullMassTrue_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
             }
 
             if ((*iTrack)->p() <= 2) {
@@ -1376,14 +1271,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             if (optionalPlots_) {
               if (std::abs((*tp_info)->pdgId()) == 2212) {
                 meTrackResMassProtons_[2]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassProtons_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTrueProtons_[2]->Fill(tEst - tsim);
-                meTrackPullMassTrueProtons_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               } else if (std::abs((*tp_info)->pdgId()) == 211) {
                 meTrackResMassPions_[2]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackPullMassPions_[2]->Fill((t0Safe[*iTrack] - tEst) / sigmat0Safe[*iTrack]);
                 meTrackResMassTruePions_[2]->Fill(tEst - tsim);
-                meTrackPullMassTruePions_[2]->Fill((tEst - tsim) / sigmatime[*iTrack]);
               }
             }
           }
