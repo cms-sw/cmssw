@@ -45,8 +45,6 @@ autoCond = {
     'phase1_2017_design'           : '121X_mc2017_design_v7',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic'        : '121X_mc2017_realistic_v7',
-    # GlobalTag for MC production with realistic conditions for Phase1 2017 detector, for PP reference run
-    'phase1_2017_realistic_ppref'  :  '121X_mc2017_realistic_forppRef5TeV_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
     'phase1_2017_cosmics'          : '121X_mc2017cosmics_realistic_deco_v7',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
@@ -111,6 +109,11 @@ autoCond = autoCondHLTHI(autoCond)
 # special GT for Run3 DDD geometry
 from Configuration.AlCa.autoCondModifiers import autoCondDDD
 autoCond = autoCondDDD(autoCond)
+
+# special GT for 2017 ppRef 5 TeV
+from Configuration.AlCa.autoCondModifiers import autoCond2017ppRef5TeV
+autoCond = autoCond2017ppRef5TeV(autoCond)
+
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
