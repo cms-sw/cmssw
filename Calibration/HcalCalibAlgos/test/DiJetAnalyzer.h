@@ -15,8 +15,9 @@
 #include "TClonesArray.h"
 
 // user include files
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,7 +51,6 @@
 // forward declarations
 class TH1D;
 class TH2D;
-class TFile;
 class TTree;
 
 //
@@ -83,10 +83,10 @@ public:
 private:
 };
 
-class DiJetAnalyzer : public edm::EDAnalyzer {
+class DiJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit DiJetAnalyzer(const edm::ParameterSet&);
-  ~DiJetAnalyzer();
+  ~DiJetAnalyzer() override = default;
 
 private:
   virtual void beginJob();  //(const edm::EventSetup&);
@@ -118,8 +118,6 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // root file/histograms
-  TFile* rootfile_;
-
   TH1D* h_PassSelPF_;
   TTree* tree_;
 

@@ -7,12 +7,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -125,7 +127,7 @@ private:
 // Main class
 // --------------------------------------------
 
-class GammaJetAnalysis : public edm::EDAnalyzer {
+class GammaJetAnalysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit GammaJetAnalysis(const edm::ParameterSet&);
   ~GammaJetAnalysis();
@@ -225,8 +227,6 @@ private:
   bool ignoreHLT_;
 
   // root file/histograms
-  TFile* rootfile_;
-
   TTree* misc_tree_;  // misc.information. Will be filled only once
   TTree* calo_tree_;
   TTree* pf_tree_;
