@@ -50,7 +50,7 @@ private:
   bool generateTextfiles_;
   bool generateEmap_;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
