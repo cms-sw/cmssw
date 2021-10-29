@@ -27,7 +27,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +53,7 @@
 class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg);
+  explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiStripLorentzAngleCalibration() override = default;
@@ -130,20 +130,29 @@ private:
 
   std::unique_ptr<TkModuleGroupSelector> moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
+
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrToken_;
 };
 
 //======================================================================
 //======================================================================
 //======================================================================
 
-SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg)
+SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
       recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
       outFileName_(cfg.getParameter<std::string>("treeFile")),
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")) {
+      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups")),
+      latencyToken_(iC.esConsumes()),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", readoutModeName_))),
+      magFieldToken_(iC.esConsumes()),
+      backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
   // 1: all in peak, 0: all in deco, -1: mixed state
   // (in principle one could treat even mixed state APV by APV...)
@@ -180,9 +189,8 @@ void SiStripLorentzAngleCalibration::beginRun(const edm::Run &run, const edm::Ev
     }
   }
 
-  edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
+  const SiStripLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
   const auto &lorentzAngleRcd = setup.get<SiStripLorentzAngleRcd>();
-  lorentzAngleRcd.get(readoutModeName_, lorentzAngleHandle);
   if (cachedLorentzAngleInputs_.find(firstRun) == cachedLorentzAngleInputs_.end()) {
     cachedLorentzAngleInputs_.emplace(firstRun, SiStripLorentzAngle(*lorentzAngleHandle));
   } else {
@@ -212,8 +220,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
                                                          const EventInfo &eventInfo) const {
   outDerivInds.clear();
 
-  edm::ESHandle<SiStripLatency> latency;
-  setup.get<SiStripLatencyRcd>().get(latency);
+  const SiStripLatency *latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
   if (mode == readoutMode_) {
     if (hit.det()) {  // otherwise 'constraint hit' or whatever
@@ -221,8 +228,7 @@ unsigned int SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndex
       const int index =
           moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
       if (index >= 0) {  // otherwise not treated
-        edm::ESHandle<MagneticField> magneticField;
-        setup.get<IdealMagneticFieldRecord>().get(magneticField);
+        const MagneticField *magneticField = &setup.getData(magFieldToken_);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         const double dZ = this->effectiveThickness(hit.det(), mode, setup);
@@ -394,10 +400,9 @@ double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
     return 0.;
   double dZ = det->surface().bounds().thickness();  // it is a float only...
   const SiStripDetId id(det->geographicalId());
-  edm::ESHandle<SiStripBackPlaneCorrection> backPlaneHandle;
+  const SiStripBackPlaneCorrection *backPlaneHandle = &setup.getData(backPlaneCorrToken_);
   // FIXME: which one? DepRcd->get(handle) or Rcd->get(readoutModeName_, handle)??
   // setup.get<SiStripBackPlaneCorrectionDepRcd>().get(backPlaneHandle); // get correct mode
-  setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneHandle);
   const double bpCor = backPlaneHandle->getBackPlaneCorrection(id);  // it's a float...
   //  std::cout << "bpCor " << bpCor << " in subdet " << id.subdetId() << std::endl;
   dZ *= (1. - bpCor);

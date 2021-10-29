@@ -29,7 +29,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -39,6 +38,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -54,7 +54,7 @@
 class SiStripBackplaneCalibration : public IntegratedCalibrationBase {
 public:
   /// Constructor
-  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg);
+  explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~SiStripBackplaneCalibration() override;
@@ -135,13 +135,17 @@ private:
 
   TkModuleGroupSelector *moduleGroupSelector_;
   const edm::ParameterSet moduleGroupSelCfg_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<SiStripBackPlaneCorrection, SiStripBackPlaneCorrectionRcd> backPlaneCorrToken_;
 };
 
 //======================================================================
 //======================================================================
 //======================================================================
 
-SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg)
+SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : IntegratedCalibrationBase(cfg),
       readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
       saveToDB_(cfg.getParameter<bool>("saveToDB")),
@@ -150,7 +154,11 @@ SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet
       mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
       siStripBackPlaneCorrInput_(nullptr),
       moduleGroupSelector_(nullptr),
-      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups")) {
+      moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups")),
+      latencyToken_(iC.esConsumes()),
+      lorentzAngleToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", readoutModeName_))),
+      magFieldToken_(iC.esConsumes()),
+      backPlaneCorrToken_(iC.esConsumes(edm::ESInputTag("", readoutModeName_))) {
   // SiStripLatency::singleReadOutMode() returns
   // 1: all in peak, 0: all in deco, -1: mixed state
   // (in principle one could treat even mixed state APV by APV...)
@@ -187,8 +195,7 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
 
   outDerivInds.clear();
 
-  edm::ESHandle<SiStripLatency> latency;
-  setup.get<SiStripLatencyRcd>().get(latency);
+  const SiStripLatency *latency = &setup.getData(latencyToken_);
   const int16_t mode = latency->singleReadOutMode();
 
   if (mode == readoutMode_) {
@@ -197,16 +204,14 @@ unsigned int SiStripBackplaneCalibration::derivatives(std::vector<ValuesIndexPai
       const int index =
           moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(), eventInfo.eventId().run());
       if (index >= 0) {  // otherwise not treated
-        edm::ESHandle<MagneticField> magneticField;
-        setup.get<IdealMagneticFieldRecord>().get(magneticField);
+        const MagneticField *magneticField = &setup.getData(magFieldToken_);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         //std::cout << "SiStripBackplaneCalibration derivatives " << readoutModeName_ << std::endl;
         const double dZ = hit.det()->surface().bounds().thickness();          // it's a float only...
         const double tanPsi = tsos.localParameters().mixedFormatVector()[1];  //float...
 
-        edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
-        setup.get<SiStripLorentzAngleRcd>().get(readoutModeName_, lorentzAngleHandle);
+        const SiStripLorentzAngle *lorentzAngleHandle = &setup.getData(lorentzAngleToken_);
         // Yes, mobility (= LA/By) stored in object called LA...
         const double mobility = lorentzAngleHandle->getLorentzAngle(hit.det()->geographicalId());
         // shift due to dead back plane has two parts:
@@ -393,16 +398,17 @@ void SiStripBackplaneCalibration::endOfJob() {
 //======================================================================
 bool SiStripBackplaneCalibration::checkBackPlaneCorrectionInput(const edm::EventSetup &setup,
                                                                 const EventInfo &eventInfo) {
-  edm::ESHandle<SiStripBackPlaneCorrection> backPlaneCorrHandle;
+  const SiStripBackPlaneCorrection *backPlaneCorrHandle = nullptr;
   if (!siStripBackPlaneCorrInput_) {
-    setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneCorrHandle);
+    backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
     siStripBackPlaneCorrInput_ = new SiStripBackPlaneCorrection(*backPlaneCorrHandle);
     // FIXME: Should we call 'watchBackPlaneCorrRcd_.check(setup)' as well?
     //        Otherwise could be that next check has to check via following 'else', though
     //        no new IOV has started... (to be checked)
   } else {
     if (watchBackPlaneCorrRcd_.check(setup)) {  // new IOV of input - but how to check peak vs deco?
-      setup.get<SiStripBackPlaneCorrectionRcd>().get(readoutModeName_, backPlaneCorrHandle);
+      backPlaneCorrHandle = &setup.getData(backPlaneCorrToken_);
+
       if (backPlaneCorrHandle->getBackPlaneCorrections()               // but only bad if non-identical values
           != siStripBackPlaneCorrInput_->getBackPlaneCorrections()) {  // (comparing maps)
         // Maps are containers sorted by key, but comparison problems may arise from
