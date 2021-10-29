@@ -181,7 +181,7 @@ void HLTJetTimingProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("matchingRadius", 0.4);
   desc.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
-  descriptions.add(defaultModuleLabel<HLTJetTimingProducer<T>>(),desc);
+  descriptions.add(defaultModuleLabel<HLTJetTimingProducer<T>>(), desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_HLTJetTimingProducer_h
