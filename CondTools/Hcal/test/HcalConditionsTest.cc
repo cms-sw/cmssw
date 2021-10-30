@@ -14,7 +14,7 @@ R.Ofierzynski - 2.Oct. 2007
 #include <fstream>
 #include <sstream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -41,7 +41,7 @@ R.Ofierzynski - 2.Oct. 2007
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 namespace edmtest {
-  class HcalConditionsTest : public edm::EDAnalyzer {
+  class HcalConditionsTest : public edm::one::EDAnalyzer<> {
   public:
     explicit HcalConditionsTest(edm::ParameterSet const& p) {
       front = p.getUntrackedParameter<std::string>("outFilePrefix", "Dump");
