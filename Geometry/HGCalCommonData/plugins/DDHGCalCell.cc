@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class DDHGCalCell : public DDAlgorithm {
 public:
