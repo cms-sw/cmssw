@@ -32,7 +32,7 @@ namespace trackerTFP {
   }
 
   // method to count number of unique data formats
-  template <Variable v = Variable::begin, Process p = Process::begin>
+  template <Variable v, Process p>
   void DataFormats::countFormats() {
     if constexpr (config_[+v][+p] == p)
       numDataFormats_++;
@@ -72,7 +72,7 @@ namespace trackerTFP {
   }
 
   // constructs data formats of all unique used variables and flavours
-  template <Variable v = Variable::begin, Process p = Process::begin>
+  template <Variable v, Process p>
   void DataFormats::fillDataFormats() {
     if constexpr (config_[+v][+p] == p) {
       dataFormats_.emplace_back(Format<v, p>(iConfig_, setup_));
@@ -85,7 +85,7 @@ namespace trackerTFP {
   }
 
   // helper (loop) data formats of all unique used variables and flavours
-  template <Variable v, Process p, Process it = Process::begin>
+  template <Variable v, Process p, Process it>
   void DataFormats::fillFormats() {
     if (config_[+v][+it] == p) {
       formats_[+v][+it] = &dataFormats_.back();
@@ -102,7 +102,7 @@ namespace trackerTFP {
   }
 
   // helper (loop) to convert bits to ntuple of variables
-  template <int it = 0, typename... Ts>
+  template <int it, typename... Ts>
   void DataFormats::extractStub(Process p, TTBV& ttBV, std::tuple<Ts...>& data) const {
     Variable v = *next(stubs_[+p].begin(), sizeof...(Ts) - 1 - it);
     formats_[+v][+p]->extract(ttBV, get<sizeof...(Ts) - 1 - it>(data));
@@ -119,7 +119,7 @@ namespace trackerTFP {
   }
 
   // helper (loop) to convert ntuple of variables to bits
-  template <int it = 0, typename... Ts>
+  template <int it, typename... Ts>
   void DataFormats::attachStub(Process p, const tuple<Ts...>& data, TTBV& ttBV) const {
     Variable v = *next(stubs_[+p].begin(), it);
     formats_[+v][+p]->attach(get<it>(data), ttBV);
@@ -135,7 +135,7 @@ namespace trackerTFP {
   }
 
   // helper (loop) to convert bits to ntuple of variables
-  template <int it = 0, typename... Ts>
+  template <int it, typename... Ts>
   void DataFormats::extractTrack(Process p, TTBV& ttBV, std::tuple<Ts...>& data) const {
     Variable v = *next(tracks_[+p].begin(), sizeof...(Ts) - 1 - it);
     formats_[+v][+p]->extract(ttBV, get<sizeof...(Ts) - 1 - it>(data));
@@ -152,7 +152,7 @@ namespace trackerTFP {
   }
 
   // helper (loop) to convert ntuple of variables to bits
-  template <int it = 0, typename... Ts>
+  template <int it, typename... Ts>
   void DataFormats::attachTrack(Process p, const tuple<Ts...>& data, TTBV& ttBV) const {
     Variable v = *next(tracks_[+p].begin(), it);
     formats_[+v][+p]->attach(get<it>(data), ttBV);

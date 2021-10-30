@@ -50,7 +50,7 @@ namespace trackerTFP {
     fillFormats();
   }
 
-  template <VariableKF it = VariableKF::begin>
+  template <VariableKF it>
   void KalmanFilterFormats::fillFormats() {
     formats_.emplace_back(FormatKF<it>(dataFormats_, iConfig_));
     if constexpr (++it != VariableKF::end)
