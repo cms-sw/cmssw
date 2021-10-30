@@ -120,22 +120,28 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+#-----------------------------------------------------------
+# Swap offline <-> online BeamSpot as in Express and HLT
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
 #--------------------------
 # Proton-Proton Stuff
 #--------------------------
 
 if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
-    process.runType.getRunType() == process.runType.cosmic_run or
-    process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run or
-    process.runType.getRunType() == process.runType.hi_run):
+    process.runType.getRunType() == process.runType.hi_run or
+    process.runType.getRunType() == process.runType.commissioning_run):
 
     print("[beamhlt_dqm_sourceclient-live_cfg]:: Running pp")
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-    process.dqmBeamMonitor.monitorName = 'BeamMonitor'
+    process.dqmBeamMonitor.monitorName = 'BeamMonitorHLT'
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.recordName = BSOnlineRecordName
