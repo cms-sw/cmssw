@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_1_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_1_0/PRef/V10 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_1_0/PRef/V12 (CMSSW_12_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V10')
+  tableName = cms.string('/dev/CMSSW_12_1_0/PRef/V12')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4273,11 +4273,6 @@ process.VolumeBasedMagneticFieldESProducer = cms.ESProducer( "VolumeBasedMagneti
   debugBuilder = cms.untracked.bool( False ),
   valueOverride = cms.int32( -1 )
 )
-process.XMLIdealGeometryESSource_CTPPS = cms.ESProducer( "XMLIdealGeometryESProducer",
-  rootDDName = cms.string( "cms:CMSE" ),
-  label = cms.string( "CTPPS" ),
-  appendToDataLabel = cms.string( "XMLIdealGeometryESSource_CTPPS" )
-)
 process.ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
@@ -4300,8 +4295,8 @@ process.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
   buildMisalignedGeometry = cms.bool( False ),
   isRun2 = cms.bool( False ),
   dbTag = cms.string( "" ),
-  compactViewTag = cms.string( "XMLIdealGeometryESSource_CTPPS" ),
-  fromPreprocessedDB = cms.untracked.bool( False ),
+  compactViewTag = cms.string( "" ),
+  fromPreprocessedDB = cms.untracked.bool( True ),
   fromDD4hep = cms.untracked.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
@@ -11326,9 +11321,10 @@ process.hltHIRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
     SelectQualities = cms.vint32(  )
 )
 process.hltPixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
-    DetectorType = cms.untracked.string( "pixel" ),
     DebugOn = cms.untracked.bool( False ),
-    DcsStatusLabel = cms.untracked.InputTag( "hltScalersRawToDigi" )
+    DetectorType = cms.untracked.string( "pixel" ),
+    DcsStatusLabel = cms.untracked.InputTag( "hltScalersRawToDigi" ),
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" )
 )
 process.hltPreAlCaLumiPixelsCountsRandom = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
