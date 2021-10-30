@@ -192,7 +192,7 @@ PPSAlignmentHarvester::~PPSAlignmentHarvester() {
 void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("folder", "CalibPPS/Common");
+  desc.add<std::string>("folder", "AlCaReco/PPSAlignment");
   desc.add<std::vector<std::string>>("sequence", {"x_alignment", "x_alignment_relative", "y_alignment"});
   desc.add<bool>("overwrite_sh_x", true);
   desc.add<std::string>("text_results_path", "./alignment_results.txt");
