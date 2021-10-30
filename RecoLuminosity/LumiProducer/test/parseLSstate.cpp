@@ -26,8 +26,9 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
-#include <boost/regex.hpp>
 #include "RecoLuminosity/LumiProducer/interface/Utils.h"
+
+#include <regex>
 
 namespace lumitest {
   void stringSplit(const std::string& instr, char delim, std::vector<std::string>& results) {
@@ -79,9 +80,9 @@ int main(int argc, char** argv) {
     std::cout << "must specify the run number" << std::endl;
     return 0;
   }
-  const boost::regex physicsE("%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%");
-  const boost::regex nameE("^CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_([0-9]+)");
-  boost::match_results<std::string::const_iterator> what;
+  const std::regex physicsE("%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%");
+  const std::regex nameE("^CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_([0-9]+)");
+  std::match_results<std::string::const_iterator> what;
 
   //
   //query runinfo db
@@ -135,15 +136,15 @@ int main(int argc, char** argv) {
       std::string name = row["NAME"].data<std::string>();
       std::string value = row["STRING_VALUE"].data<std::string>();
       std::cout << "name: " << name << ", value: " << value << std::endl;
-      boost::regex_match(name, what, nameE, boost::match_default);
+      std::regex_match(name, what, nameE, std::regex_constants::match_default);
       std::string statChar;
       if (what[0].matched) {
         if (value == "null") {
           statChar = "P";  //is a pause
         } else {
-          boost::regex_search(value, what, physicsE, boost::match_default);
+          std::regex_search(value, what, physicsE, std::regex_constants::match_default);
           if (what[0].matched) {
-            std::string operatorBitValue = std::string(what[2].first, what[2].second);
+            std::string operatorBitValue{what[2].first, what[2].second};
             if (operatorBitValue == "true") {
               statChar = "T";
             } else {
@@ -161,7 +162,7 @@ int main(int argc, char** argv) {
     std::cout << "caught exception " << er.what() << std::endl;
     throw er;
   }
-  const boost::regex e("%*PHYSICS_DECLARED&(true)|(false)|(N/A)&(true)|(false)|(N/A)%");
+  const std::regex e("%*PHYSICS_DECLARED&(true)|(false)|(N/A)&(true)|(false)|(N/A)%");
 
   // float number as string for runsection delimiter,
   // "T" for true,"F" for false, "P" for pause

@@ -1,4 +1,4 @@
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "TFile.h"
 #include "TEveTreeTools.h"
@@ -346,9 +346,9 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
       item->setEvent(nullptr);
     }
 
-    boost::regex re(std::string("\\$") + (*i)->name());
+    std::regex re(std::string("\\$") + (*i)->name());
 
-    if (boost::regex_search(interpretedSelection, re)) {
+    if (std::regex_search(interpretedSelection, re)) {
       const edm::TypeWithDict elementType(const_cast<TClass*>(item->type()));
       const edm::TypeWithDict wrapperType = edm::TypeWithDict::byName(edm::wrappedClassName(elementType.name()));
       std::string fullBranchName = m_event->getBranchNameFor(wrapperType.typeInfo(),
@@ -356,7 +356,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
                                                              item->productInstanceLabel().c_str(),
                                                              item->processName().c_str());
 
-      interpretedSelection = boost::regex_replace(interpretedSelection, re, fullBranchName + ".obj");
+      interpretedSelection = std::regex_replace(interpretedSelection, re, fullBranchName + ".obj");
 
       branch_names.push_back(fullBranchName);
 
@@ -456,8 +456,8 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
 bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
   std::string selection(filterEntry->m_selector->m_expression);
 
-  boost::regex re_spaces("\\s+");
-  selection = boost::regex_replace(selection, re_spaces, "");
+  std::regex re_spaces("\\s+");
+  selection = std::regex_replace(selection, re_spaces, "");
   if (selection.find("&&") != std::string::npos && selection.find("||") != std::string::npos) {
     // Combination of && and || operators not supported.
     return false;
@@ -483,10 +483,10 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
   if (selection.find("||") != std::string::npos)
     junction_mode = false;  // OR
 
-  boost::regex re("\\&\\&|\\|\\|");
+  std::regex re("\\&\\&|\\|\\|");
 
-  boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
-  boost::sregex_token_iterator j;
+  std::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
+  std::sregex_token_iterator j;
 
   // filters and how they enter in the logical expression
   std::vector<std::pair<unsigned int, bool>> filters;

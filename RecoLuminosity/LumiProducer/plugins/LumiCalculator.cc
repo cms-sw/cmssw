@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/regex.hpp>
+#include <regex>
 #include <iostream>
 #include <map>
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -349,9 +349,9 @@ void LumiCalculator::endJob() {}
 
 std::vector<std::string> LumiCalculator::splitpathstr(const std::string& strValue, const std::string separator) {
   std::vector<std::string> vecstrResult;
-  boost::regex re(separator);
-  boost::sregex_token_iterator p(strValue.begin(), strValue.end(), re, -1);
-  boost::sregex_token_iterator end;
+  std::regex re(separator);
+  std::sregex_token_iterator p(strValue.begin(), strValue.end(), re, -1);
+  std::sregex_token_iterator end;
   while (p != end) {
     vecstrResult.push_back(*p++);
   }

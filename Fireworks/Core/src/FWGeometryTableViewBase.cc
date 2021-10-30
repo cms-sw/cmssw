@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <functional>
-#include <boost/regex.hpp>
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 #include "Fireworks/Core/interface/FWGeoTopNode.h"

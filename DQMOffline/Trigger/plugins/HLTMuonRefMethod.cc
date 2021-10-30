@@ -18,7 +18,7 @@
 #include <cmath>
 #include <climits>
 #include <boost/tokenizer.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <TH1.h>
 #include <TEfficiency.h>
@@ -55,9 +55,7 @@ private:
 };
 
 HLTMuonRefMethod::HLTMuonRefMethod(const edm::ParameterSet& pset) {
-  using VPSet = std::vector<edm::ParameterSet>;
   using vstring = std::vector<std::string>;
-  using elsc = boost::escaped_list_separator<char>;
 
   subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
   hltTriggers_ = pset.getUntrackedParameter<vstring>("hltTriggers");
@@ -69,9 +67,8 @@ HLTMuonRefMethod::HLTMuonRefMethod(const edm::ParameterSet& pset) {
 void HLTMuonRefMethod::beginJob() {}
 
 void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  using vstring = std::vector<std::string>;
-  boost::regex metacharacters{"[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"};
-  boost::smatch what;
+  std::regex metacharacters{"[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"};
+  std::smatch what;
 
   // theDQM = 0;
   // theDQM = Service<DQMStore>().operator->();
@@ -85,7 +82,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
     if (subDir[subDir.size() - 1] == '/')
       subDir.erase(subDir.size() - 1);
 
-    if (boost::regex_search(subDir, what, metacharacters)) {
+    if (std::regex_search(subDir, what, metacharacters)) {
       const string::size_type shiftPos = subDir.rfind('/');
       const string searchPath = subDir.substr(0, shiftPos);
       const string pattern = subDir.substr(shiftPos + 1, subDir.length());

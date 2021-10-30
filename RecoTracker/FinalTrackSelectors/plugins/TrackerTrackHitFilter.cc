@@ -1,54 +1,43 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-
-//for S/N cut
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
-//for angle cut
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TMath.h"
-
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "TMath.h"
 
-#include <boost/regex.hpp>
-#include <map>
-//#include <math>
+#include <regex>
 
 /**
  * Configurables:
@@ -171,8 +160,8 @@ namespace reco {
     };  // class
 
     TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
-      static const boost::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
-      boost::cmatch match;
+      static const std::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
+      std::cmatch match;
       std::string match_1;
       std::string match_2;
       std::string match_3;
@@ -220,13 +209,13 @@ namespace reco {
       // match a set of capital case chars (preceded by an arbitrary number of leading blanks),
       //followed b an arbitrary number of blanks, one or more digits (not necessary, they cannot also be,
       // another set of blank spaces and, again another *eventual* digit
-      // static boost::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
-      static const boost::regex rule(
+      // static std::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
+      static const std::regex rule(
           "([A-Z]+)"
           "\\s*(\\d+\\.*\\d*)?"
           "\\s*(\\d+\\.*\\d*)?");
 
-      boost::cmatch match;
+      std::cmatch match;
       std::string match_1;
       std::string match_2;
       std::string match_3;

@@ -8,9 +8,6 @@
 
 #include <fmt/printf.h>
 
-// boost headers
-#include <boost/regex.hpp>
-
 // Root headers
 #include <TH1F.h>
 

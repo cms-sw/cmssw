@@ -16,7 +16,7 @@
 
 #include <vector>
 #include "boost/multi_array.hpp"
-#include <boost/regex.hpp>
+#include <regex>
 #include <map>
 
 #include <iostream>
@@ -692,10 +692,10 @@ LocalError PixelCPEClusterRepair::localError(DetParam const& theDetParam, Cluste
 }
 
 PixelCPEClusterRepair::Rule::Rule(const std::string& str) {
-  static const boost::regex rule("([A-Z]+)(\\s+(\\d+))?");
-  boost::cmatch match;
+  static const std::regex rule("([A-Z]+)(\\s+(\\d+))?");
+  std::cmatch match;
   // match and check it works
-  if (!regex_match(str.c_str(), match, rule))
+  if (!std::regex_match(str.c_str(), match, rule))
     throw cms::Exception("Configuration") << "Rule '" << str << "' not understood.\n";
 
   // subdet

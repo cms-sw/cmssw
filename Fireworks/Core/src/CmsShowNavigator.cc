@@ -11,7 +11,6 @@
 
 // system include files
 #include <functional>
-#include "boost/regex.hpp"
 #include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"

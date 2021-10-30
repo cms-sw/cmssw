@@ -1,12 +1,12 @@
 #include <filesystem>
 #include <map>
 #include <vector>
+#include <regex>
 #include <sys/stat.h>
 
 #include <fmt/printf.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/range.hpp>
-#include <boost/regex.hpp>
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -178,7 +178,7 @@ namespace dqm {
 
     directory_iterator dend;
     for (directory_iterator di(runPath_); di != dend; ++di) {
-      const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
+      const std::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
 
       const std::string filename = di->path().filename().string();
       const std::string fn = di->path().string();
@@ -187,8 +187,8 @@ namespace dqm {
         continue;
       }
 
-      boost::smatch result;
-      if (boost::regex_match(filename, result, fn_re)) {
+      std::smatch result;
+      if (std::regex_match(filename, result, fn_re)) {
         unsigned int run = std::stoi(result[1]);
         unsigned int lumi = std::stoi(result[2]);
         std::string label = result[3];
@@ -210,10 +210,7 @@ namespace dqm {
           // it's likely we have read it too soon
           filesSeen_.erase(filename);
 
-          std::string msg("Found, tried to load the json, but failed (");
-          msg += e.what();
-          msg += "): ";
-          edm::LogWarning("RamdiskMonitor") << msg;
+          edm::LogWarning("RamdiskMonitor") << "Found, tried to load the json, but failed (" << e.what() << "): ";
         }
       }
     }

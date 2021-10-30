@@ -1,9 +1,7 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
 
 #include <iostream>
-
-using std::cout;
-using std::endl;
+#include <set>
 
 MP7PacketReader::MP7PacketReader(const std::string& path, uint32_t striphdr, uint32_t stripftr, uint32_t ikey)
     : reader_(path), header_(striphdr), footer_(stripftr), ikey_(ikey) {

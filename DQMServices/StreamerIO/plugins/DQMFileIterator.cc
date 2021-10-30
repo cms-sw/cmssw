@@ -8,7 +8,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/range.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <fmt/printf.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -233,7 +233,7 @@ namespace dqmservices {
 
       directory_iterator dend;
       for (directory_iterator di(runPath); di != dend; ++di) {
-        const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
+        const std::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
 
         const std::string filename = di->path().filename().string();
         const std::string fn = di->path().string();
@@ -242,8 +242,8 @@ namespace dqmservices {
           continue;
         }
 
-        boost::smatch result;
-        if (boost::regex_match(filename, result, fn_re)) {
+        std::smatch result;
+        if (std::regex_match(filename, result, fn_re)) {
           unsigned int run = std::stoi(result[1]);
           unsigned int lumi = std::stoi(result[2]);
           std::string label = result[3];

@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <boost/regex.hpp>
+#include <regex>
 #include <algorithm>
 #include <cassert>
 
@@ -72,12 +72,11 @@ namespace dqmservices {
 
     // replace all possible alternate operators (.AND. and .OR.)
     {
-      using namespace boost;
       std::string temp;
-      temp = regex_replace(expression, regex(".AND."), "&&");
-      expression_ = regex_replace(temp, regex(".and."), "&&");
-      temp = regex_replace(expression_, regex(".OR."), "||");
-      expression_ = regex_replace(temp, regex(".or."), "||");
+      temp = std::regex_replace(expression, std::regex(".AND."), "&&");
+      expression_ = std::regex_replace(temp, std::regex(".and."), "&&");
+      temp = std::regex_replace(expression_, std::regex(".OR."), "||");
+      expression_ = std::regex_replace(temp, std::regex(".or."), "||");
     }
 
     // build decision tree

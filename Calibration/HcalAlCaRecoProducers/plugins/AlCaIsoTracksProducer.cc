@@ -10,7 +10,6 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <boost/regex.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

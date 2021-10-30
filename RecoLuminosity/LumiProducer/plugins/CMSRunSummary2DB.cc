@@ -33,7 +33,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/tokenizer.hpp>
 
 namespace lumi {
@@ -97,13 +97,13 @@ namespace lumi {
     bool isPhysics = false;
     std::string hk = rundata.hltkey;
     std::string lk = rundata.l1key;
-    boost::match_results<std::string::const_iterator> what;
-    const boost::regex lexpr("^TSC_.+_collisions_.+");
-    boost::regex_match(lk, what, lexpr, boost::match_default);
+    std::match_results<std::string::const_iterator> what;
+    const std::regex lexpr("^TSC_.+_collisions_.+");
+    std::regex_match(lk, what, lexpr, std::regex_constants::match_default);
     if (what[0].matched)
       isCollision = true;
-    const boost::regex hexpr("^/cdaq/physics/.+");
-    boost::regex_match(hk, what, hexpr, boost::match_default);
+    const std::regex hexpr("^/cdaq/physics/.+");
+    std::regex_match(hk, what, hexpr, std::regex_constants::match_default);
     if (what[0].matched)
       isPhysics = true;
     return (isCollision && isPhysics);

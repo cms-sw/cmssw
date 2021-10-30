@@ -10,7 +10,7 @@
 #include "TH2D.h"
 #include "TProfile.h"
 #include "TH3D.h"
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/iterator/filter_iterator.hpp>
 
 class Book {
@@ -25,10 +25,10 @@ class Book {
 
   struct match_name {
     match_name(string_t re) : expression(re) {}
-    bool operator()(const book_t::const_iterator::value_type& p) { return regex_match(p.first, expression); }
+    bool operator()(const book_t::const_iterator::value_type& p) { return std::regex_match(p.first, expression); }
 
   private:
-    boost::regex expression;
+    std::regex expression;
   };
 
 public:

@@ -10,11 +10,10 @@
 //         Created:  Fri Aug 22 12:25:04 EDT 2008
 //
 
-// system include files
-#include <boost/regex.hpp>
-
-// user include files
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
+
+#include <cassert>
+#include <regex>
 
 //
 // constants, enums and typedefs
@@ -25,9 +24,9 @@ namespace fireworks {
     std::string oldToNewFormat(const std::string& iExpression) {
       //Backwards compatibility with old format: If find a $. or a () just remove them
       const std::string variable;
-      static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
+      static std::regex const reVarName("(\\$\\.)|(\\(\\))");
 
-      return boost::regex_replace(iExpression, reVarName, variable);
+      return std::regex_replace(iExpression, reVarName, variable);
     }
 
     long indexFromNewFormatToOldFormat(const std::string& iNewFormat,

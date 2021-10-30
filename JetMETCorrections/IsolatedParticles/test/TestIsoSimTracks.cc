@@ -36,7 +36,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -56,10 +55,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-//#include "Geometry/DTGeometry/interface/DTLayer.h"
-//#include "Geometry/DTGeometry/interface/DTGeometry.h"
-//#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
@@ -69,8 +64,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-#include <boost/regex.hpp>
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 

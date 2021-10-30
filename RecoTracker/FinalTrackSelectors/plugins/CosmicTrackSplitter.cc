@@ -49,8 +49,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
-#include <boost/regex.hpp>
-
 /**
  * Configurables:
  *
