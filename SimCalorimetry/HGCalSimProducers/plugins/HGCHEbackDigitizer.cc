@@ -146,23 +146,26 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
   // needed to compute the radiation and geometry scale factors
   scal_.setGeometry(theGeom);
 
+  //vanilla reference values are indepenent of the ids and were set by 
+  //configuration in the python - no need to recomput them every time
+  //in the digitization loop
+  float scaledPePerMip = nPEperMIP_;                         //needed to scale according to tile geometry
+  float tunedNoise = nPEperMIP_ * noise_MIP_;                //flat noise case
+  float vanillaADCThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
+  float adcLsb(this->myFEelectronics_->getADClsb());
+  float maxADC(-1);  //vanilla will rely on what has been configured by default
+  uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(vanillaADCThr / adcLsb * scaledPePerMip / nPEperMIP_)
+                  : std::floor(vanillaADCThr / adcLsb));
+  float nTotalPixels(nTotalPE_);
+  float xTalk(xTalk_);
+  int gainIdx(0);
+
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-
-    float scaledPePerMip = nPEperMIP_;                         //needed to scale according to tile geometry
-    float tunedNoise = nPEperMIP_ * noise_MIP_;                //flat noise case
-    float adcThr = this->myFEelectronics_->getADCThreshold();  //vanilla thrs  in MIPs
-    int gainIdx(0);
-    float adcLsb(this->myFEelectronics_->getADClsb());
-    float maxADC(-1);  //vanilla will rely on what has been configured by default
-    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
-                                         : std::floor(adcThr / adcLsb));
-    float nTotalPixels(nTotalPE_);
-    float xTalk(xTalk_);
 
     //in case realistic scenario (noise, fluence, dose, sipm/tile area) are to be used
     //we update vanilla values with the realistic ones
@@ -184,6 +187,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     float meanN = std::pow(tunedNoise, 2);
 
     for (size_t i = 0; i < cell.hit_info[0].size(); ++i) {
+
       //convert total energy keV->MIP, since converted to keV in accumulator
       float totalIniMIPs(cell.hit_info[0][i] * keV2MIP_);
 

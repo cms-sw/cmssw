@@ -86,7 +86,7 @@ public:
   };
 
   /**
-     @short returns the LSB in MIP currently configured
+     @short returns the LSB currently configured
   */
   float getADClsb() { return adcLSB_fC_; }
   float getTDClsb() { return tdcLSB_fC_; }
