@@ -13,6 +13,22 @@
 
 enum Pattern_Info { NUM_LAYERS = 6, CLCT_PATTERN_WIDTH = 11 };
 
+namespace {
+  CSCCLCTDigi::ComparatorContainer makeEmptyContainer() {
+    CSCCLCTDigi::ComparatorContainer ret;
+    ret.resize(NUM_LAYERS);
+    for (auto& p : ret) {
+      p.resize(CLCT_PATTERN_WIDTH);
+    }
+    return ret;
+  }
+}  // namespace
+
+CSCCLCTDigi::ComparatorContainer const& CSCCLCTDigi::emptyContainer() {
+  static ComparatorContainer const s_container = makeEmptyContainer();
+  return s_container;
+}
+
 /// Constructors
 CSCCLCTDigi::CSCCLCTDigi(const uint16_t valid,
                          const uint16_t quality,
@@ -45,12 +61,8 @@ CSCCLCTDigi::CSCCLCTDigi(const uint16_t valid,
       run3_eighth_strip_bit_(run3_eighth_strip_bit),
       run3_pattern_(run3_pattern),
       run3_slope_(run3_slope),
-      version_(version) {
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(CLCT_PATTERN_WIDTH);
-  }
-}
+      hits_(),
+      version_(version) {}
 
 /// Default
 CSCCLCTDigi::CSCCLCTDigi() {
@@ -77,10 +89,6 @@ void CSCCLCTDigi::clear() {
   run3_slope_ = 0;
   version_ = Version::Legacy;
   hits_.clear();
-  hits_.resize(NUM_LAYERS);
-  for (auto& p : hits_) {
-    p.resize(CLCT_PATTERN_WIDTH);
-  }
 }
 
 // slope in number of half-strips/layer

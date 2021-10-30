@@ -1226,7 +1226,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   }
   if ((std::abs(waferU) <= hgpar_->waferUVMax_) && (celltype >= 0)) {
     cellHex(xx, yy, celltype, cellU, cellV, extend, debug);
-    wt = ((celltype < 2) ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_) : 1.0);
+    wt = (((celltype < 2) && (mode_ != HGCalGeometryMode::Hexagon8Module))
+              ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
+              : 1.0);
   } else {
     cellU = cellV = 2 * hgpar_->nCellsFine_;
     wt = 1.0;

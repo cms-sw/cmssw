@@ -49,7 +49,8 @@ def _setStyle():
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
-        print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
+        if verbose:
+            print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
         return None
     return obj
 

@@ -107,7 +107,7 @@ process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
 #----------------------------
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or process.runType.getRunType() == process.runType.commissioning_run ):
     print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 
