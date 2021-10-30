@@ -17,7 +17,7 @@ CSCTMBHeader2013::CSCTMBHeader2013(const unsigned short* buf) { memcpy(data(), b
 void CSCTMBHeader2013::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
   bits.l1aNumber = dmbHeader.l1a24() & 0xFFF;
-  bits.bxnCount = dmbHeader.bxn12();
+  // bits.bxnCount = dmbHeader.bxn12();
 }
 
 ///returns CLCT digis

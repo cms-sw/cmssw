@@ -26,7 +26,7 @@ CSCTMBHeader2020_CCLUT::CSCTMBHeader2020_CCLUT(const unsigned short* buf) { memc
 void CSCTMBHeader2020_CCLUT::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
   bits.l1aNumber = dmbHeader.l1a();
-  bits.bxnCount = dmbHeader.bxn12();
+  bits.bxnCount = dmbHeader.bxn();
 }
 
 ///returns CLCT digis

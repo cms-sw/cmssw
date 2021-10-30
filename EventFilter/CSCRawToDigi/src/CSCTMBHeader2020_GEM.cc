@@ -26,7 +26,7 @@ CSCTMBHeader2020_GEM::CSCTMBHeader2020_GEM(const unsigned short* buf) { memcpy(d
 void CSCTMBHeader2020_GEM::setEventInformation(const CSCDMBHeader& dmbHeader) {
   bits.cscID = dmbHeader.dmbID();
   bits.l1aNumber = dmbHeader.l1a();
-  bits.bxnCount = dmbHeader.bxn12();
+  bits.bxnCount = dmbHeader.bxn();
 }
 
 ///returns CLCT digis
