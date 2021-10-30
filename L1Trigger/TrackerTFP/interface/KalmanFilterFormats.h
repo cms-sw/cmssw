@@ -94,7 +94,7 @@ namespace trackerTFP {
   class FormatKF : public DataFormatKF {
   public:
     FormatKF(const DataFormats* dataFormats, const edm::ParameterSet& iConfig);
-    ~FormatKF() {}
+    ~FormatKF() override {}
 
   private:
     void calcRange() { range_ = base_ * pow(2, width_); }
