@@ -208,6 +208,7 @@ _customInfo['maxEvents' ]=  %s
 _customInfo['globalTag' ]= "%s"
 _customInfo['inputFile' ]=  %s
 _customInfo['realData'  ]=  %s
+
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 %%(process)s = customizeHLTforAll(%%(process)s,"%s",_customInfo)
 """ % (self.config.type,_gtData,_gtMc,self.config.type,self.config.type,self.config.events,self.config.globaltag,self.source,self.config.data,self.config.type)
@@ -235,6 +236,14 @@ modifyHLTforEras(%(process)s)
             customiseValues[0] = customiseValues[0].replace("/",".")
             self.data += "from "+customiseValues[0]+" import "+customiseValues[1]+"\n"
             self.data += "process = "+customiseValues[1]+"(process)\n"
+
+
+  # apply corrections to respect python syntax
+  def applySyntaxCorrections(self):
+      # remove any remaining "+"s, commas, and extra whitespaces
+      # before the first element in every (End)Path
+      self.data = re.sub(r'\bcms.EndPath\(([ ,\+])*', 'cms.EndPath( ', self.data)
+      self.data = re.sub(r'\bcms.Path\(([ ,\+])*', 'cms.Path( ', self.data)
 
 
   # customize the configuration according to the options
@@ -314,6 +323,9 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     # add specific customisations
     self.specificCustomize()
+
+    # fix remaining syntax errors (if any)
+    self.applySyntaxCorrections()
 
 
   def addGlobalOptions(self):
@@ -552,6 +564,7 @@ if 'PrescaleService' in process.__dict__:
   def updateMessageLogger(self):
     # request summary informations from the MessageLogger
     self.data += """
+# show summaries from trigger analysers used at HLT
 if 'MessageLogger' in %(dict)s:
     %(process)s.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
     %(process)s.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
@@ -893,6 +906,7 @@ if 'GlobalTag' in %%(dict)s:
       self.parent = self.expand_filenames(self.config.parent)
 
     self.data += """
+# source module (EDM inputs)
 %(process)s.source = cms.Source( "PoolSource",
 """
     self.append_filenames("fileNames", self.source)
