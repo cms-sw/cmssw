@@ -83,6 +83,13 @@ else:
     # you may need to set manually the GT in the line below
     #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 
+#--------------------------------------------------------
+# Swap offline <-> online BeamSpot as in Express and HLT
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
 #----------------------------
 # BeamMonitor
 process.load("DQM.BeamMonitor.BeamMonitor_Pixel_cff")
@@ -166,7 +173,7 @@ process.pixelTracksHP = cms.EDProducer( "TrackCollectionFilterCloner",
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 process.pixelTracksMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone(
-   FolderName                = 'BeamMonitor/Tracking/pixelTracks',
+   FolderName                = 'BeamMonitorLegacy/Tracking/pixelTracks',
    TrackProducer             = 'pixelTracks',
    allTrackProducer          = 'pixelTracks',
    beamSpot                  = "offlineBeamSpot",
@@ -213,7 +220,7 @@ process.tracks2monitor.cut = 'pt > 1 & abs(eta) < 2.4'
 
 #
 process.selectedPixelTracksMonitor = process.pixelTracksMonitor.clone(
-   FolderName       = 'BeamMonitor/Tracking/selectedPixelTracks',
+   FolderName       = 'BeamMonitorLegacy/Tracking/selectedPixelTracks',
    TrackProducer    = 'tracks2monitor',
    allTrackProducer = 'tracks2monitor'
 )
@@ -248,7 +255,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor
 # BeamSpotProblemMonitor
 
 #
-process.dqmBeamSpotProblemMonitor.monitorName = "BeamMonitor/BeamSpotProblemMonitor"
+process.dqmBeamSpotProblemMonitor.monitorName = "BeamMonitorLegacy/BeamSpotProblemMonitor"
 process.dqmBeamSpotProblemMonitor.AlarmONThreshold  = 15 # was 10
 process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 17 # was 12
 process.dqmBeamSpotProblemMonitor.nCosmicTrk        = 10
@@ -304,6 +311,7 @@ process.siStripDigis.ProductLabel        = rawDataInputTag
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.dqmBeamMonitor.OnlineMode = True
+process.dqmBeamMonitor.monitorName = "BeamMonitorLegacy"
 process.dqmBeamMonitor.recordName = BSOnlineRecordName
 process.dqmBeamMonitor.useLockRecords = useLockRecords
 
@@ -321,11 +329,13 @@ from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
   TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
 )
+process.pixelTracksTrackingRegions.RegionPSet.ptMin = 0.1
 process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
-process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
-process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
-process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
+# The following parameters were used in 2018 HI:
+#process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
+#process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
+#process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+#process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
 
 process.tracking_FirstStep = cms.Sequence(
       process.siPixelDigis 
