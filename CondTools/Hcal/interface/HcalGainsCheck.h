@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -43,7 +43,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
-class HcalGainsCheck : public edm::EDAnalyzer {
+class HcalGainsCheck : public edm::one::EDAnalyzer<> {
 public:
   HcalGainsCheck(edm::ParameterSet const& ps);
 
