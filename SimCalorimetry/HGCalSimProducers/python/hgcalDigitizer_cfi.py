@@ -39,7 +39,7 @@ HGCAL_noise_heback = cms.PSet(
     sipmMap = cms.string(""), #if empty will prompt to use geometry-based definition
     referenceIdark = cms.double(-1),
     referenceXtalk = cms.double(-1),
-    noise_MIP = cms.double(1./7.) #this is to be deprecated
+    noise_MIP = cms.double(1./100.) #this is to be deprecated
 )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
