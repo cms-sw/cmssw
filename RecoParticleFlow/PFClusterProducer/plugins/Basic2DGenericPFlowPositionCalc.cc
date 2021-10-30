@@ -282,6 +282,10 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
     depth *= norm_inverse;
     cluster.setPosition(math::XYZPoint(x, y, z));
     cluster.setDepth(depth);
+    //force 0.99999999 to 1.0000000
+    if ((depth-int(depth+0.5))<0.001){
+        cluster.setDepth(int(depth+0.5));
+    }
     cluster.calculatePositionREP();
   }
 }
