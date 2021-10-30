@@ -2103,6 +2103,17 @@ steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,
                           '--eventcontent':'ALCARECO',
                           }
 
+steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
+                             '-n':1000,
+                             '--process':'ALCARECO',
+                             '--scenario': 'pp',
+                             '--era':'Run2_2017',
+                             '--conditions':'auto:run2_data',
+                             '--data': '',
+                             '--datatier':'ALCARECO',
+                             '--eventcontent':'ALCARECO',
+                             }
+
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
@@ -2135,6 +2146,7 @@ steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCal
                         }
 
 steps['ALCASPLITPPSALIG']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSAlignment',
+                           '-n':1000,
                            '--scenario':'pp',
                            '--data':'',
                            '--era':'Run2_2017',
