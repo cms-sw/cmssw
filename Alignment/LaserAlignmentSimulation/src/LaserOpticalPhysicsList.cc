@@ -56,14 +56,14 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList() {
     delete theScintProcess;
   }
   if (verboseLevel > 0)
-    std::cout << " done " << std::endl;
+    G4cout << " done " << G4endl;
 }
 
 void LaserOpticalPhysicsList::ConstructParticle() {
   if (verboseLevel > 0)
-    std::cout << "<LaserOpticalPhysicsList::ConstructParticle()>: constructing "
+    G4cout << "<LaserOpticalPhysicsList::ConstructParticle()>: constructing "
                  "the optical photon ... "
-              << std::endl;
+              << G4endl;
 
   // optical photon
   G4OpticalPhoton::OpticalPhotonDefinition();
@@ -71,9 +71,9 @@ void LaserOpticalPhysicsList::ConstructParticle() {
 
 void LaserOpticalPhysicsList::ConstructProcess() {
   if (verboseLevel > 0)
-    std::cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing "
+    G4cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing "
                  "the physics ... "
-              << std::endl;
+              << G4endl;
 
   theScintProcess = new G4Scintillation();
   //  theCerenkovProcess=new G4Cerenkov();
@@ -96,7 +96,7 @@ void LaserOpticalPhysicsList::ConstructProcess() {
   pManager->AddDiscreteProcess(theWLSProcess);
 
   theScintProcess->SetScintillationYieldFactor(1.);
-  theScintProcess->SetScintillationExcitationRatio(0.0);
+  //theScintProcess->SetScintillationExcitationRatio(0.0);
   theScintProcess->SetTrackSecondariesFirst(true);
 
   G4ParticleTable *table = G4ParticleTable::GetParticleTable();
