@@ -42,7 +42,6 @@ void HGCalValidTest::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("hgcalValidTestHEB", desc);
 }
 
-
 void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const auto& geom = &iSetup.getData(geomToken_);
   DetId::Detector det;
@@ -54,7 +53,8 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
       subdet = HGCHEB;
     else
       subdet = HGCEE;
-    edm::LogVerbatim("HGCalGeom") << "Cannot perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet << " Mode " << geom->topology().dddConstants().geomMode();
+    edm::LogVerbatim("HGCalGeom") << "Cannot perform test for " << name << " Detector:Subdetector " << DetId::Forward
+                                  << ":" << subdet << " Mode " << geom->topology().dddConstants().geomMode();
     return;
   } else {
     if (name == "HGCalHESiliconSensitive")
@@ -63,7 +63,8 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
       det = DetId::HGCalHSc;
     else
       det = DetId::HGCalEE;
-    edm::LogVerbatim("HGCalGeom") << "Perform test for " << name << " Detector " << det << " Mode " << geom->topology().dddConstants().geomMode();
+    edm::LogVerbatim("HGCalGeom") << "Perform test for " << name << " Detector " << det << " Mode "
+                                  << geom->topology().dddConstants().geomMode();
   }
 
   int firstLayer = geom->topology().dddConstants().firstLayer();
@@ -76,26 +77,30 @@ void HGCalValidTest::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
     for (int layer = firstLayer; layer <= lastLayer; ++layer) {
       std::vector<std::pair<int, int> > done;
       for (auto const& id : ids) {
-	if (det == DetId::HGCalHSc) {
-	  HGCScintillatorDetId hid(id);
-	  if ((hid.zside() != zside) || (hid.layer() != layer)) continue;
-	  std::pair<int, int> ring = std::make_pair(hid.ring(), 0);
-	  if (std::find(done.begin(), done.end(), ring) != done.end()) continue;
-	  done.emplace_back(ring);
-	  edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
-	} else {
-	  HGCSiliconDetId hid(id);
-	  if ((hid.zside() != zside) || (hid.layer() != layer)) continue;
-	  if (std::find(done.begin(), done.end(), hid.waferUV()) != done.end()) continue;
-	  done.emplace_back(hid.waferUV());
-	  edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
-	}
+        if (det == DetId::HGCalHSc) {
+          HGCScintillatorDetId hid(id);
+          if ((hid.zside() != zside) || (hid.layer() != layer))
+            continue;
+          std::pair<int, int> ring = std::make_pair(hid.ring(), 0);
+          if (std::find(done.begin(), done.end(), ring) != done.end())
+            continue;
+          done.emplace_back(ring);
+          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
+        } else {
+          HGCSiliconDetId hid(id);
+          if ((hid.zside() != zside) || (hid.layer() != layer))
+            continue;
+          if (std::find(done.begin(), done.end(), hid.waferUV()) != done.end())
+            continue;
+          done.emplace_back(hid.waferUV());
+          edm::LogVerbatim("HGCalGeom") << "Corners for " << hid;
+        }
 
-	const auto cor = geom->getNewCorners(id);
-	std::ostringstream st1;
-	for (unsigned int k = 0; k < cor.size(); ++k) 
-	  st1 << " [" << k << "] " << std::setprecision(4) << cor[k];
-	edm::LogVerbatim("HGCalGeom") << st1.str();
+        const auto cor = geom->getNewCorners(id);
+        std::ostringstream st1;
+        for (unsigned int k = 0; k < cor.size(); ++k)
+          st1 << " [" << k << "] " << std::setprecision(4) << cor[k];
+        edm::LogVerbatim("HGCalGeom") << st1.str();
       }
     }
   }
