@@ -111,8 +111,7 @@ void CMSMonopolePhysics::ConstructProcess() {
       if (magn != 0.0) {
         G4mplIonisation* mplioni = new G4mplIonisation(magn);
         if (!deltaRay) {
-          G4mplIonisationWithDeltaModel* ion = 
-            new G4mplIonisationWithDeltaModel(magn, "PAI");
+          G4mplIonisationWithDeltaModel* ion = new G4mplIonisationWithDeltaModel(magn, "PAI");
           ion->SetParticle(mpl);
           mplioni->AddEmModel(0, ion, ion);
         }
