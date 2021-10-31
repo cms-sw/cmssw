@@ -154,6 +154,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                         'PostDQMOffline',
                         'DQMHarvestL1TMuon'],
 
+            'L1TMonPhase2': ['DQMOfflineL1TPhase2',
+                       'PostDQMOffline',
+                       'DQMHarvestL1TPhase2'],
+
             'HLTMon': ['HLTMonitoring',
                        'PostDQMOffline',
                        'HLTMonitoringClient'],
@@ -233,7 +237,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                      'DQMNone'],
             }
 
-_phase2_allowed = ['trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma']
+_phase2_allowed = ['trackingOnlyDQM','outerTracker', 'trackerPhase2', 'muon','hcal','hcal2','egamma','L1TMonPhase2']
 autoDQM['phase2'] = ['','','']
 for i in [0,2]:
     autoDQM['phase2'][i] = '+'.join([autoDQM[m][i] for m in _phase2_allowed])
