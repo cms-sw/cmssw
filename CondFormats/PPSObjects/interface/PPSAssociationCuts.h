@@ -36,6 +36,10 @@ public:
     double getTiTrMin() const { return ti_tr_min_; }
     double getTiTrMax() const { return ti_tr_max_; }
 
+    // build TF1 representations of the mean and threshold functions
+    // NB: declared as const as it only modifies mutable class fields
+    void buildFunctions() const;
+
     // returns whether the specified cut is applied
     bool isApplied(Quantities quantity) const;
 
@@ -48,8 +52,8 @@ public:
     std::vector<std::string> s_thresholds_;
 
     // TF1 representation of the cut parameters - for run time evaluations
-    std::vector<std::shared_ptr<TF1> > f_means_ COND_TRANSIENT;
-    std::vector<std::shared_ptr<TF1> > f_thresholds_ COND_TRANSIENT;
+    mutable std::vector<std::shared_ptr<TF1> > f_means_ COND_TRANSIENT;
+    mutable std::vector<std::shared_ptr<TF1> > f_thresholds_ COND_TRANSIENT;
 
     // timing-tracking cuts
     double ti_tr_min_;
