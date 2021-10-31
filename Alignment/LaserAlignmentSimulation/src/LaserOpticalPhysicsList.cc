@@ -62,8 +62,8 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList() {
 void LaserOpticalPhysicsList::ConstructParticle() {
   if (verboseLevel > 0)
     G4cout << "<LaserOpticalPhysicsList::ConstructParticle()>: constructing "
-                 "the optical photon ... "
-              << G4endl;
+              "the optical photon ... "
+           << G4endl;
 
   // optical photon
   G4OpticalPhoton::OpticalPhotonDefinition();
@@ -72,8 +72,8 @@ void LaserOpticalPhysicsList::ConstructParticle() {
 void LaserOpticalPhysicsList::ConstructProcess() {
   if (verboseLevel > 0)
     G4cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing "
-                 "the physics ... "
-              << G4endl;
+              "the physics ... "
+           << G4endl;
 
   theScintProcess = new G4Scintillation();
   //  theCerenkovProcess=new G4Cerenkov();
