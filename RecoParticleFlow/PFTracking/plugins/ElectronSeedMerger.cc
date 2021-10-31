@@ -87,7 +87,7 @@ void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup&
       }
       if (hitShared == (hitSeed - 1)) {
         newSeed.setCtfTrack(tSeed.ctfTrack());
-      } else if (hitShared > 0 && !newSeed.isTrackerDriven()) {
+      } else if ((hitShared > 0 || tSeed.nHits() == 0) && !newSeed.isTrackerDriven()) {
         //try to find hits in the full track
         unsigned int hitSharedOnTrack = 0;
         for (auto const& eh : newSeed.recHits()) {
