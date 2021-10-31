@@ -238,14 +238,6 @@ modifyHLTforEras(%(process)s)
             self.data += "process = "+customiseValues[1]+"(process)\n"
 
 
-  # apply corrections to respect python syntax
-  def applySyntaxCorrections(self):
-      # remove any remaining "+"s, commas, and extra whitespaces
-      # before the first element in every (End)Path
-      self.data = re.sub(r'\bcms.EndPath\(([ ,\+])*', 'cms.EndPath( ', self.data)
-      self.data = re.sub(r'\bcms.Path\(([ ,\+])*', 'cms.Path( ', self.data)
-
-
   # customize the configuration according to the options
   def customize(self):
 
@@ -323,9 +315,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     # add specific customisations
     self.specificCustomize()
-
-    # fix remaining syntax errors (if any)
-    self.applySyntaxCorrections()
 
 
   def addGlobalOptions(self):
@@ -611,6 +600,14 @@ if 'GlobalTag' in %%(dict)s:
     self.data += "\n"
 
 
+  def removeElementFromSequencesTasksAndPaths(self, label):
+    if label in self.data:
+      label_re = r'\b(process\.)?' + label
+      self.data = re.sub(r' *(\+|,) *' + label_re, '', self.data)
+      self.data = re.sub(label_re + r' *(\+|,) *', '', self.data)
+      self.data = re.sub(label_re, '', self.data)
+
+
   def instrumentTiming(self):
 
     if self.config.timing:
@@ -655,18 +652,11 @@ if 'GlobalTag' in %%(dict)s:
 
   def instrumentDQM(self):
     if not self.config.hilton:
-      # remove any reference to the hltDQMFileSaver and hltDQMFileSaverPB
-      # note the convert options remove the module itself, 
-      # here we are just removing the references in paths,sequences etc
-      if 'hltDQMFileSaverPB' in self.data:      
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaverPB \+ ', '', self.data)
-        self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaverPB', '', self.data)
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaverPB',     '', self.data)
-
-      if 'hltDQMFileSaver' in self.data:
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
-        self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
-        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
+      # remove any reference to the hltDQMFileSaver and hltDQMFileSaverPB:
+      # note the convert options remove the module itself,
+      # here we are just removing the references in paths, sequences, etc
+      self.removeElementFromSequencesTasksAndPaths('hltDQMFileSaverPB')
+      self.removeElementFromSequencesTasksAndPaths('hltDQMFileSaver')
 
       # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
       dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
