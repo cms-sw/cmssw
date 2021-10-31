@@ -23,13 +23,24 @@ PPSAssociationCuts::CutsPerArm::CutsPerArm(const edm::ParameterSet &iConfig, int
 
     std::string threshold = association_cuts.getParameter<std::string>(names[i] + "_cut_threshold");
     s_thresholds_.push_back(threshold);
-
-    f_means_.push_back(std::make_shared<TF1>("f", mean.c_str()));
-    f_thresholds_.push_back(std::make_shared<TF1>("f", threshold.c_str()));
   }
 
   ti_tr_min_ = association_cuts.getParameter<double>("ti_tr_min");
   ti_tr_max_ = association_cuts.getParameter<double>("ti_tr_max");
+
+  buildFunctions();
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
+  f_means_.clear();
+  for (const auto &s : s_means_)
+    f_means_.push_back(std::make_shared<TF1>("f", s.c_str()));
+
+  f_thresholds_.clear();
+  for (const auto &s : s_thresholds_)
+    f_thresholds_.push_back(std::make_shared<TF1>("f", s.c_str()));
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -42,10 +53,20 @@ bool PPSAssociationCuts::CutsPerArm::isApplied(Quantities quantity) const {
 
 bool PPSAssociationCuts::CutsPerArm::isSatisfied(
     Quantities quantity, double x_near, double y_near, double xangle, double q_NF_diff) const {
+  // if cut not applied, then condition considered as satisfied
   if (!isApplied(quantity))
     return true;
+
+  // build functions if not already done
+  // (this may happen if data (string representation) are loaded from DB and the constructor is not executed)
+  if (f_means_.size() < s_means_.size())
+    buildFunctions();
+
+  // evaluate mean and threshold
   const double mean = evaluateExpression(f_means_.at(quantity), x_near, y_near, xangle);
   const double threshold = evaluateExpression(f_thresholds_.at(quantity), x_near, y_near, xangle);
+
+  // make comparison
   return fabs(q_NF_diff - mean) < threshold;
 }
 
