@@ -70,7 +70,7 @@ namespace l1t {
                       << amc << " fw 0x" << std::hex << fw << std::dec;
       if (fed == 1354 || fed == 1356 || fed == 1358) {
         if (board < 18) {
-            res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
+          res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
         }
       }
 
