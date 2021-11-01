@@ -19,29 +19,19 @@ if 'MessageLogger' in process.__dict__:
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
-process.towerMakerAll = process.calotowermaker.clone()
-process.towerMakerAll.hbheInput = cms.InputTag("hbhereco")
-process.towerMakerAll.hoInput = cms.InputTag("none")
-process.towerMakerAll.hfInput = cms.InputTag("none")
-process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
-process.towerMakerAll.AllowMissingInputs = True
-
-process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
-process.HcalIsoTrkAnalyzer.triggers = []
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
-process.HcalIsoTrkAnalyzer.ignoreTriggers = True
-process.HcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898]
+process.load('Calibration.HcalCalibAlgos.hcalIsoTrackAnalyzer_cfi')
+process.hcalIsoTrackAnalyzer.useRaw = 0   # 1 for Raw
+process.hcalIsoTrackAnalyzer.debugEvents = [640818633, 640797426, 641251898]
 
 process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring('file:oldPoolOutput.root')
+                            fileNames = cms.untracked.vstring('file:newPoolOutput.root')
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string('output_oldalca.root')
+   fileName = cms.string('output_newalca.root')
 )
 
-process.p = cms.Path(process.HcalIsoTrkAnalyzer)
+process.p = cms.Path(process.hcalIsoTrackAnalyzer)
 
