@@ -1,6 +1,7 @@
 // -*- C++ -*-
 
 // system include files
+#include <algorithm>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -87,7 +88,7 @@ namespace alcaHcalIsoTracks {
   };
 }  // namespace alcaHcalIsoTracks
 
-class AlCaHcalIsotrkProducer : public edm::stream::EDProducer<edm::GlobalCache<alcaHcalIsoTracks::Counters> > {
+class AlCaHcalIsotrkProducer : public edm::stream::EDProducer<edm::GlobalCache<alcaHcalIsoTracks::Counters>> {
 public:
   explicit AlCaHcalIsotrkProducer(edm::ParameterSet const&, const alcaHcalIsoTracks::Counters*);
   ~AlCaHcalIsotrkProducer() override = default;
@@ -168,6 +169,7 @@ private:
   const std::vector<int> oldID_, newDepth_;
   const bool hep17_;
   const std::string labelIsoTkVar_, labelIsoTkEvtVar_;
+  const std::vector<int> debEvents_;
 
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants* hdc_;
@@ -186,7 +188,7 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<CaloTowerCollection> tok_cala_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
-  edm::EDGetTokenT<BXVector<GlobalAlgBlk> > tok_alg_;
+  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> tok_alg_;
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
 
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
@@ -197,6 +199,8 @@ private:
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
   edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+
+  bool debug_;
 };
 
 AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
@@ -205,7 +209,7 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
       nAll_(0),
       nGood_(0),
       nRange_(0),
-      trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+      trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
       theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
       processName_(iConfig.getParameter<std::string>("processName")),
       l1Filter_(iConfig.getParameter<std::string>("l1Filter")),
@@ -246,11 +250,12 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
       labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
       labelTower_(iConfig.getParameter<std::string>("labelCaloTower")),
       l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName", "L1_SingleJet60")),
-      oldID_(iConfig.getUntrackedParameter<std::vector<int> >("oldID")),
-      newDepth_(iConfig.getUntrackedParameter<std::vector<int> >("newDepth")),
+      oldID_(iConfig.getUntrackedParameter<std::vector<int>>("oldID")),
+      newDepth_(iConfig.getUntrackedParameter<std::vector<int>>("newDepth")),
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
       labelIsoTkVar_(iConfig.getParameter<std::string>("isoTrackLabel")),
-      labelIsoTkEvtVar_(iConfig.getParameter<std::string>("isoTrackEventLabel")) {
+      labelIsoTkEvtVar_(iConfig.getParameter<std::string>("isoTrackEventLabel")),
+      debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")) {
   // Get the run parameters
   const double isolationRadius(28.9), innerR(10.0), outerR(30.0);
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality_);
@@ -296,7 +301,7 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
   tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   tok_parts_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"));
   tok_cala_ = consumes<CaloTowerCollection>(labelTower_);
-  tok_alg_ = consumes<BXVector<GlobalAlgBlk> >(algTag);
+  tok_alg_ = consumes<BXVector<GlobalAlgBlk>>(algTag);
   tok_Muon_ = consumes<reco::MuonCollection>(labelMuon);
   tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
   tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
@@ -340,7 +345,8 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
                                    << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
                                    << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
-                                   << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
+                                   << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_ << " and "
+                                   << debEvents_.size() << " events to be debugged";
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
   }
@@ -371,7 +377,7 @@ void AlCaHcalIsotrkProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
   desc.add<std::string>("processName", "HLT");
   std::vector<std::string> trig;
-  desc.add<std::vector<std::string> >("triggers", trig);
+  desc.add<std::vector<std::string>>("triggers", trig);
   desc.add<std::string>("l1Filter", "");
   desc.add<std::string>("l2Filter", "L2Filter");
   desc.add<std::string>("l3Filter", "Filter");
@@ -438,17 +444,24 @@ void AlCaHcalIsotrkProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.addUntracked<bool>("collapseDepth", false);
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
   std::vector<int> dummy;
-  desc.addUntracked<std::vector<int> >("oldID", dummy);
-  desc.addUntracked<std::vector<int> >("newDepth", dummy);
+  desc.addUntracked<std::vector<int>>("oldID", dummy);
+  desc.addUntracked<std::vector<int>>("newDepth", dummy);
   desc.addUntracked<bool>("hep17", false);
+  std::vector<int> events;
+  desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("alcaHcalIsotrkProducer", desc);
 }
 
 void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   nAll_++;
+  debug_ = (debEvents_.empty())
+               ? true
+               : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << " Luminosity "
-                                   << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+  if (debug_)
+    edm::LogVerbatim("HcalIsoTrack") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event()
+                                     << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                     << iEvent.bunchCrossing();
 #endif
 
   HcalIsoTrkEventVariables isoTrkEvent;
@@ -492,9 +505,10 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
     leadPV = beamSpotH->position();
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV << " out of " << goodPV << " vertex";
-  if (beamSpotH.isValid()) {
-    edm::LogVerbatim("HcalIsoTrack") << " Beam Spot " << beamSpotH->position();
+  if (debug_) {
+    edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV << " out of " << goodPV << " vertex";
+    if (beamSpotH.isValid())
+      edm::LogVerbatim("HcalIsoTrack") << " Beam Spot " << beamSpotH->position();
   }
 #endif
 
@@ -534,7 +548,7 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
   if (!ignoreTrigger_) {
     //L1
     l1GtUtils_->retrieveL1(iEvent, iSetup, tok_alg_);
-    const std::vector<std::pair<std::string, bool> >& finalDecisions = l1GtUtils_->decisionsFinal();
+    const std::vector<std::pair<std::string, bool>>& finalDecisions = l1GtUtils_->decisionsFinal();
     for (const auto& decision : finalDecisions) {
       if (decision.first.find(l1TrigName_) != std::string::npos) {
         isoTrkEvent.l1Bit_ = decision.second;
@@ -542,8 +556,9 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Trigger Information for " << l1TrigName_ << " is " << isoTrkEvent.l1Bit_
-                                     << " from a list of " << finalDecisions.size() << " decisions";
+    if (debug_)
+      edm::LogVerbatim("HcalIsoTrack") << "Trigger Information for " << l1TrigName_ << " is " << isoTrkEvent.l1Bit_
+                                       << " from a list of " << finalDecisions.size() << " decisions";
 #endif
 
     //HLT
@@ -560,8 +575,9 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
               if (hlt > 0)
                 isoTrkEvent.trigPass_ = true;
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("HcalIsoTrack")
-                  << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << isoTrkEvent.hltbits_[i];
+              if (debug_)
+                edm::LogVerbatim("HcalIsoTrack")
+                    << "This trigger " << names[iHLT] << " Flag " << hlt << ":" << isoTrkEvent.hltbits_[i];
 #endif
             }
           }
@@ -569,8 +585,9 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "HLT Information shows " << isoTrkEvent.trigPass_ << ":" << trigNames_.empty()
-                                     << ":" << okC;
+    if (debug_)
+      edm::LogVerbatim("HcalIsoTrack") << "HLT Information shows " << isoTrkEvent.trigPass_ << ":" << trigNames_.empty()
+                                       << ":" << okC;
 #endif
   }
 
@@ -632,7 +649,8 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
               for (unsigned int imodule = 0; imodule < moduleLabels.size(); imodule++) {
                 if (label.find(moduleLabels[imodule]) != std::string::npos) {
 #ifdef EDM_ML_DEBUG
-                  edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
+                  if (debug_)
+                    edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
 #endif
                   for (unsigned int ifiltrKey = 0; ifiltrKey < triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
                     Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
@@ -646,14 +664,16 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
                       vecL1.push_back(v4);
                     }
 #ifdef EDM_ML_DEBUG
-                    edm::LogVerbatim("HcalIsoTrack")
-                        << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi()
-                        << " mass " << TO.mass() << " Id " << TO.id();
+                    if (debug_)
+                      edm::LogVerbatim("HcalIsoTrack")
+                          << "key " << ifiltrKey << " : pt " << TO.pt() << " eta " << TO.eta() << " phi " << TO.phi()
+                          << " mass " << TO.mass() << " Id " << TO.id();
 #endif
                   }
 #ifdef EDM_ML_DEBUG
-                  edm::LogVerbatim("HcalIsoTrack")
-                      << "sizes " << vecL1.size() << ":" << vecL2.size() << ":" << vecL3.size();
+                  if (debug_)
+                    edm::LogVerbatim("HcalIsoTrack")
+                        << "sizes " << vecL1.size() << ":" << vecL2.size() << ":" << vecL3.size();
 #endif
                 }
               }
@@ -787,8 +807,9 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
     isoTk.pt_ = pTrack->pt();
     isoTk.phi_ = pTrack->phi();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << isoTk.pt_ << "|"
-                                     << pTrack->eta() << "|" << isoTk.phi_ << "|" << isoTk.p_;
+    if (debug_)
+      edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) : " << isoTk.pt_ << "|"
+                                       << pTrack->eta() << "|" << isoTk.phi_ << "|" << isoTk.p_;
     int flag(0);
 #endif
     isoTk.mindR2_ = 999;
@@ -800,8 +821,9 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
     }
     isoTk.mindR1_ = (!vecL1.empty()) ? dR(vecL1[0], v4) : 999;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr :" << isoTk.mindR2_ << " and from L1 "
-                                     << isoTk.mindR1_;
+    if (debug_)
+      edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr : " << isoTk.mindR2_ << " and from L1 "
+                                       << isoTk.mindR1_;
 #endif
     isoTk.ieta_ = isoTk.iphi_ = 0;
     if (trkDetItr->okHCAL) {
@@ -833,8 +855,9 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
     if (eIsolation < eIsolate2_)
       eIsolation = eIsolate2_;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
-                                     << trkDetItr->okHCAL << " eIsolation " << eIsolation;
+    if (debug_)
+      edm::LogVerbatim("HcalIsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "|"
+                                       << trkDetItr->okHCAL << " eIsolation " << eIsolation;
     if (qltyFlag)
       flag += 1;
     if (trkDetItr->okECAL)
@@ -872,7 +895,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR << ":" << eEcal;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR << ":" << eEcal;
 #endif
       isoTk.eMipDR_.emplace_back(eEcal);
       ////////////////////////////////-MIP STUFF-///////////////////////////////
@@ -897,7 +921,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           eEcal2 += eHit2[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR2 << ":" << eEcal2;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR2 << ":" << eEcal2;
 #endif
       isoTk.eMipDR_.emplace_back(eEcal2);
       ////////////////////////////////-MIP STUFF-2/////////////////////////////
@@ -922,7 +947,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           eEcal3 += eHit3[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR3 << ":" << eEcal3;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR3 << ":" << eEcal3;
 #endif
       isoTk.eMipDR_.emplace_back(eEcal3);
       ////////////////////////////////-MIP STUFF-3/////////////////////////////
@@ -947,7 +973,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           eEcal4 += eHit4[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR4 << ":" << eEcal4;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR4 << ":" << eEcal4;
 #endif
       isoTk.eMipDR_.emplace_back(eEcal4);
       ////////////////////////////////-MIP STUFF-4/////////////////////////////
@@ -972,7 +999,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           eEcal5 += eHit5[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR5 << ":" << eEcal5;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << eMipDR5 << ":" << eEcal5;
 #endif
       isoTk.eMipDR_.emplace_back(eEcal5);
       ////////////////////////////////-MIP STUFF-5/////////////////////////////
@@ -1018,10 +1046,11 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
           theHBHETopology, cellH, hbhe, 3, 3, false, true, -100.0, -100.0, -100.0, -100.0, -100.0, 100.0);
       isoTk.hAnnular_ = h7x7 - h5x5;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "max p Near (Ecal) " << isoTk.emaxNearP_ << " (Hcal) " << isoTk.hmaxNearP_
-                                       << " Annular E (Ecal) " << e11x11P.first << ":" << e15x15P.first << ":"
-                                       << isoTk.eAnnular_ << " (Hcal) " << h5x5 << ":" << h7x7 << ":"
-                                       << isoTk.hAnnular_;
+      if (debug_)
+        edm::LogVerbatim("HcalIsoTrack") << "max p Near (Ecal) " << isoTk.emaxNearP_ << " (Hcal) " << isoTk.hmaxNearP_
+                                         << " Annular E (Ecal) " << e11x11P.first << ":" << e15x15P.first << ":"
+                                         << isoTk.eAnnular_ << " (Hcal) " << h5x5 << ":" << h7x7 << ":"
+                                         << isoTk.hAnnular_;
       if (isoTk.eMipDR_[0] < eEcalMax_)
         flag += 16;
       if (isoTk.hmaxNearP_ < eIsolation)
@@ -1094,36 +1123,37 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
         isoTk.eHcal30Raw_ = ehcal3.first;
         isoTk.eHcal30Aux_ = ehcal3.second;
 
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalIsoTrack") << "This track : " << nTracks << " (pt|eta|phi|p) :" << isoTk.pt_ << "|"
-                                         << pTrack->eta() << "|" << isoTk.phi_ << "|" << isoTk.p_
-                                         << " Generator Level p " << isoTk.gentrackP_;
-        edm::LogVerbatim("HcalIsoTrack") << "e_MIP " << isoTk.eMipDR_[0] << " Chg Isolation " << isoTk.hmaxNearP_
-                                         << " eHcal" << isoTk.eHcal_ << ":" << isoTk.eHcalRaw_ << ":" << isoTk.eHcalAux_
-                                         << " ieta " << isoTk.ieta_ << " Quality " << isoTk.qltyMissFlag_ << ":"
-                                         << isoTk.qltyPVFlag_ << ":" << isoTk.selectTk_;
-        for (unsigned int ll = 0; ll < isoTk.detIds_.size(); ll++) {
-          edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << HcalDetId(isoTk.detIds_[ll]) << "   hit enery is  = " << isoTk.hitEnergies_[ll]
-              << " : " << isoTk.hitEnergiesRaw_[ll] << " : " << isoTk.hitEnergiesAux_[ll];
-        }
-        for (unsigned int ll = 0; ll < isoTk.detIds1_.size(); ll++) {
-          edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << HcalDetId(isoTk.detIds1_[ll]) << "   hit enery is  = " << isoTk.hitEnergies1_[ll]
-              << " : " << isoTk.hitEnergies1Raw_[ll] << " : " << isoTk.hitEnergies1Aux_[ll];
-          ;
-        }
-        for (unsigned int ll = 0; ll < isoTk.detIds3_.size(); ll++) {
-          edm::LogVerbatim("HcalIsoTrack")
-              << "det id is = " << HcalDetId(isoTk.detIds3_[ll]) << "   hit enery is  = " << isoTk.hitEnergies3_[ll]
-              << " : " << isoTk.hitEnergies3Raw_[ll] << " : " << isoTk.hitEnergies3Aux_[ll];
-          ;
-        }
-        if (isoTk.p_ > pTrackMin_)
-          flag += 64;
-#endif
         if (isoTk.p_ > pTrackMin_)
           accept = true;
+#ifdef EDM_ML_DEBUG
+        if (accept)
+          flag += 64;
+        if (debug_) {
+          std::string ctype = accept ? " ***** ACCEPT *****" : "";
+          edm::LogVerbatim("HcalIsoTrack")
+              << "This track : " << nTracks << " (pt|eta|phi|p) : " << isoTk.pt_ << "|" << pTrack->eta() << "|"
+              << isoTk.phi_ << "|" << isoTk.p_ << " Generator Level p " << isoTk.gentrackP_;
+          edm::LogVerbatim("HcalIsoTrack")
+              << "e_MIP " << isoTk.eMipDR_[0] << " Chg Isolation " << isoTk.hmaxNearP_ << " eHcal" << isoTk.eHcal_
+              << ":" << isoTk.eHcalRaw_ << ":" << isoTk.eHcalAux_ << " ieta " << isoTk.ieta_ << " Quality "
+              << isoTk.qltyMissFlag_ << ":" << isoTk.qltyPVFlag_ << ":" << isoTk.selectTk_ << ctype;
+          for (unsigned int ll = 0; ll < isoTk.detIds_.size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << HcalDetId(isoTk.detIds_[ll]) << "   hit enery is  = " << isoTk.hitEnergies_[ll]
+                << " : " << isoTk.hitEnergiesRaw_[ll] << " : " << isoTk.hitEnergiesAux_[ll];
+          }
+          for (unsigned int ll = 0; ll < isoTk.detIds1_.size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << HcalDetId(isoTk.detIds1_[ll]) << "   hit enery is  = " << isoTk.hitEnergies1_[ll]
+                << " : " << isoTk.hitEnergies1Raw_[ll] << " : " << isoTk.hitEnergies1Aux_[ll];
+          }
+          for (unsigned int ll = 0; ll < isoTk.detIds3_.size(); ll++) {
+            edm::LogVerbatim("HcalIsoTrack")
+                << "det id is = " << HcalDetId(isoTk.detIds3_[ll]) << "   hit enery is  = " << isoTk.hitEnergies3_[ll]
+                << " : " << isoTk.hitEnergies3Raw_[ll] << " : " << isoTk.hitEnergies3Aux_[ll];
+          }
+        }
+#endif
         if (accept) {
           hocalib.emplace_back(isoTk);
           nSave++;
@@ -1151,14 +1181,16 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
       }
     }
 #ifdef EDM_ML_DEBUG
-    if (isoTk.eMipDR_.empty())
-      edm::LogVerbatim("HcalIsoTrack") << "Track " << nTracks << " Selection Flag " << std::hex << flag << std::dec
-                                       << " Accept " << accept << " Momentum " << isoTk.p_ << ":" << pTrackMin_;
-    else
-      edm::LogVerbatim("HcalIsoTrack") << "Track " << nTracks << " Selection Flag " << std::hex << flag << std::dec
-                                       << " Accept " << accept << " Momentum " << isoTk.p_ << ":" << pTrackMin_
-                                       << " Ecal Energy " << isoTk.eMipDR_[0] << ":" << eEcalMax_
-                                       << " Charge Isolation " << isoTk.hmaxNearP_ << ":" << eIsolation;
+    if (debug_) {
+      if (isoTk.eMipDR_.empty())
+        edm::LogVerbatim("HcalIsoTrack") << "Track " << nTracks << " Selection Flag " << std::hex << flag << std::dec
+                                         << " Accept " << accept << " Momentum " << isoTk.p_ << ":" << pTrackMin_;
+      else
+        edm::LogVerbatim("HcalIsoTrack") << "Track " << nTracks << " Selection Flag " << std::hex << flag << std::dec
+                                         << " Accept " << accept << " Momentum " << isoTk.p_ << ":" << pTrackMin_
+                                         << " Ecal Energy " << isoTk.eMipDR_[0] << ":" << eEcalMax_
+                                         << " Charge Isolation " << isoTk.hmaxNearP_ << ":" << eIsolation;
+    }
 #endif
   }
   std::array<int, 3> i3{{nSave, nLoose, nTight}};
@@ -1210,7 +1242,8 @@ double AlCaHcalIsotrkProducer::rhoh(const edm::Handle<CaloTowerCollection>& towe
     evt_smdq = (sumPFNallSMDQH2[sumPFNallSMDQH2.size() / 2] + sumPFNallSMDQH2[(sumPFNallSMDQH2.size() - 2) / 2]) / 2.;
   double rhoh = evt_smdq / (etadist_ * phidist_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "Rho " << evt_smdq << ":" << rhoh;
+  if (debug_)
+    edm::LogVerbatim("HcalIsoTrack") << "Rho " << evt_smdq << ":" << rhoh;
 #endif
   return rhoh;
 }
@@ -1290,13 +1323,15 @@ void AlCaHcalIsotrkProducer::storeEnergy(const HcalRespCorrs* respCorrs,
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy1::Input to storeEnergy with " << ids.size() << " cells";
-  for (unsigned int k = 0; k < ids.size(); ++k)
-    edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << HcalDetId(ids[k]) << " E " << edet[k];
-  edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy1::Output of storeEnergy with " << detIds.size() << " cells and Etot "
-                                   << eHcal;
-  for (unsigned int k = 0; k < detIds.size(); ++k)
-    edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << HcalDetId(detIds[k]) << " E " << hitEnergies[k];
+  if (debug_) {
+    edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy1::Input to storeEnergy with " << ids.size() << " cells";
+    for (unsigned int k = 0; k < ids.size(); ++k)
+      edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << HcalDetId(ids[k]) << " E " << edet[k];
+    edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy1::Output of storeEnergy with " << detIds.size()
+                                     << " cells and Etot " << eHcal;
+    for (unsigned int k = 0; k < detIds.size(); ++k)
+      edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << HcalDetId(detIds[k]) << " E " << hitEnergies[k];
+  }
 #endif
 }
 
@@ -1340,7 +1375,7 @@ std::pair<double, double> AlCaHcalIsotrkProducer::storeEnergy(const HcalRespCorr
   ehcal2 *= hcalScale_;
 
   if (collapseDepth_) {
-    std::map<HcalDetId, std::pair<double, double> > hitMap;
+    std::map<HcalDetId, std::pair<double, double>> hitMap;
     for (unsigned int k = 0; k < ids.size(); ++k) {
       HcalDetId id = hdc_->mergedDepthDetId(HcalDetId(ids[k]));
       auto itr = hitMap.find(id);
@@ -1366,11 +1401,13 @@ std::pair<double, double> AlCaHcalIsotrkProducer::storeEnergy(const HcalRespCorr
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy2::Input to storeEnergy with " << ids.size() << " cells";
-  edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy2::Output of storeEnergy with " << hitEnergy1.size()
-                                   << " cells and Etot " << ehcal1 << ":" << ehcal2;
-  for (unsigned int k = 0; k < hitEnergy1.size(); ++k)
-    edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << hitEnergy1[k] << " : " << hitEnergy2[k];
+  if (debug_) {
+    edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy2::Input to storeEnergy with " << ids.size() << " cells";
+    edm::LogVerbatim("HcalIsoTrack") << "StoreEnergy2::Output of storeEnergy with " << hitEnergy1.size()
+                                     << " cells and Etot " << ehcal1 << ":" << ehcal2;
+    for (unsigned int k = 0; k < hitEnergy1.size(); ++k)
+      edm::LogVerbatim("HcalIsoTrack") << "Hit [" << k << "] " << hitEnergy1[k] << " : " << hitEnergy2[k];
+  }
 #endif
   return std::make_pair(ehcal1, ehcal2);
 }

@@ -1,4 +1,5 @@
 // system include files
+#include <algorithm>
 #include <atomic>
 #include <memory>
 #include <cmath>
@@ -29,9 +30,10 @@ namespace alcaHcalIsoTrk {
   };
 }  // namespace alcaHcalIsoTrk
 
-class AlCaHcalIsotrkFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalIsoTrk::Counters> > {
+class AlCaHcalIsotrkFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalIsoTrk::Counters>> {
 public:
   AlCaHcalIsotrkFilter(edm::ParameterSet const&);
+  ~AlCaHcalIsotrkFilter() override = default;
 
   std::shared_ptr<alcaHcalIsoTrk::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
 
@@ -41,10 +43,11 @@ public:
 
 private:
   // ----------member data ---------------------------
-  double pTrackLow_, pTrackHigh_;
-  int prescaleLow_, prescaleHigh_;
-  edm::InputTag labelIsoTkVar_;
-  edm::EDGetTokenT<HcalIsoTrkCalibVariablesCollection> tokIsoTrkVar_;
+  const double pTrackLow_, pTrackHigh_;
+  const int prescaleLow_, prescaleHigh_;
+  const edm::InputTag labelIsoTkVar_;
+  const std::vector<int> debEvents_;
+  const edm::EDGetTokenT<HcalIsoTrkCalibVariablesCollection> tokIsoTrkVar_;
 };
 
 //
@@ -56,10 +59,12 @@ AlCaHcalIsotrkFilter::AlCaHcalIsotrkFilter(edm::ParameterSet const& iConfig)
       prescaleLow_(iConfig.getParameter<int>("prescaleLow")),
       prescaleHigh_(iConfig.getParameter<int>("prescaleHigh")),
       labelIsoTkVar_(iConfig.getParameter<edm::InputTag>("isoTrackLabel")),
+      debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
       tokIsoTrkVar_(consumes<HcalIsoTrkCalibVariablesCollection>(labelIsoTkVar_)) {
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t prescaleLow_ " << prescaleLow_ << "\t momentumHigh_ " << pTrackHigh_
-                                   << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t Labels " << labelIsoTkVar_;
+                                   << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t Labels " << labelIsoTkVar_
+                                   << "\tand " << debEvents_.size() << " events to be debugged";
 }  // AlCaHcalIsotrkFilter::AlCaHcalIsotrkFilter  constructor
 
 //
@@ -71,9 +76,13 @@ bool AlCaHcalIsotrkFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
   bool accept(false);
   ++(runCache(iEvent.getRun().index())->nAll_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Run " << iEvent.id().run() << " Event "
-                                   << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-                                   << iEvent.bunchCrossing();
+  bool debug = (debEvents_.empty())
+                   ? true
+                   : (std::find(debEvents_.begin(), debEvents_.end(), iEvent.id().event()) != debEvents_.end());
+  if (debug)
+    edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Run " << iEvent.id().run() << " Event "
+                                     << iEvent.id().event() << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
+                                     << iEvent.bunchCrossing();
 #endif
 
   auto const& isotrkCalibColl = iEvent.getHandle(tokIsoTrkVar_);
@@ -90,9 +99,10 @@ bool AlCaHcalIsotrkFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Finds " << isotrkCalib->size()
-                                     << " entries in HcalIsoTrkCalibVariables collection with inRange " << inRange
-                                     << " low " << low << " high " << high;
+    if (debug)
+      edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Finds " << isotrkCalib->size()
+                                       << " entries in HcalIsoTrkCalibVariables collection with inRange " << inRange
+                                       << " low " << low << " high " << high;
 #endif
     if (low)
       ++(runCache(iEvent.getRun().index())->nLow_);
@@ -119,14 +129,17 @@ bool AlCaHcalIsotrkFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
   }
 
   // Return the acceptance flag
-  if (accept)
+  if (accept) {
     ++(runCache(iEvent.getRun().index())->nGood_);
+    edm::LogVerbatim("HcalIsoTrackX") << "Run " << iEvent.id().run() << " Event " << iEvent.id().event();
+  }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Accept flag " << accept << " All "
-                                   << runCache(iEvent.getRun().index())->nAll_ << " Good "
-                                   << runCache(iEvent.getRun().index())->nGood_ << " Low "
-                                   << runCache(iEvent.getRun().index())->nLow_ << " High "
-                                   << runCache(iEvent.getRun().index())->nHigh_;
+  if (debug)
+    edm::LogVerbatim("HcalIsoTrack") << "AlCaHcalIsotrkFilter::Accept flag " << accept << " All "
+                                     << runCache(iEvent.getRun().index())->nAll_ << " Good "
+                                     << runCache(iEvent.getRun().index())->nGood_ << " Low "
+                                     << runCache(iEvent.getRun().index())->nLow_ << " High "
+                                     << runCache(iEvent.getRun().index())->nHigh_;
 #endif
   return accept;
 
@@ -155,6 +168,8 @@ void AlCaHcalIsotrkFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("prescaleLow", 1);
   desc.add<int>("prescaleHigh", 1);
   desc.add<edm::InputTag>("isoTrackLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrack"));
+  std::vector<int> events;
+  desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("alcaHcalIsotrkFilter", desc);
 }
 
