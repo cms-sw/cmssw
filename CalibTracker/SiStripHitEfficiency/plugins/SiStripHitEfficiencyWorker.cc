@@ -1031,7 +1031,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         h_goodLayer.fill(layerWithSide, !badflag);
 
         // efficiency with bad modules excluded
-        if (0 != TKlayers) {
+        if (TKlayers) {
           h_module.fill(iidd, !badflag);
         }
       }
