@@ -26,6 +26,12 @@
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 
+namespace {
+    struct InitAssociationCuts {
+        void operator() (PPSAssociationCuts &cuts) { cuts.initialize(); }
+    };
+}
+
 REGISTER_PLUGIN(CTPPSBeamParametersRcd, CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
 REGISTER_PLUGIN(CTPPSPixelAnalysisMaskRcd, CTPPSPixelAnalysisMask);
@@ -39,4 +45,5 @@ REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
 REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
 REGISTER_PLUGIN(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
-REGISTER_PLUGIN(PPSAssociationCutsRcd, PPSAssociationCuts);
+
+REGISTER_PLUGIN_INIT(PPSAssociationCutsRcd, PPSAssociationCuts, InitAssociationCuts);
