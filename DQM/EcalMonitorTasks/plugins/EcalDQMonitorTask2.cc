@@ -119,6 +119,10 @@ void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _p
       case ecaldqm::kEBReducedRecHit:
       case ecaldqm::kEERecHit:
       case ecaldqm::kEEReducedRecHit:
+      case ecaldqm::kEBCpuRecHit:
+      case ecaldqm::kEECpuRecHit:
+      case ecaldqm::kEBGpuRecHit:
+      case ecaldqm::kEEGpuRecHit:
         collectionTokens_[*colItr] = edm::EDGetToken(consumes<EcalRecHitCollection>(tag));
         sch.first = &EcalDQMonitorTask::runOnCollection<EcalRecHitCollection>;
         break;

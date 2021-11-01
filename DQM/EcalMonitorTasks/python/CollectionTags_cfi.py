@@ -44,5 +44,9 @@ ecalDQMCollectionTags = cms.PSet(
     EBBasicCluster = cms.untracked.InputTag("particleFlowClusterECAL"),
     EEBasicCluster = cms.untracked.InputTag("particleFlowClusterECAL"),
     EBSuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"),
-    EESuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower")
+    EESuperCluster = cms.untracked.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"),
+    EBCpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEB"),
+    EECpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEE"),
+    EBGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEB"),
+    EEGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEE")
 )
