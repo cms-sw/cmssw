@@ -90,7 +90,7 @@ void LaserOpticalPhysicsList::ConstructProcess() {
   pManager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
   pManager->AddDiscreteProcess(theAbsorptionProcess);
   pManager->AddDiscreteProcess(theRayleighScattering);
-    pManager->AddDiscreteProcess(theBoundaryProcess);
+  pManager->AddDiscreteProcess(theBoundaryProcess);
   pManager->AddDiscreteProcess(theWLSProcess);
 
   theScintProcess->SetScintillationYieldFactor(1.);
