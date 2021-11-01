@@ -107,16 +107,6 @@ namespace {
       DPMetaDataHelper::DBMetaDataTableDisplay theDisplay(theRecordMap);
       theDisplay.printMetaDatas();
 
-      //const auto& recordParams = parameters.getParameterMap();
-      // for (const auto& [key, val] : recordParams) {
-      //   if (val.find("&quot;") != std::string::npos) {
-      //     const auto& replaced = replaceAll(val, std::string("&quot;"), std::string("'"));
-      //     edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << replaced << std::endl;
-      //   } else {
-      //     edm::LogPrint("DropBoxMetadata_PayloadInspector") << key << " : " << val << std::endl;
-      //   }
-      // }
-
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
@@ -124,9 +114,84 @@ namespace {
 
   private:
   };
+
+  /************************************************
+     DropBoxMetadata Payload Comparator of 2 IOVs 
+   *************************************************/
+  template <IOVMultiplicity nIOVs, int ntags>
+  class DropBoxMetadata_CompareBase : public PlotImage<DropBoxMetadata, nIOVs, ntags> {
+  public:
+    DropBoxMetadata_CompareBase()
+        : PlotImage<DropBoxMetadata, nIOVs, ntags>("DropBoxMetadata comparison of contents") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<DropBoxMetadata> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<DropBoxMetadata> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      // first payload
+      std::vector<std::string> f_records = first_payload->getAllRecords();
+      DPMetaDataHelper::recordMap f_theRecordMap;
+      for (const auto& record : f_records) {
+        //edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
+        const auto& parameters = first_payload->getRecordParameters(record);
+        f_theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
+      }
+
+      DPMetaDataHelper::DBMetaDataTableDisplay f_theDisplay(f_theRecordMap);
+      //f_theDisplay.printMetaDatas();
+
+      // last payload
+      std::vector<std::string> l_records = last_payload->getAllRecords();
+      DPMetaDataHelper::recordMap l_theRecordMap;
+      for (const auto& record : l_records) {
+        //edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
+        const auto& parameters = last_payload->getRecordParameters(record);
+        l_theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
+      }
+
+      DPMetaDataHelper::DBMetaDataTableDisplay l_theDisplay(l_theRecordMap);
+      //l_theDisplay.printMetaDatas();
+
+      l_theDisplay.printDiffWithMetadata(f_theRecordMap);
+
+      TCanvas canvas("Canv", "Canv", 1200, 100 * std::max(f_records.size(), l_records.size()));
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+
+  private:
+  };
+
+  using DropBoxMetadata_Compare = DropBoxMetadata_CompareBase<MULTI_IOV, 1>;
+  using DropBoxMetadata_CompareTwoTags = DropBoxMetadata_CompareBase<SINGLE_IOV, 2>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(DropBoxMetadata) {
   PAYLOAD_INSPECTOR_CLASS(DropBoxMetadataTest);
   PAYLOAD_INSPECTOR_CLASS(DropBoxMetadata_Display);
+  PAYLOAD_INSPECTOR_CLASS(DropBoxMetadata_Compare);
+  PAYLOAD_INSPECTOR_CLASS(DropBoxMetadata_CompareTwoTags);
 }
