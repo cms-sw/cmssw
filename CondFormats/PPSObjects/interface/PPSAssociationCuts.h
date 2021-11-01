@@ -70,8 +70,7 @@ public:
   ~PPSAssociationCuts() {}
 
   // builds run-time data members, useful e.g. after loading data from DB
-  void initialize()
-  {
+  void initialize() {
     for (auto &p : association_cuts_)
       p.second.buildFunctions();
   }

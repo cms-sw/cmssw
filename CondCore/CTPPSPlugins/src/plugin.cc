@@ -27,10 +27,10 @@
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 
 namespace {
-    struct InitAssociationCuts {
-        void operator() (PPSAssociationCuts &cuts) { cuts.initialize(); }
-    };
-}
+  struct InitAssociationCuts {
+    void operator()(PPSAssociationCuts &cuts) { cuts.initialize(); }
+  };
+}  // namespace
 
 REGISTER_PLUGIN(CTPPSBeamParametersRcd, CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
