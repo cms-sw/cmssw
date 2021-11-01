@@ -517,10 +517,10 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     const int maxTS = std::min(nRead, static_cast<int>(HBHEChannelInfo::MAXSAMPLES));
     const int soi = tsFromDB_ ? properties.paramTs->firstSample() : frame.presamples();
     const bool badSOI = !(maxTS >= 3 && soi > 0 && soi < maxTS - 1);
-    if(badSOI){
-        edm::LogWarning("HBHEDigi") << " bad SOI/maxTS in cell " << cell
-        << "\n expect maxTS >= 3 && soi > 0 && soi < maxTS - 1"
-        << "\n got maxTS = " << maxTS << ", SOI = " << soi;
+    if (badSOI) {
+      edm::LogWarning("HBHEDigi") << " bad SOI/maxTS in cell " << cell
+                                  << "\n expect maxTS >= 3 && soi > 0 && soi < maxTS - 1"
+                                  << "\n got maxTS = " << maxTS << ", SOI = " << soi;
     }
 
     const RawChargeFromSample<DFrame> rcfs(sipmQTSShift_, sipmQNTStoSum_, cond, properties, cs, soi, frame, maxTS);
