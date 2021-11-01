@@ -396,6 +396,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
 
+      //General Info on Tracksters
+      LogTrace("HGCalValidator") << "\n# of Tracksters from " << label_tst[wml].process() << ":"
+                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
+                                 << tracksters.size() << "\n"
+                                 << std::endl;
+
       histoProducerAlgo_->fill_trackster_histos(histograms.histoProducerAlgo,
                                                 wml,
                                                 tracksters,
@@ -406,12 +412,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                 selected_cPeff,
                                                 *hitMap,
                                                 totallayers_to_monitor_);
-
-      //General Info on Tracksters
-      LogTrace("HGCalValidator") << "\n# of Tracksters with " << label_tst[wml].process() << ":"
-                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
-                                 << tracksters.size() << "\n"
-                                 << std::endl;
     }
   }  //end of loop over Trackster input labels
 }
