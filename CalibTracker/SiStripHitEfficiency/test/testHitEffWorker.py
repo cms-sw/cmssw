@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(
     ))
 
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(15))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
