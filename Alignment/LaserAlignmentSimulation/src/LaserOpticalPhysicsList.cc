@@ -76,7 +76,6 @@ void LaserOpticalPhysicsList::ConstructProcess() {
            << G4endl;
 
   theScintProcess = new G4Scintillation();
-  //  theCerenkovProcess=new G4Cerenkov();
   theAbsorptionProcess = new G4OpAbsorption();
   theRayleighScattering = new G4OpRayleigh();
   theBoundaryProcess = new G4OpBoundaryProcess("OpBoundary");
@@ -91,12 +90,10 @@ void LaserOpticalPhysicsList::ConstructProcess() {
   pManager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
   pManager->AddDiscreteProcess(theAbsorptionProcess);
   pManager->AddDiscreteProcess(theRayleighScattering);
-  // theBoundaryProcess->SetModel(unified);
-  pManager->AddDiscreteProcess(theBoundaryProcess);
+    pManager->AddDiscreteProcess(theBoundaryProcess);
   pManager->AddDiscreteProcess(theWLSProcess);
 
   theScintProcess->SetScintillationYieldFactor(1.);
-  //theScintProcess->SetScintillationExcitationRatio(0.0);
   theScintProcess->SetTrackSecondariesFirst(true);
 
   G4ParticleTable *table = G4ParticleTable::GetParticleTable();
