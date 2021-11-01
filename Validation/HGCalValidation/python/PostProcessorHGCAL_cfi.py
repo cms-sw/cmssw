@@ -48,20 +48,28 @@ postProcessorHGCALsimclusters= DQMEDHarvester('DQMGenericClient',
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(4))
 
-eff_tracksters = ["purity_eta 'Trackster Purity vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
-eff_tracksters.extend(["purity_phi 'Trackster Purity vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_tracksters.extend(["effic_eta 'Trackster Efficiency vs #eta' NumEff_CaloParticle_Eta Denom_CaloParticle_Eta"])
-eff_tracksters.extend(["effic_phi 'Trackster Efficiency vs #phi' NumEff_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_tracksters.extend(["duplicate_eta 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta Denom_Trackster_Eta"])
-eff_tracksters.extend(["duplicate_phi 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi Denom_Trackster_Phi"])
-eff_tracksters.extend(["fake_eta 'Trackster Fake Rate vs #eta' Num_Trackster_Eta Denom_Trackster_Eta fake"])
-eff_tracksters.extend(["fake_phi 'Trackster Fake Rate vs #phi'  Num_Trackster_Phi Denom_Trackster_Phi fake"])
-eff_tracksters.extend(["merge_eta 'Trackster Merge Rate vs #eta' NumMerge_Trackster_Eta Denom_Trackster_Eta"])
-eff_tracksters.extend(["merge_phi 'Trackster Merge Rate vs #phi' NumMerge_Trackster_Phi Denom_Trackster_Phi"])
+eff_tracksters = []
+simDict = {"CaloParticle":"_Link", "SimTrackster":"_PR"}
+for elem in simDict:
+    eff_tracksters.extend(["purity_eta"+simDict[elem]+" 'Trackster Purity vs #eta' Num_"+elem+"_Eta Denom_"+elem+"_Eta"])
+    eff_tracksters.extend(["purity_phi"+simDict[elem]+" 'Trackster Purity vs #phi' Num_"+elem+"_Phi Denom_"+elem+"_Phi"])
+    eff_tracksters.extend(["effic_eta"+simDict[elem]+" 'Trackster Efficiency vs #eta' NumEff_"+elem+"_Eta Denom_"+elem+"_Eta"])
+    eff_tracksters.extend(["effic_phi"+simDict[elem]+" 'Trackster Efficiency vs #phi' NumEff_"+elem+"_Phi Denom_"+elem+"_Phi"])
+    eff_tracksters.extend(["fake_eta"+simDict[elem]+" 'Trackster Fake Rate vs #eta' Num_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]+" fake"])
+    eff_tracksters.extend(["fake_phi"+simDict[elem]+" 'Trackster Fake Rate vs #phi'  Num_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]+" fake"])
+    eff_tracksters.extend(["duplicate_eta"+simDict[elem]+" 'Trackster Duplicate(Split) Rate vs #eta' NumDup_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]])
+    eff_tracksters.extend(["duplicate_phi"+simDict[elem]+" 'Trackster Duplicate(Split) Rate vs #phi' NumDup_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]])
+    eff_tracksters.extend(["merge_eta"+simDict[elem]+" 'Trackster Merge Rate vs #eta' NumMerge_Trackster_Eta"+simDict[elem]+" Denom_Trackster_Eta"+simDict[elem]])
+    eff_tracksters.extend(["merge_phi"+simDict[elem]+" 'Trackster Merge Rate vs #phi' NumMerge_Trackster_Phi"+simDict[elem]+" Denom_Trackster_Phi"+simDict[elem]])
+
 
 tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
 subdirsTracksters = [prefix+'hgcalTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters/'+tsToCP_linking]
 subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToCP_linking for iteration in ticlIterLabelsMerge)
+
+tsToSTS_patternRec = hgcalValidator.label_TSToSTSPR._InputTag__moduleLabel
+subdirsTracksters.extend([prefix+'hgcalTracksters/'+tsToSTS_patternRec, prefix+'ticlSimTracksters/'+tsToSTS_patternRec])
+subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToSTS_patternRec for iteration in ticlIterLabelsMerge)
 
 postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
   subDirs = cms.untracked.vstring(subdirsTracksters),
