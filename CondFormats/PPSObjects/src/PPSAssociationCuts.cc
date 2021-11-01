@@ -46,7 +46,7 @@ void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
 //----------------------------------------------------------------------------------------------------
 
 bool PPSAssociationCuts::CutsPerArm::isApplied(Quantities quantity) const {
-  return (!s_thresholds_.at(quantity).empty()) && (!s_means_.at(quantity).empty());
+  return (!s_thresholds_[quantity].empty()) && (!s_means_[quantity].empty());
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -63,8 +63,8 @@ bool PPSAssociationCuts::CutsPerArm::isSatisfied(
     buildFunctions();
 
   // evaluate mean and threshold
-  const double mean = evaluateExpression(f_means_.at(quantity), x_near, y_near, xangle);
-  const double threshold = evaluateExpression(f_thresholds_.at(quantity), x_near, y_near, xangle);
+  const double mean = evaluateExpression(f_means_[quantity], x_near, y_near, xangle);
+  const double threshold = evaluateExpression(f_thresholds_[quantity], x_near, y_near, xangle);
 
   // make comparison
   return fabs(q_NF_diff - mean) < threshold;
