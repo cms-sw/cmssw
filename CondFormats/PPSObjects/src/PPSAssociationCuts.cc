@@ -33,7 +33,7 @@ PPSAssociationCuts::CutsPerArm::CutsPerArm(const edm::ParameterSet &iConfig, int
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
+void PPSAssociationCuts::CutsPerArm::buildFunctions() {
   f_means_.clear();
   for (const auto &s : s_means_)
     f_means_.push_back(std::make_shared<TF1>("f", s.c_str()));
@@ -56,11 +56,6 @@ bool PPSAssociationCuts::CutsPerArm::isSatisfied(
   // if cut not applied, then condition considered as satisfied
   if (!isApplied(quantity))
     return true;
-
-  // build functions if not already done
-  // (this may happen if data (string representation) are loaded from DB and the constructor is not executed)
-  if (f_means_.size() < s_means_.size())
-    buildFunctions();
 
   // evaluate mean and threshold
   const double mean = evaluateExpression(f_means_[quantity], x_near, y_near, xangle);
