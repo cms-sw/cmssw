@@ -108,7 +108,7 @@
       HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap0, HGCalHEAirGap1,
       HGCalHECopperCover, HGCalHECoolingPlate, HGCalHESiliconLayer</Vector>
     <Vector name="Thickness" type="numeric" nEntries="7">
-      45.0*mm, 41.5*mm, 1.25*mm, 3.7*mm, 2.6*mm, 6.65*mm, 
+      45.0*mm, 41.5*mm, 1.25*mm, 4.00*mm, 2.50*mm, 6.35*mm, 
       [hgcal:ModuleThicknessHE] </Vector>
     <Vector name="Layers" type="numeric" nEntries="7">
       6, 5, 5, 5, 5, 5, 5</Vector>
