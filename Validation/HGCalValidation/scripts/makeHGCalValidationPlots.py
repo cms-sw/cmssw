@@ -5,7 +5,7 @@ import os
 import argparse
 from time import time
 
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
