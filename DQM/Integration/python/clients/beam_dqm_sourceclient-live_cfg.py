@@ -329,8 +329,8 @@ from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
   TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
 )
-process.pixelTracksTrackingRegions.RegionPSet.ptMin = 0.1
-process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
+#process.pixelTracksTrackingRegions.RegionPSet.ptMin = 0.1       # used in PilotBeam 2021, but not ok for standard collisions
+process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4 # used in PilotBeam 2021, to be checked again for standard collisions
 # The following parameters were used in 2018 HI:
 #process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
 #process.pixelTracksTrackingRegions.RegionPSet.originXPos =  0.08
