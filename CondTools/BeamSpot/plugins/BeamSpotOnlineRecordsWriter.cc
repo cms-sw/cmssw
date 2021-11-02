@@ -143,7 +143,6 @@ void BeamSpotOnlineRecordsWriter::endJob() {
       std::fabs(z) > 1000. || std::fabs(z) < 1.e-20) {
     throw edm::Exception(edm::errors::Unknown)
         << " !!! Error in parsing input file, parsed BS (x,y,z): (" << x << "," << y << "," << z << ") !!!";
-    return;
   }
 
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << "---- Parsed these parameters from input txt file ----";
