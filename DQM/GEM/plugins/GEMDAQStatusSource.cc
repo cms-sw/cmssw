@@ -427,7 +427,7 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
   // Summarizing the warning occupancy
   for (auto const &[key4, bWarning] : mapChamberWarning) {
-    if ( mapChamberError.find(key4) != mapChamberError.end() )  // Avoiding any double-counting
+    if (mapChamberError.find(key4) != mapChamberError.end())  // Avoiding any double-counting
       continue;
     ME3IdsKey key3 = key4Tokey3(key4);
     Int_t nChamber = keyToChamber(key4);
