@@ -10,7 +10,7 @@ options.register('unitTest',
                  VarParsing.VarParsing.varType.bool, # string, int, or float
                  "are we running the unit test?")
 options.register('inputFile',
-                 "../data/BeamFitResults_Run306171.txt", # default value
+                 "BeamFitResults_Run306171.txt", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "location of the input data")
