@@ -50,17 +50,17 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   mapTotalRecHitPerEvtLayer_ = MEMap3Inf(this,
                                          "rechits_per_layer",
                                          "Total number of RecHits per event for each layers",
-                                         50,
+                                         2000,
                                          -0.5,
-                                         99.5,
+                                         2000 - 0.5,
                                          "Number of RecHits",
                                          "Events");
   mapTotalRecHitPerEvtIEta_ = MEMap3Inf(this,
                                         "rechits_per_ieta",
                                         "Total number of RecHits per event for each eta partitions",
-                                        50,
+                                        300,
                                         -0.5,
-                                        99.5,
+                                        300 - 0.5,
                                         "Number of RecHits",
                                         "Events");
   mapCLSRecHit_ieta_ = MEMap3Inf(
