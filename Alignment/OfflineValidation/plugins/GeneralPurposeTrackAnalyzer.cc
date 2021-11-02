@@ -656,8 +656,7 @@ private:
       //dxy with respect to the primary vertex
       reco::Vertex pvtx;
       edm::Handle<reco::VertexCollection> vertexHandle;
-      reco::VertexCollection vertexCollection;
-      event.getByLabel("offlinePrimaryVertices", vertexHandle);
+      event.getByToken(vertexToken, vertexHandle);
       double mindxy = 100.;
       double dz = 100;
       if (vertexHandle.isValid() && !isCosmics_) {
