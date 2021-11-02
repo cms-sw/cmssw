@@ -4,10 +4,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
@@ -19,36 +20,30 @@ using namespace std;
 // class declaration
 //
 
-class LHEGenericMassFilter : public edm::EDFilter {
+class LHEGenericMassFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEGenericMassFilter(const edm::ParameterSet&);
   ~LHEGenericMassFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void endJob() override;
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<LHEEventProduct> src_;
-  int numRequired_;              // number of particles required to pass filter
-  std::vector<int> particleID_;  // vector of particle IDs to look for
-  double minMass_;
-  double maxMass_;
-  int totalEvents_;  // counters
-  int passedEvents_;
+  const edm::EDGetTokenT<LHEEventProduct> src_;
+  const int numRequired_;              // number of particles required to pass filter
+  const std::vector<int> particleID_;  // vector of particle IDs to look for
+  const double minMass_;
+  const double maxMass_;
 };
 
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
-    : numRequired_(iConfig.getParameter<int>("NumRequired")),
+    : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+      numRequired_(iConfig.getParameter<int>("NumRequired")),
       particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
       minMass_(iConfig.getParameter<double>("MinMass")),
-      maxMass_(iConfig.getParameter<double>("MaxMass")),
-      totalEvents_(0),
-      passedEvents_(0) {
-  //here do whatever other initialization is needed
-  src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
-}
+      maxMass_(iConfig.getParameter<double>("MaxMass")) {}
 
 LHEGenericMassFilter::~LHEGenericMassFilter() {
   // do anything here that needs to be done at destruction time
@@ -56,11 +51,10 @@ LHEGenericMassFilter::~LHEGenericMassFilter() {
 }
 
 // ------------ method called to skim the data  ------------
-bool LHEGenericMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   edm::Handle<LHEEventProduct> EvtHandle;
   iEvent.getByToken(src_, EvtHandle);
 
-  totalEvents_++;
   int nFound = 0;
 
   double Px = 0.;
@@ -86,22 +80,18 @@ bool LHEGenericMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   }  // loop over particles
 
-  double Mass = std::sqrt(E * E - (Px * Px + Py * Py + Pz * Pz));
-
   // event accept/reject logic
-  if (Mass > minMass_ && Mass < maxMass_ && nFound == numRequired_) {
-    passedEvents_++;
-    return true;
-  } else {
-    return false;
+  if (nFound == numRequired_) {
+    double Mass = std::sqrt(E * E - (Px * Px + Py * Py + Pz * Pz));
+    if (Mass > minMass_ && Mass < maxMass_) {
+      return true;
+    }
   }
+  return false;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void LHEGenericMassFilter::endJob() {
-  edm::LogInfo("LHEGenericMassFilter") << "=== Results of LHEGenericMassFilter: passed " << passedEvents_ << "/"
-                                       << totalEvents_ << " events" << std::endl;
-}
+void LHEGenericMassFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LHEGenericMassFilter);
