@@ -1,10 +1,14 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
-#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
 
 ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf)
     : AnyMVAEstimatorRun2Base(conf),
-      mvaVarMngr_(conf.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()) {
+      mvaVarMngr_{conf.getParameter<std::string>("variableDefinition"), MVAVariableHelper::indexMap()} {
   const auto weightFileNames = conf.getParameter<std::vector<std::string> >("weightFileNames");
   const auto categoryCutStrings = conf.getParameter<std::vector<std::string> >("categoryCuts");
 
@@ -28,7 +32,7 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const std::string& mvaTag,
                                                    const std::vector<std::string>& weightFileNames,
                                                    bool debug)
     : AnyMVAEstimatorRun2Base(mvaName, mvaTag, nCategories, debug),
-      mvaVarMngr_(variableDefinition, MVAVariableHelper::indexMap()) {
+      mvaVarMngr_{variableDefinition, MVAVariableHelper::indexMap()} {
   if ((int)(categoryCutStrings.size()) != getNCategories())
     throw cms::Exception("MVA config failure: ")
         << "wrong number of category cuts in " << getName() << getTag() << std::endl;
@@ -48,7 +52,6 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string>& weightFileNa
     throw cms::Exception("MVA config failure: ")
         << "wrong number of weightfiles in ElectronMVAEstimatorRun2" << getTag() << std::endl;
 
-  gbrForests_.clear();
   // Create a TMVA reader object for each category
   for (int i = 0; i < getNCategories(); i++) {
     std::vector<int> variablesInCategory;
