@@ -72,7 +72,7 @@ dqmiodumpmetadata.py merged.root | grep -q '4 runs, 12 lumisections'
 rootlist ()
 {  python3 -c '
 import uproot
-for k in uproot.open("'"$1"'").allkeys(): print(k.decode())'
+for k in uproot.open("'"$1"'").keys(): print(k)'
 }
 
 # we need to exclude MEs filled on run and lumi boundaries, since the split job *does* see a different number of begin/end run/lumi transitions.
