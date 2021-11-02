@@ -12,8 +12,9 @@ except ImportError:
 topfunc = r"::(dqmBeginRun|dqmEndRun|bookHistograms|accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endRunProduce|endLuminosityBlock)\("
 topfuncre = re.compile(topfunc)
 
-baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource|impl::RunWatcher<edm::one::EDProducerBase>|impl::EndRunProducer<edm::one::EDProducerBase>|DQMEDHarvester|AlignmentProducerBase|BMixingModule|TrackProducerBase|cms::CkfTrackCandidateMakerBase|CallEndRunProduceImpl|CallGlobalImpl|impl::makeGlobal|impl::makeStreamModule)\b"
+baseclass = r"\b(edm::)?(one::|stream::|global::)?((DQM)?(Global|One)?ED(Producer|Filter|Analyzer|(IterateNTimes|NavigateEvents)?Looper)(Base)?|impl::(ExternalWork|Accumulator|RunWatcher|RunCacheHolder)|FromFiles|ProducerSourceBase|OutputModuleBase|InputSource|ProducerSourceFromFiles|ProducerBase|PuttableSourceBase|OutputModule|RawOutput|RawInputSource|impl::RunWatcher<edm::one::EDProducerBase>|impl::EndRunProducer<edm::one::EDProducerBase>|DQMEDHarvester|AlignmentProducerBase|BMixingModule|TrackProducerBase|cms::CkfTrackCandidateMakerBase|CallEndRunProduceImpl|CallGlobalImpl|impl::makeGlobal|impl::makeStreamModule|impl::EndRunProducer)\b"
 baseclassre = re.compile(baseclass)
+assert(baseclassre.match('edm::one::impl::EndRunProducer'))
 assert(baseclassre.match('DQMOneEDAnalyzer'))
 assert(baseclassre.match('edm::EDAnalyzer'))
 assert(baseclassre.match('edm::stream::EDProducerBase'))
