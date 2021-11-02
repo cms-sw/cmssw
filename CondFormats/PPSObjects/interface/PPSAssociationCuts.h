@@ -75,7 +75,7 @@ public:
       p.second.buildFunctions();
   }
 
-  const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.at(sector); }
+  const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.find(sector)->second; }
 
   static edm::ParameterSetDescription getDefaultParameters();
 
