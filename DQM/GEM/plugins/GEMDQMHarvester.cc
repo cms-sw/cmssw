@@ -179,13 +179,13 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
 }
 
 Int_t GEMDQMHarvester::assessOneBin(Float_t fAll, Float_t fNumOcc, Float_t fNumWarn, Float_t fNumErr) {
-  if ( fNumErr > 0.05 * fAll )  // The error status criterion
+  if (fNumErr > 0.05 * fAll)  // The error status criterion
     return 2;
-  else if ( fNumErr > 0.00 * fAll || fNumWarn > 0.05 * fAll )  // The warning status criterion
+  else if (fNumErr > 0.00 * fAll || fNumWarn > 0.05 * fAll)  // The warning status criterion
     return 3;
-  else if ( fNumOcc > 0 )
+  else if (fNumOcc > 0)
     return 1;
-  
+
   return 0;
 }
 
@@ -208,7 +208,7 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(MonitorElement *h2Sum,
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
 
       Int_t nRes = assessOneBin(fStatusAll, fOcc, fStatusWarn, fStatusErr);
-      if ( nRes == 1 ) 
+      if (nRes == 1)
         nFineBin++;
 
       h2Sum->setBinContent(i, j, (Float_t)nRes);
