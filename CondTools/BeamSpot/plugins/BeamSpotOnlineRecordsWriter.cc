@@ -141,8 +141,8 @@ void BeamSpotOnlineRecordsWriter::endJob() {
   // Verify that the parsing was correct by checking the BS positions
   if (std::fabs(x) > 1000. || std::fabs(x) < 1.e-20 || std::fabs(y) > 1000. || std::fabs(y) < 1.e-20 ||
       std::fabs(z) > 1000. || std::fabs(z) < 1.e-20) {
-    edm::LogError("BeamSpotOnlineRecordsWriter")
-        << " !!! Error in parsing file, parsed BS (x,y,z): (" << x << "," << y << "," << z << ") !!!";
+    throw edm::Exception(edm::errors::Unknown)
+        << " !!! Error in parsing input file, parsed BS (x,y,z): (" << x << "," << y << "," << z << ") !!!";
     return;
   }
 
