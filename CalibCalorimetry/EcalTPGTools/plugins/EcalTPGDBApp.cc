@@ -67,11 +67,13 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped,
                                         int fgr,
                                         int sli,
                                         int wei,
+                                        int wei2,
                                         int spi,
                                         int tim,
                                         int bxt,
                                         int btt,
                                         int bst,
+                                        int cok,
                                         string tag,
                                         int ver) {
   int result = 0;
@@ -89,11 +91,13 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped,
   fe_main.setFgrId(fgr);
   fe_main.setSliId(sli);
   fe_main.setWeiId(wei);
+  fe_main.setWei2Id(wei2);
   fe_main.setSpiId(spi);
   fe_main.setTimId(tim);
   fe_main.setBxtId(bxt);
   fe_main.setBttId(btt);
   fe_main.setBstId(bst);
+  fe_main.setCokeId(cok);
   fe_main.setConfigTag(tag);
   fe_main.setVersion(ver);
 
@@ -262,7 +266,7 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const map<EcalLogicID, FEConfigWeightG
   int result = 0;
 
   FEConfigWeightInfo fe_wei_info;
-  fe_wei_info.setNumberOfGroups(5);  // this eventually refers to some other table
+  fe_wei_info.setNumberOfGroups(ngr);  // this eventually refers to some other table
   fe_wei_info.setConfigTag(tag);
   insertConfigSet(&fe_wei_info);
 
@@ -278,6 +282,40 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const map<EcalLogicID, FEConfigWeightG
 
   cout << "*****************************************" << endl;
   cout << "************WEIGHT done******************" << endl;
+  cout << "*****************************************" << endl;
+  return result;
+}
+
+int EcalTPGDBApp::writeToConfDB_TPGWeight_doubleWeights(const map<EcalLogicID, FEConfigOddWeightGroupDat>& lutgroupset,
+                                                        const map<EcalLogicID, FEConfigOddWeightDat>& lutset,
+                                                        const map<EcalLogicID, FEConfigOddWeightModeDat>& tpmode,
+                                                        int ngr,
+                                                        string tag) {
+  cout << "*****************************************" << endl;
+  cout << "************Inserting odd weights************" << endl;
+  cout << "*****************************************" << endl;
+
+  int result = 0;
+
+  FEConfigOddWeightInfo fe_wei_info;
+  fe_wei_info.setNumberOfGroups(ngr);  // this eventually refers to some other table
+  fe_wei_info.setConfigTag(tag);
+  insertConfigSet(&fe_wei_info);
+
+  //  Tm tdb = fe_lut_info.getDBTime();
+  //tdb.dumpTm();
+
+  // Insert the dataset
+  insertDataArraySet(&lutgroupset, &fe_wei_info);
+  // Insert the dataset
+  insertDataArraySet(&lutset, &fe_wei_info);
+  // Insert the Tpmode
+  insertDataSet(&tpmode, &fe_wei_info);
+
+  result = fe_wei_info.getId();
+
+  cout << "*****************************************" << endl;
+  cout << "************ODD WEIGHT + TPmode done******************" << endl;
   cout << "*****************************************" << endl;
   return result;
 }

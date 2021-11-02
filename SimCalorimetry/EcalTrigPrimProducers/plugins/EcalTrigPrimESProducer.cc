@@ -31,6 +31,11 @@ struct GzInputStream {
     if (!eof) {
       iss.clear();
       iss.str(buffer);
+      const auto content = iss.str();
+      std::size_t found = content.find("COMMENT");
+      if (found != std::string::npos) {
+        iss.str("");
+      }
     }
   }
   ~GzInputStream() { gzclose(gzf); }
@@ -63,6 +68,9 @@ EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet &iConfig)
   setWhatProduced(this, &EcalTrigPrimESProducer::produceLUT);
   setWhatProduced(this, &EcalTrigPrimESProducer::produceWeight);
   setWhatProduced(this, &EcalTrigPrimESProducer::produceWeightGroup);
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceOddWeight);
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceOddWeightGroup);
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceTPMode);
   setWhatProduced(this, &EcalTrigPrimESProducer::produceLutGroup);
   setWhatProduced(this, &EcalTrigPrimESProducer::produceFineGrainEBGroup);
   setWhatProduced(this, &EcalTrigPrimESProducer::producePhysicsConst);
@@ -71,6 +79,8 @@ EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet &iConfig)
   setWhatProduced(this, &EcalTrigPrimESProducer::produceBadTT);
   setWhatProduced(this, &EcalTrigPrimESProducer::produceSpike);
   // now do what ever other initialization is needed
+  //init TPmode
+  tpMode_ = std::vector<uint32_t>(18, 0);
 }
 
 EcalTrigPrimESProducer::~EcalTrigPrimESProducer() {}
@@ -147,15 +157,15 @@ std::unique_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrai
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapStrip_[1].begin(); it != mapStrip_[1].end(); it++) {
     EcalTPGFineGrainStripEE::Item item;
-    item.threshold = (it->second)[2];
-    item.lut = (it->second)[3];
+    item.threshold = (it->second)[3];
+    item.lut = (it->second)[4];
     prod->setValue(it->first, item);
   }
   // EB Strips
   for (it = mapStrip_[0].begin(); it != mapStrip_[0].end(); it++) {
     EcalTPGFineGrainStripEE::Item item;
-    item.threshold = (it->second)[2];
-    item.lut = (it->second)[3];
+    item.threshold = (it->second)[3];
+    item.lut = (it->second)[4];
     prod->setValue(it->first, item);
   }
   return prod;
@@ -208,6 +218,59 @@ std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(c
       prod->setValue(it->first, (it->second)[1]);
     }
   }
+  return prod;
+}
+
+std::unique_ptr<EcalTPGOddWeightIdMap> EcalTrigPrimESProducer::produceOddWeight(
+    const EcalTPGOddWeightIdMapRcd &iRecord) {
+  auto prod = std::make_unique<EcalTPGOddWeightIdMap>();
+  parseTextFile();
+  EcalTPGWeights weights;
+  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
+  for (it = mapWeight_odd_.begin(); it != mapWeight_odd_.end(); it++) {
+    weights.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]);
+    prod->setValue(it->first, weights);
+  }
+  return prod;
+}
+
+std::unique_ptr<EcalTPGOddWeightGroup> EcalTrigPrimESProducer::produceOddWeightGroup(
+    const EcalTPGOddWeightGroupRcd &iRecord) {
+  auto prod = std::make_unique<EcalTPGOddWeightGroup>();
+  parseTextFile();
+  for (int subdet = 0; subdet < 2; subdet++) {
+    std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
+    for (it = mapStrip_[subdet].begin(); it != mapStrip_[subdet].end(); it++) {
+      prod->setValue(it->first, (it->second)[2]);
+    }
+  }
+  return prod;
+}
+
+std::unique_ptr<EcalTPGTPMode> EcalTrigPrimESProducer::produceTPMode(const EcalTPGTPModeRcd &iRecord) {
+  auto prod = std::make_unique<EcalTPGTPMode>();
+  parseTextFile();
+  if (tpMode_.size() < 14)
+    edm::LogError("EcalTPG") << "Missing TPMode entries!";
+
+  prod->EnableEBOddFilter = tpMode_[0];
+  prod->EnableEEOddFilter = tpMode_[1];
+  prod->EnableEBOddPeakFinder = tpMode_[2];
+  prod->EnableEEOddPeakFinder = tpMode_[3];
+  prod->DisableEBEvenPeakFinder = tpMode_[4];
+  prod->DisableEEEvenPeakFinder = tpMode_[5];
+  prod->FenixEBStripOutput = tpMode_[6];
+  prod->FenixEEStripOutput = tpMode_[7];
+  prod->FenixEBStripInfobit2 = tpMode_[8];
+  prod->FenixEEStripInfobit2 = tpMode_[9];
+  prod->EBFenixTcpOutput = tpMode_[10];
+  prod->EBFenixTcpInfobit1 = tpMode_[11];
+  prod->EEFenixTcpOutput = tpMode_[12];
+  prod->EEFenixTcpInfobit1 = tpMode_[13];
+  prod->FenixPar15 = tpMode_[14];
+  prod->FenixPar16 = tpMode_[15];
+  prod->FenixPar17 = tpMode_[16];
+  prod->FenixPar18 = tpMode_[17];
   return prod;
 }
 
@@ -309,7 +372,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
   std::ifstream infile;
   std::vector<unsigned int> param;
   std::vector<float> paramF;
-  int NBstripparams[2] = {4, 4};
+  int NBstripparams[2] = {5, 5};
   unsigned int data;
   float dataF;
 
@@ -471,19 +534,18 @@ void EcalTrigPrimESProducer::parseTextFile() {
         if (flagPrint_) {
           if (i == 0) {
             std::cout << "0x" << std::hex << data << std::endl;
-          } else if (i == 1) {
-            std::cout << "" << std::hex << data << std::endl;
-          } else if (i > 1) {
+          } else if (i >= 1 && i < 3) {
+            std::cout << "" << std::dec << data << std::endl;
+          } else if (i > 2) {
             std::ostringstream oss;
-            if (i == 2) {
+            if (i == 3) {
               oss << "0x" << std::hex << data;
               std::string result4 = oss.str();
               st1.append(result4);
-            } else if (i == 3) {
+            } else if (i == 4) {
               std::ostringstream oss;
               oss << " 0x" << std::hex << data;
               std::string result5 = oss.str();
-
               st1.append(result5);
               std::cout << "" << st1 << std::endl;
             }
@@ -512,15 +574,15 @@ void EcalTrigPrimESProducer::parseTextFile() {
         if (flagPrint_) {
           if (i == 0) {
             std::cout << "0x" << std::hex << data << std::endl;
-          } else if (i == 1) {
+          } else if (i >= 1 && i < 3) {
             std::cout << " " << std::hex << data << std::endl;
-          } else if (i > 1) {
+          } else if (i > 2) {
             std::ostringstream oss;
-            if (i == 2) {
+            if (i == 3) {
               oss << "0x" << std::hex << data;
               std::string result4 = oss.str();
               st6.append(result4);
-            } else if (i == 3) {
+            } else if (i == 4) {
               std::ostringstream oss;
               oss << " 0x" << std::hex << data;
               std::string result5 = oss.str();
@@ -617,6 +679,42 @@ void EcalTrigPrimESProducer::parseTextFile() {
       mapWeight_[id] = param;
     }
 
+    if (dataCard == "WEIGHT_ODD") {
+      if (flagPrint_)
+        std::cout << std::endl;
+
+      gis >> std::hex >> id;
+      if (flagPrint_) {
+        std::cout << dataCard << " " << std::dec << id << std::endl;
+      }
+
+      param.clear();
+
+      std::string st6;
+      for (int i = 0; i < 5; i++) {
+        gis >> std::hex >> data;
+        param.push_back(data);
+
+        if (flagPrint_) {
+          std::ostringstream oss;
+          oss << std::hex << data;
+          std::string result4 = oss.str();
+
+          st6.append("0x");
+          st6.append(result4);
+          st6.append(" ");
+        }
+      }
+
+      if (flagPrint_) {
+        std::cout << st6 << std::endl;
+        std::cout << std::endl;
+      }
+
+      // std::cout<<std::endl ;
+      mapWeight_odd_[id] = param;
+    }
+
     if (dataCard == "FG") {
       if (flagPrint_)
         std::cout << std::endl;
@@ -674,6 +772,36 @@ void EcalTrigPrimESProducer::parseTextFile() {
       }
 
       mapLut_[id] = param;
+    }
+
+    if (dataCard == "TP_MODE") {
+      if (flagPrint_)
+        std::cout << std::endl;
+
+      param.clear();
+
+      std::string st8;
+      for (int i = 0; i < 18; i++) {
+        gis >> std::dec >> data;
+        param.push_back(data);
+
+        if (flagPrint_) {
+          std::ostringstream oss;
+          oss << std::dec << data;
+          std::string result6 = oss.str();
+
+          st8.append(result6);
+          st8.append(" ");
+        }
+      }
+
+      if (flagPrint_) {
+        std::cout << dataCard << " " << st8 << std::endl;
+        std::cout << std::endl;
+      }
+
+      // std::cout<<std::endl ;
+      tpMode_ = param;
     }
   }
 }

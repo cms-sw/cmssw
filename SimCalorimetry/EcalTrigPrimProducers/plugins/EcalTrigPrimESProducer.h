@@ -24,6 +24,9 @@
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGOddWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTPModeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
@@ -40,6 +43,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGOddWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 
 #include "zlib.h"
 
@@ -61,6 +67,9 @@ public:
   std::unique_ptr<EcalTPGLutIdMap> produceLUT(const EcalTPGLutIdMapRcd &);
   std::unique_ptr<EcalTPGWeightIdMap> produceWeight(const EcalTPGWeightIdMapRcd &);
   std::unique_ptr<EcalTPGWeightGroup> produceWeightGroup(const EcalTPGWeightGroupRcd &);
+  std::unique_ptr<EcalTPGOddWeightIdMap> produceOddWeight(const EcalTPGOddWeightIdMapRcd &);
+  std::unique_ptr<EcalTPGOddWeightGroup> produceOddWeightGroup(const EcalTPGOddWeightGroupRcd &);
+  std::unique_ptr<EcalTPGTPMode> produceTPMode(const EcalTPGTPModeRcd &);
   std::unique_ptr<EcalTPGLutGroup> produceLutGroup(const EcalTPGLutGroupRcd &);
   std::unique_ptr<EcalTPGFineGrainEBGroup> produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &);
   std::unique_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &);
@@ -80,9 +89,11 @@ private:
   std::map<uint32_t, std::vector<uint32_t>> mapStrip_[2];
   std::map<uint32_t, std::vector<uint32_t>> mapTower_[2];
   std::map<uint32_t, std::vector<uint32_t>> mapWeight_;
+  std::map<uint32_t, std::vector<uint32_t>> mapWeight_odd_;
   std::map<uint32_t, std::vector<uint32_t>> mapFg_;
   std::map<uint32_t, std::vector<uint32_t>> mapLut_;
   std::map<uint32_t, std::vector<float>> mapPhys_;
+  std::vector<uint32_t> tpMode_;
 
   //   typedef voidp gzFile;
   //   bool getNextString(gzFile &gzf);

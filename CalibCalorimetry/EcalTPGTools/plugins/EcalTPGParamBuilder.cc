@@ -23,6 +23,8 @@
 #include <ctime>
 #include <iomanip>
 #include <fstream>
+#include <iostream>
+#include <string>
 #include <sstream>
 
 using namespace std;
@@ -57,6 +59,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   lin_conf_id_ = 0;
   lut_conf_id_ = 0;
   wei_conf_id_ = 0;
+  wei2_conf_id_ = 0;
   fgr_conf_id_ = 0;
   sli_conf_id_ = 0;
   spi_conf_id_ = 0;  //modif-alex 21/01/11
@@ -64,6 +67,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   bxt_conf_id_ = 0;
   btt_conf_id_ = 0;
   bst_conf_id_ = 0;
+  coke_conf_id_ = 0;
   tag_ = "";
   version_ = 0;
 
@@ -71,6 +75,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_lin = 1;
   m_write_lut = 1;
   m_write_wei = 1;
+  m_write_wei2 = 1;
   m_write_fgr = 1;
   m_write_sli = 1;
   m_write_spi = 1;  //modif-alex 21/01/11
@@ -93,6 +98,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_lin = pSet.getParameter<unsigned int>("TPGWriteLin");
   m_write_lut = pSet.getParameter<unsigned int>("TPGWriteLut");
   m_write_wei = pSet.getParameter<unsigned int>("TPGWriteWei");
+  m_write_wei2 = pSet.getParameter<unsigned int>("TPGWriteWei2");
   m_write_fgr = pSet.getParameter<unsigned int>("TPGWriteFgr");
   m_write_sli = pSet.getParameter<unsigned int>("TPGWriteSli");
   m_write_spi = pSet.getParameter<unsigned int>("TPGWriteSpi");  //modif-alex 21/01/11
@@ -127,6 +133,28 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   weight_timeShift_ = pSet.getParameter<double>("weight_timeShift");
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax");
   weight_unbias_recovery_ = pSet.getParameter<bool>("weight_unbias_recovery");
+
+  weight_even_computeFromShape_ = pSet.getParameter<bool>("weight_even_computeFromShape");
+  weight_even_idMapFile_ = pSet.getParameter<std::string>("weight_even_idMapFile");
+  weight_even_weightGroupFile_ = pSet.getParameter<std::string>("weight_even_weightGroupFile");
+  weight_odd_idMapFile_ = pSet.getParameter<std::string>("weight_odd_idMapFile");
+  weight_odd_weightGroupFile_ = pSet.getParameter<std::string>("weight_odd_weightGroupFile");
+
+  weight_useDoubleWeights_ = pSet.getParameter<bool>("weight_useDoubleWeights");
+  TPmode_EnableEBOddFilter_ = pSet.getParameter<bool>("TPmode_EnableEBOddFilter");
+  TPmode_EnableEEOddFilter_ = pSet.getParameter<bool>("TPmode_EnableEEOddFilter");
+  TPmode_EnableEBOddPeakFinder_ = pSet.getParameter<bool>("TPmode_EnableEBOddPeakFinder");
+  TPmode_EnableEEOddPeakFinder_ = pSet.getParameter<bool>("TPmode_EnableEEOddPeakFinder");
+  TPmode_DisableEBEvenPeakFinder_ = pSet.getParameter<bool>("TPmode_DisableEBEvenPeakFinder");
+  TPmode_DisableEEEvenPeakFinder_ = pSet.getParameter<bool>("TPmode_DisableEEEvenPeakFinder");
+  TPmode_FenixEBStripOutput_ = pSet.getParameter<unsigned int>("TPmode_FenixEBStripOutput");
+  TPmode_FenixEEStripOutput_ = pSet.getParameter<unsigned int>("TPmode_FenixEEStripOutput");
+  TPmode_FenixEBStripInfobit2_ = pSet.getParameter<unsigned int>("TPmode_FenixEBStripInfobit2");
+  TPmode_FenixEEStripInfobit2_ = pSet.getParameter<unsigned int>("TPmode_FenixEEStripInfobit2");
+  TPmode_FenixEBTcpOutput_ = pSet.getParameter<unsigned int>("TPmode_FenixEBTcpOutput");
+  TPmode_FenixEBTcpInfobit1_ = pSet.getParameter<unsigned int>("TPmode_FenixEBTcpInfobit1");
+  TPmode_FenixEETcpOutput_ = pSet.getParameter<unsigned int>("TPmode_FenixEETcpOutput");
+  TPmode_FenixEETcpInfobit1_ = pSet.getParameter<unsigned int>("TPmode_FenixEETcpInfobit1");
 
   forcedPedestalValue_ = pSet.getParameter<int>("forcedPedestalValue");
   forceEtaSlice_ = pSet.getParameter<bool>("forceEtaSlice");
@@ -554,6 +582,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t>::iterator itList;
 
   map<int, uint32_t> stripMapEB;               // <EcalLogicId.hashed, strip elec id>
+  map<int, uint32_t> stripMapEE;               // <EcalLogicId.hashed, strip elec id>
   map<uint32_t, uint32_t> stripMapEBsintheta;  // <strip elec id, sintheta>
 
   // Pedestals
@@ -875,10 +904,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     lin_conf_id_ = fe_main_info.getLinId();
     lut_conf_id_ = fe_main_info.getLUTId();
     wei_conf_id_ = fe_main_info.getWeiId();
+    wei2_conf_id_ = fe_main_info.getWei2Id();
     fgr_conf_id_ = fe_main_info.getFgrId();
     sli_conf_id_ = fe_main_info.getSliId();
     spi_conf_id_ = fe_main_info.getSpiId();  //modif-alex 21/01/11
     del_conf_id_ = fe_main_info.getTimId();  //modif-alex 21/01/11
+    coke_conf_id_ = fe_main_info.getCokeId();
     if (fe_main_info.getBxtId() > 0 && bxt_conf_id_ == 0)
       bxt_conf_id_ = fe_main_info.getBxtId();
     if (fe_main_info.getBttId() > 0 && btt_conf_id_ == 0)
@@ -1011,13 +1042,30 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       getCoeff(coeff, pedMap, id.rawId());
       linStruc lin;
       for (int i = 0; i < 3; i++) {
-        int mult, shift;
+        lin.pedestal_[i] = coeff.pedestals_[i];
+        lin.mult_[i] = 0;
+        lin.shift_[i] = 0;
+        int mult = 0;
+        int shift = 0;
         bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult, shift);
-        if (!ok)
-          edm::LogError("TopInfo") << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " "
-                                   << dec << id.rawId() << "\n";
-        else {
-          lin.pedestal_[i] = coeff.pedestals_[i];
+        if (!ok) {
+          //If the mult is impossible to compute
+          if (mult > 255) {
+            edm::LogError("TopInfo") << "ByEtaSlice: unable to compute the parameters for SM=" << id.ism()
+                                     << " xt=" << id.ic() << " " << dec << id.rawId() << " gainId=" << i
+                                     << ", mult too large! forced to mult=255, shift=0\n";
+            lin.mult_[i] = 255;
+            lin.shift_[i] = 0;
+          }
+          if (mult < 128) {
+            edm::LogError("TopInfo") << "ByEtaSlice: unable to compute the parameters for SM=" << id.ism()
+                                     << " xt=" << id.ic() << " " << dec << id.rawId() << " gainId=" << i
+                                     << ", mult too small! forced to mult=128, shift=15\n";
+            ;
+            lin.mult_[i] = 128;
+            lin.shift_[i] = 15;
+          }
+        } else {
           lin.mult_[i] = mult;
           lin.shift_[i] = shift;
         }
@@ -1025,7 +1073,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       bool ok(true);
       if (forcedPedestalValue_ == -2)
-        ok = realignBaseline(lin, 0);
+        ok = realignBaseline(lin, 0, id.rawId());
       if (!ok)
         ss << "SM=" << id.ism() << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
       linEtaSlice[etaSlice] = lin;
@@ -1141,46 +1189,46 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       int forceBase12 = 0;
       double invSinTheta = 1. / sin(theta);
       for (int i = 0; i < 3; i++) {
-        int mult, shift;
+        lin.pedestal_[i] = coeff.pedestals_[i];
+        lin.mult_[i] = 0;
+        lin.shift_[i] = 0;
+        int mult = 0;
+        int shift = 0;
         bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult, shift);
-        if (!ok)
-          edm::LogError("TopInfo") << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " "
-                                   << dec << id.rawId() << "\n";
-        else {
-          //PP begin
-          //  mult = 0 ; shift = 0 ;
-          //  if (CCUid==1 && xtalWithinCCUid==21) {
-          //    if (i==0) {mult = 0x80 ; shift = 0x3 ;}
-          //    if (i==1) {mult = 0x80 ; shift = 0x2 ;}
-          //    if (i==2) {mult = 0xc0 ; shift = 0x0 ;}
-          //  }
-          //PP end
-          if (forcedPedestalValue_ == -3 && i == 0) {
-            double G = mult * pow(2.0, -(shift + 2));
-            double g = G * invSinTheta;
-            double base = double(coeff.pedestals_[i]) - pedestal_offset_ / g;
-            if (base < 0.)
-              base = 0;
-            forceBase12 = int(base);
+        if (!ok) {
+          //If the mult is impossible to compute
+          if (mult > 255) {
+            edm::LogError("TopInfo") << "unable to compute the parameters for " << dec << id.rawId()
+                                     << ", EB, gainId=" << i << ", mult too large! forced to mult=255, shift=0\n";
+            lin.mult_[i] = 255;
+            lin.shift_[i] = 0;
           }
-          lin.pedestal_[i] = coeff.pedestals_[i];
+          if (mult < 128) {
+            edm::LogError("TopInfo") << "unable to compute the parameters for " << dec << id.rawId()
+                                     << ", EB, gainId=" << i << ", mult too small! forced to mult=128, shift=15\n";
+            lin.mult_[i] = 128;
+            lin.shift_[i] = 15;
+          }
+        } else {
           lin.mult_[i] = mult;
           lin.shift_[i] = shift;
-
-          // 	  if (xtalWithinCCUid != 14) {
-          // 	    forceBase12 = 0 ;
-          // 	    lin.pedestal_[i] = 0 ;
-          // 	    lin.mult_[i] = 0 ;
-          // 	    lin.shift_[i] = 0 ;
-          // 	  }
+        }
+        // Force baseline for gain 12 also when mult not ok and the value is set to default
+        if (forcedPedestalValue_ == -3 && i == 0) {
+          double G = mult * pow(2.0, -(shift + 2));
+          double g = G * invSinTheta;
+          double base = double(coeff.pedestals_[i]) - pedestal_offset_ / g;
+          if (base < 0.)
+            base = 0;
+          forceBase12 = int(base);
         }
       }
 
       bool ok(true);
       if (forcedPedestalValue_ == -2)
-        ok = realignBaseline(lin, 0);
+        ok = realignBaseline(lin, 0, id.rawId());
       else if (forcedPedestalValue_ == -3)
-        ok = realignBaseline(lin, forceBase12);
+        ok = realignBaseline(lin, forceBase12, id.rawId());
       if (!ok)
         ss << "SM=" << id.ism() << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
 
@@ -1274,6 +1322,31 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId();
     int xtalWithinCCUid = 5 * (VFEid - 1) + xtalInVFE - 1;  // Evgueni expects [0,24]
 
+    // Creating the stripMap for EE
+    bool foundStripLogic = false;
+    for (int ich = 0; ich < (int)my_StripEcalLogicId1_EE.size(); ich++) {
+      EcalLogicID stripLogicId = my_StripEcalLogicId1_EE[ich];
+      if (stripLogicId.getID1() == 600 + dccNb && stripLogicId.getID2() == CCUid && stripLogicId.getID3() == VFEid) {
+        stripMapEE[stripLogicId.getLogicID()] = elId.rawId() & 0xfffffff8;
+        foundStripLogic = true;
+        break;
+      }
+    }
+    if (!foundStripLogic) {
+      for (int ich = 0; ich < (int)my_StripEcalLogicId2_EE.size(); ich++) {
+        EcalLogicID stripLogicId = my_StripEcalLogicId2_EE[ich];
+        if (stripLogicId.getID1() == 600 + dccNb && stripLogicId.getID2() == CCUid && stripLogicId.getID3() == VFEid) {
+          stripMapEE[stripLogicId.getLogicID()] = elId.rawId() & 0xfffffff8;
+          foundStripLogic = true;
+          break;
+        }
+      }
+    }
+    if (!foundStripLogic) {
+      edm::LogWarning("TopInfo") << "Strip ID not found for DCC: " << 600 + dccNb << " CCU: " << CCUid
+                                 << " VFEid: " << VFEid;
+    }
+
     (*geomFile_) << "dccNb = " << dccNb << " tccNb = " << tccNb << " towerInTCC = " << towerInTCC
                  << " stripInTower = " << stripInTower << " xtalInStrip = " << xtalInStrip << " CCUid = " << CCUid
                  << " VFEid = " << VFEid << " xtalInVFE = " << xtalInVFE << " xtalWithinCCUid = " << xtalWithinCCUid
@@ -1350,13 +1423,30 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       getCoeff(coeff, pedMap, id.rawId());
       linStruc lin;
       for (int i = 0; i < 3; i++) {
-        int mult, shift;
+        lin.pedestal_[i] = coeff.pedestals_[i];
+        lin.mult_[i] = 0;
+        lin.shift_[i] = 0;
+        int mult = 0;
+        int shift = 0;
         bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult, shift);
-        if (!ok)
-          edm::LogError("TopInfo") << "unable to compute the parameters for Quadrant=" << id.iquadrant()
-                                   << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
-        else {
-          lin.pedestal_[i] = coeff.pedestals_[i];
+        if (!ok) {
+          //If the mult is impossible to compute
+          if (mult > 255) {
+            edm::LogError("TopInfo") << "ByEtaSlice: unable to compute the parameters for Quadrant=" << id.iquadrant()
+                                     << " xt=" << id.ic() << " " << dec << id.rawId() << " gainId=" << i
+                                     << ", mult too large! forced to mult=255, shift=0\n";
+            lin.mult_[i] = 255;
+            lin.shift_[i] = 0;
+          }
+          if (mult < 128) {
+            edm::LogError("TopInfo") << "ByEtaSlice: unable to compute the parameters for Quadrant=" << id.iquadrant()
+                                     << " xt=" << id.ic() << " " << dec << id.rawId() << " gainId=" << i
+                                     << ", mult too small! forced to mult=128, shift=15\n";
+            ;
+            lin.mult_[i] = 128;
+            lin.shift_[i] = 15;
+          }
+        } else {
           lin.mult_[i] = mult;
           lin.shift_[i] = shift;
         }
@@ -1364,7 +1454,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       bool ok(true);
       if (forcedPedestalValue_ == -2 || forcedPedestalValue_ == -3)
-        ok = realignBaseline(lin, 0);
+        ok = realignBaseline(lin, 0, id.rawId());
       if (!ok)
         ss << "Quadrant=" << id.iquadrant() << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
 
@@ -1388,6 +1478,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       towerListEE.push_back(additionalTower.rawId());
     }
     stripListEE.push_back(elId.rawId() & 0xfffffff8);
+
     int dccNb = Id.dccId();
     //int tccNb = theMapping_->TCCid(towid) ;
     //int towerInTCC = theMapping_->iTT(towid) ;
@@ -1412,8 +1503,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         int z = my_CrystalEcalLogicId_EE[k].getID1();
         int x = my_CrystalEcalLogicId_EE[k].getID2();
         int y = my_CrystalEcalLogicId_EE[k].getID3();
-        if (id.ix() == x && id.iy() == y && iz == z)
+        if (id.ix() == x && id.iy() == y && iz == z) {
           logicId = my_CrystalEcalLogicId_EE[k];
+        }
       }
     }
 
@@ -1482,12 +1574,27 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       // general case
       linStruc lin;
       for (int i = 0; i < 3; i++) {
-        int mult, shift;
+        lin.pedestal_[i] = coeff.pedestals_[i];
+        lin.mult_[i] = 0;
+        lin.shift_[i] = 0;
+        int mult = 0;
+        int shift = 0;
         bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult, shift);
-        if (!ok)
-          edm::LogError("TopInfo") << "unable to compute the parameters for " << dec << id.rawId() << "\n";
-        else {
-          lin.pedestal_[i] = coeff.pedestals_[i];
+        if (!ok) {
+          //If the mult is impossible to compute
+          if (mult > 255) {
+            edm::LogError("TopInfo") << "unable to compute the parameters for " << dec << id.rawId()
+                                     << ", EE, gainId=" << i << ", mult too large! forced to mult=255, shift=0\n";
+            lin.mult_[i] = 255;
+            lin.shift_[i] = 0;
+          }
+          if (mult < 128) {
+            edm::LogError("TopInfo") << "unable to compute the parameters for " << dec << id.rawId()
+                                     << ", EE, gainId=" << i << ", mult too small! forced to mult=128, shift=15\n";
+            lin.mult_[i] = 128;
+            lin.shift_[i] = 15;
+          }
+        } else {
           lin.mult_[i] = mult;
           lin.shift_[i] = shift;
         }
@@ -1495,7 +1602,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       bool ok(true);
       if (forcedPedestalValue_ == -2 || forcedPedestalValue_ == -3)
-        ok = realignBaseline(lin, 0);
+        ok = realignBaseline(lin, 0, id.rawId());
       if (!ok)
         ss << "Quadrant=" << id.iquadrant() << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
 
@@ -1606,52 +1713,54 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute weights section //
   /////////////////////////////
 
-  const int NWEIGROUPS = 2;
-  std::vector<unsigned int> weights[NWEIGROUPS];
+  std::map<int, int> weights_map_even;
+  std::map<int, int> weights_map_odd;
 
-  shapeEB_.setEventSetup(evtSetup);
-  shapeEE_.setEventSetup(evtSetup);
-  weights[0] = computeWeights(shapeEB_, hshapeEB);
-  weights[1] = computeWeights(shapeEE_, hshapeEE);
+  if (weight_even_computeFromShape_) {
+    // Computing the weights from shapes, 1 set for EB and 1 for EE only
+    shapeEB_.setEventSetup(evtSetup);  // EBShape, EEShape are fetched now from DB (2018.05.22 K. Theofilatos)
+    shapeEE_.setEventSetup(evtSetup);
+    const int NWEIGROUPS = 2;
+    std::vector<unsigned int> weights[NWEIGROUPS];
+    weights[0] = computeWeights(shapeEB_, hshapeEB);
+    weights[1] = computeWeights(shapeEE_, hshapeEE);
 
-  map<EcalLogicID, FEConfigWeightGroupDat> dataset;
+    map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
-  for (int igrp = 0; igrp < NWEIGROUPS; igrp++) {
-    if (weights[igrp].size() == 5) {
-      if (writeToFiles_) {
-        (*out_file_) << std::endl;
-        (*out_file_) << "WEIGHT " << igrp << endl;
-        for (unsigned int sample = 0; sample < 5; sample++)
-          (*out_file_) << "0x" << hex << weights[igrp][sample] << " ";
-        (*out_file_) << std::endl;
-        (*out_file_) << std::endl;
-      }
-      if (writeToDB_) {
-        ss << "going to write the weights for groupe:" << igrp << "\n";
-        FEConfigWeightGroupDat gut;
-        gut.setWeightGroupId(igrp);
-        //PP WARNING: weights order is reverted when stored in the DB
-        gut.setWeight0(weights[igrp][4]);
-        gut.setWeight1(weights[igrp][3] +
-                       0x80);  //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
-        gut.setWeight2(weights[igrp][2]);
-        gut.setWeight3(weights[igrp][1]);
-        gut.setWeight4(weights[igrp][0]);
-        EcalLogicID ecid = EcalLogicID("DUMMY", igrp, igrp);  //1 dummy ID per group
-        // Fill the dataset
-        dataset[ecid] = gut;
+    for (int igrp = 0; igrp < NWEIGROUPS; igrp++) {
+      if (weights[igrp].size() == 5) {
+        if (writeToFiles_) {
+          (*out_file_) << std::endl;
+          (*out_file_) << "WEIGHT " << dec << igrp << endl;
+          for (unsigned int sample = 0; sample < 5; sample++)
+            (*out_file_) << "0x" << hex << weights[igrp][sample] << " ";
+          (*out_file_) << std::endl;
+          (*out_file_) << std::endl;
+        }
+        if (writeToDB_) {
+          ss << "going to write the weights for groupe:" << igrp << "\n";
+          FEConfigWeightGroupDat gut;
+          gut.setWeightGroupId(igrp);
+          //PP WARNING: weights order is reverted when stored in the DB
+          gut.setWeight0(weights[igrp][4]);
+          gut.setWeight1(weights[igrp][3] +
+                         0x80);  //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
+          gut.setWeight2(weights[igrp][2]);
+          gut.setWeight3(weights[igrp][1]);
+          gut.setWeight4(weights[igrp][0]);
+          EcalLogicID ecid = EcalLogicID("DUMMY", igrp, igrp);  //1 dummy ID per group
+          // Fill the dataset
+          dataset[ecid] = gut;
+        }
       }
     }
-  }
-
-  if (writeToDB_) {
     // now we store in the DB the correspondence btw channels and groups
     map<EcalLogicID, FEConfigWeightDat> dataset2;
-
     // EB loop
     for (int ich = 0; ich < (int)my_StripEcalLogicId.size(); ich++) {
       FEConfigWeightDat wut;
       int igroup = 0;  // this group is for EB
+      weights_map_even[stripMapEB[ich]] = 0;
       wut.setWeightGroupId(igroup);
       dataset2[my_StripEcalLogicId[ich]] = wut;
     }
@@ -1660,6 +1769,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich = 0; ich < (int)my_StripEcalLogicId1_EE.size(); ich++) {
       FEConfigWeightDat wut;
       int igroup = 1;  // this group is for EE
+      weights_map_even[stripMapEE[my_StripEcalLogicId1_EE[ich].getLogicID()]] = 1;
       wut.setWeightGroupId(igroup);
       // Fill the dataset
       dataset2[my_StripEcalLogicId1_EE[ich]] = wut;
@@ -1668,20 +1778,280 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int ich = 0; ich < (int)my_StripEcalLogicId2_EE.size(); ich++) {
       FEConfigWeightDat wut;
       int igroup = 1;  // this group is for EE
+      weights_map_even[stripMapEE[my_StripEcalLogicId2_EE[ich].getLogicID()]] = 1;
       wut.setWeightGroupId(igroup);
       // Fill the dataset
       dataset2[my_StripEcalLogicId2_EE[ich]] = wut;
     }
 
-    // Insert the datasets
-    ostringstream wtag;
-    wtag.str("");
-    wtag << "Shape_NGroups_" << NWEIGROUPS;
-    std::string weight_tag = wtag.str();
-    ss << " weight tag " << weight_tag << "\n";
-    if (m_write_wei == 1)
-      wei_conf_id_ = db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag);
+    if (writeToDB_) {
+      // Insert the datasets
+      ostringstream wtag;
+      wtag.str("");
+      wtag << "Shape_NGroups_" << NWEIGROUPS;
+      std::string weight_tag = wtag.str();
+      ss << " weight tag " << weight_tag << "\n";
+      if (m_write_wei == 1)
+        wei_conf_id_ = db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag);
+    }
+    /////////////////////////////////////////////////////////
+  } else {
+    // Read Even weights from file.
+    std::vector<std::vector<unsigned int>> weights_even;
+
+    std::ifstream file(weight_even_weightGroupFile_);
+    std::string line;
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::vector<unsigned int> wei_group_even;
+      for (std::string s; iss >> s;)
+        wei_group_even.push_back(stoi(s));
+      weights_even.push_back(wei_group_even);
+    }
+    int nweigroups_even = weights_even.size();
+
+    std::ifstream file2(weight_even_idMapFile_);
+    std::string line2;
+    while (std::getline(file2, line2)) {
+      std::istringstream iss(line2);
+      int ch_id, wei_gr;
+      iss >> std::dec >> ch_id;
+      iss >> std::dec >> wei_gr;
+      int wei_group = wei_gr;
+      if (wei_group > nweigroups_even - 1) {
+        edm::LogError("TopInfo") << "Associating strip: " << ch_id << " to non-existing weight group: " << wei_gr
+                                 << "\n";
+      }
+      weights_map_even[ch_id] = wei_group;
+    }
+
+    map<EcalLogicID, FEConfigWeightGroupDat> dataset_even;
+
+    for (int igrp = 0; igrp < nweigroups_even; igrp++) {
+      if (weights_even[igrp].size() == 5) {
+        if (writeToFiles_) {
+          (*out_file_) << std::endl;
+          (*out_file_) << "WEIGHT " << dec << igrp << endl;
+          for (unsigned int sample = 0; sample < 5; sample++)
+            (*out_file_) << "0x" << hex << weights_even[igrp][sample] << " ";
+          (*out_file_) << std::endl;
+          (*out_file_) << std::endl;
+        }
+        if (writeToDB_) {
+          ss << "going to write the weights for groupe:" << igrp << "\n";
+          FEConfigWeightGroupDat gut;
+          gut.setWeightGroupId(igrp);
+          //PP WARNING: weights order is reverted when stored in the DB
+          gut.setWeight0(weights_even[igrp][4]);
+          gut.setWeight1(weights_even[igrp][3] +
+                         0x80);  //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
+          gut.setWeight2(weights_even[igrp][2]);
+          gut.setWeight3(weights_even[igrp][1]);
+          gut.setWeight4(weights_even[igrp][0]);
+          EcalLogicID ecid = EcalLogicID("DUMMY", igrp, igrp);  //1 dummy ID per group
+          // Fill the dataset
+          dataset_even[ecid] = gut;
+        }
+      }
+    }
+    if (writeToDB_) {
+      // now we store in the DB the correspondence btw channels and groups
+      map<EcalLogicID, FEConfigWeightDat> dataset_even_idmap;
+      // EB loop
+      for (int ich = 0; ich < (int)my_StripEcalLogicId.size(); ich++) {
+        FEConfigWeightDat wut;
+        int igroup = weights_map_even[stripMapEB[ich]];  // this group is for EB
+        wut.setWeightGroupId(igroup);
+        dataset_even_idmap[my_StripEcalLogicId[ich]] = wut;
+      }
+      // EE loop
+      for (int ich = 0; ich < (int)my_StripEcalLogicId1_EE.size(); ich++) {
+        FEConfigWeightDat wut;
+        int igroup = weights_map_even[stripMapEE[my_StripEcalLogicId1_EE[ich].getLogicID()]];
+        wut.setWeightGroupId(igroup);
+        // Fill the dataset
+        dataset_even_idmap[my_StripEcalLogicId1_EE[ich]] = wut;
+      }
+      // EE loop 2 (we had to split the ids of EE in 2 vectors to avoid crash!)
+      for (int ich = 0; ich < (int)my_StripEcalLogicId2_EE.size(); ich++) {
+        FEConfigWeightDat wut;
+        int igroup = weights_map_even[stripMapEE[my_StripEcalLogicId2_EE[ich].getLogicID()]];  // this group is for EE
+        wut.setWeightGroupId(igroup);
+        // Fill the dataset
+        dataset_even_idmap[my_StripEcalLogicId2_EE[ich]] = wut;
+      }
+      // Insert the datasets
+      ostringstream wtag;
+      wtag.str("");
+      wtag << "Shape_even_NGroups_" << nweigroups_even;
+      std::string weight_tag = wtag.str();
+      ss << " weight tag " << weight_tag << "\n";
+      if (m_write_wei == 1)
+        wei_conf_id_ = db_->writeToConfDB_TPGWeight(dataset_even, dataset_even_idmap, nweigroups_even, weight_tag);
+    }
   }
+
+  //+=========================================================== Odd weights
+  if (weight_useDoubleWeights_) {
+    // Odd weights are always read from file
+    std::vector<std::vector<unsigned int>> weights_odd;
+    std::ifstream file3(weight_odd_weightGroupFile_);
+    std::string line3;
+    while (std::getline(file3, line3)) {
+      std::istringstream iss(line3);
+      std::vector<unsigned int> wei_group_odd;
+      for (std::string s; iss >> s;)
+        wei_group_odd.push_back(stoi(s));
+      weights_odd.push_back(wei_group_odd);
+    }
+    int nweigroups_odd = weights_odd.size();
+
+    std::ifstream file4(weight_odd_idMapFile_);
+    std::string line4;
+    while (std::getline(file4, line4)) {
+      std::istringstream iss(line4);
+      int ch_id, wei_gr;
+      iss >> std::dec >> ch_id;
+      iss >> std::dec >> wei_gr;
+      int wei_group = wei_gr;
+      if (wei_group > nweigroups_odd - 1) {
+        edm::LogError("TopInfo") << "Associating strip: " << ch_id << " to non-existing weight group: " << wei_gr
+                                 << "\n";
+      }
+      weights_map_odd[ch_id] = wei_group;
+    }
+
+    map<EcalLogicID, FEConfigOddWeightGroupDat> dataset_odd;
+
+    for (int igrp = 0; igrp < nweigroups_odd; igrp++) {
+      if (weights_odd[igrp].size() == 5) {
+        if (writeToFiles_) {
+          (*out_file_) << std::endl;
+          (*out_file_) << "WEIGHT_ODD " << dec << igrp << endl;
+          for (unsigned int sample = 0; sample < 5; sample++)
+            (*out_file_) << "0x" << hex << weights_odd[igrp][sample] << " ";
+          (*out_file_) << std::endl;
+          (*out_file_) << std::endl;
+        }
+        if (writeToDB_) {
+          ss << "going to write the weights for groupe:" << igrp << "\n";
+          FEConfigOddWeightGroupDat gut;
+          gut.setWeightGroupId(igrp);
+          //PP WARNING: weights order is reverted when stored in the DB
+          gut.setWeight0(weights_odd[igrp][4]);
+          gut.setWeight1(weights_odd[igrp][3] +
+                         0x80);  //0x80 to identify the max of the pulse in the FENIX (doesn't exist in emulator)
+          gut.setWeight2(weights_odd[igrp][2]);
+          gut.setWeight3(weights_odd[igrp][1]);
+          gut.setWeight4(weights_odd[igrp][0]);
+          EcalLogicID ecid = EcalLogicID("DUMMY", igrp, igrp);  //1 dummy ID per group
+          // Fill the dataset
+          dataset_odd[ecid] = gut;
+        }
+      }
+    }
+    // TP MODE configuration
+    if (writeToFiles_) {
+      (*out_file_) << std::endl;
+      (*out_file_) << "TP_MODE " << endl;
+      (*out_file_) << TPmode_EnableEBOddFilter_ << endl;
+      (*out_file_) << TPmode_EnableEEOddFilter_ << endl;
+      (*out_file_) << TPmode_EnableEBOddPeakFinder_ << endl;
+      (*out_file_) << TPmode_EnableEEOddPeakFinder_ << endl;
+      (*out_file_) << TPmode_DisableEBEvenPeakFinder_ << endl;
+      (*out_file_) << TPmode_DisableEEEvenPeakFinder_ << endl;
+      (*out_file_) << TPmode_FenixEBStripOutput_ << endl;
+      (*out_file_) << TPmode_FenixEEStripOutput_ << endl;
+      (*out_file_) << TPmode_FenixEBStripInfobit2_ << endl;
+      (*out_file_) << TPmode_FenixEEStripInfobit2_ << endl;
+      (*out_file_) << TPmode_FenixEBTcpOutput_ << endl;
+      (*out_file_) << TPmode_FenixEBTcpInfobit1_ << endl;
+      (*out_file_) << TPmode_FenixEETcpOutput_ << endl;
+      (*out_file_) << TPmode_FenixEETcpInfobit1_ << endl;
+      (*out_file_) << 0 << endl;  // FenixPar15-18 are placeholder parameters for future use
+      (*out_file_) << 0 << endl;
+      (*out_file_) << 0 << endl;
+      (*out_file_) << 0 << endl;
+      (*out_file_) << std::endl;
+    }
+
+    if (writeToDB_) {
+      // now we store in the DB the correspondence btw channels and groups
+      map<EcalLogicID, FEConfigOddWeightDat> dataset_odd_idmap;
+
+      // EB loop
+      for (int ich = 0; ich < (int)my_StripEcalLogicId.size(); ich++) {
+        FEConfigOddWeightDat wut;
+        int igroup = weights_map_odd[stripMapEB[ich]];  // this group is for EB
+        wut.setWeightGroupId(igroup);
+        dataset_odd_idmap[my_StripEcalLogicId[ich]] = wut;
+      }
+      // EE loop
+      for (int ich = 0; ich < (int)my_StripEcalLogicId1_EE.size(); ich++) {
+        FEConfigOddWeightDat wut;
+        int igroup = weights_map_odd[stripMapEE[my_StripEcalLogicId1_EE[ich].getLogicID()]];
+        wut.setWeightGroupId(igroup);
+        // Fill the dataset
+        dataset_odd_idmap[my_StripEcalLogicId1_EE[ich]] = wut;
+      }
+      // EE loop 2 (we had to split the ids of EE in 2 vectors to avoid crash!)
+      for (int ich = 0; ich < (int)my_StripEcalLogicId2_EE.size(); ich++) {
+        FEConfigOddWeightDat wut;
+        int igroup = weights_map_odd[stripMapEE[my_StripEcalLogicId2_EE[ich].getLogicID()]];  // this group is for EE
+        wut.setWeightGroupId(igroup);
+        // Fill the dataset
+        dataset_odd_idmap[my_StripEcalLogicId2_EE[ich]] = wut;
+      }
+      // TP mode on DB
+      map<EcalLogicID, FEConfigOddWeightModeDat> dataset_tpmode;
+      FEConfigOddWeightModeDat tp_mode;
+      tp_mode.setEnableEBOddFilter(TPmode_EnableEBOddFilter_);
+      tp_mode.setEnableEEOddFilter(TPmode_EnableEEOddFilter_);
+      tp_mode.setEnableEBOddPeakFinder(TPmode_EnableEBOddPeakFinder_);
+      tp_mode.setEnableEEOddPeakFinder(TPmode_EnableEEOddPeakFinder_);
+      tp_mode.setDisableEBEvenPeakFinder(TPmode_DisableEBEvenPeakFinder_);
+      tp_mode.setDisableEEEvenPeakFinder(TPmode_DisableEEEvenPeakFinder_);
+      tp_mode.setFenixEBStripOutput(TPmode_FenixEBStripOutput_);
+      tp_mode.setFenixEEStripOutput(TPmode_FenixEEStripOutput_);
+      tp_mode.setFenixEBStripInfobit2(TPmode_FenixEBStripInfobit2_);
+      tp_mode.setFenixEEStripInfobit2(TPmode_FenixEEStripInfobit2_);
+      tp_mode.setFenixEBTcpOutput(TPmode_FenixEBTcpOutput_);
+      tp_mode.setFenixEBTcpInfoBit1(TPmode_FenixEBTcpInfobit1_);
+      tp_mode.setFenixEETcpOutput(TPmode_FenixEETcpOutput_);
+      tp_mode.setFenixEETcpInfoBit1(TPmode_FenixEETcpInfobit1_);
+      dataset_tpmode[my_StripEcalLogicId[0]] = tp_mode;  // The LogicID is not used in reality....
+
+      // Insert the datasets
+      ostringstream wtag;
+      wtag.str("");
+      wtag << "Shape_odd_NGroups_" << nweigroups_odd;
+      std::string weight_tag = wtag.str();
+      ss << " weight tag " << weight_tag << "\n";
+      if (m_write_wei2 == 1)
+        wei2_conf_id_ = db_->writeToConfDB_TPGWeight_doubleWeights(
+            dataset_odd, dataset_odd_idmap, dataset_tpmode, nweigroups_odd, weight_tag);
+    }
+
+  } else {
+    // If useDoubleWeight == False we need to use the default
+    // wei2_conf_id=1 and save a blank TP mode and blank Odd weight group
+    if (writeToFiles_) {
+      // single set of ODD weights ==0 is written to the txt file
+      (*out_file_) << "WEIGHT_ODD " << dec << 0 << endl;
+      for (unsigned int sample = 0; sample < 5; sample++)
+        (*out_file_) << "0x0"
+                     << " ";
+      (*out_file_) << std::endl << std::endl;
+
+      // Default TP mode with Run2 config == all parameters to 0
+      (*out_file_) << "TP_MODE " << endl;
+      for (int m = 0; m < 18; m++)
+        (*out_file_) << 0 << endl;
+      (*out_file_) << std::endl;
+    }
+    wei2_conf_id_ = 1;  // special value that is interpreted by online DAQ code as Run2 configuration
+  }
+
   edm::LogInfo("TopInfo") << ss.str();
   ss.str("");
 
@@ -1830,7 +2200,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       EcalLogicID logiciddelay = my_TTEcalLogicId_EB_by_TCC[ich];
       int id1_tcc = my_TTEcalLogicId_EB_by_TCC[ich].getID1();  // the TCC
       int id2_tt = my_TTEcalLogicId_EB_by_TCC[ich].getID2();   // the tower
-      std::map<int, vector<int> >::const_iterator ittEB = delays_EB_.find(id1_tcc);
+      std::map<int, vector<int>>::const_iterator ittEB = delays_EB_.find(id1_tcc);
       std::vector<int> TimingDelaysEB = ittEB->second;
 
       if (ittEB != delays_EB_.end()) {
@@ -1848,7 +2218,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         delay.setTimingPar1(1);
       }
 
-      std::map<int, vector<int> >::const_iterator ittpEB = phases_EB_.find(id1_tcc);
+      std::map<int, vector<int>>::const_iterator ittpEB = phases_EB_.find(id1_tcc);
       std::vector<int> TimingPhasesEB = ittpEB->second;
 
       if (ittpEB != phases_EB_.end()) {
@@ -1894,7 +2264,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         stripindex = 0;
       }
 
-      std::map<int, vector<int> >::const_iterator ittEE = delays_EE_.find(id1_tcc);
+      std::map<int, vector<int>>::const_iterator ittEE = delays_EE_.find(id1_tcc);
       std::vector<int> TimingDelaysEE = ittEE->second;
 
       if (ittEE != delays_EE_.end()) {
@@ -1912,7 +2282,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         delay.setTimingPar1(1);
       }
 
-      std::map<int, vector<int> >::const_iterator ittpEE = phases_EE_.find(id1_tcc);
+      std::map<int, vector<int>>::const_iterator ittpEE = phases_EE_.find(id1_tcc);
       std::vector<int> TimingPhasesEE = ittpEE->second;
 
       if (ittpEE != phases_EE_.end()) {
@@ -2095,11 +2465,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
                                               fgr_conf_id_,
                                               sli_conf_id_,
                                               wei_conf_id_,
+                                              wei2_conf_id_,
                                               spi_conf_id_,
                                               del_conf_id_,
                                               bxt_conf_id_,
                                               btt_conf_id_,
                                               bst_conf_id_,
+                                              coke_conf_id_,
                                               tag_,
                                               version_);  //modif-alex 21/01/11
 
@@ -2119,7 +2491,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++) {
       (*out_file_) << "STRIP_EB " << dec << (*itList) << endl;
       (*out_file_) << hex << "0x" << sliding_ << std::endl;
-      (*out_file_) << "0" << std::endl;
+      (*out_file_) << hex << "0x" << weights_map_even[(*itList)] << " ";
+      if (weight_useDoubleWeights_)
+        (*out_file_) << hex << "0x" << weights_map_odd[(*itList)] << std::endl;
+      else
+        (*out_file_) << "0x0" << std::endl;
       (*out_file_) << "0x" << stripMapEBsintheta[(*itList)] << " 0x" << SFGVB_lut_ << std::endl;
     }
   }
@@ -2133,8 +2509,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++) {
       (*out_file_) << "STRIP_EE " << dec << (*itList) << endl;
       (*out_file_) << hex << "0x" << sliding_ << std::endl;
-      //(*out_file_) <<" 0" << std::endl ;
-      (*out_file_) << " 1" << std::endl;  //modif-debug to get the correct EE TPG
+      (*out_file_) << hex << "0x" << weights_map_even[(*itList)] << " ";
+      if (weight_useDoubleWeights_)
+        (*out_file_) << hex << "0x" << weights_map_odd[(*itList)] << std::endl;
+      else
+        (*out_file_) << "0x0" << std::endl;
       (*out_file_) << hex << "0x" << threshold << " 0x" << lut_strip << std::endl;
     }
   }
@@ -2301,7 +2680,7 @@ void EcalTPGParamBuilder::create_header() {
   (*out_file_) << "COMMENT           strip EB structure" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
   (*out_file_) << "COMMENT  sliding_window" << std::endl;
-  (*out_file_) << "COMMENT  weightGroupId" << std::endl;
+  (*out_file_) << "COMMENT  even_weightGroupId  odd_weightGroupId" << std::endl;
   (*out_file_) << "COMMENT  threshold_sfg lut_sfg" << std::endl;
   (*out_file_) << "COMMENT =================================" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
@@ -2310,7 +2689,7 @@ void EcalTPGParamBuilder::create_header() {
   (*out_file_) << "COMMENT           strip EE structure" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
   (*out_file_) << "COMMENT  sliding_window" << std::endl;
-  (*out_file_) << "COMMENT  weightGroupId" << std::endl;
+  (*out_file_) << "COMMENT  even_weightGroupId  odd_weightGroupId" << std::endl;
   (*out_file_) << "COMMENT  threshold_fg lut_fg" << std::endl;
   (*out_file_) << "COMMENT =================================" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
@@ -2333,10 +2712,43 @@ void EcalTPGParamBuilder::create_header() {
   (*out_file_) << "COMMENT" << std::endl;
 
   (*out_file_) << "COMMENT =================================" << std::endl;
-  (*out_file_) << "COMMENT           Weight structure" << std::endl;
+  (*out_file_) << "COMMENT           Even Weight structure" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
+  (*out_file_) << "COMMENT  Weight even" << std::endl;
   (*out_file_) << "COMMENT  weightGroupId" << std::endl;
   (*out_file_) << "COMMENT  w0, w1, w2, w3, w4" << std::endl;
+  (*out_file_) << "COMMENT =================================" << std::endl;
+  (*out_file_) << "COMMENT" << std::endl;
+
+  (*out_file_) << "COMMENT =================================" << std::endl;
+  (*out_file_) << "COMMENT           Odd Weight structure" << std::endl;
+  (*out_file_) << "COMMENT" << std::endl;
+  (*out_file_) << "COMMENT  Weight odd" << std::endl;
+  (*out_file_) << "COMMENT  weightGroupId" << std::endl;
+  (*out_file_) << "COMMENT  w0, w1, w2, w3, w4" << std::endl;
+  (*out_file_) << "COMMENT =================================" << std::endl;
+  (*out_file_) << "COMMENT" << std::endl;
+
+  (*out_file_) << "COMMENT =================================" << std::endl;
+  (*out_file_) << "COMMENT           TP mode" << std::endl;
+  (*out_file_) << "COMMENT EnableEBOddFilter" << endl;
+  (*out_file_) << "COMMENT EnableEEOddFilter" << endl;
+  (*out_file_) << "COMMENT EnableEBOddPeakFinder" << endl;
+  (*out_file_) << "COMMENT EnableEEOddPeakFinder" << endl;
+  (*out_file_) << "COMMENT DisableEBEvenPeakFinder" << endl;
+  (*out_file_) << "COMMENT DisableEEEvenPeakFinder" << endl;
+  (*out_file_) << "COMMENT FenixEBStripOutput" << endl;
+  (*out_file_) << "COMMENT FenixEEStripOutput" << endl;
+  (*out_file_) << "COMMENT FenixEBStripInfobit2" << endl;
+  (*out_file_) << "COMMENT FenixEEStripInfobit2" << endl;
+  (*out_file_) << "COMMENT EBFenixTcpOutput" << endl;
+  (*out_file_) << "COMMENT EBFenixTcpInfobit1" << endl;
+  (*out_file_) << "COMMENT EEFenixTcpOutput" << endl;
+  (*out_file_) << "COMMENT EEFenixTcpInfobit1" << endl;
+  (*out_file_) << "COMMENT FenixPar15" << endl;
+  (*out_file_) << "COMMENT FenixPar16" << endl;
+  (*out_file_) << "COMMENT FenixPar17" << endl;
+  (*out_file_) << "COMMENT FenixPar18" << endl;
   (*out_file_) << "COMMENT =================================" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
 
@@ -2355,8 +2767,6 @@ void EcalTPGParamBuilder::create_header() {
   (*out_file_) << "COMMENT  el, eh, tl, th, lut_fg" << std::endl;
   (*out_file_) << "COMMENT =================================" << std::endl;
   (*out_file_) << "COMMENT" << std::endl;
-
-  (*out_file_) << std::endl;
 }
 
 int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2) {
@@ -2737,7 +3147,7 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(unsigned int& threshold,
   lut_tower = FG_lut_tower_EE_;
 }
 
-bool EcalTPGParamBuilder::realignBaseline(linStruc& lin, float forceBase12) {
+bool EcalTPGParamBuilder::realignBaseline(linStruc& lin, float forceBase12, int cmsswid) {
   bool ok(true);
   float base[3] = {forceBase12, float(lin.pedestal_[1]), float(lin.pedestal_[2])};
   for (int i = 1; i < 3; i++) {
@@ -2747,16 +3157,26 @@ bool EcalTPGParamBuilder::realignBaseline(linStruc& lin, float forceBase12) {
     } else
       base[i] = 0;
   }
-
   for (int i = 0; i < 3; i++) {
-    lin.pedestal_[i] = base[i];
-    //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
-    if (base[i] < 0 || lin.pedestal_[i] > 1000) {
-      edm::LogError("TopInfo") << "WARNING: base= " << base[i] << ", " << lin.pedestal_[i] << " for gainId[0-2]=" << i
-                               << " ==> forcing at 0"
-                               << "\n";
+    if (base[i] < 0) {
+      edm::LogError("TopInfo") << "PROBLEM in realignBaseline: xtal=" << cmsswid << " base= " << base[i] << ", "
+                               << lin.pedestal_[i] << " for gainId[0-2]=" << i << " ==> smaller than 0 ==> set to 0"
+                               << "  mult12:" << lin.mult_[0] << " mult:" << lin.mult_[i]
+                               << " ped12:" << lin.pedestal_[0] << " ped:" << lin.pedestal_[i] << "  base12:" << base[0]
+                               << " shift12:" << lin.shift_[0] << " shift: " << lin.shift_[i] << "\n";
       lin.pedestal_[i] = 0;
       ok = false;
+    } else if (base[i] > 1024) {
+      edm::LogError("TopInfo") << "PROBLEM in realignBaseline: xtal=" << cmsswid << " base= " << base[i] << ", "
+                               << lin.pedestal_[i] << " for gainId[0-2]=" << i
+                               << " ==> larger than 1024 ==> set to 1024"
+                               << "  mult12:" << lin.mult_[0] << " mult:" << lin.mult_[i]
+                               << " ped12:" << lin.pedestal_[0] << " ped:" << lin.pedestal_[i] << "  base12:" << base[0]
+                               << " shift12:" << lin.shift_[0] << " shift: " << lin.shift_[i] << "\n";
+      lin.pedestal_[i] = 1024;
+      ok = false;
+    } else {
+      lin.pedestal_[i] = base[i];
     }
   }
   return ok;
