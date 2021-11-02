@@ -24,6 +24,7 @@ private:
   static constexpr unsigned mask_roz_ = 0x3f;  // 6 bits, max 64 bins
   static constexpr unsigned mask_phi_ = 1;
 
+  bool do_truncate_;
   double roz_min_ = 0.;
   double roz_max_ = 0.;
   unsigned roz_bins_ = 42;

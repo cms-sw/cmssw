@@ -3,7 +3,7 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params, 
                                                               distance_C2d_params, \
                                                               topological_C2d_params, \
                                                               constrTopological_C2d_params, \
-                                                              stage1truncation_proc, \
+                                                              layer1truncation_proc, \
                                                               truncation_params
 from L1Trigger.L1THGCal.customClustering import set_threshold_params
 
@@ -71,7 +71,7 @@ class CreateTruthDummy(object):
 class RozBinTruncation(object):
     def __init__(self,
             maxTcsPerBin=truncation_params.maxTcsPerBin):
-        self.processor = stage1truncation_proc.clone(
+        self.processor = layer1truncation_proc.clone(
                 truncation_parameters=truncation_params.clone(
                     maxTcsPerBin=maxTcsPerBin
                     )

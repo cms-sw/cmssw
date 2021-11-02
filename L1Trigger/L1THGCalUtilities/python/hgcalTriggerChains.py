@@ -34,32 +34,32 @@ class HGCalTriggerChains:
         self.ntuple[name] = generator
 
     def register_chain(self, vfe, concentrator, backend1, backend2, selector='', ntuple=''):
-        if not vfe in self.vfe: 
+        if not vfe in self.vfe:
             raise KeyError('{} not registered as VFE producer'.format(vfe))
-        if not concentrator in self.concentrator: 
+        if not concentrator in self.concentrator:
             raise KeyError('{} not registered as concentrator producer'.format(concentrator))
-        if not backend1 in self.backend1: 
+        if not backend1 in self.backend1:
             raise KeyError('{} not registered as backend1 producer'.format(backend1))
-        if not backend2 in self.backend2: 
+        if not backend2 in self.backend2:
             raise KeyError('{} not registered as backend2 producer'.format(backend2))
         if selector!='' and not selector in self.selector:
             raise KeyError('{} not registered as selector'.format(selector))
-        if ntuple!='' and not ntuple in self.ntuple: 
+        if ntuple!='' and not ntuple in self.ntuple:
             raise KeyError('{} not registered as ntuplizer'.format(ntuple))
         self.chain.append( (vfe, concentrator, backend1, backend2, selector, ntuple) )
 
-    def register_truth_chain(self, vfe, truth_prod, backend1='', backend2='', selector='', ntuple=''): 
-        if not vfe in self.vfe: 
+    def register_truth_chain(self, vfe, truth_prod, backend1='', backend2='', selector='', ntuple=''):
+        if not vfe in self.vfe:
             raise KeyError('{} not registered as VFE producer'.format(vfe))
-        if not truth_prod in self.truth_prod: 
+        if not truth_prod in self.truth_prod:
             raise KeyError('{} not registered as truth producer'.format(truth_prod))
-        if backend1!='' and not backend1 in self.backend1: 
+        if backend1!='' and not backend1 in self.backend1:
             raise KeyError('{} not registered as backend1 producer'.format(backend1))
-        if backend2!='' and not backend2 in self.backend2: 
+        if backend2!='' and not backend2 in self.backend2:
             raise KeyError('{} not registered as backend2 producer'.format(backend2))
         if selector!='' and not selector in self.selector:
             raise KeyError('{} not registered as selector'.format(selector))
-        if ntuple!='' and not ntuple in self.ntuple: 
+        if ntuple!='' and not ntuple in self.ntuple:
             raise KeyError('{} not registered as ntuplizer'.format(ntuple))
         self.truth_chain.append( (vfe, truth_prod, backend1, backend2, selector, ntuple) )
 
@@ -123,12 +123,16 @@ class HGCalTriggerChains:
         ntuple_sequence.remove(tmpseq)
         process.globalReplace('hgcalVFE', vfe_task)
         process.globalReplace('hgcalConcentrator', concentrator_task)
-        process.globalReplace('hgcalBackEndLayer1', backend1_task)
-        process.globalReplace('hgcalBackEndLayer2', backend2_task)
+        if 'HGCalBackendStage1Processor' in backend1_processor:
+            process.globalReplace('hgcalBackEndStage1', backend1_task)
+            process.globalReplace('hgcalBackEndStage2', backend2_task)
+        else:
+            process.globalReplace('hgcalBackEndLayer1', backend1_task)
+            process.globalReplace('hgcalBackEndLayer2', backend2_task)
         process.globalReplace('hgcalTriggerSelector', selector_sequence)
         process.globalReplace('hgcalTriggerNtuples', ntuple_sequence)
         return process
-    
+
     def create_truth_sequences(self, process):
         if not hasattr(process, 'caloTruthCellsProducer'):
             from L1Trigger.L1THGCalUtilities.caloTruthCellsProducer_cfi import caloTruthCellsProducer

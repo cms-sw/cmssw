@@ -1,33 +1,18 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalBackendStage1Processor.h"
 
-DEFINE_EDM_PLUGIN(HGCalBackendLayer1Factory, HGCalBackendStage1Processor, "HGCalBackendStage1Processor");
+DEFINE_EDM_PLUGIN(HGCalBackendStage1Factory, HGCalBackendStage1Processor, "HGCalBackendStage1Processor");
 
 HGCalBackendStage1Processor::HGCalBackendStage1Processor(const edm::ParameterSet& conf)
-    : HGCalBackendLayer1ProcessorBase(conf) {
-  clusteringDummy_ = std::make_unique<HGCalClusteringDummyImpl>(conf.getParameterSet("C2d_parameters"));
+    : HGCalBackendStage1ProcessorBase(conf) {
   truncation_ = std::make_unique<HGCalStage1TruncationImpl>(conf.getParameterSet("truncation_parameters"));
 }
 
-void HGCalBackendStage1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
-                                      l1t::HGCalClusterBxCollection& collCluster2D,
-                                      const edm::EventSetup& es) {
-  if (clusteringDummy_)
-    clusteringDummy_->eventSetup(es);
+void HGCalBackendStage1Processor::run(
+    const std::pair<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>& fpga_id_tcs,
+    std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& truncated_tcs,
+    const edm::EventSetup& es) {
   if (truncation_)
     truncation_->eventSetup(es);
 
-  std::unordered_map<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>> tcs_per_fpga;
-
-  for (unsigned i = 0; i < collHandle->size(); ++i) {
-    edm::Ptr<l1t::HGCalTriggerCell> tc_ptr(collHandle, i);
-    uint32_t module = geometry_->getModuleFromTriggerCell(tc_ptr->detId());
-    uint32_t fpga = geometry_->getStage1FpgaFromModule(module);
-    tcs_per_fpga[fpga].push_back(tc_ptr);
-  }
-
-  std::vector<edm::Ptr<l1t::HGCalTriggerCell>> truncated_tcs;
-  for (auto& fpga_tcs : tcs_per_fpga) {
-    truncation_->run(fpga_tcs.first, fpga_tcs.second, truncated_tcs);
-  }
-  clusteringDummy_->clusterizeDummy(truncated_tcs, collCluster2D);
+  truncation_->run(fpga_id_tcs.first, fpga_id_tcs.second, truncated_tcs);
 }
