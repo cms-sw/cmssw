@@ -125,20 +125,9 @@ double EgammaHcalIsolation::goodHitEnergy(const GlobalPoint &pclu,
                                           int iphi,
                                           int include_or_exclude,
                                           double (*scale)(const double &)) const {
-  const auto phit = caloGeometry_.getPosition(hit.detid());
-
-  if ((extIncRule_ == InclusionRule::withinConeAroundCluster and deltaR2(pclu, phit) > extRadius_) or
-      (intIncRule_ == InclusionRule::withinConeAroundCluster and deltaR2(pclu, phit) < intRadius_))
-    return 0.;
-
   const HcalDetId hid(hit.detid());
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
-
-  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > int(eThresHB_.size()))) or
-      (hid.subdet() == HcalEndcap and (hd < 1 or hd > int(eThresHE_.size()))))
-    edm::LogWarning("EgammaHcalIsolation")
-        << " hit in subdet " << hid.subdet() << " has an unaccounted for depth of " << hd << "!!";
 
   if (include_or_exclude == -1 and (he != ieta or hp != iphi))
     return 0.;
@@ -146,9 +135,28 @@ double EgammaHcalIsolation::goodHitEnergy(const GlobalPoint &pclu,
   if (include_or_exclude == 1 and (he == ieta and hp == iphi))
     return 0.;
 
+  if ((hid.subdet() == HcalBarrel and (hd < 1 or hd > int(eThresHB_.size()))) or
+      (hid.subdet() == HcalEndcap and (hd < 1 or hd > int(eThresHE_.size()))))
+    edm::LogWarning("EgammaHcalIsolation")
+        << " hit in subdet " << hid.subdet() << " has an unaccounted for depth of " << hd << "!!";
+
   const bool right_depth = (depth == 0 or hd == depth);
   if (!right_depth)
     return 0.;
+
+  const bool goodHBe = hid.subdet() == HcalBarrel and hit.energy() > eThresHB_[h1];
+  const bool goodHEe = hid.subdet() == HcalEndcap and hit.energy() > eThresHE_[h1];
+  if (!(goodHBe or goodHEe))
+    return 0.;
+
+  const auto phit = caloGeometry_.getPosition(hit.detid());
+
+  if (extIncRule_ == InclusionRule::withinConeAroundCluster or intIncRule_ == InclusionRule::withinConeAroundCluster) {
+    auto const dR2 = deltaR2(pclu, phit);
+    if ((extIncRule_ == InclusionRule::withinConeAroundCluster and dR2 > extRadius_) or
+        (intIncRule_ == InclusionRule::withinConeAroundCluster and dR2 < intRadius_))
+      return 0.;
+  }
 
   DetId did = hcalTopology_.idFront(hid);
   const uint32_t flag = hit.flags();
@@ -157,10 +165,8 @@ double EgammaHcalIsolation::goodHitEnergy(const GlobalPoint &pclu,
   bool recovered = hcalSevLvlComputer_.recoveredRecHit(did, flag);
 
   const double het = hit.energy() * scaleToEt(phit.eta());
-  const bool goodHB = hid.subdet() == HcalBarrel and (severity <= maxSeverityHB_ or recovered) and
-                      hit.energy() > eThresHB_[h1] and het > etThresHB_[h1];
-  const bool goodHE = hid.subdet() == HcalEndcap and (severity <= maxSeverityHE_ or recovered) and
-                      hit.energy() > eThresHE_[h1] and het > etThresHE_[h1];
+  const bool goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and het > etThresHB_[h1];
+  const bool goodHE = goodHEe and (severity <= maxSeverityHE_ or recovered) and het > etThresHE_[h1];
 
   if (goodHB or goodHE)
     return hit.energy() * scale(phit.eta());
