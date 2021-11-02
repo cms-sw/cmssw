@@ -3,7 +3,8 @@
 #include <cmath>
 
 HGCalStage1TruncationImpl::HGCalStage1TruncationImpl(const edm::ParameterSet& conf)
-    : roz_min_(conf.getParameter<double>("rozMin")),
+    : do_truncate_(conf.getParameter<bool>("doTruncation")),
+      roz_min_(conf.getParameter<double>("rozMin")),
       roz_max_(conf.getParameter<double>("rozMax")),
       roz_bins_(conf.getParameter<unsigned>("rozBins")),
       max_tcs_per_bin_(conf.getParameter<std::vector<unsigned>>("maxTcsPerBin")),
@@ -54,7 +55,7 @@ void HGCalStage1TruncationImpl::run(uint32_t fpga_id,
       throw cms::Exception("HGCalStage1TruncationImpl::OutOfRange")
           << "roverzbin index " << roverzbin << "out of range";
     unsigned max_tc = max_tcs_per_bin_[roverzbin];
-    if (bin_tcs.second.size() > max_tc) {
+    if (do_truncate_ && bin_tcs.second.size() > max_tc) {
       bin_tcs.second.resize(max_tc);
     }
     for (const auto& tc : bin_tcs.second) {

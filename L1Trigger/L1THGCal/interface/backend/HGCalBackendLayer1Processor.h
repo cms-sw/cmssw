@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_L1THGCal_HGCalBackendStage1Processor_h__
-#define __L1Trigger_L1THGCal_HGCalBackendStage1Processor_h__
+#ifndef __L1Trigger_L1THGCal_HGCalBackendLayer1Processor_h__
+#define __L1Trigger_L1THGCal_HGCalBackendLayer1Processor_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
@@ -9,15 +9,16 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalStage1TruncationImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
 
-class HGCalBackendStage1Processor : public HGCalBackendStage1ProcessorBase {
+class HGCalBackendLayer1Processor : public HGCalBackendLayer1ProcessorBase {
 public:
-  HGCalBackendStage1Processor(const edm::ParameterSet& conf);
+  HGCalBackendLayer1Processor(const edm::ParameterSet& conf);
 
-  void run(const std::pair<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>& fpga_id_tcs,
-           std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& truncated_tcs,
+  void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
+           l1t::HGCalClusterBxCollection& collCluster2D,
            const edm::EventSetup& es) override;
 
 private:
+  std::unique_ptr<HGCalClusteringDummyImpl> clusteringDummy_;
   std::unique_ptr<HGCalStage1TruncationImpl> truncation_;
 };
 

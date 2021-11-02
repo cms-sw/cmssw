@@ -1,18 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-def custom_ntuples_V9(process):
+def custom_ntuples_layer1_truncation(process):
     ntuples = process.hgcalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
-        if ntuple.NtupleName=='HGCalTriggerNtupleHGCDigis' or \
-           ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells':
-            ntuple.bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback')
+        if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters' or \
+           ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells' or \
+           ntuple.NtupleName=='HGCalTriggerNtupleHGCMulticlusters':
+            ntuple.Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor')
     return process
 
 def custom_ntuples_stage1_truncation(process):
     ntuples = process.hgcalTriggerNtuplizer.Ntuples
     for ntuple in ntuples:
-        if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters':
-            ntuple.Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendStage1Processor')
+        if ntuple.NtupleName=='HGCalTriggerNtupleHGCClusters' or \
+           ntuple.NtupleName=='HGCalTriggerNtupleHGCTriggerCells' or \
+           ntuple.NtupleName=='HGCalTriggerNtupleHGCMulticlusters':
+            ntuple.Clusters = cms.InputTag('hgcalBackEndStage1Producer:HGCalBackendStage1Processor')
+            ntuple.Multiclusters = cms.InputTag('hgcalBackEndStage2Producer:HGCalBackendLayer2Processor3DClustering')
     return process
 
 def custom_ntuples_standalone_clustering(process):
@@ -61,7 +65,3 @@ class CreateNtuple(object):
         ntuplizer = process.hgcalTriggerNtuplizer.clone()
         ntuplizer.Ntuples = cms.VPSet(vpset)
         return ntuplizer
-
-
-
-
