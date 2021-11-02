@@ -11,7 +11,7 @@ namespace reco::mlpf {
   static constexpr unsigned int NUM_OUTPUT_FEATURES = 14;
 
   //these are defined at model creation time and set the random LSH codebook size
-  static constexpr int LSH_BIN_SIZE = 160;
+  static constexpr int LSH_BIN_SIZE = 64;
   static constexpr int NUM_MAX_ELEMENTS_BATCH = 200 * LSH_BIN_SIZE;
 
   //In CPU mode, we want to evaluate each event separately
