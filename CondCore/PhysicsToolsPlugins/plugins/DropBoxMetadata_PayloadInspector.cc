@@ -97,14 +97,14 @@ namespace {
       std::vector<std::string> records = payload->getAllRecords();
       TCanvas canvas("Canv", "Canv", 1200, 100 * records.size());
 
-      DPMetaDataHelper::recordMap theRecordMap;
+      DBoxMetadataHelper::recordMap theRecordMap;
       for (const auto& record : records) {
         edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
         const auto& parameters = payload->getRecordParameters(record);
-        theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
+        theRecordMap.insert(std::make_pair(record, DBoxMetadataHelper::RecordMetaDataInfo(parameters)));
       }
 
-      DPMetaDataHelper::DBMetaDataTableDisplay theDisplay(theRecordMap);
+      DBoxMetadataHelper::DBMetaDataTableDisplay theDisplay(theRecordMap);
       theDisplay.printMetaDatas();
 
       std::string fileName(m_imageFileName);
@@ -151,26 +151,26 @@ namespace {
 
       // first payload
       std::vector<std::string> f_records = first_payload->getAllRecords();
-      DPMetaDataHelper::recordMap f_theRecordMap;
+      DBoxMetadataHelper::recordMap f_theRecordMap;
       for (const auto& record : f_records) {
         //edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
         const auto& parameters = first_payload->getRecordParameters(record);
-        f_theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
+        f_theRecordMap.insert(std::make_pair(record, DBoxMetadataHelper::RecordMetaDataInfo(parameters)));
       }
 
-      DPMetaDataHelper::DBMetaDataTableDisplay f_theDisplay(f_theRecordMap);
+      DBoxMetadataHelper::DBMetaDataTableDisplay f_theDisplay(f_theRecordMap);
       //f_theDisplay.printMetaDatas();
 
       // last payload
       std::vector<std::string> l_records = last_payload->getAllRecords();
-      DPMetaDataHelper::recordMap l_theRecordMap;
+      DBoxMetadataHelper::recordMap l_theRecordMap;
       for (const auto& record : l_records) {
         //edm::LogPrint("DropBoxMetadata_PayloadInspector") << "record: " << record << std::endl;
         const auto& parameters = last_payload->getRecordParameters(record);
-        l_theRecordMap.insert(std::make_pair(record, DPMetaDataHelper::RecordMetaDataInfo(parameters)));
+        l_theRecordMap.insert(std::make_pair(record, DBoxMetadataHelper::RecordMetaDataInfo(parameters)));
       }
 
-      DPMetaDataHelper::DBMetaDataTableDisplay l_theDisplay(l_theRecordMap);
+      DBoxMetadataHelper::DBMetaDataTableDisplay l_theDisplay(l_theRecordMap);
       //l_theDisplay.printMetaDatas();
 
       l_theDisplay.printDiffWithMetadata(f_theRecordMap);

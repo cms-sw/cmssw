@@ -13,7 +13,7 @@
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace DPMetaDataHelper {
+namespace DBoxMetadataHelper {
   class RecordMetaDataInfo {
   public:
     /// Constructor
@@ -46,12 +46,12 @@ namespace DPMetaDataHelper {
 
   using recordMap = std::map<std::string, RecordMetaDataInfo>;
 
-  inline const std::vector<std::string> getAllRecords(const DPMetaDataHelper::recordMap& recordSet) {
+  inline const std::vector<std::string> getAllRecords(const DBoxMetadataHelper::recordMap& recordSet) {
     std::vector<std::string> records;
     std::transform(recordSet.begin(),
                    recordSet.end(),
                    std::inserter(records, records.end()),
-                   [](std::pair<std::string, DPMetaDataHelper::RecordMetaDataInfo> recordSetEntry) -> std::string {
+                   [](std::pair<std::string, DBoxMetadataHelper::RecordMetaDataInfo> recordSetEntry) -> std::string {
                      return recordSetEntry.first;
                    });
     return records;
@@ -73,61 +73,68 @@ namespace DPMetaDataHelper {
 
   class DBMetaDataTableDisplay {
   public:
-    DBMetaDataTableDisplay(DPMetaDataHelper::recordMap theMap) : m_Map(theMap) {}
+    DBMetaDataTableDisplay(DBoxMetadataHelper::recordMap theMap) : m_Map(theMap) {}
     ~DBMetaDataTableDisplay() = default;
 
     void printMetaDatas() {
       for (const auto& [key, val] : m_Map) {
-        std::cout << "key: " << key << "\n\n" << std::endl;
-        std::cout << "prep: " << cleanJson(val.getPrepMetaData()) << "\n" << std::endl;
-        std::cout << "prod: " << cleanJson(val.getProdMetaData()) << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key << "\n\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(val.getPrepMetaData()) << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(val.getProdMetaData()) << "\n" << std::endl;
         // check, since it's optional
         if (val.hasMultiMetaData()) {
-          std::cout << "multi: " << cleanJson(val.getMultiMetaData()) << "\n" << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(val.getMultiMetaData()) << "\n"
+                                                   << std::endl;
         }
       }
     }
 
-    void printOneKey(const DPMetaDataHelper::RecordMetaDataInfo& oneKey) {
-      std::cout << "prep: " << cleanJson(oneKey.getPrepMetaData()) << "\n" << std::endl;
-      std::cout << "prod: " << cleanJson(oneKey.getProdMetaData()) << "\n" << std::endl;
+    void printOneKey(const DBoxMetadataHelper::RecordMetaDataInfo& oneKey) {
+      edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(oneKey.getPrepMetaData()) << std::endl;
+      edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(oneKey.getProdMetaData()) << std::endl;
       // check, since it's optional
       if (oneKey.hasMultiMetaData()) {
-        std::cout << "multi: " << cleanJson(oneKey.getMultiMetaData()) << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(oneKey.getMultiMetaData()) << std::endl;
       }
+      edm::LogPrint("DropBoxMetadataPIHelper") << "\n" << std::endl;
     }
 
-    void printDiffWithMetadata(const DPMetaDataHelper::recordMap& theRefMap) {
-      std::cout << "Target has: " << m_Map.size() << " records, reference has: " << theRefMap.size() << " records"
-                << std::endl;
+    void printDiffWithMetadata(const DBoxMetadataHelper::recordMap& theRefMap) {
+      edm::LogPrint("DropBoxMetadataPIHelper")
+          << "Target has: " << m_Map.size() << " records, reference has: " << theRefMap.size() << " records"
+          << std::endl;
 
-      const auto& ref_records = DPMetaDataHelper::getAllRecords(theRefMap);
-      const auto& tar_records = DPMetaDataHelper::getAllRecords(m_Map);
+      const auto& ref_records = DBoxMetadataHelper::getAllRecords(theRefMap);
+      const auto& tar_records = DBoxMetadataHelper::getAllRecords(m_Map);
 
-      const auto& diff = DPMetaDataHelper::set_difference(ref_records, tar_records);
-      const auto& common = DPMetaDataHelper::set_intersection(ref_records, tar_records);
+      const auto& diff = DBoxMetadataHelper::set_difference(ref_records, tar_records);
+      const auto& common = DBoxMetadataHelper::set_intersection(ref_records, tar_records);
 
       // do first the common parts
       for (const auto& key : common) {
-        std::cout << "key: " << key << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key << "\n" << std::endl;
         const auto& val = m_Map.at(key);
         const auto& refval = theRefMap.at(key);
 
         if ((val.getPrepMetaData()).compare(refval.getPrepMetaData()) != 0) {
-          std::cout << "found difference in prep metadata!" << std::endl;
-          std::cout << " in target: " << cleanJson(val.getPrepMetaData()) << std::endl;
-          std::cout << " in reference: " << cleanJson(refval.getPrepMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prep metadata!" << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target: " << cleanJson(val.getPrepMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper")
+              << " in reference: " << cleanJson(refval.getPrepMetaData()) << std::endl;
         }
         if ((val.getProdMetaData()).compare(refval.getProdMetaData()) != 0) {
-          std::cout << "found difference in prod metadata!" << std::endl;
-          std::cout << " in target: " << cleanJson(val.getProdMetaData()) << std::endl;
-          std::cout << " in reference: " << cleanJson(refval.getProdMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prod metadata!" << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target: " << cleanJson(val.getProdMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper")
+              << " in reference: " << cleanJson(refval.getProdMetaData()) << std::endl;
         }
         if ((val.getMultiMetaData()).compare(refval.getMultiMetaData()) != 0) {
-          std::cout << "found difference in multi metadata!" << std::endl;
-          std::cout << " in target: " << cleanJson(val.getMultiMetaData()) << std::endl;
-          std::cout << " in reference: " << cleanJson(refval.getMultiMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in multi metadata!" << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target: " << cleanJson(val.getMultiMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper")
+              << " in reference: " << cleanJson(refval.getMultiMetaData()) << std::endl;
         }
+        edm::LogPrint("DropBoxMetadataPIHelper") << "\n" << std::endl;
       }
 
       // if interesction is not the union check for extra differences
@@ -137,7 +144,7 @@ namespace DPMetaDataHelper {
           for (const auto& ref : ref_records) {
             if (std::find(tar_records.begin(), tar_records.end(), ref) == tar_records.end()) {
               const auto& refval = theRefMap.at(ref);
-              std::cout << "key: " << ref << " not present in target! \n" << std::endl;
+              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << ref << " not present in target! \n" << std::endl;
               printOneKey(refval);
             }
           }
@@ -146,8 +153,9 @@ namespace DPMetaDataHelper {
         else if (tar_records.size() > ref_records.size()) {
           for (const auto& tar : tar_records) {
             if (std::find(ref_records.begin(), ref_records.end(), tar) == ref_records.end()) {
-              const auto& tarval = theRefMap.at(tar);
-              std::cout << "key: " << tar << " not present in reference! \n" << std::endl;
+              const auto& tarval = m_Map.at(tar);
+              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << tar << " not present in reference! \n"
+                                                       << std::endl;
               printOneKey(tarval);
             }
           }
@@ -156,7 +164,7 @@ namespace DPMetaDataHelper {
     }
 
   private:
-    DPMetaDataHelper::recordMap m_Map;
+    DBoxMetadataHelper::recordMap m_Map;
 
     std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
       size_t start_pos = 0;
@@ -172,5 +180,5 @@ namespace DPMetaDataHelper {
       return out;
     }
   };
-}  // namespace DPMetaDataHelper
+}  // namespace DBoxMetadataHelper
 #endif
