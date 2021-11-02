@@ -110,13 +110,15 @@ edm::ParameterSetDescription PPSAssociationCuts::getDefaultParameters() {
 
 //----------------------------------------------------------------------------------------------------
 
-bool PPSAssociationCuts::isValid() const
-{
+bool PPSAssociationCuts::isValid() const {
   // valid if association_cuts_ have two entries, with keys 0 and 1
-  if (association_cuts_.size() != 2) return false;
+  if (association_cuts_.size() != 2)
+    return false;
 
-  if (association_cuts_.find(0) == association_cuts_.end()) return false;
-  if (association_cuts_.find(1) == association_cuts_.end()) return false;
+  if (association_cuts_.find(0) == association_cuts_.end())
+    return false;
+  if (association_cuts_.find(1) == association_cuts_.end())
+    return false;
 
   return true;
 }
