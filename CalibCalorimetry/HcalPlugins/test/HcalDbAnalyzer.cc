@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -77,12 +77,12 @@ namespace {
   }
 }  // namespace
 
-class HcalDbAnalyzer : public edm::EDAnalyzer {
+class HcalDbAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalDbAnalyzer(const edm::ParameterSet&);
-  ~HcalDbAnalyzer();
+  ~HcalDbAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
@@ -105,11 +105,6 @@ HcalDbAnalyzer::HcalDbAnalyzer(const edm::ParameterSet& iConfig) {
 
   std::cout << "HcalDbAnalyzer::HcalDbAnalyzer->..." << std::endl;
   //now do what ever initialization is needed
-}
-
-HcalDbAnalyzer::~HcalDbAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
