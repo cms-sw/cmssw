@@ -12,6 +12,7 @@ struct TF1;
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <memory>
@@ -69,11 +70,11 @@ public:
 
   ~PPSAssociationCuts() {}
 
+  // checks if the data have a valid structure
+  bool isValid() const;
+
   // builds run-time data members, useful e.g. after loading data from DB
-  void initialize() {
-    for (auto &p : association_cuts_)
-      p.second.buildFunctions();
-  }
+  void initialize();
 
   const CutsPerArm &getAssociationCuts(const int sector) const { return association_cuts_.find(sector)->second; }
 

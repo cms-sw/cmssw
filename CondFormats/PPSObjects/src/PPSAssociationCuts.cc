@@ -27,8 +27,6 @@ PPSAssociationCuts::CutsPerArm::CutsPerArm(const edm::ParameterSet &iConfig, int
 
   ti_tr_min_ = association_cuts.getParameter<double>("ti_tr_min");
   ti_tr_max_ = association_cuts.getParameter<double>("ti_tr_max");
-
-  buildFunctions();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -83,6 +81,8 @@ PPSAssociationCuts::PPSAssociationCuts(const edm::ParameterSet &iConfig) {
   unsigned int i = 0;
   for (const int &sector : {45, 56})
     association_cuts_[i++] = CutsPerArm(iConfig, sector);
+
+  initialize();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -106,6 +106,29 @@ edm::ParameterSetDescription PPSAssociationCuts::getDefaultParameters() {
   desc.add<double>("ti_tr_max", +1.)->setComment("maximum value for timing-tracking association cut");
 
   return desc;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+bool PPSAssociationCuts::isValid() const
+{
+  // valid if association_cuts_ have two entries, with keys 0 and 1
+  if (association_cuts_.size() != 2) return false;
+
+  if (association_cuts_.find(0) == association_cuts_.end()) return false;
+  if (association_cuts_.find(1) == association_cuts_.end()) return false;
+
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void PPSAssociationCuts::initialize() {
+  if (!isValid())
+    throw cms::Exception("PPS") << "Invalid structure of PPSAssociationCuts.";
+
+  for (auto &p : association_cuts_)
+    p.second.buildFunctions();
 }
 
 //----------------------------------------------------------------------------------------------------
