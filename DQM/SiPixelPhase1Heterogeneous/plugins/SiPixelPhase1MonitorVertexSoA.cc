@@ -26,6 +26,7 @@
 
 class SiPixelPhase1MonitorVertexSoA : public DQMEDAnalyzer {
 public:
+  using IndToEdm = std::vector<uint16_t>;
   explicit SiPixelPhase1MonitorVertexSoA(const edm::ParameterSet&);
   ~SiPixelPhase1MonitorVertexSoA() override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
@@ -42,6 +43,7 @@ private:
   MonitorElement* hz;
   MonitorElement* hchi2;
   MonitorElement* hptv2;
+  MonitorElement* hntrks;
 };
 
 //
@@ -57,7 +59,6 @@ SiPixelPhase1MonitorVertexSoA::SiPixelPhase1MonitorVertexSoA(const edm::Paramete
 SiPixelPhase1MonitorVertexSoA::~SiPixelPhase1MonitorVertexSoA() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  edm::LogInfo("SiPixelPhase1MonitorVertexSoA") << ">>> Destroy SiPixelPhase1MonitorVertexSoA ";
 }
 
 // -- Analyze
@@ -78,16 +79,18 @@ void SiPixelPhase1MonitorVertexSoA::analyze(const edm::Event& iEvent, const edm:
     dydz = bs.dydz();
   }
   for (int iv = 0; iv < nVertices; iv++) {
-    auto z = vsoa.zv[iv];
+    auto si = vsoa.sortInd[iv];
+    auto z = vsoa.zv[si];
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
     z += z0;
     hx->Fill(x);
     hy->Fill(y);
     hz->Fill(z);
-    if (vsoa.ndof[iv] != 0)
-      hchi2->Fill(vsoa.chi2[iv] / vsoa.ndof[iv]);
-    hptv2->Fill(vsoa.ptv2[iv]);
+    auto ndof = vsoa.ndof[si];
+    hchi2->Fill(vsoa.chi2[si] / ndof);
+    hptv2->Fill(vsoa.ptv2[si]);
+    hntrks->Fill(ndof + 1);
   }
   hnVertex->Fill(nVertices);
 }
@@ -102,11 +105,12 @@ void SiPixelPhase1MonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
   hnVertex = ibooker.book1D("nVertex", ";# of Vertex;#entries", 101, -0.5, 100.5);
-  hx = ibooker.book1D("vx", ";Vertez x;#entries", 30, -30., 30);
-  hy = ibooker.book1D("vy", ";Vertez y;#entries", 30, -30., 30);
+  hx = ibooker.book1D("vx", ";Vertez x;#entries", 10, -5., 5.);
+  hy = ibooker.book1D("vy", ";Vertez y;#entries", 10, -5., 5.);
   hz = ibooker.book1D("vz", ";Vertez z;#entries", 30, -30., 30);
-  hchi2 = ibooker.book1D("chi2", ";Vertex chi-squared over ndof;#entries", 40, 0., 20.);
+  hchi2 = ibooker.book1D("chi2", ";Vertex chi-squared;#entries", 40, 0., 20.);
   hptv2 = ibooker.book1D("ptsq", ";Vertex p_T squared;#entries", 200, 0., 200.);
+  hntrks = ibooker.book1D("ntrk", ";#tracks associated;#entries", 100, -0.5, 99.5);
 }
 
 void SiPixelPhase1MonitorVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -115,8 +119,6 @@ void SiPixelPhase1MonitorVertexSoA::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesSoA"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelVertexSoA");
-  descriptions.add("monitorpixelVertexSoA", desc);
-  // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorVertexSoA);
