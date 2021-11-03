@@ -23,6 +23,9 @@ namespace ecaldqm {
     void runOnGpuRecHits(EcalRecHitCollection const&, Collections);
 
   private:
+    void setParams(edm::ParameterSet const&) override;
+
+    bool runOnGpu_;
     EcalRecHitCollection const* EBCpuRecHits_;
     EcalRecHitCollection const* EECpuRecHits_;
   };
@@ -37,9 +40,9 @@ namespace ecaldqm {
         break;
       case kEBGpuRecHit:
       case kEEGpuRecHit:
-        if (_p)
+        if (_p && runOnGpu_)
           runOnGpuRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-        return true;
+        return runOnGpu_;
         break;
       default:
         break;
