@@ -17,7 +17,7 @@ const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutLCtoSC_ = 0.1;
 const double ScoreCutSCtoLC_ = 0.1;
 const double ScoreCutTStoCPFakeMerge_[] = {0.6, 1.e-09}; //FLT_MIN
-const double ScoreCutCPtoTSEffDup_[] = {0.2, 1.e-10}; //FLT_MIN
+const double ScoreCutCPtoTSEffDup_[] = {0.2, 1.e-11}; //FLT_MIN
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -1102,8 +1102,14 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook, Hist
 
   histograms.h_score_trackster2caloparticle[i].push_back(
       ibook.book1D("Score_trackster2" + ref[i], "Score of Trackster per " + refT[i], nintScore_, minScore_, maxScore_));
+  histograms.h_scoreMerge_trackster2caloparticle[i].push_back(
+      ibook.book1D("ScoreMerge_trackster2" + ref[i], "Score of merged Trackster per " + refT[i], nintScore_, minScore_, maxScore_));
   histograms.h_score_caloparticle2trackster[i].push_back(ibook.book1D(
       "Score_" + ref[i] + "2trackster", "Score of " + refT[i] + " per Trackster", nintScore_, minScore_, maxScore_));
+  histograms.h_scorePur_caloparticle2trackster[i].push_back(ibook.book1D(
+      "ScorePur_" + ref[i] + "2trackster", "Score of " + refT[i] + " per best Trackster", nintScore_, minScore_, maxScore_));
+  histograms.h_scoreDupl_caloparticle2trackster[i].push_back(ibook.book1D(
+      "ScoreDupl_" + ref[i] + "2trackster", "Score of " + refT[i] + " per first duplicate Trackster", nintScore_, minScore_, maxScore_));
   histograms.h_energy_vs_score_trackster2caloparticle[i].push_back(
       ibook.book2D("Energy_vs_Score_trackster2" + ref[i],
                    "Energy vs Score of Trackster per " + refT[i],
@@ -2716,8 +2722,7 @@ return v.first == hitid; });
 
     //In case of a Trackster with some energy but none related CaloParticles print some info.
     if (stsInTrackster[tstId].empty())
-      LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId << "\tSimTrackster id:\t-1 "
-                                 << "\t score \t-1\n";
+      LogDebug("HGCalValidator") << "Trackster Id: " << tstId << "\tSimTrackster id: -1" << "\tscore: -1\n";
 
     tracksters_fakemerge[tstId] = std::count_if(std::begin(stsInTrackster[tstId]),
                                                 std::end(stsInTrackster[tstId]),
@@ -2731,19 +2736,23 @@ return v.first == hitid; });
     const auto score = std::min_element(std::begin(stsInTrackster[tstId]),
                                         std::end(stsInTrackster[tstId]),
                                         [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+    const auto score2 = std::min_element(std::begin(stsInTrackster[tstId]),
+                                         std::end(stsInTrackster[tstId]),
+                                         [&score](const auto& obj1, const auto& obj2) { if (obj1.first != score->first) return obj1.second < obj2.second;
+else return false;
+});
     for (const auto& stsPair : stsInTrackster[tstId]) {
       const auto iSTS = stsPair.first;
       const auto cpId = getCPId(simTSs[iSTS], iSTS, cPHandle_id, cpToSc_SimTrackstersMap, simTSs_fromCP);
       //if (std::find(cPIndices.begin(), cPIndices.end(), cpId) == cPIndices.end())
       //  continue;
 
-      LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId << "\t CP id: \t" << cpId << "\t score \t"
-                                 << stsPair.second << std::endl;
       float sharedeneCPallLayers = 0.;
       for (unsigned int j = 0; j < layers * 2; ++j) {
         const auto& cp_linked = cPOnLayer[cpId][j].layerClusterIdToEnergyAndScore[tstId];
         sharedeneCPallLayers += cp_linked.first;
       }
+      LogDebug("HGCalValidator") << "\nTrackster id: " << tstId << " (" << trackster.vertices().size() << " vertices)" << "\tSimTrackster Id: " << iSTS << " (" << simTSs[iSTS].vertices().size() << ")" << " (CP id: " << cpId << " vertices)\tscore: " << stsPair.second << "\tsharedeneCPallLayers: " << sharedeneCPallLayers << std::endl;
 
       if (iSTS == score->first) {
         histograms.h_score_trackster2caloparticle[i][count]->Fill(score->second);
@@ -2751,6 +2760,9 @@ return v.first == hitid; });
                                                                          trackster.raw_energy());
         histograms.h_energy_vs_score_trackster2caloparticle[i][count]->Fill(
             score->second, sharedeneCPallLayers / trackster.raw_energy());
+      }
+      else if (stsPair.first == score2->first) {
+        histograms.h_scoreMerge_trackster2caloparticle[i][count]->Fill(stsPair.second);
       }
     }
   }  //end of loop through Tracksters
@@ -2950,10 +2962,17 @@ return v.first == hitid; });
 
     const auto assocDup = std::count_if(std::begin(score3d_iSTS), std::end(score3d_iSTS), is_assoc);
 
+    const auto best = std::min_element(std::begin(score3d_iSTS), std::end(score3d_iSTS));
+    histograms.h_scorePur_caloparticle2trackster[i][count]->Fill(*best);
+    const auto best2 = std::min_element(std::begin(score3d_iSTS), std::end(score3d_iSTS),
+                                        [&best](const auto& obj1, const auto& obj2) { if (obj1 != *best) return obj1 < obj2;
+else return false;
+});
+    histograms.h_scoreDupl_caloparticle2trackster[i][count]->Fill(*best2);
+
     if (assocDup > 0) {
       histograms.h_num_caloparticle_eta[i][count]->Fill(sts_eta);
       histograms.h_num_caloparticle_phi[i][count]->Fill(sts_phi);
-      const auto best = std::min_element(std::begin(score3d_iSTS), std::end(score3d_iSTS));
       const auto bestTstId = std::distance(std::begin(score3d_iSTS), best);
       const auto tstRawEnergyFrac = tracksters[bestTstId].raw_energy() / SimEnergy;
       const auto tstSharedEnergyFrac = tstSharedEnergy[iSTS][bestTstId] / SimEnergy;

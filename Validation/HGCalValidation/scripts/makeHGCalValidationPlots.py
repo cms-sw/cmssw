@@ -14,7 +14,7 @@ import Validation.RecoTrack.plotting.plotting as plotting
 
 simClustersIters = [hgcalValidator.label_SimClustersLevel._InputTag__moduleLabel, "ticlSimTracksters"]
 trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
-trackstersIters.extend(["ticlSimTracksters"])
+trackstersIters.extend(["ticlSimTracksters", "ticlSimTracksters_fromCPs"])
 
 hitCalLabel = 'hitCalibration'
 hitValLabel = 'hitValidation'
