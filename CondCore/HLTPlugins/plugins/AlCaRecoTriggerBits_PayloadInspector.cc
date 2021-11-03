@@ -18,14 +18,13 @@ namespace {
   /************************************************
     Display AlCaRecoTriggerBits mapping
   *************************************************/
-  class AlCaRecoTriggerBits_Display : public PlotImage<AlCaRecoTriggerBits> {
+  class AlCaRecoTriggerBits_Display : public PlotImage<AlCaRecoTriggerBits, SINGLE_IOV> {
   public:
-    AlCaRecoTriggerBits_Display() : PlotImage<AlCaRecoTriggerBits>("Table of AlCaRecoTriggerBits") {
-      setSingleIov(true);
-    }
+    AlCaRecoTriggerBits_Display() : PlotImage<AlCaRecoTriggerBits, SINGLE_IOV>("Table of AlCaRecoTriggerBits") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<AlCaRecoTriggerBits> payload = fetchPayload(std::get<1>(iov));
 
       std::string IOVsince = std::to_string(std::get<0>(iov));
@@ -51,7 +50,7 @@ namespace {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      s_x2.push_back("#scale[1.2]{in IOV: " + IOVsince + "}");
+      s_x2.push_back("#scale[1.2]{tag: " + tag.name + " in IOV: " + IOVsince + "}");
 
       y -= pitch / 2.;
       y_line.push_back(y);
