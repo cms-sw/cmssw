@@ -43,6 +43,8 @@ public:
 
   bool knowsRecord(const std::string& record) const;
 
+  const std::vector<std::string> getAllRecords() const;
+
 protected:
 private:
   std::map<std::string, DropBoxMetadata::Parameters> recordSet;
