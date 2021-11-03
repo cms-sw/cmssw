@@ -50,7 +50,7 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     from .confdbOfflineConverter import OfflineConverter
-    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database)
+    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port)
     self.buildPathList()
     self.buildOptions()
     self.getSetupConfigurationFromDB()
@@ -91,7 +91,6 @@ class HLTProcess(object):
     for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
-
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
         sys.stderr.write("%s: error while retrieving the HLT menu\n\n" % os.path.basename(sys.argv[0]))
