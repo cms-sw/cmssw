@@ -70,9 +70,13 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
         jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
       }
     }
+  }
 
-    // fill JetMultiplicity
+  // fill JetMultiplicity
+  if (mclevel_ > 0) {
     jetTagPlotter_->analyzeTag(1.);
+  } else {
+    jetTagPlotter_->analyzeTag();
   }
 }
 
