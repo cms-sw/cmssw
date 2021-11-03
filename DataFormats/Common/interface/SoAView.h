@@ -77,12 +77,21 @@
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TRIVIAL_CONSTRUCTION_IMPL STORE_MEMBER_NAME)
 
 /**
- * Generator of parameters (stores) for constructor.
+ * Generator of parameters (stores) for constructor by stores.
  */
 #define _DECLARE_VIEW_CONSTRUCTION_PARAMETERS_IMPL(STORE_TYPE, STORE_NAME, DATA) (DATA STORE_TYPE & STORE_NAME)
 
 #define _DECLARE_VIEW_CONSTRUCTION_PARAMETERS(R, DATA, TYPE_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))
+
+/**
+ * Generator of parameters (stores) for constructor by column.
+ */
+#define _DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS_IMPL(STORE_NAME, STORE_MEMBER, LOCAL_NAME, DATA) \
+  (DATA BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME) * LOCAL_NAME)
+
+#define _DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS(R, DATA, STORE_MEMBER_NAME) \
+  BOOST_PP_EXPAND(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS_IMPL BOOST_PP_TUPLE_PUSH_BACK(STORE_MEMBER_NAME, DATA))
 
 /**
  * Generator of member initialization from constructor.
@@ -97,6 +106,15 @@
 
 #define _DECLARE_VIEW_MEMBER_INITIALIZERS(R, DATA, STORE_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL STORE_MEMBER_NAME)
+
+/**
+ * Generator of member initialization from constructor.
+ * We use a lambda with auto return type to handle multiple possible return types.
+ */
+#define _DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN_IMPL(STORE, MEMBER, NAME) (BOOST_PP_CAT(NAME, _)(NAME))
+
+#define _DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN(R, DATA, STORE_MEMBER_NAME) \
+  BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN_IMPL STORE_MEMBER_NAME)
 
 /**
  * Generator of element members initializer.
@@ -244,6 +262,12 @@
     SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS, BOOST_PP_EMPTY(), STORES_LIST))                    \
         : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                                    \
                                                                                                                                         \
+    /* Constructor relying on individually provided column addresses */                                                                 \
+    SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS,                                           \
+                                              BOOST_PP_EMPTY(),                                                                         \
+                                              VALUE_LIST))                                                                              \
+        : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}                                           \
+                                                                                                                                        \
     struct const_element {                                                                                                              \
       SOA_HOST_DEVICE_INLINE                                                                                                            \
       const_element(size_t index, /* Declare parameters */                                                                              \
@@ -320,6 +344,10 @@
     /* Constructor relying on user provided stores */                                                                                   \
     SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS, const, STORES_LIST))                               \
         : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                                    \
+                                                                                                                                        \
+    /* Constructor relying on individually provided column addresses */                                                                 \
+    SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS, const, VALUE_LIST))                       \
+        : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}                                           \
                                                                                                                                         \
     struct const_element {                                                                                                              \
       SOA_HOST_DEVICE_INLINE                                                                                                            \

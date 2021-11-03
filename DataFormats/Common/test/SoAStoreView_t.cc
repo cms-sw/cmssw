@@ -97,6 +97,16 @@ int main(void) {
   SoAHostDevice d_soahd(d_buf.get(), numElements, byteAlignment);
   SoADeviceOnly d_soado(d_soahd.soaMetadata().nextByte(), numElements, byteAlignment);
   SoAFullDeviceView d_soa(d_soahd, d_soado);
+  SoAFullDeviceView d_soaByColumns(d_soa.x(),
+                                   d_soa.y(),
+                                   d_soa.z(),
+                                   d_soa.color(),
+                                   d_soa.value(),
+                                   d_soa.py(),
+                                   d_soa.count(),
+                                   d_soa.anotherCount(),
+                                   d_soa.description(),
+                                   d_soa.someNumber());
 
   // Assert column alignments
   assert(0 == reinterpret_cast<uintptr_t>(h_soahd.x()) % h_soahd.soaMetadata().byteAlignment());
@@ -163,8 +173,9 @@ int main(void) {
     producerKernel()(d_soa, i);
 
   // Consume the device only area and generate a result on the host-device area
+  // This kernel uses the view initialized by column to validate it.
   for (size_t i = 0; i < numElements; i++)
-    consumerKernel()(d_soa, i);
+    consumerKernel()(d_soaByColumns, i);
 
   // Get result back
   std::memcpy(h_buf.get(), d_buf.get(), hostDeviceSize);
