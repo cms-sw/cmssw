@@ -1,35 +1,22 @@
 /** \class HLTJetTimingFilter
  *
  *  \brief  This makes selections on the timing and associated ecal cells 
- *  produced by HLTJetTimingProducer
+ *          produced by HLTJetTimingProducer
  *  \author Matthew Citron
  *
  */
 #ifndef HLTrigger_JetMET_plugins_HLTJetTimingFilter_h
 #define HLTrigger_JetMET_plugins_HLTJetTimingFilter_h
 
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-namespace edm {
-  class ConfigurationDescriptions;
-}
-
-//
-// class declaration
-//
 template <typename T>
 class HLTJetTimingFilter : public HLTFilter {
 public:
@@ -55,7 +42,6 @@ private:
   const double minPt_;
 };
 
-//Constructor
 template <typename T>
 HLTJetTimingFilter<T>::HLTJetTimingFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
@@ -72,7 +58,6 @@ HLTJetTimingFilter<T>::HLTJetTimingFilter(const edm::ParameterSet& iConfig)
       jetCellsForTimingThresh_{iConfig.getParameter<unsigned int>("jetCellsForTimingThresh")},
       minPt_{iConfig.getParameter<double>("minJetPt")} {}
 
-//Filter
 template <typename T>
 bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
@@ -100,7 +85,6 @@ bool HLTJetTimingFilter<T>::hltFilter(edm::Event& iEvent,
   return njets >= minJets_;
 }
 
-// Fill descriptions
 template <typename T>
 void HLTJetTimingFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
