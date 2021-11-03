@@ -186,11 +186,11 @@
     <Vector name="MaterialNames" type="string" nEntries="10">
       materials:Copper, materials:StainlessSteel, materials:Epoxy, 
       materials:Lead, materials:Lead, materials:Lead, materials:Copper,
-      materials:Copper, materials:Air, materials:Air</Vector>
+      materials:StainlessSteel, materials:Air, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="10">
       HGCalEEAbsorberCopper, HGCalEEAbsorberStainlessSteel, 
       HGCalEEAbsorberEpoxy, HGCalEEAbsorberLead1, HGCalEEAbsorberLead2, 
-      HGCalEEAbsorberLead3,  HGCalEECoolingPlate, HGCalEECopperCover,
+      HGCalEEAbsorberLead3,  HGCalEECoolingPlate, HGCalEEStainlessSteelCover,
       HGCalEELayerF, HGCalEELayerB</Vector>
     <Vector name="Thickness" type="numeric" nEntries="10">
       0.1*mm, 0.3*mm,  0.05*mm, 2.77*mm, 4.97*mm, 8.22*mm,
