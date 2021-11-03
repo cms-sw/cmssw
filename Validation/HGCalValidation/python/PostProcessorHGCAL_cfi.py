@@ -64,11 +64,11 @@ for elem in simDict:
 
 
 tsToCP_linking = hgcalValidator.label_TSToCPLinking._InputTag__moduleLabel
-subdirsTracksters = [prefix+'hgcalTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters/'+tsToCP_linking]
+subdirsTracksters = [prefix+'ticlSimTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters_fromCPs/'+tsToCP_linking]
 subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToCP_linking for iteration in ticlIterLabelsMerge)
 
 tsToSTS_patternRec = hgcalValidator.label_TSToSTSPR._InputTag__moduleLabel
-subdirsTracksters.extend([prefix+'hgcalTracksters/'+tsToSTS_patternRec, prefix+'ticlSimTracksters/'+tsToSTS_patternRec])
+subdirsTracksters.extend([prefix+'ticlSimTracksters/'+tsToSTS_patternRec, prefix+'ticlSimTracksters_fromCPs/'+tsToSTS_patternRec])
 subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToSTS_patternRec for iteration in ticlIterLabelsMerge)
 
 postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',

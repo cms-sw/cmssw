@@ -11,9 +11,9 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
 
 labelTst = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabelsMerge]
-labelTst.extend(["ticlSimTracksters"])
+labelTst.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
-lcInputMask.extend(["ticlSimTracksters"])
+lcInputMask.extend([cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")])
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
