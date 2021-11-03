@@ -78,8 +78,8 @@ namespace l1t {
           //    res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker_v2");
           // }
           else {
-            edm::LogWarning("L1T")
-                << "CaloLayer1Setup: unexpected CTP7 firmware ID, will try unpacking with default unpacker anyway";
+            // edm::LogWarning("L1T")
+            //     << "CaloLayer1Setup: unexpected CTP7 firmware ID, will try unpacking with default unpacker anyway";
             res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
           }
         }
