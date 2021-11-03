@@ -27,13 +27,11 @@ PPSAssociationCuts::CutsPerArm::CutsPerArm(const edm::ParameterSet &iConfig, int
 
   ti_tr_min_ = association_cuts.getParameter<double>("ti_tr_min");
   ti_tr_max_ = association_cuts.getParameter<double>("ti_tr_max");
-
-  buildFunctions();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
+void PPSAssociationCuts::CutsPerArm::buildFunctions() {
   f_means_.clear();
   for (const auto &s : s_means_)
     f_means_.push_back(std::make_shared<TF1>("f", s.c_str()));
@@ -46,7 +44,7 @@ void PPSAssociationCuts::CutsPerArm::buildFunctions() const {
 //----------------------------------------------------------------------------------------------------
 
 bool PPSAssociationCuts::CutsPerArm::isApplied(Quantities quantity) const {
-  return (!s_thresholds_.at(quantity).empty()) && (!s_means_.at(quantity).empty());
+  return (!s_thresholds_[quantity].empty()) && (!s_means_[quantity].empty());
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -57,14 +55,9 @@ bool PPSAssociationCuts::CutsPerArm::isSatisfied(
   if (!isApplied(quantity))
     return true;
 
-  // build functions if not already done
-  // (this may happen if data (string representation) are loaded from DB and the constructor is not executed)
-  if (f_means_.size() < s_means_.size())
-    buildFunctions();
-
   // evaluate mean and threshold
-  const double mean = evaluateExpression(f_means_.at(quantity), x_near, y_near, xangle);
-  const double threshold = evaluateExpression(f_thresholds_.at(quantity), x_near, y_near, xangle);
+  const double mean = evaluateExpression(f_means_[quantity], x_near, y_near, xangle);
+  const double threshold = evaluateExpression(f_thresholds_[quantity], x_near, y_near, xangle);
 
   // make comparison
   return fabs(q_NF_diff - mean) < threshold;
@@ -88,6 +81,8 @@ PPSAssociationCuts::PPSAssociationCuts(const edm::ParameterSet &iConfig) {
   unsigned int i = 0;
   for (const int &sector : {45, 56})
     association_cuts_[i++] = CutsPerArm(iConfig, sector);
+
+  initialize();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -111,6 +106,31 @@ edm::ParameterSetDescription PPSAssociationCuts::getDefaultParameters() {
   desc.add<double>("ti_tr_max", +1.)->setComment("maximum value for timing-tracking association cut");
 
   return desc;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+bool PPSAssociationCuts::isValid() const {
+  // valid if association_cuts_ have two entries, with keys 0 and 1
+  if (association_cuts_.size() != 2)
+    return false;
+
+  if (association_cuts_.find(0) == association_cuts_.end())
+    return false;
+  if (association_cuts_.find(1) == association_cuts_.end())
+    return false;
+
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void PPSAssociationCuts::initialize() {
+  if (!isValid())
+    throw cms::Exception("PPS") << "Invalid structure of PPSAssociationCuts.";
+
+  for (auto &p : association_cuts_)
+    p.second.buildFunctions();
 }
 
 //----------------------------------------------------------------------------------------------------
