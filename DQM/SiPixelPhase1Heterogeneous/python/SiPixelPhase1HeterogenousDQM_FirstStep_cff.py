@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1MonitorTrackSoA_cfi import *
-from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1MonitorVertexSoA_cfi import *
-#from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1MonitorDigiSoA_cfi import *
+from DQM.SiPixelPhase1Heterogeneous.monitorpixelTrackSoA_cfi import *
+from DQM.SiPixelPhase1Heterogeneous.monitorpixelVertexSoA_cfi import *
 
-monitorpixelsoa = cms.Task(monitorpixelDigi,
-                           monitorpixelTrackSoA)
-#,
-#                           monitorpixelVertexSoA,
-#                       )
+monitorpixelSoASource = cms.Sequence(monitorpixelTrackSoA * monitorpixelVertexSoA)
