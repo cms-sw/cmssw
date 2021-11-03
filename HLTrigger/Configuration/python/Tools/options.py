@@ -128,7 +128,9 @@ class HLTProcessOptions(object):
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
     self.setup      = None        #     if set, downlad the setup_cff from the specified configuration and load it.
-
+    self.proxy      = False       #     use a socks proxy to connect
+    self.proxy_host = 'localhost' #     host of the proxy server
+    self.proxy_port = '8080'        #     port of the proxy server
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
