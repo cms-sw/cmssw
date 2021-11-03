@@ -3,6 +3,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
 from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
+from L1Trigger.L1TNtuples.l1UpgradeTfMuonShowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
