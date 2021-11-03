@@ -69,6 +69,7 @@ private:
   MEMap3Inf mapStatusErrVFATPerLayer_;
   MEMap4Inf mapStatusVFATPerCh_;
 
+  MonitorElement *h2SummaryStatusAll;
   MonitorElement *h2SummaryStatusWarning;
   MonitorElement *h2SummaryStatusError;
 
