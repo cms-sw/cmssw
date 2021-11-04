@@ -524,8 +524,9 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry, const std::vecto
             auto chamber = theGeometry.chamber(chId);
             if (!chamber) {
               edm::LogWarning("GEMGeometryBuilder") << "Missing chamber " << chId;
+            } else {
+              superChamber->add(chamber);
             }
-            superChamber->add(chamber);
           }
           ring->add(superChamber);
           theGeometry.add(superChamber);

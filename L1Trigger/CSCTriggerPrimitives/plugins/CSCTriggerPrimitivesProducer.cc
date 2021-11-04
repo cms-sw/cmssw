@@ -99,8 +99,12 @@ private:
   // write out showrs
   bool keepShowers_;
 
-  // switch to enable the integrated local triggers in ME11 and ME21
-  bool runCCLUT_;
+  // switches to enable the Run-3 pattern finding
+  bool runCCLUT_;       // 'OR' of the two options below
+  bool runCCLUT_TMB_;   // ME1/2, ME1/3, ME2/2, ME3/2, ME4/2
+  bool runCCLUT_OTMB_;  // ME1/1, ME2/1, ME3/1, ME4/1
+
+  bool runILT_;  // // 'OR' of the two options below
   bool runME11ILT_;
   bool runME21ILT_;
 };
@@ -126,13 +130,17 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
-  runCCLUT_ = commonParam.getParameter<bool>("runCCLUT");
+  runCCLUT_TMB_ = commonParam.getParameter<bool>("runCCLUT_TMB");
+  runCCLUT_OTMB_ = commonParam.getParameter<bool>("runCCLUT_OTMB");
+  runCCLUT_ = runCCLUT_TMB_ or runCCLUT_OTMB_;
+
   runME11ILT_ = commonParam.getParameter<bool>("runME11ILT");
   runME21ILT_ = commonParam.getParameter<bool>("runME21ILT");
+  runILT_ = runME11ILT_ or runME21ILT_;
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
-  if (runME11ILT_ or runME21ILT_)
+  if (runILT_)
     gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
   gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
@@ -162,7 +170,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
     produces<CSCShowerDigiCollection>();
     produces<CSCShowerDigiCollection>("Anode");
   }
-  if (runME11ILT_ or runME21ILT_) {
+  if (runILT_) {
     produces<GEMCoPadDigiCollection>();
   }
   // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
@@ -177,7 +185,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // get the gem geometry if it's there
   edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
-  if (runME11ILT_ or runME21ILT_) {
+  if (runILT_) {
     if (h_gem.isValid()) {
       builder_->setGEMGeometry(&*h_gem);
     } else {
@@ -241,7 +249,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // input GEM pad cluster collection for upgrade scenarios
   const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
-  if (runME11ILT_ or runME21ILT_) {
+  if (runILT_) {
     if (!gemPadDigiClusterProducer_.label().empty()) {
       edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
       ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
@@ -313,7 +321,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   }
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
-  if (runME11ILT_ or runME21ILT_)
+  if (runILT_)
     ev.put(std::move(oc_gemcopad));
 }
 

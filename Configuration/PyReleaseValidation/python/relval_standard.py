@@ -436,6 +436,8 @@ workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEG
 ### LS2 - MWGR ###
 workflows[138.1] = ['',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
 workflows[138.2] = ['',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
+### 2021 Splash events
+workflows[138.3] = ['',['RunMinimumBias2021Splash','COPYPASTER3', 'RECODR3Splash','HARVESTDR3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]

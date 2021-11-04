@@ -6,8 +6,9 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="HeterogeneousCore/CUDACore"/>
-<use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoPixelVertexing/PixelTriplets"/>
+<use name="RecoTracker/Record"/>
+<use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoTracker/TkSeedingLayers"/>
 <library file="*.cc *.cu" name="RecoPixelVertexingPixelTripletsPlugins">
   <flags EDM_PLUGIN="1"/>

@@ -89,14 +89,15 @@ if __name__ == '__main__':
                      10824.0, #2018 ttbar
                      2018.1, #2018 ttbar fastsim
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
-                     11634.912, #2021 DD4hep ttbar reading geometry from the DB
-                     11634.0, #2021 ttbar
+                     11634.914, #2021 DDD ttbar reading geometry from the DB
+                     11634.0, #2021 ttbar (switching to DD4hep by default)
                      11634.7, #2021 ttbar mkFit
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      28234.0, #2026D60 (exercise HF nose)
-                     34634.0, #2026D76 ttbar (2021 new baseline)
-                     34834.999, #2026D76 ttbar premixing stage1+stage2, PU50
+                     35034.0, #2026D77 ttbar (2021 new baseline)
+                     35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
+                     38634.0, #2026D86 ttbar
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

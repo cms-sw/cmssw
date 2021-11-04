@@ -16,7 +16,14 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
   isME21_ = (theStation == 2 && theRing == 1);
   isME31_ = (theStation == 3 && theRing == 1);
   isME41_ = (theStation == 4 && theRing == 1);
+  isME12_ = (theStation == 1 && theRing == 2);
+  isME22_ = (theStation == 2 && theRing == 2);
+  isME32_ = (theStation == 3 && theRing == 2);
+  isME42_ = (theStation == 4 && theRing == 2);
+  isME13_ = (theStation == 1 && theRing == 3);
 
+  const bool hasTMB(isME12_ or isME22_ or isME32_ or isME42_ or isME13_);
+  const bool hasOTMB(isME11_ or isME21_ or isME31_ or isME41_);
   cscId_ = CSCDetId(theEndcap, theStation, theRing, theChamber, 0);
 
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
@@ -41,7 +48,10 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
   runME11ILT_ = commonParams_.getParameter<bool>("runME11ILT");
   runME21ILT_ = commonParams_.getParameter<bool>("runME21ILT");
 
-  runCCLUT_ = commonParams_.getParameter<bool>("runCCLUT");
+  runCCLUT_TMB_ = commonParams_.getParameter<bool>("runCCLUT_TMB");
+  runCCLUT_OTMB_ = commonParams_.getParameter<bool>("runCCLUT_OTMB");
+  // check if CCLUT should be on in this chamber
+  runCCLUT_ = (hasTMB and runCCLUT_TMB_) or (hasOTMB and runCCLUT_OTMB_);
 
   // general case
   tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbPhase1");

@@ -87,9 +87,9 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   contain1TSHE_ = iConfig.getParameter<bool>("contain1TSHE");
   containPhaseNSHB_ = iConfig.getParameter<double>("containPhaseNSHB");
   containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
-  applyFixPCC_ = iConfig.getParameter<bool>("applyFixPCC");
   overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
   overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
+  applyFixPCC_ = iConfig.getParameter<bool>("applyFixPCC");
 
   //the following line is needed to tell the framework what
   // data is being produced

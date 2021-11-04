@@ -18,6 +18,11 @@ process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HcalIsoTrackX=dict()
+    process.MessageLogger.HcalIsoTrack=dict()
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -26,10 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/RECO_data.root',
-#        'file:/afs/cern.ch/user/h/huwang/work/public/for_Sunanda/UL_1TeV_pion_gun_RAW_0_0.root',
-#        "root://cmseos.fnal.gov//eos/uscms/store/user/lpcrutgers/huiwang/HCAL/UL_DoublePion_E-50_RAW_noPU-2020-12-25/UL_1TeV_pion_gun_RAW_0_0.root"
     ),
-    #skipEvents = cms.untracked.uint32(516),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -69,6 +71,14 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.ALCARECOStreamHcalCalIsoTrkFilterOutPath = cms.EndPath(process.ALCARECOStreamHcalCalIsoTrkFilter)
+
+process.alcaIsoTracksFilter.debugEvents = [640818633, 640797426, 641251898]
+#process.alcaIsoTracksFilter.debugEvents = [641031809, 641092744, 640862532,
+#                                           640874735, 641845581, 641144982,
+#                                           641124886, 641240201, 640856725,
+#                                           641709599, 641406943, 640794164,
+#                                           641820644, 641053143, 641458751,
+#                                           641554667, 641621481]
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOHcalCalIsoTrkFilterNoHLT,process.endjob_step,process.ALCARECOStreamHcalCalIsoTrkFilterOutPath)

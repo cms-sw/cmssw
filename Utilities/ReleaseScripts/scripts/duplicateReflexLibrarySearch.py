@@ -8,10 +8,7 @@ import sys
 import pprint
 import subprocess
 from XML2Python import xml2obj
-try:
-  from subprocess import getoutput
-except:
-  from commands import getoutput
+from subprocess import getoutput
 # These aren't all typedefs, but can sometimes make the output more
 # readable
 typedefsDict = \

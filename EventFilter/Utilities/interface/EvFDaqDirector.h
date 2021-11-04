@@ -184,6 +184,7 @@ namespace evf {
     std::string getStreamDestinations(std::string const& stream) const;
     std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
+    bool inputThrottled();
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -283,9 +284,8 @@ namespace evf {
     std::unique_ptr<boost::asio::ip::tcp::resolver::query> query_;
     std::unique_ptr<boost::asio::ip::tcp::resolver::iterator> endpoint_iterator_;
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
-    //boost::asio::io_context io_context_;
-    //tcp::resolver resolver_;
-    //tcp::resolver::results_type endpoints_;
+
+    std::string input_throttled_file_;
   };
 }  // namespace evf
 

@@ -244,7 +244,7 @@ void EcalLaserCondTools::from_hdf_to_db() {
         if (verb_ > 1)
           std::cout << "[" << timeToString(t.tv_sec) << "] "
                     << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-        db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
+        db_->writeOneIOV(*corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
       } catch (const cms::Exception& e) {
         if (verb_ > 1)
           std::cout << "Failed. ";
@@ -437,7 +437,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     if (verb_ > 1)
       std::cout << "[" << timeToString(t.tv_sec) << "] "
                 << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-    db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
+    db_->writeOneIOV(*corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
   } catch (const cms::Exception& e) {
     std::cout << "Failed.\nException cathed while writting to cond DB" << e.what() << "\n";
   }

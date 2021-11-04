@@ -20,19 +20,19 @@
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
-class TriggerObjectFilterByCollection : public edm::EDProducer {
+class TriggerObjectFilterByCollection : public edm::global::EDProducer<> {
 public:
   explicit TriggerObjectFilterByCollection(const edm::ParameterSet &iConfig);
   ~TriggerObjectFilterByCollection() override {}
 
-  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
 private:
   edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> src_;
@@ -53,7 +53,7 @@ TriggerObjectFilterByCollection::TriggerObjectFilterByCollection(const edm::Para
   }
 }
 
-void TriggerObjectFilterByCollection::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void TriggerObjectFilterByCollection::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   Handle<std::vector<pat::TriggerObjectStandAlone>> src;

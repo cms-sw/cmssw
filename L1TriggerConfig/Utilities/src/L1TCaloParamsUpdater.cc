@@ -41,7 +41,7 @@ void L1TCaloParamsUpdater::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOne(ptr1.get(), firstSinceTime, "L1TCaloStage2ParamsTweakedRcd");
+    poolDb->writeOneIOV(*ptr1, firstSinceTime, "L1TCaloStage2ParamsTweakedRcd");
   }
 }
 
