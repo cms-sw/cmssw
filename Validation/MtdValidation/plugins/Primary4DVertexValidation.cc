@@ -290,6 +290,9 @@ private:
   MonitorElement* meRecoPVPosSignal_;
   MonitorElement* meRecoPVPosSignalNotHighestPt_;
   MonitorElement* meRecoVtxVsLineDensity_;
+  MonitorElement* meRecVerNumber_;
+  MonitorElement* meRecPVZ_;
+  MonitorElement* meRecPVT_;
   MonitorElement* meSimPVZ_;
 
   //some tests
@@ -467,6 +470,9 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                    200);
   meRecoVtxVsLineDensity_ =
       ibook.book1D("RecoVtxVsLineDensity", "#Reco vertices/mm/event; line density [#vtx/mm/event]", 160, 0., 4.);
+  meRecVerNumber_ = ibook.book1D("RecVerNumber", "RECO Vertex Number: Number of vertices", 50, 0, 250);
+  meRecPVZ_ = ibook.book1D("recPVZ", "Weighted #Rec vertices/mm", 400, -20., 20.);
+  meRecPVT_ = ibook.book1D("recPVT", "#Rec vertices/10 ps", 200, -1., 1.);
   meSimPVZ_ = ibook.book1D("simPVZ", "Weighted #Sim vertices/mm", 400, -20., 20.);
 
   //some tests
@@ -1294,8 +1300,13 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     return lineDensityPar_[0] * exp(-0.5 * argl * argl);
   };
 
+  meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
     meRecoVtxVsLineDensity_->Fill(puLineDensity(recopv.at(ir).z));
+    meRecPVZ_->Fill(recopv.at(ir).z, 1. / puLineDensity(recopv.at(ir).z));
+    if (recopv.at(ir).recVtx->tError() > 0.) {
+      meRecPVT_->Fill(recopv.at(ir).recVtx->t());
+    }
     if (debug_) {
       edm::LogPrint("Primary4DVertexValidation") << "************* IR: " << ir;
       edm::LogPrint("Primary4DVertexValidation")

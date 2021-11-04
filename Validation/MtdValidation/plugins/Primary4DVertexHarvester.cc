@@ -45,11 +45,27 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meMVATrackEffEtaTot = igetter.get(folder_ + "MVAEffEtaTot");
   MonitorElement* meMVATrackMatchedEffEtaTot = igetter.get(folder_ + "MVAMatchedEffEtaTot");
   MonitorElement* meMVATrackMatchedEffEtaMtd = igetter.get(folder_ + "MVAMatchedEffEtaMtd");
+  MonitorElement* meRecoVtxVsLineDensity = igetter.get(folder_ + "RecoVtxVsLineDensity");
+  MonitorElement* meRecVerNumber = igetter.get(folder_ + "RecVerNumber");
 
   if (!meMVATrackEffPtTot || !meMVATrackMatchedEffPtTot || !meMVATrackMatchedEffPtMtd || !meMVATrackEffEtaTot ||
-      !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd) {
+      !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd || !meRecoVtxVsLineDensity || !meRecVerNumber) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
+  }
+
+  // Normalize line density plot
+  double nEvt = meRecVerNumber->getEntries();
+  if (nEvt > 0.) {
+    nEvt = 1. / nEvt;
+    double nEntries = meRecoVtxVsLineDensity->getEntries();
+    for (int ibin = 1; ibin <= meRecoVtxVsLineDensity->getNbinsX(); ibin++) {
+      double cont = meRecoVtxVsLineDensity->getBinContent(ibin) * nEvt;
+      double bin_err = meRecoVtxVsLineDensity->getBinError(ibin) * nEvt;
+      meRecoVtxVsLineDensity->setBinContent(ibin, cont);
+      meRecoVtxVsLineDensity->setBinError(ibin, bin_err);
+    }
+    meRecoVtxVsLineDensity->setEntries(nEntries);
   }
 
   // --- Book  histograms
