@@ -7,31 +7,23 @@
 #ifndef HLTrigger_JetMET_plugins_HLTJetTimingProducer_h
 #define HLTrigger_JetMET_plugins_HLTJetTimingProducer_h
 
-// system include files
 #include <memory>
+#include <cmath>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
+#include "DataFormats/Common/interface/SortedCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-#include "DataFormats/Math/interface/deltaR.h"
 
-//
-// class declaration
-//
 template <typename T>
 class HLTJetTimingProducer : public edm::stream::EDProducer<> {
 public:
@@ -64,7 +56,6 @@ private:
   const double matchingRadius2_;
 };
 
-//Constructor
 template <typename T>
 HLTJetTimingProducer<T>::HLTJetTimingProducer(const edm::ParameterSet& iConfig)
     : caloGeometryToken_(esConsumes()),
@@ -84,7 +75,6 @@ HLTJetTimingProducer<T>::HLTJetTimingProducer(const edm::ParameterSet& iConfig)
   produces<edm::ValueMap<float>>("jetEcalEtForTiming");
 }
 
-//calculate jet time
 template <typename T>
 void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
     const T& jet,
@@ -102,7 +92,7 @@ void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
       continue;
     if (ecalRH.timeError() <= 0. || ecalRH.timeError() > ecalCellTimeErrorThresh_)
       continue;
-    if (fabs(ecalRH.time()) > ecalCellTimeThresh_)
+    if (std::abs(ecalRH.time()) > ecalCellTimeThresh_)
       continue;
     auto const pos = caloGeometry.getPosition(ecalRH.detid());
     if (reco::deltaR2(jet, pos) > matchingRadius2_)
@@ -116,7 +106,6 @@ void HLTJetTimingProducer<T>::jetTimeFromEcalCells(
   }
 }
 
-//Producer
 template <typename T>
 void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto const& caloGeometry = iSetup.getData(caloGeometryToken_);
@@ -168,7 +157,6 @@ void HLTJetTimingProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(jetCellsForTiming_out), "jetCellsForTiming");
 }
 
-// Fill descriptions
 template <typename T>
 void HLTJetTimingProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
