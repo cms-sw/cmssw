@@ -16,8 +16,8 @@ const double ScoreCutLCtoCP_ = 0.1;
 const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutLCtoSC_ = 0.1;
 const double ScoreCutSCtoLC_ = 0.1;
-const double ScoreCutTStoCPFakeMerge_[] = {0.6, 1.e-09}; //FLT_MIN
-const double ScoreCutCPtoTSEffDup_[] = {0.2, 1.e-11}; //FLT_MIN
+const double ScoreCutTStoSTSFakeMerge_[] = {0.6, 1.e-09}; //FLT_MIN
+const double ScoreCutSTStoTSPurDup_[] = {0.2, 1.e-11}; //FLT_MIN
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -2446,9 +2446,17 @@ return v.first == hitid; });
     return hits_and_fractions_norm;
   };
 
+  auto ScoreCutSTStoTSPurDup = ScoreCutSTStoTSPurDup_[0];
+  auto ScoreCutTStoSTSFakeMerge = ScoreCutTStoSTSFakeMerge_[0];
   // Loop through Tracksters
   for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
     const auto& trackster = tracksters[tstId];
+    if (tstId == 0)
+      if ((i == 1) && (trackster.ticlIteration() == ticl::Trackster::SIM)) { // SimTS or SimTS_fromCP
+        ScoreCutSTStoTSPurDup = ScoreCutSTStoTSPurDup_[i];
+        ScoreCutTStoSTSFakeMerge = ScoreCutTStoSTSFakeMerge_[i];
+      }
+
     if (trackster.vertices().empty())
       continue;
 
@@ -2726,11 +2734,11 @@ return v.first == hitid; });
 
     tracksters_fakemerge[tstId] = std::count_if(std::begin(stsInTrackster[tstId]),
                                                 std::end(stsInTrackster[tstId]),
-                                                [&, i](const auto& obj) {
-      if ((i == 1) && (trackster.vertices().size() != simTSs[obj.first].vertices().size()))
-        return false;
-      else
-        return obj.second < ScoreCutTStoCPFakeMerge_[i];
+                                                [&, i, ScoreCutTStoSTSFakeMerge](const auto& obj) {
+      if ((i == 1) && (trackster.ticlIteration() == ticl::Trackster::SIM)) { // SimTS or SimTS_fromCP
+        if (trackster.vertices().size() != simTSs[obj.first].vertices().size())
+          return false; }
+      return obj.second < ScoreCutTStoSTSFakeMerge;
     });
 
     const auto score = std::min_element(std::begin(stsInTrackster[tstId]),
@@ -2767,6 +2775,7 @@ else return false;
     }
   }  //end of loop through Tracksters
 
+
   std::unordered_map<unsigned int, std::vector<float>> score3d;
   std::unordered_map<unsigned int, std::vector<float>> tstSharedEnergy;
 
@@ -2778,8 +2787,6 @@ else return false;
       tstSharedEnergy[iSTS][j] = 0.f;
     }
   }
-
-  auto is_assoc = [i](const auto& v) -> bool { return v < ScoreCutCPtoTSEffDup_[i]; };
 
   // Fill the plots to compute the different metrics linked to
   // gen-level, namely efficiency, purity and duplicate. In this loop should restrict
@@ -2801,9 +2808,7 @@ else return false;
     float SimEnergy = 0.f;
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
       const auto SimNumberOfHits = simOnLayer[layerId].hits_and_fractions.size();
-      // Below gives the Sim energy related to Trackster per layer
-      if (i == 0) SimEnergy += simOnLayer[layerId].energy;
-      else if (i == 1) SimEnergy += simOnLayer[layerId].energy;
+      SimEnergy += simOnLayer[layerId].energy;
       if (SimNumberOfHits == 0)
         continue;
       int tstWithMaxEnergyInCP = -1;
@@ -2857,9 +2862,8 @@ else return false;
         for (auto& tsPair : simOnLayer[layerId].layerClusterIdToEnergyAndScore) {
           const auto tracksterId = tsPair.first;
           if (std::find(std::begin(stsId_tstId_related), std::end(stsId_tstId_related), tracksterId) ==
-              std::end(stsId_tstId_related)) {
+              std::end(stsId_tstId_related))
             stsId_tstId_related.push_back(tracksterId);
-          }
 
           float tstFraction = 0.f;
           if (!hitWithNoTS) {
@@ -2925,7 +2929,6 @@ else return false;
 
     const auto sts_eta = sts.barycenter().eta();
     const auto sts_phi = sts.barycenter().phi();
-
     histograms.h_denom_caloparticle_eta[i][count]->Fill(sts_eta);
     histograms.h_denom_caloparticle_phi[i][count]->Fill(sts_phi);
 
@@ -2935,6 +2938,7 @@ else return false;
     // one tracksters, leading to efficiencies >1. This boolean is used to
     // avoid "over counting".
     bool cp_considered_efficient = false;
+    int assocDup = 0;
     for (const auto tstId : stsId_tstId_related) {
       // Now time for the denominator
       score3d_iSTS[tstId] *= invSimEnergyWeight;
@@ -2942,7 +2946,7 @@ else return false;
 
       LogDebug("HGCalValidator") << "STS id: " << iSTS << "\t(CP id: " << cpId << ")\tTS id: " << tstId //
                                  << "\nscore: " << score3d_iSTS[tstId]
-                                 << "\tinvSimEnergyWeight:\t" << invSimEnergyWeight
+                                 << "\tinvSimEnergyWeight: " << invSimEnergyWeight
                                  << "\tTrackste energy: " << tracksters[tstId].raw_energy()
                                  << "\tshared energy: " << tstSharedEnergy[iSTS][tstId]
                                  << "\tshared energy fraction: " << tstSharedEnergyFrac << "\n";
@@ -2958,9 +2962,19 @@ else return false;
         histograms.h_numEff_caloparticle_eta[i][count]->Fill(sts_eta);
         histograms.h_numEff_caloparticle_phi[i][count]->Fill(sts_phi);
       }
+
+      if (score3d_iSTS[tstId] < ScoreCutSTStoTSPurDup) {
+        if ((i == 1) && (tracksters[tstId].ticlIteration() == ticl::Trackster::SIM)) // SimTS or SimTS_fromCP
+          if (tracksters[tstId].vertices().size() != sts.vertices().size())
+            continue;
+        assocDup++;
+      }
+      if (assocDup >= 2)
+        tracksters_duplicate[tstId] = 1;
     } // end of loop through Tracksters related to SimTrackster
 
-    const auto assocDup = std::count_if(std::begin(score3d_iSTS), std::end(score3d_iSTS), is_assoc);
+    if (score3d_iSTS.size() < 1)
+      continue ;
 
     const auto best = std::min_element(std::begin(score3d_iSTS), std::end(score3d_iSTS));
     histograms.h_scorePur_caloparticle2trackster[i][count]->Fill(*best);
@@ -2986,14 +3000,6 @@ else return false;
                                  << sts_phi << " " << tracksters[bestTstId].raw_energy()
                                  << " " << sts.raw_energy() << " " << tstRawEnergyFrac << " "
                                  << tstSharedEnergyFrac << "\n";
-
-      if (assocDup >= 2) {
-        auto match = std::find_if(std::begin(score3d_iSTS), std::end(score3d_iSTS), is_assoc);
-        while (match != score3d_iSTS.end()) {
-          tracksters_duplicate[std::distance(std::begin(score3d_iSTS), match)] = 1;
-          match = std::find_if(std::next(match), std::end(score3d_iSTS), is_assoc);
-        }
-      }
     }
   }  // end of loop through SimTracksters
 
