@@ -4264,7 +4264,7 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
           result = std::make_pair(0., 150.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("ladder") ) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dzPhiMax().second);
         } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaMax().second);
