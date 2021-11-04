@@ -119,10 +119,6 @@ private:
   MonitorElement* meTrackMVAQual_;
   MonitorElement* meTrackPathLenghtvsEta_;
 
-  MonitorElement* meVerNumber_;
-  MonitorElement* meVerZ_;
-  MonitorElement* meVerTime_;
-
   MonitorElement* meMVATrackEffPtTot_;
   MonitorElement* meMVATrackMatchedEffPtTot_;
   MonitorElement* meMVATrackMatchedEffPtMtd_;
@@ -344,18 +340,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
-  // --- Loop over the RECO vertices ---
-  int nv = 0;
-  for (const auto& v : *RecVertexHandle) {
-    if (v.isValid()) {
-      meVerZ_->Fill(v.z());
-      meVerTime_->Fill(v.t());
-      nv++;
-    } else
-      cout << "The vertex is not valid" << endl;
-  }
-  meVerNumber_->Fill(nv);
-
   // reco-gen matching used for MVA quality flag
   const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
 
@@ -394,7 +378,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         for (const auto& genP : mc->particle_range()) {
           // select status 1 genParticles and match them to the reconstructed track
 
-          float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge();
+          float charge = pdTable->particle(HepPDT::ParticleID(genP->pdg_id())) != nullptr
+                             ? pdTable->particle(HepPDT::ParticleID(genP->pdg_id()))->charge()
+                             : 0.f;
           if (mvaGenSel(*genP, charge)) {
             if (mvaGenRecMatch(*genP, zsim, trackGen)) {
               meMVATrackZposResTot_->Fill(dZ);
@@ -473,9 +459,6 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackMVAQual_ = ibook.book1D("TrackMVAQual", "Track MVA Quality as stored in Value Map ; MVAQual", 100, 0, 1);
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
-  meVerZ_ = ibook.book1D("VerZ", "RECO Vertex Z;Z_{RECO} [cm]", 180, -18, 18);
-  meVerTime_ = ibook.book1D("VerTime", "RECO Vertex Time;t0 [ns]", 100, -1, 1);
-  meVerNumber_ = ibook.book1D("VerNumber", "RECO Vertex Number: Number of vertices", 100, 0, 500);
   meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
   meMVATrackMatchedEffPtTot_ =
       ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
