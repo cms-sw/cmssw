@@ -201,11 +201,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
 }
 
 // Destructor
-PrimaryVertexValidation::~PrimaryVertexValidation() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+PrimaryVertexValidation::~PrimaryVertexValidation() = default;
 //
 // member functions
 //
@@ -270,9 +266,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
   // Retrieve tracker topology from geometry
   //=======================================================
-
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
 
   //=======================================================
   // Retrieve geometry information
