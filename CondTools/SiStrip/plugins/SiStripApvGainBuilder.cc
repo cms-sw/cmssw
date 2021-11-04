@@ -14,7 +14,7 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   edm::LogInfo("SiStripApvGainBuilder") << "... creating dummy SiStripApvGain Data for Run " << run << "\n "
                                         << std::endl;
 
-  SiStripApvGain* obj = new SiStripApvGain();
+  SiStripApvGain obj;
 
   int count = -1;
   for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
@@ -30,7 +30,7 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     }
 
     SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-    if (!obj->put(it.first, range))
+    if (!obj.put(it.first, range))
       edm::LogError("SiStripApvGainBuilder") << "[SiStripApvGainBuilder::analyze] detid already exists" << std::endl;
   }
 
@@ -39,10 +39,9 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripApvGainRcd")) {
-      mydbservice->createNewIOV<SiStripApvGain>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripApvGainRcd");
+      mydbservice->createOneIOV<SiStripApvGain>(obj, mydbservice->beginOfTime(), "SiStripApvGainRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripApvGain>(obj, mydbservice->currentTime(), "SiStripApvGainRcd");
+      mydbservice->appendOneIOV<SiStripApvGain>(obj, mydbservice->currentTime(), "SiStripApvGainRcd");
     }
   } else {
     edm::LogError("SiStripApvGainBuilder") << "Service is unavailable" << std::endl;

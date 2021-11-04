@@ -13,7 +13,7 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
   edm::LogInfo("SiStripNoisesBuilder") << "... creating dummy SiStripNoises Data for Run " << run << "\n " << std::endl;
 
-  SiStripNoises* obj = new SiStripNoises();
+  SiStripNoises obj;
 
   int count = -1;
   for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
@@ -28,14 +28,14 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       //double badStripProb = .5;
       //bool disable = (CLHEP::RandFlat::shoot(1.) < badStripProb ? true:false);
 
-      obj->setData(noise, theSiStripVector);
+      obj.setData(noise, theSiStripVector);
       if (count < static_cast<int>(printdebug_))
         edm::LogInfo("SiStripNoisesBuilder")
             << "detid " << it.first << " \t"
             << " strip " << strip << " \t" << noise << " \t" << theSiStripVector.back() / 10 << " \t" << std::endl;
     }
 
-    if (!obj->put(it.first, theSiStripVector))
+    if (!obj.put(it.first, theSiStripVector))
       edm::LogError("SiStripNoisesBuilder") << "[SiStripNoisesBuilder::analyze] detid already exists" << std::endl;
   }
 
@@ -44,11 +44,10 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripNoisesRcd")) {
-      mydbservice->createNewIOV<SiStripNoises>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripNoisesRcd");
+      mydbservice->createOneIOV<SiStripNoises>(obj, mydbservice->beginOfTime(), "SiStripNoisesRcd");
     } else {
       //mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");
-      mydbservice->appendSinceTime<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
+      mydbservice->appendOneIOV<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
     }
   } else {
     edm::LogError("SiStripNoisesBuilder") << "Service is unavailable" << std::endl;
