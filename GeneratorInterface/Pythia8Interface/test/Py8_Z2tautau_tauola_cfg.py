@@ -32,10 +32,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     ),								 
         
     PythiaParameters = cms.PSet(
-        py8ProcessSettings = cms.vstring( 'StringZ:usePetersonB = on', # these 2 together ==
-	                                  'StringZ:usePetersonC = on', # mstj(11)=3
-					  'WeakSingleBoson:ffbar2gmZ = on' # msel=11
-					  # what about choice of structure function ??? (mstp(51)=7)
+        py8ProcessSettings = cms.vstring( 'WeakSingleBoson:ffbar2gmZ = on'
 	),
 	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
 					  '23:onIfAny = 15'  # turn ON Z->tautau
