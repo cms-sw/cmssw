@@ -18,12 +18,16 @@ namespace l1t {
     RegionalMuonShower(bool oneNominalInTime = false,
                        bool oneNominalOutOfTime = false,
                        bool twoLooseInTime = false,
-                       bool twoLooseOutOfTime = false);
+                       bool twoLooseOutOfTime = false,
+                       bool oneTightInTime = false,
+                       bool oneTightOutOfTime = false);
 
     ~RegionalMuonShower();
 
     void setOneNominalInTime(const bool bit) { isOneNominalInTime_ = bit; }
     void setOneNominalOutOfTime(const bool bit) { isOneNominalOutOfTime_ = bit; }
+    void setOneTightInTime(const bool bit) { isOneTightInTime_ = bit; }
+    void setOneTightOutOfTime(const bool bit) { isOneTightOutOfTime_ = bit; }
     void setTwoLooseOutOfTime(const bool bit) { isTwoLooseOutOfTime_ = bit; }
     void setTwoLooseInTime(const bool bit) { isTwoLooseInTime_ = bit; }
 
@@ -34,6 +38,8 @@ namespace l1t {
     bool isValid() const;
     bool isOneNominalInTime() const { return isOneNominalInTime_; }
     bool isOneNominalOutOfTime() const { return isOneNominalOutOfTime_; }
+    bool isOneTightInTime() const { return isOneTightInTime_; }
+    bool isOneTightOutOfTime() const { return isOneTightOutOfTime_; }
     bool isTwoLooseInTime() const { return isTwoLooseInTime_; }
     bool isTwoLooseOutOfTime() const { return isTwoLooseOutOfTime_; }
 
@@ -50,6 +56,8 @@ namespace l1t {
     // in time and out-of-time qualities. only 2 bits each.
     bool isOneNominalInTime_;
     bool isOneNominalOutOfTime_;
+    bool isOneTightInTime_;
+    bool isOneTightOutOfTime_;
     bool isTwoLooseInTime_;
     bool isTwoLooseOutOfTime_;
     int endcap_;       //    +/-1.  For ME+ and ME-.

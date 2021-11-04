@@ -135,7 +135,8 @@ public:
   }
 
 private:
-  double goodHitEnergy(const GlobalPoint &pclu,
+  double goodHitEnergy(float pcluEta,
+                       float pcluPhi,
                        const HBHERecHit &hit,
                        int depth,
                        int ieta,

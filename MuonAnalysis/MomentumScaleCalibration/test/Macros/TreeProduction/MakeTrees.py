@@ -19,7 +19,6 @@ CMSSWDir = "/afs/cern.ch/user/d/demattia/scratch0/TreeProducerAndMerger/CMSSW_3_
 # --------------------
 
 import os
-import commands
 
 # Lock and take the new index
 # increase it

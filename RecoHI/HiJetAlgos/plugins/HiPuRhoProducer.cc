@@ -85,7 +85,7 @@ private:
   // This checks if the tower is anomalous (if a calo tower).
   virtual void inputTowers();
 
-  bool postOrphan_;
+  bool postOrphan_ = false;
   bool setInitialValue_;
 
   const bool dropZeroTowers_;

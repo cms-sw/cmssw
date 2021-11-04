@@ -582,16 +582,27 @@ namespace pixelgpudetails {
       int blocks =
           (std::max(int(wordCounter), int(gpuClustering::maxNumModules)) + threadsPerBlock - 1) / threadsPerBlock;
 
-      gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream>>>(isRun2,
-                                                                        digis_d.moduleInd(),
-                                                                        digis_d.xx(),
-                                                                        digis_d.yy(),
-                                                                        digis_d.adc(),
-                                                                        gains,
-                                                                        wordCounter,
-                                                                        clusters_d.moduleStart(),
-                                                                        clusters_d.clusInModule(),
-                                                                        clusters_d.clusModuleStart());
+      if (isRun2)
+        gpuCalibPixel::calibDigis<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+                                                                                digis_d.xx(),
+                                                                                digis_d.yy(),
+                                                                                digis_d.adc(),
+                                                                                gains,
+                                                                                wordCounter,
+                                                                                clusters_d.moduleStart(),
+                                                                                clusters_d.clusInModule(),
+                                                                                clusters_d.clusModuleStart());
+      else
+        gpuCalibPixel::calibDigis<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+                                                                                 digis_d.xx(),
+                                                                                 digis_d.yy(),
+                                                                                 digis_d.adc(),
+                                                                                 gains,
+                                                                                 wordCounter,
+                                                                                 clusters_d.moduleStart(),
+                                                                                 clusters_d.clusInModule(),
+                                                                                 clusters_d.clusModuleStart());
+
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
       cudaDeviceSynchronize();
@@ -607,7 +618,7 @@ namespace pixelgpudetails {
           digis_d.moduleInd(), clusters_d.moduleStart(), digis_d.clus(), wordCounter);
       cudaCheck(cudaGetLastError());
 
-      threadsPerBlock = 256;
+      threadsPerBlock = 256 + 128;  /// should be larger than 6000/16 aka (maxPixInModule/maxiter in the kernel)
       blocks = maxNumModules;
 #ifdef GPU_DEBUG
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";

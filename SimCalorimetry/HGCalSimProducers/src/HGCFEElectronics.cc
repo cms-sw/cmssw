@@ -474,6 +474,4 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
 
 // cause the compiler to generate the appropriate code
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-template class HGCFEElectronics<HGCEEDataFrame>;
-template class HGCFEElectronics<HGCBHDataFrame>;
 template class HGCFEElectronics<HGCalDataFrame>;

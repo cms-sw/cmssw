@@ -21,7 +21,8 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
                                     bool useNewZones,
                                     bool fixME11Edges,
                                     bool bugME11Dupes,
-                                    bool useRun3CCLUT) {
+                                    bool useRun3CCLUT_OTMB,
+                                    bool useRun3CCLUT_TMB) {
   emtf_assert(tp_geom != nullptr);
   emtf_assert(pc_lut != nullptr);
 
@@ -47,7 +48,8 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
   bugME11Dupes_ = bugME11Dupes;
 
   // Run 3 CCLUT algorithm
-  useRun3CCLUT_ = useRun3CCLUT;
+  useRun3CCLUT_OTMB_ = useRun3CCLUT_OTMB;
+  useRun3CCLUT_TMB_ = useRun3CCLUT_TMB;
 }
 
 void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map,
@@ -127,6 +129,29 @@ void PrimitiveConversion::convert_csc(int pc_sector,
     }
   }
 
+  // Calculate Pattern
+  unsigned pattern = tp_data.pattern;
+  const auto& detid(conv_hit.CreateCSCDetId());
+  const bool isOTMB(detid.isME11() or detid.isME21() or detid.isME31() or detid.isME41());
+  const bool isTMB((detid.isME12() or detid.isME22() or detid.isME32() or detid.isME42()) or (detid.isME13()));
+
+  // check if CCLUT is on for this CSC TP
+  const bool useRun3CCLUT((useRun3CCLUT_OTMB_ and isOTMB) or (useRun3CCLUT_TMB_ and isTMB));
+  if (useRun3CCLUT) {
+    // convert slope to Run-2 pattern for CSC TPs coming from MEX/1 chambers
+    // where the CCLUT algorithm is enabled
+    const unsigned slopeList[32] = {10, 10, 10, 8, 8, 8, 6, 6, 6, 4, 4, 4, 2, 2, 2, 2,
+                                    10, 10, 10, 9, 9, 9, 7, 7, 7, 5, 5, 5, 3, 3, 3, 3};
+
+    // this LUT follows the same convention as in CSCPatternBank.cc
+    unsigned slope_and_sign(tp_data.slope);
+    if (tp_data.bend == 0) {
+      slope_and_sign += 16;
+    }
+    unsigned run2_converted_PID = slopeList[slope_and_sign];
+    pattern = run2_converted_PID;
+  }
+
   // Set properties
   conv_hit.SetCSCDetId(tp_detId);
 
@@ -157,7 +182,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
   //conv_hit.set_strip_hi      ( tp_data.strip_hi );
   conv_hit.set_wire(tp_data.keywire);
   conv_hit.set_quality(tp_data.quality);
-  conv_hit.set_pattern(tp_data.pattern);
+  conv_hit.set_pattern(pattern);
   conv_hit.set_bend(tp_data.bend);
   conv_hit.set_time(0.);  // No fine resolution timing
   conv_hit.set_alct_quality(tp_data.alct_quality);
@@ -295,16 +320,23 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   if (bugStrip0BeforeFW48200 == false && fw_strip == 0 && clct_pat_corr_sign == -1)
     clct_pat_corr = 0;
 
+  // check if the CCLUT algorithm is on in this chamber
+  const auto& detid(conv_hit.CreateCSCDetId());
+  const bool isOTMB(detid.isME11() or detid.isME21() or detid.isME31() or detid.isME41());
+  const bool isTMB((detid.isME12() or detid.isME22() or detid.isME32() or detid.isME42()) or (detid.isME13()));
+
+  const bool useRun3CCLUT((useRun3CCLUT_OTMB_ and isOTMB) or (useRun3CCLUT_TMB_ and isTMB));
+
   if (is_10degree) {
     eighth_strip = fw_strip << 2;  // full precision, uses only 2 bits of pattern correction
-    if (useRun3CCLUT_) {
+    if (useRun3CCLUT) {
       eighth_strip += (conv_hit.Strip_quart_bit() << 1 | conv_hit.Strip_eighth_bit() << 0);  // Run 3 CCLUT variables
     } else {
       eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 1);
     }
   } else {
     eighth_strip = fw_strip << 3;  // multiply by 2, uses all 3 bits of pattern correction
-    if (useRun3CCLUT_) {
+    if (useRun3CCLUT) {
       eighth_strip += (conv_hit.Strip_quart_bit() << 2 | conv_hit.Strip_eighth_bit() << 1);  // Run 3 CCLUT variables
     } else {
       eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 0);

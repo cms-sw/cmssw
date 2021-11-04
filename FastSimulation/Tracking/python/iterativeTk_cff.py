@@ -27,6 +27,9 @@ import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi
 
 generalTracksBeforeMixing = RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi.earlyGeneralTracks.clone()
 
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
+trackdnn_essource = cms.ESSource("EmptyESSource", recordName = cms.string("TfGraphRecord"), firstValid = cms.vuint32(1), iovIsRunNotTime = cms.bool(True) )
+
 iterTracking = cms.Sequence(
     InitialStep
     +DetachedTripletStep
@@ -53,4 +56,3 @@ _iterTracking_Phase1 = cms.Sequence(
     +generalTracksBeforeMixing)
 
 trackingPhase1.toReplaceWith(iterTracking, _iterTracking_Phase1)
-

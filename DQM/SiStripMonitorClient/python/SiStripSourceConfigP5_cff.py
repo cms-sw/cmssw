@@ -94,21 +94,18 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
     TrackProducer = 'cosmictrackfinderP5',
     Mod_On = False,
-    VertexCut = False
 )
 
 # Clone for CKF Tracks
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
     TrackProducer = 'ctfWithMaterialTracksP5',
     Mod_On = False,
-    VertexCut = False
 )
 
 # Clone fir Road Search  Tracks
 # SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
 #     TrackProducer = 'rsWithMaterialTracksP5',
 #     Mod_On = True,
-#     VertexCut = False
 # )
 
 # Clone for General Tracks (for Collision)

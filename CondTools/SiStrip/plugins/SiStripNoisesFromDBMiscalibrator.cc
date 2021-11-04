@@ -254,7 +254,7 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(theSiStripNoises.get(), poolDbService->currentTime(), "SiStripNoisesRcd");
+    poolDbService->writeOneIOV(*theSiStripNoises, poolDbService->currentTime(), "SiStripNoisesRcd");
   else
     throw std::runtime_error("PoolDBService required.");
 }

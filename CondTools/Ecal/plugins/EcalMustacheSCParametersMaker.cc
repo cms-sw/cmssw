@@ -54,7 +54,7 @@ void EcalMustacheSCParametersMaker::analyze(const edm::Event& iEvent, const edm:
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(esParamsHandle_.product(), poolDbService->currentTime(), "EcalMustacheSCParametersRcd");
+    poolDbService->writeOneIOV(*esParamsHandle_.product(), poolDbService->currentTime(), "EcalMustacheSCParametersRcd");
   } else {
     throw cms::Exception("PoolDBService") << "No PoolDBService available.";
   }

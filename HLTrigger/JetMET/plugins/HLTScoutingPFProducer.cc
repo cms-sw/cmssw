@@ -196,6 +196,10 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
       std::vector<int> candIndices;
       if (doCandidates) {
         for (auto &cand : jet.getPFConstituents()) {
+          if (not(cand.isNonnull() and cand.isAvailable())) {
+            throw cms::Exception("HLTScoutingPFProducer")
+                << "invalid reference to reco::PFCandidate from reco::PFJet::getPFConstituents()";
+          }
           if (cand->pt() > pfCandidatePtCut && std::abs(cand->eta()) < pfCandidateEtaCut) {
             //search for the candidate in the collection
             float minDR2 = 0.0001;

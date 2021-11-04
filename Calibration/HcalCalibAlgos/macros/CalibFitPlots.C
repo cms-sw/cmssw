@@ -779,7 +779,7 @@ void FitHistExtended(const char* infile,
               TH1D* hist2 = (TH1D*)hist1->Clone(name);
               fitOneGauss(hist2, true, debug);
               hists.push_back(hist2);
-              results meaner = fitTwoGauss(hist, debug);
+              results meaner = fitOneGauss(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
@@ -872,7 +872,8 @@ void FitHistExtended(const char* infile,
               fitLanGau(hist3, debug);
               hists.push_back(hist3);
             }
-            results meaner0 = fitTwoGauss(hist, debug);
+            //            results meaner0 = fitTwoGauss(hist, debug);
+            results meaner0 = fitOneGauss(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;
             double rms;
@@ -2197,7 +2198,7 @@ void PlotHistCorrFactors(char* infile1,
     }
   }
 
-  if (nfile > 1) {
+  if (nfile > 0) {
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetCanvasColor(kWhite);
     gStyle->SetPadColor(kWhite);

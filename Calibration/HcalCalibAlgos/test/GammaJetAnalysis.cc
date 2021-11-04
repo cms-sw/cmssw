@@ -136,6 +136,7 @@ inline unsigned int helper_findTrigger(const std::vector<std::string>& list, con
 
 GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
     : hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
+  usesResource(TFileService::kSharedResource);
   // set parameters
   debug_ = iConfig.getUntrackedParameter<int>("debug", 0);
   debugHLTTrigNames = iConfig.getUntrackedParameter<int>("debugHLTTrigNames", 1);
@@ -1405,10 +1406,9 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void GammaJetAnalysis::beginJob() {
-  rootfile_ = new TFile(rootHistFilename_.c_str(), "RECREATE");
+  edm::Service<TFileService> fs;
   if (doPFJets_) {
-    pf_tree_ = new TTree("pf_gammajettree", "tree for gamma+jet balancing using PFJets");
-    assert(pf_tree_);
+    pf_tree_ = fs->make<TTree>("pf_gammajettree", "tree for gamma+jet balancing using PFJets");
   }
 
   for (int iJet = 0; iJet < 2; iJet++) {
@@ -1660,18 +1660,14 @@ void GammaJetAnalysis::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GammaJetAnalysis::endJob() {
-  rootfile_->cd();
-
   if (doPFJets_) {
     pf_tree_->Write();
   }
   // write miscItems
   // Save info about the triggers and other misc items
   {
-    rootfile_->cd();
-    rootfile_->mkdir("miscItems");
-    rootfile_->cd("miscItems");
-    misc_tree_ = new TTree("misc_tree", "tree for misc.info");
+    edm::Service<TFileService> fs;
+    misc_tree_ = fs->make<TTree>("misc_tree", "tree for misc.info");
     misc_tree_->Branch("ignoreHLT", &ignoreHLT_, "ignoreHLT/O");
     misc_tree_->Branch("doPFJets", &doPFJets_, "doPFJets/O");
     misc_tree_->Branch("doGenJets", &doGenJets_, "doGenJets/O");
@@ -1689,10 +1685,7 @@ void GammaJetAnalysis::endJob() {
     date.Write(str.Data());
     misc_tree_->Fill();
     misc_tree_->Write();
-    rootfile_->cd();
   }
-
-  rootfile_->Close();
 }
 
 // ---------------------------------------------------------------------

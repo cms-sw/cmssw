@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("OMTFEmulation")
 import os
 import sys
-import commands
+#import subprocess
 
 verbose = False
 
@@ -72,7 +72,7 @@ process.source = cms.Source(
 process.source.fileNames =  cms.untracked.vstring()
 path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEta/721_FullEta_v4/data/"
 command = "ls "+path+"/SingleMu_10_?_*"
-fileList = commands.getoutput(command).split("\n")
+fileList = subprocess.getoutput(command).split("\n")
 process.source.fileNames =  cms.untracked.vstring()
 for aFile in fileList:
     process.source.fileNames.append('file:'+aFile)

@@ -240,7 +240,6 @@ ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.st
                                             tag = cms.string('DiamondSampicCalibration'),
                                             timetype = cms.untracked.string('runnumber'))
 
-ALCAHARVESTPPSAlignment = ppsAlignmentHarvester.clone()
 ALCAHARVESTPPSAlignment_metadata = cms.PSet(record = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'))
 ALCAHARVESTPPSAlignment_dbOutput = cms.PSet(record = cms.string('CTPPSRPAlignmentCorrectionsDataRcd'),
                                             tag = cms.string('CTPPSRPAlignment_real_pcl'),

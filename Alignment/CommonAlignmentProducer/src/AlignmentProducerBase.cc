@@ -93,7 +93,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
 
   createAlignmentAlgorithm(iC);
   createMonitors(iC);
-  createCalibrations();
+  createCalibrations(iC);
 }
 
 //------------------------------------------------------------------------------
@@ -297,11 +297,11 @@ void AlignmentProducerBase::createMonitors(edm::ConsumesCollector& iC) {
 }
 
 //------------------------------------------------------------------------------
-void AlignmentProducerBase::createCalibrations() {
+void AlignmentProducerBase::createCalibrations(edm::ConsumesCollector& iC) {
   const auto& calibrations = config_.getParameter<edm::VParameterSet>("calibrations");
   for (const auto& iCalib : calibrations) {
-    calibrations_.emplace_back(
-        IntegratedCalibrationPluginFactory::get()->create(iCalib.getParameter<std::string>("calibrationName"), iCalib));
+    calibrations_.emplace_back(IntegratedCalibrationPluginFactory::get()->create(
+        iCalib.getParameter<std::string>("calibrationName"), iCalib, iC));
   }
 }
 

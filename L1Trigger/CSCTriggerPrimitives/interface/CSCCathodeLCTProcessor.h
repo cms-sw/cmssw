@@ -191,6 +191,7 @@ protected:
   unsigned showerMaxInTBin_;
   unsigned showerMinOutTBin_;
   unsigned showerMaxOutTBin_;
+  unsigned minLayersCentralTBin_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig;  // only for test beam mode.

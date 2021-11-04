@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 import optparse
-import commands
+import subprocess
 import pprint
 import re
 import os
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     dumpCommand = 'edmDumpEventContent %s %s' % (regexLine, filename1)
     if options.verboseDebug:
         print(dumpCommand, '\n')
-    output = commands.getoutput (dumpCommand).split("\n")
+    output = subprocess.getoutput (dumpCommand).split("\n")
     if not len(output):
         raise RuntimeError("No output from edmDumpEventContent.")
     if options.verboseDebug:
@@ -330,4 +330,4 @@ if __name__ == "__main__":
         summaryCmd = 'summarizeEdmComparisonLogfiles.py %s %s logfiles' \
                      % (summaryOptions, summaryMask)
         print(summaryCmd)
-        print(commands.getoutput (summaryCmd))
+        print(subprocess.getoutput (summaryCmd))

@@ -20,7 +20,8 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     Era = cms.string('Run2_2018'),
 
     # New Run 3 CSC TPs using CCLUT algorithm
-    UseRun3CCLUT    = cms.bool(False),
+    UseRun3CCLUT_OTMB = cms.bool(False),
+    UseRun3CCLUT_TMB  = cms.bool(False),
 
     # Input collections
     # Three options for CSCInput
@@ -163,5 +164,4 @@ stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cm
 
 ## Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = cms.bool(True), UseRun3CCLUT = cms.bool(False), Era = cms.string('Run3_2021'))
-
+stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = cms.bool(True), UseRun3CCLUT_OTMB = cms.bool(False), Era = cms.string('Run3_2021'))

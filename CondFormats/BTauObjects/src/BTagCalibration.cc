@@ -6,12 +6,13 @@
 
 BTagCalibration::BTagCalibration(const std::string &taggr) : tagger_(taggr) {}
 
-BTagCalibration::BTagCalibration(const std::string &taggr, const std::string &filename) : tagger_(taggr) {
+BTagCalibration::BTagCalibration(const std::string &taggr, const std::string &filename, bool validate)
+    : tagger_(taggr) {
   std::ifstream ifs(filename);
   if (!ifs.good()) {
     throw cms::Exception("BTagCalibration") << "input file not available: " << filename;
   }
-  readCSV(ifs);
+  readCSV(ifs, validate);
   ifs.close();
 }
 
@@ -25,18 +26,18 @@ const std::vector<BTagEntry> &BTagCalibration::getEntries(const BTagEntry::Param
   return data_.at(tok);
 }
 
-void BTagCalibration::readCSV(const std::string &s) {
+void BTagCalibration::readCSV(const std::string &s, bool validate) {
   std::stringstream buff(s);
-  readCSV(buff);
+  readCSV(buff, validate);
 }
 
-void BTagCalibration::readCSV(std::istream &s) {
+void BTagCalibration::readCSV(std::istream &s, bool validate) {
   std::string line;
 
   // firstline might be the header
   getline(s, line);
   if (line.find("OperatingPoint") == std::string::npos) {
-    addEntry(BTagEntry(line));
+    addEntry(BTagEntry(line, validate));
   }
 
   while (getline(s, line)) {
@@ -44,7 +45,7 @@ void BTagCalibration::readCSV(std::istream &s) {
     if (line.empty()) {  // skip empty lines
       continue;
     }
-    addEntry(BTagEntry(line));
+    addEntry(BTagEntry(line, validate));
   }
 }
 

@@ -226,10 +226,10 @@ void SiPixelFEDChannelContainerFromQualityConverter::endJob() {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
     if (!isMC_) {
-      poolDbService->writeOne(myQualities, valid_time, m_record);
+      poolDbService->writeOneIOV(*myQualities, valid_time, m_record);
     } else {
       // for MC IOV since=1
-      poolDbService->writeOne(myQualities, 1, m_record);
+      poolDbService->writeOneIOV(*myQualities, 1, m_record);
     }
   }
 }

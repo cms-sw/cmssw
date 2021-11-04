@@ -107,9 +107,9 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
       printf("Tracks overflow %d in %d\n", idx, thisCell.layerPairId());
     if (thisCell.isKilled())
       atomicAdd(&c.nKilledCells, 1);
-    if (thisCell.unused())
+    if (!thisCell.unused())
       atomicAdd(&c.nEmptyCells, 1);
-    if (0 == hitToTuple->size(thisCell.inner_hit_id()) && 0 == hitToTuple->size(thisCell.outer_hit_id()))
+    if ((0 == hitToTuple->size(thisCell.inner_hit_id())) && (0 == hitToTuple->size(thisCell.outer_hit_id())))
       atomicAdd(&c.nZeroTrackCells, 1);
   }
 
@@ -896,7 +896,7 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
       "||Counters | nEvents | nHits | nCells | nTuples | nFitTacks  |  nLooseTracks  |  nGoodTracks | nUsedHits | "
       "nDupHits | "
       "nKilledCells | "
-      "nEmptyCells | nZeroTrackCells ||\n");
+      "nUsedCells | nZeroTrackCells ||\n");
   printf("Counters Raw %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
          c.nEvents,
          c.nHits,
@@ -910,7 +910,7 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nKilledCells,
          c.nEmptyCells,
          c.nZeroTrackCells);
-  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f||\n",
+  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f|  %.3f||\n",
          c.nEvents,
          c.nHits / double(c.nEvents),
          c.nCells / double(c.nEvents),
@@ -920,7 +920,7 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nGoodTracks / double(c.nEvents),
          c.nUsedHits / double(c.nEvents),
          c.nDupHits / double(c.nEvents),
-         c.nKilledCells / double(c.nEvents),
+         c.nKilledCells / double(c.nCells),
          c.nEmptyCells / double(c.nCells),
          c.nZeroTrackCells / double(c.nCells));
 }

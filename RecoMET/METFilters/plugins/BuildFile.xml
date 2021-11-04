@@ -13,8 +13,6 @@
   <use name="RecoParticleFlow/PFProducer"/>
   <use name="DataFormats/DetId"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/HcalObjects"/>
-  <use name="DataFormats/HcalDetId"/>
   <use name="DataFormats/HcalRecHit"/>
   <use name="RecoJets/JetProducers"/>
   <use name="root"/>

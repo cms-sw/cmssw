@@ -98,7 +98,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
     //fillup DB
     //create new infinite IOV
     cond::Time_t firstSinceTime = db->beginOfTime();
-    db->writeOne(sr, firstSinceTime, "EcalSRSettingsRcd");
+    db->writeOneIOV(*sr, firstSinceTime, "EcalSRSettingsRcd");
     done_ = true;
   } else {  //read mode
     const edm::ESHandle<EcalSRSettings> hSr = es.getHandle(hSrToken_);

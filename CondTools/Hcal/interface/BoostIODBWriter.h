@@ -27,7 +27,7 @@
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -41,7 +41,7 @@
 // class declaration
 //
 template <class DataType>
-class BoostIODBWriter : public edm::EDAnalyzer {
+class BoostIODBWriter : public edm::one::EDAnalyzer<> {
 public:
   typedef DataType data_type;
 
@@ -71,7 +71,7 @@ void BoostIODBWriter<DataType>::analyze(const edm::Event& iEvent, const edm::Eve
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable())
-    poolDbService->writeOne(datum.release(), poolDbService->currentTime(), record_);
+    poolDbService->writeOneIOV(*datum, poolDbService->currentTime(), record_);
   else
     throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
                                                << "please configure it properly" << std::endl;

@@ -1,4 +1,3 @@
-<use name="CommonTools/Egamma"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>

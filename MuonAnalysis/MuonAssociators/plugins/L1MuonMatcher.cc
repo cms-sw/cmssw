@@ -9,7 +9,7 @@
   \version  $Id: L1MuonMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -29,14 +29,12 @@
 
 namespace pat {
 
-  class L1MuonMatcher : public edm::EDProducer {
+  class L1MuonMatcher : public edm::stream::EDProducer<> {
   public:
     explicit L1MuonMatcher(const edm::ParameterSet &iConfig);
     ~L1MuonMatcher() override {}
 
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-
-    void beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
   private:
     typedef pat::TriggerObjectStandAlone PATPrimitive;
@@ -74,7 +72,7 @@ namespace pat {
 }  // namespace pat
 
 pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet &iConfig)
-    : matcher_(iConfig),
+    : matcher_(iConfig, consumesCollector()),
       recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
       labelL1_(iConfig.getParameter<std::string>("setL1Label")),
       labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
@@ -109,6 +107,8 @@ pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet &iConfig)
 void pat::L1MuonMatcher::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
+
+  matcher_.init(iSetup);
 
   Handle<View<reco::Candidate> > reco;
   Handle<vector<l1extra::L1MuonParticle> > l1s;
@@ -254,8 +254,6 @@ void pat::L1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
   filler.fill();
   iEvent.put(std::move(valMap), label);
 }
-
-void pat::L1MuonMatcher::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) { matcher_.init(iSetup); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 using namespace pat;

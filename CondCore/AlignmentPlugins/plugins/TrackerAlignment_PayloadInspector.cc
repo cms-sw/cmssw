@@ -305,11 +305,11 @@ namespace {
   //******************************************//
 
   template <AlignmentPI::partitions q>
-  class TrackerAlignmentSummary : public PlotImage<Alignments, SINGLE_IOV> {
+  class TrackerAlignmentSummary : public PlotImage<Alignments, MULTI_IOV> {
   public:
     TrackerAlignmentSummary()
-        : PlotImage<Alignments, SINGLE_IOV>("Comparison of all coordinates between two geometries for " +
-                                            getStringFromPart(q)) {}
+        : PlotImage<Alignments, MULTI_IOV>("Comparison of all coordinates between two geometries for " +
+                                           getStringFromPart(q)) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
