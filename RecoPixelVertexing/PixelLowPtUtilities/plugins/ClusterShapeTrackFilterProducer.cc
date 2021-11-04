@@ -12,6 +12,8 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 class ClusterShapeTrackFilterProducer : public edm::global::EDProducer<> {
 public:
@@ -24,6 +26,9 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<SiPixelClusterShapeCache> clusterShapeCacheToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> shapeToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const double ptMin_;
   const double ptMax_;
 };
@@ -31,6 +36,9 @@ private:
 ClusterShapeTrackFilterProducer::ClusterShapeTrackFilterProducer(const edm::ParameterSet& iConfig)
     : clusterShapeCacheToken_(
           consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+      trackerToken_(esConsumes()),
+      shapeToken_(esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
+      topoToken_(esConsumes()),
       ptMin_(iConfig.getParameter<double>("ptMin")),
       ptMax_(iConfig.getParameter<double>("ptMax")) {
   produces<PixelTrackFilter>();
@@ -52,7 +60,12 @@ void ClusterShapeTrackFilterProducer::produce(edm::StreamID, edm::Event& iEvent,
   edm::Handle<SiPixelClusterShapeCache> cache;
   iEvent.getByToken(clusterShapeCacheToken_, cache);
 
-  auto impl = std::make_unique<ClusterShapeTrackFilter>(cache.product(), ptMin_, ptMax_, iSetup);
+  auto impl = std::make_unique<ClusterShapeTrackFilter>(cache.product(),
+                                                        ptMin_,
+                                                        ptMax_,
+                                                        &iSetup.getData(trackerToken_),
+                                                        &iSetup.getData(shapeToken_),
+                                                        &iSetup.getData(topoToken_));
   auto prod = std::make_unique<PixelTrackFilter>(std::move(impl));
   iEvent.put(std::move(prod));
 }
