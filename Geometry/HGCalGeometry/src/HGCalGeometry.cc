@@ -316,9 +316,10 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
       static const int signy[] = {1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0};
       static const int signz[] = {-1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1};
       for (unsigned int i = 0; i < ncorner; ++i) {
-	auto xyglob = m_topology.dddConstants().localToGlobal8(id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
-	double xx = id.zSide * xyglob.first;
-	co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + signz[i] * dz));
+        auto xyglob = m_topology.dddConstants().localToGlobal8(
+            id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
+        double xx = id.zSide * xyglob.first;
+        co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + signz[i] * dz));
       }
     }
   }
@@ -358,8 +359,8 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
       dx = m_cellVec[cellIndex].param()[FlatHexagon::k_r];
       float dz = m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
       for (unsigned int i = 0; i < ncorner; ++i) {
-	const HepGeom::Point3D<float> lcoord(xy.first + signx[i] * dx, xy.second + signy[i] * dx, signz[i] * dz);
-	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+        const HepGeom::Point3D<float> lcoord(xy.first + signx[i] * dx, xy.second + signy[i] * dx, signz[i] * dz);
+        co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false);
@@ -368,9 +369,10 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
       float dz = -id.zSide * m_cellVec[cellIndex].param()[FlatHexagon::k_dZ];
       float zz = m_topology.dddConstants().waferZ(id.iLay, true);
       for (unsigned int i = 0; i < ncorner; ++i) {
-	auto xyglob = m_topology.dddConstants().localToGlobal8(id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
-	double xx = id.zSide * xyglob.first;
-	co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + signz[i] * dz));
+        auto xyglob = m_topology.dddConstants().localToGlobal8(
+            id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
+        double xx = id.zSide * xyglob.first;
+        co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + signz[i] * dz));
       }
     }
   }
@@ -408,16 +410,17 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid) const
     if (m_topology.waferHexagon6()) {
       xy = m_topology.dddConstants().locateCellHex(id.iCell1, id.iSec1, true);
       for (unsigned int i = 0; i < ncorner - 1; ++i) {
-	const HepGeom::Point3D<float> lcoord(xy.first + signx[i] * dx, xy.second + signy[i] * dy, dz);
-	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+        const HepGeom::Point3D<float> lcoord(xy.first + signx[i] * dx, xy.second + signy[i] * dy, dz);
+        co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
     } else {
       xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false);
       float zz = m_topology.dddConstants().waferZ(id.iLay, true);
       for (unsigned int i = 0; i < ncorner; ++i) {
-	auto xyglob = m_topology.dddConstants().localToGlobal8(id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
-	double xx = id.zSide * xyglob.first;
-	co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + dz));
+        auto xyglob = m_topology.dddConstants().localToGlobal8(
+            id.iLay, id.iSec1, id.iSec2, (xy.first + signx[i] * dx), (xy.second + signy[i] * dy), true, false);
+        double xx = id.zSide * xyglob.first;
+        co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + dz));
       }
     }
     co[ncorner - 1] = co[0];

@@ -613,13 +613,15 @@ unsigned int HGCalDDDConstants::layersInit(bool reco) const {
   return (reco ? hgpar_->depthIndex_.size() : hgpar_->layerIndex_.size());
 }
 
-std::pair<float, float> HGCalDDDConstants::localToGlobal8(int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const {
+std::pair<float, float> HGCalDDDConstants::localToGlobal8(
+    int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const {
   double x(localX), y(localY);
   bool rotx =
       ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
 #ifdef EDM_ML_DEBUG
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "LocalToGlobal " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx << " Local (" << x << ":" << y << ") Reco " << reco;
+    edm::LogVerbatim("HGCalGeom") << "LocalToGlobal " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
+                                  << " Local (" << x << ":" << y << ") Reco " << reco;
 #endif
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
