@@ -4200,17 +4200,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   if (theTitle.Contains("norm")) {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiNormMax().first, lims->get_dxyPhiNormMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaNormMax().first, lims->get_dxyEtaNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiNormMax().first, lims->get_dzPhiNormMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaNormMax().first, lims->get_dzEtaNormMax().first);
         } else {
           result = std::make_pair(-0.8, 0.8);
@@ -4218,17 +4218,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
       }
     } else if (theTitle.Contains("widths")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dxyPhiNormMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dzPhiNormMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaNormMax().second);
         } else {
           result = std::make_pair(0., 2.);
@@ -4238,17 +4238,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
   } else {
     if (theTitle.Contains("means")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dxyPhiMax().first, lims->get_dxyPhiMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dxyEtaMax().first, lims->get_dxyEtaMax().first);
         } else {
           result = std::make_pair(-40., 40.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi") || theTitle.Contains("pT")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("pT") || theTitle.Contains("ladder")) {
           result = std::make_pair(-lims->get_dzPhiMax().first, lims->get_dzPhiMax().first);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(-lims->get_dzEtaMax().first, lims->get_dzEtaMax().first);
         } else {
           result = std::make_pair(-80., 80.);
@@ -4256,17 +4256,17 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
       }
     } else if (theTitle.Contains("widths")) {
       if (theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder")) {
           result = std::make_pair(0., lims->get_dxyPhiMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dxyEtaMax().second);
         } else {
           result = std::make_pair(0., 150.);
         }
       } else if (theTitle.Contains("dz")) {
-        if (theTitle.Contains("phi")) {
+        if (theTitle.Contains("phi") || theTitle.Contains("ladder") ) {
           result = std::make_pair(0., lims->get_dzPhiMax().second);
-        } else if (theTitle.Contains("eta")) {
+        } else if (theTitle.Contains("eta") || theTitle.Contains("mod")) {
           result = std::make_pair(0., lims->get_dzEtaMax().second);
         } else {
           result = std::make_pair(0., 300.);
