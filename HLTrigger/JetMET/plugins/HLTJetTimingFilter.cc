@@ -1,4 +1,7 @@
 #include "HLTJetTimingFilter.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 typedef HLTJetTimingFilter<reco::CaloJet> HLTCaloJetTimingFilter;
 typedef HLTJetTimingFilter<reco::PFJet> HLTPFJetTimingFilter;
