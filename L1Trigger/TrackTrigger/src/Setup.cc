@@ -564,7 +564,7 @@ namespace tt {
       exception.addContext("trackerDTC::Setup::dZ");
       exception << "Stub z uncertainty " << dZ << " "
                 << "is out of range " << mindZ_ << " to " << maxdZ_ << ".";
-      //throw exception;
+      throw exception;
     }
     return dZ;
   }
@@ -740,7 +740,7 @@ namespace tt {
       const double baseR = hybridBasesR_.at(type);
       // parse bit vector
       bv >>= 1 + hybridWidthLayerId_ + widthBend + widthAlpha;
-      double phi = (bv.val(widthPhi, 0, true) + .5) * basePhi;
+      double phi = (bv.val(widthPhi) + .5) * basePhi - hybridRangePhi_ / 2.;
       bv >>= widthPhi;
       double z = (bv.val(widthZ, 0, true) + .5) * baseZ;
       bv >>= widthZ;

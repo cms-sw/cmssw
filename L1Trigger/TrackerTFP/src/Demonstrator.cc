@@ -40,15 +40,18 @@ namespace trackerTFP {
     // reset ss
     ss.str("");
     ss.clear();
+    // number of tranceiver in a quad
+    static constexpr int quad = 4;
     const int numChannel = bits.size() / numRegions_;
+    const int voidChannel = numChannel % quad == 0 ? 0 : quad - numChannel % quad;
     // start with header
-    ss << header(numChannel);
+    ss << header(numChannel + voidChannel);
     int nFrame(0);
     // create one packet per region
     for (int region = 0; region < numRegions_; region++) {
       const int offset = region * numChannel;
       // start with emp 6 frame gap
-      ss << infraGap(nFrame, numChannel);
+      ss << infraGap(nFrame, numChannel + voidChannel);
       for (int frame = 0; frame < numFrames_; frame++) {
         // write one frame for all channel
         ss << this->frame(nFrame);
@@ -56,6 +59,8 @@ namespace trackerTFP {
           const vector<Frame>& bvs = bits[offset + channel];
           ss << (frame < (int)bvs.size() ? hex(bvs[frame]) : hex(Frame()));
         }
+        for (int channel = 0; channel < voidChannel; channel++)
+          ss << " 0v" << string(TTBV::S_ / 4, '0');
         ss << endl;
       }
     }
@@ -70,7 +75,8 @@ namespace trackerTFP {
     fs.close();
     // run modelsim
     stringstream cmd;
-    cmd << "cd " << dirIPBB_ << " && ./vsim -quiet -c work.top -do 'run " << runTime_ << "us' -do 'quit' &> /dev/null";
+    cmd << "cd " << dirIPBB_ << " && ./run_sim -quiet -c work.top -do 'run " << runTime_
+        << "us' -do 'quit' &> /dev/null";
     system(cmd.str().c_str());
   }
 
