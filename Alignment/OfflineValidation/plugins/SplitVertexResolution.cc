@@ -290,7 +290,7 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
   std::copy(vect.begin(), vect.begin() + nVtxBins_ + 1, myNVtx_bins_.begin());
 }
 
-SplitVertexResolution::~SplitVertexResolution() {}
+SplitVertexResolution::~SplitVertexResolution() = default;
 
 // ------------ method called for each event  ------------
 void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
