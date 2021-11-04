@@ -35,7 +35,7 @@ float extraOverCmsTextSize = 0.76;
 TString lumi_13TeV = "20.1 fb^{-1}";
 TString lumi_8TeV = "19.7 fb^{-1}";
 TString lumi_7TeV = "5.1 fb^{-1}";
-TString lumi_0p45TeV = "";
+TString lumi_0p9TeV = "";
 TString lumi_sqrtS = "";
 bool drawLogo = false;
 
@@ -90,8 +90,8 @@ void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
     lumiText += lumi_13TeV;
     lumiText += " (#sqrt{s} = 13 TeV)";
   } else if (iPeriod == 5) {
-    lumiText += lumi_0p45TeV;
-    lumiText += " (#sqrt{s} = 0.45 TeV)";
+    lumiText += lumi_0p9TeV;
+    lumiText += " (#sqrt{s} = 0.9 TeV)";
   } else if (iPeriod == 7) {
     if (outOfFrame)
       lumiText += "#scale[0.85]{";
