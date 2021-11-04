@@ -101,13 +101,13 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int>>("runControlNumber", defaultRuns);
 
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
-  theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
+  theTrackCollectionToken_ = consumes<reco::TrackCollection>(TrackCollectionTag_);
 
   edm::InputTag VertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollectionTag");
-  theVertexCollectionToken = consumes<reco::VertexCollection>(VertexCollectionTag_);
+  theVertexCollectionToken_ = consumes<reco::VertexCollection>(VertexCollectionTag_);
 
   edm::InputTag BeamspotTag_ = iConfig.getParameter<edm::InputTag>("BeamSpotTag");
-  theBeamspotToken = consumes<reco::BeamSpot>(BeamspotTag_);
+  theBeamspotToken_ = consumes<reco::BeamSpot>(BeamspotTag_);
 
   // select and configure the track filter
   theTrackFilter_ =
@@ -372,8 +372,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Retrieve the Track information
   //=======================================================
 
-  edm::Handle<TrackCollection> trackCollectionHandle;
-  iEvent.getByToken(theTrackCollectionToken, trackCollectionHandle);
+  edm::Handle<TrackCollection> trackCollectionHandle = iEvent.getHandle(theTrackCollectionToken_);
   if (!trackCollectionHandle.isValid())
     return;
   auto const& tracks = *trackCollectionHandle;
@@ -386,7 +385,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<std::vector<Vertex>> vertices;
 
   try {
-    iEvent.getByToken(theVertexCollectionToken, vertices);
+    vertices = iEvent.getHandle(theVertexCollectionToken_);
   } catch (cms::Exception& er) {
     LogTrace("PrimaryVertexValidation") << "caught std::exception " << er.what() << std::endl;
   }
@@ -511,8 +510,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
 
   BeamSpot beamSpot;
-  edm::Handle<BeamSpot> beamSpotHandle;
-  iEvent.getByToken(theBeamspotToken, beamSpotHandle);
+  edm::Handle<BeamSpot> beamSpotHandle = iEvent.getHandle(theBeamspotToken_);
 
   if (beamSpotHandle.isValid()) {
     beamSpot = *beamSpotHandle;
