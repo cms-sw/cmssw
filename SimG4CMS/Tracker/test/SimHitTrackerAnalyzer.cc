@@ -92,10 +92,14 @@ SimHitTrackerAnalyzer::SimHitTrackerAnalyzer(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
   tokSimTk_ = consumes<edm::SimTrackContainer>(SimTkLabel);
   tokSimVtx_ = consumes<edm::SimVertexContainer>(SimVtxLabel);
-  tokPixelBarrelHitsLowTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelLowTof"));
-  tokPixelBarrelHitsHighTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelHighTof"));
-  tokPixelEndcapHitsLowTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapLowTof"));
-  tokPixelEndcapHitsHighTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapHighTof"));
+  tokPixelBarrelHitsLowTof_ =
+      consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelLowTof"));
+  tokPixelBarrelHitsHighTof_ =
+      consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelBarrelHighTof"));
+  tokPixelEndcapHitsLowTof_ =
+      consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapLowTof"));
+  tokPixelEndcapHitsHighTof_ =
+      consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsPixelEndcapHighTof"));
   tokTIBHitsLowTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIBLowTof"));
   tokTIBHitsHighTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIBHighTof"));
   tokTIDHitsLowTof_ = consumes<edm::PSimHitContainer>(edm::InputTag(SimHitLabel, "TrackerHitsTIDLowTof"));
@@ -138,7 +142,6 @@ void SimHitTrackerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   auto TOBHitsHighTof = iEvent.getHandle(tokTOBHitsHighTof_);
   auto TECHitsLowTof = iEvent.getHandle(tokTECHitsLowTof_);
   auto TECHitsHighTof = iEvent.getHandle(tokTECHitsHighTof_);
-
 
   theSimTracks.insert(theSimTracks.end(), SimTk->begin(), SimTk->end());
   theSimVertexes.insert(theSimVertexes.end(), SimVtx->begin(), SimVtx->end());
