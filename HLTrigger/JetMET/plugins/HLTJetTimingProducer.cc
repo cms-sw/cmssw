@@ -1,4 +1,7 @@
 #include "HLTJetTimingProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 typedef HLTJetTimingProducer<reco::CaloJet> HLTCaloJetTimingProducer;
 typedef HLTJetTimingProducer<reco::PFJet> HLTPFJetTimingProducer;
