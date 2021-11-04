@@ -347,7 +347,7 @@ SplitVertexResolution::SplitVertexResolution(const edm::ParameterSet& iConfig)
   }
 }
 
-SplitVertexResolution::~SplitVertexResolution() {}
+SplitVertexResolution::~SplitVertexResolution() = default;
 
 // ------------ method called for each event  ------------
 void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

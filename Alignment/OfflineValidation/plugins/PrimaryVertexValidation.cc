@@ -68,10 +68,11 @@ const int PrimaryVertexValidation::nMaxtracks_;
 PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfig)
     : magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       trackingGeomToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()),
-      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
-      runInfoToken_(esConsumes<RunInfo, RunInfoRcd>()),
+      topoTokenBR_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      geomTokenBR_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      runInfoTokenBR_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
       compressionSettings_(iConfig.getUntrackedParameter<int>("compressionSettings", -1)),
       storeNtuple_(iConfig.getParameter<bool>("storeNtuple")),
       lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
@@ -212,16 +213,6 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   using namespace reco;
   using namespace IPTools;
 
-  if (!isBFieldConsistentWithMode(iSetup)) {
-    edm::LogWarning("PrimaryVertexValidation")
-        << "*********************************************************************************\n"
-        << "* The configuration (ptOfProbe > " << ptOfProbe_
-        << "GeV) is not correctly set for current value of magnetic field \n"
-        << "* Switching it to 0. !!! \n"
-        << "*********************************************************************************" << std::endl;
-    ptOfProbe_ = 0.;
-  }
-
   if (nBins_ != 24 && debug_) {
     edm::LogInfo("PrimaryVertexValidation") << "Using: " << nBins_ << " bins plots";
   }
@@ -252,6 +243,12 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   SetVarToZero();
 
   //=======================================================
+  // Retrieve tracker topology from geometry
+  //=======================================================
+
+  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
+
+  //=======================================================
   // Retrieve the Magnetic Field information
   //=======================================================
 
@@ -262,98 +259,6 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeomToken_);
-
-  //=======================================================
-  // Retrieve tracker topology from geometry
-  //=======================================================
-  const TrackerTopology* const tTopo = &iSetup.getData(topoToken_);
-
-  //=======================================================
-  // Retrieve geometry information
-  //=======================================================
-
-  edm::LogInfo("read tracker geometry...");
-  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(geomToken_);
-  edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
-
-  PixelTopologyMap PTMap = PixelTopologyMap(pDD.product(), tTopo);
-  nLadders_ = PTMap.getPXBLadders(1);
-  nModZ_ = PTMap.getPXBModules(1);
-
-  //=======================================================
-  // shrink to fit
-  //=======================================================
-
-  if (h_dxy_ladderOverlap_.size() != nLadders_) {
-    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
-    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
-    PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
-    PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
-    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
-    PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
-
-    if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
-    }
-  }
-
-  if (h_dxy_modZ_.size() != nModZ_) {
-    PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
-    PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
-    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-
-    if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
-    }
-  }
-
-  if ((pDD->isThere(GeomDetEnumerators::P2PXB)) || (pDD->isThere(GeomDetEnumerators::P2PXEC))) {
-    // switch on the phase-2
-    phase_ = PVValHelper::phase2;
-    if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation")
-          << " pixel phase2 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
-    }
-
-  } else if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
-    // switch on the phase-1
-    if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation")
-          << " pixel phase1 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
-    }
-  } else {
-    // switch on the phase-0
-    phase_ = PVValHelper::phase0;
-    if (debug_) {
-      edm::LogInfo("PrimaryVertexValidation")
-          << " pixel phase0 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
-    }
-  }
-
-  switch (phase_) {
-    case PVValHelper::phase0:
-      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase0);
-      break;
-    case PVValHelper::phase1:
-      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase1);
-      break;
-    case PVValHelper::phase2:
-      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase2);
-      break;
-    default:
-      edm::LogWarning("LogicError") << "Unknown detector phase: " << phase_;
-  }
-
-  if (h_etaMax->GetEntries() == 0.) {
-    h_etaMax->SetBinContent(1., etaOfProbe_);
-    h_nbins->SetBinContent(1., nBins_);
-    h_nLadders->SetBinContent(1., nLadders_);
-    h_nModZ->SetBinContent(1., nModZ_);
-    h_pTinfo->SetBinContent(1., mypT_bins_.size());
-    h_pTinfo->SetBinContent(2., minPt_);
-    h_pTinfo->SetBinContent(3., maxPt_);
-  }
 
   //=======================================================
   // Retrieve the Transient Track Builder information
@@ -537,26 +442,6 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //=======================================================
 
   RunNumber_ = iEvent.eventAuxiliary().run();
-  h_runNumber->Fill(RunNumber_);
-
-  if (!runNumbersTimesLog_.count(RunNumber_)) {
-    auto times = getRunTime(iSetup);
-
-    if (debug_) {
-      const time_t start_time = times.first / 1000000;
-      edm::LogInfo("PrimaryVertexValidation")
-          << RunNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
-      edm::LogInfo("PrimaryVertexValidation")
-          << "human readable time: " << std::asctime(std::gmtime(&start_time)) << std::endl;
-    }
-
-    runNumbersTimesLog_[RunNumber_] = times;
-  }
-
-  if (h_runFromEvent->GetEntries() == 0) {
-    h_runFromEvent->SetBinContent(1, RunNumber_);
-  }
-
   LuminosityBlockNumber_ = iEvent.eventAuxiliary().luminosityBlock();
   EventNumber_ = iEvent.eventAuxiliary().id().event();
 
@@ -2630,6 +2515,142 @@ void PrimaryVertexValidation::beginJob() {
         highedge);
   }
 }
+
+// ------------ method called once every run before doing the event loop ----------------
+void PrimaryVertexValidation::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  //=======================================================
+  // check on the b-field consistency
+  //=======================================================
+
+  if (!isBFieldConsistentWithMode(iSetup)) {
+    edm::LogWarning("PrimaryVertexValidation")
+        << "*********************************************************************************\n"
+        << "* The configuration (ptOfProbe > " << ptOfProbe_
+        << "GeV) is not correctly set for current value of magnetic field \n"
+        << "* Switching it to 0. !!! \n"
+        << "*********************************************************************************" << std::endl;
+    ptOfProbe_ = 0.;
+  }
+
+  //=======================================================
+  // Run numbers analysis
+  //=======================================================
+
+  const auto runNumber_ = iRun.run();
+  h_runNumber->Fill(runNumber_);
+
+  if (!runNumbersTimesLog_.count(runNumber_)) {
+    auto times = getRunTime(iSetup);
+
+    if (debug_) {
+      const time_t start_time = times.first / 1000000;
+      edm::LogInfo("PrimaryVertexValidation")
+          << runNumber_ << " has start time: " << times.first << " - " << times.second << std::endl;
+      edm::LogInfo("PrimaryVertexValidation")
+          << "human readable time: " << std::asctime(std::gmtime(&start_time)) << std::endl;
+    }
+
+    runNumbersTimesLog_[runNumber_] = times;
+  }
+
+  if (h_runFromEvent->GetEntries() == 0) {
+    h_runFromEvent->SetBinContent(1, RunNumber_);
+  }
+
+  //=======================================================
+  // Retrieve tracker topology from geometry
+  //=======================================================
+
+  const TrackerTopology* const tTopo = &iSetup.getData(topoTokenBR_);
+
+  //=======================================================
+  // Retrieve geometry information
+  //=======================================================
+
+  edm::LogInfo("read tracker geometry...");
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(geomTokenBR_);
+  edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
+
+  PixelTopologyMap PTMap = PixelTopologyMap(pDD.product(), tTopo);
+  nLadders_ = PTMap.getPXBLadders(1);
+  nModZ_ = PTMap.getPXBModules(1);
+
+  //=======================================================
+  // shrink to fit
+  //=======================================================
+
+  if (h_dxy_ladderOverlap_.size() != nLadders_) {
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
+
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
+    }
+  }
+
+  if (h_dxy_modZ_.size() != nModZ_) {
+    PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
+    }
+  }
+
+  if ((pDD->isThere(GeomDetEnumerators::P2PXB)) || (pDD->isThere(GeomDetEnumerators::P2PXEC))) {
+    // switch on the phase-2
+    phase_ = PVValHelper::phase2;
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase2 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
+    }
+
+  } else if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
+    // switch on the phase-1
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase1 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
+    }
+  } else {
+    // switch on the phase-0
+    phase_ = PVValHelper::phase0;
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation")
+          << " pixel phase0 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
+    }
+  }
+
+  switch (phase_) {
+    case PVValHelper::phase0:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase0);
+      break;
+    case PVValHelper::phase1:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase1);
+      break;
+    case PVValHelper::phase2:
+      etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase2);
+      break;
+    default:
+      edm::LogWarning("LogicError") << "Unknown detector phase: " << phase_;
+  }
+
+  if (h_etaMax->GetEntries() == 0.) {
+    h_etaMax->SetBinContent(1., etaOfProbe_);
+    h_nbins->SetBinContent(1., nBins_);
+    h_nLadders->SetBinContent(1., nLadders_);
+    h_nModZ->SetBinContent(1., nModZ_);
+    h_pTinfo->SetBinContent(1., mypT_bins_.size());
+    h_pTinfo->SetBinContent(2., minPt_);
+    h_pTinfo->SetBinContent(3., maxPt_);
+  }
+}
+
 // ------------ method called once each job just after ending the event loop  ------------
 void PrimaryVertexValidation::endJob() {
   // shring the histograms to fit
@@ -3007,7 +3028,7 @@ void PrimaryVertexValidation::endJob() {
 std::pair<long long, long long> PrimaryVertexValidation::getRunTime(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoTokenBR_);
   if (debug_) {
     edm::LogInfo("PrimaryVertexValidation")
         << runInfo.product()->m_start_time_str << " " << runInfo.product()->m_stop_time_str << std::endl;
@@ -3019,7 +3040,7 @@ std::pair<long long, long long> PrimaryVertexValidation::getRunTime(const edm::E
 bool PrimaryVertexValidation::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const
 //*************************************************************
 {
-  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoToken_);
+  edm::ESHandle<RunInfo> runInfo = iSetup.getHandle(runInfoTokenBR_);
   double average_current = runInfo.product()->m_avg_current;
   bool isOn = (average_current > 2000.);
   bool is0T = (ptOfProbe_ == 0.);
