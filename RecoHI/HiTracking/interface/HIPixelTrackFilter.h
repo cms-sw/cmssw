@@ -5,16 +5,14 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace edm {
-  class EventSetup;
-}
-
 class HIPixelTrackFilter : public ClusterShapeTrackFilter {
 public:
   HIPixelTrackFilter(const SiPixelClusterShapeCache *cache,
                      double ptMin,
                      double ptMax,
-                     const edm::EventSetup &es,
+                     const TrackerGeometry *tracker,
+                     const ClusterShapeHitFilter *shape,
+                     const TrackerTopology *ttopo,
                      const reco::VertexCollection *vertices,
                      double tipMax,
                      double tipMaxTolerance,
