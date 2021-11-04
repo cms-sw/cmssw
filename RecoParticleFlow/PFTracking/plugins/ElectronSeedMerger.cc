@@ -6,6 +6,7 @@
 // Original Author:  Michele Pioppi
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,77 +41,86 @@ ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig)
 
 // ------------ method called to produce the data  ------------
 void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const {
+  //HANDLE THE INPUT SEED COLLECTIONS
+  auto const& eSeeds = iEvent.get(ecalSeedToken_);
+
+  ElectronSeedCollection tSeedsEmpty;
+  auto const& tSeeds = tkSeedToken_.isUninitialized() ? tSeedsEmpty : iEvent.get(tkSeedToken_);
+
   //CREATE OUTPUT COLLECTION
   auto output = std::make_unique<ElectronSeedCollection>();
-
-  //HANDLE THE INPUT SEED COLLECTIONS
-  Handle<ElectronSeedCollection> EcalBasedSeeds;
-  iEvent.getByToken(ecalSeedToken_, EcalBasedSeeds);
-  ElectronSeedCollection ESeed = *(EcalBasedSeeds.product());
-
-  Handle<ElectronSeedCollection> TkBasedSeeds;
-  ElectronSeedCollection TSeed;
-  if (!tkSeedToken_.isUninitialized()) {
-    iEvent.getByToken(tkSeedToken_, TkBasedSeeds);
-    TSeed = *(TkBasedSeeds.product());
-  }
+  output->reserve(eSeeds.size() + tSeeds.size());
 
   //VECTOR FOR MATCHED SEEDS
-  vector<bool> TSeedMatched;
-  for (unsigned int it = 0; it < TSeed.size(); it++) {
-    TSeedMatched.push_back(false);
-  }
+  vector<bool> tSeedsMatched(tSeeds.size(), false);
 
   //LOOP OVER THE ECAL SEED COLLECTION
-  ElectronSeedCollection::const_iterator e_beg = ESeed.begin();
-  ElectronSeedCollection::const_iterator e_end = ESeed.end();
-  for (; e_beg != e_end; ++e_beg) {
-    ElectronSeed NewSeed = *(e_beg);
-    bool AlreadyMatched = false;
+  for (auto newSeed : eSeeds) {  //  make a copy
 
     //LOOP OVER THE TK SEED COLLECTION
-    for (unsigned int it = 0; it < TSeed.size(); it++) {
-      if (AlreadyMatched)
-        continue;
+    int it = -1;
+    for (auto const& tSeed : tSeeds) {
+      it++;
 
       //HITS FOR TK SEED
       unsigned int hitShared = 0;
       unsigned int hitSeed = 0;
-      for (auto const& eh : e_beg->recHits()) {
+      for (auto const& eh : newSeed.recHits()) {
         if (!eh.isValid())
           continue;
         hitSeed++;
-        bool Shared = false;
-        for (auto const& th : TSeed[it].recHits()) {
+
+        for (auto const& th : tSeed.recHits()) {
           if (!th.isValid())
             continue;
-          //CHECK THE HIT COMPATIBILITY: put back sharesInput
-          // as soon Egamma solves the bug on the seed collection
-          if (eh.sharesInput(&th, TrackingRecHit::all))
-            Shared = true;
-          //   if(eh->geographicalId() == th->geographicalId() &&
-          // 	     (eh->localPosition() - th->localPosition()).mag() < 0.001) Shared=true;
+          //CHECK THE HIT COMPATIBILITY
+          if (eh.sharesInput(&th, TrackingRecHit::all)) {
+            hitShared++;
+            break;
+          }
         }
-        if (Shared)
-          hitShared++;
       }
       if (hitShared == hitSeed) {
-        AlreadyMatched = true;
-        TSeedMatched[it] = true;
-        NewSeed.setCtfTrack(TSeed[it].ctfTrack());
+        tSeedsMatched[it] = true;
+        newSeed.setCtfTrack(tSeed.ctfTrack());
+        break;
       }
       if (hitShared == (hitSeed - 1)) {
-        NewSeed.setCtfTrack(TSeed[it].ctfTrack());
+        newSeed.setCtfTrack(tSeed.ctfTrack());
+      } else if ((hitShared > 0 || tSeed.nHits() == 0) && !newSeed.isTrackerDriven()) {
+        //try to find hits in the full track
+        unsigned int hitSharedOnTrack = 0;
+        for (auto const& eh : newSeed.recHits()) {
+          if (!eh.isValid())
+            continue;
+          for (auto const* th : tSeed.ctfTrack()->recHits()) {
+            if (!th->isValid())
+              continue;
+            // hits on tracks are not matched : use ::some
+            if (eh.sharesInput(th, TrackingRecHit::some)) {
+              hitSharedOnTrack++;
+              break;
+            }
+          }
+        }
+        if (hitSharedOnTrack == hitSeed) {
+          tSeedsMatched[it] = true;
+          newSeed.setCtfTrack(tSeed.ctfTrack());
+          break;
+        }
+        if (hitSharedOnTrack == (hitSeed - 1)) {
+          newSeed.setCtfTrack(tSeed.ctfTrack());
+        }
       }
     }
 
-    output->push_back(NewSeed);
+    output->push_back(newSeed);
   }
 
   //FILL THE COLLECTION WITH UNMATCHED TK-BASED SEED
-  for (unsigned int it = 0; it < TSeed.size(); it++) {
-    if (!TSeedMatched[it])
-      output->push_back(TSeed[it]);
+  for (unsigned int it = 0; it < tSeeds.size(); it++) {
+    if (!tSeedsMatched[it])
+      output->push_back(tSeeds[it]);
   }
 
   //PUT THE MERGED COLLECTION IN THE EVENT
