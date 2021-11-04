@@ -32,6 +32,7 @@
 #include "L1Trigger/L1TGlobal/interface/GlobalScales.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/MuonShowerTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
@@ -53,6 +54,7 @@ public:
   TriggerMenu(const std::string&,
               const unsigned int numberConditionChips,
               const std::vector<std::vector<MuonTemplate> >&,
+              const std::vector<std::vector<MuonShowerTemplate> >&,
               const std::vector<std::vector<CaloTemplate> >&,
               const std::vector<std::vector<EnergySumTemplate> >&,
               const std::vector<std::vector<ExternalTemplate> >&,
@@ -108,6 +110,13 @@ public:
   inline const std::vector<std::vector<MuonTemplate> >& vecMuonTemplate() const { return m_vecMuonTemplate; }
 
   void setVecMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
+
+  //
+  inline const std::vector<std::vector<MuonShowerTemplate> >& vecMuonShowerTemplate() const {
+    return m_vecMuonShowerTemplate;
+  }
+
+  void setVecMuonShowerTemplate(const std::vector<std::vector<MuonShowerTemplate> >&);
 
   //
   inline const std::vector<std::vector<CaloTemplate> >& vecCaloTemplate() const { return m_vecCaloTemplate; }
@@ -218,6 +227,7 @@ private:
   /// vectors containing the conditions
   /// explicit, due to persistency...
   std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
+  std::vector<std::vector<MuonShowerTemplate> > m_vecMuonShowerTemplate;
   std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
   std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
 
