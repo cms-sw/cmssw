@@ -22,7 +22,7 @@ using namespace std;
 
 L1JPTOffsetCorrectorImplMaker::L1JPTOffsetCorrectorImplMaker(edm::ParameterSet const& fConfig,
                                                              edm::ConsumesCollector fCollector)
-    : JetCorrectorImplMakerBase(fConfig), useOffset_(false) {
+    : JetCorrectorImplMakerBase(fConfig, fCollector), useOffset_(false) {
   auto const& offsetService = fConfig.getParameter<edm::InputTag>("offsetService");
   if (not offsetService.label().empty()) {
     useOffset_ = true;
