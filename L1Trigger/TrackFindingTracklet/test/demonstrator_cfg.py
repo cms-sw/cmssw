@@ -10,7 +10,7 @@ process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff'
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 

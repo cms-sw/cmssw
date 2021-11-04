@@ -1,5 +1,5 @@
-#ifndef L1Trigger_TrackFindingTracklet_LayerEncodingRcd_h
-#define L1Trigger_TrackFindingTracklet_LayerEncodingRcd_h
+#ifndef L1Trigger_TrackFindingTracklet_TrackBuilderChannelRcd_h
+#define L1Trigger_TrackFindingTracklet_TrackBuilderChannelRcd_h
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Utilities/interface/mplVector.h"
