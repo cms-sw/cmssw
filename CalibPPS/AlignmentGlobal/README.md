@@ -18,6 +18,10 @@
 | `write_sqlite_results`        | `cms.bool`    | When set to `True`, the harvester will try to use PoolDBOutputService to save the final results.                                                        |
 | `x_ali_rel_final_slope_fixed` | `cms.bool`    | `True`: the harvester will use the x relative alignment results with fixed slope to prepare final merged results. `False`: results without fixed slope. |
 | `y_ali_final_slope_fixed`     | `cms.bool`    | `True`: the harvester will use the y alignment results with fixed slope to prepare final merged results. `False`: results without fixed slope.          |
+| `x_corr_min`                  | `cms.double`  | Lower bound of the horizontal correction in um. If the correction is smaller than that, it will be replaced with 0.                                     |
+| `x_corr_max`                  | `cms.double`  | Upper bound of the horizontal correction in um. If the correction is bigger than that, it will be replaced with 0.                                      |
+| `y_corr_min`                  | `cms.double`  | Lower bound of the vertical correction in um. If the correction is smaller than that, it will be replaced with 0.                                       |
+| `y_corr_max`                  | `cms.double`  | Upper bound of the vertical correction in um. If the correction is bigger than that, it will be replaced with 0.                                        |
 | `debug`                       | `cms.bool`    | When set to `True`, the harvester will produce an extra ROOT file with debug plots.                                                                     |
 
 # Event Setup

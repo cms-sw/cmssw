@@ -33,6 +33,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <utility>
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -125,6 +126,8 @@ private:
   const bool writeSQLiteResults_;
   const bool xAliRelFinalSlopeFixed_;
   const bool yAliFinalSlopeFixed_;
+  const std::pair<double, double> xCorrRange_;
+  const std::pair<double, double> yCorrRange_;
   const bool debug_;
 
   // other class variables
@@ -153,6 +156,10 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
       writeSQLiteResults_(iConfig.getParameter<bool>("write_sqlite_results")),
       xAliRelFinalSlopeFixed_(iConfig.getParameter<bool>("x_ali_rel_final_slope_fixed")),
       yAliFinalSlopeFixed_(iConfig.getParameter<bool>("y_ali_final_slope_fixed")),
+      xCorrRange_(std::make_pair(iConfig.getParameter<double>("x_corr_min") / 1000.,
+                                 iConfig.getParameter<double>("x_corr_max") / 1000.)),  // um -> mm
+      yCorrRange_(std::make_pair(iConfig.getParameter<double>("y_corr_min") / 1000.,
+                                 iConfig.getParameter<double>("y_corr_max") / 1000.)),  // um -> mm
       debug_(iConfig.getParameter<bool>("debug")) {
   auto textResultsPath = iConfig.getParameter<std::string>("text_results_path");
   if (!textResultsPath.empty()) {
@@ -174,7 +181,12 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
     li << "* write_sqlite_results: " << std::boolalpha << writeSQLiteResults_ << "\n";
     li << "* x_ali_rel_final_slope_fixed: " << std::boolalpha << xAliRelFinalSlopeFixed_ << "\n";
     li << "* y_ali_final_slope_fixed: " << std::boolalpha << yAliFinalSlopeFixed_ << "\n";
-    li << "* debug: " << std::boolalpha << debug_;
+    // print in um
+    li << "* x_corr_min: " << std::fixed << xCorrRange_.first * 1000. << ", x_corr_max: " << xCorrRange_.second * 1000.
+       << "\n";
+    // print in um
+    li << "* y_corr_min: " << std::fixed << yCorrRange_.first * 1000. << ", y_corr_max: " << yCorrRange_.second * 1000.;
+    li << "* debug: " << std::boolalpha << debug_ << "\n";
   });
 }
 
@@ -194,6 +206,10 @@ void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("write_sqlite_results", false);
   desc.add<bool>("x_ali_rel_final_slope_fixed", true);
   desc.add<bool>("y_ali_final_slope_fixed", true);
+  desc.add<double>("x_corr_min", -1'000'000.);
+  desc.add<double>("x_corr_max", 1'000'000.);
+  desc.add<double>("y_corr_min", -1'000'000.);
+  desc.add<double>("y_corr_max", 1'000'000.);
   desc.add<bool>("debug", false);
 
   descriptions.addWithDefaultLabel(desc);
@@ -276,6 +292,29 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
       finalResults.addCorrections(yAliResultsSlopeFixed_);
     } else {
       finalResults.addCorrections(yAliResults_);
+    }
+  }
+
+  // check if the results are within the reasonability ranges xCorrRange and yCorrRange
+  for (const auto& sc : {cfg.sectorConfig45(), cfg.sectorConfig56()}) {
+    for (const auto& rpc : {sc.rp_F_, sc.rp_N_}) {
+      auto& rpResults = finalResults.getRPCorrection(rpc.id_);
+
+      if (!(xCorrRange_.first <= rpResults.getShX() && rpResults.getShX() <= xCorrRange_.second)) {
+        edm::LogWarning("PPS") << "The horizontal shift of " << rpc.name_ << " (" << std::fixed << std::setw(9)
+                               << std::setprecision(1) << rpResults.getShX() * 1000.
+                               << " um) outside of the reasonability range. Setting it to 0.";
+        rpResults.setShX(0.);
+        rpResults.setShXUnc(0.);
+      }
+
+      if (!(yCorrRange_.first <= rpResults.getShY() && rpResults.getShY() <= yCorrRange_.second)) {
+        edm::LogWarning("PPS") << "  The vertical shift of " << rpc.name_ << " (" << std::fixed << std::setw(9)
+                               << std::setprecision(1) << rpResults.getShY() * 1000.
+                               << " um) outside of the reasonability range. Setting it to 0.";
+        rpResults.setShY(0.);
+        rpResults.setShYUnc(0.);
+      }
     }
   }
 
