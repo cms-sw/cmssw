@@ -192,9 +192,9 @@ private:
   // force to use beamspot in the vertex fit
   bool forceBeamSpotContraint_;
 
-  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
-  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
-  edm::EDGetTokenT<reco::BeamSpot> theBeamspotToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamspotToken_;
 
   TTree* rootTree_;
 
