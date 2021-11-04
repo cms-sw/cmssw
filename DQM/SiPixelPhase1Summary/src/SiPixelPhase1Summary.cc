@@ -343,21 +343,6 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
 
           sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
         }
-        if (i == 1 && j > 1) {
-          summaryMap_["Grand"]->setBinContent(i + 1, j + 1, -1);
-        } else {
-          if (deadROCSummary->getBinContent(i + 1, j + 1) < deadRocWarnThresholds_[i * 4 + j])
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 1);
-
-          else if (deadROCSummary->getBinContent(i + 1, j + 1) > deadRocWarnThresholds_[i * 4 + j] &&
-                   deadROCSummary->getBinContent(i + 1, j + 1) < deadRocThresholds_[i * 4 + j])
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0.8);
-
-          else
-            summaryMap_["Grand"]->setBinContent(i + 1, j + 1, 0);
-
-          sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i + 1, j + 1);
-        }
       }
     }
   }
