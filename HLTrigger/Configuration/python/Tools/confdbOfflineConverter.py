@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 import sys, os
+import re
+import hashlib
 import os.path
 import tempfile
 import requests
@@ -117,10 +119,10 @@ class OfflineConverter:
             self.workDir = self.baseDir
         else:
             # try to use $CMSSW_BASE/tmp
-            self.workDir = OfflineConverter.CheckTempDirectory(os.environ['CMSSW_BASE'] + '/tmp/confdb')
+            self.workDir = OfflineConverter.CheckTempDirectory(os.path.join(os.environ['CMSSW_BASE'],'tmp','confdb',self.version))
             if not self.workDir:
                 # try to use $TMP
-                self.workDir = OfflineConverter.CheckTempDirectory(os.environ['TMP'] + '/confdb')
+                self.workDir = OfflineConverter.CheckTempDirectory(os.path.join(os.environ['TMP'] + 'confdb',self.version))
             if not self.workDir:
                 # create a new temporary directory, and install a cleanup callback
                 self.workDir = tempfile.mkdtemp()
@@ -128,15 +130,24 @@ class OfflineConverter:
             # download the .jar files
             for jar in self.jars:
                 # check if the file is already present
+                jarRequiresUpdate=False
                 if os.path.exists(self.workDir + '/' + jar):
-                    continue
+                    web_sha512 = requests.get(self.baseUrl +'/'+re.sub(r'.jar$','_sha512',jar))
+                    hash_sha512 = hashlib.sha512()
+                    with open(self.workDir + '/' + jar,"rb") as f:
+                        for chunk in iter(lambda: f.read(4096), b""):
+                            hash_sha512.update(chunk)
+                    if web_sha512.text.rstrip()==hash_sha512.hexdigest():
+                        continue
+                    else:
+                        jarRequiresUpdate=True
                 # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
                 handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
                 os.close(handle)
                 request = requests.get(self.baseUrl + '/' + jar)
                 with open(temp,'wb') as f:
                     f.write(request.content)
-                if not os.path.exists(self.workDir + '/' + jar):
+                if not os.path.exists(self.workDir + '/' + jar) or jarRequiresUpdate:
                     os.rename(temp, self.workDir + '/' + jar)
                 else:
                     os.unlink(temp)
