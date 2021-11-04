@@ -81,7 +81,8 @@ public:
   int layerIndex(int lay, bool reco) const;
   unsigned int layers(bool reco) const;
   unsigned int layersInit(bool reco) const;
-  std::pair<float, float> localToGlobal8(int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
+  std::pair<float, float> localToGlobal8(
+      int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
   std::pair<float, float> locateCell(
       int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
