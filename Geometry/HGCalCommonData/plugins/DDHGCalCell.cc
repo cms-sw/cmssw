@@ -106,9 +106,9 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   double dy2 = 0.5 * dy1;
   double dy3 = 1.5 * dy1;
   std::vector<double> xx = {
-      dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4, dx4, dx1, dx3};
+      dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4,  dx4,  dx1,  dx3};
   std::vector<double> yy = {
-      0, dy1, dy1, 0, -dy1, -dy1, dy2, dy1, dy3, dy3, dy1, dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
+       0, dy1,  dy1,    0, -dy1, -dy1, dy2, dy1, dy3,  dy3,  dy1,  dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
   double zpos = (posSens_ == 0) ? -0.5 * (waferT_ - cellT_) : 0.5 * (waferT_ - cellT_);
   DDTranslation tran(0, 0, zpos);
 
@@ -145,11 +145,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
                                 << tran << " with no rotation";
 #endif
 
-  static constexpr int ir0[] = {0, 2, 4, 1, 3, 5};
-  static constexpr int ir1[] = {1, 3, 5, 2, 4, 0};
-  static constexpr int ir2[] = {2, 4, 0, 3, 5, 1};
-  static constexpr int ir3[] = {3, 5, 1, 4, 0, 2};
-  static constexpr int ir4[] = {5, 1, 3, 0, 2, 4};
+  static constexpr int ir0[] = {0, 1, 0, 1, 3, 5};
+  static constexpr int ir1[] = {1, 2, 1, 2, 4, 0};
+  static constexpr int ir2[] = {2, 3, 3, 3, 5, 1};
+  static constexpr int ir3[] = {3, 4, 4, 4, 0, 2};
+  static constexpr int ir4[] = {5, 5, 5, 0, 2, 4};
   for (unsigned int i = 0; i < truncCN_.size(); ++i) {
     std::vector<double> xw = {xx[ir0[i]], xx[ir1[i]], xx[ir2[i]], xx[ir3[i]], xx[ir4[i]]};
     std::vector<double> yw = {yy[ir0[i]], yy[ir1[i]], yy[ir2[i]], yy[ir3[i]], yy[ir4[i]]};
@@ -180,11 +180,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static constexpr int ie0[] = {1, 3, 5, 2, 4, 0};
-  static constexpr int ie1[] = {2, 4, 0, 3, 5, 1};
-  static constexpr int ie2[] = {3, 5, 1, 4, 0, 2};
-  static constexpr int ie3[] = {14, 6, 9, 16, 8, 12};
-  static constexpr int ie4[] = {17, 10, 13, 7, 11, 15};
+  static constexpr int ie0[] = {1, 5, 0, 2, 4, 0};
+  static constexpr int ie1[] = {2, 6, 1, 3, 5, 1};
+  static constexpr int ie2[] = {3, 9, 10, 4, 0, 2};
+  static constexpr int ie3[] = {14, 3, 13, 16, 8, 12};
+  static constexpr int ie4[] = {17, 4, 5, 7, 11, 15};
   for (unsigned int i = 0; i < extenCN_.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]], xx[ie1[i]], xx[ie2[i]], xx[ie3[i]], xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]], yy[ie1[i]], yy[ie2[i]], yy[ie3[i]], yy[ie4[i]]};
@@ -215,11 +215,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static constexpr int ic0[] = {0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 0};
-  static constexpr int ic1[] = {1, 2, 3, 4, 5, 0, 2, 3, 4, 5, 0, 1};
-  static constexpr int ic2[] = {10, 3, 14, 5, 6, 1, 12, 5, 16, 0, 8, 2};
-  static constexpr int ic3[] = {3, 5, 5, 1, 1, 3, 4, 0, 0, 2, 2, 4};
-  static constexpr int ic4[] = {5, 17, 1, 9, 3, 13, 0, 7, 2, 11, 4, 15};
+  static constexpr int ic0[] = {0, 1, 1, 1, 1, 0, 1, 2, 3, 4, 5, 0};
+  static constexpr int ic1[] = {1, 2, 2, 9, 3, 1, 2, 3, 4, 5, 0, 1};
+  static constexpr int ic2[] = {10, 3, 3, 3, 4, 3, 12, 5, 16, 0, 8, 2};
+  static constexpr int ic3[] = {3, 5, 14, 4, 5, 13, 4, 0, 0, 2, 2, 4};
+  static constexpr int ic4[] = {5, 17, 5, 5, 6, 5, 0, 7, 2, 11, 4, 15};
   for (unsigned int i = 0; i < cornrCN_.size(); ++i) {
     std::vector<double> xw = {xx[ic0[i]], xx[ic1[i]], xx[ic2[i]], xx[ic3[i]], xx[ic4[i]]};
     std::vector<double> yw = {yy[ic0[i]], yy[ic1[i]], yy[ic2[i]], yy[ic3[i]], yy[ic4[i]]};
