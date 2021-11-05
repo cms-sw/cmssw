@@ -1,12 +1,5 @@
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
-// destructor
-
-EvolutionECAL::~EvolutionECAL() {}
-
-// constructor
-EvolutionECAL::EvolutionECAL() {}
-
 //_____________________________________________________
 double EvolutionECAL::LightCollectionEfficiency(double z, double mu) {
   double f = 0;

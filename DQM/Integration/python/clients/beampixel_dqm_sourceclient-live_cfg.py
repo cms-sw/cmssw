@@ -2,8 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("BeamPixel", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamMonitor", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -107,7 +107,7 @@ process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
 #----------------------------
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or process.runType.getRunType() == process.runType.commissioning_run ):
     print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
 

@@ -88,6 +88,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
   showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
   showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
+  minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
@@ -179,7 +180,6 @@ void CSCAnodeLCTProcessor::clear() {
   }
   lct_list.clear();
   inTimeHMT_ = 0;
-  outTimeHMT_ = 0;
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -1339,20 +1339,45 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
     const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   inTimeHMT_ = 0;
-  outTimeHMT_ = 0;
+
+  auto layerTime = [=](unsigned time) { return time == CSCConstants::LCT_CENTRAL_BX; };
+
+  // Calculate layers with hits
+  unsigned nLayersWithHits = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    bool atLeastOneWGHit = false;
+    for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIREGROUPS; i_wire++) {
+      // there is at least one wiregroup...
+      if (!wires[i_layer][i_wire].empty()) {
+        auto times = wires[i_layer][i_wire];
+        int nLayerTime = std::count_if(times.begin(), times.end(), layerTime);
+        // ...for which at least one time bin was on for the central BX
+        if (nLayerTime > 0) {
+          atLeastOneWGHit = true;
+          break;
+        }
+      }
+    }
+    // add this layer to the number of layers hit
+    if (atLeastOneWGHit) {
+      nLayersWithHits++;
+    }
+  }
+
+  // require at least nLayersWithHits for the central time bin
+  // do nothing if there are not enough layers with hits
+  if (nLayersWithHits < minLayersCentralTBin_)
+    return;
 
   // functions for in-time and out-of-time
   auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
-  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
 
   // count the wires in-time and out-time
   unsigned hitsInTime = 0;
-  unsigned hitsOutTime = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIREGROUPS; i_wire++) {
       auto times = wires[i_layer][i_wire];
       hitsInTime += std::count_if(times.begin(), times.end(), inTime);
-      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
     }
   }
 
@@ -1369,11 +1394,8 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
     if (hitsInTime >= station_thresholds[i]) {
       inTimeHMT_ = i + 1;
     }
-    if (hitsOutTime >= station_thresholds[i]) {
-      outTimeHMT_ = i + 1;
-    }
   }
 
   // create a new object
-  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
+  shower_ = CSCShowerDigi(inTimeHMT_, false, theTrigChamber);
 }

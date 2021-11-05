@@ -97,16 +97,16 @@ public:
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
-    theTrackCollectionToken = consumes<reco::TrackCollection>(TkTag_);
+    theTrackCollectionToken_ = consumes<reco::TrackCollection>(TkTag_);
 
     TriggerResultsTag_ = pset.getParameter<edm::InputTag>("TriggerResultsTag");
-    hltresultsToken = consumes<edm::TriggerResults>(TriggerResultsTag_);
+    hltresultsToken_ = consumes<edm::TriggerResults>(TriggerResultsTag_);
 
     BeamSpotTag_ = pset.getParameter<edm::InputTag>("BeamSpotTag");
-    beamspotToken = consumes<reco::BeamSpot>(BeamSpotTag_);
+    beamspotToken_ = consumes<reco::BeamSpot>(BeamSpotTag_);
 
     VerticesTag_ = pset.getParameter<edm::InputTag>("VerticesTag");
-    vertexToken = consumes<reco::VertexCollection>(VerticesTag_);
+    vertexToken_ = consumes<reco::VertexCollection>(VerticesTag_);
 
     isCosmics_ = pset.getParameter<bool>("isCosmics");
 
@@ -289,10 +289,10 @@ private:
 
   bool isCosmics_;
 
-  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
-  edm::EDGetTokenT<edm::TriggerResults> hltresultsToken;
-  edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltresultsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   std::map<std::string, std::pair<int, int> > triggerMap_;
   std::map<int, std::pair<int, float> > conditionsMap_;
@@ -304,12 +304,10 @@ private:
   {
     ievt++;
 
-    edm::Handle<reco::TrackCollection> trackCollection;
-    event.getByToken(theTrackCollectionToken, trackCollection);
+    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
 
     // geometry setup
-    edm::ESHandle<TrackerGeometry> geometry = setup.getHandle(geomToken_);
-    const TrackerGeometry *theGeometry = &(*geometry);
+    const TrackerGeometry *theGeometry = &setup.getData(geomToken_);
 
     // switch on the phase1
     if ((theGeometry->isThere(GeomDetEnumerators::P1PXB)) || (theGeometry->isThere(GeomDetEnumerators::P1PXEC))) {
@@ -329,8 +327,7 @@ private:
     }
     //int iCounter=0;
 
-    edm::Handle<edm::TriggerResults> hltresults;
-    event.getByToken(hltresultsToken, hltresults);
+    edm::Handle<edm::TriggerResults> hltresults = event.getHandle(hltresultsToken_);
     if (hltresults.isValid()) {
       const edm::TriggerNames &triggerNames_ = event.triggerNames(*hltresults);
       int ntrigs = hltresults->size();
@@ -641,8 +638,7 @@ private:
 
       //dxy with respect to the beamspot
       reco::BeamSpot beamSpot;
-      edm::Handle<reco::BeamSpot> beamSpotHandle;
-      event.getByToken(beamspotToken, beamSpotHandle);
+      edm::Handle<reco::BeamSpot> beamSpotHandle = event.getHandle(beamspotToken_);
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
         math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
@@ -655,9 +651,7 @@ private:
 
       //dxy with respect to the primary vertex
       reco::Vertex pvtx;
-      edm::Handle<reco::VertexCollection> vertexHandle;
-      reco::VertexCollection vertexCollection;
-      event.getByLabel("offlinePrimaryVertices", vertexHandle);
+      edm::Handle<reco::VertexCollection> vertexHandle = event.getHandle(vertexToken_);
       double mindxy = 100.;
       double dz = 100;
       if (vertexHandle.isValid() && !isCosmics_) {
