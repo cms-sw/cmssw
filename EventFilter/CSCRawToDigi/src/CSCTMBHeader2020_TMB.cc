@@ -38,7 +38,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_TMB::CLCTDigis(uint32_t idlayer) {
   unsigned pattern = bits.clct0_shape;
   unsigned bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi0(
       bits.clct0_valid, bits.clct0_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 1, bits.bxnPreTrigger);
 
@@ -48,7 +47,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_TMB::CLCTDigis(uint32_t idlayer) {
   pattern = bits.clct1_shape;
   bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi1(
       bits.clct1_valid, bits.clct1_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 2, bits.bxnPreTrigger);
   result.push_back(digi0);
@@ -68,7 +66,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
   unsigned run2_pattern = run2_pattern_lookup_tbl[bits.MPC_Muon0_clct_LR][slope];
   unsigned run3_pattern = run3_pattern_pair.second & 0x7;
 
-  //offlineHalfStripNumbering(strip);
   CSCCorrelatedLCTDigi digi(1,
                             bits.MPC_Muon0_lct_vpf,
                             bits.MPC_Muon0_lct_quality,
@@ -93,7 +90,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
   slope = (bits.MPC_Muon1_clct_bend_low & 0x7) | (bits.MPC_Muon1_clct_bend_bit4 << 3);
   run2_pattern = run2_pattern_lookup_tbl[bits.MPC_Muon1_clct_LR][slope];
   run3_pattern = run3_pattern_pair.first & 0x7;
-  //offlineHalfStripNumbering(strip);
   digi = CSCCorrelatedLCTDigi(2,
                               bits.MPC_Muon1_lct_vpf,
                               bits.MPC_Muon1_lct_quality,
@@ -113,7 +109,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_TMB::CorrelatedLCTDigis(uint3
                               slope);
   digi.setHMT(hmt);
   result.push_back(digi);
-
   return result;
 }
 
@@ -135,7 +130,6 @@ void CSCTMBHeader2020_TMB::addALCT1(const CSCALCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addCLCT0(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct0_valid = digi.isValid();
   bits.clct0_quality = digi.getQuality();
   bits.clct0_shape = pattern;
@@ -150,7 +144,6 @@ void CSCTMBHeader2020_TMB::addCLCT0(const CSCCLCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addCLCT1(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct1_valid = digi.isValid();
   bits.clct1_quality = digi.getQuality();
   bits.clct1_shape = pattern;
@@ -164,9 +157,6 @@ void CSCTMBHeader2020_TMB::addCLCT1(const CSCCLCTDigi& digi) {
 }
 
 void CSCTMBHeader2020_TMB::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
-  // unsigned halfStrip = digi.getStrip();
-  // hardwareHalfStripNumbering(halfStrip);
-
   bits.MPC_Muon0_lct_vpf = digi.isValid();
   bits.MPC_Muon0_alct_key_wire = digi.getKeyWG();
   bits.MPC_Muon0_clct_key_halfstrip = digi.getStrip(2) & 0xFF;
@@ -174,7 +164,6 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
   bits.MPC_Muon0_clct_EighthStrip = digi.getEighthStripBit() & 0x1;
   bits.MPC_Muon0_lct_quality = digi.getQuality() & 0x7;
 
-  // TODO: review and change
   // To restore 5-bits Run3 CLCT Pattern ID first assume and set pattern ID = LCT0 Run3 pattern
   uint16_t run3_pattern = digi.getRun3Pattern();
   bits.MPC_Muon_clct_pattern_low = run3_pattern & 0xF;
@@ -189,9 +178,6 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
 }
 
 void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
-  // unsigned halfStrip = digi.getStrip();
-  // hardwareHalfStripNumbering(halfStrip);
-
   bits.MPC_Muon1_lct_vpf = digi.isValid();
   bits.MPC_Muon1_alct_key_wire = digi.getKeyWG();
   bits.MPC_Muon1_clct_key_halfstrip = digi.getStrip(2) & 0xFF;
@@ -220,7 +206,6 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
 void CSCTMBHeader2020_TMB::addShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
-  ;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
 }
 

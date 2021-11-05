@@ -158,7 +158,6 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
-  // produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
 
   if (unpackStatusDigis) {

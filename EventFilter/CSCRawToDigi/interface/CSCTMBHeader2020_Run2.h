@@ -126,7 +126,6 @@ struct CSCTMBHeader2020_Run2 : public CSCVTMBHeaderFormat {
         MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
     // 36
     unsigned RPCList : 2, NRPCs : 2, RPCEnable : 1, fifo_tbins_rpc : 5, fifo_pretrig_rpc : 5, flag36 : 1;
-
     unsigned r_wr_buf_adr : 11, r_wr_buf_ready : 1, wr_buf_ready : 1, buf_q_full : 1, buf_q_empty : 1, flag37 : 1;
     unsigned r_buf_fence_dist : 11, buf_q_ovf_err : 1, buf_q_udf_err : 1, buf_q_adr_err : 1, buf_stalled : 1,
         flag38 : 1;

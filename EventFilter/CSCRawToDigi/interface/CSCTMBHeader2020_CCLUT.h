@@ -93,7 +93,6 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
     unsigned bxnPreTrigger : 12, tmb_clct0_discard : 1, tmb_clct1_discard : 1, clock_lock_lost : 1, flag8 : 1;
     unsigned preTrigCounter : 15, flag9 : 1;
     unsigned clct0_comparator_code : 12, clct0_xky : 2, hmt_nhits_bit0 : 1, flag10 : 1;  // 12-bits comp code fw version
-
     unsigned clctCounterLow : 15, flag11 : 1;
     // 12
     unsigned clctCounterHigh : 15, flag12 : 1;
@@ -149,17 +148,6 @@ struct CSCTMBHeader2020_CCLUT : public CSCVTMBHeaderFormat {
         flag41 : 1;
     unsigned e0bline : 16;
   } bits;
-
-  struct {
-    unsigned MPC_Muon0_wire_ : 7, MPC_Muon0_clct_pattern_ : 4, MPC_Muon0_quality_ : 4, flag31 : 1;
-    unsigned MPC_Muon0_halfstrip_clct_pattern : 8, MPC_Muon0_bend_ : 1, MPC_Muon0_SyncErr_ : 1, MPC_Muon0_bx_ : 1,
-        MPC_Muon0_bc0_ : 1, MPC_Muon0_cscid_low : 3, flag32 : 1;
-    unsigned MPC_Muon1_wire_ : 7, MPC_Muon1_clct_pattern_ : 4, MPC_Muon1_quality_ : 4, flag33 : 1;
-    unsigned MPC_Muon1_halfstrip_clct_pattern : 8, MPC_Muon1_bend_ : 1, MPC_Muon1_SyncErr_ : 1, MPC_Muon1_bx_ : 1,
-        MPC_Muon1_bc0_ : 1, MPC_Muon1_cscid_low : 3, flag34 : 1;
-    unsigned MPC_Muon0_vpf_ : 1, MPC_Muon0_cscid_bit4 : 1, MPC_Muon1_vpf_ : 1, MPC_Muon1_cscid_bit4 : 1, MPCDelay : 4,
-        MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
-  } run2_trig_bits;
 };
 
 #endif

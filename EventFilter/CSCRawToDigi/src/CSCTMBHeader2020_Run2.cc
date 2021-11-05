@@ -29,7 +29,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_Run2::CLCTDigis(uint32_t idlayer) {
   unsigned pattern = bits.clct0_shape;
   unsigned bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi0(
       bits.clct0_valid, bits.clct0_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 1, bits.bxnPreTrigger);
 
@@ -39,7 +38,6 @@ std::vector<CSCCLCTDigi> CSCTMBHeader2020_Run2::CLCTDigis(uint32_t idlayer) {
   pattern = bits.clct1_shape;
   bend = pattern & 0x1;
 
-  //offlineStripNumbering(strip, cfeb, pattern, bend);
   CSCCLCTDigi digi1(
       bits.clct1_valid, bits.clct1_quality, pattern, 1, bend, strip, cfeb, bits.clct_bxn, 2, bits.bxnPreTrigger);
   result.push_back(digi0);
@@ -52,7 +50,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_Run2::CorrelatedLCTDigis(uint
   std::vector<CSCCorrelatedLCTDigi> result;
   /// for the zeroth MPC word:
   unsigned strip = bits.MPC_Muon0_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
   CSCCorrelatedLCTDigi digi(1,
                             bits.MPC_Muon0_vpf_,
                             bits.MPC_Muon0_quality_,
@@ -68,7 +65,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_Run2::CorrelatedLCTDigis(uint
   result.push_back(digi);
   /// for the first MPC word:
   strip = bits.MPC_Muon1_halfstrip_clct_pattern;  //this goes from 0-159
-  //offlineHalfStripNumbering(strip);
   digi = CSCCorrelatedLCTDigi(2,
                               bits.MPC_Muon1_vpf_,
                               bits.MPC_Muon1_quality_,
@@ -96,7 +92,6 @@ void CSCTMBHeader2020_Run2::addALCT1(const CSCALCTDigi& digi) {
 void CSCTMBHeader2020_Run2::addCLCT0(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct0_valid = digi.isValid();
   bits.clct0_quality = digi.getQuality();
   bits.clct0_shape = pattern;
@@ -111,7 +106,6 @@ void CSCTMBHeader2020_Run2::addCLCT0(const CSCCLCTDigi& digi) {
 void CSCTMBHeader2020_Run2::addCLCT1(const CSCCLCTDigi& digi) {
   unsigned halfStrip = digi.getKeyStrip();
   unsigned pattern = digi.getPattern();
-  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   bits.clct1_valid = digi.isValid();
   bits.clct1_quality = digi.getQuality();
   bits.clct1_shape = pattern;
@@ -126,8 +120,6 @@ void CSCTMBHeader2020_Run2::addCLCT1(const CSCCLCTDigi& digi) {
 
 void CSCTMBHeader2020_Run2::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) {
   unsigned halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
   bits.MPC_Muon0_vpf_ = digi.isValid();
   bits.MPC_Muon0_wire_ = digi.getKeyWG();
   bits.MPC_Muon0_clct_pattern_ = digi.getPattern();
@@ -143,8 +135,6 @@ void CSCTMBHeader2020_Run2::addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) 
 
 void CSCTMBHeader2020_Run2::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
   unsigned halfStrip = digi.getStrip();
-  //hardwareHalfStripNumbering(halfStrip);
-
   bits.MPC_Muon1_vpf_ = digi.isValid();
   bits.MPC_Muon1_wire_ = digi.getKeyWG();
   bits.MPC_Muon1_clct_pattern_ = digi.getPattern();
