@@ -43,8 +43,7 @@ namespace ecaldqm {
     edm::InputTag lumiTag;
     edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
     double scal_pu;
-    bool FindPU = false;
-    int nLumi = 0;
+    bool FindPU = false; 
     int nEv;
   };
 
