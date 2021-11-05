@@ -1,14 +1,7 @@
 #include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 using namespace std;
 using namespace edm;
@@ -17,7 +10,9 @@ using namespace edm;
 HIPixelTrackFilter::HIPixelTrackFilter(const SiPixelClusterShapeCache* cache,
                                        double ptMin,
                                        double ptMax,
-                                       const edm::EventSetup& es,
+                                       const TrackerGeometry* tracker,
+                                       const ClusterShapeHitFilter* shape,
+                                       const TrackerTopology* ttopo,
                                        const reco::VertexCollection* vertices,
                                        double tipMax,
                                        double tipMaxTolerance,
@@ -25,7 +20,7 @@ HIPixelTrackFilter::HIPixelTrackFilter(const SiPixelClusterShapeCache* cache,
                                        double lipMaxTolerance,
                                        double chi2max,
                                        bool useClusterShape)
-    : ClusterShapeTrackFilter(cache, ptMin, ptMax, es),
+    : ClusterShapeTrackFilter(cache, ptMin, ptMax, tracker, shape, ttopo),
       theVertices(vertices),
       theTIPMax(tipMax),
       theNSigmaTipMaxTolerance(tipMaxTolerance),

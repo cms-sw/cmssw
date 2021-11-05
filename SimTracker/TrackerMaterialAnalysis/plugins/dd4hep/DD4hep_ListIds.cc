@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -32,17 +31,18 @@ private:
   // otherwise the matching will fail.
   bool printMaterial_;
   std::vector<std::string> materials_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvToken_;
 };
 
 DD4hep_ListIds::DD4hep_ListIds(const edm::ParameterSet &pset)
     : printMaterial_(pset.getUntrackedParameter<bool>("printMaterial")),
-      materials_(pset.getUntrackedParameter<std::vector<std::string> >("materials")) {}
+      materials_(pset.getUntrackedParameter<std::vector<std::string> >("materials")),
+      cpvToken_(esConsumes(edm::ESInputTag("", "CMS"))) {}
 
 DD4hep_ListIds::~DD4hep_ListIds() {}
 
 void DD4hep_ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
-  edm::ESTransientHandle<cms::DDCompactView> cpv;
-  setup.get<IdealGeometryRecord>().get("CMS", cpv);
+  auto cpv = setup.getTransientHandle(cpvToken_);
 
   std::string attribute = "TkDDDStructure";
   cms::DDFilter filter(attribute, "");

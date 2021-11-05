@@ -431,3 +431,40 @@ stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOfflineClient, Stage2l1tEgDqmOffline
 stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOfflineClient, Stage2l1tMuonDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmics, Stage2l1TriggerDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmicsClient, Stage2l1TriggerDqmOfflineClient)
+
+##############################################################################
+#phase2
+##############################################################################
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+
+#
+# define sequences
+#
+from DQMOffline.L1Trigger.L1TPhase2Offline_cfi import *
+
+##############################################################################
+# sequence to run for all datasets
+Phase2l1TriggerOffline = cms.Sequence(
+                                dqmEnvL1T
+                                )
+
+##############################################################################
+# DQM sequences for step 1
+
+# DQM Offline sequence
+Phase2l1TriggerDqmOffline = cms.Sequence(
+                                l1tPhase2OfflineDQM
+                                )
+
+##############################################################################
+# DQM sequences for step 2
+
+# DQM Offline sequence
+Phase2l1TriggerDqmOfflineClient = cms.Sequence(
+                                DQMHarvestL1TPhase2
+                                )
+#replacements for phase2
+phase2_trigger.toReplaceWith(l1TriggerOffline, Phase2l1TriggerOffline)
+phase2_trigger.toReplaceWith(l1TriggerDqmOffline, Phase2l1TriggerDqmOffline)
+phase2_trigger.toReplaceWith(l1TriggerDqmOfflineClient, Phase2l1TriggerDqmOfflineClient)

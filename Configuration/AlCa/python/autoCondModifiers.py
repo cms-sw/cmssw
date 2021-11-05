@@ -71,3 +71,26 @@ def autoCondDDD(autoCond):
                                          RPCRECO_Geometry_ddd)
     autoCond.update(GlobalTagsDDD)
     return autoCond
+
+def autoCond2017ppRef5TeV(autoCond):
+
+    GlobalTag2017ppRef5TeV  = {}
+    # substitute tags needed for 2017 ppRef 5 TeV GT
+    BeamSpotObjects_2017ppRef5TeV           =  ','.join( ['BeamSpotObjects_pp_2017G_MC_2021sample_for_UL' , "BeamSpotObjectsRcd",           connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalLaserAPDPNRatios_2017ppRef5TeV      =  ','.join( ['EcalLaserAPDPNRatios_mc_Run2017G_306580'       , "EcalLaserAPDPNRatiosRcd",      connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalPedestals_2017ppRef5TeV             =  ','.join( ['EcalPedestals_Run2017G_306580'                 , "EcalPedestalsRcd",             connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalTPGLinearizationConst_2017ppRef5TeV =  ','.join( ['EcalTPGLinearizationConst_Run2017G_306580'     , "EcalTPGLinearizationConstRcd", connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalTPGPedestals_2017ppRef5TeV          =  ','.join( ['EcalTPGPedestals_Run2017G_306580'              , "EcalTPGPedestalsRcd",          connectionString, "", "2021-10-28 12:00:00.000"] )
+    L1Menu_2017ppRef5TeV                    =  ','.join( ['L1Menu_pp502Collisions2017_v4_m6_xml'          , "L1TUtmTriggerMenuRcd",         connectionString, "", "2021-10-28 12:00:00.000"] )
+
+    for key,val in autoCond.items():
+        if 'phase1_2017_realistic' in key:
+            GlobalTag2017ppRef5TeV[key+'_ppref'] = (autoCond[key],
+                                         BeamSpotObjects_2017ppRef5TeV,
+                                         EcalLaserAPDPNRatios_2017ppRef5TeV,
+                                         EcalPedestals_2017ppRef5TeV,
+                                         EcalTPGLinearizationConst_2017ppRef5TeV,
+                                         EcalTPGPedestals_2017ppRef5TeV,
+                                         L1Menu_2017ppRef5TeV)
+    autoCond.update(GlobalTag2017ppRef5TeV)
+    return autoCond

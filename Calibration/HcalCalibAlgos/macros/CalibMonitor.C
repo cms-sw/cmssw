@@ -1634,19 +1634,21 @@ void GetEntries::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_trackType", &t_trackType, &b_t_trackType);
   Notify();
 
-  ifstream infile(dupFileName);
-  if (!infile.is_open()) {
-    std::cout << "Cannot open " << dupFileName << std::endl;
-  } else {
-    while (1) {
-      Long64_t jentry;
-      infile >> jentry;
-      if (!infile.good())
-        break;
-      entries_.push_back(jentry);
+  if (std::string(dupFileName) != "") {
+    ifstream infile(dupFileName);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open " << dupFileName << std::endl;
+    } else {
+      while (1) {
+        Long64_t jentry;
+        infile >> jentry;
+        if (!infile.good())
+          break;
+        entries_.push_back(jentry);
+      }
+      infile.close();
+      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
     }
-    infile.close();
-    std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
   }
 
   h_tk[0] = new TH1I("Track0", "# of tracks produced", 2000, 0, 2000);
