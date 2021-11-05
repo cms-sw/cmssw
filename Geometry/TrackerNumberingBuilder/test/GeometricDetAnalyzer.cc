@@ -25,7 +25,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -50,6 +49,9 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> tokGeo_;
 };
 
 //
@@ -63,7 +65,7 @@ public:
 //
 // constructors and destructor
 //
-GeometricDetAnalyzer::GeometricDetAnalyzer(const edm::ParameterSet& iConfig) {
+GeometricDetAnalyzer::GeometricDetAnalyzer(const edm::ParameterSet& iConfig) : tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
   //now do what ever initialization is needed
 }
 
@@ -84,8 +86,7 @@ void GeometricDetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   //
   // get the GeometricDet
   //
-  edm::ESHandle<GeometricDet> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
+  auto const& pDD = iSetup.getHandle(tokGeo_);
   edm::LogInfo("GeometricDetAnalyzer") << " Top node is  " << pDD.product();
   edm::LogInfo("GeometricDetAnalyzer") << " And Contains  Daughters: " << pDD->deepComponents().size();
   std::vector<const GeometricDet*> det = pDD->deepComponents();
