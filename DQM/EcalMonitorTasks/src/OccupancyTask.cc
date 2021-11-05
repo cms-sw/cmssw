@@ -14,6 +14,7 @@ namespace ecaldqm {
     recHitThreshold_ = _params.getUntrackedParameter<double>("recHitThreshold");
     tpThreshold_ = _params.getUntrackedParameter<double>("tpThreshold");
     lumiTag = _params.getParameter<edm::InputTag>("scalers");
+    lumiCheck_ = _params.getUntrackedParameter<bool>("lumiCheck");
   }
 
   void OccupancyTask::setTokens(edm::ConsumesCollector& _collector) {
@@ -45,7 +46,7 @@ namespace ecaldqm {
       MEs_.at("PU").reset(GetElectronicsMap(), -1);
       MEs_.at("NEvents").reset(GetElectronicsMap(), -1);
       nEv = 0;
-      FindPU = true;
+      FindPUinLS = true;
     }
     nEv++;
     MESet& meLaserCorrProjEta(MEs_.at("LaserCorrProjEta"));
@@ -72,7 +73,7 @@ namespace ecaldqm {
       }
       FillLaser = false;
     }
-    if (FindPU) {
+    if (lumiCheck_ && FindPUinLS) {
       scal_pu = -1.;
       MESet& mePU(static_cast<MESet&>(MEs_.at("PU")));
       edm::Handle<LumiScalersCollection> lumiScalers;
@@ -80,7 +81,7 @@ namespace ecaldqm {
       auto scalit = lumiScalers->begin();
       scal_pu = scalit->pileup();
       mePU.fill(getEcalDQMSetupObjects(), double(scal_pu));
-      FindPU = false;
+      FindPUinLS = false;
     }
   }
 
