@@ -258,7 +258,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                   const std::string& namet,
                                   const std::string& name2) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4Hep)::build called with "
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet << ":" << name2;
 #endif
   cms::DDVectorsMap vmap = cpv->detector()->vectors();
@@ -337,13 +337,13 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(namet, "NumberOfCellsCoarse");
       php.nCellsCoarse_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(namet, "WaferSize");
-      php.waferSize_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "WaferThickness");
-      php.waferThick_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "SensorSeparation");
-      php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "MouseBite");
-      php.mouseBite_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.mouseBite_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
@@ -421,9 +421,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(name, "DetectorType");
       php.detectorType_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferThickness");
-      php.waferThick_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(name, "MinimumTileSize");
-      php.minTileSize_ = HGCalParameters::k_ScaleFromDD4Hep * tempD[0];
+      php.minTileSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
       tempD = fv.get<std::vector<double> >(name, "WaferMaskMode");

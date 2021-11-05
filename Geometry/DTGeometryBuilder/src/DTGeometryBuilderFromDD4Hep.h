@@ -1,11 +1,11 @@
-#ifndef DTGeometryBuilder_DTGeometryBuilderFromDD4Hep_h
-#define DTGeometryBuilder_DTGeometryBuilderFromDD4Hep_h
+#ifndef DTGeometryBuilder_DTGeometryBuilderFromDD4hep_h
+#define DTGeometryBuilder_DTGeometryBuilderFromDD4hep_h
 // -*- C++ -*-
 //
 // Package:    Gemetry/DTGeometryBuilder
-// Class:      DTGeometryBuilderFromDD4Hep
+// Class:      DTGeometryBuilderFromDD4hep
 //
-/**\class DTGeometryBuilderFromDD4Hep
+/**\class DTGeometryBuilderFromDD4hep
 
  Description: DT Geometry builder from DD4hep
 
@@ -39,9 +39,9 @@ class DTLayer;
 class MuonGeometryConstants;
 class MuonGeometryNumbering;
 
-class DTGeometryBuilderFromDD4Hep {
+class DTGeometryBuilderFromDD4hep {
 public:
-  DTGeometryBuilderFromDD4Hep() {}
+  DTGeometryBuilderFromDD4hep() {}
 
   void build(DTGeometry&, const cms::DDDetector*, const MuonGeometryConstants&, const dd4hep::SpecParRefs&);
 
