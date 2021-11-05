@@ -267,7 +267,8 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
                                     -1,                          //treeMaxVirtualSize(),
                                     processingMode(),
                                     runHelper_,
-                                    true,  //noEventSort_,
+                                    false,  //noRunLumiSort_
+                                    true,   //noEventSort_,
                                     selectorRules_,
                                     InputType::Primary,
                                     branchIDListHelper(),
