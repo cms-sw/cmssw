@@ -22,12 +22,14 @@ private:
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<SiPixelQualityProbabilities, SiPixelStatusScenarioProbabilityRcd> siPixelQPToken_;
   const bool printdebug_;
   const std::string formatedOutput_;
 };
 
 SiPixelQualityProbabilitiesTestReader::SiPixelQualityProbabilitiesTestReader(edm::ParameterSet const& p)
-    : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
+    : siPixelQPToken_(esConsumes()),
+      printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
       formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")) {
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "SiPixelQualityProbabilitiesTestReader" << std::endl;
 }
@@ -52,11 +54,8 @@ void SiPixelQualityProbabilitiesTestReader::analyze(const edm::Event& e, const e
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "got eshandle" << std::endl;
-
-  context.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
-  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "got context" << std::endl;
+  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle = context.getHandle(siPixelQPToken_);
+  edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "got eshandle from context" << std::endl;
 
   const SiPixelQualityProbabilities* myProbabilities = scenarioProbabilityHandle.product();
   edm::LogInfo("SiPixelQualityProbabilitiesTestReader") << "got SiPixelQualityProbabilities* " << std::endl;
