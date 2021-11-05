@@ -80,9 +80,9 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
-  int type = input.tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr auto type = std::is_same<TILES, TICLLayerTilesHFNose>::value;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
