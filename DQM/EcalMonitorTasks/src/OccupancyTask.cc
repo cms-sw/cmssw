@@ -44,8 +44,7 @@ namespace ecaldqm {
       MEs_.at("RecHitThrAllByLumi").reset(GetElectronicsMap());
       MEs_.at("PU").reset(GetElectronicsMap(), -1);
       MEs_.at("NEvents").reset(GetElectronicsMap(), -1);
-      nEv = 0;
-      nLumi += 1;
+      nEv = 0; 
       FindPU = true;
     }
     nEv++;

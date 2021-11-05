@@ -23,7 +23,7 @@ ecalMonitorClient = DQMEDHarvester("EcalDQMonitorClient",
         "RawDataClient",
         "TrigPrimClient",
         "TimingClient",
-	"MLClient",
+        "MLClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
