@@ -18,14 +18,14 @@ public:
   // std::vector<int> BXN() const;
   std::vector<GEMPadDigiCluster> digis(int gem_chamber) const;
   std::vector<GEMPadDigiCluster> etaDigis(int gem_chamber, int eta) const;
-  int sizeInWords() { return size_; }
-  int numGEMs() {
+  int sizeInWords() const { return size_; }
+  int numGEMs() const {
     return 2;  // !!! TODO actual number of GEM chambers in readout
   }
-  int getGEMFibersMask() { return gems_enabled_; }
-  int numGEMEnabledFibers() { return ngems_; }
-  int nTbins() { return ntbins_; }
-  void Print() const;
+  int gemFibersMask() const { return gems_enabled_; }
+  int numGEMEnabledFibers() const { return ngems_; }
+  int nTbins() const { return ntbins_; }
+  void print() const;
   bool check() const { return ((theData[0] == 0x6C04) && (theData[size_ - 1] == 0x6D04)); }
 
   /// turns on the debug flag for this class
