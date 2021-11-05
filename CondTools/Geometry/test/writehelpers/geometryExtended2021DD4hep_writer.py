@@ -40,15 +40,15 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool(True))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool(True))
 
-process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",fromDD4Hep = cms.untracked.bool(True))
+process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",fromDD4hep = cms.untracked.bool(True))
 
-process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(True))
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(True))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(True))
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(True))
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(True))
+process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(True))
 
-process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(True))
+process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(True))
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')

@@ -2,7 +2,7 @@
 #define DTGeometryBuilder_DTGeometryParsFromDD_h
 /** \class DTGeometryParsFromDD
  *
- *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  Build the RPCGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by Stefano Lacaprara (INFN LNL)
  *  \author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -15,7 +15,7 @@
 class DTGeometry;
 class DDCompactView;
 class DDFilteredView;
-namespace cms {  // DD4Hep
+namespace cms {  // DD4hep
   class DDFilteredView;
   class DDCompactView;
 }  // namespace cms
@@ -37,7 +37,7 @@ public:
   // DD
   void build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig);
 
-  // DD4Hep
+  // DD4hep
   void build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
 
   enum DTDetTag { DTChamberTag, DTSuperLayerTag, DTLayerTag };
@@ -71,7 +71,7 @@ private:
 
   void buildGeometry(DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 
-  // DD4Hep
+  // DD4hep
 
   void buildGeometry(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 

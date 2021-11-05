@@ -63,7 +63,7 @@ private:
 
   ME0EtaPartition* buildEtaPartition(cms::DDFilteredView& fv, ME0DetId detId) const;
 
-  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
 };
 
 #endif

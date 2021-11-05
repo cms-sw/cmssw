@@ -81,7 +81,7 @@ private:
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokMF_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> tokDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tokDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tokDD4hep_;
 };
 
 #endif

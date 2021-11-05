@@ -1,5 +1,5 @@
 /* Implementation of the  GEMGeometryParsFromDD Class
- *  Build the GEMGeometry from the DDD and DD4Hep description
+ *  Build the GEMGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -219,7 +219,7 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv) {
   return {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 }
 
-// DD4Hep
+// DD4hep
 
 void GEMGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,

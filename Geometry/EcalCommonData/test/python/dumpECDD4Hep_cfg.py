@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DumpECDD4Hep")
+process = cms.Process("DumpECDD4hep")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source("EmptySource")
@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('ecalDD4Hep.root'),
+                                  outputFileName = cms.untracked.string('ecalDD4hep.root'),
                                   DDDetector = cms.ESInputTag('','DDEcal')
                                   )
 

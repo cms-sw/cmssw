@@ -2,7 +2,7 @@
 #define RPCGeometry_RPCGeometryParsFromDD_H
 
 /* \class  RPCGeometryParsFromDD
- *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  Build the RPCGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -16,7 +16,7 @@
 
 class DDCompactView;
 class DDFilteredView;
-namespace cms {  // DD4Hep
+namespace cms {  // DD4hep
   class DDFilteredView;
   class DDCompactView;
 }  // namespace cms
@@ -32,13 +32,13 @@ public:
 
   // DD
   void build(const DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
-  // DD4Hep
+  // DD4hep
   void build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
 
 private:
   // DD
   void buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
-  // DD4Hep
+  // DD4hep
   void buildGeometry(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
 };
 

@@ -37,11 +37,11 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(False))
 
-process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(False))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(False))
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
+process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4hep = cms.untracked.bool(False))
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
 

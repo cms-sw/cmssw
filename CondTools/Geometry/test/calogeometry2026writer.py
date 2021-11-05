@@ -18,7 +18,7 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(True))
 
-process.HcalParametersWriter.fromDD4Hep = cms.bool(False)
+process.HcalParametersWriter.fromDD4hep = cms.bool(False)
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
