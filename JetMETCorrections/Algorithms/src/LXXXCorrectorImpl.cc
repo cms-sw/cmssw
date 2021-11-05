@@ -15,8 +15,8 @@
 
 using namespace std;
 
-LXXXCorrectorImplMaker::LXXXCorrectorImplMaker(edm::ParameterSet const& fConfig, edm::ConsumesCollector)
-    : JetCorrectorImplMakerBase(fConfig) {}
+LXXXCorrectorImplMaker::LXXXCorrectorImplMaker(edm::ParameterSet const& fConfig, edm::ConsumesCollector iC)
+    : JetCorrectorImplMakerBase(fConfig, std::move(iC)) {}
 
 std::unique_ptr<reco::JetCorrectorImpl> LXXXCorrectorImplMaker::make(edm::Event const&, edm::EventSetup const& fSetup) {
   unsigned int level = 0;
