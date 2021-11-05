@@ -5,7 +5,7 @@ from Geometry.MuonNumbering.muonOffsetESProducer_cfi import *
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 dd4hep.toModify(muonOffsetESProducer,
-                fromDD4Hep = cms.bool(True)
+                fromDD4hep = cms.bool(True)
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common

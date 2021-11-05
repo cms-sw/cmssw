@@ -171,8 +171,8 @@ bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& 
   php.HFShift = cpv.getVector<int>("HFShift");
   php.maxDepth = cpv.getVector<int>("MaxDepth");
 
-  rescale(php.rTable, HcalGeomParameters::k_ScaleFromDD4HepToG4);
-  rescale(php.gparHF, HcalGeomParameters::k_ScaleFromDD4HepToG4);
+  rescale(php.rTable, HcalGeomParameters::k_ScaleFromDD4hepToG4);
+  rescale(php.gparHF, HcalGeomParameters::k_ScaleFromDD4hepToG4);
   for (unsigned int i = 1; i <= nEtaMax; ++i) {
     HcalParameters::LayerItem layerGroupEta;
     layerGroupEta.layer = i;

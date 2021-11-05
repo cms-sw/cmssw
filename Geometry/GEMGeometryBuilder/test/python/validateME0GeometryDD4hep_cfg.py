@@ -27,8 +27,8 @@ process.valid = cms.EDAnalyzer("ME0GeometryValidate",
                                tolerance = cms.untracked.int32(7)
                                )
 
-process.muonGeometryConstants.fromDD4Hep = True
+process.muonGeometryConstants.fromDD4hep = True
 process.me0Geometry.fromDDD = False
-process.me0Geometry.fromDD4Hep = True
+process.me0Geometry.fromDD4hep = True
 
 process.p = cms.Path(process.valid)

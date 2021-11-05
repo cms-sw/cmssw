@@ -1,6 +1,6 @@
 /** \class DTGeometryParsFromDD
  *
- *  Build the RPCGeometry from the DDD and DD4Hep description
+ *  Build the RPCGeometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by Stefano Lacaprara (INFN LNL)
  *  \author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -56,7 +56,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
   //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
 
-// DD4Hep
+// DD4hep
 
 void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
                                  const MuonGeometryConstants& muonConstants,
@@ -259,7 +259,7 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
 
-// DD4Hep
+// DD4hep
 
 void DTGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
