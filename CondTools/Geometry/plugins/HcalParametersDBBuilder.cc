@@ -25,16 +25,16 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
 
 HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps)
-    : fromDD4Hep_(ps.getParameter<bool>("fromDD4Hep")) {
+    : fromDD4hep_(ps.getParameter<bool>("fromDD4hep")) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::HcalParametersDBBuilder called with dd4hep: "
-                               << fromDD4Hep_;
+                               << fromDD4hep_;
 #endif
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -42,7 +42,7 @@ HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps)
 
 void HcalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("HcalParametersWriter", desc);
 }
 
@@ -56,7 +56,7 @@ void HcalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& e
 
   HcalParametersFromDD builder;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::Try to access cms::DDCompactView";
 #endif

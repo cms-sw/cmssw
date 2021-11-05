@@ -41,9 +41,9 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
+process.hgcalEEParametersInitialize.fromDD4hep = cms.bool(True)
+process.hgcalHESiParametersInitialize.fromDD4hep = cms.bool(True)
+process.hgcalHEScParametersInitialize.fromDD4hep = cms.bool(True)
 
 process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
 process.hgcParameterTesterEE.Mode = 0

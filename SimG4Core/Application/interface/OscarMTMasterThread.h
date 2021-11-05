@@ -58,10 +58,10 @@ private:
 
   // ES products needed for Geant4 initialization
   mutable const DDCompactView* m_pDDD = nullptr;
-  mutable const cms::DDCompactView* m_pDD4Hep = nullptr;
+  mutable const cms::DDCompactView* m_pDD4hep = nullptr;
   mutable const HepPDT::ParticleDataTable* m_pTable = nullptr;
   mutable edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_DDD;
-  mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4Hep;
+  mutable edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> m_DD4hep;
   mutable edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> m_PDT;
 
   // status flags

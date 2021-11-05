@@ -100,7 +100,7 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   dumpReplica_ = p.getUntrackedParameter<bool>("DumpReplica", false);
   dumpTouch_ = p.getUntrackedParameter<bool>("DumpTouch", false);
   dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
-  dd4hep_ = p.getUntrackedParameter<bool>("DD4Hep", false);
+  dd4hep_ = p.getUntrackedParameter<bool>("DD4hep", false);
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
   nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);

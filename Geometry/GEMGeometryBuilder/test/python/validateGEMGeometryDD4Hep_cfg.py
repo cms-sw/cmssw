@@ -32,8 +32,8 @@ process.valid = cms.EDAnalyzer("GEMGeometryValidate",
                                tolerance = cms.untracked.int32(7)
                                )
 
-process.muonGeometryConstants.fromDD4Hep = True
+process.muonGeometryConstants.fromDD4hep = True
 process.gemGeometry.fromDDD = False
-process.gemGeometry.fromDD4Hep = True
+process.gemGeometry.fromDD4hep = True
 
 process.p = cms.Path(process.valid)
