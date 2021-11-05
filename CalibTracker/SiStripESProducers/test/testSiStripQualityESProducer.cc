@@ -1,20 +1,46 @@
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-
-#include "CalibTracker/SiStripESProducers/test/testSiStripQualityESProducer.h"
-
+// system includes
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
 #include <sstream>
 
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
+class testSiStripQualityESProducer : public edm::one::EDAnalyzer<> {
+public:
+  explicit testSiStripQualityESProducer(const edm::ParameterSet&);
+  ~testSiStripQualityESProducer() = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  void printObject(const SiStripQuality*);
+
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityTokenTwo_;
+  bool printdebug_;
+  unsigned long long m_cacheID_;
+  bool firstIOV;
+  bool twoRecordComparison_;
+  SiStripQuality* m_Quality_;
+};
+
 testSiStripQualityESProducer::testSiStripQualityESProducer(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
+    : qualityToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("dataLabel", "")))),
+      qualityTokenTwo_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("dataLabelTwo", "")))),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
       m_cacheID_(0),
       firstIOV(true),
-      twoRecordComparison_(iConfig.getUntrackedParameter<bool>("twoRecordComparison", false)),
-      dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel", "")),
-      dataLabelTwo_(iConfig.getUntrackedParameter<std::string>("dataLabelTwo", "")) {}
+      twoRecordComparison_(iConfig.getUntrackedParameter<bool>("twoRecordComparison", false)) {}
 
 void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
@@ -29,8 +55,7 @@ void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::Event
   //&&&&&&&&&&&&&&&&&&
   //First Record
   //&&&&&&&&&&&&&&&&&&
-  edm::ESHandle<SiStripQuality> SiStripQualityESH_;
-  iSetup.get<SiStripQualityRcd>().get(dataLabel_, SiStripQualityESH_);
+  edm::ESHandle<SiStripQuality> SiStripQualityESH_ = iSetup.getHandle(qualityToken_);
   edm::LogInfo("testSiStripQualityESProducer")
       << canvas << "[testSiStripQualityESProducer::analyze] Print SiStripQualityRecord" << canvas << std::endl;
   printObject(SiStripQualityESH_.product());
@@ -40,7 +65,7 @@ void testSiStripQualityESProducer::analyze(const edm::Event& e, const edm::Event
   //&&&&&&&&&&&&&&&&&&
   edm::ESHandle<SiStripQuality> twoSiStripQualityESH_;
   if (twoRecordComparison_) {
-    iSetup.get<SiStripQualityRcd>().get(dataLabelTwo_, twoSiStripQualityESH_);
+    twoSiStripQualityESH_ = iSetup.getHandle(qualityTokenTwo_);
     edm::LogInfo("testSiStripQualityESProducer")
         << canvas << "[testSiStripQualityESProducer::analyze] Print Second SiStripQualityRecord" << canvas << std::endl;
     printObject(twoSiStripQualityESH_.product());
@@ -128,3 +153,8 @@ void testSiStripQualityESProducer::printObject(const SiStripQuality* SiStripQual
 
   edm::LogInfo("testSiStripQualityESProducer") << ss.str();
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(testSiStripQualityESProducer);
