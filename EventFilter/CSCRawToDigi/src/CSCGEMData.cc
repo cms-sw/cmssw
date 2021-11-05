@@ -63,26 +63,24 @@ std::vector<GEMPadDigiCluster> CSCGEMData::digis(int gem_chamber) const {
   int maxClusters = 4;
   int nGEMs = 4;
   // nGEMs = ngems_; // based on enabled fibers. not implemented in the firmware yet
-  // std::cout << std::hex << "markers " << theData[0] << ": " << theData[size_-1] << std::dec << " size: " << size_ << std::endl;
   for (int i = 0; i < ntbins_; i++) {
     for (int fiber = 0; fiber < nGEMs; fiber++) {
       for (int cluster = 0; cluster < maxClusters; cluster++) {
         int dataAddr = 1 + (i * nGEMs + fiber) * maxClusters + cluster;
         int gem_layer = (theData[dataAddr] >> 14) & 0x1;  // gemA=0 or gemB=1
         if (gem_layer == gem_chamber) {
-          // int cl_word = theData[dataAddr] & 0x3fff;
+          int cl_word = theData[dataAddr] & 0x3fff;
           int pad = theData[dataAddr] & 0xff;
           int eta = (theData[dataAddr] >> 8) & 0x7;
           int cluster_size = (theData[dataAddr] >> 11) & 0x7;
           if (pad < nPads) {
             int padInPart = eta * nPads + pad;
-            /*
-                      std::cout << "GEMlayer" << gem_layer << " cl_word" << dataAddr << ": 0x" << std::hex << cl_word << std::dec
-                                << " tbin: " << i << " fiber#: " << (fiber+1) <<  " cluster#: " << (cluster+1)
-                                << " padInPart: " << padInPart
-                                << " pad: " << pad << " eta: " << eta << " cluster_size: " << cluster_size
-                                << std::endl;
-                      */
+            if (debug)
+              LogTrace("CSCGEMData|CSCRawToDigi")
+                  << "GEMlayer" << gem_layer << " cl_word" << dataAddr << ": 0x" << std::hex << cl_word << std::dec
+                  << " tbin: " << i << " fiber#: " << (fiber + 1) << " cluster#: " << (cluster + 1)
+                  << " padInPart: " << padInPart << " pad: " << pad << " eta: " << eta
+                  << " cluster_size: " << cluster_size << std::endl;
             std::vector<short unsigned int> pads;
             for (int iP = 0; iP <= cluster_size; ++iP)
               pads.push_back(padInPart + iP);
@@ -141,27 +139,24 @@ std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_rol
   int maxClusters = 4;
   int nGEMs = 4;
   // nGEMs = ngems_; // based on enabled fibers. not implemented in the firmware yet
-  // std::cout << std::hex << "markers " << theData[0] << ": " << theData[size_-1] << std::dec << " size: " << size_ << std::endl;
   for (int i = 0; i < ntbins_; i++) {
     for (int fiber = 0; fiber < nGEMs; fiber++) {
       for (int cluster = 0; cluster < maxClusters; cluster++) {
         int dataAddr = 1 + (i * nGEMs + fiber) * maxClusters + cluster;
         int gem_layer = (theData[dataAddr] >> 14) & 0x1;  // gemA=0 or gemB=1
         if (gem_layer == gem_chamber) {
-          // int cl_word = theData[dataAddr] & 0x3fff;
+          int cl_word = theData[dataAddr] & 0x3fff;
           int pad = theData[dataAddr] & 0xff;
           int eta = (theData[dataAddr] >> 8) & 0x7;
           int cluster_size = (theData[dataAddr] >> 11) & 0x7;
           if ((pad < nPads) && (eta == eta_roll)) {
-            // int padInPart = eta*nPads + pad;
             int padInPart = pad;
-            /*
-                      std::cout << "GEMlayer" << gem_layer << " cl_word" << dataAddr << ": 0x" << std::hex << cl_word << std::dec
-                                << " tbin: " << i << " fiber#: " << (fiber+1) <<  " cluster#: " << (cluster+1)
-                                << " padInPart: " << padInPart
-                                << " pad: " << pad << " eta: " << eta << " cluster_size: " << cluster_size
-                                << std::endl;
-                      */
+            if (debug)
+              LogTrace("CSCGEMData|CSCRawToDigi")
+                  << "GEMlayer" << gem_layer << " cl_word" << dataAddr << ": 0x" << std::hex << cl_word << std::dec
+                  << " tbin: " << i << " fiber#: " << (fiber + 1) << " cluster#: " << (cluster + 1)
+                  << " padInPart: " << padInPart << " pad: " << pad << " eta: " << eta
+                  << " cluster_size: " << cluster_size << std::endl;
             std::vector<short unsigned int> pads;
             for (int iP = 0; iP <= cluster_size; ++iP)
               pads.push_back(padInPart + iP);
