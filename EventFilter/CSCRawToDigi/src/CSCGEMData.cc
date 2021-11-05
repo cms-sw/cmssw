@@ -42,7 +42,7 @@ CSCGEMData::CSCGEMData(const unsigned short* buf, int length, int gems_fibers) :
   memcpy(theData, buf, size_ * 2);
 }
 
-void CSCGEMData::Print() const {
+void CSCGEMData::print() const {
   LogTrace("CSCGEMData|CSCRawToDigi") << "CSCGEMData.Print";
   for (int line = 0; line < ((size_)); ++line) {
     LogTrace("CSCGEMData|CSCRawToDigi") << std::hex << theData[line];
@@ -93,6 +93,8 @@ std::vector<GEMPadDigiCluster> CSCGEMData::digis(int gem_chamber) const {
   }
 
   /// GEM data format v1
+  /// It is not used in the production
+  /// Keeping this commented code just for v1 unpacking algo reference
   /*
   std::vector<GEMPadDigiCluster> result;
   result.clear();
