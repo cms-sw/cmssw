@@ -10,11 +10,11 @@
 template <typename T>
 class TICLLayerTileT {
 public:
+  typedef T type;
+
   void fill(double eta, double phi, unsigned int layerClusterId) {
     tile_[globalBin(eta, phi)].push_back(layerClusterId);
   }
-
-  int typeT() const { return T::type; }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
