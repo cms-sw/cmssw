@@ -43,8 +43,9 @@ namespace ecaldqm {
     edm::InputTag lumiTag;
     edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
     double scal_pu;
-    bool FindPU = false;
+    bool FindPUinLS = false;
     int nEv;
+    bool lumiCheck_;
   };
 
   inline bool OccupancyTask::analyze(void const* _p, Collections _collection) {
