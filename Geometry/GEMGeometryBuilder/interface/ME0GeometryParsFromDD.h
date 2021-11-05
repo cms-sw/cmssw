@@ -2,7 +2,7 @@
 #define Geometry_GEMGeometry_ME0GeometryParsFromDD_H
 
 /* Implementation of the  ME0GeometryParsFromDD Class
- *  Build the ME0Geometry from the DDD and DD4Hep description
+ *  Build the ME0Geometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
@@ -14,7 +14,7 @@
 
 class DDCompactView;
 class DDFilteredView;
-namespace cms {  // DD4Hep
+namespace cms {  // DD4hep
   class DDFilteredView;
   class DDCompactView;
 }  // namespace cms

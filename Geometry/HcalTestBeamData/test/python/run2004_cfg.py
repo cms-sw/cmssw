@@ -99,8 +99,8 @@ process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
-process.hcalParameters.fromDD4Hep = True
-process.caloSimulationParameters.fromDD4Hep = True
+process.hcalParameters.fromDD4hep = True
+process.caloSimulationParameters.fromDD4hep = True
 
 process.g4SimHits.StackingAction.KillGamma = False
 process.g4SimHits.CaloSD.BeamPosition = beamPosition

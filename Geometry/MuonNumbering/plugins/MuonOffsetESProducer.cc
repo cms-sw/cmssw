@@ -44,23 +44,23 @@ public:
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
-  const bool fromDD4Hep_;
+  const bool fromDD4hep_;
   const std::vector<std::string> names_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
 };
 
 MuonOffsetESProducer::MuonOffsetESProducer(const edm::ParameterSet& iConfig)
-    : fromDD4Hep_(iConfig.getParameter<bool>("fromDD4Hep")),
+    : fromDD4hep_(iConfig.getParameter<bool>("fromDD4hep")),
       names_(iConfig.getParameter<std::vector<std::string>>("names")) {
   auto cc = setWhatProduced(this);
-  if (fromDD4Hep_) {
-    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_) {
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   } else {
     cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "MuonOffsetESProducer::MuonOffsetESProducer called with dd4hep: " << fromDD4Hep_;
+  edm::LogVerbatim("MuonGeom") << "MuonOffsetESProducer::MuonOffsetESProducer called with dd4hep: " << fromDD4hep_;
 #endif
 }
 
@@ -117,7 +117,7 @@ void MuonOffsetESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
                                     "MuonGEMEndcap",
                                     "MuonGEMSector",
                                     "MuonGEMChamber"};
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   desc.add<std::vector<std::string>>("names", names);
   descriptions.add("muonOffsetESProducer", desc);
 }
@@ -130,11 +130,11 @@ MuonOffsetESProducer::ReturnType MuonOffsetESProducer::produce(const IdealGeomet
   auto ptp = std::make_unique<MuonOffsetMap>();
   MuonOffsetFromDD builder(names_);
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "MuonOffsetESProducer::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG

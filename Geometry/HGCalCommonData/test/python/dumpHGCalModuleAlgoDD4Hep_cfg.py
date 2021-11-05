@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('hgcalModuleAlgoDD4Hep.root'),
+                                  outputFileName = cms.untracked.string('hgcalModuleAlgoDD4hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHGCalModuleAlgo')
                                   )
 

@@ -36,7 +36,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDD4Hep.h"
+#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDD4hep.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromCondDB.h"
 
 #include <memory>
@@ -194,7 +194,7 @@ void DTGeometryESModule::setupDD4hepGeometry(const MuonNumberingRecord& record, 
   cms::DDSpecParRefs myReg;
   registry->filter(myReg, m_attribute, m_value);
 
-  DTGeometryBuilderFromDD4Hep builder;
+  DTGeometryBuilderFromDD4hep builder;
   builder.build(*host, cpv.product(), mdc, myReg);
 }
 

@@ -28,12 +28,12 @@ process.maxEvents = cms.untracked.PSet(
 
 process.Timing = cms.Service("Timing")
 
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.caloSimulationParameters.fromDD4Hep = cms.bool(True)
+process.hcalParameters.fromDD4hep = cms.bool(True)
+process.caloSimulationParameters.fromDD4hep = cms.bool(True)
 process.CaloGeometryBuilder.SelectedCalos = ['HCAL']
-process.ecalSimulationParametersEB.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEE.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersES.fromDD4Hep = cms.bool(True)
-process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
+process.ecalSimulationParametersEB.fromDD4hep = cms.bool(True)
+process.ecalSimulationParametersEE.fromDD4hep = cms.bool(True)
+process.ecalSimulationParametersES.fromDD4hep = cms.bool(True)
+process.hcalSimulationParameters.fromDD4hep = cms.bool(True)
 
 process.p1 = cms.Path(process.hcalCellParameterDump)

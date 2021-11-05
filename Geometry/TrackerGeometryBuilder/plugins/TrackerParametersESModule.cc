@@ -33,27 +33,27 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
-  bool fromDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
+  bool fromDD4hep_;
 };
 
 TrackerParametersESModule::TrackerParametersESModule(const edm::ParameterSet& ps) {
-  fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = ps.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this);
-  if (fromDD4Hep_)
-    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   else
     cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TrackerGeom") << "TrackerParametersESModule::TrackerParametersESModule called with dd4hep: "
-                                  << fromDD4Hep_;
+                                  << fromDD4hep_;
 #endif
 }
 
 void TrackerParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("trackerParameters", desc);
 }
 
@@ -63,11 +63,11 @@ TrackerParametersESModule::ReturnType TrackerParametersESModule::produce(const P
   auto ptp = std::make_unique<PTrackerParameters>();
   TrackerParametersFromDD builder;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("TrackerGeom") << "TrackerParametersESModule::produce try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG

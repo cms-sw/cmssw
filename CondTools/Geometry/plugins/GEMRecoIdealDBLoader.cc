@@ -29,14 +29,14 @@ public:
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> muonGeomConstantsToken_;
 };
 
 GEMRecoIdealDBLoader::GEMRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);  // set true for DD4HEP
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);  // set true for DD4HEP
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -57,7 +57,7 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     GEMGeometryParsFromDD rpcpd;
     RecoIdealGeometry* rig = new RecoIdealGeometry;
 
-    if (fromDD4Hep_) {
+    if (fromDD4hep_) {
       edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DD4HEP ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;

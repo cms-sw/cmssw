@@ -72,7 +72,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   m_sdMakers = sim::sensitiveDetectorMakers(m_p, consumesCollector(), std::vector<std::string>());
   tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   if (m_pGeoFromDD4hep) {
-    tokDD4Hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+    tokDD4hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   } else {
     tokDDD_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
@@ -124,7 +124,7 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
   edm::LogVerbatim("GeometryProducer") << " GeometryProducer initializing ";
   // DDDWorld: get the DDCV from the ES and use it to build the World
   if (m_pGeoFromDD4hep) {
-    m_pDD4hep = &es.getData(tokDD4Hep_);
+    m_pDD4hep = &es.getData(tokDD4hep_);
   } else {
     m_pDD = &es.getData(tokDDD_);
   }

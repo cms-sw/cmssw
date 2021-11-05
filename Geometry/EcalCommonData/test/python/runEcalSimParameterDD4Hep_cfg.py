@@ -25,9 +25,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.ecalSimulationParametersEB.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEE.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersES.fromDD4Hep = cms.bool(True)
+process.ecalSimulationParametersEB.fromDD4hep = cms.bool(True)
+process.ecalSimulationParametersEE.fromDD4hep = cms.bool(True)
+process.ecalSimulationParametersES.fromDD4hep = cms.bool(True)
 
 process.load('Geometry.EcalCommonData.ecalSimulationParametersAnalyzer_cff')
 

@@ -41,7 +41,7 @@ DetGeomDesc::DetGeomDesc(const DDFilteredView& fv, const bool isRun2)
 {}
 
 /*
- *  Constructor from DD4Hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
+ *  Constructor from DD4hep DDFilteredView, also using the SpecPars to access 2x2 wafers info.
  */
 DetGeomDesc::DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2)
     : m_name(computeNameWithNoNamespace(fv.name())),

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    Geometry/DTGeometryBuilder
-// Class:      DTGeometryBuilderFromDD4Hep
+// Class:      DTGeometryBuilderFromDD4hep
 //
-/**\class DTGeometryBuilderFromDD4Hep
+/**\class DTGeometryBuilderFromDD4hep
 
  Description: DT Geometry builder from DD4hep
 
@@ -36,7 +36,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
-#include "DTGeometryBuilderFromDD4Hep.h"
+#include "DTGeometryBuilderFromDD4hep.h"
 #include "DD4hep/Detector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -47,10 +47,10 @@
 using namespace edm;
 using namespace std;
 
-void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview,
+void DTGeometryBuilderFromDD4hep::buildGeometry(cms::DDFilteredView& fview,
                                                 DTGeometry& geom,
                                                 const MuonGeometryConstants& num) const {
-  edm::LogVerbatim("DTGeometryBuilder") << "(0) DTGeometryBuilder - DD4Hep ";
+  edm::LogVerbatim("DTGeometryBuilder") << "(0) DTGeometryBuilder - DD4hep ";
 
   bool doChamber = fview.firstChild();
 
@@ -80,7 +80,7 @@ void DTGeometryBuilderFromDD4Hep::buildGeometry(cms::DDFilteredView& fview,
   }
 }
 
-DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const cms::DDFilteredView& fview,
+DTGeometryBuilderFromDD4hep::RCPPlane DTGeometryBuilderFromDD4hep::plane(const cms::DDFilteredView& fview,
                                                                          Bounds* bounds) const {
   const Double_t* tr = fview.trans();
   const Double_t* rot = fview.rot();
@@ -91,7 +91,7 @@ DTGeometryBuilderFromDD4Hep::RCPPlane DTGeometryBuilderFromDD4Hep::plane(const c
                 bounds));
 }
 
-DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview,
+DTChamber* DTGeometryBuilderFromDD4hep::buildChamber(cms::DDFilteredView& fview,
                                                      const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -111,7 +111,7 @@ DTChamber* DTGeometryBuilderFromDD4Hep::buildChamber(cms::DDFilteredView& fview,
   return chamber;
 }
 
-DTSuperLayer* DTGeometryBuilderFromDD4Hep::buildSuperLayer(cms::DDFilteredView& fview,
+DTSuperLayer* DTGeometryBuilderFromDD4hep::buildSuperLayer(cms::DDFilteredView& fview,
                                                            DTChamber* chamber,
                                                            const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
@@ -135,7 +135,7 @@ DTSuperLayer* DTGeometryBuilderFromDD4Hep::buildSuperLayer(cms::DDFilteredView& 
   return slayer;
 }
 
-DTLayer* DTGeometryBuilderFromDD4Hep::buildLayer(cms::DDFilteredView& fview,
+DTLayer* DTGeometryBuilderFromDD4hep::buildLayer(cms::DDFilteredView& fview,
                                                  DTSuperLayer* sl,
                                                  const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
@@ -178,7 +178,7 @@ DTLayer* DTGeometryBuilderFromDD4Hep::buildLayer(cms::DDFilteredView& fview,
   return layer;
 }
 
-void DTGeometryBuilderFromDD4Hep::build(DTGeometry& geom,
+void DTGeometryBuilderFromDD4hep::build(DTGeometry& geom,
                                         const cms::DDDetector* det,
                                         const MuonGeometryConstants& num,
                                         const dd4hep::SpecParRefs& refs) {
