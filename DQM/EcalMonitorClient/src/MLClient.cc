@@ -142,7 +142,7 @@ namespace ecaldqm {
 
     ///ONNX model running///
     std::string instanceName{"AE-DQM-inference"};
-    std::string modelFilepath = edm::FileInPath("DQM/EcalMonitorClient/onnxModels/resnet.onnx").fullPath();
+    std::string modelFilepath = edm::FileInPath("DQM/EcalMonitorClient/data/onnxModels/resnet.onnx").fullPath();
 
     Ort::SessionOptions sessionOptions;
     sessionOptions.SetIntraOpNumThreads(1);
