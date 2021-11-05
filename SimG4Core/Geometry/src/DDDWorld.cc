@@ -28,7 +28,7 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
                    bool pcut) {
   LogVerbatim("SimG4CoreApplication") << "+++ DDDWorld: initialisation of Geant4 geometry";
   if (pDD4hep) {
-    // DD4Hep
+    // DD4hep
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
 

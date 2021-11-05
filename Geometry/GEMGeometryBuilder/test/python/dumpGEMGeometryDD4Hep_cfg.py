@@ -27,9 +27,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.muonGeometryConstants.fromDD4Hep = True
+process.muonGeometryConstants.fromDD4hep = True
 process.gemGeometry.fromDDD = False
-process.gemGeometry.fromDD4Hep = True
+process.gemGeometry.fromDD4hep = True
 #process.gemGeometryDump.verbose = True
 
 process.p = cms.Path(process.gemGeometryDump)

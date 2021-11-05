@@ -7,14 +7,14 @@ hgcalEEParametersInitialize = cms.ESProducer('HGCalParametersESModule',
   nameC = cms.string('HGCalEESensitive'),
   nameT = cms.string('HGCal'),
   nameX = cms.string('HGCalEESensitive'),
-  fromDD4Hep = cms.bool(False),
+  fromDD4hep = cms.bool(False),
   appendToDataLabel = cms.string('')
 )
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 dd4hep.toModify(hgcalEEParametersInitialize,
-                fromDD4Hep = cms.bool(True)
+                fromDD4hep = cms.bool(True)
 )
 
 hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(

@@ -54,7 +54,7 @@
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
     : cpvTokenDDD_(esConsumes()),
-      cpvTokenDD4Hep_(esConsumes()),
+      cpvTokenDD4hep_(esConsumes()),
       topoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
@@ -363,7 +363,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   if (!fromDD4hep_) {
     edm::ESTransientHandle<DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDDD_);
   } else {
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iSetup.getTransientHandle(cpvTokenDD4hep_);
   }
 
   const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
