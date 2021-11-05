@@ -21,13 +21,15 @@ public:
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
 private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokTopo_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokGeo_;
-
 };
 
-TrackerTopologyAnalyzer::TrackerTopologyAnalyzer(const edm::ParameterSet&) : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()), tokGeo_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
+TrackerTopologyAnalyzer::TrackerTopologyAnalyzer(const edm::ParameterSet&)
+    : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      tokGeo_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
 void TrackerTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
