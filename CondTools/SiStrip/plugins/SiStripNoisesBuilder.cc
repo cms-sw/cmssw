@@ -16,11 +16,17 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
   SiStripNoises obj;
 
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
+  for (const auto& it : DetInfos) {
+    const auto& nAPVs = it.second.nApvs;
+
     count++;
     //Generate Noise for det detid
     SiStripNoises::InputVector theSiStripVector;
-    for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
+    for (int strip = 0; strip < 128 * nAPVs; ++strip) {
       float MeanNoise = 5;
       float RmsNoise = 1;
       float noise = CLHEP::RandGauss::shoot(MeanNoise, RmsNoise);
@@ -34,19 +40,17 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
             << "detid " << it.first << " \t"
             << " strip " << strip << " \t" << noise << " \t" << theSiStripVector.back() / 10 << " \t" << std::endl;
     }
-
     if (!obj.put(it.first, theSiStripVector))
       edm::LogError("SiStripNoisesBuilder") << "[SiStripNoisesBuilder::analyze] detid already exists" << std::endl;
   }
 
-  //End now write sistripnoises data in DB
+  //And now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripNoisesRcd")) {
       mydbservice->createOneIOV<SiStripNoises>(obj, mydbservice->beginOfTime(), "SiStripNoisesRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");
       mydbservice->appendOneIOV<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
     }
   } else {
