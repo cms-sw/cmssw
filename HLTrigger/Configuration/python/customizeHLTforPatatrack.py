@@ -51,8 +51,6 @@ def customiseCommon(process):
         replace_with(process.Status_OnCPU, cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter))
     else:
         process.Status_OnCPU = cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter)
-        if 'HLTSchedule' in process.__dict__:
-            process.HLTSchedule.append(process.Status_OnCPU)
         if process.schedule is not None:
             process.schedule.append(process.Status_OnCPU)
 
@@ -60,11 +58,8 @@ def customiseCommon(process):
         replace_with(process.Status_OnGPU, cms.Path(process.statusOnGPU + process.statusOnGPUFilter))
     else:
         process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
-        if 'HLTSchedule' in process.__dict__:
-            process.HLTSchedule.append(process.Status_OnGPU)
         if process.schedule is not None:
             process.schedule.append(process.Status_OnGPU)
-
 
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
     if 'hltOutputScoutingCaloMuon' in process.__dict__ and not 'hltPreScoutingCaloMuonOutputSmart' in process.__dict__:
@@ -244,9 +239,6 @@ def customisePixelLocalReconstruction(process):
     # workaround for AlCa paths
 
     if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
-        if "HLTSchedule" in process.__dict__:
-            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_Random_v1)
-            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_Random_v1)
         # redefine the path to use the HLTDoLocalPixelSequence
         process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
             process.HLTBeginSequenceRandom +
@@ -256,13 +248,8 @@ def customisePixelLocalReconstruction(process):
             process.HLTDoLocalPixelSequence +
             process.hltAlcaPixelClusterCounts +
             process.HLTEndSequence )
-        if "HLTSchedule" in process.__dict__:
-            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_Random_v1)
 
     if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
-        if "HLTSchedule" in process.__dict__:
-            ind = process.HLTSchedule.index(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
-            process.HLTSchedule.remove(process.AlCa_LumiPixelsCounts_ZeroBias_v1)
         # redefine the path to use the HLTDoLocalPixelSequence
         process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
             process.HLTBeginSequence +
@@ -273,9 +260,6 @@ def customisePixelLocalReconstruction(process):
             process.HLTDoLocalPixelSequence +
             process.hltAlcaPixelClusterCounts +
             process.HLTEndSequence )
-        if "HLTSchedule" in process.__dict__:
-            process.HLTSchedule.insert(ind, process.AlCa_LumiPixelsCounts_ZeroBias_v1)
-
 
     # done
     return process
@@ -741,8 +725,6 @@ def _addConsumerPath(process):
         process.HLTDoLocalHcalTask,
     )
 
-    if 'HLTSchedule' in process.__dict__:
-        process.HLTSchedule.append(process.Consumer)
     if process.schedule is not None:
         process.schedule.append(process.Consumer)
 
