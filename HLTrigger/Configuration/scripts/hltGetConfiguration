@@ -79,20 +79,20 @@ parser.add_argument('--l1-emulator',
 parser.add_argument('--dbproxy',
                     dest    = 'proxy',
                     action  = 'store_const',
-		    const   = 'True',                    
-                    help    = 'uses a socks proxy to connect outside CERN network' )
+                    const   = 'True',                    
+                    help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
 parser.add_argument('--dbproxyport',
                     dest    = 'proxy_port',
                     action  = 'store',
                     metavar = 'PROXYPORT',
                     default = defaults.proxy_port,
-                    help    = 'port for socks proxy' )
+                    help    = 'Port of the socks proxy (default: 8080)' )
 parser.add_argument('--dbproxyhost',
                     dest    = 'proxy_host',
                     action  = 'store',
-                    metavar = 'PROXYPORT',
+                    metavar = 'PROXYHOST',
                     default = defaults.proxy_host,
-                    help    = 'host for socks proxy' )
+                    help    = 'Host of the socks proxy (default: "localhost")' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--prescale',
