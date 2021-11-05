@@ -99,7 +99,6 @@ struct CSCTMBHeader2020_GEM : public CSCVTMBHeaderFormat {
     unsigned bxnPreTrigger : 12, tmb_clct0_discard : 1, tmb_clct1_discard : 1, clock_lock_lost : 1, flag8 : 1;
     unsigned preTrigCounter : 15, flag9 : 1;
     unsigned clct0_comparator_code : 12, clct0_xky : 2, hmt_nhits_bit0 : 1, flag10 : 1;  // 12-bits comp code fw version
-
     unsigned clctCounterLow : 15, flag11 : 1;
     // 12
     unsigned lct0_nogem : 1, lct0_with_gemA : 1, lct0_with_gemB : 1, lct0_with_copad : 1, lct1_nogem : 1,
@@ -145,7 +144,6 @@ struct CSCTMBHeader2020_GEM : public CSCVTMBHeaderFormat {
         MPCDelay : 4, MPCAccept : 2, CFEBsEnabled : 5, flag35 : 1;
     // 36
     unsigned gem_enabled_fibers_ : 4, gem_zero_suppression_ : 1, fifo_tbins_gem_ : 5, fifo_pretrig_gem_ : 5, flag36 : 1;
-
     unsigned r_wr_buf_adr : 11, r_wr_buf_ready : 1, wr_buf_ready : 1, buf_q_full : 1, buf_q_empty : 1, flag37 : 1;
     unsigned r_buf_fence_dist : 11, buf_q_ovf_err : 1, buf_q_udf_err : 1, buf_q_adr_err : 1, buf_stalled : 1,
         flag38 : 1;
