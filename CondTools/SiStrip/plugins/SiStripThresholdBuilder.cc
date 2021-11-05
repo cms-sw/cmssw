@@ -16,8 +16,11 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 
   SiStripThreshold obj;
 
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+  for (const auto& it : DetInfos) {
     count++;
     //Generate Pedestal for det detid
     SiStripThreshold::Container theSiStripVector;
