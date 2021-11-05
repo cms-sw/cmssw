@@ -90,7 +90,7 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
     throw cms::Exception("PPSGeometryBuilder") << "PDetGeomDesc is empty, no geometry to save in the database.";
   } else {
     if (dbService_.isAvailable()) {
-      dbService_->writeOne(serializableData, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
+      dbService_->writeOneIOV(*serializableData, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
       edm::LogInfo("PPSGeometryBuilder") << "Successfully wrote DB, with " << serializableData->container_.size()
                                          << " PDetGeomDesc items.";
     } else {
