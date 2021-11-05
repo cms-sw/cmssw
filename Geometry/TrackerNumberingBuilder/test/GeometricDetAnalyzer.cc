@@ -65,7 +65,8 @@ private:
 //
 // constructors and destructor
 //
-GeometricDetAnalyzer::GeometricDetAnalyzer(const edm::ParameterSet& iConfig) : tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
+GeometricDetAnalyzer::GeometricDetAnalyzer(const edm::ParameterSet& iConfig)
+    : tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
   //now do what ever initialization is needed
 }
 

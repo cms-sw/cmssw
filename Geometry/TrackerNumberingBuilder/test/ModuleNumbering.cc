@@ -103,7 +103,9 @@ static const double tolerance_angle = 0.001;  // 0.001 rad
 //
 // constructors and destructor
 //
-ModuleNumbering::ModuleNumbering(const edm::ParameterSet& iConfig) : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()), tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
+ModuleNumbering::ModuleNumbering(const edm::ParameterSet& iConfig)
+    : tokTopo_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      tokGeo_(esConsumes<GeometricDet, IdealGeometryRecord>()) {
   //now do what ever initialization is needed
 }
 
