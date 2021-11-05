@@ -18,7 +18,7 @@ public:
 
 private:
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
+  static constexpr double k_ScaleFromDD4hepToG4 = 10.0;
 };
 
 #endif

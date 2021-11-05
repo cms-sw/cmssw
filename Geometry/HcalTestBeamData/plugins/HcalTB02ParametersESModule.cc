@@ -22,30 +22,30 @@ public:
 
 private:
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
   std::string name_;
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
 };
 
 HcalTB02ParametersESModule::HcalTB02ParametersESModule(const edm::ParameterSet& ps) {
   name_ = ps.getParameter<std::string>("name");
-  fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
+  fromDD4hep_ = ps.getParameter<bool>("fromDD4hep");
   auto cc = setWhatProduced(this, name_);
-  if (fromDD4Hep_)
-    cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
+  if (fromDD4hep_)
+    cpvTokenDD4hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   else
     cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalTB02ParametersESModule::HcalTB02ParametersESModule called with dd4hep: "
-                               << fromDD4Hep_ << " and name " << name_;
+                               << fromDD4hep_ << " and name " << name_;
 #endif
 }
 
 void HcalTB02ParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("name", "EcalHitsEB");
-  desc.add<bool>("fromDD4Hep", false);
+  desc.add<bool>("fromDD4hep", false);
   descriptions.add("hcalTB02XtalParameters", desc);
 }
 
@@ -57,11 +57,11 @@ HcalTB02ParametersESModule::ReturnType HcalTB02ParametersESModule::produce(const
   auto ptp = std::make_unique<HcalTB02Parameters>(name_);
   HcalTB02ParametersFromDD builder;
 
-  if (fromDD4Hep_) {
+  if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalTB02ParametersESModule::Try to access cms::DDCompactView";
 #endif
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4hep_);
     builder.build(&(*cpv), *ptp, name_);
   } else {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);

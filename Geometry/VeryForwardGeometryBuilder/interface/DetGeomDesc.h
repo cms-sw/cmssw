@@ -57,7 +57,7 @@ public:
   // Constructor from old DD DDFilteredView
   /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
   DetGeomDesc(const DDFilteredView& fv, const bool isRun2);
-  // Constructor from DD4Hep DDFilteredView
+  // Constructor from DD4hep DDFilteredView
   /// \param[in] isRun2 Switch between legacy run 2-like geometry and 2021+ scenarii
   DetGeomDesc(const cms::DDFilteredView& fv, const bool isRun2);
   // Constructor from DB object PDetGeomDesc

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//    Compares output files from PrintGeomInfo created using DDD and DD4Hep
+//    Compares output files from PrintGeomInfo created using DDD and DD4hep
 //    inputs. Usage:
 //
 //    SimFileCompare infile1 infile2 type files mode debug

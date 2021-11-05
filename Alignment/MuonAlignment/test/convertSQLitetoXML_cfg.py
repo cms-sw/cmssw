@@ -31,7 +31,7 @@ process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
 process.GEMGeometryAlInputDB = cms.ESProducer("GEMGeometryESModule",
     appendToDataLabel = cms.string('idealForInputDB'),
     fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
+    fromDD4hep = cms.bool(False),
     alignmentsLabel = cms.string(''),
     applyAlignment = cms.bool(False)
 )
@@ -59,7 +59,7 @@ process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
 process.GEMGeometryAlOutputXML = cms.ESProducer("GEMGeometryESModule",
     appendToDataLabel = cms.string('idealForOutputXML'),
     fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
+    fromDD4hep = cms.bool(False),
     alignmentsLabel = cms.string(''),
     applyAlignment = cms.bool(False)
 )
