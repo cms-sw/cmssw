@@ -25,17 +25,16 @@
 
 // user include files
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 // forward declarations
-namespace edm {
-  class ParameterSet;
-  class EventSetup;
-  class ParameterSetDescription;
-}  // namespace edm
+class JetCorrectorParametersCollection;
+class JetCorrectionsRecord;
 
 class JetCorrectorImplMakerBase {
 public:
-  JetCorrectorImplMakerBase(edm::ParameterSet const&);
+  JetCorrectorImplMakerBase(edm::ParameterSet const&, edm::ConsumesCollector iC);
   JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete;                   // stop default
   const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&) = delete;  // stop default
   virtual ~JetCorrectorImplMakerBase();
@@ -54,7 +53,7 @@ protected:
 private:
   // ---------- member data --------------------------------
   std::string level_;
-  std::string algo_;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> algoToken_;
   std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector_;
   unsigned long long cacheId_;
 };
