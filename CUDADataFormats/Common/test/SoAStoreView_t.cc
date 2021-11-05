@@ -9,8 +9,8 @@
 #include <cassert>
 #include <memory>
 
-#include "DataFormats/Common/interface/SoAStore.h"
-#include "DataFormats/Common/interface/SoAView.h"
+#include "CUDADataFormats/Common/interface/SoAStore.h"
+#include "CUDADataFormats/Common/interface/SoAView.h"
 #include "Eigen/Geometry"
 
 generate_SoA_store(SoAHostDevice,

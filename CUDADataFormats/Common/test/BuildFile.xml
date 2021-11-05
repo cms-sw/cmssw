@@ -6,3 +6,8 @@
   </bin>
 
 </iftool>
+
+<bin file="SoAStoreView_t.cc">
+  <use name="eigen"/>
+  <use name="boost"/>
+</bin>
