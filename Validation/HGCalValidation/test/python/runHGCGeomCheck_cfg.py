@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun protoHGCGeomCheck_cfg.py geometry=D77
+#   cmsRun runHGCGeomCheck_cfg.py geometry=D77
 #
 #   Options for geometry D49, D68, D77, D83, D84, D86
 #
