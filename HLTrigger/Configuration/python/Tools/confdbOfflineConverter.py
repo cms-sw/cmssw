@@ -128,29 +128,29 @@ class OfflineConverter:
                 self.workDir = tempfile.mkdtemp()
                 atexit.register(shutil.rmtree, self.workDir)
             # download the .jar files
-            for jar in self.jars:
-                # check if the file is already present
-                jarRequiresUpdate=False
-                if os.path.exists(self.workDir + '/' + jar):
-                    web_sha512 = requests.get(self.baseUrl +'/'+re.sub(r'.jar$','_sha512',jar))
-                    hash_sha512 = hashlib.sha512()
-                    with open(self.workDir + '/' + jar,"rb") as f:
-                        for chunk in iter(lambda: f.read(4096), b""):
-                            hash_sha512.update(chunk)
-                    if web_sha512.text.rstrip()==hash_sha512.hexdigest():
-                        continue
-                    else:
-                        jarRequiresUpdate=True
-                # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
-                handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
-                os.close(handle)
-                request = requests.get(self.baseUrl + '/' + jar)
-                with open(temp,'wb') as f:
-                    f.write(request.content)
-                if not os.path.exists(self.workDir + '/' + jar) or jarRequiresUpdate:
+            version_website = requests.get(self.baseUrl+"/../confdb.version").text
+            jars_require_update = True
+            if os.path.exists(os.path.join(self.workDir,"confdb.version")):
+                with open(os.path.join(self.workDir,"confdb.version")) as f:
+                    version_existing = f.read()                
+                    if version_existing==version_website:
+                        jars_require_update = False
+
+            if jars_require_update:
+                for jar in self.jars:
+                    # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
+                    handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
+                    os.close(handle)
+                    request = requests.get(self.baseUrl + '/' + jar)
+                    with open(temp,'wb') as f:
+                        f.write(request.content)
                     os.rename(temp, self.workDir + '/' + jar)
-                else:
-                    os.unlink(temp)
+                #jars updated, write their version
+                handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = "confdb.version" + '.')
+                os.close(handle)
+                with open(temp,'w') as f:
+                    f.write(version_website)
+                os.rename(temp,os.path.join(self.workDir,"confdb.version"))
 
         # setup the java command line and CLASSPATH
         if self.verbose:
