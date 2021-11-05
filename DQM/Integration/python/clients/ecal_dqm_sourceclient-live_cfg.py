@@ -161,6 +161,7 @@ process.ecalMonitorTask.collectionTags.TrigPrimEmulDigi = "simEcalTriggerPrimiti
 process.ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = True
 process.ecalMonitorTask.commonParameters.willConvertToEDM = False
 process.ecalMonitorTask.commonParameters.onlineMode = True
+process.ecalMonitorTask.workerParameters.OccupancyTask.params.lumiCheck = True
 
 ### Sequences ###
 

@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 tpThreshold = 4.
 recHitThreshold = 0.5
+lumiCheck = False
 
 ecalOccupancyTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         recHitThreshold = cms.untracked.double(recHitThreshold),
         tpThreshold = cms.untracked.double(tpThreshold),
-        scalers = cms.InputTag('hltScalersRawToDigi')        
+        scalers = cms.InputTag('hltScalersRawToDigi'),
+        lumiCheck = cms.untracked.bool(lumiCheck)
     ), 
     MEs = cms.untracked.PSet(
         TrendNTPDigi = cms.untracked.PSet(
