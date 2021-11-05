@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,7 +40,7 @@
 // class declaration
 //
 
-class CheckPhase2Cabling : public edm::EDAnalyzer {
+class CheckPhase2Cabling : public edm::one::EDAnalyzer<> {
 public:
   explicit CheckPhase2Cabling(const edm::ParameterSet&);
   ~CheckPhase2Cabling();
@@ -48,40 +48,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<Phase2TrackerCabling, Phase2TrackerCablingRcd> cablingToken_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
-CheckPhase2Cabling::CheckPhase2Cabling(const edm::ParameterSet& iConfig)
+CheckPhase2Cabling::CheckPhase2Cabling(const edm::ParameterSet& iConfig) : cablingToken_(esConsumes()) {}
 
-{
-  //now do what ever initialization is needed
-}
-
-CheckPhase2Cabling::~CheckPhase2Cabling() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+CheckPhase2Cabling::~CheckPhase2Cabling() = default;
 //
 // member functions
 //
@@ -90,8 +68,7 @@ CheckPhase2Cabling::~CheckPhase2Cabling() {
 void CheckPhase2Cabling::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<Phase2TrackerCabling> cablingHandle;
-  iSetup.get<Phase2TrackerCablingRcd>().get(cablingHandle);
+  ESHandle<Phase2TrackerCabling> cablingHandle = iSetup.getHandle(cablingToken_);
 
   // print general information about the cabling
   std::cout << cablingHandle->summaryDescription() << std::endl;
@@ -115,44 +92,6 @@ void CheckPhase2Cabling::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::cout << "Subset in power group 1:" << std::endl;
   std::cout << powerGroup.description(1) << std::endl;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void CheckPhase2Cabling::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CheckPhase2Cabling::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-CheckPhase2Cabling::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-CheckPhase2Cabling::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-CheckPhase2Cabling::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-CheckPhase2Cabling::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void CheckPhase2Cabling::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
