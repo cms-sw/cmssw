@@ -85,7 +85,8 @@ L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig) {
   jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"));
   sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"));
   muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"));
-  muonShowerToken_ = consumes<l1t::MuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonShowerToken"));
+  muonShowerToken_ =
+      consumes<l1t::MuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonShowerToken"));
 
   const auto& taus = iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("tauTokens");
   for (const auto& tau : taus) {

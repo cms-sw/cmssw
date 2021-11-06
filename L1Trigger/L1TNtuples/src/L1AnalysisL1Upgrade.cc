@@ -121,7 +121,8 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
   }
 }
 
-void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const edm::Handle<l1t::MuonShowerBxCollection> muonShower, unsigned maxL1Upgrade) {
+void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const edm::Handle<l1t::MuonShowerBxCollection> muonShower,
+                                                    unsigned maxL1Upgrade) {
   for (int ibx = muonShower->getFirstBX(); ibx <= muonShower->getLastBX(); ++ibx) {
     for (l1t::MuonShowerBxCollection::const_iterator it = muonShower->begin(ibx);
          it != muonShower->end(ibx) && l1upgrade_.nMuonShowers < maxL1Upgrade;

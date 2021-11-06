@@ -51,8 +51,8 @@ private:
 };
 
 L1UpgradeTfMuonShowerTreeProducer::L1UpgradeTfMuonShowerTreeProducer(const edm::ParameterSet& iConfig) {
-  emtfMuonShowerToken_ =
-      consumes<l1t::RegionalMuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonShowerToken"));
+  emtfMuonShowerToken_ = consumes<l1t::RegionalMuonShowerBxCollection>(
+      iConfig.getUntrackedParameter<edm::InputTag>("emtfMuonShowerToken"));
 
   maxL1UpgradeTfMuonShower_ = iConfig.getParameter<unsigned int>("maxL1UpgradeTfMuonShower");
 
@@ -60,7 +60,8 @@ L1UpgradeTfMuonShowerTreeProducer::L1UpgradeTfMuonShowerTreeProducer(const edm::
 
   // set up output
   tree_ = fs_->make<TTree>("L1UpgradeTfMuonShowerTree", "L1UpgradeTfMuonShowerTree");
-  tree_->Branch("L1UpgradeEmtfMuonShower", "L1Analysis::L1AnalysisL1UpgradeTfMuonShowerDataFormat", &l1UpgradeEmtfData, 32000, 3);
+  tree_->Branch(
+      "L1UpgradeEmtfMuonShower", "L1Analysis::L1AnalysisL1UpgradeTfMuonShowerDataFormat", &l1UpgradeEmtfData, 32000, 3);
 }
 
 L1UpgradeTfMuonShowerTreeProducer::~L1UpgradeTfMuonShowerTreeProducer() {}
