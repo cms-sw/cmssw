@@ -53,7 +53,6 @@ private:
   const bool doPixel_, doStrip_;
   const edm::InputTag trackCollectionTag_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokGeo_;
-
 };
 
 #endif
