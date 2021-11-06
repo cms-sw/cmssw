@@ -406,8 +406,8 @@ void L2TauNNProducer::fillL1TauVars(tensorflow::Tensor& cellGridMatrix, const st
         auto getCell = [&](NNInputs input) -> float& {
           return getCellImpl(cellGridMatrix, tau_idx, phi_idx, eta_idx, input);
         };
-        getCell(NNInputs::l1Tau_pt) = allTaus[tau_idx]->polarP4().pt();
-        getCell(NNInputs::l1Tau_eta) = allTaus[tau_idx]->polarP4().eta();
+        getCell(NNInputs::l1Tau_pt) = allTaus[tau_idx]->pt();
+        getCell(NNInputs::l1Tau_eta) = allTaus[tau_idx]->eta();
         getCell(NNInputs::l1Tau_hwIso) = allTaus[tau_idx]->hwIso();
       }
     }
@@ -678,8 +678,8 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
   };
   const int nTaus = static_cast<int>(allTaus.size());
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
-    const float tauEta = allTaus[tau_idx]->polarP4().eta();
-    const float tauPhi = allTaus[tau_idx]->polarP4().phi();
+    const float tauEta = allTaus[tau_idx]->eta();
+    const float tauPhi = allTaus[tau_idx]->phi();
 
     auto maxTracks = patatracks_tsoa.stride();
     auto const* quality = patatracks_tsoa.qualityData();
@@ -829,7 +829,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
     for (size_t tau_pos = 0; tau_pos < nTau; ++tau_pos) {
       const auto tau_idx = TauCollectionMap[inp_idx][tau_pos];
       if (debugLevel_ > 0) {
-        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->polarP4().pt() << " \t "
+        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
                                   << tau_score.at(tau_idx) << std::endl;
       }
       (*tau_tags)[tau_pos] = tau_score.at(tau_idx);
