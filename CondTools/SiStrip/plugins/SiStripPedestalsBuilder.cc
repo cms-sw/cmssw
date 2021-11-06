@@ -14,7 +14,7 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
   edm::LogInfo("SiStripPedestalsBuilder")
       << "... creating dummy SiStripPedestals Data for Run " << run << "\n " << std::endl;
 
-  SiStripPedestals* obj = new SiStripPedestals();
+  SiStripPedestals obj;
 
   int count = -1;
   for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
@@ -30,11 +30,11 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
       if (count < static_cast<int>(printdebug_))
         edm::LogInfo("SiStripPedestalsBuilder") << "detid " << it.first << " \t"
                                                 << " strip " << strip << " \t" << ped << " \t" << std::endl;
-      obj->setData(ped, theSiStripVector);
+      obj.setData(ped, theSiStripVector);
     }
 
     //SiStripPedestals::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if (!obj->put(it.first, theSiStripVector))
+    if (!obj.put(it.first, theSiStripVector))
       edm::LogError("SiStripPedestalsBuilder")
           << "[SiStripPedestalsBuilder::analyze] detid already exists" << std::endl;
   }
@@ -44,11 +44,10 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripPedestalsRcd")) {
-      mydbservice->createNewIOV<SiStripPedestals>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripPedestalsRcd");
+      mydbservice->createOneIOV<SiStripPedestals>(obj, mydbservice->beginOfTime(), "SiStripPedestalsRcd");
     } else {
       //mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->currentTime(),"SiStripPedestalsRcd");
-      mydbservice->appendSinceTime<SiStripPedestals>(obj, mydbservice->currentTime(), "SiStripPedestalsRcd");
+      mydbservice->appendOneIOV<SiStripPedestals>(obj, mydbservice->currentTime(), "SiStripPedestalsRcd");
     }
   } else {
     edm::LogError("SiStripPedestalsBuilder") << "Service is unavailable" << std::endl;
