@@ -3,7 +3,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,7 +23,7 @@
 // class declaration
 //
 
-class L1UpgradeTfMuonShowerTreeProducer : public edm::EDAnalyzer {
+class L1UpgradeTfMuonShowerTreeProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit L1UpgradeTfMuonShowerTreeProducer(const edm::ParameterSet&);
   ~L1UpgradeTfMuonShowerTreeProducer() override;
