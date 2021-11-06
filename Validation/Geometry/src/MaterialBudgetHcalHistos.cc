@@ -40,7 +40,7 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
                                      << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_
-                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_ << "  FromDD4Hep "
+                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_ << "  FromDD4hep "
                                      << fromdd4hep_;
   if (fillHistos_)
     book();
