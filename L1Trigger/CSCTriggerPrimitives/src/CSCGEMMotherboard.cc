@@ -137,15 +137,15 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
 
 void CSCGEMMotherboard::matchALCTCLCTGEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
+  // this has been superseded by 16-eta partition geometries
   if (isME21_ and !hasGE21Geometry16Partitions_)
     return;
 
-  // check if we can build LCTs with exclusively 1 GEM, exclusive 2 GEM,
-  // or inclusively 1 or 2 GEM hits
+  // by default we will try to match with both single clusters and coincidence clusters
+  // if we do not build ALCT-CLCT-2GEM type LCTs, consider only single clusters
   GEMClusterProcessor::ClusterTypes option = GEMClusterProcessor::AllClusters;
-  ;
   if (!build_lct_from_alct_clct_2gem_)
-    option = GEMClusterProcessor::CoincidenceClusters;
+    option = GEMClusterProcessor::SingleClusters;
 
   // array to mask CLCTs
   bool used_clct_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
@@ -195,6 +195,7 @@ void CSCGEMMotherboard::matchALCTCLCTGEM(bool bunch_crossing_mask[CSCConstants::
 
 void CSCGEMMotherboard::matchCLCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
+  // this has been superseded by 16-eta partition geometries
   if (isME21_ and !hasGE21Geometry16Partitions_)
     return;
 
@@ -253,6 +254,7 @@ void CSCGEMMotherboard::matchCLCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX
 
 void CSCGEMMotherboard::matchALCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
+  // this has been superseded by 16-eta partition geometries
   if (isME21_ and !hasGE21Geometry16Partitions_)
     return;
 
