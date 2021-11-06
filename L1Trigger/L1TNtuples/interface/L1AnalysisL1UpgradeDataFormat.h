@@ -125,6 +125,12 @@ namespace L1Analysis {
       muonTfMuonIdx.clear();
       muonBx.clear();
 
+      nMuonShowers = 0;
+      muonShowerBx.clear();
+      muonShowerOneNominal.clear();
+      muonShowerOneTight.clear();
+      muonShowerTwoLoose.clear();
+
       nSums = 0;
       sumType.clear();
       sumEt.clear();
@@ -210,6 +216,12 @@ namespace L1Analysis {
     std::vector<unsigned short int> muonDxy;
     std::vector<unsigned short int> muonTfMuonIdx;
     std::vector<short int> muonBx;
+
+    unsigned short int nMuonShowers;
+    std::vector<short int> muonShowerBx;
+    std::vector<short int> muonShowerOneNominal;
+    std::vector<short int> muonShowerOneTight;
+    std::vector<short int> muonShowerTwoLoose;
 
     unsigned short int nSums;
     std::vector<short int> sumType;
