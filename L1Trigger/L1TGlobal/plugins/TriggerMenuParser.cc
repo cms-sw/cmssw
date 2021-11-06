@@ -14,9 +14,9 @@
  *                - correlations with overlap object removal
  *                - displaced muons by R.Cavanaugh
  *
- * \new features: Elisa Fontanesi                                                      
- *                - extended for three-body correlation conditions                                         
- *                                                                
+ * \new features: Elisa Fontanesi
+ *                - extended for three-body correlation conditions
+ *
  * $Date$
  * $Revision$
  *
@@ -1557,11 +1557,6 @@ bool l1t::TriggerMenuParser::parseMuonShower(tmeventsetup::esCondition condMu,
 
   // condition type is always 1 particle, thus Type1s
   GtConditionType cType = l1t::Type1s;
-
-  // edm::LogWarning("TriggerMenuParser") << "\n ****************************************** "
-  //                               << "\n      parseMuonShower  "
-  //                               << "\n condition = " << condition << "\n particle  = " << particle
-  //                               << "\n type      = " << type << "\n name      = " << name << std::endl;
 
   // temporary storage of the parameters
   std::vector<MuonShowerTemplate::ObjectParameter> objParameter(nrObj);

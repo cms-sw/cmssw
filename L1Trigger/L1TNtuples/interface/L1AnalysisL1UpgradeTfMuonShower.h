@@ -10,9 +10,7 @@ namespace L1Analysis {
     enum { TEST = 0 };
     L1AnalysisL1UpgradeTfMuonShower();
     ~L1AnalysisL1UpgradeTfMuonShower();
-    void Reset() {
-      l1upgradetfmuonshower_.Reset();
-    }
+    void Reset() { l1upgradetfmuonshower_.Reset(); }
     void SetTfMuonShower(const l1t::RegionalMuonShowerBxCollection& muon, unsigned maxL1UpgradeTfMuonShower);
     L1AnalysisL1UpgradeTfMuonShowerDataFormat* getData() { return &l1upgradetfmuonshower_; }
 
