@@ -4,7 +4,7 @@
 //  Description: CSC Geometry Builder for DD4hep
 //              
 //
-// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //         Created:  Thu, 05 March 2020 
 //         Modified: Thu, 04 June 2020, following what made in PR #30047               
 //   
@@ -51,7 +51,7 @@ void CSCGeometryBuilderFromDDD::build(CSCGeometry& geom,
 
   CSCGeometryParsFromDD cscp;
   if (!cscp.build(cview, muonConstants, rig, rdp)) {
-    throw cms::Exception("CSCGeometryBuilderFromDDD", "Failed to build the necessary objects from the DD4HEP");
+    throw cms::Exception("CSCGeometryBuilderFromDDD", "Failed to build the necessary objects from the DD4hep");
   }
 
   CSCGeometryBuilder realbuilder;
