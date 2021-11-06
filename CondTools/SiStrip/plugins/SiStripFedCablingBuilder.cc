@@ -91,17 +91,16 @@ void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSet
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Copying FED cabling...";
-  SiStripFedCabling* obj = new SiStripFedCabling(*(fed.product()));
+  SiStripFedCabling obj(*(fed.product()));
 
   //End now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripFedCablingRcd")) {
-      mydbservice->createNewIOV<SiStripFedCabling>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripFedCablingRcd");
+      mydbservice->createOneIOV<SiStripFedCabling>(obj, mydbservice->beginOfTime(), "SiStripFedCablingRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripFedCabling>(obj, mydbservice->currentTime(), "SiStripFedCablingRcd");
+      mydbservice->appendOneIOV<SiStripFedCabling>(obj, mydbservice->currentTime(), "SiStripFedCablingRcd");
     }
   } else {
     edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;

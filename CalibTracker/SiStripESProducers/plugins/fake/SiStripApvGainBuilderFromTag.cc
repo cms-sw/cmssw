@@ -40,7 +40,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   inputApvGain.getDetIds(inputDetIds);
 
   // Prepare the new object
-  SiStripApvGain* obj = new SiStripApvGain();
+  SiStripApvGain obj;
 
   uint32_t count = 0;
   for (const auto det : tGeom.detUnits()) {
@@ -94,7 +94,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
       }
       count++;
       SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
-      if (!obj->put(detid, range))
+      if (!obj.put(detid, range))
         edm::LogError("SiStripApvGainGeneratorFromTag") << " detid already exists" << std::endl;
     }
   }
@@ -104,10 +104,9 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripApvGainRcd2")) {
-      mydbservice->createNewIOV<SiStripApvGain>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripApvGainRcd2");
+      mydbservice->createOneIOV<SiStripApvGain>(obj, mydbservice->beginOfTime(), "SiStripApvGainRcd2");
     } else {
-      mydbservice->appendSinceTime<SiStripApvGain>(obj, mydbservice->currentTime(), "SiStripApvGainRcd2");
+      mydbservice->appendOneIOV<SiStripApvGain>(obj, mydbservice->currentTime(), "SiStripApvGainRcd2");
     }
   } else {
     edm::LogError("SiStripApvGainBuilderFromTag") << "Service is unavailable" << std::endl;

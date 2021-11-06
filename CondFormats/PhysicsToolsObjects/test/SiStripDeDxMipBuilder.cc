@@ -16,12 +16,11 @@ void SiStripDeDxMipBuilder::analyze(const edm::Event& evt, const edm::EventSetup
       << "... creating dummy PhysicsToolsObjects::Calibration::HistogramD2D Data for Run " << run << "\n " << std::endl;
 
   //  PhysicsToolsObjects::Calibration::HistogramD2D* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000,0.,1000.);
-  PhysicsTools::Calibration::HistogramD2D* obj =
-      new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000, 0., 1000.);
+  PhysicsTools::Calibration::HistogramD2D obj(300, 0., 3., 1000, 0., 1000.);
 
   for (int ix = 0; ix < 300; ix++) {
     for (int iy = 0; iy < 1000; iy++) {
-      obj->setBinContent(ix, iy, iy / 999.);
+      obj.setBinContent(ix, iy, iy / 999.);
     }
   }
 
@@ -44,7 +43,7 @@ void SiStripDeDxMipBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   //     }
 
   //     PhysicsToolsObjects::Calibration::HistogramD2D::Range range(theSiStripVector.begin(),theSiStripVector.end());
-  //     if ( ! obj->put(it->first,range) )
+  //     if ( ! obj.put(it->first,range) )
 
   //      edm::LogError("PhysicsToolsObjects::Calibration::HistogramD2DBuilder")<<"[PhysicsToolsObjects::Calibration::HistogramD2DBuilder::analyze] detid already exists"<<std::endl;
   //  }
@@ -54,10 +53,10 @@ void SiStripDeDxMipBuilder::analyze(const edm::Event& evt, const edm::EventSetup
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripDeDxMipRcd")) {
-      mydbservice->createNewIOV<PhysicsTools::Calibration::HistogramD2D>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripDeDxMipRcd");
+      mydbservice->createOneIOV<PhysicsTools::Calibration::HistogramD2D>(
+          obj, mydbservice->beginOfTime(), "SiStripDeDxMipRcd");
     } else {
-      mydbservice->appendSinceTime<PhysicsTools::Calibration::HistogramD2D>(
+      mydbservice->appendOneIOV<PhysicsTools::Calibration::HistogramD2D>(
           obj, mydbservice->currentTime(), "SiStripDeDxMipRcd");
     }
   } else {

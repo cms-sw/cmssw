@@ -55,7 +55,7 @@ void SiStripBadStripFromQualityDBWriter::dqmEndJob(DQMStore::IBooker& /*booker*/
     else
       time = openIOVAtTime_;
 
-    dbservice->writeOne(payload.release(), time, rcdName_);
+    dbservice->writeOneIOV(*payload, time, rcdName_);
   } else {
     edm::LogError("SiStripBadStripFromQualityDBWriter") << "Service is unavailable" << std::endl;
   }
