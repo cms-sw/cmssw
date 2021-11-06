@@ -27,7 +27,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack pixel-only: TTbar - on CPU: quadruplets, triplets)
 #        (Patatrack ECAL-only: TTbar - on CPU)
 #        (Patatrack HCAL-only: TTbar - on CPU)
-#   2021 (DD4HEP XML: TTbar, ZMM)
+#   2021 (DD4hep XML: TTbar, ZMM)
 #        (DDD DB: TTbar, ZMM)
 #        (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
 #        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design, GluGluTo2Jets, GluGluTo2Jets PU)
