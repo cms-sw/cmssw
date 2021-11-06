@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 namespace edm {
   class ParameterSet;
   class Event;
@@ -36,6 +38,7 @@ private:
   HepMC::GenEvent *evt_;
   Hector *m_Hector;
 
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
   edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
   bool m_verbosity;
   bool m_FP420Transport;

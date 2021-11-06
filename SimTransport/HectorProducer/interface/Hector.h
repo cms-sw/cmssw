@@ -40,7 +40,7 @@ class TRandom3;
 class Hector {
 public:
   //  Hector(const edm::ParameterSet & ps);
-  Hector(const edm::ParameterSet &ps, bool verbosity, bool FP420Transport, bool ZDCTransport);
+  Hector(const edm::ParameterSet &ps, const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>&, bool verbosity, bool FP420Transport, bool ZDCTransport);
   //  Hector();
   virtual ~Hector();
 
@@ -77,6 +77,7 @@ public:
       //  edm::ParameterSet m_pBeamLine;
       */
 private:
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
   // Defaults
   double lengthfp420;
   double lengthzdc;
