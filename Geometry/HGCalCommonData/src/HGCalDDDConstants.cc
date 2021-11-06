@@ -618,11 +618,9 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   double x(localX), y(localY);
   bool rotx =
       ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocalToGlobal " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
                                   << " Local (" << x << ":" << y << ") Reco " << reco;
-#endif
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
@@ -630,10 +628,8 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   const auto& xy = waferPositionNoRot(lay, waferU, waferV, reco, debug);
   x += xy.first;
   y += xy.second;
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << " by addong " << xy.first << ":" << xy.second;
-#endif
   return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }
 
