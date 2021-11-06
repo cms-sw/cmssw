@@ -20,17 +20,17 @@
 class DreamSensitiveDetectorBuilder : public SensitiveDetectorMakerBase {
 public:
   explicit DreamSensitiveDetectorBuilder(edm::ParameterSet const& p, edm::ConsumesCollector cc) {
-    fromDD4Hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
-    if (fromDD4Hep_)
-      cpvTokenDD4Hep_ = cc.esConsumes<edm::Transition::BeginRun>();
+    fromDD4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
+    if (fromDD4hep_)
+      cpvTokenDD4hep_ = cc.esConsumes<edm::Transition::BeginRun>();
     else
       cpvTokenDDD_ = cc.esConsumes<edm::Transition::BeginRun>();
-    edm::LogVerbatim("EcalSim") << "DreamSensitiveDetectorBuilder called  with dd4hep flag " << fromDD4Hep_;
+    edm::LogVerbatim("EcalSim") << "DreamSensitiveDetectorBuilder called  with dd4hep flag " << fromDD4hep_;
   }
 
   void beginRun(const edm::EventSetup& es) final {
-    if (fromDD4Hep_) {
-      cpvDD4Hep_ = &es.getData(cpvTokenDD4Hep_);
+    if (fromDD4hep_) {
+      cpvDD4hep_ = &es.getData(cpvTokenDD4hep_);
     } else {
       cpvDDD_ = &es.getData(cpvTokenDDD_);
     }
@@ -41,17 +41,17 @@ public:
                                           const edm::ParameterSet& p,
                                           const SimTrackManager* man,
                                           SimActivityRegistry& reg) const final {
-    auto sd = std::make_unique<DreamSD>(iname, cpvDDD_, cpvDD4Hep_, clg, p, man);
+    auto sd = std::make_unique<DreamSD>(iname, cpvDDD_, cpvDD4hep_, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd.get());
     return sd;
   }
 
 private:
-  bool fromDD4Hep_;
+  bool fromDD4hep_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
-  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
   const DDCompactView* cpvDDD_;
-  const cms::DDCompactView* cpvDD4Hep_;
+  const cms::DDCompactView* cpvDD4hep_;
 };
 
 typedef DreamSD DreamSensitiveDetector;
