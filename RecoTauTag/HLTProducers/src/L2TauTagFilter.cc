@@ -36,7 +36,7 @@ public:
         ->setComment("Which trigger should the L1 Taus collection pass");
     desc.add<edm::InputTag>("L2Outcomes", edm::InputTag(""))->setComment("L2 CNN outcomes");
     desc.add<double>("DiscrWP", 0.1227)->setComment("value of discriminator threshold");
-    desc.add<double>("l1TauPtThreshold", 250)->setComment("value of discriminator threshold");
+    desc.add<double>("l1TauPtThreshold", 250)->setComment("value of L1Tau pass-through pt threshold");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -57,7 +57,7 @@ public:
       throw cms::Exception("Inconsistent Data", "L2TauTagFilter::hltFilter") << "CNN output size != L1 taus size \n";
     }
     for (size_t l1_idx = 0; l1_idx < l1Taus.size(); l1_idx++) {
-      if (L2Outcomes[l1_idx] >= discrWP_ || l1Taus[l1_idx]->polarP4().pt() > l1PtTh_) {
+      if (L2Outcomes[l1_idx] >= discrWP_ || l1Taus[l1_idx]->pt() > l1PtTh_) {
         filterproduct.addObject(nTauPassed, l1Taus[l1_idx]);
         nTauPassed++;
       }
