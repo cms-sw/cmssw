@@ -14,8 +14,12 @@
 
 #include <cmath>
 
-Hector::Hector(const edm::ParameterSet &param, const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord>& token, bool verbosity, bool FP420Transport, bool ZDCTransport)
-  : tok_pdt_(token), m_verbosity(verbosity), m_FP420Transport(FP420Transport), m_ZDCTransport(ZDCTransport) {
+Hector::Hector(const edm::ParameterSet &param,
+               const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> &token,
+               bool verbosity,
+               bool FP420Transport,
+               bool ZDCTransport)
+    : tok_pdt_(token), m_verbosity(verbosity), m_FP420Transport(FP420Transport), m_ZDCTransport(ZDCTransport) {
   // Create LHC beam line
   edm::ParameterSet hector_par = param.getParameter<edm::ParameterSet>("Hector");
 
