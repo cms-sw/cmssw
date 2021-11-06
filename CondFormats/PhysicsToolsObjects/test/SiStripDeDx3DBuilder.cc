@@ -39,14 +39,13 @@ void SiStripDeDx3DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       << "... creating dummy PhysicsToolsObjects::Calibration::HistogramD3D Data for Run " << run << "\n " << std::endl;
 
   //  PhysicsToolsObjects::Calibration::HistogramD2D* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000,0.,1000.);
-  PhysicsTools::Calibration::HistogramD3D* obj =
-      new PhysicsTools::Calibration::HistogramD3D(5, 0, 5, 100, 0., 3., 100, 0., 1000.);
+  PhysicsTools::Calibration::HistogramD3D obj(5, 0, 5, 100, 0., 3., 100, 0., 1000.);
 
   for (int ix = 0; ix < 5; ix++) {
     for (int iy = 0; iy < 100; iy++) {
       for (int iz = 0; iz < 100; iz++) {
         //        edm::LogInfo("SiStripDeDx3DBuilder") << "X = " << ix << " Y = " << iy << " Z = " << iz << std::endl;
-        obj->setBinContent(ix, iy, iz, ix + 2 * iy + 3 * iz);
+        obj.setBinContent(ix, iy, iz, ix + 2 * iy + 3 * iz);
       }
     }
   }
@@ -57,10 +56,10 @@ void SiStripDeDx3DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripDeDxProton_3D_Rcd")) {
-      mydbservice->createNewIOV<PhysicsTools::Calibration::HistogramD3D>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripDeDxProton_3D_Rcd");
+      mydbservice->createOneIOV<PhysicsTools::Calibration::HistogramD3D>(
+          obj, mydbservice->beginOfTime(), "SiStripDeDxProton_3D_Rcd");
     } else {
-      mydbservice->appendSinceTime<PhysicsTools::Calibration::HistogramD3D>(
+      mydbservice->appendOneIOV<PhysicsTools::Calibration::HistogramD3D>(
           obj, mydbservice->currentTime(), "SiStripDeDxProton_3D_Rcd");
     }
   } else {
