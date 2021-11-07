@@ -1800,6 +1800,7 @@ namespace edm {
     } else {
       auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
       lumiPrincipal.fillLuminosityBlockPrincipal(history, nullptr);
+      lumiPrincipal.setWillBeContinued(true);
     }
     ++indexIntoFileIter_;
   }

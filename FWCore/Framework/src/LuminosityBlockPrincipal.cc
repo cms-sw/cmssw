@@ -16,6 +16,7 @@ namespace edm {
   void LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(ProcessHistory const* processHistory,
                                                               DelayedReader* reader) {
     fillPrincipal(aux_.processHistoryID(), processHistory, reader);
+    willBeContinued_ = false;
   }
 
   void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
