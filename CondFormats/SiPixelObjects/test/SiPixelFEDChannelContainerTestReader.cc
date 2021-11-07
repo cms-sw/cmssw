@@ -24,12 +24,14 @@ private:
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> siPixelBadFEDChToken_;
   const bool printdebug_;
   const std::string formatedOutput_;
 };
 
 SiPixelFEDChannelContainerTestReader::SiPixelFEDChannelContainerTestReader(edm::ParameterSet const& p)
-    : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
+    : siPixelBadFEDChToken_(esConsumes()),
+      printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
       formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")) {
   edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "SiPixelFEDChannelContainerTestReader" << std::endl;
 }
@@ -54,11 +56,8 @@ void SiPixelFEDChannelContainerTestReader::analyze(const edm::Event& e, const ed
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<SiPixelFEDChannelContainer> qualityCollectionHandle;
-  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "got eshandle" << std::endl;
-
-  context.get<SiPixelStatusScenariosRcd>().get(qualityCollectionHandle);
-  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "got context" << std::endl;
+  edm::ESHandle<SiPixelFEDChannelContainer> qualityCollectionHandle = context.getHandle(siPixelBadFEDChToken_);
+  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "got eshandle from context" << std::endl;
 
   const SiPixelFEDChannelContainer* quality_map = qualityCollectionHandle.product();
   edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "got SiPixelFEDChannelContainer* " << std::endl;
