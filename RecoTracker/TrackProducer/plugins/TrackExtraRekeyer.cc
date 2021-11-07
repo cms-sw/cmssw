@@ -1,34 +1,35 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
-class TrackExtraRekeyer : public edm::stream::EDProducer<> {
+class TrackExtraRekeyer : public edm::global::EDProducer<> {
 public:
   explicit TrackExtraRekeyer(const edm::ParameterSet &);
-  ~TrackExtraRekeyer() override {}
+  ~TrackExtraRekeyer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  edm::EDGetTokenT<reco::TrackCollection> inputTrack_;
-  edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>> inputAssoc_;
-  edm::EDPutTokenT<reco::TrackCollection> outputTrack_;
+  // memeber data
+  const edm::EDGetTokenT<reco::TrackCollection> inputTrack_;
+  const edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>> inputAssoc_;
+  const edm::EDPutTokenT<reco::TrackCollection> outputTrack_;
 };
 
-TrackExtraRekeyer::TrackExtraRekeyer(const edm::ParameterSet &iConfig) {
-  inputTrack_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  inputAssoc_ =
-      consumes<edm::Association<reco::TrackExtraCollection>>(iConfig.getParameter<edm::InputTag>("association"));
-  outputTrack_ = produces<reco::TrackCollection>();
-}
+TrackExtraRekeyer::TrackExtraRekeyer(const edm::ParameterSet &iConfig)
+    : inputTrack_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      inputAssoc_(
+          consumes<edm::Association<reco::TrackExtraCollection>>(iConfig.getParameter<edm::InputTag>("association"))),
+      outputTrack_(produces<reco::TrackCollection>()) {}
 
 // ------------ method called for each event  ------------
-void TrackExtraRekeyer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void TrackExtraRekeyer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   auto const &tracks = iEvent.get(inputTrack_);
