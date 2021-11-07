@@ -98,6 +98,7 @@ The script also handles the common and forward elements of the geometry:
 * O6: same as O5 with changes needed for new defintion of boundaries
 * O7: same as O6 with changes needed for new defintion of calorimeter boundaries
 * O8: same as O7 with changes needed for a newer definition of calorimeter boundaries
+* O9: same as O8 with changes needed to support the additional notch in ETL
 
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
