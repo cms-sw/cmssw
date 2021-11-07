@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-class SiStripDeDx2DReader : public edm::EDAnalyzer {
+class SiStripDeDx2DReader : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDeDx2DReader(const edm::ParameterSet&);
   ~SiStripDeDx2DReader();
@@ -28,17 +28,15 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
-  //  uint32_t printdebug_;
+  const edm::ESGetToken<PhysicsTools::Calibration::VHistogramD2D, SiStripDeDxProton_2D_Rcd> SiStripDeDx2DToken_;
 };
 
-SiStripDeDx2DReader::SiStripDeDx2DReader(const edm::ParameterSet& iConfig) {}
-//:  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)){}
+SiStripDeDx2DReader::SiStripDeDx2DReader(const edm::ParameterSet& iConfig) : SiStripDeDx2DToken_(esConsumes()) {}
 
-SiStripDeDx2DReader::~SiStripDeDx2DReader() {}
+SiStripDeDx2DReader::~SiStripDeDx2DReader() = default;
 
 void SiStripDeDx2DReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::ESHandle<PhysicsTools::Calibration::VHistogramD2D> SiStripDeDx2D_;
-  iSetup.get<SiStripDeDxProton_2D_Rcd>().get(SiStripDeDx2D_);
+  edm::ESHandle<PhysicsTools::Calibration::VHistogramD2D> SiStripDeDx2D_ = iSetup.getHandle(SiStripDeDx2DToken_);
   edm::LogInfo("SiStripDeDx2DReader") << "[SiStripDeDx2DReader::analyze] End Reading SiStripDeDxProton_2D" << std::endl;
 
   for (int ihisto = 0; ihisto < 3; ihisto++) {
@@ -54,24 +52,6 @@ void SiStripDeDx2DReader::analyze(const edm::Event& e, const edm::EventSetup& iS
 
     std::cout << "Value = " << (SiStripDeDx2D_->vValues)[ihisto] << std::endl;
   }
-
-  //   std::vector<uint32_t> detid;
-  //   SiStripDeDx2D_->getDetIds(detid);
-  //   edm::LogInfo("Number of detids ")  << detid.size() << std::endl;
-
-  //   if (printdebug_)
-  //     for (size_t id=0;id<detid.size() && id<printdebug_;id++)
-  //       {
-  // 	SiStripDeDx2D::Range range=SiStripDeDx2D_->getRange(detid[id]);
-
-  // 	int apv=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  edm::LogInfo("SiStripDeDx2DReader")  << "detid " << detid[id] << " \t"
-  // 					     << " apv " << apv++ << " \t"
-  // 					     << SiStripDeDx2D_->getDeDx2D(it,range)     << " \t"
-  // 					     << std::endl;
-  // 	}
-  //       }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
