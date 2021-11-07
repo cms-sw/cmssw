@@ -899,25 +899,9 @@ void L1TPhase2CorrelatorOffline::computeResponseResolution() {
                                                             nullptr};
 
   for (unsigned int i = 0; i < monElementstoComputeIn.size(); i++) {
-    if (monElementstoComputeIn[i] != nullptr && monElementstoComputeResp[i] != nullptr &&
-        monElementstoComputeResol[i] != nullptr) {
+    if (monElementstoComputeIn[i] != nullptr && monElementstoComputeResp[i] != nullptr) {
       medianResponseCorrResolution(
           monElementstoComputeIn[i], monElementstoComputeResp[i], monElementstoComputeResol[i]);
-    } else if (monElementstoComputeIn[i] != nullptr && monElementstoComputeResp[i] != nullptr) {
-      medianResponse(monElementstoComputeIn[i], monElementstoComputeResp[i]);
-    }
-  }
-}
-
-void L1TPhase2CorrelatorOffline::medianResponse(MonitorElement* in2D, MonitorElement* response) {
-  auto hbase = in2D->getTH2F();
-  auto hresp = response->getTH1F();
-  if (hbase != nullptr && hresp != nullptr) {
-    if (hbase->GetNbinsX() == hresp->GetNbinsX() && hbase->GetNbinsX()) {
-      auto med = hbase->QuantilesX(0.5, "_qx");
-      for (int ib = 0; ib < hbase->GetNbinsX() + 1; ib++) {
-        hresp->SetBinContent(ib, med->GetBinContent(ib));
-      }
     }
   }
 }
@@ -927,9 +911,12 @@ void L1TPhase2CorrelatorOffline::medianResponseCorrResolution(MonitorElement* in
                                                               MonitorElement* resolution) {
   auto hbase = in2D->getTH2F();
   auto hresp = response->getTH1F();
-  auto hresol = resolution->getTH1F();
-  if (hbase != nullptr && hresp != nullptr && hresol != nullptr) {
-    if (hbase->GetNbinsX() == hresp->GetNbinsX() && hbase->GetNbinsX() == hresol->GetNbinsX()) {
+  if (hbase != nullptr && hresp != nullptr) {
+    if (hbase->GetNbinsX() == hresp->GetNbinsX()) {
+      TDirectory threadsafeDir =
+          TDirectory(((std::string)(hbase->GetName()) + "dirL1TPhase2CorrelatorOffline").c_str(),
+                     ((std::string)(hbase->GetName()) + "dirL1TPhase2CorrelatorOffline").c_str());
+      TDirectory::TContext context(gDirectory, &threadsafeDir);
       auto med = hbase->QuantilesX(0.5, "_qx");
       TGraph* ptrecgen = new TGraph(hbase->GetNbinsX());
       for (int ib = 1; ib < hbase->GetNbinsX() + 1; ib++) {
@@ -939,30 +926,39 @@ void L1TPhase2CorrelatorOffline::medianResponseCorrResolution(MonitorElement* in
         hresp->SetBinContent(ib, corr);
       }
       delete med;
-      ptrecgen->Sort();
-      TH2F* ch = new TH2F(*hbase);
-      ch->Reset("ICE");
-      for (int ibx = 1; ibx < ch->GetNbinsX() + 1; ibx++) {
-        float xval = hbase->GetXaxis()->GetBinCenter(ibx);
-        for (int iby = 1; iby < ch->GetNbinsY() + 1; iby++) {
-          float yval = hbase->GetYaxis()->GetBinCenter(iby);
-          float newyval = ptrecgen->Eval(yval * xval) / xval;
-          int ycb = ch->FindBin(xval, newyval);
-          ch->SetBinContent(ycb, ch->GetBinContent(ycb) + hbase->GetBinContent(ibx, iby));
+      if (resolution != nullptr) {
+        auto hresol = resolution->getTH1F();
+        if (hresol != nullptr) {
+          if (hbase->GetNbinsX() == hresol->GetNbinsX()) {
+            ptrecgen->Sort();
+            TH2F* ch = new TH2F(*hbase);
+            ch->Reset("ICE");
+            for (int ibx = 1; ibx < ch->GetNbinsX() + 1; ibx++) {
+              float xval = hbase->GetXaxis()->GetBinCenter(ibx);
+              for (int iby = 1; iby < ch->GetNbinsY() + 1; iby++) {
+                float yval = hbase->GetYaxis()->GetBinCenter(iby);
+                float newyval = ptrecgen->Eval(yval * xval) / xval;
+                int ycb = ch->FindBin(xval, newyval);
+                ch->SetBinContent(ycb, ch->GetBinContent(ycb) + hbase->GetBinContent(ibx, iby));
+              }
+            }
+            delete ptrecgen;
+            auto qc = ch->QuantilesX(0.5, "_qc");
+            auto qhi = ch->QuantilesX(0.84, "_qhi");
+            auto qlo = ch->QuantilesX(0.16, "_qlo");
+            delete ch;
+            for (int ibx = 1; ibx < hbase->GetNbinsX() + 1; ibx++) {
+              hresol->SetBinContent(
+                  ibx, qc->GetBinContent(ibx) > 0.2 ? (qhi->GetBinContent(ibx) - qlo->GetBinContent(ibx)) / 2. : 0.);
+            }
+            delete qc;
+            delete qhi;
+            delete qlo;
+          }
         }
+      } else {
+        delete ptrecgen;
       }
-      delete ptrecgen;
-      auto qc = ch->QuantilesX(0.5, "_qc");
-      auto qhi = ch->QuantilesX(0.84, "_qhi");
-      auto qlo = ch->QuantilesX(0.16, "_qlo");
-      delete ch;
-      for (int ibx = 1; ibx < hbase->GetNbinsX() + 1; ibx++) {
-        hresol->SetBinContent(
-            ibx, qc->GetBinContent(ibx) > 0.2 ? (qhi->GetBinContent(ibx) - qlo->GetBinContent(ibx)) / 2. : 0.);
-      }
-      delete qc;
-      delete qhi;
-      delete qlo;
     }
   }
 }
