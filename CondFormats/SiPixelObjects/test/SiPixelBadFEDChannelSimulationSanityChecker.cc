@@ -26,11 +26,15 @@ private:
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> siPixelBadFEDChToken_;
+  const edm::ESGetToken<SiPixelQualityProbabilities, SiPixelStatusScenarioProbabilityRcd> siPixelQPToken_;
   const bool printdebug_;
 };
 
 SiPixelBadFEDChannelSimulationSanityChecker::SiPixelBadFEDChannelSimulationSanityChecker(edm::ParameterSet const& p)
-    : printdebug_(p.getUntrackedParameter<bool>("printDebug", true)) {
+    : siPixelBadFEDChToken_(esConsumes()),
+      siPixelQPToken_(esConsumes()),
+      printdebug_(p.getUntrackedParameter<bool>("printDebug", true)) {
   edm::LogInfo("SiPixelBadFEDChannelSimulationSanityChecker")
       << "SiPixelBadFEDChannelSimulationSanityChecker" << std::endl;
 }
@@ -55,9 +59,7 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<SiPixelFEDChannelContainer> qualityCollectionHandle;
-  context.get<SiPixelStatusScenariosRcd>().get(qualityCollectionHandle);
-  const SiPixelFEDChannelContainer* quality_map = qualityCollectionHandle.product();
+  const SiPixelFEDChannelContainer* quality_map = &context.getData(siPixelBadFEDChToken_);
 
   edm::eventsetup::EventSetupRecordKey recordKey2(
       edm::eventsetup::EventSetupRecordKey::TypeTag::findType("SiPixelStatusScenarioProbabilityRcd>"));
@@ -69,9 +71,7 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
   }
 
   //this part gets the handle of the event source and the record (i.e. the Database)
-  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  context.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
-  const SiPixelQualityProbabilities* myProbabilities = scenarioProbabilityHandle.product();
+  const SiPixelQualityProbabilities* myProbabilities = &context.getData(siPixelQPToken_);
 
   SiPixelFEDChannelContainer::SiPixelBadFEDChannelsScenarioMap m_qualities = quality_map->getScenarioMap();
   SiPixelQualityProbabilities::probabilityMap m_probabilities = myProbabilities->getProbability_Map();
