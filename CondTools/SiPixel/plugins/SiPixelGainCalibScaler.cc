@@ -218,7 +218,7 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
   float minped = payload->getPedLow();
   float maxped = payload->getPedHigh() * 1.10;
 
-  auto SiPixelGainCalibration_ = new PayloadType(minped, maxped, mingain, maxgain);
+  PayloadType SiPixelGainCalibration_(minped, maxped, mingain, maxgain);
 
   //Retrieve tracker topology from geometry
   const TrackerTopology* tTopo = &iSetup.getData(tkTopoToken_);
@@ -299,18 +299,18 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
           edm::LogInfo("SiPixelGainCalibScaler") << "post-change gain: " << gain << " pede:" << ped << std::endl;
 
         if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationForHLT>) {
-          SiPixelGainCalibration_->setData(ped, gain, theSiPixelGainCalibration, false, false);
+          SiPixelGainCalibration_.setData(ped, gain, theSiPixelGainCalibration, false, false);
         } else {
-          SiPixelGainCalibration_->setDataPedestal(ped, theSiPixelGainCalibration);
+          SiPixelGainCalibration_.setDataPedestal(ped, theSiPixelGainCalibration);
           if ((row + 1) % numberOfRowsToAverageOver == 0) {  // fill the column average after every ROC!
-            SiPixelGainCalibration_->setDataGain(gain, numberOfRowsToAverageOver, theSiPixelGainCalibration);
+            SiPixelGainCalibration_.setDataGain(gain, numberOfRowsToAverageOver, theSiPixelGainCalibration);
           }
         }
       }  // loop on rows
     }    // loop on columns
 
     typename PayloadType::Range outrange(theSiPixelGainCalibration.begin(), theSiPixelGainCalibration.end());
-    if (!SiPixelGainCalibration_->put(d, outrange, ncols))
+    if (!SiPixelGainCalibration_.put(d, outrange, ncols))
       edm::LogError("SiPixelGainCalibScaler") << "[SiPixelGainCalibScaler::analyze] detid already exists" << std::endl;
   }  // loop on DetIds
 
@@ -326,10 +326,9 @@ void SiPixelGainCalibScaler::computeAndStorePalyoads(const edm::EventSetup& iSet
 
   try {
     if (mydbservice->isNewTagRequest(recordName_)) {
-      mydbservice->createNewIOV<PayloadType>(
-          SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+      mydbservice->createOneIOV<PayloadType>(SiPixelGainCalibration_, mydbservice->beginOfTime(), recordName_);
     } else {
-      mydbservice->appendSinceTime<PayloadType>(SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
+      mydbservice->appendOneIOV<PayloadType>(SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
     }
     edm::LogInfo(" --- all OK");
   } catch (const cond::Exception& er) {

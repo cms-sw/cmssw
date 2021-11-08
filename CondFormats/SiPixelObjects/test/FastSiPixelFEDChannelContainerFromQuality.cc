@@ -85,7 +85,7 @@ private:
   const bool isMC_;
   const bool removeEmptyPayloads_;
 
-  SiPixelFEDChannelContainer* myQualities;
+  std::unique_ptr<SiPixelFEDChannelContainer> myQualities;
 
   inline unsigned int closest_from_above(std::vector<unsigned int> const& vec, unsigned int value) {
     auto const it = std::lower_bound(vec.begin(), vec.end(), value);
@@ -115,10 +115,10 @@ FastSiPixelFEDChannelContainerFromQuality::FastSiPixelFEDChannelContainerFromQua
   m_connectionPool.configure();
 
   //now do what ever initialization is needed
-  myQualities = new SiPixelFEDChannelContainer();
+  myQualities = std::make_unique<SiPixelFEDChannelContainer>();
 }
 
-FastSiPixelFEDChannelContainerFromQuality::~FastSiPixelFEDChannelContainerFromQuality() { delete myQualities; }
+FastSiPixelFEDChannelContainerFromQuality::~FastSiPixelFEDChannelContainerFromQuality() = default;
 
 void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   std::stringstream ss;

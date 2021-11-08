@@ -45,7 +45,7 @@ SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter(const edm::Parame
 void SiPixelFedCablingMapTestWriter::endJob() {
   cout << "Convert Tree to Map";
 
-  SiPixelFedCablingMap* cablingMap = new SiPixelFedCablingMap(cablingTree);
+  const auto& cablingMap = SiPixelFedCablingMap(cablingTree);
   cout << "Now writing to DB" << endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
@@ -57,10 +57,9 @@ void SiPixelFedCablingMapTestWriter::endJob() {
 
   try {
     if (mydbservice->isNewTagRequest(m_record)) {
-      mydbservice->createNewIOV<SiPixelFedCablingMap>(
-          cablingMap, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
+      mydbservice->createOneIOV<SiPixelFedCablingMap>(cablingMap, mydbservice->beginOfTime(), m_record);
     } else {
-      mydbservice->appendSinceTime<SiPixelFedCablingMap>(cablingMap, mydbservice->currentTime(), m_record);
+      mydbservice->appendOneIOV<SiPixelFedCablingMap>(cablingMap, mydbservice->currentTime(), m_record);
     }
   } catch (std::exception& e) {
     cout << "std::exception:  " << e.what();

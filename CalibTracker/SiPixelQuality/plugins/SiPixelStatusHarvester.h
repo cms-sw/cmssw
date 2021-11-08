@@ -97,10 +97,10 @@ private:
                                        std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> IOV);
 
   // boolean function to check whether two SiPixelQualitys (pyloads) are identical
-  bool equal(SiPixelQuality* a, SiPixelQuality* b);
+  bool equal(SiPixelQuality a, SiPixelQuality b);
 
   // Tag constructor
-  void constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
+  void constructTag(std::map<int, SiPixelQuality> siPixelQualityTag,
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
                     edm::Run const& iRun);

@@ -70,7 +70,7 @@ void SiPixelFedCablingMapWriter::analyze(const edm::Event& iEvent, const edm::Ev
 void SiPixelFedCablingMapWriter::beginJob() {}
 
 void SiPixelFedCablingMapWriter::endJob() {
-  SiPixelFedCablingMap* result = new SiPixelFedCablingMap(cabling);
+  SiPixelFedCablingMap result(cabling);
   LogInfo("Now NEW writing to DB");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
@@ -84,10 +84,9 @@ void SiPixelFedCablingMapWriter::endJob() {
 
   try {
     if (mydbservice->isNewTagRequest(record_)) {
-      mydbservice->createNewIOV<SiPixelFedCablingMap>(
-          result, mydbservice->beginOfTime(), mydbservice->endOfTime(), record_);
+      mydbservice->createOneIOV<SiPixelFedCablingMap>(result, mydbservice->beginOfTime(), record_);
     } else {
-      mydbservice->appendSinceTime<SiPixelFedCablingMap>(result, mydbservice->currentTime(), record_);
+      mydbservice->appendOneIOV<SiPixelFedCablingMap>(result, mydbservice->currentTime(), record_);
     }
   } catch (std::exception& e) {
     LogError("std::exception:  ") << e.what();
