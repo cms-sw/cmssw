@@ -15,7 +15,7 @@ namespace pf {
   namespace rechit {
     
     struct OutputPFRecHitDataGPU {
-      ::hcal::PFRecHitCollection<::calo::common::DevStoragePolicy> PFRecHits;
+      ::hcal::PFRecHitCollection<::pf::common::DevStoragePolicy> PFRecHits;
 
       void allocate(size_t Num_rechits, cudaStream_t cudaStream) {
         PFRecHits.pfrh_depth = cms::cuda::make_device_unique<int[]>(Num_rechits, cudaStream);

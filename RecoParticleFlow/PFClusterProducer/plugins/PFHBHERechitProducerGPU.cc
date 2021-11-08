@@ -67,7 +67,7 @@ private:
 
   hcal::RecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>> tmpRecHits;
 
-  hcal::PFRecHitCollection<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
+  hcal::PFRecHitCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFRecHits;
 
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
@@ -91,6 +91,22 @@ private:
   unsigned denseIdHcalMin_ = 0;
 
   bool initCuda = true;
+  uint32_t nPFRHTotal = 0;
+  TTree* tree;
+  TFile* f;
+
+  reco::PFRecHitCollection  __pfrechits;
+  std::vector<float>  __rh_x;
+  std::vector<float>  __rh_y;
+  std::vector<float>  __rh_z;
+  std::vector<float>  __rh_eta;
+  std::vector<float>  __rh_phi;
+  std::vector<float> __rh_pt2;
+  // rechit neighbours4, neighbours8 vectors
+  std::vector<std::vector<int>> __rh_neighbours4;
+  std::vector<std::vector<int>> __rh_neighbours8;
+
+//  std::vector<std::vector<int>> __neigh;
 };
 
 
@@ -104,6 +120,17 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
     //OutputPFRecHitSoA_Token_(produces<PFRecHitSoAProductType>(ps.getParameter<std::string>("pfRecHitsLabelCUDAHBHE"))) {
     produces<reco::PFRecHitCollection>();
     produces<reco::PFRecHitCollection>("Cleaned");
+
+//    tree = new TTree("tree", "tree");
+//    tree->Branch("rechits", "PFRecHitCollection", &__pfrechits);
+//    tree->Branch("rechits_x", &__rh_x);
+//    tree->Branch("rechits_y", &__rh_y);
+//    tree->Branch("rechits_z", &__rh_z);
+//    tree->Branch("rechits_eta", &__rh_eta);
+//    tree->Branch("rechits_phi", &__rh_phi);
+//    tree->Branch("rechits_pt2", &__rh_pt2);
+//    tree->Branch("rechits_neighbours4", &__rh_neighbours4);
+//    tree->Branch("rechits_neighbours8", &__rh_neighbours8);
 
     const auto& prodConf = ps.getParameterSetVector("producers")[0];
     const std::string& prodName = prodConf.getParameter<std::string>("name");
@@ -120,6 +147,12 @@ PFHBHERechitProducerGPU::PFHBHERechitProducerGPU(edm::ParameterSet const& ps)
 
 PFHBHERechitProducerGPU::~PFHBHERechitProducerGPU() {
     topology_.release();
+
+//  f = new TFile("gpuPFRecHits.root", "recreate");
+//  f->cd();
+//  tree->Write();
+//  f->Close();
+//  delete f;
 }
 
 void PFHBHERechitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
@@ -180,6 +213,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
     denseIdHcalMax_ = *max_element(vDenseIdHcal.begin(), vDenseIdHcal.end());
     denseIdHcalMin_ = *min_element(vDenseIdHcal.begin(), vDenseIdHcal.end());
     neighboursHcal_.resize(denseIdHcalMax_ - denseIdHcalMin_ + 1);
+    //__neigh.resize(neighboursHcal_.size());
   
     auto validNeighbours = [&](const unsigned int denseid) {
         bool ok = true;
@@ -286,6 +320,7 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
         unsigned index = getIdx(denseid_c);
         neighboursHcal_[index] = neighbours;
     }
+    
 
     //
     // Check backward compatibility (does a neighbour of a channel have the channel as a neighbour?)
@@ -325,16 +360,29 @@ void PFHBHERechitProducerGPU::beginLuminosityBlock(edm::LuminosityBlock const& l
             if (listOfNeighboursOfNeighbour.find(denseid)==listOfNeighboursOfNeighbour.end()){ 
             // this neighbour is not backward compatible. ignore in the canse of HE phi segmentation change boundary
                 if (hid.subdet()==HcalBarrel || hid.subdet()==HcalEndcap) {
-                /* std::cout << "This neighbor does not have the original channel as its neighbor. Ignore: "  */
-                /*        << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " "  */
-                /*        << neighbour.det() << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth() */
-                /*        << std::endl; */
+//                 std::cout << "This neighbor does not have the original channel as its neighbor. Ignore: "  
+//                        << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " "  
+//                        << neighbour.det() << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth() 
+//                        << std::endl; 
                     neighboursHcal_[index][ineighbour] = DetId(0);
                 }
             }
         } // loop over neighbours
+//        std::vector<int> nb(neighboursHcal_[index].size(), -999);
+//        for (int i = 0; i < (int)neighboursHcal_[index].size(); i++)
+//            nb.at(i) = neighboursHcal_[index].at(i);
+//        __neigh[index] = nb;
     } // loop over vDenseIdHcal
-
+    
+    
+//    TFile* _f = new TFile("gpuNeighbors.root", "recreate");
+//    TTree* _t = new TTree("tree", "tree");
+//    _t->Branch("neigh", &__neigh);
+//    _t->Fill();
+//    _f->cd();
+//    _t->Write();
+//    _f->Close();
+    
     initCuda = true;    // (Re)initialize cuda arrays
 }
 
@@ -345,11 +393,12 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
     //auto start = std::chrono::high_resolution_clock::now();
 
     auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
-    cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
+    //cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
+    cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder)};
     auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
     size_t num_rechits = HBHERecHitSoA.size;
     tmpRecHits.resize(num_rechits);
-    std::cout << "num rechits = " << num_rechits << std::endl;
+    //std::cout << "num input rechits = " << num_rechits << "\tctx.stream() = " << ctx.stream() << std::endl;
 
     // Lambda function to copy arrays to CPU for testing
     auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
@@ -358,6 +407,14 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
         using type = typename vector_type::value_type;
         static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
         cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
+    };  
+    
+    auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
+        using vector_type = typename std::remove_reference<decltype(dest)>::type;
+        using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+        using type = typename vector_type::value_type;
+        static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
+        cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
     };  
   
 //    unsigned testDetId = 1158694936;
@@ -372,7 +429,8 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
         persistentDataCPU.allocate(nValidDetIds, ctx.stream());
         persistentDataGPU.allocate(nValidDetIds, ctx.stream());
         scratchDataGPU.allocate(nValidDetIds, ctx.stream());
-        PFRecHits_.allocate(num_rechits, ctx.stream());
+        //PFRecHits_.allocate(num_rechits, ctx.stream());
+        PFRecHits_.allocate(nValidDetIds, ctx.stream());
 
         uint32_t nRHTotal = 0;
         for (const auto& denseId : vDenseIdHcal) {
@@ -414,59 +472,54 @@ void PFHBHERechitProducerGPU::acquire(edm::Event const& event,
 
 
   // Copy rechit raw energy
+  lambdaToTransfer(tmpRecHits.timeM0, HBHERecHitSoA.timeM0.get());
   lambdaToTransfer(tmpRecHits.energyM0, HBHERecHitSoA.energyM0.get());
+  lambdaToTransfer(tmpRecHits.energy, HBHERecHitSoA.energy.get());
+  lambdaToTransfer(tmpRecHits.chi2, HBHERecHitSoA.chi2.get());
   lambdaToTransfer(tmpRecHits.did, HBHERecHitSoA.did.get());
 
   // Copying is done asynchronously, so make sure it's finished before trying to read the CPU values!
   if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
-//  TTree* tree = new TTree("tree", "tree");
-//  tree->Branch("detId", &tmpRecHits.did);
-//  tree->Fill();
-//
-//  TFile* f = new TFile("inputRechits.root", "recreate");
-//  f->cd();
-//  tree->Write();
-//  f->Close();
-//  delete f;
- 
-//  std::cout<<"tmpRecHits.energyM0.size() = "<<tmpRecHits.energy.size()<<std::endl;
-//  std::cout<<"detId\tenergy\n";
-//  for (int i = 0; i < 10; i++) {
-//    std::cout<<tmpRecHits.did[i]<<"\t"<<tmpRecHits.energyM0[i]<<std::endl;
-//  }
 
-  std::vector<int> sortFailed; 
-  for (int i = 0; i < (int)tmpRecHits.did.size()-1; i++) {
-    if (tmpRecHits.did[i] > tmpRecHits.did[i+1]) {
-        sortFailed.push_back(i);
-    }
-  }
-  if ((int)sortFailed.size() == 0) std::cout<<"Input rechits are sorted!"<<std::endl;
-  else {
-    std::cout<<"Input rechits are NOT sorted ("<<sortFailed.size()<<" instances)!"<<std::endl;
-    for (auto& i: sortFailed) {
-        std::cout<<"\ti = "<<i<<"\t"<<tmpRecHits.did[i]<<" -> "<<tmpRecHits.did[i+1]<<std::endl;
-    }
-  }
+//  std::vector<int> sortFailed; 
+//  for (int i = 0; i < (int)tmpRecHits.did.size()-1; i++) {
+//    if (tmpRecHits.did[i] > tmpRecHits.did[i+1]) {
+//        sortFailed.push_back(i);
+//    }
+//  }
+//  if ((int)sortFailed.size() == 0) std::cout<<"Input rechits are sorted!"<<std::endl;
+//  else {
+//    std::cout<<"Input rechits are NOT sorted ("<<sortFailed.size()<<" instances)!"<<std::endl;
+//    for (auto& i: sortFailed) {
+//        std::cout<<"\ti = "<<i<<"\t"<<tmpRecHits.did[i]<<" -> "<<tmpRecHits.did[i+1]<<std::endl;
+//    }
+//  }
   
   // Entry point for GPU calls 
   pf::rechit::entryPoint(HBHERecHitSoA, PFRecHits_, persistentDataGPU, scratchDataGPU, ctx.stream());
 
+  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
   // For testing, copy back PFRecHit SoA data to CPU
-  tmpPFRecHits.resize(PFRecHits_.PFRecHits.size);
-  lambdaToTransfer(tmpPFRecHits.pfrh_depth, PFRecHits_.PFRecHits.pfrh_depth.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_layer, PFRecHits_.PFRecHits.pfrh_layer.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_detId, PFRecHits_.PFRecHits.pfrh_detId.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_neighbours, PFRecHits_.PFRecHits.pfrh_neighbours.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_neighbourInfos, PFRecHits_.PFRecHits.pfrh_neighbourInfos.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_time, PFRecHits_.PFRecHits.pfrh_time.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_energy, PFRecHits_.PFRecHits.pfrh_energy.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_pt2, PFRecHits_.PFRecHits.pfrh_pt2.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_x, PFRecHits_.PFRecHits.pfrh_x.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_y, PFRecHits_.PFRecHits.pfrh_y.get());
-  lambdaToTransfer(tmpPFRecHits.pfrh_z, PFRecHits_.PFRecHits.pfrh_z.get());
-
+  //cudaDeviceSynchronize();
+  nPFRHTotal = PFRecHits_.PFRecHits.size + PFRecHits_.PFRecHits.sizeCleaned;
+  tmpPFRecHits.resize(nPFRHTotal);
+  tmpPFRecHits.size = PFRecHits_.PFRecHits.size;
+  tmpPFRecHits.sizeCleaned = PFRecHits_.PFRecHits.sizeCleaned;
+  
+  
+  lambdaToTransferSize(tmpPFRecHits.pfrh_depth, PFRecHits_.PFRecHits.pfrh_depth.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_layer, PFRecHits_.PFRecHits.pfrh_layer.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_detId, PFRecHits_.PFRecHits.pfrh_detId.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbours, PFRecHits_.PFRecHits.pfrh_neighbours.get(), 8*nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_neighbourInfos, PFRecHits_.PFRecHits.pfrh_neighbourInfos.get(), 8*nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_time, PFRecHits_.PFRecHits.pfrh_time.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_energy, PFRecHits_.PFRecHits.pfrh_energy.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_pt2, PFRecHits_.PFRecHits.pfrh_pt2.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_x, PFRecHits_.PFRecHits.pfrh_x.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_y, PFRecHits_.PFRecHits.pfrh_y.get(), nPFRHTotal);
+  lambdaToTransferSize(tmpPFRecHits.pfrh_z, PFRecHits_.PFRecHits.pfrh_z.get(), nPFRHTotal);
+  if (cudaStreamQuery(ctx.stream()) != cudaSuccess) cudaCheck(cudaStreamSynchronize(ctx.stream()));
 }
 
 
@@ -474,11 +527,15 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
   //cms::cuda::ScopedContextProduce ctx{cudaState_};
   //ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(PFRecHits_));
  
+ 
   const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
   auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
-  pfrhLegacy->reserve(tmpPFRecHits.pfrh_detId.size());
-  for (unsigned i = 0; i < tmpPFRecHits.pfrh_detId.size(); i++) {
+  auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
+  
+  pfrhLegacy->reserve(tmpPFRecHits.size);
+  pfrhLegacyCleaned->reserve(tmpPFRecHits.sizeCleaned);
+  for (unsigned i = 0; i < nPFRHTotal; i++) {
     HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);
     
     std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
@@ -496,25 +553,87 @@ void PFHBHERechitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
       default:
         break;
     }
-    //if (i < 5) printf("i = %d\tdepth = %d\tthisCell->etaPos() = %f\tthisCell->phiPos() = %f\n", i, tmpPFRecHits.pfrh_depth[i], thisCell->etaPos(), thisCell->phiPos());
     reco::PFRecHit pfrh(thisCell, hid.rawId(), layer, tmpPFRecHits.pfrh_energy[i]);
     pfrh.setTime(tmpPFRecHits.pfrh_time[i]);
     pfrh.setDepth(hid.depth());
     //pfrh.setDepth(tmpPFRecHits.pfrh_depth[i]);
 
-    if (tmpPFRecHits.pfrh_depth[i] != 0) printf("tmpPFRecHits.pfrh_depth[%d] = %d\n", i, tmpPFRecHits.pfrh_depth[i]);
-    std::vector<int> etas = {0,  0,  1, -1,  1,  -1,  1, -1};
-    std::vector<int> phis = {1, -1,  0,  0,  1,  -1, -1,  1};
-
+    
+    std::vector<int> etas     = {0,  1,  0, -1,  1,  1, -1, -1};
+    std::vector<int> phis     = {1,  1, -1, -1,  0, -1,  0,  1};
+    std::vector<int> gpuOrder = {0,  4,  1,  5,  2,  6,  3,  7};
     for (int n = 0; n < 8; n++) {
-        if (tmpPFRecHits.pfrh_neighbours[i*8+n] > -1)
-            pfrh.addNeighbour(etas[n], phis[n], 0, tmpPFRecHits.pfrh_neighbours[i*8+n]);
+        int neighId = tmpPFRecHits.pfrh_neighbours[i*8+gpuOrder[n]];
+        if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
+            pfrh.addNeighbour(etas[n], phis[n], 0, neighId); 
     }
 
-    pfrhLegacy->push_back(pfrh);
+    if (i < tmpPFRecHits.size)
+        pfrhLegacy->push_back(pfrh);
+    else
+        pfrhLegacyCleaned->push_back(pfrh);
   }
+ 
+  printf("pfrhLegacy->size() = %d\tpfrhLegacyCleaned->size() = %d\n\n", (int)pfrhLegacy->size(), (int)pfrhLegacyCleaned->size());
+
+
+  __pfrechits = *pfrhLegacy;
+  __rh_x.clear();
+  __rh_x.reserve((int)pfrhLegacy->size());
+  __rh_y.clear();
+  __rh_y.reserve((int)pfrhLegacy->size());
+  __rh_z.clear();
+  __rh_z.reserve((int)pfrhLegacy->size());
+  __rh_eta.clear();
+  __rh_eta.reserve((int)pfrhLegacy->size());
+  __rh_phi.clear();
+  __rh_phi.reserve((int)pfrhLegacy->size());
+  __rh_pt2.clear();
+  __rh_pt2.reserve((int)pfrhLegacy->size());
+  __rh_neighbours4.clear();
+  __rh_neighbours4.reserve((int)pfrhLegacy->size());
+  __rh_neighbours8.clear();
+  __rh_neighbours8.reserve((int)pfrhLegacy->size());
+  
+  for (auto& pfrh : *pfrhLegacy) {
+    auto pos = pfrh.position();
+    __rh_x.push_back(pos.x());
+    __rh_y.push_back(pos.y());
+    __rh_z.push_back(pos.z());
+    __rh_eta.push_back(pfrh.positionREP().eta());
+    __rh_phi.push_back(pfrh.positionREP().phi());
+    __rh_pt2.push_back(pfrh.pt2());
+    std::vector<int> n4, n8;
+    for (auto n : pfrh.neighbours4()) {
+        n4.push_back(n);
+    }
+  
+    for (auto n : pfrh.neighbours8()) {
+        n8.push_back(n);
+    }
+
+    __rh_neighbours4.push_back(n4);
+    __rh_neighbours8.push_back(n8);
+  }
+//  tree->Fill();
+//  tree = new TTree("tree", "tree");
+//  tree->Branch("detId", &tmpRecHits.did);
+//  tree->Branch("chi2", &tmpRecHits.chi2);
+//  tree->Branch("energy", &tmpRecHits.energy);
+//  tree->Branch("energyM0", &tmpRecHits.energyM0);
+//  tree->Branch("timeM0", &tmpRecHits.timeM0);
+//  tree->Branch("pfrh_depth", &tmpPFRecHits.pfrh_depth);
+//  tree->Branch("pfrh_energy", &tmpPFRecHits.pfrh_energy);
+//  tree->Fill();
+//
+//  f = new TFile("inputRechits.root", "recreate");
+//  f->cd();
+//  tree->Write();
+//  f->Close();
+//  delete f;
+  
   event.put(std::move(pfrhLegacy), "");
-  event.put(std::make_unique<reco::PFRecHitCollection>(), "Cleaned");
+  event.put(std::move(pfrhLegacyCleaned), "Cleaned");
 
   tmpPFRecHits.resize(0);
 }
