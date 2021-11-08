@@ -26,7 +26,8 @@ private:
   hgcal::RecHitTools tool_;
 };
 
-HGCalTestRecHitTools::HGCalTestRecHitTools(const edm::ParameterSet&) : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
+HGCalTestRecHitTools::HGCalTestRecHitTools(const edm::ParameterSet&)
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
 void HGCalTestRecHitTools::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -34,7 +35,6 @@ void HGCalTestRecHitTools::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 void HGCalTestRecHitTools::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-
   const CaloGeometry geo = iSetup.getData(tok_geom_);
   tool_.setGeometry(geo);
 
@@ -45,13 +45,13 @@ void HGCalTestRecHitTools::analyze(const edm::Event& /*iEvent*/, const edm::Even
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   for (const auto& det : dets) {
     auto layer = tool_.firstAndLastLayer(det, 0);
-    edm::LogVerbatim("HGCalGeom") << "First & Last Layer for Det " << det << " are " << layer.first << ":" << layer.second;
+    edm::LogVerbatim("HGCalGeom") << "First & Last Layer for Det " << det << " are " << layer.first << ":"
+                                  << layer.second;
   }
 
   edm::LogVerbatim("HGCalGeom") << "Maximum # of wafers per layer " << tool_.maxNumberOfWafersPerLayer();
   edm::LogVerbatim("HGCalGeom") << "Maximum # of iphi: " << tool_.getScintMaxIphi();
   edm::LogVerbatim("HGCalGeom") << "Geometry type " << tool_.getGeometryType();
-
 }
 
 DEFINE_FWK_MODULE(HGCalTestRecHitTools);
