@@ -14,7 +14,7 @@ SiPixelVCalDB::~SiPixelVCalDB() = default;
 
 // Analyzer: Functions that gets called by framework every event
 void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  SiPixelVCal* vcal = new SiPixelVCal();
+  SiPixelVCal vcal;
   bool phase1 = true;
 
   // Retrieve tracker topology from geometry
@@ -43,7 +43,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
             edm::LogPrint("SiPixelVCalDB") << ";  VCal slope " << slope << ", offset " << offset;
             // edm::LogInfo("SiPixelVCalDB")  << "  detId " << rawDetId << " \t
             // VCal slope " << slope << ", offset " << offset;
-            vcal->putSlopeAndOffset(detid, slope, offset);
+            vcal.putSlopeAndOffset(detid, slope, offset);
           }
         }
         edm::LogPrint("SiPixelVCalDB") << std::endl;
@@ -70,7 +70,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
             edm::LogPrint("SiPixelVCalDB") << ";  VCal slope " << slope << ", offset " << offset;
             // edm::LogInfo("SiPixelVCalDB")  << "  detId " << rawDetId << " \t
             // VCal slope " << slope << ", offset " << offset;
-            vcal->putSlopeAndOffset(rawDetId, slope, offset);
+            vcal.putSlopeAndOffset(rawDetId, slope, offset);
           }
         }
         edm::LogPrint("SiPixelVCalDB") << std::endl;
@@ -86,9 +86,9 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& iSetup) 
   if (mydbservice.isAvailable()) {
     try {
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelVCal>(vcal, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelVCal>(vcal, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelVCal>(vcal, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelVCal>(vcal, mydbservice->currentTime(), recordName_);
       }
     } catch (const cond::Exception& er) {
       edm::LogError("SiPixelVCalDB") << er.what() << std::endl;

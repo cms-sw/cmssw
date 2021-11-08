@@ -46,7 +46,7 @@ namespace cms {
 
     edm::ParameterSet conf_;
     bool appendMode_;
-    SiPixelGainCalibrationForHLT* SiPixelGainCalibration_;
+    std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelGainCalibration_;
     SiPixelGainCalibrationForHLTService SiPixelGainCalibrationService_;
     std::string recordName_;
 
