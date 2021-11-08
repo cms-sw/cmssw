@@ -753,7 +753,7 @@ class Dataset(object):
         if self.__predefined:
             snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
                        "process.maxEvents = cms.untracked.PSet(\n"
-                       "    input = cms.untracked.int32(.oO[nEvents]Oo. / .oO[parallelJobs]Oo.)\n"
+                       "    input = cms.untracked.int32(int(.oO[nEvents]Oo. / .oO[parallelJobs]Oo.))\n"
                        ")\n"
                        "process.source.skipEvents=cms.untracked.uint32(int(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.))"
                        %(self.__name))

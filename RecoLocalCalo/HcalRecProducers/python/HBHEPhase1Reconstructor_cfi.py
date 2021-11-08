@@ -112,5 +112,5 @@ hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = 10000
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 run2_HE_2017.toModify(hbheprereco, saveEffectivePedestal = True)
 
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-run3_HB.toModify(hbheprereco, algorithm = dict(applyLegacyHBMCorrection = False))
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(hbheprereco, algorithm = dict(applyLegacyHBMCorrection = False, useM3 = False))

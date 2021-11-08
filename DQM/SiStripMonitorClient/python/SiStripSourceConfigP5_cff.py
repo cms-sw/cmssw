@@ -94,6 +94,7 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
 #MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
 #MonitorTrackResiduals_cosmicTk.Mod_On              = False
+#MonitorTrackResiduals_cosmicTk.VertexCut           = False
 
 # Clone for CKF Tracks
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
@@ -101,6 +102,7 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
 #MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
 #MonitorTrackResiduals_ckf.Mod_On                   = False
+#MonitorTrackResiduals_ckf.VertexCut                = False
 
 # Clone for Road Search  Tracks
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
@@ -108,6 +110,7 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
 #MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
 #MonitorTrackResiduals_rs.Mod_On                    = False
+#MonitorTrackResiduals_rs.VertexCut                 = False
 
 # Clone for General Track (for Collision data)
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
