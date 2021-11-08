@@ -338,15 +338,15 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   splashesUpperLimit = cms.int32(10000),
                                   #
                                   #
-                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  flagIterativeMethodCalibrationGroup = cms.int32(0),
+                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0) This flag name is only present in early version of main cc-code & visualiz.script
+                                  #flagIterativeMethodCalibrationGroup = cms.int32(0),
                                   #
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupDigi = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupDigi = cms.int32(0),
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  #flagIterativeMethodCalibrationGroupReco = cms.int32(1),
+                                  flagIterativeMethodCalibrationGroupReco = cms.int32(0),
                                   #
                                   #hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
                                   #hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
@@ -378,10 +378,6 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'ZSThresholds',
         'RespCorrs')
 )
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string(histodir+'/LED_'+runnumber+'.root')
-                                   )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
