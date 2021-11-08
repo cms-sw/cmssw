@@ -1,7 +1,7 @@
-#ifndef StoreEcalCondition_h
-#define StoreEcalCondition_h
+#ifndef CondTools_Ecal_StoreEcalCondition_h
+#define CondTools_Ecal_StoreEcalCondition_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <string>
 #include <map>
@@ -36,7 +36,7 @@ namespace edm {
 // class decleration
 //
 
-class StoreEcalCondition : public edm::EDAnalyzer {
+class StoreEcalCondition : public edm::one::EDAnalyzer<> {
 public:
   EcalWeightXtalGroups* readEcalWeightXtalGroupsFromFile(const char*);
   EcalTBWeights* readEcalTBWeightsFromFile(const char*);
