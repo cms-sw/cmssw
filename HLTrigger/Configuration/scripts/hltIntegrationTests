@@ -45,8 +45,8 @@ Usage:
   -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
        --mc                   Run over MC instead of data (the default)
   --dbproxy                   Use a socks proxy to connect to the HLT database
-  --dbproxyhost               Host of the socks proxy (default localhost)
-  --dbproxyport               Port of the socks proxy (default 8080)
+  --dbproxyhost    PROXYHOST  Host of the socks proxy (default: "localhost")
+  --dbproxyport    PROXYPORT  Port of the socks proxy (default: 8080)
   -h | --help                 Print this help message and exit.
 
 
