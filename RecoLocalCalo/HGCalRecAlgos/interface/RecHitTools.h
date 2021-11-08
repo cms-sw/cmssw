@@ -22,7 +22,15 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-    RecHitTools() : geom_(nullptr), eeOffset_(0), fhOffset_(0), bhFirstLayer_(0), bhOffset_(0), fhLastLayer_(0), noseLastLayer_(0), geometryType_(0) {}
+    RecHitTools()
+        : geom_(nullptr),
+          eeOffset_(0),
+          fhOffset_(0),
+          bhFirstLayer_(0),
+          bhOffset_(0),
+          fhLastLayer_(0),
+          noseLastLayer_(0),
+          geometryType_(0) {}
     ~RecHitTools() {}
 
     void setGeometry(CaloGeometry const&);
