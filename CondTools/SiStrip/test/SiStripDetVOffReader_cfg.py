@@ -8,11 +8,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     debugModules = cms.untracked.vstring(''),
     files = cms.untracked.PSet(
-        SiStripDetVOffReader = cms.untracked.PSet(
-
-        )
-    ),
-    threshold = cms.untracked.string('INFO')
+        SiStripDetVOffReader = cms.untracked.PSet()
+    )
 )
 
 process.source = cms.Source("EmptyIOVSource",
