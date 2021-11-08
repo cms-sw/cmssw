@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_2_0/PRef --type PRef
 
-# /dev/CMSSW_12_2_0/PRef/V1 (CMSSW_12_2_0_pre1)
+# /dev/CMSSW_12_2_0/PRef/V3 (CMSSW_12_2_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_2_0/PRef/V1')
+  tableName = cms.string('/dev/CMSSW_12_2_0/PRef/V3')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -5688,6 +5688,9 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
+fragment.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
+)
 fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
     maxZ = cms.double( 40.0 ),
@@ -11067,7 +11070,7 @@ fragment.hltPixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
     DebugOn = cms.untracked.bool( False ),
     DetectorType = cms.untracked.string( "pixel" ),
     DcsStatusLabel = cms.untracked.InputTag( "hltScalersRawToDigi" ),
-    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" )
+    DCSRecordLabel = cms.untracked.InputTag( "hltOnlineMetaDataDigis" )
 )
 fragment.hltPreAlCaLumiPixelsCountsRandom = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -11120,7 +11123,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
-fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
+fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineMetaDataDigis + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( fragment.hltEcalDigis + fragment.hltEcalUncalibRecHit + fragment.hltEcalDetIdToBeRecovered + fragment.hltEcalRecHit )
 fragment.HLTDoLocalHcalSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbhereco + fragment.hltHfprereco + fragment.hltHfreco + fragment.hltHoreco )
@@ -11202,8 +11205,8 @@ fragment.HLT_HcalCalibration_v5 = cms.Path( fragment.HLTBeginSequenceCalibration
 fragment.AlCa_EcalPhiSym_v9 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBiasIorAlwaysTrueIorIsolatedBunch + fragment.hltPreAlCaEcalPhiSym + fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.hltEcalPhiSymFilter + fragment.HLTEndSequence )
 fragment.HLT_ZeroBias_FirstCollisionAfterAbortGap_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1ZeroBiasFirstCollisionAfterAbortGap + fragment.hltPreZeroBiasFirstCollisionAfterAbortGap + fragment.HLTEndSequence )
 fragment.AlCa_HIRPCMuonNormalisation_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu7to30 + fragment.hltPreAlCaHIRPCMuonNormalisation + fragment.hltHIRPCMuonNormaL1Filtered0 + fragment.HLTMuonLocalRecoSequence + fragment.HLTEndSequence )
-fragment.AlCa_LumiPixelsCounts_Random_v1 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltScalersRawToDigi + fragment.hltPixelTrackerHVOn + fragment.hltPreAlCaLumiPixelsCountsRandom + fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
-fragment.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltScalersRawToDigi + fragment.hltPixelTrackerHVOn + fragment.hltL1sZeroBias + fragment.hltPreAlCaLumiPixelsCountsZeroBias + fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
+fragment.AlCa_LumiPixelsCounts_Random_v1 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltScalersRawToDigi + fragment.hltOnlineMetaDataDigis + fragment.hltPixelTrackerHVOn + fragment.hltPreAlCaLumiPixelsCountsRandom + fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
+fragment.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPixelTrackerHVOn + fragment.hltL1sZeroBias + fragment.hltPreAlCaLumiPixelsCountsZeroBias + fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 
