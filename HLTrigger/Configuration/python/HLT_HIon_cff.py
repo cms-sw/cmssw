@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_2_0/HIon --type HIon
 
-# /dev/CMSSW_12_2_0/HIon/V1 (CMSSW_12_2_0_pre1)
+# /dev/CMSSW_12_2_0/HIon/V3 (CMSSW_12_2_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V3')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -6137,6 +6137,9 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
 )
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
+)
+fragment.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
 )
 fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
@@ -32091,7 +32094,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
-fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
+fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineMetaDataDigis + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
 fragment.HLTBeginSequenceCalibration = cms.Sequence( fragment.hltCalibrationEventsFilter + fragment.hltGtStage2Digis )
