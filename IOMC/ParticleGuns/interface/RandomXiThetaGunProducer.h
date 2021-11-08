@@ -10,6 +10,9 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -26,6 +29,8 @@ namespace edm {
   private:
     void produce(Event&, const EventSetup&) override;
     void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex* vtx) const;
+
+    edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
 
     unsigned int verbosity_;
     unsigned int particleId_;
