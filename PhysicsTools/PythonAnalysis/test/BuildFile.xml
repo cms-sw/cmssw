@@ -36,7 +36,7 @@
 
 <test name="import-anyio" command="python3 -c 'import anyio'"/>
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
-<test name="import-keras" command="python3 -c 'import keras'"/>
+<test name="import-keras" command="python3 -c 'import tensorflow.keras'"/>
 <test name="import-markupsafe" command="python3 -c 'import markupsafe'"/>
 <test name="import-yaml" command="python3 -c 'import yaml'"/>
 <test name="import-pygments" command="python3 -c 'import pygments'"/>
