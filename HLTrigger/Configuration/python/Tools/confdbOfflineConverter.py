@@ -122,7 +122,7 @@ class OfflineConverter:
             self.workDir = OfflineConverter.CheckTempDirectory(os.path.join(os.environ['CMSSW_BASE'],'tmp','confdb',self.version))
             if not self.workDir:
                 # try to use $TMP
-                self.workDir = OfflineConverter.CheckTempDirectory(os.path.join(os.environ['TMP'] + 'confdb',self.version))
+                self.workDir = OfflineConverter.CheckTempDirectory(os.path.join(os.environ['TMP'],'confdb',self.version))
             if not self.workDir:
                 # create a new temporary directory, and install a cleanup callback
                 self.workDir = tempfile.mkdtemp()
