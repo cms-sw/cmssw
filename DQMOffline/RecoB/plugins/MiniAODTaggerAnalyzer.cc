@@ -42,29 +42,30 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<std::vector<pat::Jet> > jetCollection;
   iEvent.getByToken(jetToken_, jetCollection);
 
-  const float jec = 1.;  // JEC not implemented!
-  float numerator = 0;
-  float denominator = 0;
-
   // Loop over the pat::Jets
   for (std::vector<pat::Jet>::const_iterator jet = jetCollection->begin(); jet != jetCollection->end(); ++jet) {
-    numerator = 0;
-    denominator = 0;
-
+    // fill numerator
+    float numerator = 0;
     for (const auto& discrLabel : discrNumerator_) {
       numerator = numerator + jet->bDiscriminator(discrLabel);
     }
 
-    for (const auto& discrLabel : discrDenominator_) {
-      denominator = denominator + jet->bDiscriminator(discrLabel);
-    }
-
+    // fill denominator
+    float denominator;
     if (discrDenominator_.empty()) {
       denominator = 1;
+    } else {
+      denominator = 0;
+
+      for (const auto& discrLabel : discrDenominator_) {
+        denominator = denominator + jet->bDiscriminator(discrLabel);
+      }
     }
 
-    // only fill with valid discriminator values
-    if (numerator >= 0 && denominator >= 0) {
+    const float jec = 1.;  // JEC not implemented!
+
+    // only add to histograms when discriminator values are valid
+    if (numerator >= 0 && denominator > 0) {
       reco::Jet recoJet = *jet;
       if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
         jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
