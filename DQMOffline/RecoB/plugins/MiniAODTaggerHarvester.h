@@ -21,20 +21,20 @@ private:
 
   std::unique_ptr<JetTagPlotter> jetTagPlotter_;
 
-  std::string folder_;
-  edm::ParameterSet disrParameters_;
+  const std::string folder_;
+  const edm::ParameterSet disrParameters_;
 
-  int mclevel_;
-  bool doCTagPlots_;
-  bool dodifferentialPlots_;
-  double discrCut_;
+  const int mclevel_;
+  const bool doCTagPlots_;
+  const bool dodifferentialPlots_;
+  const double discrCut_;
 
-  bool etaActive_;
-  double etaMin_;
-  double etaMax_;
-  bool ptActive_;
-  double ptMin_;
-  double ptMax_;
+  const bool etaActive_;
+  const double etaMin_;
+  const double etaMax_;
+  const bool ptActive_;
+  const double ptMin_;
+  const double ptMax_;
 };
 
 #endif

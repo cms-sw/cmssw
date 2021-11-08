@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 
@@ -27,24 +26,24 @@ private:
   // using JetTagPlotter object for all the hard work ;)
   std::unique_ptr<JetTagPlotter> jetTagPlotter_;
 
-  edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
-  edm::ParameterSet disrParameters_;
+  const edm::EDGetTokenT<std::vector<pat::Jet> > jetToken_;
+  const edm::ParameterSet disrParameters_;
 
-  std::string folder_;
-  vstring discrNumerator_;
-  vstring discrDenominator_;
+  const std::string folder_;
+  const vstring discrNumerator_;
+  const vstring discrDenominator_;
 
-  int mclevel_;
-  bool doCTagPlots_;
-  bool dodifferentialPlots_;
-  double discrCut_;
+  const int mclevel_;
+  const bool doCTagPlots_;
+  const bool dodifferentialPlots_;
+  const double discrCut_;
 
-  bool etaActive_;
-  double etaMin_;
-  double etaMax_;
-  bool ptActive_;
-  double ptMin_;
-  double ptMax_;
+  const bool etaActive_;
+  const double etaMin_;
+  const double etaMax_;
+  const bool ptActive_;
+  const double ptMin_;
+  const double ptMax_;
 };
 
 #endif
