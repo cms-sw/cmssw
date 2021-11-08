@@ -1,0 +1,3 @@
+cmsRun remoteMonitoring_LED_eraTEST2021_cfg.py 339246 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/hcal/qq4/CMSSW_12_0_3/src/DPGAnalysis/HcalTools/test &
+
+
