@@ -1,12 +1,47 @@
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-
-#include "CondTools/SiStrip/plugins/SiStripApvGainReader.h"
-
+// system include files
 #include <iostream>
 #include <cstdio>
 #include <sys/time.h>
+
+// user include files
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+// root objects
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TTree.h"
+
+class SiStripApvGainReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit SiStripApvGainReader(const edm::ParameterSet&);
+  ~SiStripApvGainReader() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // initializers list
+  const bool printdebug_;
+  const std::string formatedOutput_;
+  const uint32_t gainType_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::Service<TFileService> fs_;
+  TTree* tree_ = nullptr;
+  int id_ = 0, detId_ = 0, apvId_ = 0;
+  double gain_ = 0;
+};
 
 using namespace cms;
 
@@ -67,3 +102,8 @@ void SiStripApvGainReader::analyze(const edm::Event& e, const edm::EventSetup& i
   if (pFile)
     fclose(pFile);
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripApvGainReader);
