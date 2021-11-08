@@ -237,29 +237,19 @@ def customisePixelLocalReconstruction(process):
 
 
     # workaround for AlCa paths
+    for AlCaPathName in ['AlCa_LumiPixelsCounts_Random_v1', 'AlCa_LumiPixelsCounts_ZeroBias_v1']:
+        if AlCaPathName in process.__dict__:
+            AlCaPath = getattr(process, AlCaPathName)
+            # replace hltSiPixelDigis+hltSiPixelClusters with HLTDoLocalPixelSequence
+            hasSiPixelDigis, hasSiPixelClusters = False, False
+            for (itemLabel, itemName) in AlCaPath.directDependencies():
+                if itemLabel != 'modules': continue
+                if itemName == 'hltSiPixelDigis': hasSiPixelDigis = True
+                elif itemName == 'hltSiPixelClusters': hasSiPixelClusters = True
+            if hasSiPixelDigis and hasSiPixelClusters:
+                AlCaPath.remove(process.hltSiPixelClusters)
+                AlCaPath.replace(process.hltSiPixelDigis, process.HLTDoLocalPixelSequence)
 
-    if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
-        # redefine the path to use the HLTDoLocalPixelSequence
-        process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
-            process.HLTBeginSequenceRandom +
-            process.hltScalersRawToDigi +
-            process.hltPreAlCaLumiPixelsCountsRandom +
-            process.hltPixelTrackerHVOn +
-            process.HLTDoLocalPixelSequence +
-            process.hltAlcaPixelClusterCounts +
-            process.HLTEndSequence )
-
-    if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
-        # redefine the path to use the HLTDoLocalPixelSequence
-        process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
-            process.HLTBeginSequence +
-            process.hltScalersRawToDigi +
-            process.hltL1sZeroBias +
-            process.hltPreAlCaLumiPixelsCountsZeroBias +
-            process.hltPixelTrackerHVOn +
-            process.HLTDoLocalPixelSequence +
-            process.hltAlcaPixelClusterCounts +
-            process.HLTEndSequence )
 
     # done
     return process
