@@ -1,7 +1,9 @@
 // How to run:
 //root -b -q -l RemoteMonitoringGLOBAL.C+
 //root -b -q -l 'RemoteMonitoringGLOBAL.C+("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/CMTweb/histos/Global_190707.root")'
-
+//
+//
+//
 #include "LogEleMapdb.h"
 
 #include <iostream>
@@ -692,13 +694,18 @@ int main(int argc, char *argv[]) {
         gPad->SetGridy();
         gPad->SetGridx();
         gPad->SetLogz();
+        //
+        //	gPad->DrawFrame(0.0, 0.0001, 1.0, 1000);
+        //	gPad->DrawFrame(0.2, 0.0002, 0.8, 10000);
         MapNumBadChanDepth[test][sub][k]->SetXTitle("#eta \b");
         MapNumBadChanDepth[test][sub][k]->SetYTitle("#phi \b");
         MapNumBadChanDepth[test][sub][k]->SetZTitle("Average estimator \b");
-        MapNumBadChanDepth[test][sub][k]->SetTitleOffset(0.75, "Z");
+        ////	//	MapNumBadChanDepth[test]->GetZaxis()->SetLabelSize(0.008); // can not be used which is of non-class type TH2F
+        //	MapNumBadChanDepth[test][sub][k]->SetTitleOffset(0.75, "Z");
         MapNumBadChanDepth[test][sub][k]->Draw("COLZ");
+        //        MapNumBadChanDepth[test][sub][k]->Draw("same");
         MapNumBadChanDepth[test][sub][k]->GetYaxis()->SetRangeUser(0, 72.);
-        //                MapNumBadChanDepth[test][sub][k]->GetZaxis()->SetRangeUser(0.0001, 1.);
+        MapNumBadChanDepth[test][sub][k]->GetZaxis()->SetRangeUser(0.0001, 1.);
       }
       if (test == 0) {
         if (sub == 1) {
@@ -3095,6 +3102,7 @@ int main(int argc, char *argv[]) {
       gPad->SetGridy();
       gPad->SetGridx();
       gPad->SetLogz();
+      h2Ceff->SetTitleOffset(0.75, "Z");
       h2Ceff->SetMarkerStyle(20);
       h2Ceff->SetMarkerSize(0.4);
       //h2Ceff->GetZaxis()->SetLabelSize(0.08);
@@ -6931,7 +6939,7 @@ HF: j = 0,1,2, 3            18,19,20,21
         htmlFile << "<a name=\"Aij\"></a>\n";
       if (test != 0)
         htmlFile << "<h2> 1. Distribution of estimator averaged over events in LS, histogramed over all channels and "
-                    "all LSs </h2>"
+                    "all LSs (only few depthes shown as example) </h2>"
                  << std::endl;
       if (test == 0) {
         if (sub == 1)
@@ -7037,7 +7045,7 @@ HF: j = 0,1,2, 3            18,19,20,21
         htmlFile << "<a name=\"OverflowAij\"></a>\n";
       if (test != 0)
         htmlFile << "<h2> 2. Estimator averaged over all events in the RUN for entries in overflow and underflow of "
-                    "corresponding histogram above </h2>"
+                    "corresponding histogram above (only few depthes shown as example)  </h2>"
                  << std::endl;
       //              if (test !=0) htmlFile << "<h2> 2. Estimator averaged over all events in the RUN </h2>"<< std::endl;
       if (test == 0)
@@ -7251,7 +7259,8 @@ HF: j = 0,1,2, 3            18,19,20,21
 
           htmlFile << "<a name=\"ErrorAaverage\"></a>\n";
 
-          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels   </h2>\n";
+          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels (only 2 depthes shown as example) "
+                      "</h2>\n";
           htmlFile << "<h2> 1) with average channel Amplitudes(No cut), 2) with average channel Amplitudes(<A> >25), "
                       "3) with channel Amplitude (A<35);  </h2>\n";
           htmlFile << " <img src=\"ChkErrA_HB1.png\" /><br><br>\n";
@@ -7271,8 +7280,8 @@ HF: j = 0,1,2, 3            18,19,20,21
           htmlFile << "<a href=\"#Top\">to top</a><br>\n";
 
           htmlFile << "<a name=\"ErrorB\"></a>\n";
-          htmlFile << "<h2> 7. Error type B\n";
-          htmlFile << "<h3> ErrorB identification: digi-collection size != 10.</h3>\n";
+          htmlFile << "<h2> 7. Error type B (only 2 depthes shown as example) \n";
+          htmlFile << "<h3> ErrorB identification: digi-collection size != 8.</h3>\n";
           htmlFile << " <img src=\"HistErrB_HB_1.png\" />\n<br>\n";
           htmlFile << " <img src=\"HistErrB_HB_2.png\" />\n<br>\n";
           htmlFile << "<br>\n";
@@ -7299,7 +7308,8 @@ HF: j = 0,1,2, 3            18,19,20,21
 
           htmlFile << "<a name=\"ErrorAaverage\"></a>\n";
 
-          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels   </h2>\n";
+          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels (only 3 depthes shown as example)  "
+                      " </h2>\n";
           htmlFile << "<h2> 1) with average channel Amplitudes(No cut), 2) with average channel Amplitudes(<A> "
                       ">1000.fC), 3) with channel Amplitude (A<500fC);  </h2>\n";
           htmlFile << " <img src=\"ChkErrA_HE1.png\" /><br><br>\n";
@@ -7320,7 +7330,7 @@ HF: j = 0,1,2, 3            18,19,20,21
           htmlFile << "<a href=\"#Top\">to top</a><br>\n";
 
           htmlFile << "<a name=\"ErrorB\"></a>\n";
-          htmlFile << "<h2> 7. Error type B\n";
+          htmlFile << "<h2> 7. Error type B (only 3 depthes shown as example) \n";
           htmlFile << "<h3> ErrorB identification: digi-collection size != 8.</h3>\n";
           htmlFile << " <img src=\"HistErrB_HE_1.png\" />\n<br>\n";
           htmlFile << " <img src=\"HistErrB_HE_2.png\" />\n<br>\n";
@@ -7397,7 +7407,8 @@ HF: j = 0,1,2, 3            18,19,20,21
 
           htmlFile << "<a name=\"ErrorAaverage\"></a>\n";
 
-          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels   </h2>\n";
+          htmlFile << "<h2> 5. Error type A cross check: see 2D pattern of channels (only 2 depthes shown as example)  "
+                      "</h2>\n";
           htmlFile << "<h2> 1) with average channel Amplitudes(No cut), 2) with average channel Amplitudes(<A> >20), "
                       "3) with channel Amplitude (A<20);  </h2>\n";
           //       htmlFile << "<h2> 2D. Cross check for error A</h2>\n";
@@ -7418,7 +7429,7 @@ HF: j = 0,1,2, 3            18,19,20,21
           htmlFile << "<a href=\"#Top\">to top</a><br>\n";
 
           htmlFile << "<a name=\"ErrorB\"></a>\n";
-          htmlFile << "<h2> 7. Error type B\n";
+          htmlFile << "<h2> 7. Error type B (only 2 depthes shown as example) \n";
           htmlFile << "<h3> ErrorB identification: digi-collection size != 4. </h3>\n";
           htmlFile << " <img src=\"HistErrB_HF_1.png\" />\n<br>\n";
           htmlFile << " <img src=\"HistErrB_HF_2.png\" />\n<br>\n";
@@ -8179,11 +8190,11 @@ HF: j = 0,1,2, 3            18,19,20,21
         //	if ( (sub==4 || sub==2) && test==1) kkkkkkmax = k_maxupgrade[sub];
         for (int k = k_min[sub]; k <= kkkkkkmax; k++) {
           // line below is temporary, just to avoid contribution of HEP(M)17 in depthes 4,5,6,7 but keep in depthes 1,2,3
-          if (sub == 2 && k > 3) {
-          } else {
-            if (HistNumBadChanDepth[test][sub][k]->GetBinContent(i) > Cut0[test][sub][k])
-              met = 1;
-          }
+          //          if (sub == 2 && k > 3) {
+          //          } else {
+          if (HistNumBadChanDepth[test][sub][k]->GetBinContent(i) > Cut0[test][sub][k])
+            met = 1;
+          //          }
         }  //depth
       }    //sub
       // if exceed then plot the line for all sub-detectors
