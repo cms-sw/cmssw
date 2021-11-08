@@ -351,6 +351,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput, ))
 
 
+# source module (EDM inputs)
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
         'file:RelVal_Raw_Fake2_DATA.root',
@@ -377,6 +378,7 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_Fake2')
 
+# show summaries from trigger analysers used at HLT
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
     process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
@@ -398,6 +400,7 @@ _customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run2_hlt_Fake2"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_Fake2_DATA.root']
 _customInfo['realData'  ]=  True
+
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,"Fake2",_customInfo)
 
