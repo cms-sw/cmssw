@@ -734,10 +734,10 @@ void BeamSpotDipServer::publishRcd(string qlty, string err, bool pubCMS, bool fi
 
     // send
     if (updateCMS)
-      publicationCMS->send(messageCMS, zeit);
+      publicationCMS->send(*messageCMS, zeit);
 
-    publicationLHC->send(messageLHC, zeit);
-    publicationPV->send(messagePV, zeit);
+    publicationLHC->send(*messageLHC, zeit);
+    publicationPV->send(*messagePV, zeit);
 
     // set qualities
     if (qlty == qualities[0]) {  // Uncertain
