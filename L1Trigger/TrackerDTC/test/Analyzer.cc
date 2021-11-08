@@ -110,6 +110,8 @@ namespace trackerDTC {
     EDGetTokenT<TTDTC> getTokenTTDTCLost_;
     // ED input token of TT stubs
     EDGetTokenT<TTStubDetSetVec> getTokenTTStubDetSetVec_;
+    // ED input token of TTClsuter
+    EDGetTokenT<TTClusterDetSetVec> getTokenTTClusterDetSetVec_;
     // ED input token of TTCluster to TPPtr association
     EDGetTokenT<TTClusterAssMap> getTokenTTClusterAssMap_;
     // Setup token
@@ -158,8 +160,10 @@ namespace trackerDTC {
     getTokenTTDTCLost_ = consumes<TTDTC>(inputTagLost);
     if (useMCTruth_) {
       const auto& inputTagTTStubDetSetVec = iConfig.getParameter<InputTag>("InputTagTTStubDetSetVec");
+      const auto& inputTagTTClusterDetSetVec = iConfig.getParameter<InputTag>("InputTagTTClusterDetSetVec");
       const auto& inputTagTTClusterAssMap = iConfig.getParameter<InputTag>("InputTagTTClusterAssMap");
       getTokenTTStubDetSetVec_ = consumes<TTStubDetSetVec>(inputTagTTStubDetSetVec);
+      getTokenTTClusterDetSetVec_ = consumes<TTClusterDetSetVec>(inputTagTTClusterDetSetVec);
       getTokenTTClusterAssMap_ = consumes<TTClusterAssMap>(inputTagTTClusterAssMap);
     }
     // book ES product
@@ -193,6 +197,12 @@ namespace trackerDTC {
       assoc(handleTTStubDetSetVec, handleTTClusterAssMap, mapAllTPsAllStubs);
       // organize reconstrucable TrackingParticles used for efficiency measurements
       convert(mapAllTPsAllStubs, mapAllStubsTPs);
+      Handle<TTClusterDetSetVec> handleTTClusterDetSetVec;
+      iEvent.getByToken<TTClusterDetSetVec>(getTokenTTClusterDetSetVec_, handleTTClusterDetSetVec);
+      int nCluster(0);
+      for (const auto& detSet : *handleTTClusterDetSetVec)
+        nCluster += detSet.size();
+      profMC_->Fill(6, nCluster / (double)setup_->numRegions());
     }
     // read in dtc products
     Handle<TTDTC> handleTTDTCAccepted;
@@ -403,12 +413,16 @@ namespace trackerDTC {
     const double errStubsMatched = profMC_->GetBinError(2);
     const double errTPsReco = profMC_->GetBinError(3);
     const double errTPsEff = profMC_->GetBinError(4);
-    const vector<double> nums = {numStubs, numStubsMatched, numTPsReco, numTPsEff};
-    const vector<double> errs = {errStubs, errStubsMatched, errTPsReco, errTPsEff};
+    const double numCluster = profMC_->GetBinContent(6);
+    const double errCluster = profMC_->GetBinError(6);
+    const vector<double> nums = {numStubs, numStubsMatched, numTPsReco, numTPsEff, numCluster};
+    const vector<double> errs = {errStubs, errStubsMatched, errTPsReco, errTPsEff, errCluster};
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
     const int wErrs = ceil(log10(*max_element(errs.begin(), errs.end()))) + 5;
     log_ << "=============================================================" << endl;
     log_ << "                         MC  SUMMARY                         " << endl;
+    log_ << "number of cluster       per TFP = " << setw(wNums) << numCluster << " +- " << setw(wErrs) << errCluster
+         << endl;
     log_ << "number of stubs         per TFP = " << setw(wNums) << numStubs << " +- " << setw(wErrs) << errStubs
          << endl;
     log_ << "number of matched stubs per TFP = " << setw(wNums) << numStubsMatched << " +- " << setw(wErrs)
@@ -465,12 +479,13 @@ namespace trackerDTC {
     TFileDirectory dir;
     // mc
     dir = fs->mkdir("MC");
-    profMC_ = dir.make<TProfile>("Counts", ";", 5, 0.5, 5.5);
+    profMC_ = dir.make<TProfile>("Counts", ";", 6, 0.5, 6.5);
     profMC_->GetXaxis()->SetBinLabel(1, "Stubs");
     profMC_->GetXaxis()->SetBinLabel(2, "Matched Stubs");
     profMC_->GetXaxis()->SetBinLabel(3, "reco TPs");
     profMC_->GetXaxis()->SetBinLabel(4, "eff TPs");
     profMC_->GetXaxis()->SetBinLabel(5, "total eff TPs");
+    profMC_->GetXaxis()->SetBinLabel(6, "Cluster");
     constexpr array<int, NumEfficiency> binsEff{{9 * 8, 10, 16, 10, 30, 24}};
     constexpr array<pair<double, double>, NumEfficiency> rangesEff{
         {{-M_PI, M_PI}, {0., 100.}, {-1. / 3., 1. / 3.}, {-5., 5.}, {-15., 15.}, {-2.4, 2.4}}};

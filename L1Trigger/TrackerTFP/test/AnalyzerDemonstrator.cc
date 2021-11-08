@@ -127,7 +127,7 @@ namespace trackerTFP {
           const int offsetStubs = (region * numChannelTracks + channelTracks) * numChannelStubs;
           if (tracks)
             convert(handleTracks->at(offsetTracks + channelTracks), bits);
-          if (stubs){
+          if (stubs) {
             for (int channelStubs = 0; channelStubs < numChannelStubs; channelStubs++)
               convert(handleStubs->at(offsetStubs + channelStubs), bits);
           }
