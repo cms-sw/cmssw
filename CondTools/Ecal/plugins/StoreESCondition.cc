@@ -71,77 +71,77 @@ void StoreESCondition::endJob() {
       if (!toAppend) {
         edm::LogInfo("StoreESCondition") << " before create "
                                          << "\n";
-        mydbservice->createNewIOV<ESChannelStatus>(mycali, newTime, mydbservice->endOfTime(), "ESChannelStatusRcd");
+        mydbservice->createOneIOV<ESChannelStatus>(*mycali, newTime, "ESChannelStatusRcd");
         edm::LogInfo("StoreESCondition") << " after create "
                                          << "\n";
       } else {
         edm::LogInfo("StoreESCondition") << " before append "
                                          << "\n";
-        mydbservice->appendSinceTime<ESChannelStatus>(mycali, newTime, "ESChannelStatusRcd");
+        mydbservice->appendOneIOV<ESChannelStatus>(*mycali, newTime, "ESChannelStatusRcd");
         edm::LogInfo("StoreESCondition") << " after append "
                                          << "\n";
       }
     } else if (objectName_[i] == "ESIntercalibConstants") {
       ESIntercalibConstants* myintercalib = readESIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESIntercalibConstants>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESIntercalibConstants>(
+            *myintercalib, newTime, "ESIntercalibConstantsRcd");
       } else {
-        mydbservice->appendSinceTime<ESIntercalibConstants>(myintercalib, newTime, "ESIntercalibConstantsRcd");
+        mydbservice->appendOneIOV<ESIntercalibConstants>(*myintercalib, newTime, "ESIntercalibConstantsRcd");
       }
     } else if (objectName_[i] == "ESTimeSampleWeights") {
       ESTimeSampleWeights* myintercalib = readESTimeSampleWeightsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESTimeSampleWeights>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESTimeSampleWeightsRcd");
+        mydbservice->createOneIOV<ESTimeSampleWeights>(
+            *myintercalib, newTime, "ESTimeSampleWeightsRcd");
       } else {
-        mydbservice->appendSinceTime<ESTimeSampleWeights>(myintercalib, newTime, "ESTimeSampleWeightsRcd");
+        mydbservice->appendOneIOV<ESTimeSampleWeights>(*myintercalib, newTime, "ESTimeSampleWeightsRcd");
       }
     } else if (objectName_[i] == "ESGain") {
       ESGain* myintercalib = readESGainFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESGain>(myintercalib, newTime, mydbservice->endOfTime(), "ESGainRcd");
+        mydbservice->createOneIOV<ESGain>(*myintercalib, newTime, "ESGainRcd");
       } else {
-        mydbservice->appendSinceTime<ESGain>(myintercalib, newTime, "ESGainRcd");
+        mydbservice->appendOneIOV<ESGain>(*myintercalib, newTime, "ESGainRcd");
       }
     } else if (objectName_[i] == "ESMissingEnergyCalibration") {
       ESMissingEnergyCalibration* myintercalib = readESMissingEnergyFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESMissingEnergyCalibration>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESMissingEnergyCalibrationRcd");
+        mydbservice->createOneIOV<ESMissingEnergyCalibration>(
+            *myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       } else {
-        mydbservice->appendSinceTime<ESMissingEnergyCalibration>(
-            myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
+        mydbservice->appendOneIOV<ESMissingEnergyCalibration>(
+            *myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       }
     } else if (objectName_[i] == "ESRecHitRatioCuts") {
       ESRecHitRatioCuts* myintercalib = readESRecHitRatioCutsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESRecHitRatioCuts>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESRecHitRatioCutsRcd");
+        mydbservice->createOneIOV<ESRecHitRatioCuts>(
+            *myintercalib, newTime, "ESRecHitRatioCutsRcd");
       } else {
-        mydbservice->appendSinceTime<ESRecHitRatioCuts>(myintercalib, newTime, "ESRecHitRatioCutsRcd");
+        mydbservice->appendOneIOV<ESRecHitRatioCuts>(*myintercalib, newTime, "ESRecHitRatioCutsRcd");
       }
     } else if (objectName_[i] == "ESThresholds") {
       ESThresholds* myintercalib = readESThresholdsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESThresholds>(myintercalib, newTime, mydbservice->endOfTime(), "ESThresholdsRcd");
+        mydbservice->createOneIOV<ESThresholds>(*myintercalib, newTime, "ESThresholdsRcd");
       } else {
-        mydbservice->appendSinceTime<ESThresholds>(myintercalib, newTime, "ESThresholdsRcd");
+        mydbservice->appendOneIOV<ESThresholds>(*myintercalib, newTime, "ESThresholdsRcd");
       }
     } else if (objectName_[i] == "ESPedestals") {
       ESPedestals* myintercalib = readESPedestalsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESPedestals>(myintercalib, newTime, mydbservice->endOfTime(), "ESPedestalsRcd");
+        mydbservice->createOneIOV<ESPedestals>(*myintercalib, newTime, "ESPedestalsRcd");
       } else {
-        mydbservice->appendSinceTime<ESPedestals>(myintercalib, newTime, "ESPedestalsRcd");
+        mydbservice->appendOneIOV<ESPedestals>(*myintercalib, newTime, "ESPedestalsRcd");
       }
     } else if (objectName_[i] == "ESEEIntercalibConstants") {
       ESEEIntercalibConstants* myintercalib = readESEEIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createNewIOV<ESEEIntercalibConstants>(
-            myintercalib, newTime, mydbservice->endOfTime(), "ESEEIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESEEIntercalibConstants>(
+            *myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       } else {
-        mydbservice->appendSinceTime<ESEEIntercalibConstants>(myintercalib, newTime, "ESEEIntercalibConstantsRcd");
+        mydbservice->appendOneIOV<ESEEIntercalibConstants>(*myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       }
     } else {
       edm::LogError("StoreESCondition") << "Object " << objectName_[i] << " is not supported by this program."

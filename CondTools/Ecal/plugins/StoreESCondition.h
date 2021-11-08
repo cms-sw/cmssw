@@ -1,7 +1,7 @@
-#ifndef StoreESCondition_h
-#define StoreESCondition_h
+#ifndef CondTools_Ecal_StoreESCondition_h
+#define CondTools_Ecal_StoreESCondition_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <string>
 #include <map>
@@ -28,7 +28,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class StoreESCondition : public edm::EDAnalyzer {
+class StoreESCondition : public edm::one::EDAnalyzer<> {
 public:
   ESThresholds* readESThresholdsFromFile(const char*);
   ESPedestals* readESPedestalsFromFile(const char*);
