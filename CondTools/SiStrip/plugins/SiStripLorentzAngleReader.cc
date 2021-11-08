@@ -1,10 +1,35 @@
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-
-#include "CondTools/SiStrip/plugins/SiStripLorentzAngleReader.h"
-
+// system include files
 #include <iostream>
 #include <cstdio>
 #include <sys/time.h>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+
+//
+//
+// class decleration
+//
+class SiStripLorentzAngleReader : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripLorentzAngleReader(const edm::ParameterSet&);
+  ~SiStripLorentzAngleReader() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  uint32_t printdebug_;
+  std::string label_;
+  const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> laToken_;
+};
 
 using namespace cms;
 
@@ -27,3 +52,8 @@ void SiStripLorentzAngleReader::analyze(const edm::Event& e, const edm::EventSet
     count++;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripLorentzAngleReader);

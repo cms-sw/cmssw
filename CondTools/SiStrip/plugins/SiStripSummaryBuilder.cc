@@ -1,6 +1,33 @@
-#include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
+// system include files
 #include <iostream>
 #include <fstream>
+
+// user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripSummaryBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripSummaryBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripSummaryBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::FileInPath fp_;
+  bool printdebug_;
+
+  edm::ParameterSet iConfig_;
+};
 
 SiStripSummaryBuilder::SiStripSummaryBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>(
@@ -111,3 +138,8 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     edm::LogError("SiStripSummaryBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripSummaryBuilder);

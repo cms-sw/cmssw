@@ -1,7 +1,31 @@
-#include "CondTools/SiStrip/plugins/SiStripNoisesBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+// system includes
 #include <iostream>
 #include <fstream>
+
+// user includes
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripNoisesBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripNoisesBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripNoisesBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::FileInPath fp_;
+  const uint32_t printdebug_;
+};
 
 SiStripNoisesBuilder::SiStripNoisesBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
@@ -57,3 +81,8 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
     edm::LogError("SiStripNoisesBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripNoisesBuilder);
