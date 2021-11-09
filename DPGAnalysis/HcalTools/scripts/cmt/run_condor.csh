@@ -11,8 +11,8 @@ set m=`pwd`
 
 cd ${m}
 setenv SCRAM_ARCH slc7_amd64_gcc900
-cmsrel CMSSW_12_0_3
-cd CMSSW_12_0_3/src 
+cmsrel CMSSW_12_2_0_pre1
+cd CMSSW_12_2_0_pre1/src 
 
 mkdir DPGAnalysis
 cd DPGAnalysis
