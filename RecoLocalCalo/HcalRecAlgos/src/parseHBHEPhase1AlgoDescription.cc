@@ -134,6 +134,7 @@ std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::Par
                                                   ps.getParameter<double>("tdcTimeShift"),
                                                   ps.getParameter<bool>("correctForPhaseContainment"),
                                                   ps.getParameter<bool>("applyLegacyHBMCorrection"),
+                                                  ps.getParameter<bool>("applyFixPCC"),
                                                   std::move(m2),
                                                   std::move(detFit),
                                                   std::move(mahi),
@@ -158,6 +159,7 @@ edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo() {
   desc.add<bool>("correctForPhaseContainment", true);
   desc.add<bool>("applyLegacyHBMCorrection", true);
   desc.add<bool>("calculateArrivalTime", false);
+  desc.add<bool>("applyFixPCC", false);
 
   return desc;
 }

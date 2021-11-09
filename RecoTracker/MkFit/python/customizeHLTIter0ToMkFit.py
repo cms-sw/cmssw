@@ -36,6 +36,7 @@ def customizeHLTIter0ToMkFit(process):
         minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
     )
     process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits = mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone(
+        beamSpot  = "hltOnlineBeamSpot",
         pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits",
         stripHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits",
     )

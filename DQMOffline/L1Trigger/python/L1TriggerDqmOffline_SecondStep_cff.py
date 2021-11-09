@@ -50,3 +50,8 @@ DQMHarvestL1TMuon = cms.Sequence(
     * l1tMuonDQMEmuEfficiency
 )
 
+# harvesting sequence for phase 2
+DQMHarvestL1TPhase2 = cms.Sequence(
+    
+)
+

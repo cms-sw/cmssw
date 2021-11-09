@@ -10,6 +10,9 @@ from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSe
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ###############################################
 # Low pT and detached tracks from pixel triplets
 ###############################################
@@ -187,6 +190,8 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
     )
+trackingNoLoopers.toModify(detachedTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(detachedTripletStepTrajectoryBuilder,
     maxCand = 2,
     alwaysUseInvalidHits = False,
@@ -285,11 +290,12 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
     qualityCuts = [-0.2,0.3,0.8]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(detachedTripletStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(detachedTripletStep, trackTfClassifier.clone(
      src = 'detachedTripletStepTracks',
-     qualityCuts = qualityCutDictionary['DetachedTripletStep'],
+     qualityCuts = qualityCutDictionary.DetachedTripletStep.value()
 ))
 (trackdnn & fastSim).toModify(detachedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 

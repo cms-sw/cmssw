@@ -30,7 +30,11 @@ namespace deep_tau {
       static const int n_params = 3;
       static const auto handler = [](int, Bool_t, const char*, const char*) -> void {};
 
-      const std::string fn_str = prefix + cut_str + "}";
+      std::string fn_str = prefix;
+      if (cut_str.find("return") == std::string::npos)
+        fn_str += " return " + cut_str + ";}";
+      else
+        fn_str += cut_str + "}";
       auto old_handler = SetErrorHandler(handler);
       fn_ = std::make_unique<TF1>("fn_", fn_str.c_str(), 0, 1, n_params);
       SetErrorHandler(old_handler);
@@ -40,8 +44,9 @@ namespace deep_tau {
   }
 
   double TauWPThreshold::operator()(const reco::BaseTau& tau, bool isPFTau) const {
-    if (!fn_)
+    if (!fn_) {
       return value_;
+    }
 
     if (isPFTau)
       fn_->SetParameter(0, dynamic_cast<const reco::PFTau&>(tau).decayMode());

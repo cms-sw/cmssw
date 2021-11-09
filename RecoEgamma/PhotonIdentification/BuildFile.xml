@@ -20,8 +20,10 @@
 <use name="PhysicsTools/SelectorUtils"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
+<use name="PhysicsTools/TensorFlow" />
 <export>
   <lib name="1"/>
 </export>

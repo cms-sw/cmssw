@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
@@ -251,6 +254,8 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction   = cms.double(0.7)
 )
+trackingNoLoopers.toModify(tobTecStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 # Important note for LowPU: in RunI_TobTecStep the
 # inOutTrajectoryFilter parameter is spelled as
 # inOutTrajectoryFilterName, and I suspect it has no effect there. I
@@ -408,11 +413,12 @@ trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
      qualityCuts = [-0.6,-0.45,-0.3]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(tobTecStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(tobTecStep, trackTfClassifier.clone(
      src         = 'tobTecStepTracks',
-     qualityCuts = qualityCutDictionary["TobTecStep"]
+     qualityCuts = qualityCutDictionary.TobTecStep.value()
 ))
 (trackdnn & fastSim).toModify(tobTecStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 

@@ -179,7 +179,7 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
   if (poolDbService.isAvailable()) {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myThresholds, valid_time, m_record);
+    poolDbService->writeOneIOV(*myThresholds, valid_time, m_record);
   }
 }
 

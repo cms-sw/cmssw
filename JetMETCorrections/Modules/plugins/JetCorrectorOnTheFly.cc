@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,7 +25,7 @@ using namespace std;
 // class declaration
 //
 template <class Jet>
-class JetCorrectorOnTheFly : public edm::EDAnalyzer {
+class JetCorrectorOnTheFly : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit JetCorrectorOnTheFly(const edm::ParameterSet&);
   ~JetCorrectorOnTheFly() override;
@@ -55,6 +55,8 @@ JetCorrectorOnTheFly<Jet>::JetCorrectorOnTheFly(const edm::ParameterSet& iConfig
   mVertexToken = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   mMinRawJetPt = iConfig.getParameter<double>("MinRawJetPt");
   mDebug = iConfig.getParameter<bool>("Debug");
+
+  usesResource(TFileService::kSharedResource);
 }
 //---------------------------------------------------------------------------
 template <class Jet>

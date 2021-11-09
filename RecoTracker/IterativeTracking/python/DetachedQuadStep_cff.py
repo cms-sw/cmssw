@@ -6,6 +6,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 ###############################################
 # Low pT and detached tracks from pixel quadruplets
 ###############################################
@@ -156,6 +159,8 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
 )
+trackingNoLoopers.toModify(detachedQuadStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingPhase2PU140.toModify(detachedQuadStepTrajectoryBuilder,
     maxCand              = 2,
     alwaysUseInvalidHits = False,
@@ -235,12 +240,14 @@ detachedQuadStep = TrackMVAClassifierDetached.clone(
     qualityCuts = [-0.5,0.0,0.5]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(detachedQuadStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(detachedQuadStep, trackTfClassifier.clone(
     src = 'detachedQuadStepTracks',
-    qualityCuts = qualityCutDictionary['DetachedQuadStep']
+    qualityCuts = qualityCutDictionary.DetachedQuadStep.value()
 ))
+
 
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
 pp_on_AA.toModify(detachedQuadStep, 

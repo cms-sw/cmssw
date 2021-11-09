@@ -45,9 +45,6 @@ class TransientRecHitRecord;
 
 class TrackTransformer final : public TrackTransformerBase {
 public:
-  /// Constructor (for modules not yet migrated to ES-consumes)
-  explicit TrackTransformer(const edm::ParameterSet&);
-
   /// Constructor (for modules migrated to ES-consumes)
   explicit TrackTransformer(const edm::ParameterSet&, edm::ConsumesCollector&);
   explicit TrackTransformer(const edm::ParameterSet& parameterSet, edm::ConsumesCollector&& iC)

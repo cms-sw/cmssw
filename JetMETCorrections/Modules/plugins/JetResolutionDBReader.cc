@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,7 +25,7 @@
 // class declaration
 //
 
-class JetResolutionDBReader : public edm::EDAnalyzer {
+class JetResolutionDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit JetResolutionDBReader(const edm::ParameterSet&);
   ~JetResolutionDBReader() override;
@@ -37,12 +37,13 @@ private:
 
   std::string m_era;
   std::string m_label;
+  edm::ESGetToken<JME::JetResolutionObject, JetResolutionRcd> m_token;
 
   bool m_save_file;
   bool m_print;
 };
 
-class JetResolutionScaleFactorDBReader : public edm::EDAnalyzer {
+class JetResolutionScaleFactorDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit JetResolutionScaleFactorDBReader(const edm::ParameterSet&);
 
@@ -51,6 +52,7 @@ private:
 
   std::string m_era;
   std::string m_label;
+  edm::ESGetToken<JME::JetResolutionObject, JetResolutionScaleFactorRcd> m_token;
 
   bool m_save_file;
   bool m_print;
@@ -59,6 +61,7 @@ private:
 JetResolutionDBReader::JetResolutionDBReader(const edm::ParameterSet& iConfig) {
   m_era = iConfig.getUntrackedParameter<std::string>("era");
   m_label = iConfig.getUntrackedParameter<std::string>("label");
+  m_token = esConsumes(edm::ESInputTag("", m_label));
   m_print = iConfig.getUntrackedParameter<bool>("dump", true);
   m_save_file = iConfig.getUntrackedParameter<bool>("saveFile", false);
 }
@@ -66,10 +69,9 @@ JetResolutionDBReader::JetResolutionDBReader(const edm::ParameterSet& iConfig) {
 JetResolutionDBReader::~JetResolutionDBReader() {}
 
 void JetResolutionDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
   std::cout << "Inspecting JER payload for label: " << m_label << std::endl;
 
-  iSetup.get<JetResolutionRcd>().get(m_label, jerObjectHandle);
+  auto jerObjectHandle = iSetup.getTransientHandle(m_token);
 
   if (m_print) {
     jerObjectHandle->dump();
@@ -89,15 +91,15 @@ void JetResolutionDBReader::endJob() {}
 JetResolutionScaleFactorDBReader::JetResolutionScaleFactorDBReader(const edm::ParameterSet& iConfig) {
   m_era = iConfig.getUntrackedParameter<std::string>("era");
   m_label = iConfig.getUntrackedParameter<std::string>("label");
+  m_token = esConsumes(edm::ESInputTag("", m_label));
   m_print = iConfig.getUntrackedParameter<bool>("dump", true);
   m_save_file = iConfig.getUntrackedParameter<bool>("saveFile", false);
 }
 
 void JetResolutionScaleFactorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
   std::cout << "Inspecting JER SF payload for label: " << m_label << std::endl;
 
-  iSetup.get<JetResolutionScaleFactorRcd>().get(m_label, jerObjectHandle);
+  auto jerObjectHandle = iSetup.getTransientHandle(m_token);
 
   if (m_print) {
     jerObjectHandle->dump();

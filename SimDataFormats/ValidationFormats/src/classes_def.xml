@@ -179,4 +179,11 @@
    <version ClassVersion="12" checksum="3840504732"/>
   </class>
   <class name="edm::Wrapper<PHGCalValidInfo>"/>
+
+  <class name="MaterialAccountingCalo" ClassVersion="3">
+   <version ClassVersion="3" checksum="1487294303"/>
+  </class>
+  <class name="std::vector<MaterialAccountingCalo>"/>
+  <class name="edm::Wrapper<std::vector<MaterialAccountingCalo> >"/>
+
 </lcgdict>

@@ -12,10 +12,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_data']
 
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HcalIsoTrackX=dict()
     process.MessageLogger.HcalIsoTrack=dict()
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi')
@@ -28,14 +29,13 @@ process.towerMakerAll.AllowMissingInputs = True
 
 process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
 process.HcalIsoTrkAnalyzer.triggers = []
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 2 for Raw
+process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
 process.HcalIsoTrkAnalyzer.ignoreTriggers = True
+process.HcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898]
 
 process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring(
-                                'file:oldPoolOutput.root'
-                            )
-                        )
+                            fileNames = cms.untracked.vstring('file:oldPoolOutput.root')
+)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

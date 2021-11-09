@@ -18,6 +18,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
@@ -27,13 +28,16 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 class DetLayer;
+class IdealMagneticFieldRecord;
+class TrackingComponentsRecord;
+class MuonRecoGeometryRecord;
 
 class PropagateToMuon {
 public:
-  explicit PropagateToMuon(const edm::ParameterSet &iConfig);
+  explicit PropagateToMuon(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
   ~PropagateToMuon();
 
-  /// Call this method at the beginning of each run, to initialize geometry, magnetic field and propagators
+  /// Call this method at the beginning of each event, to initialize geometry, magnetic field and propagators
   void init(const edm::EventSetup &iSetup);
 
   /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if it fails
@@ -78,6 +82,10 @@ private:
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
   edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_, propagatorAnyToken_, propagatorOppositeToken_;
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonGeometryToken_;
   // simplified geometry for track propagation
   const BoundCylinder *barrelCylinder_;
   const BoundDisk *endcapDiskPos_[3], *endcapDiskNeg_[3];

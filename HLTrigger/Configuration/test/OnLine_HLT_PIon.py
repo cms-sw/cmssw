@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_12_1_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_12_2_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_1_0/PIon/V4 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_2_0/PIon/V3 (CMSSW_12_2_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/PIon/V4')
+  tableName = cms.string('/dev/CMSSW_12_2_0/PIon/V3')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3864,6 +3864,21 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
+process.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
+    RunType = cms.string( "Run3" ),
+    PitchSimY = cms.double( 0.15 ),
+    PitchSimX = cms.double( 0.1 ),
+    thickness = cms.double( 0.23 ),
+    noOfPixelSimX = cms.int32( 160 ),
+    noOfPixelSimY = cms.int32( 104 ),
+    noOfPixels = cms.int32( 16640 ),
+    simXWidth = cms.double( 16.6 ),
+    simYWidth = cms.double( 16.2 ),
+    deadEdgeWidth = cms.double( 0.2 ),
+    activeEdgeSigma = cms.double( 0.02 ),
+    physActiveEdgeDist = cms.double( 0.15 ),
+    appendToDataLabel = cms.string( "" )
+)
 
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -4195,6 +4210,21 @@ process.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 process.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   SimpleMagneticField = cms.string( "" )
+)
+process.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
+  verbosity = cms.untracked.uint32( 1 ),
+  buildMisalignedGeometry = cms.bool( False ),
+  isRun2 = cms.bool( False ),
+  dbTag = cms.string( "" ),
+  compactViewTag = cms.string( "" ),
+  fromPreprocessedDB = cms.untracked.bool( True ),
+  fromDD4hep = cms.untracked.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
+  lhcInfoLabel = cms.string( "" ),
+  opticsLabel = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
@@ -5843,6 +5873,9 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
+process.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
+)
 process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
     maxZ = cms.double( 40.0 ),
@@ -5999,7 +6032,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
-process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot )
+process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
 process.HLTBeginSequenceL1Fat = cms.Sequence( process.hltTriggerType + process.hltL1EventNumberL1Fat + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + process.hltGtStage2Digis )
@@ -6025,6 +6058,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtStage2Digis + 
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v7, process.HLT_Random_v3, process.HLT_ZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.DQMOutput, ))
 
 
+# source module (EDM inputs)
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
         'file:RelVal_Raw_PIon_DATA.root',
@@ -6051,6 +6085,7 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run3_hlt_PIon')
 
+# show summaries from trigger analysers used at HLT
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
     process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
@@ -6072,6 +6107,7 @@ _customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "auto:run3_hlt_PIon"
 _customInfo['inputFile' ]=  ['file:RelVal_Raw_PIon_DATA.root']
 _customInfo['realData'  ]=  True
+
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,"PIon",_customInfo)
 

@@ -30,7 +30,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   inputApvGain.getDetIds(inputDetIds);
 
   // Prepare the new object
-  SiStripNoises* obj = new SiStripNoises();
+  SiStripNoises obj;
 
   stripLengthMode_ = pset_.getParameter<bool>("StripLengthMode");
 
@@ -72,7 +72,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
             noise = ((linearSlope * stripLength + linearQuote) / electronsPerADC_) * gain;
             if (count < printDebug_)
               printLog(detId, stripId + 128 * j, noise);
-            obj->setData(noise, theSiStripVector);
+            obj.setData(noise, theSiStripVector);
           }
         }
       } else {
@@ -88,13 +88,13 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
               noise = minimumPosValue_;
             if (count < printDebug_)
               printLog(detId, stripId + 128 * j, noise);
-            obj->setData(noise, theSiStripVector);
+            obj.setData(noise, theSiStripVector);
           }
         }
       }
       ++count;
 
-      if (!obj->put(detId, theSiStripVector)) {
+      if (!obj.put(detId, theSiStripVector)) {
         edm::LogError("SiStripNoisesFakeESSource::produce ") << " detid already exists" << std::endl;
       }
     }
@@ -105,10 +105,9 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripNoisesRcd")) {
-      mydbservice->createNewIOV<SiStripNoises>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripNoisesRcd");
+      mydbservice->createOneIOV<SiStripNoises>(obj, mydbservice->beginOfTime(), "SiStripNoisesRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
+      mydbservice->appendOneIOV<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
     }
   } else {
     edm::LogError("SiStripNoiseNormalizedWithApvGainBuilder") << "Service is unavailable" << std::endl;

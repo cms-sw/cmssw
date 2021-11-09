@@ -1,5 +1,13 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAHitNtupletGeneratorKernelsImpl.h"
 
+#include <mutex>
+
+namespace {
+  // cuda atomics are NOT atomics on CPU so protect stat update with a mutex
+  // waiting for a more general solution (incuding multiple devices) to be proposed and implemented
+  std::mutex lock_stat;
+}  // namespace
+
 template <>
 void CAHitNtupletGeneratorKernelsCPU::printCounters(Counters const *counters) {
   kernel_printCounters(counters);
@@ -134,25 +142,12 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   if (nhits > 1 && params_.lateFishbone_) {
     gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
   }
-
-  if (params_.doStats_) {
-    kernel_checkOverflows(tuples_d,
-                          device_tupleMultiplicity_.get(),
-                          device_hitToTuple_.get(),
-                          device_hitTuple_apc_,
-                          device_theCells_.get(),
-                          device_nCells_,
-                          device_theCellNeighbors_.get(),
-                          device_theCellTracks_.get(),
-                          isOuterHitOfCell_,
-                          nhits,
-                          params_.maxNumberOfDoublets_,
-                          counters_);
-  }
 }
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
+  int32_t nhits = hh.nHits();
+
   auto const *tuples_d = &tracks_d->hitIndices;
   auto *quality_d = tracks_d->qualityData();
 
@@ -209,8 +204,26 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                             device_hitToTuple_.get());
     }
   }
+
+  if (params_.doStats_) {
+    std::lock_guard guard(lock_stat);
+    kernel_checkOverflows(tuples_d,
+                          device_tupleMultiplicity_.get(),
+                          device_hitToTuple_.get(),
+                          device_hitTuple_apc_,
+                          device_theCells_.get(),
+                          device_nCells_,
+                          device_theCellNeighbors_.get(),
+                          device_theCellTracks_.get(),
+                          isOuterHitOfCell_,
+                          nhits,
+                          params_.maxNumberOfDoublets_,
+                          counters_);
+  }
+
   if (params_.doStats_) {
     // counters (add flag???)
+    std::lock_guard guard(lock_stat);
     kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
     kernel_doStatsForTracks(tuples_d, quality_d, counters_);
   }

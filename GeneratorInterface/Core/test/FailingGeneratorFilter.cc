@@ -108,7 +108,7 @@ namespace test {
 
   class DummyDec {
   public:
-    DummyDec(const edm::ParameterSet&) {}
+    DummyDec(const edm::ParameterSet&, edm::ConsumesCollector) {}
     std::vector<std::string> sharedResources() const { return {}; }
 
     HepMC::GenEvent* decay(HepMC::GenEvent const*) { return nullptr; }

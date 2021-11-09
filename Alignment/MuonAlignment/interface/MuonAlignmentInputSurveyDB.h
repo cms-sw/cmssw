@@ -30,8 +30,13 @@
 
 class MuonAlignmentInputSurveyDB : public MuonAlignmentInputMethod {
 public:
-  MuonAlignmentInputSurveyDB();
-  MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel, std::string idealLabel);
+  MuonAlignmentInputSurveyDB(const DTGeometry* dtGeometry,
+                             const CSCGeometry* cscGeometry,
+                             const GEMGeometry* gemGeometry,
+                             const Alignments* dtSurvey,
+                             const Alignments* cscSurvey,
+                             const SurveyErrors* dtSurveyError,
+                             const SurveyErrors* cscSurveyError);
   ~MuonAlignmentInputSurveyDB() override;
 
   // ---------- const member functions ---------------------
@@ -40,7 +45,7 @@ public:
 
   // ---------- member functions ---------------------------
 
-  AlignableMuon* newAlignableMuon(const edm::EventSetup& iSetup) const override;
+  AlignableMuon* newAlignableMuon() const override;
 
   MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete;  // stop default
 
@@ -53,8 +58,13 @@ private:
                       const SurveyErrors* theSurveyErrors) const;
 
   // ---------- member data --------------------------------
-
-  std::string m_dtLabel, m_cscLabel, idealGeometryLabel;
+  const DTGeometry* dtGeometry_;
+  const CSCGeometry* cscGeometry_;
+  const GEMGeometry* gemGeometry_;
+  const Alignments* dtSurvey_;
+  const Alignments* cscSurvey_;
+  const SurveyErrors* dtSurveyError_;
+  const SurveyErrors* cscSurveyError_;
 };
 
 #endif

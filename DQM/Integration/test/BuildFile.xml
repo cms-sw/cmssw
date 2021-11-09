@@ -29,6 +29,5 @@
 <!-- <test name="TestDQMOnlineClient-ecalcalib_dqm_sourceclient" command="runtest.sh ecalcalib_dqm_sourceclient-live_cfg.py" /> -->
 <!-- streamDQMCalibration is required -->
 <!-- <test name="TestDQMOnlineClient-hcalcalib_dqm_sourceclient" command="runtest.sh hcalcalib_dqm_sourceclient-live_cfg.py" /> -->
-<!-- No data of type "GBRForestD" with label "electron_eb_ecalOnly_1To300_0p2To2_mean" in record "GBRDWrapperRcd" -->
-<!-- <test name="TestDQMOnlineClient-visualization" command="runtest.sh visualization-live_cfg.py" />  -->
-<!-- <test name="TestDQMOnlineClient-visualization_secondInstance" command="runtest.sh visualization-live-secondInstance_cfg.py" /> -->
+<test name="TestDQMOnlineClient-visualization" command="runtest.sh visualization-live_cfg.py" />
+<test name="TestDQMOnlineClient-visualization_secondInstance" command="runtest.sh visualization-live-secondInstance_cfg.py" />

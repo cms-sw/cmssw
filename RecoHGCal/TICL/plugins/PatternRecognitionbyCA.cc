@@ -80,9 +80,9 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     LogDebug("HGCPatternRecoByCA") << "Making Tracksters with CA" << std::endl;
   }
 
-  int type = input.tiles[0].typeT();
-  int nEtaBin = (type == 1) ? ticl::TileConstantsHFNose::nEtaBins : ticl::TileConstants::nEtaBins;
-  int nPhiBin = (type == 1) ? ticl::TileConstantsHFNose::nPhiBins : ticl::TileConstants::nPhiBins;
+  constexpr auto isHFnose = std::is_same<TILES, TICLLayerTilesHFNose>::value;
+  constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
+  constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   bool isRegionalIter = (input.regions[0].index != -1);
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
@@ -102,7 +102,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                     root_doublet_max_distance_from_seed_squared_,
                                     etaLimitIncreaseWindow_,
                                     skip_layers_,
-                                    rhtools_.lastLayer(type),
+                                    rhtools_.lastLayer(isHFnose),
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
@@ -190,7 +190,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(tmpTracksters,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(type), type).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, tmpTracksters);
@@ -251,7 +251,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(type), type).z());
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);

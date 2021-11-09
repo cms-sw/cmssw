@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -100,7 +101,7 @@ namespace edm {
     if (ps.exists("ExternalDecays")) {
       //decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
       ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
-      decayer_ = new Decayer(ps1);
+      decayer_ = new Decayer(ps1, consumesCollector());
 
       std::vector<std::string> const& sharedResourcesDec = decayer_->sharedResources();
       for (auto const& resource : sharedResourcesDec) {

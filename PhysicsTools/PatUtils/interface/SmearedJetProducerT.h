@@ -118,6 +118,8 @@ public:
       } else {
         m_jets_algo = cfg.getParameter<std::string>("algo");
         m_jets_algo_pt = cfg.getParameter<std::string>("algopt");
+        m_jets_algo_token = esConsumes(edm::ESInputTag("", m_jets_algo));
+        m_jets_algo_pt_token = esConsumes(edm::ESInputTag("", m_jets_algo_pt));
       }
 
       std::uint32_t seed = cfg.getParameter<std::uint32_t>("seed");
@@ -198,8 +200,8 @@ public:
         resolution = *m_resolution_from_file;
         resolution_sf = *m_scale_factor_from_file;
       } else {
-        resolution = JME::JetResolution::get(setup, m_jets_algo_pt);
-        resolution_sf = JME::JetResolutionScaleFactor::get(setup, m_jets_algo);
+        resolution = JME::JetResolution::get(setup, m_jets_algo_pt_token);
+        resolution_sf = JME::JetResolutionScaleFactor::get(setup, m_jets_algo_token);
       }
 
       if (m_useDeterministicSeed) {
@@ -310,6 +312,8 @@ private:
   bool m_enabled;
   std::string m_jets_algo_pt;
   std::string m_jets_algo;
+  JME::JetResolution::Token m_jets_algo_pt_token;
+  JME::JetResolutionScaleFactor::Token m_jets_algo_token;
   Variation m_systematic_variation;
   std::string m_uncertaintySource;
   bool m_useDeterministicSeed;

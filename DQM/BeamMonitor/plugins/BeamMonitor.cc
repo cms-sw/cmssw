@@ -533,7 +533,8 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
   DBloggerReturn_ = 0;
   if (onlineDbService_.isAvailable()) {
     onlineDbService_->logger().start();
-    onlineDbService_->logger().logInfo() << "BeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock();
+    onlineDbService_->logger().logInfo() << "BeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock()
+                                         << " - Run: " << lumiSeg.getRun().run();
   }
 
   int nthlumi = lumiSeg.luminosityBlock();

@@ -31,8 +31,10 @@ public:
   typedef TwoBodyDecayTrajectoryState::TsosContainer TsosContainer;
   typedef TwoBodyDecayTrajectory::ConstRecHitCollection ConstRecHitCollection;
 
-  TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config);
+  TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
   ~TwoBodyDecayTrajectoryFactory() override;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_globTackingToken;
 
   /// Produce the trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -71,8 +73,12 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config)
-    : TrajectoryFactoryBase(config, 2), theFitter(config) {
+TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config,
+                                                             edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config, 2, iC),
+      m_MagFieldToken(iC.esConsumes()),
+      m_globTackingToken(iC.esConsumes()),
+      theFitter(config) {
   const edm::ParameterSet ppc = config.getParameter<edm::ParameterSet>("ParticleProperties");
   thePrimaryMass = ppc.getParameter<double>("PrimaryMass");
   thePrimaryWidth = ppc.getParameter<double>("PrimaryWidth");
@@ -90,20 +96,16 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
     const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
-
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  setup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
+  const GlobalTrackingGeometry *trackingGeometry = &setup.getData(m_globTackingToken);
   if (tracks.size() == 2) {
     // produce transient tracks from persistent tracks
     std::vector<reco::TransientTrack> transientTracks(2);
 
-    transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField.product());
+    transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField);
     transientTracks[0].setTrackingGeometry(trackingGeometry);
 
-    transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField.product());
+    transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField);
     transientTracks[1].setTrackingGeometry(trackingGeometry);
 
     // estimate the decay parameters
@@ -115,7 +117,7 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
       return trajectories;
     }
 
-    return constructTrajectories(tracks, tbd, magneticField.product(), beamSpot, false);
+    return constructTrajectories(tracks, tbd, magneticField, beamSpot, false);
   } else {
     edm::LogInfo("ReferenceTrajectories") << "@SUB=TwoBodyDecayTrajectoryFactory::trajectories"
                                           << "Need 2 tracks, got " << tracks.size() << ".\n";
@@ -131,11 +133,9 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
     const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  setup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
+  const GlobalTrackingGeometry *trackingGeometry = &setup.getData(m_globTackingToken);
 
   if (tracks.size() == 2 && external.size() == 2) {
     if (external[0].isValid() && external[1].isValid())  // Include external estimates
@@ -143,10 +143,10 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
       // produce transient tracks from persistent tracks
       std::vector<reco::TransientTrack> transientTracks(2);
 
-      transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField.product());
+      transientTracks[0] = reco::TransientTrack(*tracks[0].second, magneticField);
       transientTracks[0].setTrackingGeometry(trackingGeometry);
 
-      transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField.product());
+      transientTracks[1] = reco::TransientTrack(*tracks[1].second, magneticField);
       transientTracks[1].setTrackingGeometry(trackingGeometry);
 
       // estimate the decay parameters. the transient tracks are not really associated to the
@@ -160,7 +160,7 @@ const TrajectoryFactoryBase::ReferenceTrajectoryCollection TwoBodyDecayTrajector
         return trajectories;
       }
 
-      return constructTrajectories(tracks, tbd, magneticField.product(), beamSpot, true);
+      return constructTrajectories(tracks, tbd, magneticField, beamSpot, true);
     } else {
       // Return without external estimate
       trajectories = this->trajectories(setup, tracks, beamSpot);

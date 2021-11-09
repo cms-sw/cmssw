@@ -69,7 +69,8 @@
      <![CDATA[chargedHadronPFPVIso = onfile.chargedHadronIso;]]>
    </ioread>
   </class>
-  <class name="reco::Photon::PflowIDVariables"  ClassVersion="3">
+  <class name="reco::Photon::PflowIDVariables"  ClassVersion="4">
+   <version ClassVersion="4" checksum="1852864461"/>
    <version ClassVersion="3" checksum="2819734289"/>
   </class>
   <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
@@ -221,7 +222,8 @@
    <version ClassVersion="11" checksum="2106253688"/>
    <version ClassVersion="10" checksum="2786166332"/>
   </class>
-  <class name="reco::GsfElectron::MvaOutput" ClassVersion="13">
+  <class name="reco::GsfElectron::MvaOutput" ClassVersion="14">
+   <version ClassVersion="14" checksum="2762940185"/>
    <version ClassVersion="13" checksum="632217271"/>
    <version ClassVersion="12" checksum="3102257169"/>
    <version ClassVersion="11" checksum="1838996036"/>

@@ -40,11 +40,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         << " Extended " << extenCN.size() << ":" << extenSensN.size() << " Corners "
                                         << cornrCN.size() << ":" << cornrSensN.size();
   }
-  if ((truncCN.size() != 3) || (extenCN.size() != 3) || (cornrCN.size() != 6)) {
+  if ((truncCN.size() < 3) || (extenCN.size() < 3) || (cornrCN.size() < 6)) {
     edm::LogError("HGCalGeom") << "DDHGCalCell: The number of cells does not"
-                               << " match with Standard: Truncated " << truncCN.size() << ":3 Extended "
-                               << extenCN.size() << ":3"
-                               << " Corners " << cornrCN.size() << ":6";
+                               << " match with Standard: Truncated " << truncCN.size() << " < 3 Extended "
+                               << extenCN.size() << " < 3"
+                               << " Corners " << cornrCN.size() << " < 6";
     throw cms::Exception("DDException") << "Wrong size of truncated|extended"
                                         << "|corner cells: " << truncCN.size() << ":" << extenCN.size() << ":"
                                         << cornrCN.size();
@@ -54,11 +54,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << cms::convert2mm(waferT) << " Cell T " << cms::convert2mm(cellT) << " Cells/Wafer "
                                 << nCells << " Material " << material << "Sensitive Position " << posSens
                                 << " NameSpace " << ns.name() << " Full Cell: " << fullCN << ":" << fullSensN;
-  for (int k = 0; k < 3; ++k)
+  for (unsigned int k = 0; k < truncCN.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN[k] << ":" << truncSensN[k];
-  for (int k = 0; k < 3; ++k)
+  for (unsigned int k = 0; k < extenCN.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Extended Cell[" << k << "] " << extenCN[k] << ":" << extenSensN[k];
-  for (int k = 0; k < 6; ++k)
+  for (unsigned int k = 0; k < cornrCN.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Corner Cell[" << k << "] " << cornrCN[k] << ":" << cornrSensN[k];
 #endif
 
@@ -80,8 +80,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double dy1 = r;
   double dy2 = 0.5 * dy1;
   double dy3 = 1.5 * dy1;
-  std::vector<double> xx = {dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, -dx4, -dx1, -dx1, -dx4, dx3};
-  std::vector<double> yy = {0, dy1, dy1, 0, -dy1, -dy1, dy2, dy3, dy1, -dy1, -dy3, -dy2};
+  std::vector<double> xx = {
+      dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4, dx4, dx1, dx3};
+  std::vector<double> yy = {
+      0, dy1, dy1, 0, -dy1, -dy1, dy2, dy1, dy3, dy3, dy1, dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
   double zpos = (posSens == 0) ? -0.5 * (waferT - cellT) : 0.5 * (waferT - cellT);
   dd4hep::Position tran(0, 0, zpos);
 
@@ -124,12 +126,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
 
-  static const int ir0[] = {0, 1, 0};
-  static const int ir1[] = {1, 2, 1};
-  static const int ir2[] = {2, 3, 3};
-  static const int ir3[] = {3, 4, 4};
-  static const int ir4[] = {5, 5, 5};
-  for (int i = 0; i < 3; ++i) {
+  static constexpr int ir0[] = {0, 1, 0, 1, 3, 5};
+  static constexpr int ir1[] = {1, 2, 1, 2, 4, 0};
+  static constexpr int ir2[] = {2, 3, 3, 3, 5, 1};
+  static constexpr int ir3[] = {3, 4, 4, 4, 0, 2};
+  static constexpr int ir4[] = {5, 5, 5, 0, 2, 4};
+  for (unsigned int i = 0; i < truncCN.size(); ++i) {
     std::vector<double> xw = {xx[ir0[i]], xx[ir1[i]], xx[ir2[i]], xx[ir3[i]], xx[ir4[i]]};
     std::vector<double> yw = {yy[ir0[i]], yy[ir1[i]], yy[ir2[i]], yy[ir3[i]], yy[ir4[i]]};
 
@@ -167,12 +169,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   }
 
-  static const int ie0[] = {1, 5, 0};
-  static const int ie1[] = {2, 6, 1};
-  static const int ie2[] = {3, 7, 8};
-  static const int ie3[] = {10, 3, 9};
-  static const int ie4[] = {11, 4, 5};
-  for (int i = 0; i < 3; ++i) {
+  static constexpr int ie0[] = {1, 5, 0, 2, 4, 0};
+  static constexpr int ie1[] = {2, 6, 1, 3, 5, 1};
+  static constexpr int ie2[] = {3, 9, 10, 4, 0, 2};
+  static constexpr int ie3[] = {14, 3, 13, 16, 8, 12};
+  static constexpr int ie4[] = {17, 4, 5, 7, 11, 15};
+  for (unsigned int i = 0; i < extenCN.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]], xx[ie1[i]], xx[ie2[i]], xx[ie3[i]], xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]], yy[ie1[i]], yy[ie2[i]], yy[ie3[i]], yy[ie4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);
@@ -208,12 +210,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   }
 
-  static const int ic0[] = {0, 1, 1, 1, 1, 0};
-  static const int ic1[] = {1, 2, 2, 7, 3, 1};
-  static const int ic2[] = {8, 3, 3, 3, 4, 3};
-  static const int ic3[] = {3, 5, 10, 4, 5, 9};
-  static const int ic4[] = {5, 11, 5, 5, 6, 5};
-  for (int i = 0; i < 6; ++i) {
+  static constexpr int ic0[] = {0, 1, 1, 1, 1, 0, 1, 2, 3, 4, 5, 0};
+  static constexpr int ic1[] = {1, 2, 2, 9, 3, 1, 2, 3, 4, 5, 0, 1};
+  static constexpr int ic2[] = {10, 3, 3, 3, 4, 3, 12, 5, 16, 0, 8, 2};
+  static constexpr int ic3[] = {3, 5, 14, 4, 5, 13, 4, 0, 0, 2, 2, 4};
+  static constexpr int ic4[] = {5, 17, 5, 5, 6, 5, 0, 7, 2, 11, 4, 15};
+  for (unsigned int i = 0; i < cornrCN.size(); ++i) {
     std::vector<double> xw = {xx[ic0[i]], xx[ic1[i]], xx[ic2[i]], xx[ic3[i]], xx[ic4[i]]};
     std::vector<double> yw = {yy[ic0[i]], yy[ic1[i]], yy[ic2[i]], yy[ic3[i]], yy[ic4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);

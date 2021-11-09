@@ -12,7 +12,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -37,7 +37,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalAutoPedestalValidator : public edm::EDAnalyzer {
+class HcalAutoPedestalValidator : public edm::one::EDAnalyzer<> {
 public:
   HcalAutoPedestalValidator(edm::ParameterSet const& ps);
 

@@ -8,7 +8,6 @@
  *
  ****************************************************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -590,7 +589,7 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
         TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         int startBin =
             hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] - 0.5 * rechit.xWidth());
-        int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        const int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + UFSDShift,
                                                        hitHistoTmpYAxis->GetBinCenter(startBin + i));
@@ -613,10 +612,8 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
             // Plane Plots
             if (planePlots_.find(detId_plane) != planePlots_.end()) {
               TH1F *hitProfileHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-              int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-              int startBin = hitProfileHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] -
-                                                         0.5 * rechit.xWidth());
-              numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+              const int startBin = hitProfileHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_[detId_pot] -
+                                                               0.5 * rechit.xWidth());
               for (int i = 0; i < numOfBins; ++i)
                 hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(startBin + i));
 
@@ -653,8 +650,9 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
         continue;
 
       TH1F *trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
-      int startBin = trackHistoInTimeTmp->FindBin(track.x0() - horizontalShiftOfDiamond_[detId_pot] - track.x0Sigma());
-      int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+      const int startBin =
+          trackHistoInTimeTmp->FindBin(track.x0() - horizontalShiftOfDiamond_[detId_pot] - track.x0Sigma());
+      const int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
       for (int i = 0; i < numOfBins; ++i) {
         trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
       }
@@ -674,9 +672,9 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
           TH2F *trackHistoTmp = sectorPlots_[detId_far.armId()].trackCorrelation->getTH2F();
           TAxis *trackHistoTmpXAxis = trackHistoTmp->GetXaxis();
           TAxis *trackHistoTmpYAxis = trackHistoTmp->GetYaxis();
-          int startBin_far =
+          const int startBin_far =
               trackHistoTmpYAxis->FindBin(track_far.x0() - horizontalShiftOfDiamond_[detId_far] - track_far.x0Sigma());
-          int numOfBins_far = 2 * track_far.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+          const int numOfBins_far = 2 * track_far.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i) {
             for (int y = 0; y < numOfBins_far; ++y) {
               trackHistoTmp->Fill(trackHistoTmpXAxis->GetBinCenter(startBin + i),

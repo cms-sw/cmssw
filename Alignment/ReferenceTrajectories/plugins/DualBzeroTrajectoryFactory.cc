@@ -16,8 +16,9 @@
 
 class DualBzeroTrajectoryFactory : public TrajectoryFactoryBase {
 public:
-  DualBzeroTrajectoryFactory(const edm::ParameterSet &config);
+  DualBzeroTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
   ~DualBzeroTrajectoryFactory() override;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
 
   /// Produce the reference trajectories.
   const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -52,8 +53,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory(const edm::ParameterSet &config)
-    : TrajectoryFactoryBase(config) {
+DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
+    : TrajectoryFactoryBase(config, iC), m_MagFieldToken(iC.esConsumes()) {
   theMass = config.getParameter<double>("ParticleMass");
   theMomentumEstimate = config.getParameter<double>("MomentumEstimate");
 }
@@ -64,8 +65,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     const edm::EventSetup &setup, const ConstTrajTrackPairCollection &tracks, const reco::BeamSpot &beamSpot) const {
   ReferenceTrajectoryCollection trajectories;
 
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
 
@@ -78,7 +78,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
       config.includeAPEs = includeAPEs_;
       config.allowZeroMaterial = allowZeroMaterial_;
       ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(
-          input.refTsos, input.fwdRecHits, input.bwdRecHits, magneticField.product(), beamSpot, config));
+          input.refTsos, input.fwdRecHits, input.bwdRecHits, magneticField, beamSpot, config));
       trajectories.push_back(ptr);
     }
 
@@ -103,8 +103,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     return trajectories;
   }
 
-  edm::ESHandle<MagneticField> magneticField;
-  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField *magneticField = &setup.getData(m_MagFieldToken);
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
   ExternalPredictionCollection::const_iterator itExternal = external.begin();
@@ -114,8 +113,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if (input.refTsos.isValid()) {
       if ((*itExternal).isValid()) {
-        TrajectoryStateOnSurface propExternal =
-            propagateExternal(*itExternal, input.refTsos.surface(), magneticField.product());
+        TrajectoryStateOnSurface propExternal = propagateExternal(*itExternal, input.refTsos.surface(), magneticField);
 
         if (!propExternal.isValid())
           continue;
@@ -125,7 +123,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
         config.includeAPEs = includeAPEs_;
         config.allowZeroMaterial = allowZeroMaterial_;
         ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(
-            propExternal, input.fwdRecHits, input.bwdRecHits, magneticField.product(), beamSpot, config));
+            propExternal, input.fwdRecHits, input.bwdRecHits, magneticField, beamSpot, config));
 
         AlgebraicSymMatrix externalParamErrors(asHepMatrix<5>(propExternal.localError().matrix()));
         ptr->setParameterErrors(externalParamErrors.sub(2, 5));
@@ -136,7 +134,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
         config.includeAPEs = includeAPEs_;
         config.allowZeroMaterial = allowZeroMaterial_;
         ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(
-            input.refTsos, input.fwdRecHits, input.bwdRecHits, magneticField.product(), beamSpot, config));
+            input.refTsos, input.fwdRecHits, input.bwdRecHits, magneticField, beamSpot, config));
 
         trajectories.push_back(ptr);
       }

@@ -28,7 +28,7 @@ int main() {
       "1, test, down,    1, -2, 2, 50, 500, 0, 999, \"1.9*x\" \n");
   stringstream csv1Stream(csv1);
   BTagCalibration bc1("csv");
-  bc1.readCSV(csv1Stream);
+  bc1.readCSV(csv1Stream, true);
 
   // test pt-dependent function
   BTagCalibrationReader bcr1(BTagEntry::OP_LOOSE);

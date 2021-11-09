@@ -15,13 +15,33 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
+using namespace hltriggeroffline;
+
+PropagateToMuon::ESTokens PropagateToMuon::getESTokens(edm::ConsumesCollector iCollector) {
+  ESTokens ret;
+  std::get<0>(ret) = iCollector.esConsumes<edm::Transition::BeginRun>();
+  std::get<1>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SteppingHelixPropagatorAlong"));
+  std::get<2>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SteppingHelixPropagatorAny"));
+  std::get<3>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "SteppingHelixPropagatorOpposite"));
+  std::get<4>(ret) = iCollector.esConsumes<edm::Transition::BeginRun>();
+  return ret;
+}
+
+PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig, const ESTokens &iTokens)
     : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
       whichTrack_(None),
       whichState_(AtVertex),
       cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis")
                              ? iConfig.getParameter<bool>("cosmicPropagationHypothesis")
-                             : false) {
+                             : false),
+      magfieldToken_(std::get<0>(iTokens)),
+      propagatorToken_(std::get<1>(iTokens)),
+      propagatorAnyToken_(std::get<2>(iTokens)),
+      propagatorOppositeToken_(std::get<3>(iTokens)),
+      muonGeometryToken_(std::get<4>(iTokens)) {
   std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
   if (whichTrack == "none") {
     whichTrack_ = None;
@@ -54,11 +74,11 @@ PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig)
 PropagateToMuon::~PropagateToMuon() {}
 
 void PropagateToMuon::init(const edm::EventSetup &iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagatorAny_);
-  iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry_);
+  magfield_ = iSetup.getHandle(magfieldToken_);
+  propagator_ = iSetup.getHandle(propagatorToken_);
+  propagatorOpposite_ = iSetup.getHandle(propagatorOppositeToken_);
+  propagatorAny_ = iSetup.getHandle(propagatorAnyToken_);
+  muonGeometry_ = iSetup.getHandle(muonGeometryToken_);
 
   const DetLayer *dt2 = muonGeometry_->allDTLayers()[1];
   const DetLayer *csc2Pos = muonGeometry_->forwardCSCLayers()[2];

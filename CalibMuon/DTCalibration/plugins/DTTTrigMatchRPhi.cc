@@ -19,16 +19,16 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTTTrigMatchRPhi::DTTTrigMatchRPhi(const ParameterSet& pset) {
-    dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
+  DTTTrigMatchRPhi::DTTTrigMatchRPhi(const ParameterSet& pset, edm::ConsumesCollector cc) {
+    ttrigToken_ =
+        cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getUntrackedParameter<string>("dbLabel")));
   }
 
   DTTTrigMatchRPhi::~DTTTrigMatchRPhi() {}
 
   void DTTTrigMatchRPhi::setES(const EventSetup& setup) {
     // Get tTrig record from DB
-    ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(dbLabel, tTrig);
+    ESHandle<DTTtrig> tTrig = setup.getHandle(ttrigToken_);
     tTrigMap_ = &*tTrig;
   }
 

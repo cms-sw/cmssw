@@ -8,6 +8,7 @@
  */
 
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
+#include <algorithm>  // for std::transform
 
 using std::map;
 using std::string;
@@ -42,4 +43,15 @@ bool DropBoxMetadata::knowsRecord(const std::string& record) const {
     return true;
 
   return false;
+}
+
+const std::vector<std::string> DropBoxMetadata::getAllRecords() const {
+  std::vector<std::string> records;
+  std::transform(recordSet.begin(),
+                 recordSet.end(),
+                 std::inserter(records, records.end()),
+                 [](std::pair<std::string, DropBoxMetadata::Parameters> recordSetEntry) -> std::string {
+                   return recordSetEntry.first;
+                 });
+  return records;
 }

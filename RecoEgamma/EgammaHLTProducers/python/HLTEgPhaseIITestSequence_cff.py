@@ -2654,3 +2654,6 @@ hltTTRBWR = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('StripCPEfromTrackAngle')
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(hltHbhereco, algorithm = dict(useM3 = False))

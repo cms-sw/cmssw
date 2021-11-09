@@ -26,7 +26,7 @@
 #include "CondFormats/Serialization/interface/eos/portable_oarchive.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -39,7 +39,7 @@
 // class declaration
 //
 template <class DataType, class RecordType>
-class BoostIODBReader : public edm::EDAnalyzer {
+class BoostIODBReader : public edm::one::EDAnalyzer<> {
 public:
   typedef DataType data_type;
   typedef RecordType record_type;

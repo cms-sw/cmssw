@@ -24,8 +24,7 @@ from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
-
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 
 trackdnn_source = cms.ESSource("EmptyESSource", recordName = cms.string("TfGraphRecord"), firstValid = cms.vuint32(1), iovIsRunNotTime = cms.bool(True) )
 iterTrackingEarlyTask = _cfg.createEarlyTask("", "", globals())

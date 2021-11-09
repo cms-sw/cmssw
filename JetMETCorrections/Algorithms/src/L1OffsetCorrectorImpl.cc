@@ -20,7 +20,7 @@ using namespace std;
 
 L1OffsetCorrectorImplMaker::L1OffsetCorrectorImplMaker(edm::ParameterSet const& fConfig,
                                                        edm::ConsumesCollector fCollector)
-    : JetCorrectorImplMakerBase(fConfig),
+    : JetCorrectorImplMakerBase(fConfig, fCollector),
       verticesToken_(
           fCollector.consumes<reco::VertexCollection>(fConfig.getParameter<edm::InputTag>("vertexCollection"))),
       minVtxNdof_(fConfig.getParameter<int>("minVtxNdof")) {}

@@ -52,7 +52,7 @@ namespace edm {
 
   RootSecondaryFileSequence::~RootSecondaryFileSequence() {}
 
-  void RootSecondaryFileSequence::endJob() { closeFile_(); }
+  void RootSecondaryFileSequence::endJob() { closeFile(); }
 
   void RootSecondaryFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.

@@ -2,7 +2,7 @@
 #include <iomanip>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +22,7 @@
 // class declaration
 //
 
-class JetResolutionDemo : public edm::EDAnalyzer {
+class JetResolutionDemo : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit JetResolutionDemo(const edm::ParameterSet&);
   ~JetResolutionDemo() override;
@@ -40,7 +40,8 @@ private:
   std::string m_payload;
   std::string m_resolutions_file;
   std::string m_scale_factors_file;
-
+  JME::JetResolution::Token m_resolutions_token;
+  JME::JetResolutionScaleFactor::Token m_scale_factors_token;
   edm::Service<TFileService> fs;
 
   TH2* m_res_vs_eta = nullptr;
@@ -55,12 +56,15 @@ JetResolutionDemo::JetResolutionDemo(const edm::ParameterSet& iConfig) {
   m_debug = iConfig.getUntrackedParameter<bool>("debug", false);
   m_use_conddb = iConfig.getUntrackedParameter<bool>("useCondDB", false);
 
-  if (m_use_conddb)
+  if (m_use_conddb) {
     m_payload = iConfig.getParameter<std::string>("payload");
-  else {
+    m_resolutions_token = esConsumes(edm::ESInputTag("", m_payload));
+    m_scale_factors_token = esConsumes(edm::ESInputTag("", m_payload));
+  } else {
     m_resolutions_file = iConfig.getParameter<edm::FileInPath>("resolutionsFile").fullPath();
     m_scale_factors_file = iConfig.getParameter<edm::FileInPath>("scaleFactorsFile").fullPath();
   }
+  usesResource(TFileService::kSharedResource);
 }
 //---------------------------------------------------------------------------
 JetResolutionDemo::~JetResolutionDemo() {}
@@ -81,8 +85,8 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Two differents way to create a class instance
   if (m_use_conddb) {
     // First way, using the get() static method
-    resolution = JME::JetResolution::get(iSetup, m_payload);
-    res_sf = JME::JetResolutionScaleFactor::get(iSetup, m_payload);
+    resolution = JME::JetResolution::get(iSetup, m_resolutions_token);
+    res_sf = JME::JetResolutionScaleFactor::get(iSetup, m_scale_factors_token);
   } else {
     // Second way, using the constructor
     resolution = JME::JetResolution(m_resolutions_file);

@@ -32,7 +32,9 @@
 
 #include <vector>
 
-SegmentToTrackAssociator::SegmentToTrackAssociator(const edm::ParameterSet& iConfig) {
+SegmentToTrackAssociator::SegmentToTrackAssociator(const edm::ParameterSet& iConfig,
+                                                   const GlobalTrackingGeometry* GlobalTrackingGeometry)
+    : globalTrackingGeometry_(GlobalTrackingGeometry) {
   theDTSegmentLabel = iConfig.getParameter<edm::InputTag>("segmentsDT");
   theCSCSegmentLabel = iConfig.getParameter<edm::InputTag>("segmentsCSC");
 }
@@ -55,9 +57,6 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
   edm::Handle<CSCSegmentCollection> CSCSegments;
   iEvent.getByLabel(theCSCSegmentLabel, CSCSegments);
 
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-
   MuonTransientTrackingRecHit::MuonRecHitContainer SelectedSegments;
 
   DTRecSegment4DCollection::const_iterator segmentDT;
@@ -72,7 +71,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
     TrackingRecHitRef myRef = track.recHit(counter);
 
     const TrackingRecHit* rechit = myRef.get();
-    const GeomDet* geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
+    const GeomDet* geomDet = globalTrackingGeometry_->idToDet(rechit->geographicalId());
 
     //It's a DT Hit
     if (geomDet->subDetector() == GeomDetEnumerators::DT) {
@@ -113,7 +112,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
               myLayer.sector() == myChamber.sector()) {
             //push position of the segment and tracking rechit
             positionDT.push_back(NumberOfDTSegment);
-            const GeomDet* DTgeomDet = theTrackingGeometry->idToDet(myChamber);
+            const GeomDet* DTgeomDet = globalTrackingGeometry_->idToDet(myChamber);
             SelectedSegments.push_back(
                 MuonTransientTrackingRecHit::specificBuild(DTgeomDet, (TrackingRecHit*)&*segmentDT));
 
@@ -158,7 +157,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
           if (myLayer.chamberId() == myChamber.chamberId()) {
             //push
             positionCSC.push_back(NumberOfCSCSegment);
-            const GeomDet* CSCgeomDet = theTrackingGeometry->idToDet(myChamber);
+            const GeomDet* CSCgeomDet = globalTrackingGeometry_->idToDet(myChamber);
             SelectedSegments.push_back(
                 MuonTransientTrackingRecHit::specificBuild(CSCgeomDet, (TrackingRecHit*)&*segmentCSC));
           }

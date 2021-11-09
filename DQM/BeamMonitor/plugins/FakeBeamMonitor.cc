@@ -527,7 +527,8 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
   DBloggerReturn_ = 0;
   if (onlineDbService_.isAvailable()) {
     onlineDbService_->logger().start();
-    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock();
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock()
+                                         << " - Run: " << lumiSeg.getRun().run();
   }
 
   int nthlumi = lumiSeg.luminosityBlock();

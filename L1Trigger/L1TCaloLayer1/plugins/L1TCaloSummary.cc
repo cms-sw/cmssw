@@ -21,7 +21,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -55,7 +54,6 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 #include <bitset>
 
