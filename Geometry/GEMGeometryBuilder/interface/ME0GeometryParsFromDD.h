@@ -29,7 +29,7 @@ public:
   ~ME0GeometryParsFromDD(void) {}
   // DD
   void build(const DDCompactView*, const MuonGeometryConstants&, RecoIdealGeometry&);
-  // DD4HEP
+  // DD4hep
   void build(const cms::DDCompactView*, const MuonGeometryConstants&, RecoIdealGeometry&);
 
 private:
@@ -44,7 +44,7 @@ private:
   std::vector<double> getTranslation(DDFilteredView& fv);
   std::vector<double> getRotation(DDFilteredView& fv);
 
-  //DD4HEP
+  //DD4hep
 
   void buildGeometry(cms::DDFilteredView&, const MuonGeometryConstants&, RecoIdealGeometry&);
 
