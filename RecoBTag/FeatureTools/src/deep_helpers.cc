@@ -126,9 +126,11 @@ namespace btagbtvdeep {
     if (patJet) {
       if (patJet->nSubjetCollections() > 0) {
         auto subjets = patJet->subjets();
-        std::nth_element(subjets.begin(), subjets.begin()+1, subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
-          return p1->pt() > p2->pt();
-        });
+        std::nth_element(
+            subjets.begin(),
+            subjets.begin() + 1,
+            subjets.end(),
+            [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) { return p1->pt() > p2->pt(); });
         features.first = !subjets.empty() ? reco::deltaR(*cand, *subjets[0]) : -1;
         features.second = subjets.size() > 1 ? reco::deltaR(*cand, *subjets[1]) : -1;
       } else {
