@@ -29,9 +29,9 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
                                                   : (int)HGCalGeometry::k_NumberOfParametersPerHex);
   uint32_t numberOfShapes =
       (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
-  bool test = topology.tileTrapezoid();
-#ifdef EDM_ML_DEBUG
   HGCalGeometryMode::GeometryMode mode = topology.geomMode();
+  bool test = (mode == HGCalGeometryMode::TrapezoidModule);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
                                 << " mode " << mode;
@@ -182,7 +182,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   geom->sortDetIds();
 
   if (counter != numberExpected) {
-    if (test) {
+    if (topology.tileTrapezoid()) {
       edm::LogVerbatim("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells
                                     << " , inited " << counter;
     } else {
