@@ -3,7 +3,7 @@
 //root -b -q -l 'RemoteMonitoringMAP.C+("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214513.root","/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214512.root")'
 //root -b -q -l 'RemoteMonitoringMAP.C+(" /afs/cern.ch/work/d/dtlisov/private/Monitoring/histos/LED_211659.root","/afs/cern.ch/cms/CAF/CMSALCA/ALCA_HCALCALIB/HCALMONITORING/RDMweb/histos/LED_214512.root")'
 //
-//   
+//
 //
 #include "LogEleMapdb.h"
 
@@ -2433,7 +2433,7 @@ std::cout<<" We are here to print ADC "<<std::endl;
   std::cout << " We are here to print 2017 MAPs (do not use for run3 )" << std::endl;
 
   //======================================================================
-          /*
+  /*
 
   //======================================================================
   /// Prepare maps of good/bad channels:
