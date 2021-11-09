@@ -1,3 +1,5 @@
+# The configuration for comparison of Pythia8 tau decays with Taula tau decays (Py8_Z2tautau_tauola_cfg.py)
+# hadronization, MPI settings, PDF settings to be eventually updated in both
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -93,4 +95,3 @@ process.outpath = cms.EndPath(process.GEN)
 
 process.schedule = cms.Schedule(process.p, process.outpath)
 #process.schedule = cms.Schedule(process.p, process.p1)
-
