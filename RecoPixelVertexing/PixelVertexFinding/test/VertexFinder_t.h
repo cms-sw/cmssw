@@ -67,6 +67,7 @@ struct ClusterGenerator {
     ev.ztrack.clear();
     ev.eztrack.clear();
     ev.ivert.clear();
+    ev.pttrack.clear();
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = trackGen(reng);
       ev.itrack[iv] = nt;
