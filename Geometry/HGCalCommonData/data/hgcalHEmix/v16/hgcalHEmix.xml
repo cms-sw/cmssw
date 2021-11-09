@@ -119,9 +119,9 @@
       hgcalwafer:HGCalHEWafer0Coarse2bm4, hgcalwafer:HGCalHEWafer0Coarse2bm5</Vector>
     <Vector name="MaterialNames" type="string" nEntries="6">
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
-      materials:Copper, materials:Air, materials:Copper</Vector>
+      materials:StainlessSteel, materials:Air, materials:Copper</Vector>
     <Vector name="VolumeNames" type="string" nEntries="6">
-      HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHECopperCover, 
+      HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHESteelCover, 
       HGCalHESiliconLayer, HGCalHECoolingPlate</Vector>
     <Vector name="Thickness" type="numeric" nEntries="6">
       41.5*mm, 60.7*mm,  4.0*mm,  2.5*mm, [hgcal:ModuleThicknessHE], 6.35*mm
