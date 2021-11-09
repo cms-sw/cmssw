@@ -72,20 +72,22 @@ CTPPSRPAlignmentInfoAnalyzer::CTPPSRPAlignmentInfoAnalyzer(const edm::ParameterS
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSRPAlignmentInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
-
-  if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
-    alignments = iSetup.getHandle(tokenAlignmentIdeal_);
-  } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0) {
-    alignments = iSetup.getHandle(tokenAlignmentReal_);
-  } else {
-    alignments = iSetup.getHandle(tokenAlignmentMisaligned_);
-  }
-
-  const CTPPSRPAlignmentCorrectionsData* pCTPPSRPAlignmentCorrectionsData = alignments.product();
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(*pCTPPSRPAlignmentCorrectionsData, iov_, record_);
+
+  if (strcmp(record_.c_str(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0 && poolDbService.isAvailable()) {
+    const auto alignments = &iSetup.getData(tokenAlignmentIdeal_);
+    poolDbService->writeOneIOV(alignments, iov_, record_);
+
+  } else if (strcmp(record_.c_str(), "RPRealAlignmentRecord") == 0 && poolDbService.isAvailable()) {
+    const auto alignments = &iSetup.getData(tokenAlignmentReal_);
+    poolDbService->writeOneIOV(alignments, iov_, record_);
+
+  } else if (poolDbService.isAvailable()) {
+    const auto alignments = &iSetup.getData(tokenAlignmentMisaligned_);
+    poolDbService->writeOneIOV(alignments, iov_, record_);
+
+  } else {
+    edm::LogError("CTPPSAlignmentInfoAnalyzer") << " DbService not available ";
   }
 }
 
