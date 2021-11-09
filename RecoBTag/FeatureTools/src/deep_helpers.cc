@@ -125,17 +125,12 @@ namespace btagbtvdeep {
     // Do Subjets
     if (patJet) {
       if (patJet->nSubjetCollections() > 0) {
-        const auto &subjets = patJet->subjets();
-        const auto largest = std::max_element(
-            subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
-              return p1->pt() < p2->pt();
-            });
-        const auto secondLargest = std::max_element(
-            subjets.begin(), subjets.end(), [&largest](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
-              return ((p2 != (*largest)) && (p1->pt() < p2->pt()));
-            });
-        features.first = !subjets.empty() ? reco::deltaR(*cand, *subjets[largest - subjets.begin()]) : -1;
-        features.second = subjets.size() > 1 ? reco::deltaR(*cand, *subjets[secondLargest - subjets.begin()]) : -1;
+        auto subjets = patJet->subjets();
+        std::nth_element(subjets.begin(), subjets.begin()+1, subjets.end(), [](const edm::Ptr<pat::Jet> &p1, const edm::Ptr<pat::Jet> &p2) {
+          return p1->pt() > p2->pt();
+        });
+        features.first = !subjets.empty() ? reco::deltaR(*cand, *subjets[0]) : -1;
+        features.second = subjets.size() > 1 ? reco::deltaR(*cand, *subjets[1]) : -1;
       } else {
         features.first = -1;
         features.second = -1;
