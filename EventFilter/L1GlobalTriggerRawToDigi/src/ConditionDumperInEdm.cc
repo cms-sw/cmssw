@@ -6,15 +6,13 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-
 //
 // constructors and destructor
 //
 ConditionDumperInEdm::ConditionDumperInEdm(const edm::ParameterSet& iConfig)
     : gtEvmDigisLabel_{iConfig.getParameter<edm::InputTag>("gtEvmDigisLabel")},
       gtEvmDigisLabelToken_{consumes<L1GlobalTriggerEvmReadoutRecord>(gtEvmDigisLabel_)},
+      runInfoToken_{esConsumes<edm::Transition::EndRun>()},
       //per LUMI products
       lumiToken_{produces<edm::ConditionsInLumiBlock, edm::Transition::EndLuminosityBlock>()},
       //per RUN products
@@ -45,11 +43,10 @@ void ConditionDumperInEdm::endRunProduce(edm::Run& run, const edm::EventSetup& s
   //dump of RunInfo
   auto& runBlock = *(runCache(run.index()));
   {
-    edm::ESHandle<RunInfo> sum;
-    setup.get<RunInfoRcd>().get(sum);
-    runBlock.BStartCurrent = sum->m_start_current;
-    runBlock.BStopCurrent = sum->m_stop_current;
-    runBlock.BAvgCurrent = sum->m_avg_current;
+    auto const& sum = setup.getData(runInfoToken_);
+    runBlock.BStartCurrent = sum.m_start_current;
+    runBlock.BStopCurrent = sum.m_stop_current;
+    runBlock.BAvgCurrent = sum.m_avg_current;
   }
 
   run.emplace(runToken_, runBlock);
