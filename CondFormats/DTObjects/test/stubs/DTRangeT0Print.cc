@@ -16,7 +16,7 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTRangeT0Print::DTRangeT0Print(edm::ParameterSet const& p): es_token(esConsumes()) {}
+  DTRangeT0Print::DTRangeT0Print(edm::ParameterSet const& p) : es_token(esConsumes()) {}
 
   DTRangeT0Print::DTRangeT0Print(int i) {}
 
