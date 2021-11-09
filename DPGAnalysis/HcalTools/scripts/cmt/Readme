@@ -11,9 +11,9 @@ cd your_working_dir
 
 setenv SCRAM_ARCH slc7_amd64_gcc900
 
-cmsrel CMSSW_12_0_3
+cmsrel CMSSW_12_2_0_pre1
 
-cd CMSSW_12_0_3/src
+cd CMSSW_12_2_0_pre1/src
 
 cmsenv
 
@@ -26,7 +26,7 @@ II.  ----- Compilation of main code CMTRawAnalyzer.cc
 
 scram b 
 
-cd your_dir_CMSSW_12_0_3/src/DPGAnalysis/HcalTools/scripts/cmt 
+cd your_dir_CMSSW_12_2_0_pre1/src/DPGAnalysis/HcalTools/scripts/cmt 
 ( this is initial_dir )
 
 III.-------   Necessary corrections: 
@@ -54,9 +54,9 @@ IVb.  ------  Running using condor.jdl:
 
 setenv SCRAM_ARCH slc7_amd64_gcc900
 
-cmsrel CMSSW_12_0_3
+cmsrel CMSSW_12_2_0_pre1
 
-cd CMSSW_12_0_3/src
+cd CMSSW_12_2_0_pre1/src
 
 - and line with eos-directory, 
 where you are going to record the resulting root files:
@@ -100,7 +100,7 @@ V.  -------------------  Copying:
 
  all good root files to be copied into /initial_dir/longruns/.
 (example:
-scp Global*.root /afs/cern.ch/work/z/zhokin/hcal/qq4/CMSSW_12_0_3/src/DPGAnalysis/HcalTools/scripts/cmt/longruns/.
+scp Global*.root /afs/cern.ch/work/z/zhokin/hcal/qq6/CMSSW_12_2_0_pre1/src/DPGAnalysis/HcalTools/scripts/cmt/longruns/.
 )
     check all root-files availability: 
 
