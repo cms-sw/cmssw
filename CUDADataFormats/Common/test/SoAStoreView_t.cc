@@ -46,9 +46,7 @@ generate_SoA_view(SoAFullDeviceView,
                                       SoA_view_value(soaDO, value, value),
                                       SoA_view_value(soaDO, py, py),
                                       SoA_view_value(soaDO, count, count),
-                                      SoA_view_value(soaDO, anotherCount, anotherCount),
-                                      SoA_view_value(soaHD, description, description),
-                                      SoA_view_value(soaHD, someNumber, someNumber)));
+                                      SoA_view_value(soaDO, anotherCount, anotherCount)));
 
 // Eigen cross product kernel (on store)
 struct crossProduct {
@@ -104,9 +102,7 @@ int main(void) {
                                    d_soa.value(),
                                    d_soa.py(),
                                    d_soa.count(),
-                                   d_soa.anotherCount(),
-                                   d_soa.description(),
-                                   d_soa.someNumber());
+                                   d_soa.anotherCount());
 
   // Assert column alignments
   assert(0 == reinterpret_cast<uintptr_t>(h_soahd.x()) % h_soahd.soaMetadata().byteAlignment());
@@ -137,11 +133,6 @@ int main(void) {
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.x()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.y()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.z()) % h_soahd.soaMetadata().byteAlignment());
-  // Limitation of views: we have to get scalar member addresses via metadata.
-  assert(0 == reinterpret_cast<uintptr_t>(d_soa.soaMetadata().addressOf_description()) %
-                  h_soahd.soaMetadata().byteAlignment());
-  assert(0 == reinterpret_cast<uintptr_t>(d_soa.soaMetadata().addressOf_someNumber()) %
-                  h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.color()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.value()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.py()) % h_soahd.soaMetadata().byteAlignment());
