@@ -16,8 +16,7 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTMapPrint::DTMapPrint(edm::ParameterSet const& p):
-  es_token(esConsumes())  {}
+  DTMapPrint::DTMapPrint(edm::ParameterSet const& p) : es_token(esConsumes()) {}
 
   DTMapPrint::DTMapPrint(int i) {}
 

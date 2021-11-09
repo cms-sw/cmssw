@@ -17,8 +17,7 @@ It gets a compact map from the EventSetup and dumps it as a full map.
 
 namespace edmtest {
 
-  DTFullMapPrint::DTFullMapPrint(edm::ParameterSet const& p):
-  es_token(esConsumes()) {}
+  DTFullMapPrint::DTFullMapPrint(edm::ParameterSet const& p) : es_token(esConsumes()) {}
 
   DTFullMapPrint::DTFullMapPrint(int i) {}
 
