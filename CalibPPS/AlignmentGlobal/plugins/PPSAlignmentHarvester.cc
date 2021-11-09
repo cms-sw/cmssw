@@ -120,7 +120,7 @@ private:
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenReference_;
 
   // variables from parameters
-  const std::string folder_;
+  const std::string dqmDir_;
   const std::vector<std::string> sequence_;
   bool overwriteShX_;
   const bool writeSQLiteResults_;
@@ -150,7 +150,7 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
           edm::ESInputTag("", ""))),
       esTokenReference_(esConsumes<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd, edm::Transition::EndRun>(
           edm::ESInputTag("", "reference"))),
-      folder_(iConfig.getParameter<std::string>("folder")),
+      dqmDir_(iConfig.getParameter<std::string>("dqm_dir")),
       sequence_(iConfig.getParameter<std::vector<std::string>>("sequence")),
       overwriteShX_(iConfig.getParameter<bool>("overwrite_sh_x")),
       writeSQLiteResults_(iConfig.getParameter<bool>("write_sqlite_results")),
@@ -171,7 +171,7 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
 
   edm::LogInfo("PPS").log([&](auto& li) {
     li << "[harvester] parameters:\n";
-    li << "* folder: " << folder_ << "\n";
+    li << "* dqm_dir: " << dqmDir_ << "\n";
     li << "* sequence:\n";
     for (unsigned int i = 0; i < sequence_.size(); i++) {
       li << "    " << i + 1 << ": " << sequence_[i] << "\n";
@@ -199,7 +199,7 @@ PPSAlignmentHarvester::~PPSAlignmentHarvester() {
 void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("folder", "AlCaReco/PPSAlignment");
+  desc.add<std::string>("dqm_dir", "AlCaReco/PPSAlignment");
   desc.add<std::vector<std::string>>("sequence", {"x_alignment", "x_alignment_relative", "y_alignment"});
   desc.add<bool>("overwrite_sh_x", true);
   desc.add<std::string>("text_results_path", "./alignment_results.txt");
@@ -342,15 +342,15 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
       TDirectory* sectorDir = cutsDir->mkdir(sc.name_.c_str());
 
       gDirectory = sectorDir->mkdir("cut_h");
-      auto* h2_cut_h_bef_monitor = iGetter.get(folder_ + "/worker/" + sc.name_ + "/cuts/cut_h/h2_cut_h_bef");
-      auto* h2_cut_h_aft_monitor = iGetter.get(folder_ + "/worker/" + sc.name_ + "/cuts/cut_h/h2_cut_h_aft");
+      auto* h2_cut_h_bef_monitor = iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/cuts/cut_h/h2_cut_h_bef");
+      auto* h2_cut_h_aft_monitor = iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/cuts/cut_h/h2_cut_h_aft");
       writeCutPlot(
           h2_cut_h_bef_monitor->getTH2D(), sc.cut_h_a_, sc.cut_h_c_, cfg.n_si(), sc.cut_h_si_, "canvas_before");
       writeCutPlot(h2_cut_h_aft_monitor->getTH2D(), sc.cut_h_a_, sc.cut_h_c_, cfg.n_si(), sc.cut_h_si_, "canvas_after");
 
       gDirectory = sectorDir->mkdir("cut_v");
-      auto* h2_cut_v_bef_monitor = iGetter.get(folder_ + "/worker/" + sc.name_ + "/cuts/cut_v/h2_cut_v_bef");
-      auto* h2_cut_v_aft_monitor = iGetter.get(folder_ + "/worker/" + sc.name_ + "/cuts/cut_v/h2_cut_v_aft");
+      auto* h2_cut_v_bef_monitor = iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/cuts/cut_v/h2_cut_v_bef");
+      auto* h2_cut_v_aft_monitor = iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/cuts/cut_v/h2_cut_v_aft");
       writeCutPlot(
           h2_cut_v_bef_monitor->getTH2D(), sc.cut_v_a_, sc.cut_v_c_, cfg.n_si(), sc.cut_v_si_, "canvas_before");
       writeCutPlot(h2_cut_v_aft_monitor->getTH2D(), sc.cut_v_a_, sc.cut_v_c_, cfg.n_si(), sc.cut_v_si_, "canvas_after");
@@ -589,7 +589,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
                                    std::make_pair(cfg.sectorConfig56(), cfg_ref.sectorConfig56())}) {
     for (const auto& [rpc, rpc_ref] :
          {std::make_pair(sc.rp_F_, sc_ref.rp_F_), std::make_pair(sc.rp_N_, sc_ref.rp_N_)}) {
-      auto mes_test = iGetter.getAllContents(folder_ + "/worker/" + sc.name_ + "/near_far/x slices, " + rpc.position_);
+      auto mes_test = iGetter.getAllContents(dqmDir_ + "/worker/" + sc.name_ + "/near_far/x slices, " + rpc.position_);
       if (mes_test.empty()) {
         edm::LogWarning("PPS") << "[x_alignment] " << rpc.name_ << ": could not load mes_test";
         continue;
@@ -620,7 +620,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
         continue;
       }
 
-      iBooker.setCurrentFolder(folder_ + "/harvester/x alignment/" + rpc.name_);
+      iBooker.setCurrentFolder(dqmDir_ + "/harvester/x alignment/" + rpc.name_);
 
       std::unique_ptr<TH1D> histPtr = getTH1DFromTGraphErrors(
           g_ref.get(), "ref", ";x (mm);S", rpc_ref.x_slice_n_, rpc_ref.x_slice_w_, rpc_ref.x_slice_min_);
@@ -693,7 +693,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
       gDirectory = sectorDir;
     }
 
-    auto* p_x_diffFN_vs_x_N_monitor = iGetter.get(folder_ + "/worker/" + sc.name_ + "/near_far/p_x_diffFN_vs_x_N");
+    auto* p_x_diffFN_vs_x_N_monitor = iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/near_far/p_x_diffFN_vs_x_N");
     if (p_x_diffFN_vs_x_N_monitor == nullptr) {
       edm::LogWarning("PPS") << "[x_alignment_relative] " << sc.name_ << ": cannot load data, skipping";
       continue;
@@ -749,7 +749,7 @@ void PPSAlignmentHarvester::xAlignmentRelative(DQMStore::IBooker& iBooker,
                         << ff_sl_fix->GetParameter(1) << " * (x - " << ff_sl_fix->GetParameter(2) << ")";
 
     // rebook the diffFN plot in the harvester
-    iBooker.setCurrentFolder(folder_ + "/harvester/x_alignment_relative/" + sc.name_);
+    iBooker.setCurrentFolder(dqmDir_ + "/harvester/x_alignment_relative/" + sc.name_);
     iBooker.bookProfile("p_x_diffFN_vs_x_N", p_x_diffFN_vs_x_N);
 
     if (debug_) {
@@ -906,14 +906,14 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       }
 
       auto* h2_y_vs_x =
-          iGetter.get(folder_ + "/worker/" + sc.name_ + "/multiplicity selection/" + rpc.name_ + "/h2_y_vs_x");
+          iGetter.get(dqmDir_ + "/worker/" + sc.name_ + "/multiplicity selection/" + rpc.name_ + "/h2_y_vs_x");
 
       if (h2_y_vs_x == nullptr) {
         edm::LogWarning("PPS") << "[y_alignment] " << rpc.name_ << ": cannot load data, skipping";
         continue;
       }
 
-      iBooker.setCurrentFolder(folder_ + "/harvester/y alignment/" + rpc.name_);
+      iBooker.setCurrentFolder(dqmDir_ + "/harvester/y alignment/" + rpc.name_);
       auto* h_y_cen_vs_x = buildModeGraph(iBooker, h2_y_vs_x, cfg, rpc);
 
       if ((unsigned int)h_y_cen_vs_x->GetEntries() < cfg.modeGraphMinN()) {
