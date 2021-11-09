@@ -951,7 +951,8 @@ double HGCalDDDConstants::mouseBite(bool reco) const {
 }
 
 int HGCalDDDConstants::numberCells(bool reco) const {
-  int cells = (tileTrapezoid() && (hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorFile)) ? tileCount(0, -1) : 0;
+  int cells =
+      (tileTrapezoid() && (hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorFile)) ? tileCount(0, -1) : 0;
   if (cells == 0) {
     unsigned int nlayer = (reco) ? hgpar_->depth_.size() : hgpar_->layer_.size();
     for (unsigned k = 0; k < nlayer; ++k) {
@@ -1128,13 +1129,13 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
       ringmax = hgpar_->tileRingRange_[ll].second;
     }
     for (int rin = ringmin; rin <= ringmax; ++rin) {
-      int indx = HGCalTileIndex::tileIndex(lay, rin+1, 0);
+      int indx = HGCalTileIndex::tileIndex(lay, rin + 1, 0);
       auto itr = hgpar_->tileInfoMap_.find(indx);
       if (itr != hgpar_->tileInfoMap_.end()) {
-	for (int k = 0; k < 4; ++k) {
-	  std::bitset<24> b(itr->second.hex[k]);
-	  kount += b.count();
-	}
+        for (int k = 0; k < 4; ++k) {
+          std::bitset<24> b(itr->second.hex[k]);
+          kount += b.count();
+        }
       }
     }
   }
