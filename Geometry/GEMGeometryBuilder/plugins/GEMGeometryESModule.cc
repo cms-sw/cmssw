@@ -1,10 +1,10 @@
 /*
 //\class GEMGeometryESModule
 
- Description: GEM Geometry ES Module from DD & DD4HEP
+ Description: GEM Geometry ES Module from DD & DD4hep
               DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
 //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4hep migration)
 //          Created:  27 Jan 2020 
 */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilder.h"
