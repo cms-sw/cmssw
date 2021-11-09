@@ -6,6 +6,7 @@
 // CMSSW includes
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
@@ -54,6 +55,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<FEDRawDataCollection> rawGetToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> pixelDigiToken_;
 
   edm::EDPutTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiPutToken_;
   edm::EDPutTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorPutToken_;
@@ -75,6 +77,7 @@ private:
   std::unique_ptr<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender> wordFedAppender_;
   PixelDataFormatter::Errors errors_;
 
+  const bool isUpgrade_;
   const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
@@ -84,19 +87,33 @@ private:
 };
 
 SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
-    : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
-      digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
+    : digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
       clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
-      gpuMapToken_(esConsumes<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord>()),
-      gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
-      cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
-          edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
+      isUpgrade_(iConfig.getParameter<bool>("isUpgrade")),
       isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       maxFedWords_(iConfig.getParameter<uint32_t>("MaxFEDWords")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
+  if(isRun2_ and isUpgrade_)
+  {
+    throw cms::Exception("SiPixelRawToClusterCUDA") << "Cannot use isRun2 and isUpgrade at the same time\n";
+  }
+
+  if (isUpgrade_)
+  {
+    pixelDigiToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("InputDigis"));
+  }
+  else
+  {
+     rawGetToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
+     gpuMapToken_ = esConsumes<SiPixelROCsStatusAndMappingWrapper, CkfComponentsRecord>();
+     gainsToken_ = esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>();
+     cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>( edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")));
+
+  }
+
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
@@ -115,12 +132,14 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
 void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("isRun2", true);
+  desc.add<bool>("isUpgrade", false);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
   desc.add<uint32_t>("MaxFEDWords", pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD);
   desc.add<int32_t>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
   desc.add<int32_t>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
+  desc.add<edm::InputTag>("InputDigis", edm::InputTag("simSiPixelDigis:Pixel"));
   {
     edm::ParameterSetDescription psd0;
     psd0.addOptional<std::vector<edm::InputTag>>("inputs");
@@ -139,126 +158,176 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
                                       edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
-  auto hgpuMap = iSetup.getHandle(gpuMapToken_);
-  if (hgpuMap->hasQuality() != useQuality_) {
-    throw cms::Exception("LogicError")
-        << "UseQuality of the module (" << useQuality_
-        << ") differs the one from SiPixelROCsStatusAndMappingWrapper. Please fix your configuration.";
+  if (!isUpgrade_)
+  {
+    auto hgpuMap = iSetup.getHandle(gpuMapToken_);
+    if (hgpuMap->hasQuality() != useQuality_) {
+      throw cms::Exception("LogicError")
+          << "UseQuality of the module (" << useQuality_
+          << ") differs the one from SiPixelROCsStatusAndMappingWrapper. Please fix your configuration.";
+    }
+    // get the GPU product already here so that the async transfer can begin
+    const auto* gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());
+
+    auto hgains = iSetup.getHandle(gainsToken_);
+    // get the GPU product already here so that the async transfer can begin
+    const auto* gpuGains = hgains->getGPUProductAsync(ctx.stream());
+
+    cms::cuda::device::unique_ptr<unsigned char[]> modulesToUnpackRegional;
+    const unsigned char* gpuModulesToUnpack;
+
+    if (regions_) {
+      regions_->run(iEvent, iSetup);
+      LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
+      LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): " << regions_->nBarrelModules() << " "
+                                      << regions_->nForwardModules() << " " << regions_->nModules();
+      modulesToUnpackRegional = hgpuMap->getModToUnpRegionalAsync(*(regions_->modulesToUnpack()), ctx.stream());
+      gpuModulesToUnpack = modulesToUnpackRegional.get();
+    } else {
+      gpuModulesToUnpack = hgpuMap->getModToUnpAllAsync(ctx.stream());
+    }
+
+    // initialize cabling map or update if necessary
+    if (recordWatcher_.check(iSetup)) {
+      // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
+      auto cablingMap = iSetup.getTransientHandle(cablingMapToken_);
+      cablingMap_ = cablingMap.product();
+      fedIds_ = cablingMap->fedIds();
+      cabling_ = cablingMap->cablingTree();
+      LogDebug("map version:") << cabling_->version();
+    }
+
+    const auto& buffers = iEvent.get(rawGetToken_);
+
+    errors_.clear();
+
+    // GPU specific: Data extraction for RawToDigi GPU
+    unsigned int wordCounterGPU = 0;
+    unsigned int fedCounter = 0;
+    bool errorsInEvent = false;
+
+    // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
+    ErrorChecker errorcheck;
+    for (int fedId : fedIds_) {
+      if (regions_ && !regions_->mayUnpackFED(fedId))
+        continue;
+
+      // for GPU
+      // first 150 index stores the fedId and next 150 will store the
+      // start index of word in that fed
+      assert(fedId >= FEDNumbering::MINSiPixeluTCAFEDID);
+      fedCounter++;
+
+      // get event data for this fed
+      const FEDRawData& rawData = buffers.FEDData(fedId);
+
+      // GPU specific
+      int nWords = rawData.size() / sizeof(cms_uint64_t);
+      if (nWords == 0) {
+        continue;
+      }
+
+      // check CRC bit
+      const cms_uint64_t* trailer = reinterpret_cast<const cms_uint64_t*>(rawData.data()) + (nWords - 1);
+      if (not errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors_)) {
+        continue;
+      }
+
+      // check headers
+      const cms_uint64_t* header = reinterpret_cast<const cms_uint64_t*>(rawData.data());
+      header--;
+      bool moreHeaders = true;
+      while (moreHeaders) {
+        header++;
+        bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors_);
+        moreHeaders = headerStatus;
+      }
+
+      // check trailers
+      bool moreTrailers = true;
+      trailer++;
+      while (moreTrailers) {
+        trailer--;
+        bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors_);
+        moreTrailers = trailerStatus;
+      }
+
+      const cms_uint32_t* bw = (const cms_uint32_t*)(header + 1);
+      const cms_uint32_t* ew = (const cms_uint32_t*)(trailer);
+
+      assert(0 == (ew - bw) % 2);
+      wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew - bw));
+      wordCounterGPU += (ew - bw);
+
+    }  // end of for loop
+
+    nDigis_ = wordCounterGPU;
+
+    if (nDigis_ == 0)
+      return;
+
+    gpuAlgo_.makeClustersAsync(isRun2_,
+                               clusterThresholds_,
+                               gpuMap,
+                               gpuModulesToUnpack,
+                               gpuGains,
+                               *wordFedAppender_,
+                               std::move(errors_),
+                               wordCounterGPU,
+                               fedCounter,
+                               maxFedWords_,
+                               useQuality_,
+                               includeErrors_,
+                               edm::MessageDrop::instance()->debugEnabled,
+                               ctx.stream());
   }
-  // get the GPU product already here so that the async transfer can begin
-  const auto* gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());
+  else
+  {
+    edm::Handle<edm::DetSetVector<PixelDigi>> digis;
+    iEvent.getByToken(pixelDigiToken_, digis);
+    auto const& input = *digis;
 
-  auto hgains = iSetup.getHandle(gainsToken_);
-  // get the GPU product already here so that the async transfer can begin
-  const auto* gpuGains = hgains->getGPUProductAsync(ctx.stream());
+    const TrackerGeometry* geom_ = nullptr;
+    edm::ESHandle<TrackerGeometry> geom;
+    iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+    geom_ = geom.product();
 
-  cms::cuda::device::unique_ptr<unsigned char[]> modulesToUnpackRegional;
-  const unsigned char* gpuModulesToUnpack;
+    uint32_t nDigis = 0;
 
-  if (regions_) {
-    regions_->run(iEvent, iSetup);
-    LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
-    LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): " << regions_->nBarrelModules() << " "
-                                    << regions_->nForwardModules() << " " << regions_->nModules();
-    modulesToUnpackRegional = hgpuMap->getModToUnpRegionalAsync(*(regions_->modulesToUnpack()), ctx.stream());
-    gpuModulesToUnpack = modulesToUnpackRegional.get();
-  } else {
-    gpuModulesToUnpack = hgpuMap->getModToUnpAllAsync(ctx.stream());
+    auto xDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+    auto yDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+    auto adcDigis = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+    auto moduleIds = cms::cuda::make_host_unique<uint16_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+    auto packedData = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+    auto rawIds = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumDigis, ctx.stream());
+
+    for (auto DSViter = input.begin(); DSViter != input.end(); DSViter++) {
+      unsigned int detid = DSViter->detId();
+      DetId detIdObject(detid);
+      const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
+      auto const gind = genericDet->index();
+      for (auto const& px : *DSViter) {
+
+        moduleIds[nDigis] = uint16_t(gind);
+
+        xDigis[nDigis] = uint16_t(px.row());
+        yDigis[nDigis] = uint16_t(px.column());
+        adcDigis[nDigis] = uint16_t(px.adc());
+
+        packedData[nDigis] = uint32_t(px.packedData());
+
+        rawIds[nDigis] = uint32_t(detid);
+
+        nDigis++;
+      }
+    }
+
+    gpuAlgo_.makeClustersAsync(
+        clusterThresholds_, moduleIds.get(), xDigis.get(), yDigis.get(),
+              adcDigis.get(), packedData.get(), rawIds.get(), nDigis, ctx.stream());
   }
 
-  // initialize cabling map or update if necessary
-  if (recordWatcher_.check(iSetup)) {
-    // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    auto cablingMap = iSetup.getTransientHandle(cablingMapToken_);
-    cablingMap_ = cablingMap.product();
-    fedIds_ = cablingMap->fedIds();
-    cabling_ = cablingMap->cablingTree();
-    LogDebug("map version:") << cabling_->version();
-  }
 
-  const auto& buffers = iEvent.get(rawGetToken_);
-
-  errors_.clear();
-
-  // GPU specific: Data extraction for RawToDigi GPU
-  unsigned int wordCounterGPU = 0;
-  unsigned int fedCounter = 0;
-  bool errorsInEvent = false;
-
-  // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
-  ErrorChecker errorcheck;
-  for (int fedId : fedIds_) {
-    if (regions_ && !regions_->mayUnpackFED(fedId))
-      continue;
-
-    // for GPU
-    // first 150 index stores the fedId and next 150 will store the
-    // start index of word in that fed
-    assert(fedId >= FEDNumbering::MINSiPixeluTCAFEDID);
-    fedCounter++;
-
-    // get event data for this fed
-    const FEDRawData& rawData = buffers.FEDData(fedId);
-
-    // GPU specific
-    int nWords = rawData.size() / sizeof(cms_uint64_t);
-    if (nWords == 0) {
-      continue;
-    }
-
-    // check CRC bit
-    const cms_uint64_t* trailer = reinterpret_cast<const cms_uint64_t*>(rawData.data()) + (nWords - 1);
-    if (not errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors_)) {
-      continue;
-    }
-
-    // check headers
-    const cms_uint64_t* header = reinterpret_cast<const cms_uint64_t*>(rawData.data());
-    header--;
-    bool moreHeaders = true;
-    while (moreHeaders) {
-      header++;
-      bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors_);
-      moreHeaders = headerStatus;
-    }
-
-    // check trailers
-    bool moreTrailers = true;
-    trailer++;
-    while (moreTrailers) {
-      trailer--;
-      bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors_);
-      moreTrailers = trailerStatus;
-    }
-
-    const cms_uint32_t* bw = (const cms_uint32_t*)(header + 1);
-    const cms_uint32_t* ew = (const cms_uint32_t*)(trailer);
-
-    assert(0 == (ew - bw) % 2);
-    wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew - bw));
-    wordCounterGPU += (ew - bw);
-
-  }  // end of for loop
-
-  nDigis_ = wordCounterGPU;
-
-  if (nDigis_ == 0)
-    return;
-
-  gpuAlgo_.makeClustersAsync(isRun2_,
-                             clusterThresholds_,
-                             gpuMap,
-                             gpuModulesToUnpack,
-                             gpuGains,
-                             *wordFedAppender_,
-                             std::move(errors_),
-                             wordCounterGPU,
-                             fedCounter,
-                             maxFedWords_,
-                             useQuality_,
-                             includeErrors_,
-                             edm::MessageDrop::instance()->debugEnabled,
-                             ctx.stream());
 }
 
 void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
