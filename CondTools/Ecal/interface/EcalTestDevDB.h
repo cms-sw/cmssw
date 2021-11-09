@@ -30,6 +30,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 namespace edm {
   class ParameterSet;
@@ -44,16 +45,16 @@ public:
 
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
-  EcalPedestals* generateEcalPedestals();
-  EcalADCToGeVConstant* generateEcalADCToGeVConstant();
-  EcalIntercalibConstants* generateEcalIntercalibConstants();
-  EcalLinearCorrections* generateEcalLinearCorrections();
-  EcalGainRatios* generateEcalGainRatios();
-  EcalWeightXtalGroups* generateEcalWeightXtalGroups();
-  EcalTBWeights* generateEcalTBWeights();
-  EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios(uint32_t i_run);
-  EcalLaserAlphas* generateEcalLaserAlphas();
-  EcalLaserAPDPNRatiosRef* generateEcalLaserAPDPNRatiosRef();
+  std::shared_ptr<EcalPedestals> generateEcalPedestals();
+  std::shared_ptr<EcalADCToGeVConstant> generateEcalADCToGeVConstant();
+  std::shared_ptr<EcalIntercalibConstants> generateEcalIntercalibConstants();
+  std::shared_ptr<EcalLinearCorrections> generateEcalLinearCorrections();
+  std::shared_ptr<EcalGainRatios> generateEcalGainRatios();
+  std::shared_ptr<EcalWeightXtalGroups> generateEcalWeightXtalGroups();
+  std::shared_ptr<EcalTBWeights> generateEcalTBWeights();
+  std::shared_ptr<EcalLaserAPDPNRatios> generateEcalLaserAPDPNRatios(uint32_t i_run);
+  std::shared_ptr<EcalLaserAlphas> generateEcalLaserAlphas();
+  std::shared_ptr<EcalLaserAPDPNRatiosRef> generateEcalLaserAPDPNRatiosRef();
 
 private:
   std::string m_timetype;
