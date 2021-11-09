@@ -55,7 +55,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
   }
 
   if (m_slopeFromTrackRefit) {
-    m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("TrackTransformer"));
+    m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("TrackTransformer"), iC);
   } else {
     m_trackTransformer = nullptr;
   }

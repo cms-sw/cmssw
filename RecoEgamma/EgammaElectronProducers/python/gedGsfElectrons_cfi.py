@@ -19,7 +19,22 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
                                          "gedelectron_EBUncertainty_offline_v1",
                                          "gedelectron_EEUncertainty_offline_v1"],
     combinationRegressionWeightLabels = ["gedelectron_p4combination_offline"],
+
+    #Activate the evaluation of Egamma PFID DNN
+    EleDNNPFid= dict(
+        modelsFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_modelDNN.pb",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_modelDNN.pb"
+        ],
+        scalersFiles = [
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/lowpT/lowpT_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEB/highpTEB_scaler.txt",
+            "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/highpTEE/highpTEE_scaler.txt"
+        ]
+    )    
 )
+
 
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
@@ -31,3 +46,10 @@ egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp.preselection,
                                 minSCEtBarrel = 1.0, 
                                 minSCEtEndcaps = 1.0)
 egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp, applyPreselection = False) 
+
+
+# Activate the Egamma PFID dnn only for Run3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(gedGsfElectronsTmp.EleDNNPFid,
+    enabled = True
+)

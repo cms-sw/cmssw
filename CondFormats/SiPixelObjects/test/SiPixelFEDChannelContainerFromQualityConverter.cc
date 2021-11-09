@@ -53,6 +53,9 @@ private:
   virtual void endJob() override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityToken_;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> siPixelCablingToken_;
+
   const std::string m_record;
   const bool printdebug_;
   const bool isMC_;
@@ -68,7 +71,9 @@ private:
 //
 SiPixelFEDChannelContainerFromQualityConverter::SiPixelFEDChannelContainerFromQualityConverter(
     const edm::ParameterSet& iConfig)
-    : m_record(iConfig.getParameter<std::string>("record")),
+    : siPixelQualityToken_(esConsumes()),
+      siPixelCablingToken_(esConsumes()),
+      m_record(iConfig.getParameter<std::string>("record")),
       printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
       isMC_(iConfig.getUntrackedParameter<bool>("isMC", true)),
       removeEmptyPayloads_(iConfig.getUntrackedParameter<bool>("removeEmptyPayloads", false)) {
@@ -95,11 +100,8 @@ void SiPixelFEDChannelContainerFromQualityConverter::analyze(const edm::Event& i
 
   if (hasQualityIOV) {
     //Retrieve the strip quality from conditions
-    edm::ESHandle<SiPixelQuality> siPixelQuality_;
-    iSetup.get<SiPixelQualityFromDbRcd>().get(siPixelQuality_);
-
-    edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapHandle);
+    edm::ESHandle<SiPixelQuality> siPixelQuality_ = iSetup.getHandle(siPixelQualityToken_);
+    edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle = iSetup.getHandle(siPixelCablingToken_);
 
     std::string scenario = std::to_string(RunNumber_) + "_" + std::to_string(LuminosityBlockNumber_);
 
@@ -226,10 +228,10 @@ void SiPixelFEDChannelContainerFromQualityConverter::endJob() {
     cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
     if (!isMC_) {
-      poolDbService->writeOne(myQualities, valid_time, m_record);
+      poolDbService->writeOneIOV(*myQualities, valid_time, m_record);
     } else {
       // for MC IOV since=1
-      poolDbService->writeOne(myQualities, 1, m_record);
+      poolDbService->writeOneIOV(*myQualities, 1, m_record);
     }
   }
 }

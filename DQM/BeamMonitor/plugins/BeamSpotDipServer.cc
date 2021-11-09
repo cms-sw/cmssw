@@ -55,6 +55,10 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps) {
 
   //
   dip = Dip::create("CmsBeamSpotServer");
+
+  //
+  dip->setDNSNode("dipns1,dipns2");
+
   edm::LogInfo("BeamSpotDipServer") << "reading from " << (readFromNFS ? "file (NFS)" : "database");
 }
 

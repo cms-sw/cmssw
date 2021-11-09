@@ -144,7 +144,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     throw std::runtime_error("PoolDBService required.");
   }
 
-  poolDbService->writeOne(&pedestals, poolDbService->currentTime(), "EcalPedestalsRcd");
+  poolDbService->writeOneIOV(pedestals, poolDbService->currentTime(), "EcalPedestalsRcd");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

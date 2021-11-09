@@ -133,7 +133,7 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
   if (doStoreOnDB) {
     if (poolDbService.isAvailable())
-      poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
+      poolDbService->writeOneIOV(*theAPVGains, poolDbService->currentTime(), m_Record);
     else
       throw std::runtime_error("PoolDBService required.");
   } else {

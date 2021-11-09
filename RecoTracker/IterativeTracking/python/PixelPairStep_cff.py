@@ -7,6 +7,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter('PixelPairStep')
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -279,6 +282,8 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
 )
+trackingNoLoopers.toModify(pixelPairStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 trackingLowPU.toModify(pixelPairStepTrajectoryBuilder, maxCand = 2)
 _seedExtension = dict(
     inOutTrajectoryFilter = dict(refToPSet_ = 'pixelPairStepTrajectoryFilterInOut'),
@@ -367,11 +372,12 @@ pixelPairStep =  TrackMVAClassifierPrompt.clone(
 )
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 
-from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
-trackdnn.toReplaceWith(pixelPairStep, TrackTfClassifier.clone(
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
+trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=qualityCutDictionary['PixelPairStep']
+    qualityCuts=qualityCutDictionary.PixelPairStep.value()
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])

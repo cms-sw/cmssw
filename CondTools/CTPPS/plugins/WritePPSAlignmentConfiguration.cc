@@ -41,7 +41,7 @@ void WritePPSAlignmentConfiguration::analyze(const edm::Event &iEvent, const edm
   // store the data in a DB object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(&ppsAlignmentConfiguration, poolDbService->currentTime(), "PPSAlignmentConfigurationRcd");
+    poolDbService->writeOneIOV(ppsAlignmentConfiguration, poolDbService->currentTime(), "PPSAlignmentConfigurationRcd");
   } else {
     throw cms::Exception("WritePPSAlignmentConfiguration") << "PoolDBService required.";
   }

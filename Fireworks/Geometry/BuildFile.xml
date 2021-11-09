@@ -1,7 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="Geometry/CommonDetUnit"/>
-<use name="DetectorDescription/Core"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/DTGeometry"/>

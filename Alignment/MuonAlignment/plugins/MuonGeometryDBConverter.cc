@@ -34,6 +34,8 @@
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputXML.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 //
 // class decleration
@@ -61,8 +63,20 @@ private:
 
   edm::ParameterSet m_misalignmentScenario;
   edm::ParameterSet m_outputXML;
-  std::string idealGeometryLabelForInputMethod, idealGeometryLabelForInputDB, idealGeometryLabelForInputXML,
-      idealGeometryLabelForInputSurveyDB;
+  const std::string idealGeometryLabelForInputXML, idealGeometryLabel;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomIdealToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomIdealToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomIdealToken_;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
+
+  edm::ESGetToken<Alignments, DTAlignmentRcd> dtAliToken_;
+  edm::ESGetToken<Alignments, CSCAlignmentRcd> cscAliToken_;
+  edm::ESGetToken<Alignments, GEMAlignmentRcd> gemAliToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
 };
 
 //
@@ -83,10 +97,12 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
       m_shiftErr(0.),
       m_angleErr(0.),
       m_getAPEs(false),
-      idealGeometryLabelForInputMethod("idealForInputMethod"),
-      idealGeometryLabelForInputDB("idealForInputDB"),
       idealGeometryLabelForInputXML("idealForInputXML"),
-      idealGeometryLabelForInputSurveyDB("idealForInputSurveyDB") {
+      idealGeometryLabel("idealGeometry"),
+      dtGeomIdealToken_(esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomIdealToken_(esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomIdealToken_(esConsumes(edm::ESInputTag("", idealGeometryLabel))),
+      gprToken_(esConsumes<Alignments, GlobalPositionRcd>(edm::ESInputTag("", ""))) {
   ////////////////////////////////////////////////////////////////////
   // Version V02-03-02 and earlier of this module had support for   //
   // "cfg" as an input/output format.  It turns out that reading    //
@@ -96,54 +112,46 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
   ////////////////////////////////////////////////////////////////////
 
   if (m_input == std::string("ideal")) {
-  }
-
-  else if (m_input == std::string("db")) {
+  } else if (m_input == std::string("db")) {
     m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
     m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
     m_gemLabel = iConfig.getParameter<std::string>("gemLabel");
     m_shiftErr = iConfig.getParameter<double>("shiftErr");
     m_angleErr = iConfig.getParameter<double>("angleErr");
     m_getAPEs = iConfig.getParameter<bool>("getAPEs");
-  }
+    m_outputXML = iConfig.getParameter<edm::ParameterSet>("outputXML");
 
-  else if (m_input == std::string("surveydb")) {
+    dtAliToken_ = esConsumes(edm::ESInputTag("", m_dtLabel));
+    cscAliToken_ = esConsumes(edm::ESInputTag("", m_cscLabel));
+    gemAliToken_ = esConsumes(edm::ESInputTag("", m_gemLabel));
+
+    dtGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+    cscGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+    gemGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+  } else if (m_input == std::string("surveydb")) {
     m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
     m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
     m_gemLabel = iConfig.getParameter<std::string>("gemLabel");
-  }
-
-  else if (m_input == std::string("scenario")) {
+  } else if (m_input == std::string("scenario")) {
     m_misalignmentScenario = iConfig.getParameter<edm::ParameterSet>("MisalignmentScenario");
     m_shiftErr = iConfig.getParameter<double>("shiftErr");
     m_angleErr = iConfig.getParameter<double>("angleErr");
-  }
-
-  else if (m_input == std::string("xml")) {
+  } else if (m_input == std::string("xml")) {
     m_fileName = iConfig.getParameter<std::string>("fileName");
     m_shiftErr = iConfig.getParameter<double>("shiftErr");
     m_angleErr = iConfig.getParameter<double>("angleErr");
-  }
-
-  else {
+    dtGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+    cscGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+    gemGeomToken_ = esConsumes(edm::ESInputTag("", idealGeometryLabelForInputXML));
+  } else {
     throw cms::Exception("BadConfig") << "input must be \"ideal\", \"db\", \"surveydb\", or \"xml\"." << std::endl;
   }
-
   if (m_output == std::string("none")) {
-  }
-
-  else if (m_output == std::string("db")) {
-  }
-
-  else if (m_output == std::string("surveydb")) {
-  }
-
-  else if (m_output == std::string("xml")) {
+  } else if (m_output == std::string("db")) {
+  } else if (m_output == std::string("xml")) {
     m_outputXML = iConfig.getParameter<edm::ParameterSet>("outputXML");
-  }
-
-  else {
-    throw cms::Exception("BadConfig") << "output must be \"none\", \"db\", or \"surveydb\"." << std::endl;
+  } else {
+    throw cms::Exception("BadConfig") << "output must be \"none\", \"db \", \"xml\"." << std::endl;
   }
 }
 
@@ -152,64 +160,47 @@ MuonGeometryDBConverter::~MuonGeometryDBConverter() {}
 // ------------ method called to for each event  ------------
 void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (!m_done) {
-    MuonAlignment *muonAlignment = nullptr;
-
     if (m_input == std::string("ideal")) {
-      MuonAlignmentInputMethod inputMethod;
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
+      MuonAlignmentInputMethod inputMethod(
+          &iSetup.getData(dtGeomIdealToken_), &iSetup.getData(cscGeomIdealToken_), &iSetup.getData(gemGeomIdealToken_));
+      MuonAlignment *muonAlignment = new MuonAlignment(iSetup, inputMethod);
       muonAlignment->fillGapsInSurvey(0., 0.);
-    }
-
-    else if (m_input == std::string("db")) {
-      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, m_gemLabel, idealGeometryLabelForInputDB, m_getAPEs);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
+      muonAlignment->saveToDB();
+    } else if (m_input == std::string("db")) {
+      MuonAlignmentInputDB inputMethod(&iSetup.getData(dtGeomIdealToken_),
+                                       &iSetup.getData(cscGeomIdealToken_),
+                                       &iSetup.getData(gemGeomIdealToken_),
+                                       &iSetup.getData(dtAliToken_),
+                                       &iSetup.getData(cscAliToken_),
+                                       &iSetup.getData(gemAliToken_),
+                                       &iSetup.getData(gprToken_));
+      MuonAlignment *muonAlignment = new MuonAlignment(iSetup, inputMethod);
       if (m_getAPEs) {
         muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
       }
-    }
-
-    else if (m_input == std::string("surveydb")) {
-      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel, idealGeometryLabelForInputSurveyDB);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-      muonAlignment->copySurveyToAlignment();
-    }
-
-    else if (m_input == std::string("scenario")) {
-      MuonAlignmentInputMethod inputMethod;
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
+      muonAlignment->writeXML(
+          m_outputXML, &iSetup.getData(dtGeomToken_), &iSetup.getData(cscGeomToken_), &iSetup.getData(gemGeomToken_));
+    } else if (m_input == std::string("scenario")) {
+      MuonAlignmentInputMethod inputMethod(
+          &iSetup.getData(dtGeomIdealToken_), &iSetup.getData(cscGeomIdealToken_), &iSetup.getData(gemGeomIdealToken_));
+      MuonAlignment *muonAlignment = new MuonAlignment(iSetup, inputMethod);
 
       MuonScenarioBuilder muonScenarioBuilder(muonAlignment->getAlignableMuon());
       muonScenarioBuilder.applyScenario(m_misalignmentScenario);
+      muonAlignment->saveToDB();
       muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
-    }
-
-    else if (m_input == std::string("xml")) {
-      MuonAlignmentInputXML inputMethod(m_fileName, idealGeometryLabelForInputXML);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
+    } else if (m_input == std::string("xml")) {
+      MuonAlignmentInputXML inputMethod(m_fileName,
+                                        &iSetup.getData(dtGeomToken_),
+                                        &iSetup.getData(cscGeomToken_),
+                                        &iSetup.getData(gemGeomToken_),
+                                        &iSetup.getData(dtGeomIdealToken_),
+                                        &iSetup.getData(cscGeomIdealToken_),
+                                        &iSetup.getData(gemGeomIdealToken_));
+      MuonAlignment *muonAlignment = new MuonAlignment(iSetup, inputMethod);
+      muonAlignment->saveToDB();
       muonAlignment->fillGapsInSurvey(m_shiftErr, m_angleErr);
     }
-
-    /////////////
-
-    if (muonAlignment) {
-      if (m_output == std::string("none")) {
-      }
-
-      else if (m_output == std::string("db")) {
-        muonAlignment->saveToDB();
-      }
-
-      else if (m_output == std::string("surveydb")) {
-        muonAlignment->saveSurveyToDB();
-      }
-
-      else if (m_output == std::string("xml")) {
-        muonAlignment->writeXML(m_outputXML, iSetup);
-      }
-
-      delete muonAlignment;
-    }
-
     m_done = true;
   }  // end if not done
   else {
@@ -233,8 +224,8 @@ void MuonGeometryDBConverter::fillDescriptions(edm::ConfigurationDescriptions &d
   edm::ParameterSetDescription outputXML;
   outputXML.add<std::string>("fileName", "REPLACEME.xml");
   outputXML.add<std::string>("relativeto", "ideal");
-  outputXML.add<bool>("survey", false);
   outputXML.add<bool>("rawIds", false);
+  outputXML.add<bool>("survey", false);
   outputXML.add<bool>("eulerAngles", false);
   outputXML.add<int>("precision", 10);
   outputXML.addUntracked<bool>("suppressDTBarrel", true);
@@ -248,6 +239,12 @@ void MuonGeometryDBConverter::fillDescriptions(edm::ConfigurationDescriptions &d
   outputXML.addUntracked<bool>("suppressCSCRings", true);
   outputXML.addUntracked<bool>("suppressCSCChambers", false);
   outputXML.addUntracked<bool>("suppressCSCLayers", false);
+  outputXML.addUntracked<bool>("suppressGEMEndcaps", true);
+  outputXML.addUntracked<bool>("suppressGEMStations", true);
+  outputXML.addUntracked<bool>("suppressGEMRings", true);
+  outputXML.addUntracked<bool>("suppressGEMSuperChambers", false);
+  outputXML.addUntracked<bool>("suppressGEMChambers", true);
+  outputXML.addUntracked<bool>("suppressGEMEtaPartitions", true);
   desc.add("outputXML", outputXML);
   descriptions.add("muonGeometryDBConverter", desc);
 }

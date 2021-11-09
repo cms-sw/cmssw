@@ -63,7 +63,7 @@ if len(submitted_jobs) > 0:
     job_status = {}
     condor_q = subprocess.check_output(["condor_q", "-af:j",
                                         "JobStatus", "RemoteSysCpu"],
-                                       stderr = subprocess.STDOUT)
+                                       stderr = subprocess.STDOUT).decode()
     for line in condor_q.splitlines():
         job_id, status, cpu_time = line.split()
         job_status[job_id] = {"status": htcondor_jobstatus[status],
@@ -90,7 +90,8 @@ if len(submitted_jobs) > 0:
 
 ################################################################################
 # loop over remaining jobs to see whether they are done
-for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no iterator!)
+submitted_jobs_copy = { k:v for k,v in submitted_jobs.items() }
+for job_id, mps_index in submitted_jobs_copy.items(): # IMPORTANT to copy here (no iterator!)
     # check if current job is disabled. Print stuff.
     disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
     print(" DB job ", job_id, mps_index)
@@ -100,7 +101,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
     condor_h = subprocess.check_output(["condor_history", job_id, "-limit", "1",
                                         "-userlog", userlog,
                                         "-af:j", "JobStatus", "RemoteSysCpu"],
-                                       stderr = subprocess.STDOUT)
+                                       stderr = subprocess.STDOUT).decode()
     if len(condor_h.strip()) > 0:
         job_id, status, cpu_time = condor_h.split()
         status = htcondor_jobstatus[status]

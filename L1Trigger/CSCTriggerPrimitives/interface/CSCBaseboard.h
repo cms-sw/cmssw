@@ -53,6 +53,11 @@ protected:
   bool isME21_;
   bool isME31_;
   bool isME41_;
+  bool isME12_;
+  bool isME22_;
+  bool isME32_;
+  bool isME42_;
+  bool isME13_;
 
   // CSCDetId for this chamber
   CSCDetId cscId_;
@@ -104,5 +109,7 @@ protected:
   bool runME41Up_;
 
   bool runCCLUT_;
+  bool runCCLUT_TMB_;
+  bool runCCLUT_OTMB_;
 };
 #endif

@@ -343,6 +343,31 @@ namespace reco {
     /// set mva for neutral hadron - gamma discrimination
     void set_mva_gamma_nh(float mva) { mva_gamma_nh_ = mva; }
 
+    // set DNN for electron PFID
+    // mva for ele PFID DNN sigIsolated class
+    float dnn_e_sigIsolated() const { return dnn_e_sigIsolated_; }
+    void set_dnn_e_sigIsolated(float mva) { dnn_e_sigIsolated_ = mva; }
+
+    // mva for ele PFID DNN sigNonIsolated class
+    float dnn_e_sigNonIsolated() const { return dnn_e_sigNonIsolated_; }
+    void set_dnn_e_sigNonIsolated(float mva) { dnn_e_sigNonIsolated_ = mva; }
+
+    // mva for ele PFID DNN bkgNonIsolated class
+    float dnn_e_bkgNonIsolated() const { return dnn_e_bkgNonIsolated_; }
+    void set_dnn_e_bkgNonIsolated(float mva) { dnn_e_bkgNonIsolated_ = mva; }
+
+    // mva for ele PFID DNN bkgTau class
+    float dnn_e_bkgTau() const { return dnn_e_bkgTau_; }
+    void set_dnn_e_bkgTau(float mva) { dnn_e_bkgTau_ = mva; }
+
+    // mva for ele PFID DNN bkgPhoton class
+    float dnn_e_bkgPhoton() const { return dnn_e_bkgPhoton_; }
+    void set_dnn_e_bkgPhoton(float mva) { dnn_e_bkgPhoton_ = mva; }
+
+    // set DNN for gamma PFID
+    float dnn_gamma() const { return dnn_gamma_; }
+    void set_dnn_gamma(float mva) { dnn_gamma_ = mva; }
+
     /// mva for neutral hadron - gamma discrimination
     float mva_gamma_nh() const { return mva_gamma_nh_; }
 
@@ -383,7 +408,7 @@ namespace reco {
 
     const ElementsInBlocks& elementsInBlocks() const;
 
-    static const float bigMva_;
+    static constexpr float bigMva_ = -999.;
 
     friend std::ostream& operator<<(std::ostream& out, const PFCandidate& c);
 
@@ -491,6 +516,24 @@ namespace reco {
 
     /// mva for neutral hadron - gamma discrimination
     float mva_gamma_nh_;
+
+    /// DNN for electron PFid: isolated signal
+    float dnn_e_sigIsolated_;
+
+    /// DNN for electron PFid: non-isolated signal
+    float dnn_e_sigNonIsolated_;
+
+    /// DNN for electron PFid: non-isolated bkg
+    float dnn_e_bkgNonIsolated_;
+
+    /// DNN for electron PFid: tau bkg
+    float dnn_e_bkgTau_;
+
+    /// DNN for electron PFid: photon bkg
+    float dnn_e_bkgPhoton_;
+
+    // DNN for gamma PFid
+    float dnn_gamma_;
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF positionAtECALEntrance_;

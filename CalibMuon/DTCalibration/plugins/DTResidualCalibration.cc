@@ -36,7 +36,7 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
       segment4DLabel_(pset.getParameter<edm::InputTag>("segment4DLabel")),
       rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir", "DT/Residuals")),
       detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis", false)),
-      dtGeomToken_(esConsumes()) {
+      dtGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
   edm::ConsumesCollector collector(consumesCollector());
   select_ = new DTSegmentSelector(pset, collector);
 

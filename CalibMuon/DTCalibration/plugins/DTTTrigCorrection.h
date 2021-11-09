@@ -11,6 +11,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 #include <string>
 
@@ -37,10 +41,11 @@ public:
 
 protected:
 private:
-  std::string dbLabel_;
-
   const DTTtrig* tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
+
+  edm::ESGetToken<DTTtrig, DTTtrigRcd> ttrigToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 
   std::unique_ptr<dtCalibration::DTTTrigBaseCorrection> correctionAlgo_;
 };

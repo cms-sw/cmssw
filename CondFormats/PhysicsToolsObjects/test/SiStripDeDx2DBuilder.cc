@@ -39,7 +39,7 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       << "... creating dummy PhysicsToolsObjects::Calibration::HistogramD2D Data for Run " << run << "\n " << std::endl;
 
   //  PhysicsToolsObjects::Calibration::HistogramD2D* obj = new PhysicsTools::Calibration::HistogramD2D(300, 0., 3., 1000,0.,1000.);
-  PhysicsTools::Calibration::VHistogramD2D* obj = new PhysicsTools::Calibration::VHistogramD2D();
+  PhysicsTools::Calibration::VHistogramD2D obj;
 
   for (int ih = 0; ih < 3; ih++) {
     PhysicsTools::Calibration::HistogramD2D myhist(300, 0., 3., 1000, 0., 1000.);
@@ -49,8 +49,8 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
       }
     }
 
-    (obj->vHist).push_back(myhist);
-    (obj->vValues).push_back(ih);
+    (obj.vHist).push_back(myhist);
+    (obj.vValues).push_back(ih);
   }
 
   //  SiStripDetInfoFileReader reader(fp_.fullPath());
@@ -72,7 +72,7 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
   //     }
 
   //     PhysicsToolsObjects::Calibration::HistogramD2D::Range range(theSiStripVector.begin(),theSiStripVector.end());
-  //     if ( ! obj->put(it->first,range) )
+  //     if ( ! obj.put(it->first,range) )
 
   //      edm::LogError("PhysicsToolsObjects::Calibration::HistogramD2DBuilder")<<"[PhysicsToolsObjects::Calibration::HistogramD2DBuilder::analyze] detid already exists"<<std::endl;
   //  }
@@ -82,10 +82,10 @@ void SiStripDeDx2DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripDeDxProton_2D_Rcd")) {
-      mydbservice->createNewIOV<PhysicsTools::Calibration::VHistogramD2D>(
-          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripDeDxProton_2D_Rcd");
+      mydbservice->createOneIOV<PhysicsTools::Calibration::VHistogramD2D>(
+          obj, mydbservice->beginOfTime(), "SiStripDeDxProton_2D_Rcd");
     } else {
-      mydbservice->appendSinceTime<PhysicsTools::Calibration::VHistogramD2D>(
+      mydbservice->appendOneIOV<PhysicsTools::Calibration::VHistogramD2D>(
           obj, mydbservice->currentTime(), "SiStripDeDxProton_2D_Rcd");
     }
   } else {

@@ -65,7 +65,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 //
 // class declaration

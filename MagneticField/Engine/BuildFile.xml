@@ -1,6 +1,5 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Framework"/>
 <export>
   <lib name="1"/>
 </export>

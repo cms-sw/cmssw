@@ -1,10 +1,12 @@
 #ifndef OPTICALFUNCTION_TRANSPORT
 #define OPTICALFUNCTION_TRANSPORT
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
-#include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
-#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/DataRecord/interface/LHCInfoRcd.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,7 +18,6 @@
 
 #include <array>
 #include <unordered_map>
-
 #include <cmath>
 
 class OpticalFunctionsTransport : public BaseProtonTransport {
@@ -32,10 +33,13 @@ private:
   edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> beamParametersToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsToken_;
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> beamspotToken_;
 
   const LHCInfo* lhcInfo_;
   const CTPPSBeamParameters* beamParameters_;
   const LHCInterpolatedOpticalFunctionsSetCollection* opticalFunctions_;
+  const BeamSpotObjects* beamspot_;
+
   unsigned int optFunctionId45_;
   unsigned int optFunctionId56_;
 

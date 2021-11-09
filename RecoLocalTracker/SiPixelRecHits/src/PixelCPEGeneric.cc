@@ -76,7 +76,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
         throw cms::Exception("InvalidCalibrationLoaded")
             << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
             << (*genErrorDBObject_).version();
-      edm::LogInfo("PixelCPEGeneric") << "Loaded genErrorDBObject v" << (*genErrorDBObject_).version();
+      LogDebug("PixelCPEGeneric") << "Loaded genErrorDBObject v" << (*genErrorDBObject_).version();
     } else {  // From file
       if (!SiPixelGenError::pushfile(-999, thePixelGenError_))
         throw cms::Exception("InvalidCalibrationLoaded")
@@ -169,9 +169,9 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     if (useLAWidthFromGenError) {
       chargeWidthX = (-micronsToCm * gtempl.lorxwidth());
       chargeWidthY = (-micronsToCm * gtempl.lorywidth());
-      edm::LogInfo("PixelCPE localPosition():") << "redefine la width (gen-error)" << chargeWidthX << chargeWidthY;
+      LogDebug("PixelCPE localPosition():") << "redefine la width (gen-error)" << chargeWidthX << chargeWidthY;
     }
-    edm::LogInfo("PixelCPE localPosition():") << "GenError:" << gtemplID_;
+    LogDebug("PixelCPE localPosition():") << "GenError:" << gtemplID_;
 
     // These numbers come in microns from the qbin(...) call. Transform them to cm.
     theClusterParam.deltax = theClusterParam.deltax * micronsToCm;

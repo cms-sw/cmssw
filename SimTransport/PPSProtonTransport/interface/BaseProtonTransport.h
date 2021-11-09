@@ -50,6 +50,8 @@ protected:
 
   bool verbosity_;
   bool bApplyZShift;
+  bool useBeamPositionFromLHCInfo_;
+  bool produceHitsRelativeToBeam_;
 
   std::string beam1Filename_;
   std::string beam2Filename_;
@@ -71,7 +73,5 @@ protected:
   double m_sigmaSX;
   double m_sigmaSY;
   double m_sig_E;
-  double fBeamXatIP;
-  double fBeamYatIP;
 };
 #endif

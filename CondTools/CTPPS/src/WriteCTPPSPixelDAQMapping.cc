@@ -72,7 +72,7 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
   const CTPPSPixelDAQMapping *pCTPPSPixelDAQMapping = hMapping.product();  // DAQ Mapping
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOne(pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(*pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_);
   }
 }
 

@@ -3,7 +3,7 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-class QGLikelihoodDBWriter : public edm::EDAnalyzer {
+class QGLikelihoodDBWriter : public edm::one::EDAnalyzer<> {
 public:
   QGLikelihoodDBWriter(const edm::ParameterSet&);
   void beginJob() override;

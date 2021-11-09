@@ -8,6 +8,7 @@
 
 /// A PluginFactory that produces factories that inherit from TrajectoryFactoryBase.
 
-typedef edmplugin::PluginFactory<TrajectoryFactoryBase *(const edm::ParameterSet &)> TrajectoryFactoryPlugin;
+typedef edmplugin::PluginFactory<TrajectoryFactoryBase *(const edm::ParameterSet &, edm::ConsumesCollector &)>
+    TrajectoryFactoryPlugin;
 
 #endif

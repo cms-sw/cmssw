@@ -51,8 +51,6 @@ def customiseCommon(process):
         replace_with(process.Status_OnCPU, cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter))
     else:
         process.Status_OnCPU = cms.Path(process.statusOnGPU + ~process.statusOnGPUFilter)
-        if 'HLTSchedule' in process.__dict__:
-            process.HLTSchedule.append(process.Status_OnCPU)
         if process.schedule is not None:
             process.schedule.append(process.Status_OnCPU)
 
@@ -60,11 +58,8 @@ def customiseCommon(process):
         replace_with(process.Status_OnGPU, cms.Path(process.statusOnGPU + process.statusOnGPUFilter))
     else:
         process.Status_OnGPU = cms.Path(process.statusOnGPU + process.statusOnGPUFilter)
-        if 'HLTSchedule' in process.__dict__:
-            process.HLTSchedule.append(process.Status_OnGPU)
         if process.schedule is not None:
             process.schedule.append(process.Status_OnGPU)
-
 
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
     if 'hltOutputScoutingCaloMuon' in process.__dict__ and not 'hltPreScoutingCaloMuonOutputSmart' in process.__dict__:
@@ -196,11 +191,24 @@ def customisePixelLocalReconstruction(process):
         beamSpot = "hltOnlineBeamSpotToCUDA"
     )
 
+    # cpu only: produce the pixel rechits in SoA and legacy format, from the legacy clusters
+    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
+    process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
+        src = "hltSiPixelClusters",
+        beamSpot = "hltOnlineBeamSpot",
+        convertToLegacy = True
+    )
+
     # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
     from RecoLocalTracker.SiPixelRecHits.siPixelRecHitFromCUDA_cfi import siPixelRecHitFromCUDA as _siPixelRecHitFromCUDA
     process.hltSiPixelRecHits = SwitchProducerCUDA(
         # legacy producer
-        cpu = process.hltSiPixelRecHits,
+        cpu = cms.EDAlias(
+           hltSiPixelRecHitSoA = cms.VPSet(
+                cms.PSet(type = cms.string("SiPixelRecHitedmNewDetSetVector")),
+                cms.PSet(type = cms.string("uintAsHostProduct"))
+            )
+        ),
         # conversion from SoA to legacy format
         cuda = _siPixelRecHitFromCUDA.clone(
             pixelRecHitSrc = "hltSiPixelRecHitsCUDA",
@@ -222,35 +230,25 @@ def customisePixelLocalReconstruction(process):
           process.hltSiPixelClustersLegacy,                 # legacy pixel cluster producer
           process.hltSiPixelClusters,                       # SwitchProducer wrapping a subset of the legacy pixel cluster producer, or the conversion of the pixel digis (except errors) and clusters from SoA
           process.hltSiPixelClustersCache,                  # legacy module, used by the legacy pixel quadruplet producer
+          process.hltSiPixelRecHitSoA,                      # pixel rechits on cpu, in SoA & legacy format
           process.hltSiPixelRecHits)                        # SwitchProducer wrapping the legacy pixel rechit producer or the transfer of the pixel rechits to the host and the conversion from SoA
 
     process.HLTDoLocalPixelSequence = cms.Sequence(process.HLTDoLocalPixelTask)
 
 
     # workaround for AlCa paths
-
-    if 'AlCa_LumiPixelsCounts_Random_v1' in process.__dict__:
-        # redefine the path to use the HLTDoLocalPixelSequence
-        process.AlCa_LumiPixelsCounts_Random_v1 = cms.Path(
-            process.HLTBeginSequenceRandom +
-            process.hltScalersRawToDigi +
-            process.hltPreAlCaLumiPixelsCountsRandom +
-            process.hltPixelTrackerHVOn +
-            process.HLTDoLocalPixelSequence +
-            process.hltAlcaPixelClusterCounts +
-            process.HLTEndSequence )
-
-    if 'AlCa_LumiPixelsCounts_ZeroBias_v1' in process.__dict__:
-        # redefine the path to use the HLTDoLocalPixelSequence
-        process.AlCa_LumiPixelsCounts_ZeroBias_v1 = cms.Path(
-            process.HLTBeginSequence +
-            process.hltScalersRawToDigi +
-            process.hltL1sZeroBias +
-            process.hltPreAlCaLumiPixelsCountsZeroBias +
-            process.hltPixelTrackerHVOn +
-            process.HLTDoLocalPixelSequence +
-            process.hltAlcaPixelClusterCounts +
-            process.HLTEndSequence )
+    for AlCaPathName in ['AlCa_LumiPixelsCounts_Random_v1', 'AlCa_LumiPixelsCounts_ZeroBias_v1']:
+        if AlCaPathName in process.__dict__:
+            AlCaPath = getattr(process, AlCaPathName)
+            # replace hltSiPixelDigis+hltSiPixelClusters with HLTDoLocalPixelSequence
+            hasSiPixelDigis, hasSiPixelClusters = False, False
+            for (itemLabel, itemName) in AlCaPath.directDependencies():
+                if itemLabel != 'modules': continue
+                if itemName == 'hltSiPixelDigis': hasSiPixelDigis = True
+                elif itemName == 'hltSiPixelClusters': hasSiPixelClusters = True
+            if hasSiPixelDigis and hasSiPixelClusters:
+                AlCaPath.remove(process.hltSiPixelClusters)
+                AlCaPath.replace(process.hltSiPixelDigis, process.HLTDoLocalPixelSequence)
 
 
     # done
@@ -275,14 +273,6 @@ def customisePixelTrackReconstruction(process):
     # Modules and EDAliases
 
     # referenced in process.HLTRecoPixelTracksTask
-
-    # cpu only: convert the pixel rechits from legacy to SoA format
-    from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacy_cfi import siPixelRecHitSoAFromLegacy as _siPixelRecHitSoAFromLegacy
-    process.hltSiPixelRecHitSoA = _siPixelRecHitSoAFromLegacy.clone(
-        src = "hltSiPixelClusters",
-        beamSpot = "hltOnlineBeamSpot",
-        convertToLegacy = True
-    )
 
     # build pixel ntuplets and pixel tracks in SoA format on gpu
     from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
@@ -357,7 +347,6 @@ def customisePixelTrackReconstruction(process):
 
     process.HLTRecoPixelTracksTask = cms.Task(
           process.hltPixelTracksTrackingRegions,            # from the original sequence
-          process.hltSiPixelRecHitSoA,                      # pixel rechits on cpu, converted to SoA
           process.hltPixelTracksCUDA,                       # pixel ntuplets on gpu, in SoA format
           process.hltPixelTracksSoA,                        # pixel ntuplets on cpu, in SoA format
           process.hltPixelTracks)                           # pixel tracks on cpu, in legacy format
@@ -726,8 +715,6 @@ def _addConsumerPath(process):
         process.HLTDoLocalHcalTask,
     )
 
-    if 'HLTSchedule' in process.__dict__:
-        process.HLTSchedule.append(process.Consumer)
     if process.schedule is not None:
         process.schedule.append(process.Consumer)
 

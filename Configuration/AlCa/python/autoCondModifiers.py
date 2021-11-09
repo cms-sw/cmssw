@@ -31,43 +31,66 @@ def autoCondHLTHI(autoCond):
     autoCond.update(GlobalTagsHLTHI)
     return autoCond
 
-def autoCondDD4HEP(autoCond):
+def autoCondDDD(autoCond):
 
-    GlobalTagsDDHEP = {}
-    # substitute the DDD geometry tags with DD4HEP ones
-    CSCRECODIGI_Geometry_dd4hep    =  ','.join( ['CSCRECODIGI_Geometry_120DD4hepV1'            , "CSCRecoDigiParametersRcd", connectionString, "", "2021-09-28 12:00:00.000"] )
-    CSCRECO_Geometry_dd4hep        =  ','.join( ['CSCRECO_Geometry_120DD4hepV1'                , "CSCRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
-    DTRECO_Geometry_dd4hep         =  ','.join( ['DTRECO_Geometry_120DD4hepV1'                 , "DTRecoGeometryRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
-    GEMRECO_Geometry_dd4hep        =  ','.join( ['GEMRECO_Geometry_120DD4hepV1'                , "GEMRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
-    XMLFILE_Geometry_dd4hep        =  ','.join( ['XMLFILE_Geometry_121DD4hepV1_Extended2021_mc', "GeometryFileRcd"         , connectionString, "Extended", "2021-09-28 12:00:00.000"] )
-    HCALParameters_Geometry_dd4hep =  ','.join( ['HCALParameters_Geometry_120DD4hepV1'         , "HcalParametersRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
-    TKRECO_Geometry_dd4hep         =  ','.join( ['TKRECO_Geometry_121DD4hepV1'                 , "IdealGeometryRecord"     , connectionString, "", "2021-09-28 12:00:00.000"] )
-    CTRECO_Geometry_dd4hep         =  ','.join( ['CTRECO_Geometry_120DD4hepV1'                 , "PCaloTowerRcd"           , connectionString, "", "2021-09-28 12:00:00.000"] )
-    EBRECO_Geometry_dd4hep         =  ','.join( ['EBRECO_Geometry_120DD4hepV1'                 , "PEcalBarrelRcd"          , connectionString, "", "2021-09-28 12:00:00.000"] )
-    EERECO_Geometry_dd4hep         =  ','.join( ['EERECO_Geometry_120DD4hepV1'                 , "PEcalEndcapRcd"          , connectionString, "", "2021-09-28 12:00:00.000"] )
-    EPRECO_Geometry_dd4hep         =  ','.join( ['EPRECO_Geometry_120DD4hepV1'                 , "PEcalPreshowerRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
-    HCALRECO_Geometry_dd4hep       =  ','.join( ['HCALRECO_Geometry_120DD4hepV1'               , "PHcalRcd"                , connectionString, "", "2021-09-28 12:00:00.000"] )
-    TKParameters_Geometry_dd4hep   =  ','.join( ['TKParameters_Geometry_120DD4hepV1'           , "PTrackerParametersRcd"   , connectionString, "", "2021-09-28 12:00:00.000"] )
-    ZDCRECO_Geometry_dd4hep        =  ','.join( ['ZDCRECO_Geometry_120DD4hepV1'                , "PZdcRcd"                 , connectionString, "", "2021-09-28 12:00:00.000"] )
-    RPCRECO_Geometry_dd4hep        =  ','.join( ['RPCRECO_Geometry_120DD4hepV1'                , "RPCRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
+    GlobalTagsDDD = {}
+    # substitute the DD4hep geometry tags with DDD ones
+    CSCRECODIGI_Geometry_ddd    =  ','.join( ['CSCRECODIGI_Geometry_112YV2'            , "CSCRecoDigiParametersRcd", connectionString, "", "2021-09-28 12:00:00.000"] )
+    CSCRECO_Geometry_ddd        =  ','.join( ['CSCRECO_Geometry_112YV2'                , "CSCRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
+    DTRECO_Geometry_ddd         =  ','.join( ['DTRECO_Geometry_112YV2'                 , "DTRecoGeometryRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
+    GEMRECO_Geometry_ddd        =  ','.join( ['GEMRECO_Geometry_113YV4'                , "GEMRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
+    XMLFILE_Geometry_ddd        =  ','.join( ['XMLFILE_Geometry_121YV1_Extended2021_mc', "GeometryFileRcd"         , connectionString, "Extended", "2021-09-28 12:00:00.000"] )
+    HCALParameters_Geometry_ddd =  ','.join( ['HCALParameters_Geometry_112YV2'         , "HcalParametersRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
+    TKRECO_Geometry_ddd         =  ','.join( ['TKRECO_Geometry_120YV2'                 , "IdealGeometryRecord"     , connectionString, "", "2021-09-28 12:00:00.000"] )
+    CTRECO_Geometry_ddd         =  ','.join( ['CTRECO_Geometry_112YV2'                 , "PCaloTowerRcd"           , connectionString, "", "2021-09-28 12:00:00.000"] )
+    EBRECO_Geometry_ddd         =  ','.join( ['EBRECO_Geometry_112YV2'                 , "PEcalBarrelRcd"          , connectionString, "", "2021-09-28 12:00:00.000"] )
+    EERECO_Geometry_ddd         =  ','.join( ['EERECO_Geometry_112YV2'                 , "PEcalEndcapRcd"          , connectionString, "", "2021-09-28 12:00:00.000"] )
+    EPRECO_Geometry_ddd         =  ','.join( ['EPRECO_Geometry_112YV2'                 , "PEcalPreshowerRcd"       , connectionString, "", "2021-09-28 12:00:00.000"] )
+    HCALRECO_Geometry_ddd       =  ','.join( ['HCALRECO_Geometry_112YV2'               , "PHcalRcd"                , connectionString, "", "2021-09-28 12:00:00.000"] )
+    TKParameters_Geometry_ddd   =  ','.join( ['TKParameters_Geometry_112YV2'           , "PTrackerParametersRcd"   , connectionString, "", "2021-09-28 12:00:00.000"] )
+    ZDCRECO_Geometry_ddd        =  ','.join( ['ZDCRECO_Geometry_112YV2'                , "PZdcRcd"                 , connectionString, "", "2021-09-28 12:00:00.000"] )
+    RPCRECO_Geometry_ddd        =  ','.join( ['RPCRECO_Geometry_112YV2'                , "RPCRecoGeometryRcd"      , connectionString, "", "2021-09-28 12:00:00.000"] )
 
     for key,val in autoCond.items():
-        if key == 'phase1_2021_realistic':    # modification of the DD4HEP relval GT
-            GlobalTagsDDHEP['phase1_2021_dd4hep'] = (autoCond[key],
-                                                     CSCRECODIGI_Geometry_dd4hep,
-                                                     CSCRECO_Geometry_dd4hep,
-                                                     DTRECO_Geometry_dd4hep,
-                                                     GEMRECO_Geometry_dd4hep,
-                                                     XMLFILE_Geometry_dd4hep,
-                                                     HCALParameters_Geometry_dd4hep,
-                                                     TKRECO_Geometry_dd4hep,
-                                                     CTRECO_Geometry_dd4hep,
-                                                     EBRECO_Geometry_dd4hep,
-                                                     EERECO_Geometry_dd4hep,
-                                                     EPRECO_Geometry_dd4hep,
-                                                     HCALRECO_Geometry_dd4hep,
-                                                     TKParameters_Geometry_dd4hep,
-                                                     ZDCRECO_Geometry_dd4hep,
-                                                     RPCRECO_Geometry_dd4hep)
-    autoCond.update(GlobalTagsDDHEP)
+        if 'phase1_202' in key:    # modification of the DDD relval GT
+            GlobalTagsDDD[key+'_ddd'] = (autoCond[key],
+                                         CSCRECODIGI_Geometry_ddd,
+                                         CSCRECO_Geometry_ddd,
+                                         DTRECO_Geometry_ddd,
+                                         GEMRECO_Geometry_ddd,
+                                         XMLFILE_Geometry_ddd,
+                                         HCALParameters_Geometry_ddd,
+                                         TKRECO_Geometry_ddd,
+                                         CTRECO_Geometry_ddd,
+                                         EBRECO_Geometry_ddd,
+                                         EERECO_Geometry_ddd,
+                                         EPRECO_Geometry_ddd,
+                                         HCALRECO_Geometry_ddd,
+                                         TKParameters_Geometry_ddd,
+                                         ZDCRECO_Geometry_ddd,
+                                         RPCRECO_Geometry_ddd)
+    autoCond.update(GlobalTagsDDD)
+    return autoCond
+
+def autoCond2017ppRef5TeV(autoCond):
+
+    GlobalTag2017ppRef5TeV  = {}
+    # substitute tags needed for 2017 ppRef 5 TeV GT
+    BeamSpotObjects_2017ppRef5TeV           =  ','.join( ['BeamSpotObjects_pp_2017G_MC_2021sample_for_UL' , "BeamSpotObjectsRcd",           connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalLaserAPDPNRatios_2017ppRef5TeV      =  ','.join( ['EcalLaserAPDPNRatios_mc_Run2017G_306580'       , "EcalLaserAPDPNRatiosRcd",      connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalPedestals_2017ppRef5TeV             =  ','.join( ['EcalPedestals_Run2017G_306580'                 , "EcalPedestalsRcd",             connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalTPGLinearizationConst_2017ppRef5TeV =  ','.join( ['EcalTPGLinearizationConst_Run2017G_306580'     , "EcalTPGLinearizationConstRcd", connectionString, "", "2021-10-28 12:00:00.000"] )
+    EcalTPGPedestals_2017ppRef5TeV          =  ','.join( ['EcalTPGPedestals_Run2017G_306580'              , "EcalTPGPedestalsRcd",          connectionString, "", "2021-10-28 12:00:00.000"] )
+    L1Menu_2017ppRef5TeV                    =  ','.join( ['L1Menu_pp502Collisions2017_v4_m6_xml'          , "L1TUtmTriggerMenuRcd",         connectionString, "", "2021-10-28 12:00:00.000"] )
+
+    for key,val in autoCond.items():
+        if 'phase1_2017_realistic' in key:
+            GlobalTag2017ppRef5TeV[key+'_ppref'] = (autoCond[key],
+                                         BeamSpotObjects_2017ppRef5TeV,
+                                         EcalLaserAPDPNRatios_2017ppRef5TeV,
+                                         EcalPedestals_2017ppRef5TeV,
+                                         EcalTPGLinearizationConst_2017ppRef5TeV,
+                                         EcalTPGPedestals_2017ppRef5TeV,
+                                         L1Menu_2017ppRef5TeV)
+    autoCond.update(GlobalTag2017ppRef5TeV)
     return autoCond

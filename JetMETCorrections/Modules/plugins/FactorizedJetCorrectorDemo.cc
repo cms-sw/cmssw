@@ -6,7 +6,7 @@
 #include "TLorentzVector.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +26,7 @@
 // class declaration
 //
 
-class FactorizedJetCorrectorDemo : public edm::EDAnalyzer {
+class FactorizedJetCorrectorDemo : public edm::one::EDAnalyzer<> {
 public:
   explicit FactorizedJetCorrectorDemo(const edm::ParameterSet&);
   ~FactorizedJetCorrectorDemo() override;
@@ -38,6 +38,7 @@ private:
   void endJob() override;
 
   std::string mJetCorService, mPayloadName, mUncertaintyTag, mUncertaintyFile;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> mPayloadToken;
   std::vector<std::string> mLevels;
   bool mDebug, mUseCondDB;
   int mNHistoPoints, mNGraphPoints;
@@ -59,6 +60,7 @@ private:
 FactorizedJetCorrectorDemo::FactorizedJetCorrectorDemo(const edm::ParameterSet& iConfig) {
   mLevels = iConfig.getParameter<std::vector<std::string> >("levels");
   mPayloadName = iConfig.getParameter<std::string>("PayloadName");
+  mPayloadToken = esConsumes(edm::ESInputTag("", mPayloadName));
   mUncertaintyTag = iConfig.getParameter<std::string>("UncertaintyTag");
   mUncertaintyFile = iConfig.getParameter<std::string>("UncertaintyFile");
   mNHistoPoints = iConfig.getParameter<int>("NHistoPoints");
@@ -79,8 +81,7 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
     std::cout << "Hello from FactorizedJetCorrectorDemo" << std::endl;
   // retreive parameters from the DB this still need a proper configurable
   // payloadName like: JetCorrectorParametersCollection_Spring10_AK5Calo.
-  edm::ESHandle<JetCorrectorParametersCollection> parameters;
-  iSetup.get<JetCorrectionsRecord>().get(mPayloadName, parameters);
+  edm::ESHandle<JetCorrectorParametersCollection> parameters = iSetup.getHandle(mPayloadToken);
 
   std::vector<JetCorrectorParameters> params;
   for (std::vector<std::string>::const_iterator level = mLevels.begin(); level != mLevels.end(); ++level) {

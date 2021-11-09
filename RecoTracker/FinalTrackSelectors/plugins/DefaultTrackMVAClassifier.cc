@@ -16,10 +16,14 @@ namespace {
 
   template <bool PROMPT>
   struct mva {
-    mva(const edm::ParameterSet &cfg)
+    mva(const edm::ParameterSet &cfg, edm::ConsumesCollector iC)
         : forestLabel_(cfg.getParameter<std::string>("GBRForestLabel")),
           dbFileName_(cfg.getParameter<std::string>("GBRForestFileName")),
-          useForestFromDB_((!forestLabel_.empty()) & dbFileName_.empty()) {}
+          useForestFromDB_((!forestLabel_.empty()) & dbFileName_.empty()) {
+      if (useForestFromDB_) {
+        forestToken_ = iC.esConsumes(edm::ESInputTag("", forestLabel_));
+      }
+    }
 
     void beginStream() {
       if (!dbFileName_.empty()) {
@@ -31,9 +35,7 @@ namespace {
     void initEvent(const edm::EventSetup &es) {
       forest_ = forestFromFile_.get();
       if (useForestFromDB_) {
-        edm::ESHandle<GBRForest> forestHandle;
-        es.get<GBRWrapperRcd>().get(forestLabel_, forestHandle);
-        forest_ = forestHandle.product();
+        forest_ = &es.getData(forestToken_);
       }
     }
 
@@ -114,6 +116,7 @@ namespace {
     const std::string forestLabel_;
     const std::string dbFileName_;
     const bool useForestFromDB_;
+    edm::ESGetToken<GBRForest, GBRWrapperRcd> forestToken_;
   };
 
   using TrackMVAClassifierDetached = TrackMVAClassifier<mva<false>>;

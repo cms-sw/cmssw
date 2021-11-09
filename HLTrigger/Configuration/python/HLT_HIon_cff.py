@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_12_1_0/HIon --type HIon
+# hltGetConfiguration --cff --data /dev/CMSSW_12_2_0/HIon --type HIon
 
-# /dev/CMSSW_12_1_0/HIon/V4 (CMSSW_12_1_0_pre4)
+# /dev/CMSSW_12_2_0/HIon/V3 (CMSSW_12_2_0_pre1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_1_0/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_12_2_0/HIon/V3')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4357,6 +4357,21 @@ fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
+fragment.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
+    RunType = cms.string( "Run3" ),
+    PitchSimY = cms.double( 0.15 ),
+    PitchSimX = cms.double( 0.1 ),
+    thickness = cms.double( 0.23 ),
+    noOfPixelSimX = cms.int32( 160 ),
+    noOfPixelSimY = cms.int32( 104 ),
+    noOfPixels = cms.int32( 16640 ),
+    simXWidth = cms.double( 16.6 ),
+    simYWidth = cms.double( 16.2 ),
+    deadEdgeWidth = cms.double( 0.2 ),
+    activeEdgeSigma = cms.double( 0.02 ),
+    physActiveEdgeDist = cms.double( 0.15 ),
+    appendToDataLabel = cms.string( "" )
+)
 
 fragment.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -4557,6 +4572,21 @@ fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 fragment.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   SimpleMagneticField = cms.string( "" )
+)
+fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
+  verbosity = cms.untracked.uint32( 1 ),
+  buildMisalignedGeometry = cms.bool( False ),
+  isRun2 = cms.bool( False ),
+  dbTag = cms.string( "" ),
+  compactViewTag = cms.string( "" ),
+  fromPreprocessedDB = cms.untracked.bool( True ),
+  fromDD4hep = cms.untracked.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+fragment.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
+  lhcInfoLabel = cms.string( "" ),
+  opticsLabel = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 fragment.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
@@ -6107,6 +6137,9 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
 )
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
+)
+fragment.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
 )
 fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
@@ -14914,7 +14947,7 @@ fragment.hltEgammaClusterShapePPOnAA = cms.EDProducer( "EgammaHLTClusterShapePro
 fragment.hltEle10ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG10EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -16433,7 +16466,7 @@ fragment.hltEG15EtPPOnAAFilter = cms.EDFilter( "HLTEgammaEtFilter",
 fragment.hltEle15ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG15EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -16647,7 +16680,7 @@ fragment.hltPreHIEle20Gsf = cms.EDFilter( "HLTPrescaler",
 fragment.hltEle20ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG20EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -16850,7 +16883,7 @@ fragment.hltPreHIEle30Gsf = cms.EDFilter( "HLTPrescaler",
 fragment.hltEle30ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG30EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -17064,7 +17097,7 @@ fragment.hltPreHIEle40Gsf = cms.EDFilter( "HLTPrescaler",
 fragment.hltEle40ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG40EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -17267,7 +17300,7 @@ fragment.hltPreHIEle50Gsf = cms.EDFilter( "HLTPrescaler",
 fragment.hltEle50ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltEG50EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -17478,7 +17511,7 @@ fragment.hltDoubleEG10EtPPOnAAFilter = cms.EDFilter( "HLTEgammaEtFilter",
 fragment.hltDoubleEle10ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltDoubleEG10EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -17618,7 +17651,7 @@ fragment.hltDoubleEG15EtPPOnAAFilter = cms.EDFilter( "HLTEgammaEtFilter",
 fragment.hltDoubleEle15ClusterShapePPOnAAFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( True ),
     candTag = cms.InputTag( "hltDoubleEG15EtPPOnAAFilter" ),
-    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5' ),
+    varTag = cms.InputTag( 'hltEgammaClusterShapePPOnAA','sigmaIEtaIEta5x5NoiseCleaned' ),
     rhoTag = cms.InputTag( "" ),
     energyLowEdges = cms.vdouble( 0.0 ),
     lessThan = cms.bool( True ),
@@ -32061,7 +32094,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
-fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
+fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineMetaDataDigis + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
 fragment.HLTBeginSequenceCalibration = cms.Sequence( fragment.hltCalibrationEventsFilter + fragment.hltGtStage2Digis )

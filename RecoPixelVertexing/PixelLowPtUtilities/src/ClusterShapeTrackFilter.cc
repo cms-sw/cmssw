@@ -3,17 +3,13 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 inline float sqr(float x) { return x * x; }
 
@@ -23,22 +19,10 @@ using namespace std;
 ClusterShapeTrackFilter::ClusterShapeTrackFilter(const SiPixelClusterShapeCache* cache,
                                                  double ptmin,
                                                  double ptmax,
-                                                 const edm::EventSetup& es)
-    : theClusterShapeCache(cache), ptMin(ptmin), ptMax(ptmax) {
-  // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  theTracker = tracker.product();
-
-  // Get cluster shape hit filter
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", shape);
-  theFilter = shape.product();
-
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<TrackerTopologyRcd>().get(tTopoHand);
-  tTopo = tTopoHand.product();
-}
+                                                 const TrackerGeometry* tracker,
+                                                 const ClusterShapeHitFilter* shape,
+                                                 const TrackerTopology* ttopo)
+    : theTracker(tracker), theFilter(shape), theClusterShapeCache(cache), tTopo(ttopo), ptMin(ptmin), ptMax(ptmax) {}
 
 /*****************************************************************************/
 ClusterShapeTrackFilter::~ClusterShapeTrackFilter() {}

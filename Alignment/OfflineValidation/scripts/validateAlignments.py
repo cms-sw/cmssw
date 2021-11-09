@@ -646,7 +646,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     (options, args) = optParser.parse_args(argv)
 
     if not options.dryRun:
-        schedinfo = subprocess.check_output(["myschedd","show"])
+        schedinfo = subprocess.check_output(["myschedd","show"]).decode()
         if not 'tzero' in schedinfo:
             print("\nAll-In-One Tool: you need to call `module load lxbatch/tzero` before trying to submit jobs. Please do so and try again")
             exit(1)

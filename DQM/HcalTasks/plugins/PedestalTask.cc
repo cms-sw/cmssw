@@ -884,8 +884,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
 
       //	@cDAQ
       if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHO(eid) || hcaldqm::utilities::isFEDHF(eid)) {
-        double frmissing = double(_xNMsn1LS.get(eid)) / double(_xNChs.get(eid));
-        double frbadm = _xNBadMean1LS.get(eid) / _xNChs.get(eid);
+        double frmissing = (_xNChs.get(eid) == 0) ? 0 : double(_xNMsn1LS.get(eid)) / double(_xNChs.get(eid));
+        double frbadm = (_xNChs.get(eid) == 0) ? 0 : _xNBadMean1LS.get(eid) / _xNChs.get(eid);
         //double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
 
         if (frmissing >= _thresh_missing_high)

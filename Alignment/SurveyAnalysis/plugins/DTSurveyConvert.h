@@ -52,6 +52,10 @@ private:
   bool wheel_p1;
   bool wheel_p2;
   bool WriteToDB;
+
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
 };
 
 #endif

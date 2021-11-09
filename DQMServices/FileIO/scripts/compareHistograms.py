@@ -8,11 +8,12 @@ import sys
 import argparse
 import numpy as np
 from DQMServices.FileIO.blacklist import get_blacklist
+import multiprocessing
 
-def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_version, output_dir_path):
+def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_version, num_processes, output_dir_path):
    base_file = ROOT.TFile(base_file_path, 'read')
    ROOT.gROOT.GetListOfFiles().Remove(base_file)
-   
+
    pr_file = ROOT.TFile(pr_file_path, 'read')
    ROOT.gROOT.GetListOfFiles().Remove(pr_file)
 
@@ -29,7 +30,7 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
       return
 
    run_nr = get_run_nr(pr_file_path)
-      
+
    # Get list of paths (lists of directories)
    base_flat_dict = flatten_file(base_file, run_nr)
    pr_flat_dict = flatten_file(pr_file, run_nr)
@@ -50,8 +51,35 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
    paths_to_save_in_pr = []
 
    # Make comparison
-   compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, paths_to_save_in_base)
-   
+   if num_processes > 1:
+       print("starting comparison using %d process(es)" % num_processes)
+       manager = multiprocessing.Manager()
+       return_dict = manager.dict()
+       proc = []
+       iProc = 0
+
+       block = len(shared_paths)//num_processes
+       for i in range(num_processes):
+           p = multiprocessing.Process(target=compareMP, args=(shared_paths[i*block:(i+1)*block], pr_flat_dict, base_flat_dict, i, return_dict))
+           proc.append(p)
+           p.start()
+           iProc += 1
+       p = multiprocessing.Process(target=compareMP, args=(shared_paths[(i+1)*block:len(shared_paths)], pr_flat_dict, base_flat_dict, num_processes, return_dict))
+       proc.append(p)
+       p.start()
+       iProc += 1
+
+       for i in range(iProc):
+           proc[i].join()
+           paths_to_save_in_pr.extend(return_dict[i]['pr'])
+           paths_to_save_in_base.extend(return_dict[i]['base'])
+
+       paths_to_save_in_pr.sort()
+       paths_to_save_in_base.sort()
+       print("Done")
+   else:
+       compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, paths_to_save_in_base)
+
    # Collect paths that have to be written to baseline output file
    for path in only_base_paths:
       item = base_flat_dict[path]
@@ -60,7 +88,7 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
          continue
 
       paths_to_save_in_base.append(path)
-   
+
    # Collect paths that have to be written to PR output file
    for path in only_pr_paths:
       item = pr_flat_dict[path]
@@ -75,7 +103,7 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
 
    # Write baseline output
    save_paths(base_flat_dict, paths_to_save_in_base, os.path.join(output_dir_path, 'base', base_output_filename))
-   
+
    # Write PR output
    save_paths(pr_flat_dict, paths_to_save_in_pr, os.path.join(output_dir_path, 'pr', pr_output_filename))
 
@@ -92,6 +120,45 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
    print(pr_output_filename)
    print('%s %s %s' % (nr_of_changed_elements, nr_of_removed_elements, nr_of_added_elements))
 
+def compareMP(shared_paths, pr_flat_dict, base_flat_dict, iProc, return_dict):
+   # Prepare output dictionary
+   comparisons = {'pr': [], 'base': []}
+
+   # Collect paths that have to be written to both output files
+   for path in shared_paths:
+      pr_item = pr_flat_dict[path]
+      base_item = base_flat_dict[path]
+
+      if pr_item == None or base_item == None:
+         continue
+
+      are_different=False
+
+      if pr_item.InheritsFrom('TProfile2D') and base_item.InheritsFrom('TProfile2D'):
+         # Compare TProfile (content, entries and errors)
+         are_different = not compare_TProfile(pr_item, base_item)
+
+      elif pr_item.InheritsFrom('TProfile') and base_item.InheritsFrom('TProfile'):
+         # Compare TProfile (content, entries and errors)
+         are_different = not compare_TProfile(pr_item, base_item)
+
+      elif pr_item.InheritsFrom('TH1') and base_item.InheritsFrom('TH1'):
+         # Compare bin by bin
+         pr_array = np.array(pr_item)
+         base_array = np.array(base_item)
+
+         if pr_array.shape != base_array.shape or not np.allclose(pr_array, base_array, equal_nan=True):
+            are_different = True
+      else:
+         # Compare non histograms
+         if pr_item != base_item:
+            are_different = True
+
+      if are_different:
+         comparisons['pr'].append(path)
+         comparisons['base'].append(path)
+   return_dict[iProc] = comparisons
+
 def compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, paths_to_save_in_base):
    # Collect paths that have to be written to both output files
    for path in shared_paths:
@@ -106,7 +173,7 @@ def compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, pat
       if pr_item.InheritsFrom('TProfile2D') and base_item.InheritsFrom('TProfile2D'):
          # Compare TProfile (content, entries and errors)
          are_different = not compare_TProfile(pr_item, base_item)
-      
+
       elif pr_item.InheritsFrom('TProfile') and base_item.InheritsFrom('TProfile'):
          # Compare TProfile (content, entries and errors)
          are_different = not compare_TProfile(pr_item, base_item)
@@ -131,7 +198,7 @@ def compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, pat
 def compare_TProfile(pr_item, base_item):
    if pr_item.GetSize() != base_item.GetSize():
       return False
-   
+
    for i in range(pr_item.GetSize()):
       pr_bin_content = pr_item.GetBinContent(i)
       base_bin_content = base_item.GetBinContent(i)
@@ -150,22 +217,22 @@ def compare_TProfile(pr_item, base_item):
 
       if not np.isclose(pr_bin_error, base_bin_error, equal_nan=True):
          return False
-   
+
    return True
 
 def flatten_file(file, run_nr):
-   result = {} 
+   result = {}
    for key in file.GetListOfKeys():
       try:
          traverse_till_end(key.ReadObj(), [], result, run_nr)
       except:
          pass
-   
+
    return result
 
 def traverse_till_end(node, dirs_list, result, run_nr):
    new_dir_list = dirs_list + [get_node_name(node)]
-   if hasattr(node, 'GetListOfKeys'): 
+   if hasattr(node, 'GetListOfKeys'):
       for key in node.GetListOfKeys():
          traverse_till_end(key.ReadObj(), new_dir_list, result, run_nr)
    else:
@@ -202,7 +269,7 @@ def save_paths(flat_dict, paths, result_file_path):
    result_dir = os.path.dirname(result_file_path)
    if not os.path.exists(result_dir):
       os.makedirs(result_dir)
-   
+
    result_file = ROOT.TFile(result_file_path, 'recreate')
    ROOT.gROOT.GetListOfFiles().Remove(result_file)
 
@@ -270,9 +337,10 @@ if __name__ == '__main__':
    parser.add_argument('-n', '--pr-number', help='PR number under test', default='00001')
    parser.add_argument('-t', '--test-number', help='Unique test number to distinguish different comparisons of the same PR.', default='1')
    parser.add_argument('-r', '--release-format', help='Release format in this format: CMSSW_10_5_X_2019-02-17-0000', default=os.environ['CMSSW_VERSION'])
+   parser.add_argument('-j', '--num-processes', help='Number of processes forked to parallel process the comparison', default=1, type=int)
    parser.add_argument('-o', '--output-dir', help='Comparison root files output directory', default='dqmHistoComparisonOutput')
    args = parser.parse_args()
 
    cmssw_version = '_'.join(args.release_format.split('_')[:4])
-   
-   create_dif(args.base_file, args.pr_file, args.pr_number, args.test_number, cmssw_version, args.output_dir)
+
+   create_dif(args.base_file, args.pr_file, args.pr_number, args.test_number, cmssw_version, args.num_processes, args.output_dir)

@@ -78,7 +78,7 @@ else:
     tag_name = options.inputTag
 
 from CondCore.CondDB.CondDB_cfi import *
-CondDBBeamSpotOnlineLegacy = CondDB.clone(connect = cms.string("sqlite_file:test.db")) # customize with input db file
+CondDBBeamSpotOnlineLegacy = CondDB.clone(connect = cms.string("sqlite_file:test_%s.db" % tag_name)) # customize with input db file
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     CondDBBeamSpotOnlineLegacy,
     DumpStat=cms.untracked.bool(True),

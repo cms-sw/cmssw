@@ -765,6 +765,7 @@ void FedRawDataInputSource::readSupervisor() {
   while (!stop) {
     //wait for at least one free thread and chunk
     int counter = 0;
+
     while ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty() ||
            readingFilesCount_ >= maxBufferedFiles_) {
       //report state to monitoring
@@ -826,6 +827,18 @@ void FedRawDataInputSource::readSupervisor() {
 
     //entering loop which tries to grab new file from ramdisk
     while (status == evf::EvFDaqDirector::noFile) {
+      //check if hltd has signalled to throttle input
+      counter = 0;
+      while (daqDirector_->inputThrottled()) {
+        if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed))
+          break;
+        setMonStateSup(inThrottled);
+        if (!(counter % 50))
+          edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, reading files is paused...";
+        usleep(100000);
+        counter++;
+      }
+
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
         stop = true;
         break;
@@ -943,7 +956,7 @@ void FedRawDataInputSource::readSupervisor() {
                 //look at last LS file on disk to start from that lumisection (only within first 100 LS)
                 unsigned int lsToStart = daqDirector_->getLumisectionToStart();
 
-                for (unsigned int nextLS = lsToStart; nextLS <= ls; nextLS++) {
+                for (unsigned int nextLS = std::min(lsToStart, ls); nextLS <= ls; nextLS++) {
                   std::unique_ptr<InputFile> inf(new InputFile(evf::EvFDaqDirector::newLumi, nextLS));
                   fileQueue_.push(std::move(inf));
                 }

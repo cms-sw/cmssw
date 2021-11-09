@@ -49,7 +49,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       cellV = HGCalTypes::getUnpackedCellV(cell);
     } else if (mode_ != HGCalGeometryMode::Hexagon8) {
       double xx = (pos.z() > 0) ? pos.x() : -pos.x();
-      hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt);
+      hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, false);
     }
     if (waferType >= 0) {
       if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
@@ -68,7 +68,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       index = HGCSiliconDetId(det_, iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell "
-                                 << cellU << ":" << cellV;
+                                 << cellU << ":" << cellV << " input " << cell << " wt " << wt << " Mode " << mode_;
     } else {
       edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType << " for Layer:u:v " << layer << ":" << waferU << ":"
                                  << waferV;
@@ -96,11 +96,12 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
-                             << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
-                             << index << std::dec << " wt " << wt;
-  bool matchOnly = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
-  bool debug = (mode_ == HGCalGeometryMode::Hexagon8Module) ? true : false;
+  bool matchOnly = (mode_ == HGCalGeometryMode::Hexagon8Module);
+  bool debug = (mode_ == HGCalGeometryMode::Hexagon8Module);
+  if (debug)
+    edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" << layer << ":" << module << ":" << cell
+                               << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
+                               << index << std::dec << " wt " << wt;
   checkPosition(index, pos, matchOnly, debug);
 #endif
   return index;
@@ -109,7 +110,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
 void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos, bool matchOnly, bool debug) const {
   std::pair<float, float> xy;
   bool ok(false);
-  double z1(0), tolR(12.0), tolZ(1.0);
+  double z1(0), tolR(14.0), tolZ(1.0);
   int lay(-1);
   if (index == 0) {
   } else if (DetId(index).det() == DetId::HGCalHSi) {
@@ -118,7 +119,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
     xy = hgcons_.locateCell(lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
-    tolR = 12.0;
+    tolR = 14.0;
     tolZ = 1.0;
   } else if (DetId(index).det() == DetId::HGCalHSc) {
     HGCScintillatorDetId id = HGCScintillatorDetId(index);
@@ -151,13 +152,18 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
                                  << outok << " " << ck;
       edm::LogVerbatim("HGCSim") << "Original " << pos.x() << ":" << pos.y() << " return " << xy.first << ":"
                                  << xy.second;
-      if (DetId(index).det() == DetId::HGCalHSi) {
+      if ((DetId(index).det() == DetId::HGCalEE) || (DetId(index).det() == DetId::HGCalHSi)) {
         double wt = 0, xx = ((pos.z() > 0) ? pos.x() : -pos.x());
         int waferU, waferV, cellU, cellV, waferType;
-        hgcons_.waferFromPosition(xx, pos.y(), lay, waferU, waferV, cellU, cellV, waferType, wt, true);
+        hgcons_.waferFromPosition(xx, pos.y(), lay, waferU, waferV, cellU, cellV, waferType, wt, false, true);
         xy = hgcons_.locateCell(lay, waferU, waferV, cellU, cellV, false, true, true);
-        edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme " << HGCSiliconDetId(index) << " position " << xy.first
-                                   << ":" << xy.second;
+        double dx = (xx - xy.first);
+        double dy = (pos.y() - xy.second);
+        double dR = std::sqrt(dx * dx + dy * dy);
+        ck = (dR > tolR) ? " ***** ERROR *****" : "";
+        edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme " << HGCSiliconDetId(index) << " original position " << xx
+                                   << ":" << pos.y() << " derived " << xy.first << ":" << xy.second << " Difference "
+                                   << dR << ck;
       }
     }
   }

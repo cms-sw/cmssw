@@ -5,8 +5,7 @@ from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
 #pseudo towers for noise suppression background subtraction
-import RecoHI.HiJetAlgos.particleTowerProducer_cfi as _mod
-PFTowers = _mod.particleTowerProducer.clone(useHF = True)
+from RecoHI.HiJetAlgos.PFTowers_cfi import PFTowers
 
 #dummy sequence to speed-up reconstruction in pp_on_AA era
 pfEmptyCollection = cms.EDFilter('GenericPFCandidateSelector',
@@ -120,3 +119,4 @@ hiRecoPFJets = cms.Sequence(hiRecoPFJetsTask)
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toModify(akCs4PFJets,src = 'cleanedParticleFlow')
 run2_miniAOD_pp_on_AA_103X.toModify(PFTowers,src = 'cleanedParticleFlow')
+run2_miniAOD_pp_on_AA_103X.toModify(hiPuRho,src = "PackedPFTowers")

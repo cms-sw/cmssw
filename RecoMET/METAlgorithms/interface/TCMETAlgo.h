@@ -57,6 +57,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -107,6 +108,7 @@ private:
   edm::EDGetTokenT<reco::PFClusterCollection> clustersHFToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
   bool usePFClusters_;
   int nLayers_;

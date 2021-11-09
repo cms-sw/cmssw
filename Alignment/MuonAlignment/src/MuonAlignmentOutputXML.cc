@@ -39,7 +39,10 @@
 //
 // constructors and destructor
 //
-MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig)
+MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig,
+                                               const DTGeometry *dtGeometry,
+                                               const CSCGeometry *cscGeometry,
+                                               const GEMGeometry *gemGeometry)
     : m_fileName(iConfig.getParameter<std::string>("fileName")),
       m_survey(iConfig.getParameter<bool>("survey")),
       m_rawIds(iConfig.getParameter<bool>("rawIds")),
@@ -56,7 +59,15 @@ MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig)
       m_suppressCSCRings(iConfig.getUntrackedParameter<bool>("suppressCSCRings", false)),
       m_suppressCSCChambers(iConfig.getUntrackedParameter<bool>("suppressCSCChambers", false)),
       m_suppressCSCLayers(iConfig.getUntrackedParameter<bool>("suppressCSCLayers", false)),
-      idealGeometryLabel("idealForOutputXML") {
+      m_suppressGEMEndcaps(iConfig.getUntrackedParameter<bool>("suppressGEMEndcaps", false)),
+      m_suppressGEMStations(iConfig.getUntrackedParameter<bool>("suppressGEMStations", false)),
+      m_suppressGEMRings(iConfig.getUntrackedParameter<bool>("suppressGEMRings", false)),
+      m_suppressGEMSuperChambers(iConfig.getUntrackedParameter<bool>("suppressGEMSuperChambers", false)),
+      m_suppressGEMChambers(iConfig.getUntrackedParameter<bool>("suppressGEMChambers", false)),
+      m_suppressGEMEtaPartitions(iConfig.getUntrackedParameter<bool>("suppressGEMEtaPartitions", false)),
+      dtGeometry_(dtGeometry),
+      cscGeometry_(cscGeometry),
+      gemGeometry_(gemGeometry) {
   std::string str_relativeto = iConfig.getParameter<std::string>("relativeto");
 
   if (str_relativeto == std::string("none")) {
@@ -93,7 +104,7 @@ MuonAlignmentOutputXML::~MuonAlignmentOutputXML() {}
 // member functions
 //
 
-void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const {
+void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon) const {
   std::ofstream outputFile(m_fileName.c_str());
   outputFile << std::setprecision(m_precision) << std::fixed;
 
@@ -104,6 +115,7 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
   std::map<align::ID, CLHEP::HepSymMatrix> errors;
   AlignmentErrorsExtended *dtErrors = alignableMuon->dtAlignmentErrorsExtended();
   AlignmentErrorsExtended *cscErrors = alignableMuon->cscAlignmentErrorsExtended();
+  AlignmentErrorsExtended *gemErrors = alignableMuon->gemAlignmentErrorsExtended();
   for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();
        dtError != dtErrors->m_alignError.end();
        ++dtError) {
@@ -114,30 +126,32 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
        ++cscError) {
     errors[cscError->rawId()] = cscError->matrix();
   }
+  for (std::vector<AlignTransformErrorExtended>::const_iterator gemError = gemErrors->m_alignError.begin();
+       gemError != gemErrors->m_alignError.end();
+       ++gemError) {
+    errors[gemError->rawId()] = gemError->matrix();
+  }
 
   align::Alignables barrels = alignableMuon->DTBarrel();
   align::Alignables endcaps = alignableMuon->CSCEndcaps();
+  align::Alignables endcaps_GEM = alignableMuon->GEMEndcaps();
 
   if (m_relativeto == 1) {
-    edm::ESHandle<DTGeometry> dtGeometry;
-    edm::ESHandle<CSCGeometry> cscGeometry;
-    edm::ESHandle<GEMGeometry> gemGeometry;
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
-
-    AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
+    AlignableMuon ideal_alignableMuon(dtGeometry_, cscGeometry_, gemGeometry_);
 
     align::Alignables ideal_barrels = ideal_alignableMuon.DTBarrel();
     align::Alignables ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
+    align::Alignables ideal_endcaps_GEM = ideal_alignableMuon.GEMEndcaps();
 
-    writeComponents(barrels, ideal_barrels, errors, outputFile, true, alignableMuon->objectIdProvider());
-    writeComponents(endcaps, ideal_endcaps, errors, outputFile, false, alignableMuon->objectIdProvider());
+    writeComponents(barrels, ideal_barrels, errors, outputFile, doDT, alignableMuon->objectIdProvider());
+    writeComponents(endcaps, ideal_endcaps, errors, outputFile, doCSC, alignableMuon->objectIdProvider());
+    writeComponents(endcaps_GEM, ideal_endcaps_GEM, errors, outputFile, doGEM, alignableMuon->objectIdProvider());
   } else {
-    align::Alignables empty1, empty2;
+    align::Alignables empty1, empty2, empty3;
 
-    writeComponents(barrels, empty1, errors, outputFile, true, alignableMuon->objectIdProvider());
-    writeComponents(endcaps, empty2, errors, outputFile, false, alignableMuon->objectIdProvider());
+    writeComponents(barrels, empty1, errors, outputFile, doDT, alignableMuon->objectIdProvider());
+    writeComponents(endcaps, empty2, errors, outputFile, doCSC, alignableMuon->objectIdProvider());
+    writeComponents(endcaps_GEM, empty3, errors, outputFile, doGEM, alignableMuon->objectIdProvider());
   }
 
   outputFile << "</MuonAlignment>" << std::endl;
@@ -147,13 +161,13 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
                                              align::Alignables &ideals,
                                              std::map<align::ID, CLHEP::HepSymMatrix> &errors,
                                              std::ofstream &outputFile,
-                                             bool DT,
+                                             const int doDet,
                                              const AlignableObjectId &objectIdProvider) const {
   align::Alignables::const_iterator ideal = ideals.begin();
   for (align::Alignables::const_iterator alignable = alignables.begin(); alignable != alignables.end(); ++alignable) {
     if (m_survey && (*alignable)->survey() == nullptr) {
       throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
-    }  // now I can assume it's okay everywhere
+    }
 
     align::StructureType alignableObjectId = (*alignable)->alignableObjectId();
 
@@ -161,17 +175,26 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         (alignableObjectId == align::AlignableDTWheel && !m_suppressDTWheels) ||
         (alignableObjectId == align::AlignableDTStation && !m_suppressDTStations) ||
         (alignableObjectId == align::AlignableDTChamber && !m_suppressDTChambers) ||
-        (DT && alignableObjectId == align::AlignableDTSuperLayer && !m_suppressDTSuperLayers) ||
-        (DT && alignableObjectId == align::AlignableDetUnit && !m_suppressDTLayers) ||
+        (doDet == doDT && alignableObjectId == align::AlignableDTSuperLayer && !m_suppressDTSuperLayers) ||
+        (doDet == doDT && alignableObjectId == align::AlignableDetUnit && !m_suppressDTLayers) ||
         (alignableObjectId == align::AlignableCSCEndcap && !m_suppressCSCEndcaps) ||
         (alignableObjectId == align::AlignableCSCStation && !m_suppressCSCStations) ||
         (alignableObjectId == align::AlignableCSCRing && !m_suppressCSCRings) ||
         (alignableObjectId == align::AlignableCSCChamber && !m_suppressCSCChambers) ||
-        (!DT && alignableObjectId == align::AlignableDetUnit && !m_suppressCSCLayers)) {
+        (alignableObjectId == align::AlignableGEMEndcap && !m_suppressGEMEndcaps) ||
+        (alignableObjectId == align::AlignableGEMStation && !m_suppressGEMStations) ||
+        (alignableObjectId == align::AlignableGEMRing && !m_suppressGEMRings) ||
+        (alignableObjectId == align::AlignableGEMSuperChamber && !m_suppressGEMSuperChambers) ||
+        (alignableObjectId == align::AlignableGEMChamber && !m_suppressGEMChambers) ||
+        (alignableObjectId == align::AlignableGEMEtaPartition && !m_suppressGEMEtaPartitions) ||
+        (doDet != doDT && doDet != doGEM && doDet == doCSC && alignableObjectId == align::AlignableDetUnit &&
+         !m_suppressCSCLayers) ||
+        (doDet != doDT && doDet != doCSC && doDet == doGEM && alignableObjectId == align::AlignableDetUnit &&
+         !m_suppressGEMEtaPartitions)) {
       unsigned int rawId = (*alignable)->geomDetId().rawId();
       outputFile << "<operation>" << std::endl;
 
-      if (DT) {
+      if (doDet == doDT) {
         if (m_rawIds && rawId != 0) {
           std::string typeName = objectIdProvider.idToString(alignableObjectId);
           if (alignableObjectId == align::AlignableDTSuperLayer)
@@ -193,9 +216,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
             DTChamberId id(rawId);
             outputFile << "  <DTChamber wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" sector=\""
                        << id.sector() << "\" />" << std::endl;
-          }
-
-          else {
+          } else {
             DTChamberId id((*alignable)->id());
             if (alignableObjectId == align::AlignableDTStation) {
               outputFile << "  <DTStation wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" />"
@@ -211,7 +232,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         }  // end if not rawId
       }    // end if DT
 
-      else {  // CSC
+      if (doDet == doCSC) {  // CSC
         if (m_rawIds && rawId != 0) {
           std::string typeName = objectIdProvider.idToString(alignableObjectId);
           if (alignableObjectId == align::AlignableDetUnit)
@@ -244,6 +265,39 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         }  // end if not rawId
       }    // end if CSC
 
+      if (doDet == doGEM) {  // GEM
+        if (m_rawIds && rawId != 0) {
+          std::string typeName = objectIdProvider.idToString(alignableObjectId);
+          if (alignableObjectId == align::AlignableDetUnit)
+            typeName = std::string("GEMChambers");
+          outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
+        } else {
+          if (alignableObjectId == align::AlignableDetUnit) {
+            GEMDetId id(rawId);
+            outputFile << "  <GEMSuperChambers endcap=\"" << id.region() << "\" station=\"" << id.station()
+                       << "\" ring=\"" << id.ring() << "\" superchamber=\"" << id.chamber() << "\" layer=\""
+                       << id.layer() << "\" />" << std::endl;
+          } else if (alignableObjectId == align::AlignableGEMSuperChamber) {
+            GEMDetId id(rawId);
+            outputFile << "  <GEMSuperChamber endcap=\"" << id.region() << "\" station=\"" << id.station()
+                       << "\" ring=\"" << id.ring() << "\" chamber=\"" << id.chamber() << "\" />" << std::endl;
+          } else {
+            GEMDetId id((*alignable)->id());
+            if (alignableObjectId == align::AlignableGEMRing) {
+              outputFile << "  <GEMRing endcap=\"" << id.region() << "\" station=\"" << id.station() << "\" ring=\""
+                         << id.ring() << "\" />" << std::endl;
+            } else if (alignableObjectId == align::AlignableGEMStation) {
+              outputFile << "  <GEMStation endcap=\"" << id.region() << "\" station=\"" << id.station() << "\" />"
+                         << std::endl;
+            } else if (alignableObjectId == align::AlignableGEMEndcap) {
+              outputFile << "  <GEMEndcap endcap=\"" << id.region() << "\" />" << std::endl;
+            } else
+              throw cms::Exception("Alignment") << "Unknown GEM Alignable StructureType" << std::endl;
+          }
+
+        }  // end if not rawId
+      }    // end if GEM
+
       align::PositionType pos = (*alignable)->globalPosition();
       align::RotationType rot = (*alignable)->globalRotation();
 
@@ -272,7 +326,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
         str_relativeto = std::string("ideal");
 
         bool csc_debug = false;
-        if (csc_debug && !DT) {
+        if (csc_debug && doDet == doCSC) {
           CSCDetId id(rawId);
           if (id.endcap() == 1 && id.station() == 1 && id.ring() == 1 && id.chamber() == 33) {
             std::cout << " investigating " << id << std::endl
@@ -325,7 +379,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
       else {
         // the angle convention originally used in alignment, also known as "non-standard Euler angles with a Z-Y-X convention"
-        // this also gets the sign convention right
+        //         // this also gets the sign convention right
         double phix = atan2(rot.yz(), rot.zz());
         double phiy = asin(-rot.xz());
         double phiz = atan2(rot.xy(), rot.xx());
@@ -366,14 +420,13 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
     if (ideal != ideals.end()) {
       align::Alignables components = (*alignable)->components();
       align::Alignables ideal_components = (*ideal)->components();
-      writeComponents(components, ideal_components, errors, outputFile, DT, objectIdProvider);
+      writeComponents(components, ideal_components, errors, outputFile, doDet, objectIdProvider);
       ++ideal;  // important for synchronization in the "for" loop!
     } else {
       align::Alignables components = (*alignable)->components();
       align::Alignables dummy;
-      writeComponents(components, dummy, errors, outputFile, DT, objectIdProvider);
+      writeComponents(components, dummy, errors, outputFile, doDet, objectIdProvider);
     }
-
   }  // end loop over alignables
 }
 

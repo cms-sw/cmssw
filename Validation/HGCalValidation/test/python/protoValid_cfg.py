@@ -44,6 +44,7 @@ if (options.geometry == "D49"):
     process = cms.Process('PROD',Phase2C9)
     process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV11.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD49.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -62,6 +63,7 @@ elif (options.geometry == "D68"):
     process = cms.Process('PROD',Phase2C12)
     process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV12.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD68.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -80,6 +82,7 @@ elif (options.geometry == "D83"):
     process = cms.Process('PROD',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV15.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD83.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -98,6 +101,7 @@ elif (options.geometry == "D84"):
     process = cms.Process('PROD',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV13.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD84.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -116,6 +120,7 @@ elif (options.geometry == "D86"):
     process = cms.Process('PROD',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV16.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD86.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -134,6 +139,7 @@ else:
     process = cms.Process('PROD',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV14.root'
     if (options.type == "hgcalSimHitStudy"):
         fileName = 'hgcSimHitD77.root'
     elif (options.type == "hgcalDigiStudy"):
@@ -189,7 +195,7 @@ elif (options.type == "hgcalSiliconValidation"):
 else:
     process.load('Validation.HGCalValidation.hgcGeomCheck_cff')
     process.source = cms.Source("PoolSource",
-                                fileNames = cms.untracked.vstring('file:testHGCalSimWatcher.root')
+                                fileNames = cms.untracked.vstring(fileCheck)
     )
     process.analysis_step = cms.Path(process.hgcGeomCheck)
 

@@ -17,18 +17,6 @@
    <class name="edm::SortedCollection<HGCDataFrame<DetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<DetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > > >" />
 
-   <!-- HEX specific -->
-   <class name="HGCDataFrame<HGCalDetId,HGCSample>"/>
-   <class name="std::vector<HGCDataFrame<HGCalDetId,HGCSample> >"/>
-   <class name="edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > > >" />
-   
-   <!-- BH specific -->
-   <class name="HGCDataFrame<HcalDetId,HGCSample>"/>
-   <class name="std::vector<HGCDataFrame<HcalDetId,HGCSample> >"/>
-   <class name="edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > > >" />
-
    <class name="PHGCSimAccumulator"/>
    <class name="PHGCSimAccumulator::DetIdSize"/>
    <class name="PHGCSimAccumulator::SimHitCollection"/>

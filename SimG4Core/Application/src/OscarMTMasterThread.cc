@@ -16,7 +16,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "OscarMTMasterThread: creating master thread DD4Hep: " << m_pGeoFromDD4hep;
+      << "OscarMTMasterThread: creating master thread DD4hep: " << m_pGeoFromDD4hep;
 
   // Create Geant4 master thread
   m_masterThread = std::thread([&]() {
@@ -56,7 +56,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
         edm::LogVerbatim("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-        m_runManagerMaster->initG4(m_pDDD, m_pDD4Hep, m_pTable);
+        m_runManagerMaster->initG4(m_pDDD, m_pDD4hep, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
@@ -109,7 +109,7 @@ void OscarMTMasterThread::callConsumes(edm::ConsumesCollector&& iC) const {
     return;
   }
   if (m_pGeoFromDD4hep) {
-    m_DD4Hep = iC.esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
+    m_DD4hep = iC.esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   } else {
     m_DDD = iC.esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
@@ -124,7 +124,7 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
 
   if (m_firstRun) {
     if (m_pGeoFromDD4hep) {
-      m_pDD4Hep = &(*iSetup.getTransientHandle(m_DD4Hep));
+      m_pDD4hep = &(*iSetup.getTransientHandle(m_DD4hep));
     } else {
       m_pDDD = &(*iSetup.getTransientHandle(m_DDD));
     }

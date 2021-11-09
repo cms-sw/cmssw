@@ -34,123 +34,37 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Alignment.MuonAlignment.muonGeometryDBConverter_cfi")
 
-process.DTGeometryAlInputMethod = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputMethod'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-
-process.CSCGeometryAlInputMethod = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputMethod'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False),
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-
-process.GEMGeometryAlInputMethod = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputMethod'),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    applyAlignment = cms.bool(False)
-)
-
-process.DTGeometryAlInputDB = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputDB'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-
-process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputDB'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False),
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-
-process.GEMGeometryAlInputDB = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputDB'),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    applyAlignment = cms.bool(False)
-)
-
-process.DTGeometryAlOutputXML = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForOutputXML'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-
-process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForOutputXML'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False),
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-
-process.GEMGeometryAlOutputXML = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForOutputXML'),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    applyAlignment = cms.bool(False)
-)
-
-process.DTGeometryAlInputXML = cms.ESProducer("DTGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputXML'),
-    applyAlignment = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    fromDDD = cms.bool(True)
-)
-
-process.CSCGeometryAlInputXML = cms.ESProducer("CSCGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputXML'),
-    debugV = cms.untracked.bool(False),
-    useGangedStripsInME1a = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    useOnlyWiresInME1a = cms.bool(False),
-    useRealWireGeometry = cms.bool(True),
-    useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False),
-    fromDDD = cms.bool(True),
-    fromDD4hep = cms.bool(False)
-)
-
-process.GEMGeometryAlInputXML = cms.ESProducer("GEMGeometryESModule",
-    appendToDataLabel = cms.string('idealForInputXML'),
-    fromDDD = cms.bool(True),
-    fromDD4Hep = cms.bool(False),
-    alignmentsLabel = cms.string(''),
-    applyAlignment = cms.bool(False)
-)
 ################################################################################
 # parameters to configure:
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2017_design")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2021_design")
 process.muonGeometryDBConverter.input = options.input
 process.muonGeometryDBConverter.output = options.output
+
+
+import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
+import Geometry.CSCGeometryBuilder.cscGeometryDB_cfi
+import Geometry.GEMGeometryBuilder.gemGeometryDB_cfi
+process.DTGeometryIdeal = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryIdeal.appendToDataLabel = 'idealGeometry'
+process.DTGeometryIdeal.applyAlignment = cms.bool(False)
+process.CSCGeometryIdeal = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryIdeal.appendToDataLabel = 'idealGeometry'
+process.CSCGeometryIdeal.applyAlignment = cms.bool(False)
+process.GEMGeometryIdeal = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryIdeal.appendToDataLabel = 'idealGeometry'
+process.GEMGeometryIdeal.applyAlignment = cms.bool(False)
+
+process.DTGeometryIdealForInputXML = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()
+process.DTGeometryIdealForInputXML.appendToDataLabel = 'idealForInputXML'
+process.DTGeometryIdealForInputXML.applyAlignment = cms.bool(False)
+process.CSCGeometryIdealForInputXML = Geometry.CSCGeometryBuilder.cscGeometryDB_cfi.CSCGeometryESModule.clone()
+process.CSCGeometryIdealForInputXML.appendToDataLabel = 'idealForInputXML'
+process.CSCGeometryIdealForInputXML.applyAlignment = cms.bool(False)
+process.GEMGeometryIdealForInputXML = Geometry.GEMGeometryBuilder.gemGeometryDB_cfi.GEMGeometryESModule.clone()
+process.GEMGeometryIdealForInputXML.appendToDataLabel = 'idealForInputXML'
+process.GEMGeometryIdealForInputXML.applyAlignment = cms.bool(False)
+
 
 if options.input == "db":
     process.GlobalTag.toGet.extend(
@@ -177,26 +91,36 @@ elif options.input == "xml":
     process.muonGeometryDBConverter.fileName = options.inputFile
 
 if options.output == "db":
-    from CondCore.CondDB.CondDB_cfi import CondDB
-    process.PoolDBOutputService = cms.Service(
-        "PoolDBOutputService",
-        CondDB,
-        toPut = cms.VPSet(
-            cms.PSet(record = cms.string("DTAlignmentRcd"),
-                     tag = cms.string("DTAlignmentRcd")),
-            cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"),
-                     tag = cms.string("DTAlignmentErrorExtendedRcd")),
-            cms.PSet(record = cms.string("CSCAlignmentRcd"),
-                     tag = cms.string("CSCAlignmentRcd")),
-            cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"),
-                     tag = cms.string("CSCAlignmentErrorExtendedRcd")),
-            cms.PSet(record = cms.string("GEMAlignmentRcd"),
-                     tag = cms.string("GEMAlignmentRcd")),
-            cms.PSet(record = cms.string("GEMAlignmentErrorExtendedRcd"),
-                     tag = cms.string("GEMAlignmentErrorExtendedRcd"))
-        )
+    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+    process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+        CondDBSetup,
+        toPut = cms.VPSet(cms.PSet(
+            record = cms.string('DTAlignmentRcd'),
+            tag = cms.string('DTAlignmentRcd')
+        ),
+            cms.PSet(
+                record = cms.string('DTAlignmentErrorExtendedRcd'),
+                tag = cms.string('DTAlignmentErrorExtendedRcd')
+            ),
+            cms.PSet(
+                record = cms.string('CSCAlignmentRcd'),
+                tag = cms.string('CSCAlignmentRcd')
+            ),
+            cms.PSet(
+                record = cms.string('CSCAlignmentErrorExtendedRcd'),
+                tag = cms.string('CSCAlignmentErrorExtendedRcd')
+            ),
+            cms.PSet(
+                record = cms.string('GEMAlignmentRcd'),
+                tag = cms.string('GEMAlignmentRcd')
+            ),
+            cms.PSet(
+                record = cms.string('GEMAlignmentErrorExtendedRcd'),
+                tag = cms.string('GEMAlignmentErrorExtendedRcd')
+            )),
+    
+        connect = cms.string('sqlite_file:'+options.outputFile)
     )
-    process.PoolDBOutputService.connect = "sqlite_file:"+options.outputFile
 elif options.output == "xml":
     process.muonGeometryDBConverter.outputXML.fileName = options.outputFile
     process.muonGeometryDBConverter.outputXML.suppressDTSuperLayers = True

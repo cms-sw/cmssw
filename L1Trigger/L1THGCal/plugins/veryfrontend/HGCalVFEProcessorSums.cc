@@ -41,8 +41,6 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
 
   // Remove disconnected modules and invalid cells
   for (const auto& digiData : digiColl) {
-    if (DetId(digiData.id()).det() == DetId::Hcal && HcalDetId(digiData.id()).subdetId() != HcalEndcap)
-      continue;
     if (!geometry()->validCell(digiData.id()))
       continue;
     uint32_t module = geometry()->getModuleFromCell(digiData.id());

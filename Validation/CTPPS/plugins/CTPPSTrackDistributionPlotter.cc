@@ -59,6 +59,11 @@ private:
     std::unique_ptr<TH1D> h_y;
     std::unique_ptr<TH1D> h_time;
 
+    std::unique_ptr<TH2D> h2_de_x_vs_x;  // "delta" refers to distance between two tracks in the same RP
+    std::unique_ptr<TH2D> h2_de_x_vs_y;
+    std::unique_ptr<TH2D> h2_de_y_vs_x;
+    std::unique_ptr<TH2D> h2_de_y_vs_y;
+
     RPPlots() : initialized(false) {}
 
     void init(bool pixel, double pitch) {
@@ -76,10 +81,19 @@ private:
 
       h_time = std::make_unique<TH1D>("", ";time", 500, -50., +50.);
 
+      h2_de_x_vs_x =
+          std::make_unique<TH2D>("h2_de_x_vs_x", "h2_de_x_vs_x;x;distance in x axis", 300, -30., +30., 300, -3., +3.);
+      h2_de_x_vs_y =
+          std::make_unique<TH2D>("h2_de_x_vs_y", "h2_de_x_vs_y;y;distance in x axis", 300, -30., +30., 300, -3., +3.);
+      h2_de_y_vs_x =
+          std::make_unique<TH2D>("h2_de_y_vs_x", "h2_de_y_vs_x;x;distance in y axis", 300, -30., +30., 300, -3., +3.);
+      h2_de_y_vs_y =
+          std::make_unique<TH2D>("h2_de_y_vs_y", "h2_de_y_vs_y;y;distance in y axis", 300, -30., +30., 300, -3., +3.);
+
       initialized = true;
     }
 
-    void fill(double x, double y, double time) {
+    void fillOneTrack(double x, double y, double time) {
       h2_y_vs_x->Fill(x, y);
       p_y_vs_x->Fill(x, y);
       h_x->Fill(x);
@@ -93,6 +107,11 @@ private:
       h_x->Write("h_x");
       h_y->Write("h_y");
       h_time->Write("h_time");
+
+      h2_de_x_vs_x->Write("h2_de_x_vs_x");
+      h2_de_x_vs_y->Write("h2_de_x_vs_y");
+      h2_de_y_vs_x->Write("h2_de_y_vs_x");
+      h2_de_y_vs_y->Write("h2_de_y_vs_y");
     }
   };
 
@@ -255,7 +274,7 @@ void CTPPSTrackDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
     if (!pl.initialized)
       pl.init(rpPixel, x_pitch_pixels_);
 
-    pl.fill(trk.x(), trk.y(), trk.time());
+    pl.fillOneTrack(trk.x(), trk.y(), trk.time());
 
     m_mult[rpId.arm()]++;
   }
@@ -282,6 +301,29 @@ void CTPPSTrackDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
 
       if (rpDecId1 == ap.rpId_N && rpDecId2 == ap.rpId_F)
         ap.fill(t1.x(), t1.y(), t2.x(), t2.y());
+    }
+  }
+
+  for (unsigned int i = 0; i < tracks->size(); ++i) {
+    for (unsigned int j = 0; j < tracks->size(); ++j) {
+      if (i == j)
+        continue;
+
+      const auto& tr_i = tracks->at(i);
+      const auto& tr_j = tracks->at(j);
+
+      if (tr_i.rpId() != tr_j.rpId())
+        continue;
+
+      CTPPSDetId rpId(tr_i.rpId());
+      unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
+
+      auto& pl = rpPlots[rpDecId];
+
+      pl.h2_de_x_vs_x->Fill(tr_i.x(), tr_j.x() - tr_i.x());
+      pl.h2_de_x_vs_y->Fill(tr_i.y(), tr_j.x() - tr_i.x());
+      pl.h2_de_y_vs_x->Fill(tr_i.x(), tr_j.y() - tr_i.y());
+      pl.h2_de_y_vs_y->Fill(tr_i.y(), tr_j.y() - tr_i.y());
     }
   }
 

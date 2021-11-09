@@ -32,17 +32,18 @@ private:
   const string m_tag;
   const string m_outputFileName;
   const ESInputTag m_label;
+  const ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
 DDTestDumpFile::DDTestDumpFile(const ParameterSet& iConfig)
     : m_tag(iConfig.getUntrackedParameter<string>("tag", "unknown")),
       m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4HepGeom.root")),
-      m_label(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+      m_label(iConfig.getParameter<ESInputTag>("DDDetector")),
+      m_token(esConsumes(m_label)) {}
 
 void DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
-  ESTransientHandle<DDDetector> det;
-  iEventSetup.get<IdealGeometryRecord>().get(m_label, det);
+  ESTransientHandle<DDDetector> det = iEventSetup.getTransientHandle(m_token);
 
   TGeoManager& geom = det->manager();
 

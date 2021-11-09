@@ -19,21 +19,21 @@ using namespace edm;
 
 namespace dtCalibration {
 
-  DTT0FillDefaultFromDB::DTT0FillDefaultFromDB(const ParameterSet& pset)
-      : dbLabelRef_(pset.getParameter<string>("dbLabelRef")) {}
+  DTT0FillDefaultFromDB::DTT0FillDefaultFromDB(const ParameterSet& pset, edm::ConsumesCollector cc)
+      : t0Token_(cc.esConsumes<edm::Transition::BeginRun>()),
+        t0RefToken_(
+            cc.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", pset.getParameter<string>("dbLabelRef")))) {}
 
   DTT0FillDefaultFromDB::~DTT0FillDefaultFromDB() {}
 
   void DTT0FillDefaultFromDB::setES(const EventSetup& setup) {
     // Get t0 record from DB
-    ESHandle<DTT0> t0H;
-    setup.get<DTT0Rcd>().get(t0H);
+    ESHandle<DTT0> t0H = setup.getHandle(t0Token_);
     t0Map_ = &*t0H;
     LogVerbatim("Calibration") << "[DTT0FillDefaultFromDB] T0 version: " << t0H->version();
 
     // Get reference t0 DB
-    ESHandle<DTT0> t0RefH;
-    setup.get<DTT0Rcd>().get(dbLabelRef_, t0RefH);
+    ESHandle<DTT0> t0RefH = setup.getHandle(t0RefToken_);
     t0MapRef_ = &*t0RefH;
     LogVerbatim("Calibration") << "[DTT0FillDefaultFromDB] Reference T0 version: " << t0RefH->version();
   }

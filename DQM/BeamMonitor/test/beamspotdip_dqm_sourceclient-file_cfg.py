@@ -1,6 +1,14 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+# copy log4cplus.properties from >script directory< to >local<
+import sys
+import os
+from shutil import copy
+configFile = os.path.dirname(sys.argv[1]) + "/log4cplus.properties"
+print("copying " + configFile + " to local")
+copy(configFile,".")
+
 #
 process = cms.Process("BeamSpotDipServer")
 process.load("DQMServices.Core.DQM_cfg")

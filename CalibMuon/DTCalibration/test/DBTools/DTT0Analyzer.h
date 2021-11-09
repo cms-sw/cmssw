@@ -10,9 +10,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <fstream>
@@ -53,5 +57,8 @@ private:
   // Map of the t0 and sigma histos by layer
   std::map<DTLayerId, TH1D*> theMeanHistoMap;
   std::map<DTLayerId, TH1D*> theSigmaHistoMap;
+
+  edm::ESGetToken<DTT0, DTT0Rcd> t0Token_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
 };
 #endif

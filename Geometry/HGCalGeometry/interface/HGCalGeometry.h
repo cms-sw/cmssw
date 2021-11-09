@@ -93,6 +93,7 @@ public:
 
   // Get closest cell, etc...
   DetId getClosestCell(const GlobalPoint& r) const override;
+  DetId getClosestCellHex(const GlobalPoint& r, bool extend) const;
 
   /** \brief Get a list of all cells within a dR of the given cell
       

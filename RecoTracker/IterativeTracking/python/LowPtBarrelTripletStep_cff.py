@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# for no-loopers
+from Configuration.ProcessModifiers.trackingNoLoopers_cff import trackingNoLoopers
+
 # NEW CLUSTERS (remove previously used clusters)
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
 lowPtBarrelTripletStepClusters = trackClusterRemover.clone(
@@ -69,7 +72,8 @@ lowPtBarrelTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraje
     # set the variable to a negative value to turn-off the looper reconstruction 
     #maxPtForLooperReconstruction = cms.double(-1.) 
     )
-
+trackingNoLoopers.toModify(lowPtBarrelTripletStepTrajectoryBuilder,
+                           maxPtForLooperReconstruction = 0.0)
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtBarrelTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(

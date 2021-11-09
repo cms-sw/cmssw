@@ -41,7 +41,7 @@ DD4hep_TrackingMaterialAnalyser::DD4hep_TrackingMaterialAnalyser(const edm::Para
         << "Invalid SplitMode \"" << splitmode
         << "\". Acceptable values are \"NearestLayer\", \"InnerLayer\", \"OuterLayer\".";
   }
-  m_tag = iPSet.getParameter<edm::ESInputTag>("DDDetector");
+  m_dddToken = esConsumes(iPSet.getParameter<edm::ESInputTag>("DDDetector"));
   m_skipAfterLastDetector = iPSet.getParameter<bool>("SkipAfterLastDetector");
   m_skipBeforeFirstDetector = iPSet.getParameter<bool>("SkipBeforeFirstDetector");
   m_saveSummaryPlot = iPSet.getParameter<bool>("SaveSummaryPlot");
@@ -153,8 +153,7 @@ void DD4hep_TrackingMaterialAnalyser::endJob(void) {
 //-------------------------------------------------------------------------
 void DD4hep_TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   using namespace edm;
-  ESTransientHandle<cms::DDCompactView> hDDD;
-  setup.get<IdealGeometryRecord>().get(m_tag, hDDD);
+  auto hDDD = setup.getTransientHandle(m_dddToken);
 
   m_groups.reserve(m_groupNames.size());
   // Initialize m_groups iff it has size equal to zero, so that we are

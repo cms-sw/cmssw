@@ -26,6 +26,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //vertices bp
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -39,7 +40,7 @@
 namespace L1Analysis {
   class L1AnalysisRecoMuon2 {
   public:
-    L1AnalysisRecoMuon2(const edm::ParameterSet& pset);
+    L1AnalysisRecoMuon2(const edm::ParameterSet& pset, edm::ConsumesCollector);
     ~L1AnalysisRecoMuon2();
 
     void init(const edm::EventSetup& eventSetup);

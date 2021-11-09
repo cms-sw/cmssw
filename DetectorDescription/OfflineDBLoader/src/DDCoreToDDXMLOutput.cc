@@ -180,6 +180,10 @@ void DDCoreToDDXMLOutput::solid(const dd4hep::Solid& solid, const cms::DDParsing
     }
     case cms::DDSolidShape::ddtrap: {
       dd4hep::Trap rs(solid);
+      xos << std::setprecision(8);
+      // Precision of 8 is needed to prevent complaints from Native Geant4 10.7 about
+      // small deviations from planarity of trapezoid faces.
+
       xos << "<Trapezoid name=\"" << trimShapeName(rs.name()) << "\""
           << " dz=\"" << rs.dZ() << "*mm\""
           << " theta=\"" << convertRadToDeg(rs.theta()) << "*deg\""
@@ -192,6 +196,12 @@ void DDCoreToDDXMLOutput::solid(const dd4hep::Solid& solid, const cms::DDParsing
           << " bl2=\"" << rs.bottomLow2() << "*mm\""
           << " tl2=\"" << rs.topLow2() << "*mm\""
           << " alp2=\"" << convertRadToDeg(rs.alpha2()) << "*deg\"/>" << std::endl;
+      xos << std::setprecision(5);
+      // Before CMSSW_12_1_0_pre5, all solids, including Trapezoids, had precision of 5.
+      // In tests With Native Geant4 10.7, this precision caused complaints, as explained above.
+      // To minimize changes, the precision was increased only for Trapezoids.
+      // In future, when there is an opportunity to revise the geometry, it might be
+      // desirable to use precision of 8 for all solids for consistency.
       break;
     }
     case cms::DDSolidShape::ddcons: {

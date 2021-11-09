@@ -1,5 +1,5 @@
 /* Implementation of the  ME0GeometryParsFromDD Class
- *  Build the ME0Geometry from the DDD and DD4Hep description
+ *  Build the ME0Geometry from the DDD and DD4hep description
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 

@@ -29,7 +29,7 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TrackTransformer::TrackTransformer(const ParameterSet& parameterSet)
+TrackTransformer::TrackTransformer(const ParameterSet& parameterSet, edm::ConsumesCollector& iC)
     : theRPCInTheFit(parameterSet.getParameter<bool>("RefitRPCHits")),
       theDoPredictionsOnly(parameterSet.getParameter<bool>("DoPredictionsOnly")),
       theRefitDirection(parameterSet.getParameter<string>("RefitDirection")),
@@ -38,10 +38,7 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet)
       thePropagatorName(parameterSet.getParameter<string>("Propagator")),
       theTrackerRecHitBuilderName(parameterSet.getParameter<string>("TrackerRecHitBuilder")),
       theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder")),
-      theMTDRecHitBuilderName(parameterSet.getParameter<string>("MTDRecHitBuilder")) {}
-
-TrackTransformer::TrackTransformer(const ParameterSet& parameterSet, edm::ConsumesCollector& iC)
-    : TrackTransformer(parameterSet) {
+      theMTDRecHitBuilderName(parameterSet.getParameter<string>("MTDRecHitBuilder")) {
   theTrackingGeometryToken = iC.esConsumes();
   theMGFieldToken = iC.esConsumes();
   theFitterToken = iC.esConsumes(edm::ESInputTag("", theFitterName));
@@ -79,50 +76,25 @@ void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
 void TrackTransformer::setServices(const EventSetup& setup) {
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
-  if (theFitterToken.isInitialized()) {
-    theFitter = setup.getData(theFitterToken).clone();
-    theSmoother.reset(setup.getData(theSmootherToken).clone());
+  theFitter = setup.getData(theFitterToken).clone();
+  theSmoother.reset(setup.getData(theSmootherToken).clone());
 
-    thePropagator = setup.getHandle(thePropagatorToken);
+  thePropagator = setup.getHandle(thePropagatorToken);
 
-    // Global Tracking Geometry
-    theTrackingGeometry = setup.getHandle(theTrackingGeometryToken);
+  // Global Tracking Geometry
+  theTrackingGeometry = setup.getHandle(theTrackingGeometryToken);
 
-    // Magfield Field
-    theMGField = setup.getHandle(theMGFieldToken);
-  } else {
-    edm::ESHandle<TrajectoryFitter> aFitter;
-    edm::ESHandle<TrajectorySmoother> aSmoother;
-    setup.get<TrajectoryFitter::Record>().get(theFitterName, aFitter);
-    setup.get<TrajectoryFitter::Record>().get(theSmootherName, aSmoother);
-    theFitter = aFitter->clone();
-    theSmoother.reset(aSmoother->clone());
-
-    setup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
-
-    // Global Tracking Geometry
-    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-
-    // Magfield Field
-    setup.get<IdealMagneticFieldRecord>().get(theMGField);
-  }
+  // Magfield Field
+  theMGField = setup.getHandle(theMGFieldToken);
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
   if (newCacheId_TRH != theCacheId_TRH) {
     theCacheId_TRH = newCacheId_TRH;
     LogTrace(metname) << "TransientRecHitRecord changed!";
-    if (theTrackerRecHitBuilderToken.isInitialized()) {
-      theTrackerRecHitBuilder = &setup.getData(theTrackerRecHitBuilderToken);
-      theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuilderToken);
-      theMTDRecHitBuilder = setup.getHandle(theMTDRecHitBuilderToken);
-    } else {
-      edm::ESHandle<TransientTrackingRecHitBuilder> aTrackerRecHitBuilder;
-      setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, aTrackerRecHitBuilder);
-      theTrackerRecHitBuilder = aTrackerRecHitBuilder.product();
-      setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
-      setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName, theMTDRecHitBuilder);
-    }
+    theTrackerRecHitBuilder = &setup.getData(theTrackerRecHitBuilderToken);
+    theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuilderToken);
+    theMTDRecHitBuilder = setup.getHandle(theMTDRecHitBuilderToken);
     theMtdAvailable = theMTDRecHitBuilder.isValid();
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder)->cloner();
   }

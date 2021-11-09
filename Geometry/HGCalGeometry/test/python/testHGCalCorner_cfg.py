@@ -1,12 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+process = cms.Process("PROD",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
+process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -49,6 +46,6 @@ process.prodHEB = process.prodEE.clone(
     detector   = "HGCalHEScintillatorSensitive",
 )
 
-#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
 #process.p1 = cms.Path(process.prodHEB)
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
+#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)

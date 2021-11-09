@@ -80,9 +80,9 @@ namespace {
     } else {
       int thisidx = tree.CutIndices().size();
 
-      int selector;
-      float cutval;
-      bool ctype;
+      int selector = 0;
+      float cutval = 0.;
+      bool ctype = false;
 
       node->QueryIntAttribute("IVar", &selector);
       node->QueryFloatAttribute("Cut", &cutval);
@@ -158,8 +158,12 @@ namespace {
          e = e->NextSiblingElement("Info")) {
       const char* name;
       const char* value;
-      e->QueryStringAttribute("name", &name);
-      e->QueryStringAttribute("value", &value);
+      if (tinyxml2::XML_SUCCESS != e->QueryStringAttribute("name", &name)) {
+        throw cms::Exception("XMLERROR") << "no 'name' attribute found in 'Info' element in " << weightsFileFullPath;
+      }
+      if (tinyxml2::XML_SUCCESS != e->QueryStringAttribute("value", &value)) {
+        throw cms::Exception("XMLERROR") << "no 'value' attribute found in 'Info' element in " << weightsFileFullPath;
+      }
       info[name] = value;
     }
 
@@ -172,7 +176,9 @@ namespace {
     for (tinyxml2::XMLElement* e = optionsElem->FirstChildElement("Option"); e != nullptr;
          e = e->NextSiblingElement("Option")) {
       const char* name;
-      e->QueryStringAttribute("name", &name);
+      if (tinyxml2::XML_SUCCESS != e->QueryStringAttribute("name", &name)) {
+        throw cms::Exception("XMLERROR") << "no 'name' attribute found in 'Option' element in " << weightsFileFullPath;
+      }
       options[name] = e->GetText();
     }
 
@@ -194,7 +200,10 @@ namespace {
          e = e->NextSiblingElement("BinaryTree")) {
       hasTrees = true;
       double w;
-      e->QueryDoubleAttribute("boostWeight", &w);
+      if (tinyxml2::XML_SUCCESS != e->QueryDoubleAttribute("boostWeight", &w)) {
+        throw cms::Exception("XMLERROR") << "problem with 'boostWeight' attribute found in 'BinaryTree' element in "
+                                         << weightsFileFullPath;
+      }
       boostWeights.push_back(w);
     }
     if (!hasTrees) {

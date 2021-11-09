@@ -28,20 +28,20 @@ DTVDriftAnalyzer::DTVDriftAnalyzer(const ParameterSet& pset)
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
+  mTimeMapToken_ = esConsumes<edm::Transition::BeginRun>();
+  vDriftMapToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 DTVDriftAnalyzer::~DTVDriftAnalyzer() { theFile->Close(); }
 
 void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   if (readLegacyVDriftDB) {
-    ESHandle<DTMtime> mTime;
-    eventSetup.get<DTMtimeRcd>().get(mTime);
+    ESHandle<DTMtime> mTime = eventSetup.getHandle(mTimeMapToken_);
     mTimeMap = &*mTime;
     vDriftMap_ = nullptr;
     edm::LogVerbatim("DTVDriftAnalyzer") << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
   } else {
-    ESHandle<DTRecoConditions> hVdrift;
-    eventSetup.get<DTRecoConditionsVdriftRcd>().get(hVdrift);
+    ESHandle<DTRecoConditions> hVdrift = eventSetup.getHandle(vDriftMapToken_);
     vDriftMap_ = &*hVdrift;
     mTimeMap = nullptr;
     // Consistency check: no parametrization is implemented for the time being
