@@ -124,7 +124,7 @@ public:
     if (mode_ == HGCalGeometryMode::TrapezoidFile) {
       int ll = layer - hgpar_->firstLayer_;
       if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
-	return hgpar_->tileRingRange_[ll];
+        return hgpar_->tileRingRange_[ll];
     }
     return std::make_pair(0, 0);
   }
@@ -221,8 +221,9 @@ public:
   int wafers() const;
   int wafers(int layer, int type) const;
   int waferToCopy(int wafer) const {
-    return ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer]
-                                                                        : static_cast<int>(hgpar_->waferCopy_.size());
+    return ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferCopy_.size())))
+               ? hgpar_->waferCopy_[wafer]
+               : static_cast<int>(hgpar_->waferCopy_.size());
   }
   // wafer transverse thickness classification (2 = coarse, 1 = fine)
   int waferTypeT(int wafer) const {
