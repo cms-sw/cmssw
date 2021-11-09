@@ -82,11 +82,10 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
   }
 
   auto protons_table = std::make_unique<nanoaod::FlatTable>(isPUs.size(), table_name_, false);
-  protons_table->addColumn<float>("pt", pts, "proton transverse momentum", nanoaod::FlatTable::FloatColumn, 10);
-  protons_table->addColumn<float>("pz", pzs, "proton longitudinal momentum", nanoaod::FlatTable::FloatColumn, 10);
-  protons_table->addColumn<float>(
-      "vz", vzs, "proton vertex longitudinal coordinate", nanoaod::FlatTable::FloatColumn, 10);
-  protons_table->addColumn<int>("isPU", isPUs, "pileup proton?", nanoaod::FlatTable::IntColumn, 10);
+  protons_table->addColumn<float>("pt", pts, "proton transverse momentum");
+  protons_table->addColumn<float>("pz", pzs, "proton longitudinal momentum");
+  protons_table->addColumn<float>("vz", vzs, "proton vertex longitudinal coordinate");
+  protons_table->addColumn<int>("isPU", isPUs, "pileup proton?");
   iEvent.put(std::move(protons_table));
 }
 
