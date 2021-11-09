@@ -14,7 +14,9 @@
 
 #define SoA_view_store_list(...) __VA_ARGS__
 
-#define SoA_view_value(STORE_NAME, STORE_MEMBER, LOCAL_NAME) (STORE_NAME, STORE_MEMBER, LOCAL_NAME)
+#define SoA_view_value(STORE_NAME, STORE_MEMBER) (STORE_NAME, STORE_MEMBER, STORE_MEMBER)
+
+#define SoA_view_value_rename(STORE_NAME, STORE_MEMBER, LOCAL_NAME) (STORE_NAME, STORE_MEMBER, LOCAL_NAME)
 
 #define SoA_view_value_list(...) __VA_ARGS__
 

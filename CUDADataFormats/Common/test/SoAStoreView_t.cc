@@ -39,14 +39,14 @@ generate_SoA_store(SoADeviceOnly,
 // A 1 to 1 view of the store (except for unsupported types).
 generate_SoA_view(SoAFullDeviceView,
                   SoA_view_store_list(SoA_view_store(SoAHostDevice, soaHD), SoA_view_store(SoADeviceOnly, soaDO)),
-                  SoA_view_value_list(SoA_view_value(soaHD, x, x),
-                                      SoA_view_value(soaHD, y, y),
-                                      SoA_view_value(soaHD, z, z),
-                                      SoA_view_value(soaDO, color, color),
-                                      SoA_view_value(soaDO, value, value),
-                                      SoA_view_value(soaDO, py, py),
-                                      SoA_view_value(soaDO, count, count),
-                                      SoA_view_value(soaDO, anotherCount, anotherCount)));
+                  SoA_view_value_list(SoA_view_value(soaHD, x),
+                                      SoA_view_value(soaHD, y),
+                                      SoA_view_value(soaHD, z),
+                                      SoA_view_value(soaDO, color),
+                                      SoA_view_value(soaDO, value),
+                                      SoA_view_value(soaDO, py),
+                                      SoA_view_value(soaDO, count),
+                                      SoA_view_value(soaDO, anotherCount)));
 
 // Eigen cross product kernel (on store)
 struct crossProduct {
