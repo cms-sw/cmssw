@@ -69,7 +69,7 @@ struct ClusterGenerator {
     ev.ivert.clear();
     for (int iv = 0; iv < nclus; ++iv) {
       auto nt = trackGen(reng);
-      ev.itrack[nclus] = nt;
+      ev.itrack[iv] = nt;
       for (int it = 0; it < nt; ++it) {
         auto err = errgen(reng);  // reality is not flat....
         ev.ztrack.push_back(ev.zvert[iv] + err * gauss(reng));
