@@ -1073,20 +1073,16 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() const {
   const int max_late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
 
   // debugging messages when early_tbin or late_tbin has a suspicious value
-  bool debugTimeBins = true;
-  if (debugTimeBins) {
-    if (early_tbin < 0) {
-      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-          << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
-      early_tbin = 0;
-    }
-    if (late_tbin > max_late_tbin) {
-      edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
-          << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
-          << ". set early_tbin to max allowed";
-      late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
-    }
-    debugTimeBins = false;
+  if (early_tbin < 0) {
+    edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+        << "Early time bin (early_tbin) smaller than minimum allowed, which is 0. set early_tbin to 0.";
+    early_tbin = 0;
+  }
+  if (late_tbin > max_late_tbin) {
+    edm::LogWarning("CSCCathodeLCTProcessor|SuspiciousParameters")
+        << "Late time bin (late_tbin) larger than maximum allowed, which is " << max_late_tbin
+        << ". set early_tbin to max allowed";
+    late_tbin = CSCConstants::MAX_CLCT_TBINS - 1;
   }
 
   // get the valid LCTs. No BX selection is done here
