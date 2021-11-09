@@ -280,7 +280,6 @@
     <Parameter name="GroupingZOut"   value="28"/>
     <Parameter name="GroupingZOut"   value="28"/>
     <Parameter name="GroupingZOut"   value="28"/>
-    <Parameter name="LayerOffset"    value="0"/>
   </SpecPar>
   <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
@@ -394,7 +393,6 @@
     <Parameter name="GroupingZOut"   value="12"/>
     <Parameter name="GroupingZOut"   value="12"/>
     <Parameter name="GroupingZOut"   value="12"/>
-    <Parameter name="LayerOffset"    value="28"/>
   </SpecPar>
 </SpecParSection>
 
