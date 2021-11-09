@@ -191,7 +191,6 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSModifiedOptic
 
       of_N.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
       of_F.m_fcn_values[LHCOpticalFunctionsSet::eLpy][i] = Lp_y;
-
     }
 
     // re-initialise splines
