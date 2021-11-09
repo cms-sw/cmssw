@@ -15,6 +15,13 @@ namespace ecaldqm {
     tpThreshold_ = _params.getUntrackedParameter<double>("tpThreshold");
     lumiTag = _params.getParameter<edm::InputTag>("scalers");
     lumiCheck_ = _params.getUntrackedParameter<bool>("lumiCheck", false);
+    if (!onlineMode_) {
+      MEs_.erase(std::string("PU"));
+      MEs_.erase(std::string("NEvents"));
+      MEs_.erase(std::string("TrendEventsperLumi"));
+      MEs_.erase(std::string("TrendPUperLumi"));
+      MEs_.erase(std::string("AELoss"));
+    }
   }
 
   void OccupancyTask::setTokens(edm::ConsumesCollector& _collector) {
@@ -43,10 +50,12 @@ namespace ecaldqm {
       MEs_.at("DigiAllByLumi").reset(GetElectronicsMap());
       MEs_.at("TPDigiThrAllByLumi").reset(GetElectronicsMap());
       MEs_.at("RecHitThrAllByLumi").reset(GetElectronicsMap());
-      MEs_.at("PU").reset(GetElectronicsMap(), -1);
-      MEs_.at("NEvents").reset(GetElectronicsMap(), -1);
       nEv = 0;
-      FindPUinLS = true;
+      if (onlineMode_) {
+        MEs_.at("PU").reset(GetElectronicsMap(), -1);
+        MEs_.at("NEvents").reset(GetElectronicsMap(), -1);
+        FindPUinLS = true;
+      }
     }
     nEv++;
     MESet& meLaserCorrProjEta(MEs_.at("LaserCorrProjEta"));
@@ -95,13 +104,15 @@ namespace ecaldqm {
   }
 
   void OccupancyTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    MESet& meNEvents(static_cast<MESet&>(MEs_.at("NEvents")));
-    MESet& meTrendEventsperLumi(MEs_.at("TrendEventsperLumi"));
-    MESet& meTrendPUperLumi(MEs_.at("TrendPUperLumi"));
+    if (onlineMode_) {
+      MESet& meNEvents(static_cast<MESet&>(MEs_.at("NEvents")));
+      MESet& meTrendEventsperLumi(MEs_.at("TrendEventsperLumi"));
+      MESet& meTrendPUperLumi(MEs_.at("TrendPUperLumi"));
 
-    meNEvents.fill(getEcalDQMSetupObjects(), double(nEv));
-    meTrendEventsperLumi.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(nEv));
-    meTrendPUperLumi.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(scal_pu));
+      meNEvents.fill(getEcalDQMSetupObjects(), double(nEv));
+      meTrendEventsperLumi.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(nEv));
+      meTrendPUperLumi.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(scal_pu));
+    }
   }
 
   template <typename DigiCollection>
@@ -114,7 +125,9 @@ namespace ecaldqm {
     MESet& meDigiDCC(MEs_.at("DigiDCC"));
     MESet& meDigi1D(MEs_.at("Digi1D"));
     MESet& meTrendNDigi(MEs_.at("TrendNDigi"));
-    MESet& meAELoss(MEs_.at("AELoss"));
+    MESet* meAELoss = nullptr;
+    if (onlineMode_)
+      meAELoss = &MEs_.at("AELoss");
 
     std::for_each(_digis.begin(), _digis.end(), [&](typename DigiCollection::Digi const& digi) {
       DetId id(digi.id());
@@ -124,7 +137,8 @@ namespace ecaldqm {
       meDigiAll.fill(getEcalDQMSetupObjects(), id);
       meDigiAllByLumi.fill(getEcalDQMSetupObjects(), id);
       meDigiDCC.fill(getEcalDQMSetupObjects(), id);
-      meAELoss.fill(getEcalDQMSetupObjects(), id);
+      if (onlineMode_)
+        meAELoss->fill(getEcalDQMSetupObjects(), id);
     });
 
     int iSubdet(_collection == kEBDigi ? EcalBarrel : EcalEndcap);
