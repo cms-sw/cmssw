@@ -44,7 +44,7 @@ namespace gen {
     if (fAddAntiParticle)
       NTotParticles *= 2;
 
-    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 14000., 14000.);
+    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 15000., 15000.); // energy is dummy, it is not used
 
     int colorindex = 101;
 
