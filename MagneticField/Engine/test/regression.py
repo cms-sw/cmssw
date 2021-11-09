@@ -10,7 +10,7 @@ options.register('producerType',
                  'static_DDD', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4Hep', 'fromDB', 'fromDB_DD4Hep'")
+                 "MF producer to use. Valid values: 'static_DDD', 'static_DD4hep', 'fromDB', 'fromDB_DD4hep'")
 
 options.register('era',
                  'RunII', #default value
@@ -40,7 +40,7 @@ REFERENCEFILE = 'none'
 if options.current < 0 : # Test all currents, simulating different IOVs with different values runInfo
                          # FIXME: currents are set all equal for the time being because we need to set up a way to specify the correct
                          # reference file file to be picked for each at runtime.
-    if options.producerType == 'static_DDD' or options.producerType == 'static_DD4Hep' :
+    if options.producerType == 'static_DDD' or options.producerType == 'static_DD4hep' :
         sys.exit('Invalid configuration: current=-1 mode is not supported with static prouducers')
     process.maxEvents.input = 4
     process.source.numberEventsInLuminosityBlock =cms.untracked.uint32(1)
@@ -113,7 +113,7 @@ if options.producerType == 'static_DDD':
         process.load("MagneticField.Engine.volumeBasedMagneticField_71212_cfi") #2.0T
 
 
-elif options.producerType == 'static_DD4Hep' :
+elif options.producerType == 'static_DD4hep' :
     process.load("MagneticField.Engine.volumeBasedMagneticField_dd4hep_160812_cfi") 
     if options.current > 17543 :
         if options.era == 'RunI' :
@@ -125,13 +125,13 @@ elif options.producerType == 'static_DD4Hep' :
         process.VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3t')
         process.ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_0T')
     elif options.current > 4779 :
-        sys.exit('ERROR: Unsupported current for static_DD4Hep: ' + str(options.current))
+        sys.exit('ERROR: Unsupported current for static_DD4hep: ' + str(options.current))
 
 
-elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4Hep':
+elif options.producerType == 'fromDB' or options.producerType == 'fromDB_DD4hep':
     if options.producerType == 'fromDB':
         process.load("Configuration.StandardSequences.MagneticField_cff")
-    elif options.producerType == 'fromDB_DD4Hep':
+    elif options.producerType == 'fromDB_DD4hep':
         process.load("MagneticField.Engine.volumeBasedMagneticFieldFromDB_dd4hep_cfi")
 
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

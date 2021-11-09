@@ -4,7 +4,7 @@
  Description: ME0 GeometryValidate for DD4hep
  
  //
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4hep migration)
 //          Created:  29 Apr 2020 
 */
 

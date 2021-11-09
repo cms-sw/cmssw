@@ -58,10 +58,10 @@ private:
   bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 1.0 / dd4hep::mm;
+  static constexpr double k_ScaleFromDD4hepToG4 = 1.0 / dd4hep::mm;
 
   const DDCompactView *cpvDDD_;
-  const cms::DDCompactView *cpvDD4Hep_;
+  const cms::DDCompactView *cpvDD4hep_;
 
   bool useBirk_, doCherenkov_, readBothSide_, dd4hep_;
   double birk1_, birk2_, birk3_;

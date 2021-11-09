@@ -34,7 +34,7 @@ private:
 };
 
 ME0RecoIdealDBLoader::ME0RecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);  // set true for DD4HEP
+  fromDD4hep_ = iC.getUntrackedParameter<bool>("fromDD4hep", false);  // set true for DD4hep
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   muonGeomConstantsToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -54,7 +54,7 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     ME0GeometryParsFromDD me0pd;
     RecoIdealGeometry* rig = new RecoIdealGeometry;
     if (fromDD4hep_) {
-      edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DD4HEP ";
+      edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DD4hep ";
       auto pDD = es.getTransientHandle(dd4HepCompactViewToken_);
       const cms::DDCompactView& cpv = *pDD;
       me0pd.build(&cpv, *pMNDC, *rig);
