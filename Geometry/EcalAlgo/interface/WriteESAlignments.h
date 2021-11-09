@@ -42,7 +42,7 @@ private:
                const DVec& z,
                AliVec& va);
 
-  void write(const Alignments &ali);
+  void write(const Alignments& ali);
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   edm::ESGetToken<Alignments, ESAlignmentRcd> alignmentToken_;

@@ -84,16 +84,14 @@ void StoreESCondition::endJob() {
     } else if (objectName_[i] == "ESIntercalibConstants") {
       ESIntercalibConstants* myintercalib = readESIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createOneIOV<ESIntercalibConstants>(
-            *myintercalib, newTime, "ESIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESIntercalibConstants>(*myintercalib, newTime, "ESIntercalibConstantsRcd");
       } else {
         mydbservice->appendOneIOV<ESIntercalibConstants>(*myintercalib, newTime, "ESIntercalibConstantsRcd");
       }
     } else if (objectName_[i] == "ESTimeSampleWeights") {
       ESTimeSampleWeights* myintercalib = readESTimeSampleWeightsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createOneIOV<ESTimeSampleWeights>(
-            *myintercalib, newTime, "ESTimeSampleWeightsRcd");
+        mydbservice->createOneIOV<ESTimeSampleWeights>(*myintercalib, newTime, "ESTimeSampleWeightsRcd");
       } else {
         mydbservice->appendOneIOV<ESTimeSampleWeights>(*myintercalib, newTime, "ESTimeSampleWeightsRcd");
       }
@@ -107,17 +105,14 @@ void StoreESCondition::endJob() {
     } else if (objectName_[i] == "ESMissingEnergyCalibration") {
       ESMissingEnergyCalibration* myintercalib = readESMissingEnergyFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createOneIOV<ESMissingEnergyCalibration>(
-            *myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
+        mydbservice->createOneIOV<ESMissingEnergyCalibration>(*myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       } else {
-        mydbservice->appendOneIOV<ESMissingEnergyCalibration>(
-            *myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
+        mydbservice->appendOneIOV<ESMissingEnergyCalibration>(*myintercalib, newTime, "ESMissingEnergyCalibrationRcd");
       }
     } else if (objectName_[i] == "ESRecHitRatioCuts") {
       ESRecHitRatioCuts* myintercalib = readESRecHitRatioCutsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createOneIOV<ESRecHitRatioCuts>(
-            *myintercalib, newTime, "ESRecHitRatioCutsRcd");
+        mydbservice->createOneIOV<ESRecHitRatioCuts>(*myintercalib, newTime, "ESRecHitRatioCutsRcd");
       } else {
         mydbservice->appendOneIOV<ESRecHitRatioCuts>(*myintercalib, newTime, "ESRecHitRatioCutsRcd");
       }
@@ -138,8 +133,7 @@ void StoreESCondition::endJob() {
     } else if (objectName_[i] == "ESEEIntercalibConstants") {
       ESEEIntercalibConstants* myintercalib = readESEEIntercalibConstantsFromFile(inpFileName_[i].c_str());
       if (!toAppend) {
-        mydbservice->createOneIOV<ESEEIntercalibConstants>(
-            *myintercalib, newTime, "ESEEIntercalibConstantsRcd");
+        mydbservice->createOneIOV<ESEEIntercalibConstants>(*myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       } else {
         mydbservice->appendOneIOV<ESEEIntercalibConstants>(*myintercalib, newTime, "ESEEIntercalibConstantsRcd");
       }

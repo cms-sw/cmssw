@@ -40,7 +40,7 @@ void WEA::writeAlignments(const edm::EventSetup& eventSetup,
   write(ali);
 }
 
-void WEA::write(const Alignments &ali) {
+void WEA::write(const Alignments& ali) {
   edm::LogVerbatim("WriteESAlignments") << "Uploading ES alignments to the database";
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -98,11 +98,15 @@ void WEA::convert(const edm::EventSetup& eS,
     edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", alpha = " << 1000. * alpha << " mr";
     edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", beta  = " << 1000. * beta << " mr";
     edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", gamma = " << 1000. * gamma << " mr";
-    edm::LogVerbatim("WriteESAlignments") << " For i = " << i << ", L_n = " << L_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i = " << i << ", L_n = " << L_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
     edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", t_n=" << t_n;
-    edm::LogVerbatim("WriteESAlignments") << "For i = " << i << ", G_p=" << G_p << "   Euler angles=" << G_p.eulerAngles() << "\n";
-    edm::LogVerbatim("WriteESAlignments") << " For i = " << i << ", InvL_n = " << InvL_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
-    edm::LogVerbatim("WriteESAlignments") << " For i =" << i << ", G_n = " << G_n << "    Euler angles=" << G_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << "For i = " << i << ", G_p=" << G_p << "   Euler angles=" << G_p.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i = " << i << ", InvL_n = " << InvL_n << "   Euler angles=" << InvL_n.eulerAngles() << "\n";
+    edm::LogVerbatim("WriteESAlignments")
+        << " For i =" << i << ", G_n = " << G_n << "    Euler angles=" << G_n.eulerAngles() << "\n";
     edm::LogVerbatim("WriteESAlignments") << " For i =" << i << ", s_n = " << s_n;
     edm::LogVerbatim("WriteESAlignments") << "++++++++++++++++++++++++++\n\n";
 
