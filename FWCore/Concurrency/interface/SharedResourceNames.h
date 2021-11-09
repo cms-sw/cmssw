@@ -35,7 +35,7 @@ namespace edm {
   class ESSharedResourceNames {
   public:
     static const std::string kDDGeometry;
-    static const std::string kDD4Hep;
+    static const std::string kDD4hep;
   };
 
   // Each time the following function is called, it returns a different

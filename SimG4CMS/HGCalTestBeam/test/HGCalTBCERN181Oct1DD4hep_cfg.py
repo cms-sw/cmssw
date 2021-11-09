@@ -57,14 +57,14 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:TBGenSim181Oct1DD4Hep.root'),
+    fileName = cms.untracked.string('file:TBGenSim181Oct1DD4hep.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSimDD4Hep.root')
+                                   fileName = cms.string('TBGenSimDD4hep.root')
                                    )
 
 # Other statements
@@ -105,7 +105,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
                     LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
                     MotherName = cms.string('OCMS'),
-                    IfDD4Hep = cms.bool(True),
+                    IfDD4hep = cms.bool(True),
                 ),
 		type = cms.string('HGCPassive'),
 		)

@@ -453,7 +453,7 @@ void hgcalBHValidPlots(std::string fname = "roots/hgcBHValidD83.root",
 
 void ehcalPlots(std::string fname = "ecalHitdd4hep.root",
                 std::string dirnm = "EcalSimHitStudy",
-                std::string tag = "DD4Hep",
+                std::string tag = "DD4hep",
                 int dets = 2,
                 bool save = false,
                 bool debug = false) {

@@ -37,7 +37,7 @@ private:
 
 DDTestDumpFile::DDTestDumpFile(const ParameterSet& iConfig)
     : m_tag(iConfig.getUntrackedParameter<string>("tag", "unknown")),
-      m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4HepGeom.root")),
+      m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4hepGeom.root")),
       m_label(iConfig.getParameter<ESInputTag>("DDDetector")),
       m_token(esConsumes(m_label)) {}
 

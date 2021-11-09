@@ -78,7 +78,7 @@ HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(nullptr), topLV_(nul
   edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
   LVNames_ = m_Passive.getParameter<std::vector<std::string>>("LVNames");
   motherName_ = m_Passive.getParameter<std::string>("MotherName");
-  bool dd4hep = m_Passive.getParameter<bool>("IfDD4Hep");
+  bool dd4hep = m_Passive.getParameter<bool>("IfDD4hep");
   addlevel_ = dd4hep ? 1 : 0;
 
 #ifdef EDM_ML_DEBUG
