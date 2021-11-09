@@ -64,7 +64,7 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
     ),
 )
 
-protonTablesTask = cms.Task(filteredProtons, genProtonTable, multiRPTable)
+protonTablesTask = cms.Task(filteredProtons,protonTable,multiRPTable)
 if singleRPProtons: protonTablesTask.add(singleRPTable)
 
 genProtonTablesTask = cms.Task(genProtonTable)
