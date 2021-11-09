@@ -31,6 +31,8 @@ public:
 
   pixelCPEforGPU::ParamsOnGPU const &getCPUProduct() const { return cpuData_; }
 
+  bool const isUpgrade() const { return isUpgrade_; };
+
 private:
   LocalPoint localPosition(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
@@ -46,6 +48,8 @@ private:
   pixelCPEforGPU::LayerGeometry layerGeometry_;
   pixelCPEforGPU::AverageGeometry averageGeometry_;
   pixelCPEforGPU::ParamsOnGPU cpuData_;
+
+  bool isUpgrade_;
 
   struct GPUData {
     ~GPUData();

@@ -7,6 +7,7 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
 
 namespace gpuCalibPixel {
 
@@ -18,7 +19,12 @@ namespace gpuCalibPixel {
   constexpr float VCaltoElectronOffset = -60;      // L2-4: -60 +- 130
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
 
-  template <bool isRun2>
+  constexpr float ElectronPerADCGain = 600;
+  constexpr int8_t Phase2ReadoutMode = 3;
+  constexpr uint16_t Phase2DigiBaseline = 1500;
+  constexpr uint8_t Phase2KinkADC = 8;
+
+  template <bool isRun2, bool isUpgrade>
   __global__ void calibDigis(uint16_t* id,
                              uint16_t const* __restrict__ x,
                              uint16_t const* __restrict__ y,
@@ -30,11 +36,11 @@ namespace gpuCalibPixel {
                              uint32_t* __restrict__ clusModuleStart     // just to zero first
   ) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-
+    constexpr int maxModules = isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
     // zero for next kernels...
     if (0 == first)
       clusModuleStart[0] = moduleStart[0] = 0;
-    for (int i = first; i < gpuClustering::maxNumModules; i += gridDim.x * blockDim.x) {
+    for (int i = first; i < maxModules; i += gridDim.x * blockDim.x) {
       nClustersInModule[i] = 0;
     }
 
@@ -42,29 +48,57 @@ namespace gpuCalibPixel {
       if (invalidModuleId == id[i])
         continue;
 
-      bool isDeadColumn = false, isNoisyColumn = false;
+      if constexpr(!isUpgrade)
+      {
+        bool isDeadColumn = false, isNoisyColumn = false;
 
-      int row = x[i];
-      int col = y[i];
-      auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
-      float pedestal = ret.first;
-      float gain = ret.second;
-      // float pedestal = 0; float gain = 1.;
-      if (isDeadColumn | isNoisyColumn) {
-        printf("bad pixel at %d in %d\n", i, id[i]);
-        id[i] = invalidModuleId;
-        adc[i] = 0;
-      } else {
-        float vcal = float(adc[i]) * gain - pedestal * gain;
-        if constexpr (isRun2) {
-          float conversionFactor = id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
-          float offset = id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
-          vcal = vcal * conversionFactor + offset;
+        int row = x[i];
+        int col = y[i];
+        auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
+        float pedestal = ret.first;
+        float gain = ret.second;
+
+        // float pedestal = 0; float gain = 1.;
+        if (isDeadColumn | isNoisyColumn) {
+          printf("bad pixel at %d in %d\n", i, id[i]);
+          id[i] = invalidModuleId;
+          adc[i] = 0;
+        } else {
+          float vcal = float(adc[i]) * gain - pedestal * gain;
+          if constexpr (isRun2) {
+            float conversionFactor = id[i] < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
+            float offset = id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+            vcal = vcal * conversionFactor + offset;
+          }
+          adc[i] = std::max(100, int(vcal));
         }
-        adc[i] = std::max(100, int(vcal));
+      } else {
+
+
+          constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
+
+          if constexpr (mode < 0)
+            adc[i] = int(adc[i] * ElectronPerADCGain);
+          else {
+            if (adc[i] < Phase2KinkADC)
+              adc[i] = int((adc[i] - 0.5) * ElectronPerADCGain);
+            else {
+              constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
+              constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
+
+              adc[i] -= (Phase2KinkADC - 1);
+              adc[i] *= ds;
+              adc[i] += (Phase2KinkADC - 1);
+
+              adc[i] = uint16_t((adc[i] + 0.5 * ds) * ElectronPerADCGain);
+            }
+
+            adc[i] += int(Phase2DigiBaseline);
+          }
+        }
       }
     }
   }
-}  // namespace gpuCalibPixel
+
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h

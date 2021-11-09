@@ -3,6 +3,7 @@
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 template <typename Traits>
 class TrackingRecHit2DHeterogeneous {
@@ -16,6 +17,7 @@ public:
 
   explicit TrackingRecHit2DHeterogeneous(
       uint32_t nHits,
+      bool isUpgrade,
       int32_t offsetBPIX2,
       pixelCPEforGPU::ParamsOnGPU const* cpeParams,
       uint32_t const* hitsModuleStart,
@@ -33,6 +35,7 @@ public:
   TrackingRecHit2DSOAView const* view() const { return m_view.get(); }
 
   auto nHits() const { return m_nHits; }
+  auto nMaxModules() const { return m_nMaxModules; }
   auto offsetBPIX2() const { return m_offsetBPIX2; }
 
   auto hitsModuleStart() const { return m_hitsModuleStart; }
@@ -62,10 +65,12 @@ private:
   unique_ptr<TrackingRecHit2DSOAView> m_view;  //!
 
   uint32_t m_nHits;
+  bool m_isUpgrade;
   int32_t m_offsetBPIX2;
 
   uint32_t const* m_hitsModuleStart;  // needed for legacy, this is on GPU!
 
+  uint32_t m_nMaxModules;
   // needed as kernel params...
   PhiBinner* m_phiBinner;
   PhiBinner::index_type* m_phiBinnerStorage;
@@ -83,15 +88,18 @@ using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous<cms::cudacompat::Host
 template <typename Traits>
 TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(
     uint32_t nHits,
+    bool isUpgrade,
     int32_t offsetBPIX2,
     pixelCPEforGPU::ParamsOnGPU const* cpeParams,
     uint32_t const* hitsModuleStart,
     cudaStream_t stream,
     TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits> const* input)
-    : m_nHits(nHits), m_offsetBPIX2(offsetBPIX2), m_hitsModuleStart(hitsModuleStart) {
+    : m_nHits(nHits), m_isUpgrade(isUpgrade), m_offsetBPIX2(offsetBPIX2), m_hitsModuleStart(hitsModuleStart) {
   auto view = Traits::template make_host_unique<TrackingRecHit2DSOAView>(stream);
 
+  m_nMaxModules = m_isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
   view->m_nHits = nHits;
+  view->m_nMaxModules = m_nMaxModules;
   m_view = Traits::template make_unique<TrackingRecHit2DSOAView>(stream);  // leave it on host and pass it by value?
   m_AverageGeometryStore = Traits::template make_unique<TrackingRecHit2DSOAView::AverageGeometry>(stream);
   view->m_averageGeometry = m_AverageGeometryStore.get();
@@ -120,8 +128,9 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(
     copyFromGPU(input, stream);
   } else {
     assert(input == nullptr);
+    auto nL = m_isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
     m_store16 = Traits::template make_unique<uint16_t[]>(nHits * n16, stream);
-    m_store32 = Traits::template make_unique<float[]>(nHits * n32 + phase1PixelTopology::numberOfLayers + 1, stream);
+    m_store32 = Traits::template make_unique<float[]>(nHits * n32 + nL + 1, stream);
     m_PhiBinnerStore = Traits::template make_unique<TrackingRecHit2DSOAView::PhiBinner>(stream);
   }
 

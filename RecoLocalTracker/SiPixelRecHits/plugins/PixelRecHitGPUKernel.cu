@@ -18,14 +18,15 @@ namespace {
                                     pixelCPEforGPU::ParamsOnGPU const* cpeParams,
                                     uint32_t* hitsLayerStart) {
     auto i = blockIdx.x * blockDim.x + threadIdx.x;
+    auto m = cpeParams->commonParams().isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
 
     assert(0 == hitsModuleStart[0]);
 
-    if (i < 11) {
-      hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
-#ifdef GPU_DEBUG
-      printf("LayerStart %d %d: %d\n", i, cpeParams->layerGeometry().layerStart[i], hitsLayerStart[i]);
-#endif
+    if (i <= m) {
+    hitsLayerStart[i] = hitsModuleStart[cpeParams->layerGeometry().layerStart[i]];
+    #ifdef GPU_DEBUG
+          printf("LayerStart %d/%d at module %d: %d\n", i, m, cpeParams->layerGeometry().layerStart[i], hitsLayerStart[i]);
+    #endif
     }
   }
 }  // namespace
@@ -36,9 +37,12 @@ namespace pixelgpudetails {
                                                           SiPixelClustersCUDA const& clusters_d,
                                                           BeamSpotCUDA const& bs_d,
                                                           pixelCPEforGPU::ParamsOnGPU const* cpeParams,
+                                                          bool isUpgrade,
                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
-    TrackingRecHit2DGPU hits_d(nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+
+    TrackingRecHit2DGPU hits_d(nHits, isUpgrade, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+    assert(hits_d.nMaxModules() == isUpgrade ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules);
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events
@@ -56,20 +60,20 @@ namespace pixelgpudetails {
       cudaCheck(cudaDeviceSynchronize());
 #endif
 
-      // assuming full warp of threads is better than a smaller number...
-      if (nHits) {
-        setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
-        cudaCheck(cudaGetLastError());
-
-        cms::cuda::fillManyFromVector(hits_d.phiBinner(),
-                                      10,
-                                      hits_d.iphi(),
-                                      hits_d.hitsLayerStart(),
-                                      nHits,
-                                      256,
-                                      hits_d.phiBinnerStorage(),
-                                      stream);
-        cudaCheck(cudaGetLastError());
+    // assuming full warp of threads is better than a smaller number...
+    if (nHits) {
+      setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+      cudaCheck(cudaGetLastError());
+      auto nLayers = isUpgrade ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+      cms::cuda::fillManyFromVector(hits_d.phiBinner(),
+                                    nLayers,
+                                    hits_d.iphi(),
+                                    hits_d.hitsLayerStart(),
+                                    nHits,
+                                    256,
+                                    hits_d.phiBinnerStorage(),
+                                    stream);
+      cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
         cudaCheck(cudaDeviceSynchronize());
