@@ -3347,7 +3347,7 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) {
 
   CLHEP::HepVector param0(6, 0);
 
-  Alignments* globalPositions = new Alignments();
+  Alignments globalPositions{};
 
   //Tracker
   AlignTransform tracker(
@@ -3417,11 +3417,11 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) {
             << std::endl;
   std::cout << calo.rotation() << std::endl;
 
-  globalPositions->m_align.push_back(tracker);
-  globalPositions->m_align.push_back(muon);
-  globalPositions->m_align.push_back(ecal);
-  globalPositions->m_align.push_back(hcal);
-  globalPositions->m_align.push_back(calo);
+  globalPositions.m_align.push_back(tracker);
+  globalPositions.m_align.push_back(muon);
+  globalPositions.m_align.push_back(ecal);
+  globalPositions.m_align.push_back(hcal);
+  globalPositions.m_align.push_back(calo);
 
   std::cout << "Uploading to the database..." << std::endl;
 
@@ -3435,10 +3435,7 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec) {
   //    } else {
   //       poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
   //    }
-  poolDbService->writeOne<Alignments>(&(*globalPositions),
-                                      poolDbService->currentTime(),
-                                      //poolDbService->beginOfTime(),
-                                      "GlobalPositionRcd");
+  poolDbService->writeOneIOV<Alignments>(globalPositions, poolDbService->currentTime(), "GlobalPositionRcd");
   std::cout << "done!" << std::endl;
 
   return;
