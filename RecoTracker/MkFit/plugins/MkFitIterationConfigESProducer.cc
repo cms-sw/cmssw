@@ -25,7 +25,7 @@ namespace {
 
       const bool z_dir_pos = S.pz() > 0;
 
-      HitOnTrack hot = S.getLastHitOnTrack();
+      const auto &hot = S.getLastHitOnTrack();
       const float eta = eoh[hot.layer].GetHit(hot.index).eta();
 
       // Region to be defined by propagation / intersection tests
@@ -113,7 +113,7 @@ namespace {
     const float tid_z_extra = 0.0f;  // 5.0f;
     const float tec_z_extra = 0.0f;  // 10.0f;
 
-    const int size = in_seeds.size();
+    const size_t size = in_seeds.size();
 
     auto barrel_pos_check = [](const Track &S, float maxR, float rin, float zmax) -> bool {
       bool inside = maxR > rin && S.zAtR(rin) < zmax;
@@ -135,27 +135,30 @@ namespace {
       return inside;
     };
 
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
       const Track &S = in_seeds[i];
 
-      HitOnTrack hot = S.getLastHitOnTrack();
-      float eta = eoh[hot.layer].GetHit(hot.index).eta();
+      const auto &hot = S.getLastHitOnTrack();
+      const float eta = eoh[hot.layer].GetHit(hot.index).eta();
 
       // Region to be defined by propagation / intersection tests
       TrackerInfo::EtaRegion reg;
+
+      // Max eta used for region sorting
+      constexpr float maxEta_regSort = 7.0;
 
       const bool z_dir_pos = S.pz() > 0;
       const float maxR = S.maxReachRadius();
 
       if (z_dir_pos) {
-        bool in_tib = barrel_pos_check(S, maxR, tib1.m_rin, tib1.m_zmax);
-        bool in_tob = barrel_pos_check(S, maxR, tob1.m_rin, tob1.m_zmax);
+        const bool in_tib = barrel_pos_check(S, maxR, tib1.m_rin, tib1.m_zmax);
+        const bool in_tob = barrel_pos_check(S, maxR, tob1.m_rin, tob1.m_zmax);
 
         if (!in_tib && !in_tob) {
           reg = TrackerInfo::Reg_Endcap_Pos;
         } else {
-          bool in_tid = endcap_pos_check(S, maxR, tidp_rout, tidp_rin, tidp1.m_zmin - tid_z_extra);
-          bool in_tec = endcap_pos_check(S, maxR, tecp_rout, tecp_rin, tecp1.m_zmin - tec_z_extra);
+          const bool in_tid = endcap_pos_check(S, maxR, tidp_rout, tidp_rin, tidp1.m_zmin - tid_z_extra);
+          const bool in_tec = endcap_pos_check(S, maxR, tecp_rout, tecp_rin, tecp1.m_zmin - tec_z_extra);
 
           if (!in_tid && !in_tec) {
             reg = TrackerInfo::Reg_Barrel;
@@ -164,14 +167,14 @@ namespace {
           }
         }
       } else {
-        bool in_tib = barrel_neg_check(S, maxR, tib1.m_rin, tib1.m_zmin);
-        bool in_tob = barrel_neg_check(S, maxR, tob1.m_rin, tob1.m_zmin);
+        const bool in_tib = barrel_neg_check(S, maxR, tib1.m_rin, tib1.m_zmin);
+        const bool in_tob = barrel_neg_check(S, maxR, tob1.m_rin, tob1.m_zmin);
 
         if (!in_tib && !in_tob) {
           reg = TrackerInfo::Reg_Endcap_Neg;
         } else {
-          bool in_tid = endcap_neg_check(S, maxR, tidn_rout, tidn_rin, tidn1.m_zmax + tid_z_extra);
-          bool in_tec = endcap_neg_check(S, maxR, tecn_rout, tecn_rin, tecn1.m_zmax + tec_z_extra);
+          const bool in_tid = endcap_neg_check(S, maxR, tidn_rout, tidn_rin, tidn1.m_zmax + tid_z_extra);
+          const bool in_tec = endcap_neg_check(S, maxR, tecn_rout, tecn_rin, tecn1.m_zmax + tec_z_extra);
 
           if (!in_tid && !in_tec) {
             reg = TrackerInfo::Reg_Barrel;
@@ -182,7 +185,10 @@ namespace {
       }
 
       part.m_region[i] = reg;
-      part.m_sort_score[i] = 7.0f * (reg - 2) + eta;
+
+      // TrackerInfo::EtaRegion is enum from 0 to 5 (Reg_Endcap_Neg,Reg_Transition_Neg,Reg_Barrel,Reg_Transition_Pos,Reg_Endcap_Pos)
+      // Symmetrization around TrackerInfo::Reg_Barrel for sorting is required
+      part.m_sort_score[i] = maxEta_regSort * (reg - TrackerInfo::Reg_Barrel) + eta;
     }
   }
 }  // namespace
