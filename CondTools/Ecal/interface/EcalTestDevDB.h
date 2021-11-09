@@ -1,7 +1,7 @@
-#ifndef ECALTESTDEVDB_H
-#define ECALTESTDEVDB_H
+#ifndef CondTools_Ecal_EcalTestDevDB_h
+#define CondTools_Ecal_EcalTestDevDB_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "CondCore/CondDB/interface/Exception.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -37,7 +37,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class EcalTestDevDB : public edm::EDAnalyzer {
+class EcalTestDevDB : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTestDevDB(const edm::ParameterSet& iConfig);
   ~EcalTestDevDB() override;

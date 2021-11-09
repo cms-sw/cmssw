@@ -81,131 +81,120 @@ void EcalTestDevDB::analyze(const edm::Event& evt, const edm::EventSetup& evtSet
       std::cout << "Starting Transaction for run " << irun << "..." << std::flush;
 
       if (container == "EcalPedestals") {
-        EcalPedestals* condObject = generateEcalPedestals();
-
+        const auto* condObject = generateEcalPedestals();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalPedestals>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalPedestals>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalPedestals>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalPedestals>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalADCToGeVConstant") {
-        EcalADCToGeVConstant* condObject = generateEcalADCToGeVConstant();
+        const auto* condObject = generateEcalADCToGeVConstant();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalADCToGeVConstant>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalADCToGeVConstant>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalADCToGeVConstant>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalADCToGeVConstant>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalIntercalibConstants") {
-        EcalIntercalibConstants* condObject = generateEcalIntercalibConstants();
+        const auto* condObject = generateEcalIntercalibConstants();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalIntercalibConstants>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalIntercalibConstants>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalIntercalibConstants>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalIntercalibConstants>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLinearCorrections") {
-        EcalLinearCorrections* condObject = generateEcalLinearCorrections();
+        const auto* condObject = generateEcalLinearCorrections();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLinearCorrections>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalLinearCorrections>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLinearCorrections>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalLinearCorrections>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalGainRatios") {
-        EcalGainRatios* condObject = generateEcalGainRatios();
+        const auto* condObject = generateEcalGainRatios();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalGainRatios>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalGainRatios>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalGainRatios>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalGainRatios>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalWeightXtalGroups") {
-        EcalWeightXtalGroups* condObject = generateEcalWeightXtalGroups();
+        const auto* condObject = generateEcalWeightXtalGroups();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalWeightXtalGroups>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalWeightXtalGroups>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalWeightXtalGroups>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalWeightXtalGroups>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalTBWeights") {
-        EcalTBWeights* condObject = generateEcalTBWeights();
+        const auto condObject = generateEcalTBWeights();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalTBWeights>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalTBWeights>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalTBWeights>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalTBWeights>(*condObject, irun, recordName);
         }
 
       } else if (container == "EcalLaserAPDPNRatios") {
-        EcalLaserAPDPNRatios* condObject = generateEcalLaserAPDPNRatios(irun);
+        const auto* condObject = generateEcalLaserAPDPNRatios(irun);
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAPDPNRatios>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalLaserAPDPNRatios>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAPDPNRatios>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalLaserAPDPNRatios>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLaserAPDPNRatiosRef") {
-        EcalLaserAPDPNRatiosRef* condObject = generateEcalLaserAPDPNRatiosRef();
+        const auto* condObject = generateEcalLaserAPDPNRatiosRef();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalLaserAPDPNRatiosRef>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAPDPNRatiosRef>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalLaserAPDPNRatiosRef>(*condObject, irun, recordName);
         }
       } else if (container == "EcalLaserAlphas") {
-        EcalLaserAlphas* condObject = generateEcalLaserAlphas();
+        const auto* condObject = generateEcalLaserAlphas();
         if (irun == m_firstRun && dbOutput->isNewTagRequest(recordName)) {
           // create new
           std::cout << "First One " << std::endl;
-          dbOutput->createNewIOV<const EcalLaserAlphas>(
-              condObject, dbOutput->beginOfTime(), dbOutput->endOfTime(), recordName);
+          dbOutput->createOneIOV<const EcalLaserAlphas>(*condObject, dbOutput->beginOfTime(), recordName);
         } else {
           // append
           std::cout << "Old One " << std::endl;
-          dbOutput->appendSinceTime<const EcalLaserAlphas>(condObject, irun, recordName);
+          dbOutput->appendOneIOV<const EcalLaserAlphas>(*condObject, irun, recordName);
         }
       } else {
         std::cout << "it does not work yet for " << container << "..." << std::flush;
