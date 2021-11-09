@@ -75,32 +75,32 @@ void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& cont
   std::string recordName = m_records[container];
 
   if (container == "ESPedestals") {
-    const auto obj = evtSetup.getData(esPedestalsToken_);
+    const auto& obj = evtSetup.getData(esPedestalsToken_);
     edm::LogInfo("ESDBCopy") << "ped pointer is: " << &obj;
     dbOutput->createOneIOV<const ESPedestals>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "ESADCToGeVConstant") {
-    const auto obj = evtSetup.getData(esADCToGeVConstantToken_);
+    const auto& obj = evtSetup.getData(esADCToGeVConstantToken_);
     edm::LogInfo("ESDBCopy") << "adc pointer is: " << &obj;
     dbOutput->createOneIOV<const ESADCToGeVConstant>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "ESChannelStatus") {
-    const auto obj = evtSetup.getData(esChannelStatusToken_);
+    const auto& obj = evtSetup.getData(esChannelStatusToken_);
     edm::LogInfo("ESDBCopy") << "channel status pointer is: " << &obj;
     dbOutput->createOneIOV<const ESChannelStatus>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "ESIntercalibConstants") {
-    const auto obj = evtSetup.getData(esIntercalibConstantsToken_);
+    const auto& obj = evtSetup.getData(esIntercalibConstantsToken_);
     edm::LogInfo("ESDBCopy") << "inter pointer is: " << &obj;
     dbOutput->createOneIOV<const ESIntercalibConstants>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "ESWeightStripGroups") {
-    const auto obj = evtSetup.getData(esWeightStripGroupsToken_);
+    const auto& obj = evtSetup.getData(esWeightStripGroupsToken_);
     edm::LogInfo("ESDBCopy") << "weight pointer is: " << &obj;
     dbOutput->createOneIOV<const ESWeightStripGroups>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "ESTBWeights") {
-    const auto obj = evtSetup.getData(esTBWeightsToken_);
+    const auto& obj = evtSetup.getData(esTBWeightsToken_);
     edm::LogInfo("ESDBCopy") << "tbweight pointer is: " << &obj;
     dbOutput->createOneIOV<const ESTBWeights>(obj, dbOutput->beginOfTime(), recordName);
 
