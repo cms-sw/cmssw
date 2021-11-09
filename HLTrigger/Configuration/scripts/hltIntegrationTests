@@ -205,12 +205,12 @@ while true; do
       shift 1
       ;;
     "--dbproxyhost" )
-      PROXYHOST="$HLTLISTPATHPROXY --dbproxyhost $2"
+      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyhost $2"
       EXTRA="$EXTRA --dbproxyhost $2"
       shift 2
       ;;
     "--dbproxyport" )
-      PROXYPORT="$HLTLISTPATHPROXY --dbproxyport $2"
+      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyport $2"
       EXTRA="$EXTRA --dbproxyport $2"
       shift 2
       ;;
