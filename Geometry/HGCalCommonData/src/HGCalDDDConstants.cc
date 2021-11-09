@@ -7,6 +7,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
@@ -15,6 +16,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <algorithm>
+#include <bitset>
 #include <iterator>
 #include <functional>
 #include <numeric>
@@ -588,7 +590,7 @@ bool HGCalDDDConstants::isValidTrap(int layer, int irad, int iphi) const {
   const auto& indx = getIndex(layer, true);
   if (indx.first < 0)
     return false;
-  return ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= hgpar_->iradMaxBH_[indx.first]) && (iphi > 0) &&
+  return ((irad >= hgpar_->iradMinBH_[indx.first]) && (irad <= (hgpar_->iradMaxBH_[indx.first] + 1)) && (iphi > 0) &&
           (iphi <= hgpar_->scintCells(layer)));
 }
 
@@ -949,11 +951,13 @@ double HGCalDDDConstants::mouseBite(bool reco) const {
 }
 
 int HGCalDDDConstants::numberCells(bool reco) const {
-  int cells(0);
-  unsigned int nlayer = (reco) ? hgpar_->depth_.size() : hgpar_->layer_.size();
-  for (unsigned k = 0; k < nlayer; ++k) {
-    std::vector<int> ncells = numberCells(((reco) ? hgpar_->depth_[k] : hgpar_->layer_[k]), reco);
-    cells = std::accumulate(ncells.begin(), ncells.end(), cells);
+  int cells = (tileTrapezoid() && (hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorFile)) ? tileCount(0, -1) : 0;
+  if (cells == 0) {
+    unsigned int nlayer = (reco) ? hgpar_->depth_.size() : hgpar_->layer_.size();
+    for (unsigned k = 0; k < nlayer; ++k) {
+      std::vector<int> ncells = numberCells(((reco) ? hgpar_->depth_[k] : hgpar_->layer_[k]), reco);
+      cells = std::accumulate(ncells.begin(), ncells.end(), cells);
+    }
   }
   return cells;
 }
@@ -1109,6 +1113,32 @@ std::pair<int, int> HGCalDDDConstants::simToReco(int cell, int lay, int mod, boo
     }
     return std::make_pair(kx, depth);
   }
+}
+
+int HGCalDDDConstants::tileCount(int layer, int ring) const {
+  int laymin(layer), laymax(layer), ringmin(ring), ringmax(ring), kount(0);
+  if (layer == 0) {
+    laymin = hgpar_->firstLayer_;
+    laymax = lastLayer(true);
+  }
+  for (int lay = laymin; lay <= laymax; ++lay) {
+    if (ring < 0) {
+      int ll = lay - hgpar_->firstLayer_;
+      ringmin = hgpar_->tileRingRange_[ll].first;
+      ringmax = hgpar_->tileRingRange_[ll].second;
+    }
+    for (int rin = ringmin; rin <= ringmax; ++rin) {
+      int indx = HGCalTileIndex::tileIndex(lay, rin+1, 0);
+      auto itr = hgpar_->tileInfoMap_.find(indx);
+      if (itr != hgpar_->tileInfoMap_.end()) {
+	for (int k = 0; k < 4; ++k) {
+	  std::bitset<24> b(itr->second.hex[k]);
+	  kount += b.count();
+	}
+      }
+    }
+  }
+  return (3 * kount);
 }
 
 int HGCalDDDConstants::waferFromCopy(int copy) const {
