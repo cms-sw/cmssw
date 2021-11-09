@@ -22,9 +22,19 @@ namespace ecaldqm {
     PUcorr_slope_ = _params.getUntrackedParameter<double>("PUcorr_slope");
     PUcorr_intercept_ = _params.getUntrackedParameter<double>("PUcorr_intercept");
     avgOcc_ = _params.getUntrackedParameter<std::vector<double>>("avgOcc");
+    if (!onlineMode_) {
+      MEs_.erase(std::string("MLQualitySummary"));
+      MEs_.erase(std::string("EventsperMLImage"));
+      sources_.erase(std::string("PU"));
+      sources_.erase(std::string("NumEvents"));
+      sources_.erase(std::string("DigiAllByLumi"));
+      sources_.erase(std::string("AELoss"));
+    }
   }
 
   void MLClient::producePlots(ProcessType) {
+    if (!onlineMode_)
+      return;
     using namespace std;
     MESet& meMLQualitySummary(MEs_.at("MLQualitySummary"));
     MESet& meEventsperMLImage(MEs_.at("EventsperMLImage"));
