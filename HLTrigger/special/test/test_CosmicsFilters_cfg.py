@@ -156,8 +156,6 @@ process.HLTRegionalCosmicSeeding = cms.Sequence( process.hltSiPixelDigis + proce
 
 process.HLT_TrackerCosmics_RegionalCosmicTracking = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreTrackerCosmics + process.hltTrackerCosmicsPattern + process.HLTL2muonrecoSequenceNoVtx + process.HLTRegionalCosmicSeeding + process.HLTEndSequence )
 
-process.m_HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_TrackerCosmics_RegionalCosmicTracking, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
-
 
 #Deal with the global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -171,9 +169,5 @@ process.out_step     = cms.EndPath( process.hltTimer + process.output)
 
 
 # Schedule definition
-
-process.schedule = cms.Schedule(process.m_HLTSchedule)
-#process.schedule = cms.Schedule(process.HLTSchedule)
-
+process.schedule = cms.Schedule(*( process.HLTriggerFirstPath, process.HLT_TrackerCosmics_RegionalCosmicTracking, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
 process.schedule.extend([process.endjob_step,process.out_step])
-
