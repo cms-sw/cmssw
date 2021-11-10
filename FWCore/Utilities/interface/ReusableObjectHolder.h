@@ -112,21 +112,15 @@ namespace edm {
       if (nullptr == item) {
         return std::shared_ptr<T>{};
       }
-      //instead of deleting, hand back to queue
-      auto pHolder = this;
-      auto deleter = item.get_deleter();
-      ++m_outstandingObjects;
-      return std::shared_ptr<T>{item.release(), [pHolder, deleter](T* iItem) {
-                                  pHolder->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
-                                }};
+      return wrapCustomDeleter(std::move(item));
     }
 
     ///Takes an object from the queue if one is available, or creates one using iFunc.
     template <typename F>
     std::shared_ptr<T> makeOrGet(F iFunc) {
-      std::shared_ptr<T> returnValue;
-      while (!(returnValue = tryToGet())) {
-        add(makeUnique(iFunc()));
+      std::shared_ptr<T> returnValue = tryToGet();
+      if (not returnValue) {
+        returnValue = wrapCustomDeleter(makeUnique(iFunc()));
       }
       return returnValue;
     }
@@ -141,6 +135,17 @@ namespace edm {
     }
 
   private:
+    ///Wraps an object in a shared_ptr<T> with a custom deleter, that hands the wrapped object
+    // back to the queue instead of deleting it
+    std::shared_ptr<T> wrapCustomDeleter(std::unique_ptr<T, Deleter> item) {
+      auto deleter = item.get_deleter();
+      ++m_outstandingObjects;
+      return std::shared_ptr<T>{item.release(), [this, deleter](T* iItem) {
+                                  this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
+                                }};
+
+    }
+
     std::unique_ptr<T> makeUnique(T* ptr) {
       static_assert(std::is_same_v<Deleter, std::default_delete<T>>,
                     "Generating functions returning raw pointers are supported only with std::default_delete<T>");
