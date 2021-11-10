@@ -52,7 +52,7 @@ GenProtonTableProducer::GenProtonTableProducer(const edm::ParameterSet& iConfig)
 void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   // define the variables
   std::vector<float> pts, pzs, vzs;
-  std::vector<int> isPUs;
+  std::vector<bool> isPUs;
   // first loop over signal protons
   for (const auto& pruned_cand : iEvent.get(prunedCandsToken_)) {
     if (!protonsCut_(pruned_cand))
@@ -85,7 +85,7 @@ void GenProtonTableProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
   protons_table->addColumn<float>("pt", pts, "proton transverse momentum");
   protons_table->addColumn<float>("pz", pzs, "proton longitudinal momentum");
   protons_table->addColumn<float>("vz", vzs, "proton vertex longitudinal coordinate");
-  protons_table->addColumn<int>("isPU", isPUs, "pileup proton?");
+  protons_table->addColumn<bool>("isPU", isPUs, "pileup proton?");
   iEvent.put(std::move(protons_table));
 }
 
