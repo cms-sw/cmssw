@@ -23,7 +23,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
+    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStrip'),
@@ -31,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.prod = cms.EDFilter("SiStripBadFiberBuilder",
+process.prod = cms.EDAnalyzer("SiStripBadFiberBuilder",
     printDebug = cms.untracked.bool(True),
     BadComponentList = cms.untracked.VPSet(cms.PSet(
         BadModule = cms.uint32(369120278),
