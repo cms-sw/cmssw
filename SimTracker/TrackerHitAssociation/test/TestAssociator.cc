@@ -11,9 +11,6 @@
 
 #include "SimTracker/TrackerHitAssociation/test/TestAssociator.h"
 
-//--- framework stuff
-#include "FWCore/Framework/interface/ESHandle.h"
-
 //--- for Geometry:
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
