@@ -255,18 +255,21 @@ void L2TauNNProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<int>("debugLevel", 0)->setComment("set debug level for printing out info");
   edm::ParameterSetDescription l1TausPset;
-  l1TausPset.add<std::string>("L1CollectionName", "")->setComment("Name of collections");
-  l1TausPset.add<edm::InputTag>("L1TauTrigger", edm::InputTag(""))
+  l1TausPset.add<std::string>("L1CollectionName", "DoubleTau")->setComment("Name of collections");
+  l1TausPset.add<edm::InputTag>("L1TauTrigger", edm::InputTag("hltL1sDoubleTauBigOR"))
       ->setComment("Which trigger should the L1 Taus collection pass");
-  desc.addVPSet("L1Taus", l1TausPset);
-  desc.add<edm::InputTag>("hbheInput", edm::InputTag(""))->setComment("HBHE recHit collection");
-  desc.add<edm::InputTag>("hoInput", edm::InputTag(""))->setComment("HO recHit Collection");
-  desc.add<edm::InputTag>("ebInput", edm::InputTag(""))->setComment("EB recHit Collection");
-  desc.add<edm::InputTag>("eeInput", edm::InputTag(""))->setComment("EE recHit Collection");
+  edm::ParameterSet l1TausPSetDefault;
+  l1TausPSetDefault.addParameter<std::string>("L1CollectionName", "DoubleTau");
+  l1TausPSetDefault.addParameter<edm::InputTag>("L1TauTrigger", edm::InputTag("hltL1sDoubleTauBigOR"));
+  desc.addVPSet("L1Taus", l1TausPset, {l1TausPSetDefault});
+  desc.add<edm::InputTag>("hbheInput", edm::InputTag("hltHbhereco"))->setComment("HBHE recHit collection");
+  desc.add<edm::InputTag>("hoInput", edm::InputTag("hltHoreco"))->setComment("HO recHit Collection");
+  desc.add<edm::InputTag>("ebInput", edm::InputTag("hltEcalRecHit:EcalRecHitsEB"))->setComment("EB recHit Collection");
+  desc.add<edm::InputTag>("eeInput", edm::InputTag("hltEcalRecHit:EcalRecHitsEE"))->setComment("EE recHit Collection");
   desc.add<edm::InputTag>("pataVertices", edm::InputTag("hltPixelVerticesSoA"))
       ->setComment("patatrack vertices collection");
   desc.add<edm::InputTag>("pataTracks", edm::InputTag("hltPixelTracksSoA"))->setComment("patatrack collection");
-  desc.add<edm::InputTag>("BeamSpot", edm::InputTag(""))->setComment("BeamSpot Collection");
+  desc.add<edm::InputTag>("BeamSpot", edm::InputTag("hltOnlineBeamSpot"))->setComment("BeamSpot Collection");
   desc.add<uint>("maxVtx", 100)->setComment("max output collection size (number of accepted vertices)");
   desc.add<double>("fractionSumPt2", 0.3)->setComment("threshold on sumPt2 fraction of the leading vertex");
   desc.add<double>("minSumPt2", 0.)->setComment("min sumPt2");
@@ -403,8 +406,8 @@ void L2TauNNProducer::fillL1TauVars(tensorflow::Tensor& cellGridMatrix, const st
         auto getCell = [&](NNInputs input) -> float& {
           return getCellImpl(cellGridMatrix, tau_idx, phi_idx, eta_idx, input);
         };
-        getCell(NNInputs::l1Tau_pt) = allTaus[tau_idx]->polarP4().pt();
-        getCell(NNInputs::l1Tau_eta) = allTaus[tau_idx]->polarP4().eta();
+        getCell(NNInputs::l1Tau_pt) = allTaus[tau_idx]->pt();
+        getCell(NNInputs::l1Tau_eta) = allTaus[tau_idx]->eta();
         getCell(NNInputs::l1Tau_hwIso) = allTaus[tau_idx]->hwIso();
       }
     }
@@ -675,8 +678,8 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
   };
   const int nTaus = static_cast<int>(allTaus.size());
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
-    const float tauEta = allTaus[tau_idx]->polarP4().eta();
-    const float tauPhi = allTaus[tau_idx]->polarP4().phi();
+    const float tauEta = allTaus[tau_idx]->eta();
+    const float tauPhi = allTaus[tau_idx]->phi();
 
     auto maxTracks = patatracks_tsoa.stride();
     auto const* quality = patatracks_tsoa.qualityData();
@@ -826,7 +829,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
     for (size_t tau_pos = 0; tau_pos < nTau; ++tau_pos) {
       const auto tau_idx = TauCollectionMap[inp_idx][tau_pos];
       if (debugLevel_ > 0) {
-        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->polarP4().pt() << " \t "
+        edm::LogInfo("DebugInfo") << event.id().event() << " \t " << (allTaus[tau_idx])->pt() << " \t "
                                   << tau_score.at(tau_idx) << std::endl;
       }
       (*tau_tags)[tau_pos] = tau_score.at(tau_idx);
