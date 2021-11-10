@@ -9,50 +9,30 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
-
-  EBrecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("ebrechits"));
-  EErecHitToken_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("eerechits"));
-  ESrecHitToken_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("esrechits"));
-
-  EBurecHitToken_ = consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eburechits"));
-  EEurecHitToken_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eeurechits"));
-
-  EBdigiToken_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("ebdigis"));
-  EEdigiToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("eedigis"));
-  ESdigiToken_ = consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("esdigis"));
-
-  cfToken_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "EcalHitsEB"));
-
+EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps)
+    : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+      outputFile_(ps.getUntrackedParameter<std::string>("outputFile", "")),  // DQM ROOT output
+      EBrecHitToken_(consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("ebrechits"))),
+      EErecHitToken_(consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("eerechits"))),
+      ESrecHitToken_(consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("esrechits"))),
+      EBurecHitToken_(consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eburechits"))),
+      EEurecHitToken_(consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("eeurechits"))),
+      EBdigiToken_(consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("ebdigis"))),
+      EEdigiToken_(consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("eedigis"))),
+      ESdigiToken_(consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("esdigis"))),
+      cfToken_(consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "EcalHitsEB"))),
+      pedestalToken_(esConsumes()) {
   if (outputFile_.size() != 0) {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "histograms will NOT be saved";
   }
-
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if (verbose_) {
     edm::LogInfo("EcalLocalRecoTaskInfo") << "verbose switch is ON";
@@ -127,9 +107,6 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   e.getByToken(cfToken_, crossingFrame);
 
-  edm::ESHandle<EcalPedestals> pPeds;
-  c.get<EcalPedestalsRcd>().get(pPeds);
-
   auto barrelHits = std::make_unique<MixCollection<PCaloHit>>(crossingFrame.product());
 
   MapType EBSimMap;
@@ -176,9 +153,9 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
     } else
       continue;
 
-    const EcalPedestals* myped = pPeds.product();
-    EcalPedestals::const_iterator it = myped->getMap().find(EBid);
-    if (it != myped->getMap().end()) {
+    const auto& myped = c.getData(pedestalToken_);
+    EcalPedestals::const_iterator it = myped.getMap().find(EBid);
+    if (it != myped.getMap().end()) {
       if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1)  //only real signal RecHit
       {
         if (meEBUncalibRecHitMaxSampleRatio_)
