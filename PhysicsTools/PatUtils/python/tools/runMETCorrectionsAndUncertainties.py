@@ -418,7 +418,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                     produceIntermediateCorrections,
                                                                     jetCollection,
                                                                     patMetModuleSequence, postfix )
-        process.patMetCorrectionSequence = patMetCorrectionSequence
+        setattr(process, "patMetCorrectionSequence"+postfix, patMetCorrectionSequence)
         #fix the default jets for the type1 computation to those used to compute the uncertainties
         #in order to be consistent with what is done in the correction and uncertainty step
         #particularly true for miniAODs
@@ -540,8 +540,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             # clone the PF MET correction task, add it to the process with a postfix, and add it to the patAlgosToolsTask but exclude the modules above
             # QUESTION: is it possible to add this directly to the subtask?
-            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrectionsTask"), postfix, noClones = noClonesTmp, addToTask = False)
-            produceMET_task.add("producePatPFMETCorrectionsTask"+postfix)
+            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrectionsTask"), postfix, noClones = noClonesTmp, addToTask = True)
+            #produceMET_task.add("producePatPFMETCorrectionsTask"+postfix)
             # add a clone of the patPFMet producer to the process and the subtask
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, produceMET_task)
             # adapt some inputs of the patPFMet producer to account e.g. for the postfix
@@ -624,17 +624,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if postfix != "":
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             if not hasattr(process, "patPFMetT0CorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrTask"), postfix, noClones = noClonesTmp, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrTask"), postfix, noClones = noClonesTmp, addToTask = True)
             if not hasattr(process, "patPFMetT1T2CorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrTask"), postfix, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrTask"), postfix, addToTask = True)
             if not hasattr(process, "patPFMetT2CorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrTask"), postfix, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrTask"), postfix, addToTask = True)
             if not hasattr(process, "patPFMetTxyCorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrTask"), postfix, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrTask"), postfix, addToTask = True)
             if not hasattr(process, "patPFMetSmearCorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrTask"), postfix, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrTask"), postfix, addToTask = True)
             if not hasattr(process, "patPFMetT2SmearCorrTask"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrTask"), postfix, addToTask = False)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrTask"), postfix, addToTask = True)
 
         # collect the MET correction tasks which have been added to the process in a dict
         corModules = {}
@@ -761,13 +761,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # adding the full sequence only if it does not exist
         if not hasattr(process, taskName+postfix):
             for corModule in correctionTask:
-                getCorrectedMET_task.add(corModule)
+                print("bla")
+                #getCorrectedMET_task.add(corModule)
         else: #if it exists, only add the missing correction modules, no need to redo everything
             getCorrectedMET_task = getattr(process, "getCorrectedMET_task"+postfix)#cms.Sequence()
             #setattr(process, taskName+postfix,getCorrectedMET_task)
             for cor in corModNames.keys():
                 if not configtools.contains(getCorrectedMET_task, corTags[cor][0]) and cor in correctionLevel:
-                    getCorrectedMET_task.add(corModules[cor])
+                    print("blabla")
+                    #getCorrectedMET_task.add(corModules[cor])
 
         #plug the main patMetproducer
         getCorrectedMET_task.add(getattr(process, metModName))
@@ -1529,8 +1531,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
             recomputeRawMetFromPfcs_task.add(process.makePatMETsTask)
-            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrectionsTask"), postfix, addToTask = False)
-            recomputeRawMetFromPfcs_task.add(getattr(process,"patMETCorrectionsTask"+postfix))
+            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrectionsTask"), postfix, addToTask = True)
+            #recomputeRawMetFromPfcs_task.add(getattr(process,"patMETCorrectionsTask"+postfix))
 
             #T1 pfMet for AOD to mAOD only
             if not onMiniAOD: #or self._parameters["Puppi"].value:
@@ -1693,8 +1695,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                     process, ak4JetReclustering_task)
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 ak4JetReclustering_task.add(process.pfNoPileUpJMETask)
-                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = False )
-                ak4JetReclustering_task.add(getattr(process,"pfNoPileUpJMESequence"+postfix))
+                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True )
+                #ak4JetReclustering_task.add(getattr(process,"pfNoPileUpJMESequence"+postfix))
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
                 pfCandColl = "pfNoPileUpJME"+postfix
