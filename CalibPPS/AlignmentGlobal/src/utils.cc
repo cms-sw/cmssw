@@ -14,13 +14,13 @@
 int alig_utils::fitProfile(TProfile* p,
                            double x_mean,
                            double x_rms,
-                           unsigned int fitProfileMinBinEntries,
-                           unsigned int fitProfileMinNReasonable,
+                           unsigned int minBinEntries,
+                           unsigned int minNBinsReasonable,
                            double& sl,
                            double& sl_unc) {
   unsigned int n_reasonable = 0;
   for (int bi = 1; bi <= p->GetNbinsX(); bi++) {
-    if (p->GetBinEntries(bi) < fitProfileMinBinEntries) {
+    if (p->GetBinEntries(bi) < minBinEntries) {
       p->SetBinContent(bi, 0.);
       p->SetBinError(bi, 0.);
     } else {
@@ -28,7 +28,7 @@ int alig_utils::fitProfile(TProfile* p,
     }
   }
 
-  if (n_reasonable < fitProfileMinNReasonable)
+  if (n_reasonable < minNBinsReasonable)
     return 1;
 
   double x_min = x_mean - x_rms, x_max = x_mean + x_rms;
