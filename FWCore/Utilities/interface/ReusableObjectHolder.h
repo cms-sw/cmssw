@@ -108,21 +108,22 @@ namespace edm {
     /// Use this function in conjunction with add()
     std::shared_ptr<T> tryToGet() {
       std::unique_ptr<T, Deleter> item;
-      m_availableQueue.try_pop(item);
-      if (nullptr == item) {
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
         return std::shared_ptr<T>{};
       }
-      return wrapCustomDeleter(std::move(item));
     }
 
     ///Takes an object from the queue if one is available, or creates one using iFunc.
     template <typename F>
     std::shared_ptr<T> makeOrGet(F iFunc) {
-      std::shared_ptr<T> returnValue = tryToGet();
-      if (not returnValue) {
-        returnValue = wrapCustomDeleter(makeUnique(iFunc()));
+      std::unique_ptr<T, Deleter> item;
+      if (m_availableQueue.try_pop(item)) {
+        return wrapCustomDeleter(std::move(item));
+      } else {
+        return wrapCustomDeleter(makeUnique(iFunc()));
       }
-      return returnValue;
     }
 
     ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
@@ -143,7 +144,6 @@ namespace edm {
       return std::shared_ptr<T>{item.release(), [this, deleter](T* iItem) {
                                   this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
                                 }};
-
     }
 
     std::unique_ptr<T> makeUnique(T* ptr) {
