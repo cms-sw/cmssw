@@ -175,10 +175,10 @@ std::vector<PFMultiDepthClusterizer::ClusterLink> PFMultiDepthClusterizer::link(
       const reco::PFCluster& cluster1 = clusters[i];
       const reco::PFCluster& cluster2 = clusters[j];
 
-      auto dz = (cluster2.depth() - cluster1.depth());
+      auto dz = ((int)cluster2.depth() - (int)cluster1.depth());
 
       //Do not link at the same layer and only link inside out!
-      if (dz < 0.0f || std::abs(dz) < 0.2f)
+      if (dz < 0.0 || std::abs(dz) < 0.2)
         continue;
 
       auto const& crep1 = cluster1.positionREP();
