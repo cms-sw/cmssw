@@ -58,7 +58,7 @@ public:
 private:
   SOA_HOST_DEVICE_INLINE T* alignedCol() const {
     if constexpr (ALIGNMENT) {
-      return __builtin_assume_aligned(col_, ALIGNMENT);
+      return reinterpret_cast<T*>(__builtin_assume_aligned(col_, ALIGNMENT));
     } else {
       return col_;
     }
