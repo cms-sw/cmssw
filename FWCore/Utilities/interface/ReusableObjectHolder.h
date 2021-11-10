@@ -121,7 +121,7 @@ namespace edm {
                                 }};
     }
 
-    ///If there isn't an object already available, creates a new one using iFunc
+    ///Takes an object from the queue if one is available, or creates one using iFunc.
     template <typename F>
     std::shared_ptr<T> makeOrGet(F iFunc) {
       std::shared_ptr<T> returnValue;
@@ -131,15 +131,11 @@ namespace edm {
       return returnValue;
     }
 
-    ///If there is an object already available, passes the object to iClearFunc and then
-    /// returns the object.
-    ///If there is not an object already available, creates a new one using iMakeFunc
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    ///Then, passes the object to iClearFunc, and returns it.
     template <typename FM, typename FC>
     std::shared_ptr<T> makeOrGetAndClear(FM iMakeFunc, FC iClearFunc) {
-      std::shared_ptr<T> returnValue;
-      while (!(returnValue = tryToGet())) {
-        add(makeUnique(iMakeFunc()));
-      }
+      std::shared_ptr<T> returnValue = makeOrGet(iMakeFunc);
       iClearFunc(returnValue.get());
       return returnValue;
     }
