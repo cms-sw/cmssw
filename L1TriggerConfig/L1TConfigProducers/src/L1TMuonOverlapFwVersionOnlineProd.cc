@@ -100,7 +100,6 @@ std::unique_ptr<const L1TMuonOverlapFwVersion> L1TMuonOverlapFwVersionOnlineProd
   l1t::TriggerSystem parsedXMLs;
 
   try {
-
     // no need to read all the HW settings, just define a dummy processor
     hw_fake = "<system id=\"OMTF\">  </system>";
     xmlRdr.readDOMFromString(hw_fake);

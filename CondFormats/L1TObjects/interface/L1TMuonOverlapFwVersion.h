@@ -13,14 +13,14 @@
 ///////////////////////////////////////
 class L1TMuonOverlapFwVersion {
 public:
-
   L1TMuonOverlapFwVersion() {
     algorithmVer_ = 0x110;
     layersVer_ = 0x6;
     patternsVer_ = 0x3;
     synthDate_ = "2018-9-18 21:26:2";
   }
-  L1TMuonOverlapFwVersion(unsigned algoV, unsigned layersV, unsigned patternsV, std::string sDate){
+  L1TMuonOverlapFwVersion(unsigned algoV, unsigned layersV, unsigned patternsV, std::string
+sDate){
     algorithmVer_ = algoV;
     layersVer_ = layersV;
     patternsVer_ = patternsV;
