@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class L1TMuonOverlapFwVersionRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonOverlapFwVersionRcd> {};
+class L1TMuonOverlapFwVersionRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TMuonOverlapFwVersionRcd> {
+};
 
 #endif
