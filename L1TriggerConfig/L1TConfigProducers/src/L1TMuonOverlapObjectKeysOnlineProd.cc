@@ -20,23 +20,20 @@ L1TMuonOverlapObjectKeysOnlineProd::L1TMuonOverlapObjectKeysOnlineProd(const edm
 }
 
 void L1TMuonOverlapObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1TriggerKey) {
-
   std::string OMTFKey = pL1TriggerKey->subsystemKey(L1TriggerKeyExt::kOMTF);
 
   std::string tscKey = OMTFKey.substr(0, OMTFKey.find(':'));
   std::string algo_key, infra_key;
 
-// L1TMuonOverlapFwVersion and L1TMuonOverlapParams keys to be found from INFRA and ALGO, respectively
+  // L1TMuonOverlapFwVersion and L1TMuonOverlapParams keys to be found from INFRA and ALGO, respectively
 
   try {
-
     std::map<std::string, std::string> keys =
-      l1t::OnlineDBqueryHelper::fetch({"ALGO", "INFRA"}, "OMTF_KEYS", tscKey, m_omdsReader);
+        l1t::OnlineDBqueryHelper::fetch({"ALGO", "INFRA"}, "OMTF_KEYS", tscKey, m_omdsReader);
     algo_key = keys["ALGO"];
     infra_key = keys["INFRA"];
 
   } catch (std::runtime_error& e) {
-
     edm::LogError("L1-O2O L1TMuonOverlapObjectKeysOnlineProd") << "Cannot get OMTF_KEYS ";
 
     if (transactionSafe)
@@ -50,13 +47,11 @@ void L1TMuonOverlapObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1Trig
       pL1TriggerKey->add("L1TMuonOverlapParamsO2ORcd", "L1TMuonOverlapParams", "OMTF_ALGO_EMPTY");
       return;
     }
-
   }
 
   pL1TriggerKey->add("L1TMuonOverlapFwVersionO2ORcd", "L1TMuonOverlapFwVersion", infra_key);
 
   pL1TriggerKey->add("L1TMuonOverlapParamsO2ORcd", "L1TMuonOverlapParams", algo_key);
-
 }
 
 //define this as a plug-in

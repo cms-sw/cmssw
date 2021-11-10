@@ -54,10 +54,9 @@ void L1TMuonOverlapFwVersionTester::analyze(const edm::Event &iEvent, const edm:
       cout << "Writing payload to DB" << endl;
       cond::Time_t firstSinceTime = poolDb->beginOfTime();
       poolDb->writeOne(
-        ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonOverlapFwVersionO2ORcd" : "L1TMuonOverlapFwVersionRcd"));
+          ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonOverlapFwVersionO2ORcd" : "L1TMuonOverlapFwVersionRcd"));
     }
   }
-
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

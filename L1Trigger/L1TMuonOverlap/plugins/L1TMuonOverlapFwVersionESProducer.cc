@@ -12,7 +12,6 @@
 #include "L1Trigger/L1TMuonOverlap/plugins/L1TMuonOverlapFwVersionESProducer.h"
 
 L1TMuonOverlapFwVersionESProducer::L1TMuonOverlapFwVersionESProducer(const edm::ParameterSet& theConfig) {
-
   setWhatProduced(this, &L1TMuonOverlapFwVersionESProducer::produceFwVersion);
 
   unsigned algoV = theConfig.getParameter<unsigned>("algoVersion");
@@ -27,7 +26,8 @@ L1TMuonOverlapFwVersionESProducer::L1TMuonOverlapFwVersionESProducer(const edm::
 
 L1TMuonOverlapFwVersionESProducer::~L1TMuonOverlapFwVersionESProducer() {}
 
-L1TMuonOverlapFwVersionESProducer::ReturnType L1TMuonOverlapFwVersionESProducer::produceFwVersion(const L1TMuonOverlapFwVersionRcd& iRecord) {
+L1TMuonOverlapFwVersionESProducer::ReturnType L1TMuonOverlapFwVersionESProducer::produceFwVersion(
+    const L1TMuonOverlapFwVersionRcd& iRecord) {
   return std::make_unique<L1TMuonOverlapFwVersion>(params);
 }
 
