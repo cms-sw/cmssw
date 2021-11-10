@@ -13,7 +13,7 @@
 #include "CUDADataFormats/Common/interface/SoAView.h"
 #include "Eigen/Geometry"
 
-generate_SoA_store(SoAHostDevice,
+generate_SoA_store(SoAHostDeviceTemplate,
                    // predefined static scalars
                    // size_t size;
                    // size_t alignment;
@@ -29,13 +29,19 @@ generate_SoA_store(SoAHostDevice,
                    SoA_scalar(const char *, description),
                    SoA_scalar(uint32_t, someNumber));
 
-generate_SoA_store(SoADeviceOnly,
+generate_SoA_store(SoADeviceOnlyTemplate,
                    SoA_column(uint16_t, color),
                    SoA_column(double, value),
                    SoA_column(double *, py),
                    SoA_column(uint32_t, count),
                    SoA_column(uint32_t, anotherCount));
 
+// We target a CUDA-like alignment
+constexpr size_t byteAlignment =
+    128;  // The default alignment for SoA (nVidia GPI cache line size, reflected in CUDA memory allocations).
+
+typedef SoAHostDeviceTemplate<byteAlignment> SoAHostDevice;
+typedef SoADeviceOnlyTemplate<byteAlignment> SoADeviceOnly;
 // A 1 to 1 view of the store (except for unsupported types).
 generate_SoA_view(SoAFullDeviceView,
                   SoA_view_store_list(SoA_view_store(SoAHostDevice, soaHD), SoA_view_store(SoADeviceOnly, soaDO)),
@@ -79,30 +85,22 @@ int main(void) {
   // Non-aligned number of elements to check alignment features.
   constexpr unsigned int numElements = 65537;
 
-  // We target a CUDA-like alignment
-  const size_t byteAlignment =
-      128;  // The default alignment for SoA (nVidia GPI cache line size, reflected in CUDA memory allocations).
-
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDevice::computeDataSize(numElements);
-  AlignedBuffer h_buf(reinterpret_cast<std::byte *>(aligned_alloc(byteAlignment, hostDeviceSize)), std::free);
-  SoAHostDevice h_soahd(h_buf.get(), numElements, byteAlignment);
+  AlignedBuffer h_buf(reinterpret_cast<std::byte *>(aligned_alloc(SoAHostDevice::byteAlignment, hostDeviceSize)),
+                      std::free);
+  SoAHostDevice h_soahd(h_buf.get(), numElements);
 
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnly::computeDataSize(numElements);
-  AlignedBuffer d_buf(reinterpret_cast<std::byte *>(aligned_alloc(byteAlignment, hostDeviceSize + deviceOnlySize)),
-                      std::free);
-  SoAHostDevice d_soahd(d_buf.get(), numElements, byteAlignment);
-  SoADeviceOnly d_soado(d_soahd.soaMetadata().nextByte(), numElements, byteAlignment);
+  AlignedBuffer d_buf(
+      reinterpret_cast<std::byte *>(aligned_alloc(SoAHostDevice::byteAlignment, hostDeviceSize + deviceOnlySize)),
+      std::free);
+  SoAHostDevice d_soahd(d_buf.get(), numElements);
+  SoADeviceOnly d_soado(d_soahd.soaMetadata().nextByte(), numElements);
   SoAFullDeviceView d_soa(d_soahd, d_soado);
-  SoAFullDeviceView d_soaByColumns(d_soa.x(),
-                                   d_soa.y(),
-                                   d_soa.z(),
-                                   d_soa.color(),
-                                   d_soa.value(),
-                                   d_soa.py(),
-                                   d_soa.count(),
-                                   d_soa.anotherCount());
+  SoAFullDeviceView d_soaByColumns(
+      d_soa.x(), d_soa.y(), d_soa.z(), d_soa.color(), d_soa.value(), d_soa.py(), d_soa.count(), d_soa.anotherCount());
 
   // Assert column alignments
   assert(0 == reinterpret_cast<uintptr_t>(h_soahd.x()) % h_soahd.soaMetadata().byteAlignment());

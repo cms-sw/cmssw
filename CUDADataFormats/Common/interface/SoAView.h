@@ -65,8 +65,7 @@
   };                                                                                             \
   static_assert(BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) != SoAColumnType::eigen,                 \
                 "Eigen columns not supported in views.");                                        \
-  static_assert(BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) != SoAColumnType::scalar,                \
-                "Scalars not supported in views.");
+  static_assert(BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) != SoAColumnType::scalar, "Scalars not supported in views.");
 
 #define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, STORE_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL BOOST_PP_TUPLE_PUSH_BACK(STORE_MEMBER_NAME, DATA))
@@ -101,13 +100,13 @@
  * Generator of member initialization from constructor.
  * We use a lambda with auto return type to handle multiple possible return types.
  */
-#define _DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL(STORE, MEMBER, NAME)                       \
-  (BOOST_PP_CAT(NAME, _)([&]() -> auto {                                                  \
-    static_assert(BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, NAME) != SoAColumnType::eigen, \
-                  "Eigen values not supported in views");                                 \
-    static_assert(BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, NAME) != SoAColumnType::scalar,\
-                  "Scalar values not supported in views");                                \
-    return STORE.soaMetadata().BOOST_PP_CAT(addressOf_, MEMBER)();                        \
+#define _DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL(STORE, MEMBER, NAME)                        \
+  (BOOST_PP_CAT(NAME, _)([&]() -> auto {                                                   \
+    static_assert(BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, NAME) != SoAColumnType::eigen,  \
+                  "Eigen values not supported in views");                                  \
+    static_assert(BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, NAME) != SoAColumnType::scalar, \
+                  "Scalar values not supported in views");                                 \
+    return STORE.soaMetadata().BOOST_PP_CAT(addressOf_, MEMBER)();                         \
   }()))
 
 #define _DECLARE_VIEW_MEMBER_INITIALIZERS(R, DATA, STORE_MEMBER_NAME) \

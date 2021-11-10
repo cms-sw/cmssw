@@ -96,18 +96,19 @@
   _SWITCH_ON_TYPE(                                                                                                    \
       VALUE_TYPE, /* Scalar */                                                                                        \
       size_t BOOST_PP_CAT(NAME, Pitch()) const {                                                                      \
-        return (((sizeof(CPP_TYPE) - 1) / parent_.byteAlignment_) + 1) * parent_.byteAlignment_;                      \
+        return (((sizeof(CPP_TYPE) - 1) / ParentClass::byteAlignment) + 1) * ParentClass::byteAlignment;              \
       } typedef CPP_TYPE BOOST_PP_CAT(TypeOf_, NAME);                                                                 \
       static const SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = SoAColumnType::scalar;                           \
       CPP_TYPE * BOOST_PP_CAT(addressOf_, NAME)() const { return parent_.BOOST_PP_CAT(NAME, _); }, /* Column */       \
       size_t BOOST_PP_CAT(NAME, Pitch()) const {                                                                      \
-        return (((parent_.nElements_ * sizeof(CPP_TYPE) - 1) / parent_.byteAlignment_) + 1) * parent_.byteAlignment_; \
+        return (((parent_.nElements_ * sizeof(CPP_TYPE) - 1) / ParentClass::byteAlignment) + 1) *                     \
+               ParentClass::byteAlignment;                                                                            \
       } typedef CPP_TYPE BOOST_PP_CAT(TypeOf_, NAME);                                                                 \
       static const SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = SoAColumnType::column;                           \
       CPP_TYPE * BOOST_PP_CAT(addressOf_, NAME)() const { return parent_.BOOST_PP_CAT(NAME, _); }, /* Eigen column */ \
       size_t BOOST_PP_CAT(NAME, Pitch()) const {                                                                      \
-        return (((parent_.nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / parent_.byteAlignment_) + 1) *                 \
-               parent_.byteAlignment_ * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                    \
+        return (((parent_.nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / ParentClass::byteAlignment) + 1) *             \
+               ParentClass::byteAlignment * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                \
       } typedef CPP_TYPE BOOST_PP_CAT(TypeOf_, NAME);                                                                 \
       static const SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = SoAColumnType::eigen;                            \
       CPP_TYPE::Scalar * BOOST_PP_CAT(addressOf_, NAME)() const { return parent_.BOOST_PP_CAT(NAME, _); })
@@ -128,19 +129,19 @@
 /**
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
  */
-#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
-  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                                                             \
-                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                         \
-                  curMem += (((sizeof(CPP_TYPE) - 1) / byteAlignment_) + 1) * byteAlignment_;                          \
-                  , /* Column */                                                                                       \
-                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                         \
-                  curMem += (((nElements_ * sizeof(CPP_TYPE) - 1) / byteAlignment_) + 1) * byteAlignment_;             \
-                  , /* Eigen column */                                                                                 \
-                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(curMem);                                 \
-                  curMem += (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment_) + 1) * byteAlignment_ *    \
-                            CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                 \
-                  BOOST_PP_CAT(NAME, Stride_) = (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment_) + 1) * \
-                                                byteAlignment_ / sizeof(CPP_TYPE::Scalar);)
+#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                 \
+  _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                                                            \
+                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                        \
+                  curMem += (((sizeof(CPP_TYPE) - 1) / byteAlignment) + 1) * byteAlignment;                           \
+                  , /* Column */                                                                                      \
+                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                        \
+                  curMem += (((nElements_ * sizeof(CPP_TYPE) - 1) / byteAlignment) + 1) * byteAlignment;              \
+                  , /* Eigen column */                                                                                \
+                  BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(curMem);                                \
+                  curMem += (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment) + 1) * byteAlignment *     \
+                            CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                \
+                  BOOST_PP_CAT(NAME, Stride_) = (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment) + 1) * \
+                                                byteAlignment / sizeof(CPP_TYPE::Scalar);)
 
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
 
@@ -324,145 +325,141 @@
 /*
  * A macro defining a SoA store (collection of scalars and columns of equal lengths
  */
-#define generate_SoA_store(CLASS, ...)                                                                                                  \
-  struct CLASS {                                                                                                                        \
-    /* these could be moved to an external type trait to free up the symbol names */                                                    \
-    using self_type = CLASS;                                                                                                            \
-                                                                                                                                        \
-    /* For CUDA applications, we align to the 128 bytes of the cache lines.                                                           \
-   * See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0 this is still valid                     \
-   * up to compute capability 8.X.                                                                                                  \
+#define generate_SoA_store(CLASS, ...)                                                                                                    \
+  template <size_t ALIGNMENT = 128>                                                                                                       \
+  struct CLASS {                                                                                                                          \
+    /* these could be moved to an external type trait to free up the symbol names */                                                      \
+    using self_type = CLASS;                                                                                                              \
+                                                                                                                                          \
+    /* For CUDA applications, we align to the 128 bytes of the cache lines.                                                             \
+   * See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0 this is still valid                         \
+   * up to compute capability 8.X.                                                                                                      \
    */ \
-    constexpr static size_t defaultAlignment = 128;                                                                                     \
-                                                                                                                                        \
-    /* dump the SoA internal structure */                                                                                               \
-    SOA_HOST_ONLY                                                                                                                       \
-    static void dump(size_t nElements, size_t byteAlignment = defaultAlignment) {                                                       \
-      std::cout << #CLASS "(" << nElements << ", " << byteAlignment << "): " << std::endl;                                              \
-      std::cout << "  sizeof(" #CLASS "): " << sizeof(CLASS) << std::endl;                                                              \
-      size_t offset = 0;                                                                                                                \
-      _ITERATE_ON_ALL(_DECLARE_SOA_DUMP_INFO, ~, __VA_ARGS__)                                                                           \
-      std::cout << "Final offset = " << offset                                                                                          \
-                << " computeDataSize(...): " << computeDataSize(nElements, byteAlignment) << std::endl;                                 \
-      std::cout << std::endl;                                                                                                           \
-    }                                                                                                                                   \
-    /* Helper function used by caller to externally allocate the storage */                                                             \
-    static size_t computeDataSize(size_t nElements, size_t byteAlignment = defaultAlignment) {                                          \
-      size_t ret = 0;                                                                                                                   \
-      _ITERATE_ON_ALL(_ACCUMULATE_SOA_ELEMENT, ~, __VA_ARGS__)                                                                          \
-      return ret;                                                                                                                       \
-    }                                                                                                                                   \
-                                                                                                                                        \
+    constexpr static size_t defaultAlignment = 128;                                                                                       \
+    constexpr static size_t byteAlignment = ALIGNMENT;                                                                                    \
+                                                                                                                                          \
+    /* dump the SoA internal structure */                                                                                                 \
+    SOA_HOST_ONLY                                                                                                                         \
+    static void dump(size_t nElements) {                                                                                                  \
+      std::cout << #CLASS "(" << nElements << ", " << ALIGNMENT << "): " << std::endl;                                                    \
+      std::cout << "  sizeof(" #CLASS "): " << sizeof(CLASS) << std::endl;                                                                \
+      size_t offset = 0;                                                                                                                  \
+      _ITERATE_ON_ALL(_DECLARE_SOA_DUMP_INFO, ~, __VA_ARGS__)                                                                             \
+      std::cout << "Final offset = " << offset << " computeDataSize(...): " << computeDataSize(nElements)                                 \
+                << std::endl;                                                                                                             \
+      std::cout << std::endl;                                                                                                             \
+    }                                                                                                                                     \
+    /* Helper function used by caller to externally allocate the storage */                                                               \
+    static size_t computeDataSize(size_t nElements) {                                                                                     \
+      size_t ret = 0;                                                                                                                     \
+      _ITERATE_ON_ALL(_ACCUMULATE_SOA_ELEMENT, ~, __VA_ARGS__)                                                                            \
+      return ret;                                                                                                                         \
+    }                                                                                                                                     \
+                                                                                                                                          \
     /**                                                                                                                               \
    * Helper/friend class allowing SoA introspection.                                                                                \
-   */ \
-    struct SoAMetadata {                                                                                                                \
-      friend CLASS;                                                                                                                     \
-      SOA_HOST_DEVICE_INLINE size_t size() const { return parent_.nElements_; }                                                         \
-      SOA_HOST_DEVICE_INLINE size_t byteSize() const { return parent_.byteSize_; }                                                      \
-      SOA_HOST_DEVICE_INLINE size_t byteAlignment() const { return parent_.byteAlignment_; }                                            \
-      SOA_HOST_DEVICE_INLINE std::byte* data() const { return parent_.mem_; }                                                           \
-      SOA_HOST_DEVICE_INLINE std::byte* nextByte() const { return parent_.mem_ + parent_.byteSize_; }                                   \
-      SOA_HOST_DEVICE_INLINE CLASS cloneToNewAddress(std::byte* addr) {                                                                 \
-        return CLASS(addr, parent_.nElements_, parent_.byteAlignment_);                                                                 \
-      }                                                                                                                                 \
-      _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                                         \
-                                                                                                                                        \
-    private:                                                                                                                            \
-      SOA_HOST_DEVICE_INLINE SoAMetadata(const CLASS& parent) : parent_(parent) {}                                                      \
-      const CLASS& parent_;                                                                                                             \
-    };                                                                                                                                  \
-    friend SoAMetadata;                                                                                                                 \
-    SOA_HOST_DEVICE_INLINE const SoAMetadata soaMetadata() const { return SoAMetadata(*this); }                                         \
-                                                                                                                                        \
-    /* Trivial constuctor */                                                                                                            \
-    CLASS() : _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION, ~, __VA_ARGS__) {}                                            \
-                                                                                                                                        \
-    /* Constructor relying on user provided storage */                                                                                  \
-    SOA_HOST_ONLY CLASS(std::byte* mem, size_t nElements, size_t byteAlignment = defaultAlignment)                                      \
-        : mem_(mem), nElements_(nElements), byteAlignment_(byteAlignment) {                                                             \
-      auto curMem = mem_;                                                                                                               \
-      _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                                     \
-      /* Sanity check: we should have reached the computed size, only on host code */                                                   \
-      byteSize_ = computeDataSize(nElements_, byteAlignment_);                                                                          \
-      if (mem_ + byteSize_ != curMem)                                                                                                   \
-        throw std::out_of_range("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                                  \
-    }                                                                                                                                   \
-                                                                                                                                        \
-    /* Constructor relying on user provided storage */                                                                                  \
-    SOA_DEVICE_ONLY CLASS(bool devConstructor,                                                                                          \
-                          std::byte* mem,                                                                                               \
-                          size_t nElements,                                                                                             \
-                          size_t byteAlignment = defaultAlignment)                                                                      \
-        : mem_(mem), nElements_(nElements), byteAlignment_(byteAlignment) {                                                             \
-      auto curMem = mem_;                                                                                                               \
-      _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                                     \
-    }                                                                                                                                   \
-                                                                                                                                        \
-    struct const_element {                                                                                                              \
-      SOA_HOST_DEVICE_INLINE                                                                                                            \
-      const_element(size_t index, /* Declare parameters */                                                                              \
-                    _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_ARG, index, __VA_ARGS__))                                              \
-          : _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_ELEMENT_VALUE_MEMBER_INITIALISATION, index, __VA_ARGS__) {}                            \
-      _ITERATE_ON_ALL(_DECLARE_CONST_ELEMENT_ACCESSOR, ~, __VA_ARGS__)                                                                  \
-                                                                                                                                        \
-    private:                                                                                                                            \
-      _ITERATE_ON_ALL(_DECLARE_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                                              \
-    };                                                                                                                                  \
-                                                                                                                                        \
-    struct element {                                                                                                                    \
-      SOA_HOST_DEVICE_INLINE                                                                                                            \
-      element(size_t index, /* Declare parameters */                                                                                    \
-              _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_ARG, index, __VA_ARGS__))                                                    \
-          : _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_MEMBER_INITIALISATION, index, __VA_ARGS__) {}                                  \
-      SOA_HOST_DEVICE_INLINE                                                                                                            \
-      element& operator=(const element& other) {                                                                                        \
-        _ITERATE_ON_ALL(_DECLARE_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                                                    \
-        return *this;                                                                                                                   \
-      }                                                                                                                                 \
-      _ITERATE_ON_ALL(_DECLARE_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                                                    \
-    };                                                                                                                                  \
-                                                                                                                                        \
-    /* AoS-like accessor (non-const) */                                                                                                 \
-    SOA_HOST_DEVICE_INLINE                                                                                                              \
-    element operator[](size_t index) {                                                                                                  \
-      rangeCheck(index);                                                                                                                \
-      return element(index, _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__));                                       \
-    }                                                                                                                                   \
-                                                                                                                                        \
-    /* AoS-like accessor (const) */                                                                                                     \
-    SOA_HOST_DEVICE_INLINE                                                                                                              \
-    const const_element operator[](size_t index) const {                                                                                \
-      rangeCheck(index);                                                                                                                \
-      return const_element(index, _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__));                                 \
-    }                                                                                                                                   \
-                                                                                                                                        \
-    /* accessors */                                                                                                                     \
-    _ITERATE_ON_ALL(_DECLARE_SOA_ACCESSOR, ~, __VA_ARGS__)                                                                              \
-    _ITERATE_ON_ALL(_DECLARE_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                                        \
-                                                                                                                                        \
-    /* dump the SoA internal structure */                                                                                               \
-    template <typename T>                                                                                                               \
-    SOA_HOST_ONLY friend void dump();                                                                                                   \
-                                                                                                                                        \
-  private:                                                                                                                              \
-    /* Range checker conditional to the macro _DO_RANGECHECK */                                                                         \
-    SOA_HOST_DEVICE_INLINE                                                                                                              \
-    void rangeCheck(size_t index) const {                                                                                               \
-      if constexpr (_DO_RANGECHECK) {                                                                                                   \
-        if (index >= nElements_) {                                                                                                      \
-          printf("In " #CLASS "::rangeCheck(): index out of range: %zu with nElements: %zu\n", index, nElements_);                      \
-          assert(false);                                                                                                                \
-        }                                                                                                                               \
-      }                                                                                                                                 \
-    }                                                                                                                                   \
-                                                                                                                                        \
-    /* data members */                                                                                                                  \
-    std::byte* mem_;                                                                                                                    \
-    size_t nElements_;                                                                                                                  \
-    size_t byteSize_;                                                                                                                   \
-    size_t byteAlignment_;                                                                                                              \
-    _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                                           \
+   */   \
+    struct SoAMetadata {                                                                                                                  \
+      friend CLASS;                                                                                                                       \
+      SOA_HOST_DEVICE_INLINE size_t size() const { return parent_.nElements_; }                                                           \
+      SOA_HOST_DEVICE_INLINE size_t byteSize() const { return parent_.byteSize_; }                                                        \
+      SOA_HOST_DEVICE_INLINE size_t byteAlignment() const { return CLASS::byteAlignment; }                                                \
+      SOA_HOST_DEVICE_INLINE std::byte* data() const { return parent_.mem_; }                                                             \
+      SOA_HOST_DEVICE_INLINE std::byte* nextByte() const { return parent_.mem_ + parent_.byteSize_; }                                     \
+      SOA_HOST_DEVICE_INLINE CLASS cloneToNewAddress(std::byte* addr) { return CLASS(addr, parent_.nElements_); }                         \
+      _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                                           \
+                                                                                                                                          \
+    private:                                                                                                                              \
+      SOA_HOST_DEVICE_INLINE SoAMetadata(const CLASS& parent) : parent_(parent) {}                                                        \
+      const CLASS& parent_;                                                                                                               \
+      typedef CLASS ParentClass;                                                                                                          \
+    };                                                                                                                                    \
+    friend SoAMetadata;                                                                                                                   \
+    SOA_HOST_DEVICE_INLINE const SoAMetadata soaMetadata() const { return SoAMetadata(*this); }                                           \
+                                                                                                                                          \
+    /* Trivial constuctor */                                                                                                              \
+    CLASS()                                                                                                                               \
+        : mem_(nullptr), nElements_(0), _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION, ~, __VA_ARGS__) {}                    \
+                                                                                                                                          \
+    /* Constructor relying on user provided storage */                                                                                    \
+    SOA_HOST_ONLY CLASS(std::byte* mem, size_t nElements) : mem_(mem), nElements_(nElements) {                                            \
+      auto curMem = mem_;                                                                                                                 \
+      _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                                       \
+      /* Sanity check: we should have reached the computed size, only on host code */                                                     \
+      byteSize_ = computeDataSize(nElements_);                                                                                            \
+      if (mem_ + byteSize_ != curMem)                                                                                                     \
+        throw std::out_of_range("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                                    \
+    }                                                                                                                                     \
+                                                                                                                                          \
+    /* Constructor relying on user provided storage */                                                                                    \
+    SOA_DEVICE_ONLY CLASS(bool devConstructor, std::byte* mem, size_t nElements) : mem_(mem), nElements_(nElements) {                     \
+      auto curMem = mem_;                                                                                                                 \
+      _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                                       \
+    }                                                                                                                                     \
+                                                                                                                                          \
+    struct const_element {                                                                                                                \
+      SOA_HOST_DEVICE_INLINE                                                                                                              \
+      const_element(size_t index, /* Declare parameters */                                                                                \
+                    _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_ARG, index, __VA_ARGS__))                                                \
+          : _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_ELEMENT_VALUE_MEMBER_INITIALISATION, index, __VA_ARGS__) {}                              \
+      _ITERATE_ON_ALL(_DECLARE_CONST_ELEMENT_ACCESSOR, ~, __VA_ARGS__)                                                                    \
+                                                                                                                                          \
+    private:                                                                                                                              \
+      _ITERATE_ON_ALL(_DECLARE_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                                                \
+    };                                                                                                                                    \
+                                                                                                                                          \
+    struct element {                                                                                                                      \
+      SOA_HOST_DEVICE_INLINE                                                                                                              \
+      element(size_t index, /* Declare parameters */                                                                                      \
+              _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_ARG, index, __VA_ARGS__))                                                      \
+          : _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_VALUE_MEMBER_INITIALISATION, index, __VA_ARGS__) {}                                    \
+      SOA_HOST_DEVICE_INLINE                                                                                                              \
+      element& operator=(const element& other) {                                                                                          \
+        _ITERATE_ON_ALL(_DECLARE_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                                                      \
+        return *this;                                                                                                                     \
+      }                                                                                                                                   \
+      _ITERATE_ON_ALL(_DECLARE_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                                                      \
+    };                                                                                                                                    \
+                                                                                                                                          \
+    /* AoS-like accessor (non-const) */                                                                                                   \
+    SOA_HOST_DEVICE_INLINE                                                                                                                \
+    element operator[](size_t index) {                                                                                                    \
+      rangeCheck(index);                                                                                                                  \
+      return element(index, _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__));                                         \
+    }                                                                                                                                     \
+                                                                                                                                          \
+    /* AoS-like accessor (const) */                                                                                                       \
+    SOA_HOST_DEVICE_INLINE                                                                                                                \
+    const const_element operator[](size_t index) const {                                                                                  \
+      rangeCheck(index);                                                                                                                  \
+      return const_element(index, _ITERATE_ON_ALL_COMMA(_DECLARE_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__));                                   \
+    }                                                                                                                                     \
+                                                                                                                                          \
+    /* accessors */                                                                                                                       \
+    _ITERATE_ON_ALL(_DECLARE_SOA_ACCESSOR, ~, __VA_ARGS__)                                                                                \
+    _ITERATE_ON_ALL(_DECLARE_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                                          \
+                                                                                                                                          \
+    /* dump the SoA internal structure */                                                                                                 \
+    template <typename T>                                                                                                                 \
+    SOA_HOST_ONLY friend void dump();                                                                                                     \
+                                                                                                                                          \
+  private:                                                                                                                                \
+    /* Range checker conditional to the macro _DO_RANGECHECK */                                                                           \
+    SOA_HOST_DEVICE_INLINE                                                                                                                \
+    void rangeCheck(size_t index) const {                                                                                                 \
+      if constexpr (_DO_RANGECHECK) {                                                                                                     \
+        if (index >= nElements_) {                                                                                                        \
+          printf("In " #CLASS "::rangeCheck(): index out of range: %zu with nElements: %zu\n", index, nElements_);                        \
+          assert(false);                                                                                                                  \
+        }                                                                                                                                 \
+      }                                                                                                                                   \
+    }                                                                                                                                     \
+                                                                                                                                          \
+    /* data members */                                                                                                                    \
+    std::byte* mem_;                                                                                                                      \
+    size_t nElements_;                                                                                                                    \
+    size_t byteSize_;                                                                                                                     \
+    _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                                             \
   }
 
 #endif  // ndef DataStructures_SoAStore_h
