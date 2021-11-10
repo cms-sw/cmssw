@@ -91,6 +91,7 @@ Fast Timing system:
 * I12: Starting from I11, new ETL layout from MTD TDR
 * I13: Starting from I11, new ETL layout from post MTD TDR (2 sectors per disc face)
 * I14: Same as I13, updated sensor structure, disc z location and passive materials
+* I15: Same as I14, addition of notch and revision of envelope
 
 The script also handles the common and forward elements of the geometry:
 * O4: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System 
