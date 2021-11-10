@@ -5,5 +5,5 @@
 <use name="Geometry/Records"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <flags EDM_PLUGIN="1"/>
-<library name="RecoLocalCaloHGCalRecAlgosPlugin" file="*.cc">
+<library name="RecoLocalCaloHGCalRecAlgosTestPlugin" file="*.cc">
 </library>
