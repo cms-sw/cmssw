@@ -228,7 +228,6 @@ if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
 
 # --------------------------------------------------------------------------------------
 # PPS calibration
-ALCAHARVESTPPSTimingCalibration = ppsTimingCalibrationPCLHarvester.clone()
 ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
 ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
                                                     tag = cms.string('PPSDiamondTimingCalibration_pcl'),
