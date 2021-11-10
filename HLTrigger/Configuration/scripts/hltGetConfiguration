@@ -78,8 +78,8 @@ parser.add_argument('--l1-emulator',
 
 parser.add_argument('--dbproxy',
                     dest    = 'proxy',
-                    action  = 'store_const',
-                    const   = 'True',                    
+                    action  = 'store_true',
+                    default = defaults.proxy,
                     help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
 parser.add_argument('--dbproxyport',
                     dest    = 'proxy_port',
