@@ -1,8 +1,31 @@
-#include "CondTools/SiStrip/plugins/SiStripBadFiberBuilder.h"
-
+// system include files
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+// user include files
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+class SiStripBadFiberBuilder : public ConditionDBWriter<SiStripBadStrip> {
+public:
+  explicit SiStripBadFiberBuilder(const edm::ParameterSet&);
+  ~SiStripBadFiberBuilder() override;
+
+private:
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
+
+  bool printdebug_;
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters BadComponentList_;
+};
 
 SiStripBadFiberBuilder::SiStripBadFiberBuilder(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig) {
@@ -10,7 +33,7 @@ SiStripBadFiberBuilder::SiStripBadFiberBuilder(const edm::ParameterSet& iConfig)
   BadComponentList_ = iConfig.getUntrackedParameter<Parameters>("BadComponentList");
 }
 
-SiStripBadFiberBuilder::~SiStripBadFiberBuilder() {}
+SiStripBadFiberBuilder::~SiStripBadFiberBuilder() = default;
 
 std::unique_ptr<SiStripBadStrip> SiStripBadFiberBuilder::getNewObject() {
   edm::LogInfo("SiStripBadFiberBuilder") << "... creating dummy SiStripBadStrip Data" << std::endl;
@@ -52,3 +75,8 @@ std::unique_ptr<SiStripBadStrip> SiStripBadFiberBuilder::getNewObject() {
 
   return obj;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripBadFiberBuilder);

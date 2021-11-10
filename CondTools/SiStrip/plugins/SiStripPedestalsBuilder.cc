@@ -1,7 +1,30 @@
-#include "CondTools/SiStrip/plugins/SiStripPedestalsBuilder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
 #include <iostream>
 #include <fstream>
+
+class SiStripPedestalsBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripPedestalsBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripPedestalsBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::FileInPath fp_;
+  uint32_t printdebug_;
+};
 
 SiStripPedestalsBuilder::SiStripPedestalsBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
@@ -17,11 +40,17 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
   SiStripPedestals obj;
 
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
+  for (const auto& it : DetInfos) {
+    const auto& nAPVs = it.second.nApvs;
+
     count++;
     //Generate Pedestal for det detid
     SiStripPedestals::InputVector theSiStripVector;
-    for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
+    for (int strip = 0; strip < 128 * nAPVs; ++strip) {
       float MeanPed = 100;
       float RmsPed = 5;
 
@@ -53,3 +82,8 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
     edm::LogError("SiStripPedestalsBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripPedestalsBuilder);

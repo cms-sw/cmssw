@@ -31,8 +31,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+print("taking geometry from %s" % process.GlobalTag.globaltag.value())
 process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.TrackerDigiGeometryESModule.applyAlignment = False
 
 process.prod = cms.EDAnalyzer("SiStripDetVOffFakeBuilder")
 
