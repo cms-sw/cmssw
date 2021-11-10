@@ -234,8 +234,9 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
             (cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum == 2 && refhit.depth() == depth) || detectorEnum == 0)
           threshold = std::get<2>(_logWeightDenom)[j];
       }
-      
-      if (ref_depth < 0) ref_depth = refhit.depth(); // Initialize reference depth
+
+      if (ref_depth < 0)
+        ref_depth = refhit.depth();  // Initialize reference depth
       else if (refhit.depth() != ref_depth) {
         // Found a rechit with a different depth
         single_depth = false;
@@ -286,8 +287,10 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
     x *= norm_inverse;
     y *= norm_inverse;
     z *= norm_inverse;
-    if (single_depth) depth = ref_depth;
-    else depth *= norm_inverse;
+    if (single_depth)
+      depth = ref_depth;
+    else
+      depth *= norm_inverse;
     cluster.setPosition(math::XYZPoint(x, y, z));
     cluster.setDepth(depth);
     cluster.calculatePositionREP();
