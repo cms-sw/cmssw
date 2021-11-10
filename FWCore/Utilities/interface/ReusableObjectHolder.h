@@ -69,11 +69,11 @@
 //         Created:  Fri, 31 July 2014 14:29:41 GMT
 //
 
-#include <memory>
-#include <cassert>
 #include <atomic>
-#include "tbb/task.h"
-#include "tbb/concurrent_queue.h"
+#include <cassert>
+#include <memory>
+
+#include <tbb/concurrent_queue.h>
 
 namespace edm {
   template <class T, class Deleter = std::default_delete<T>>
