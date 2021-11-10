@@ -52,7 +52,8 @@ def update(process):
         nExpected = 2,
         L1TauSrc = 'hltL1sDoubleTauBigOR',
         L2Outcomes = 'hltL2TauTagNNProducer:DoubleTau',
-        DiscrWP = thWp[working_point]
+        DiscrWP = thWp[working_point],
+        l1TauPtThreshold = 250,
     )
     # L2 updated Sequence
     process.hltL2TauTagNNSequence = cms.Sequence(process.HLTDoCaloSequence + process.hltL1sDoubleTauBigOR + process.hltL2TauTagNNProducer)
