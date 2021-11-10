@@ -19,8 +19,7 @@ public:
     patternsVer_ = 0x3;
     synthDate_ = "2018-9-18 21:26:2";
   }
-  L1TMuonOverlapFwVersion(unsigned algoV, unsigned layersV, unsigned patternsV, std::string
-sDate){
+  L1TMuonOverlapFwVersion(unsigned algoV, unsigned layersV, unsigned patternsV, std::string sDate) {
     algorithmVer_ = algoV;
     layersVer_ = layersV;
     patternsVer_ = patternsV;
