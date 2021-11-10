@@ -348,10 +348,10 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
                                   flagIterativeMethodCalibrationGroupReco = cms.int32(0),
                                   #
-                                  #hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
-                                  #hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
-                                  #hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
-                                  # hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
+                                  hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
+                                  hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
+                                  hfInputSignalTag = cms.InputTag('hfrecoMBNZS'),
+                                  hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
                                   #
                                   #HistOutFile = cms.untracked.string('LED_331370.root'),
                                   HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
