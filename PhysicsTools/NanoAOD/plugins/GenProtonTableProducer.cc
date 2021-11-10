@@ -97,6 +97,8 @@ void GenProtonTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       ->setComment("input source for pileup protons collection");
   desc.add<std::string>("cut", "")->setComment("proton kinematic selection");
   desc.add<std::string>("name", "GenProton")->setComment("flat table name");
+  desc.add<std::string>("doc", "generator level information on (signal+PU) protons")
+      ->setComment("flat table description");
   desc.add<double>("tolerance", 1.e-3)
       ->setComment("relative difference between the signal and pileup protons pt and pz");
   descriptions.add("genProtonTable", desc);
