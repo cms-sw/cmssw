@@ -48,9 +48,7 @@ private:
 
     // hit distributions
     std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_bef_sel;
-
     std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_mlt_sel;
-
     std::map<unsigned int, MonitorElement*> m_h2_y_vs_x_aft_sel;
 
     // cut plots
@@ -239,6 +237,7 @@ void PPSAlignmentWorker::SectorData::init(DQMStore::IBooker& iBooker,
                                                cfg.binning().diffFN_x_max_);
   p_x_diffFN_vs_x_N = iBooker.bookProfile("p_x_diffFN_vs_x_N", profilePtr.get());
 
+  // slice plots
   for (int i = 0; i < scfg_.rp_N_.x_slice_n_; i++) {
     const double x_min = scfg_.rp_N_.x_slice_min_ + i * scfg_.rp_N_.x_slice_w_;
     const double x_max = scfg_.rp_N_.x_slice_min_ + (i + 1) * scfg_.rp_N_.x_slice_w_;
@@ -304,16 +303,17 @@ unsigned int PPSAlignmentWorker::SectorData::process(const CTPPSLocalTrackLiteCo
 
   // do the selection
   unsigned int pairsSelected = 0;
-
   for (const auto& trUp : tracksUp) {
     for (const auto& trDw : tracksDw) {
       h2_cut_h_bef->Fill(trUp.x(), trDw.x());
       h2_cut_v_bef->Fill(trUp.y(), trDw.y());
 
+      // horizontal cut
       const double cq_h = trDw.x() + scfg_.cut_h_a_ * trUp.x() + scfg_.cut_h_c_;
       h_q_cut_h_bef->Fill(cq_h);
       const bool cv_h = (std::fabs(cq_h) < cfg.n_si() * scfg_.cut_h_si_);
 
+      // vertical cut
       const double cq_v = trDw.y() + scfg_.cut_v_a_ * trUp.y() + scfg_.cut_v_c_;
       h_q_cut_v_bef->Fill(cq_v);
       const bool cv_v = (std::fabs(cq_v) < cfg.n_si() * scfg_.cut_v_si_);

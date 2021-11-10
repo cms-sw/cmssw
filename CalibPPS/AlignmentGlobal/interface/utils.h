@@ -15,8 +15,8 @@ namespace alig_utils {
   int fitProfile(TProfile* p,
                  double x_mean,
                  double x_rms,
-                 unsigned int fitProfileMinBinEntries,
-                 unsigned int fitProfileMinNReasonable,
+                 unsigned int minBinEntries,
+                 unsigned int minNBinsReasonable,
                  double& sl,
                  double& sl_unc);
 
