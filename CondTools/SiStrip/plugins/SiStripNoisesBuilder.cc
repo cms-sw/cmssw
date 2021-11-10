@@ -1,7 +1,31 @@
-#include "CondTools/SiStrip/plugins/SiStripNoisesBuilder.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+// system includes
 #include <iostream>
 #include <fstream>
+
+// user includes
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
+class SiStripNoisesBuilder : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripNoisesBuilder(const edm::ParameterSet& iConfig);
+
+  ~SiStripNoisesBuilder() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::FileInPath fp_;
+  const uint32_t printdebug_;
+};
 
 SiStripNoisesBuilder::SiStripNoisesBuilder(const edm::ParameterSet& iConfig)
     : fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",
@@ -16,11 +40,17 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
   SiStripNoises obj;
 
   int count = -1;
-  for (const auto& it : SiStripDetInfoFileReader::read(fp_.fullPath()).getAllData()) {
+
+  const auto& reader = SiStripDetInfoFileReader::read(fp_.fullPath());
+  const auto& DetInfos = reader.getAllData();
+
+  for (const auto& it : DetInfos) {
+    const auto& nAPVs = it.second.nApvs;
+
     count++;
     //Generate Noise for det detid
     SiStripNoises::InputVector theSiStripVector;
-    for (int strip = 0; strip < 128 * it.second.nApvs; ++strip) {
+    for (int strip = 0; strip < 128 * nAPVs; ++strip) {
       float MeanNoise = 5;
       float RmsNoise = 1;
       float noise = CLHEP::RandGauss::shoot(MeanNoise, RmsNoise);
@@ -34,22 +64,25 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
             << "detid " << it.first << " \t"
             << " strip " << strip << " \t" << noise << " \t" << theSiStripVector.back() / 10 << " \t" << std::endl;
     }
-
     if (!obj.put(it.first, theSiStripVector))
       edm::LogError("SiStripNoisesBuilder") << "[SiStripNoisesBuilder::analyze] detid already exists" << std::endl;
   }
 
-  //End now write sistripnoises data in DB
+  //And now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiStripNoisesRcd")) {
       mydbservice->createOneIOV<SiStripNoises>(obj, mydbservice->beginOfTime(), "SiStripNoisesRcd");
     } else {
-      //mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");
       mydbservice->appendOneIOV<SiStripNoises>(obj, mydbservice->currentTime(), "SiStripNoisesRcd");
     }
   } else {
     edm::LogError("SiStripNoisesBuilder") << "Service is unavailable" << std::endl;
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripNoisesBuilder);
