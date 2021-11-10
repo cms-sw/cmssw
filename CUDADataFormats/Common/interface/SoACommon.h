@@ -37,45 +37,61 @@
 // compile-time sized SoA
 
 // Helper template managing the value within it column
-template <typename T>
+// The optional compile time alignment parameter enables informing the
+// compiler of alignment (enforced by caller).
+template <typename T, size_t ALIGNMENT>
 class SoAValue {
 public:
   SOA_HOST_DEVICE_INLINE SoAValue(size_t i, T* col) : idx_(i), col_(col) {}
   /* SOA_HOST_DEVICE_INLINE operator T&() { return col_[idx_]; } */
-  SOA_HOST_DEVICE_INLINE T& operator()() { return col_[idx_]; }
-  SOA_HOST_DEVICE_INLINE T operator()() const { return *(col_ + idx_); }
-  SOA_HOST_DEVICE_INLINE T* operator&() { return &col_[idx_]; }
-  SOA_HOST_DEVICE_INLINE const T* operator&() const { return &col_[idx_]; }
+  SOA_HOST_DEVICE_INLINE T& operator()() { return alignedCol()[idx_]; }
+  SOA_HOST_DEVICE_INLINE T operator()() const { return *(alignedCol() + idx_); }
+  SOA_HOST_DEVICE_INLINE T* operator&() { return &alignedCol()[idx_]; }
+  SOA_HOST_DEVICE_INLINE const T* operator&() const { return &alignedCol()[idx_]; }
   template <typename T2>
   SOA_HOST_DEVICE_INLINE T& operator=(const T2& v) {
-    return col_[idx_] = v;
+    return alignedCol()[idx_] = v;
   }
   typedef T valueType;
   static constexpr auto valueSize = sizeof(T);
 
 private:
+  SOA_HOST_DEVICE_INLINE T* alignedCol() const {
+    if constexpr (ALIGNMENT) {
+      return __builtin_assume_aligned(col_, ALIGNMENT);
+    } else {
+      return col_;
+    }
+  }
   size_t idx_;
   T* col_;
 };
 
 // Helper template managing the value within it column
-template <typename T>
+template <typename T, size_t ALIGNMENT>
 class SoAConstValue {
 public:
   SOA_HOST_DEVICE_INLINE SoAConstValue(size_t i, const T* col) : idx_(i), col_(col) {}
   /* SOA_HOST_DEVICE_INLINE operator T&() { return col_[idx_]; } */
-  SOA_HOST_DEVICE_INLINE T operator()() const { return *(col_ + idx_); }
-  SOA_HOST_DEVICE_INLINE const T* operator&() const { return &col_[idx_]; }
+  SOA_HOST_DEVICE_INLINE T operator()() const { return *(alignedCol() + idx_); }
+  SOA_HOST_DEVICE_INLINE const T* operator&() const { return &alignedCol()[idx_]; }
   typedef T valueType;
   static constexpr auto valueSize = sizeof(T);
 
 private:
+  SOA_HOST_DEVICE_INLINE const T* alignedCol() const {
+    if constexpr (ALIGNMENT) {
+      return __builtin_assume_aligned(col_, ALIGNMENT);
+    } else {
+      return col_;
+    }
+  }
   size_t idx_;
   const T* col_;
 };
 
 // Helper template managing the value within it column
-template <class C>
+template <class C, size_t ALIGNMENT>
 class SoAEigenValue {
 public:
   typedef C Type;
@@ -99,18 +115,6 @@ public:
   typedef typename C::Scalar ValueType;
   static constexpr auto valueSize = sizeof(C::Scalar);
   SOA_HOST_DEVICE_INLINE size_t stride() { return stride_; }
-  template <typename OtherDerived>
-  typename Eigen::MatrixBase<C>::template cross_product_return_type<OtherDerived>::type SOA_HOST_DEVICE_INLINE
-  cross(const Eigen::MatrixBase<OtherDerived>& other) const {
-    return cVal_.cross(other);
-  }
-
-  template <typename OtherType>
-  typename Eigen::MatrixBase<C>::template cross_product_return_type<typename OtherType::MapType>::type
-      SOA_HOST_DEVICE_INLINE
-      cross(const OtherType& other) const {
-    return cVal_.cross(other.cVal_);
-  }
 
 private:
   MapType val_;

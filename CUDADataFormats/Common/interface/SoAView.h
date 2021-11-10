@@ -169,7 +169,7 @@
  * Declaration of the private members of the const element subclass
  */
 #define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL(STORE_NAME, STORE_MEMBER, LOCAL_NAME) \
-  const SoAConstValue<BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)> BOOST_PP_CAT(LOCAL_NAME, _);
+  const SoAConstValueWithConf<BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)> BOOST_PP_CAT(LOCAL_NAME, _);
 
 #define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER(R, DATA, STORE_MEMBER_NAME) \
   _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL STORE_MEMBER_NAME
@@ -186,7 +186,7 @@
  * Declaration of the private members of the const element subclass
  */
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL(STORE_NAME, STORE_MEMBER, LOCAL_NAME) \
-  SoAValue<BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)> LOCAL_NAME;
+  SoAValueWithConf<BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)> LOCAL_NAME;
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER(R, DATA, STORE_MEMBER_NAME) \
   _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL STORE_MEMBER_NAME
@@ -243,6 +243,17 @@
     /* these could be moved to an external type trait to free up the symbol names */                                                    \
     using self_type = CLASS;                                                                                                            \
                                                                                                                                         \
+    constexpr static size_t conditionalAlignment =                                                                                      \
+        /*alignmentEnforcement == AlignmentEnforcement::Enforced ? byteAlignment :*/ 0;                                                 \
+    /* Those typedefs avoid having commas in macros (which is problematic) */                                                           \
+    template <class C>                                                                                                                  \
+    using SoAValueWithConf = SoAValue<C, conditionalAlignment>;                                                                         \
+                                                                                                                                        \
+    template <class C>                                                                                                                  \
+    using SoAConstValueWithConf = SoAConstValue<C, conditionalAlignment>;                                                               \
+                                                                                                                                        \
+    template <class C>                                                                                                                  \
+    using SoAEigenValueWithConf = SoAEigenValue<C, conditionalAlignment>;                                                               \
     /**                                                                                                                               \
    * Helper/friend class allowing SoA introspection.                                                                                \
    */ \

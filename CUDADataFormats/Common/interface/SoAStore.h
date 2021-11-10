@@ -233,9 +233,9 @@
 #define _DECLARE_CONST_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME) \
   _SWITCH_ON_TYPE(VALUE_TYPE,       /* Scalar */                             \
                   BOOST_PP_EMPTY(), /* Column */                             \
-                  const SoAValue<CPP_TYPE> BOOST_PP_CAT(NAME, _);            \
+                  const SoAValueWithConf<CPP_TYPE> BOOST_PP_CAT(NAME, _);    \
                   , /* Eigen column */                                       \
-                  const SoAEigenValue<CPP_TYPE> BOOST_PP_CAT(NAME, _);)
+                  const SoAEigenValueWithConf<CPP_TYPE> BOOST_PP_CAT(NAME, _);)
 
 #define _DECLARE_CONST_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME) _DECLARE_CONST_ELEMENT_VALUE_MEMBER_IMPL TYPE_NAME
 
@@ -247,7 +247,7 @@
       VALUE_TYPE,                                                                       /* Scalar */       \
       BOOST_PP_EMPTY(),                                                                 /* Column */       \
       SOA_HOST_DEVICE_INLINE CPP_TYPE NAME() const { return BOOST_PP_CAT(NAME, _)(); }, /* Eigen column */ \
-      SOA_HOST_DEVICE_INLINE const SoAEigenValue<CPP_TYPE> NAME() const { return BOOST_PP_CAT(NAME, _); })
+      SOA_HOST_DEVICE_INLINE const SoAEigenValueWithConf<CPP_TYPE> NAME() const { return BOOST_PP_CAT(NAME, _); })
 
 #define _DECLARE_CONST_ELEMENT_ACCESSOR(R, DATA, TYPE_NAME) _DECLARE_CONST_ELEMENT_ACCESSOR_IMPL TYPE_NAME
 
@@ -257,9 +257,9 @@
 #define _DECLARE_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME) \
   _SWITCH_ON_TYPE(VALUE_TYPE,       /* Scalar */                       \
                   BOOST_PP_EMPTY(), /* Column */                       \
-                  SoAValue<CPP_TYPE> NAME;                             \
+                  SoAValueWithConf<CPP_TYPE> NAME;                     \
                   , /* Eigen column */                                 \
-                  SoAEigenValue<CPP_TYPE> NAME;)
+                  SoAEigenValueWithConf<CPP_TYPE> NAME;)
 
 #define _DECLARE_ELEMENT_VALUE_MEMBER(R, DATA, TYPE_NAME) _DECLARE_ELEMENT_VALUE_MEMBER_IMPL TYPE_NAME
 
@@ -341,7 +341,17 @@
     constexpr static size_t defaultAlignment = 128;                                                                                       \
     constexpr static size_t byteAlignment = ALIGNMENT;                                                                                    \
     constexpr static AlignmentEnforcement alignmentEnforcement = ALIGNMENT_ENFORCEMENT;                                                   \
+    constexpr static size_t conditionalAlignment =                                                                                        \
+        alignmentEnforcement == AlignmentEnforcement::Enforced ? byteAlignment : 0;                                                       \
+    /* Those typedefs avoid having commas in macros (which is problematic) */                                                             \
+    template <class C>                                                                                                                    \
+    using SoAValueWithConf = SoAValue<C, conditionalAlignment>;                                                                           \
                                                                                                                                           \
+    template <class C>                                                                                                                    \
+    using SoAConstValueWithConf = SoAConstValue<C, conditionalAlignment>;                                                                 \
+                                                                                                                                          \
+    template <class C>                                                                                                                    \
+    using SoAEigenValueWithConf = SoAEigenValue<C, conditionalAlignment>;                                                                 \
     /* dump the SoA internal structure */                                                                                                 \
     SOA_HOST_ONLY                                                                                                                         \
     static void dump(size_t nElements) {                                                                                                  \
