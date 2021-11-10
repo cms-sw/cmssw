@@ -1,14 +1,22 @@
 import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.VarParsing import VarParsing
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-
-options = VarParsing('python')
-options.register('runN', 1,
-    VarParsing.multiplicity.singleton,
-    VarParsing.varType.int,
-    "runN in the IOV"
-)
-
+options = VarParsing.VarParsing()
+options.register('runN',
+                 1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "runN in the IOV.")
+options.register('tag',
+                 'SiStripApvGain_GR10_v1_hlt',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "input tag")
+options.register('inputFiles',
+                 'frontier://FrontierProd/CMS_CONDITIONS',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "input files")
 options.parseArguments()
 
 if (not options.tag or not options.inputFiles):
@@ -50,8 +58,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 ## under test  
 ##
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
-                                      #connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'), 
-                                      connect = cms.string(options.inputFiles[0]),
+                                      connect = cms.string(options.inputFiles),
                                       toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
                                                                  tag = cms.string(options.tag)
                                                                  )

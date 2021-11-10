@@ -12,7 +12,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::ESGetToken<SiStripApvSimulationParameters, SiStripApvSimulationParametersRcd> m_parametersToken;
+  const edm::ESGetToken<SiStripApvSimulationParameters, SiStripApvSimulationParametersRcd> m_parametersToken;
 };
 
 void SiStripApvSimulationParametersBuilder::analyze(const edm::Event&, const edm::EventSetup& evtSetup) {

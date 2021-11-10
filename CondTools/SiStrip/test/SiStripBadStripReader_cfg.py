@@ -5,10 +5,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-    lastRun = cms.untracked.uint32(1),
-    timetype = cms.string('runnumber'),
     firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    numberEventsInRun = cms.untracked.uint32(1),
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
