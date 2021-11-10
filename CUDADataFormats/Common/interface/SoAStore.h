@@ -141,7 +141,10 @@
                   curMem += (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment) + 1) * byteAlignment *     \
                             CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                \
                   BOOST_PP_CAT(NAME, Stride_) = (((nElements_ * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment) + 1) * \
-                                                byteAlignment / sizeof(CPP_TYPE::Scalar);)
+                                                byteAlignment / sizeof(CPP_TYPE::Scalar);)                            \
+  if constexpr (alignmentEnforcement == AlignmentEnforcement::Enforced)                                               \
+    if (reinterpret_cast<intptr_t>(BOOST_PP_CAT(NAME, _)) % byteAlignment)                                            \
+      throw std::out_of_range("In store constructor: misaligned column: " #NAME);
 
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
 
@@ -326,7 +329,7 @@
  * A macro defining a SoA store (collection of scalars and columns of equal lengths
  */
 #define generate_SoA_store(CLASS, ...)                                                                                                    \
-  template <size_t ALIGNMENT = 128>                                                                                                       \
+  template <size_t ALIGNMENT = 128, AlignmentEnforcement ALIGNMENT_ENFORCEMENT = AlignmentEnforcement::Relaxed>                           \
   struct CLASS {                                                                                                                          \
     /* these could be moved to an external type trait to free up the symbol names */                                                      \
     using self_type = CLASS;                                                                                                              \
@@ -337,6 +340,7 @@
    */ \
     constexpr static size_t defaultAlignment = 128;                                                                                       \
     constexpr static size_t byteAlignment = ALIGNMENT;                                                                                    \
+    constexpr static AlignmentEnforcement alignmentEnforcement = ALIGNMENT_ENFORCEMENT;                                                   \
                                                                                                                                           \
     /* dump the SoA internal structure */                                                                                                 \
     SOA_HOST_ONLY                                                                                                                         \
@@ -379,10 +383,16 @@
                                                                                                                                           \
     /* Trivial constuctor */                                                                                                              \
     CLASS()                                                                                                                               \
-        : mem_(nullptr), nElements_(0), _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION, ~, __VA_ARGS__) {}                    \
+        : mem_(nullptr),                                                                                                                  \
+          nElements_(0),                                                                                                                  \
+          byteSize_(0),                                                                                                                   \
+          _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION, ~, __VA_ARGS__) {}                                                  \
                                                                                                                                           \
     /* Constructor relying on user provided storage */                                                                                    \
-    SOA_HOST_ONLY CLASS(std::byte* mem, size_t nElements) : mem_(mem), nElements_(nElements) {                                            \
+    SOA_HOST_ONLY CLASS(std::byte* mem, size_t nElements) : mem_(mem), nElements_(nElements), byteSize_(0) {                              \
+      if constexpr (alignmentEnforcement == AlignmentEnforcement::Enforced)                                                               \
+        if (reinterpret_cast<intptr_t>(mem) % byteAlignment)                                                                              \
+          throw std::out_of_range("In " #CLASS "::" #CLASS ": misaligned buffer");                                                        \
       auto curMem = mem_;                                                                                                                 \
       _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                                       \
       /* Sanity check: we should have reached the computed size, only on host code */                                                     \

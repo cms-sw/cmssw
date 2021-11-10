@@ -188,5 +188,14 @@ int main(void) {
       assert(false);
     }
   }
+
+  // Validate that alignment enforcement works
+  try {
+    SoAHostDeviceTemplate<byteAlignment, AlignmentEnforcement::Enforced> soa(reinterpret_cast<std::byte *>(1), 1);
+    assert(false);
+  } catch (const std::out_of_range &) {
+  } catch (...) {
+    assert(false);
+  }
   std::cout << "OK" << std::endl;
 }

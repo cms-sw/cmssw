@@ -172,4 +172,9 @@ enum class SoAColumnType { scalar = _VALUE_TYPE_SCALAR, column = _VALUE_TYPE_COL
           IF_COLUMN,                                                       \
           BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_EIGEN_COLUMN), IF_EIGEN_COLUMN, BOOST_PP_EMPTY())))
 
+/* Enum parameters allowing templated control of store/view behaviors */
+/* Alignement enforcement verifies every column is aligned, and 
+ * hints the compiler that it can expect column pointers to be aligned */
+enum class AlignmentEnforcement : bool { Relaxed, Enforced };
+
 #endif  // ndef DataStructures_SoACommon_h
