@@ -37,12 +37,10 @@ public:
 
 private:
   typedef std::map<std::string, std::string> TriggerMap;
-  AlCaRecoTriggerBits *createStartTriggerBits(bool startEmpty, const edm::EventSetup &evtSetup) const;
   bool removeKeysFromMap(const std::vector<std::string> &keys, TriggerMap &triggerMap) const;
   bool replaceKeysFromMap(const std::vector<edm::ParameterSet> &alcarecoReplace, TriggerMap &triggerMap) const;
   bool addTriggerLists(const std::vector<edm::ParameterSet> &triggerListsAdd, AlCaRecoTriggerBits &bits) const;
-  /// Takes over memory uresponsibility for 'bitsToWrite'.
-  void writeBitsToDB(AlCaRecoTriggerBits *bitsToWrite) const;
+  void writeBitsToDB(const std::unique_ptr<AlCaRecoTriggerBits> &bitsToWrite) const;
 
   edm::ESGetToken<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd> triggerBitsToken_;
   unsigned int nEventCalls_;
@@ -78,8 +76,13 @@ void AlCaRecoTriggerBitsRcdUpdate::analyze(const edm::Event &evt, const edm::Eve
     return;
   }
 
-  // create what to write - starting from empty or existing list (auto_ptr?)
-  AlCaRecoTriggerBits *bitsToWrite = this->createStartTriggerBits(startEmpty_, iSetup);
+  // create what to write - starting from empty or existing list
+  std::unique_ptr<AlCaRecoTriggerBits> bitsToWrite;
+  if (startEmpty_) {
+    bitsToWrite = std::make_unique<AlCaRecoTriggerBits>();
+  } else {
+    bitsToWrite = std::make_unique<AlCaRecoTriggerBits>(iSetup.getData(triggerBitsToken_));
+  }
 
   // remove some existing entries in map
   this->removeKeysFromMap(listNamesRemove_, bitsToWrite->m_alcarecoToTrig);
@@ -92,17 +95,6 @@ void AlCaRecoTriggerBitsRcdUpdate::analyze(const edm::Event &evt, const edm::Eve
 
   // finally write to DB
   this->writeBitsToDB(bitsToWrite);
-}
-
-///////////////////////////////////////////////////////////////////////
-AlCaRecoTriggerBits *  // auto_ptr?
-AlCaRecoTriggerBitsRcdUpdate::createStartTriggerBits(bool startEmpty, const edm::EventSetup &evtSetup) const {
-  if (startEmpty) {
-    return new AlCaRecoTriggerBits;
-  } else {
-    const auto &triggerBits = &evtSetup.getData(triggerBitsToken_);
-    return new AlCaRecoTriggerBits(*triggerBits);  // copy old one
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -179,7 +171,7 @@ bool AlCaRecoTriggerBitsRcdUpdate::addTriggerLists(const std::vector<edm::Parame
 }
 
 ///////////////////////////////////////////////////////////////////////
-void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(AlCaRecoTriggerBits *bitsToWrite) const {
+void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(const std::unique_ptr<AlCaRecoTriggerBits> &bitsToWrite) const {
   edm::LogInfo("") << "Uploading to the database...";
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -187,20 +179,9 @@ void AlCaRecoTriggerBitsRcdUpdate::writeBitsToDB(AlCaRecoTriggerBits *bitsToWrit
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available.\n";
   }
 
-  // ownership of bitsToWrite transferred
   // FIXME: Have to check that timetype is run number! How?
   const std::string recordName("AlCaRecoTriggerBitsRcd");
-  if (poolDbService->isNewTagRequest(recordName)) {  // tag not yet existing
-    // lastRunIOV_ = -1 means infinity:
-    const cond::Time_t lastRun = (lastRunIOV_ < 0 ? poolDbService->endOfTime() : lastRunIOV_);
-    poolDbService->createNewIOV(bitsToWrite, firstRunIOV_, lastRun, recordName);
-  } else {  // tag exists, can only append
-    if (lastRunIOV_ >= 0) {
-      throw cms::Exception("BadConfig") << "Tag already exists, can only append until infinity,"
-                                        << " but lastRunIOV = " << lastRunIOV_ << ".\n";
-    }
-    poolDbService->appendSinceTime(bitsToWrite, firstRunIOV_, recordName);
-  }
+  poolDbService->writeOneIOV(*bitsToWrite, firstRunIOV_, recordName);
 
   edm::LogInfo("") << "...done for runs " << firstRunIOV_ << " to " << lastRunIOV_ << " (< 0 meaning infinity)!";
 }
