@@ -60,7 +60,7 @@ namespace PhysicsTools {
     VarProcessor::ConfigCtx config(flags);
     std::vector<const Calibration::VarProcessor *> processors = calib->getProcessors();
 
-    for (const auto* calibProc : processors) {
+    for (const auto *calibProc : processors) {
       std::string name = calibProc->getInstanceName();
       VarProcessor *processor = VarProcessor::create(name.c_str(), calibProc, this);
       if (!processor)

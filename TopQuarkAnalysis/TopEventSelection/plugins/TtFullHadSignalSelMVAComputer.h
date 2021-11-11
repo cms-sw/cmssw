@@ -25,6 +25,7 @@ private:
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
   void endJob() override;
 
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, TtFullHadSignalSelMVARcd> mvaToken_;
   edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
 
   PhysicsTools::MVAComputerCache mvaComputer;

@@ -28,6 +28,7 @@ private:
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
   void endJob() override;
 
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, TtSemiLepJetCombMVARcd> mvaToken_;
   edm::EDGetTokenT<edm::View<reco::RecoCandidate>> lepsToken_;
   edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
   edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
