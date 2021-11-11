@@ -29,6 +29,7 @@ private:
   double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
   double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
 
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, TtSemiLepSignalSelMVARcd> mvaToken_;
   edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
   edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > METsToken_;

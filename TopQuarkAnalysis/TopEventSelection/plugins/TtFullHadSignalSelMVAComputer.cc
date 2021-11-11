@@ -11,7 +11,7 @@
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
 TtFullHadSignalSelMVAComputer::TtFullHadSignalSelMVAComputer(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
+    : mvaToken_(esConsumes()), jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
   produces<double>("DiscSel");
 }
 
@@ -20,7 +20,7 @@ TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer() {}
 void TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
   std::unique_ptr<double> pOutDisc(new double);
 
-  mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
+  mvaComputer.update(&setup.getData(mvaToken_), "ttFullHadSignalSelMVA");
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);

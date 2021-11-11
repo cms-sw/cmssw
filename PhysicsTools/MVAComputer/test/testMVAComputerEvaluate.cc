@@ -27,6 +27,7 @@ public:
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
+  edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, MVADemoRcd> mvaToken_;
   MVAComputerCache mvaComputer;
 };
 
@@ -38,7 +39,7 @@ void testMVAComputerEvaluate::analyze(const edm::Event& iEvent, const edm::Event
   // you can use a MVAComputerContainer to pass around
   // multiple different MVA's in one event setup record
   // identify the right one by a definable name string
-  mvaComputer.update<MVADemoRcd>(iSetup, "testMVA");
+  mvaComputer.update(&iSetup.getData(mvaToken_), "testMVA");
 
   Variable::Value values[] = {Variable::Value("x", 1.0), Variable::Value("y", 1.5)};
 

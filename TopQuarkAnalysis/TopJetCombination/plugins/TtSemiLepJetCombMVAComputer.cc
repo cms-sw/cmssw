@@ -3,7 +3,8 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg)
-    : lepsToken_(consumes<edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
+    : mvaToken_(esConsumes()),
+      lepsToken_(consumes<edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
       jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
       metsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("mets"))),
       maxNJets_(cfg.getParameter<int>("maxNJets")),
@@ -22,7 +23,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   std::unique_ptr<std::string> pOutMeth(new std::string);
   std::unique_ptr<int> pJetsConsidered(new int);
 
-  mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
+  mvaComputer.update(&setup.getData(mvaToken_), "ttSemiLepJetCombMVA");
 
   // read name of the processor that provides the MVA discriminator
   // (to be used as meta information)

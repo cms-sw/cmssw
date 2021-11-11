@@ -11,16 +11,17 @@
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
 TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::ParameterSet& cfg)
-    : muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
+    : mvaToken_(esConsumes()),
+      muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
       jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
       METsToken_(consumes<edm::View<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
-    electronsToken_(consumes<edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs"))),
-  putToken_(produces("DiscSel")) {}
+      electronsToken_(consumes<edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs"))),
+      putToken_(produces("DiscSel")) {}
 
 TtSemiLepSignalSelMVAComputer::~TtSemiLepSignalSelMVAComputer() {}
 
 void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  mvaComputer.update<TtSemiLepSignalSelMVARcd>(setup, "ttSemiLepSignalSelMVA");
+  mvaComputer.update(&setup.getData(mvaToken_), "ttSemiLepSignalSelMVA");
 
   //make your preselection! This must!! be the same one as in TraintreeSaver.cc
   edm::Handle<edm::View<pat::MET> > MET_handle;
