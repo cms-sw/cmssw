@@ -49,8 +49,8 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
       simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-  topoBToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-  geomBToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
+      topoBToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      geomBToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
 
   // The value to be used for ToT == 0 in electrons
