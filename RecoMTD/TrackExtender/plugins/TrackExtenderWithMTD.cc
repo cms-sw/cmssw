@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -826,7 +824,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs.front());
       float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f, tofpi = 0.f, tofk = 0.f, tofp = 0.f;
-      LogTrace("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track.p() << " " << track.pt();
+      LogTrace("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track.p() << " " << track.pt()
+                                       << " eta = " << track.eta();
       reco::Track result = buildTrack(track,
                                       thetrj,
                                       trj,
@@ -879,7 +878,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
-        LogTrace("TrackExtenderWithMTD") << "tmtd " << tmtdMap << " +/- " << sigmatmtdMap << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap << " " << tofkMap << " " << tofpMap;
+        LogTrace("TrackExtenderWithMTD") << "tmtd " << tmtdMap << " +/- " << sigmatmtdMap << " t0 " << t0Map << " +/- "
+                                         << sigmat0Map << " tof pi/K/p " << tofpiMap << " " << tofkMap << " "
+                                         << tofpMap;
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
@@ -962,13 +963,10 @@ namespace {
           if (pl.second == 0.)
             continue;
 
-          //const double tot_pl = pathlength0 + std::abs(pl.second);
           const double t_vtx = useVtxConstraint ? vtxTime : 0.;
 
           constexpr double vtx_res = 0.008;
           const double t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
-
-          //constexpr double t_res_manual = 0.035;
 
           double lastpmag2 = trs0.getSegment(0).second;
 
@@ -978,17 +976,6 @@ namespace {
               if (!est.first)
                 continue;
 
-              //TrackTofPidInfo tof = computeTrackTofPidInfo(pmag2,
-                                                           //tot_pl,
-                                                           //trs0,
-                                                           //hit.time(),
-                                                           //t_res_manual,  //put hit error by hand for the moment
-                                                           //t_vtx,
-                                                           //t_vtx_err,  //put vtx error by hand for the moment
-                                                           //false,
-                                                           //TofCalc::cost);
-
-              LogTrace("TrackExtenderWithMTD") << "Cand hit t = " << hit.time() << " +/- " << hit.timeError() << " p/lastp " << std::sqrt(pmag2) << " / " << std::sqrt(lastpmag2);
               TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
                                                            std::abs(pl.second),
                                                            trs0,
@@ -1227,8 +1214,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       thiterror = mtdhit->timeError();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      std::pair <double,double> lastStep = trs.getSegment(0);
-      double etlpathlength = std::abs(lastStep.first/c_inv);
+      std::pair<double, double> lastStep = trs.getSegment(0);
+      double etlpathlength = std::abs(lastStep.first / c_inv);
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
       //
@@ -1240,7 +1227,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
         const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
         TrackTofPidInfo tofInfo = computeTrackTofPidInfo(
-          lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
+            lastStep.second, etlpathlength, trs, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true, TofCalc::cost);
         //
         // Protect against incompatible times
         //

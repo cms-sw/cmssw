@@ -124,7 +124,6 @@ void TOFPIDProducer::fillValueMap(edm::Event& iEvent,
 }
 
 void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
-
   edm::Handle<reco::TrackCollection> tracksH;
   ev.getByToken(tracksToken_, tracksH);
   const auto& tracks = *tracksH;
