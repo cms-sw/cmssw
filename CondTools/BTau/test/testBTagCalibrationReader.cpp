@@ -32,7 +32,7 @@ int main()
   );
   stringstream csv1Stream(csv1);
   BTagCalibration bc1("csv");
-  bc1.readCSV(csv1Stream);
+  bc1.readCSV(csv1Stream, true);
 
   // test pt-dependent function
   BTagCalibrationReader bcr1(BTagEntry::OP_LOOSE);

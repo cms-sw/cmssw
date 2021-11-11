@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,8 +11,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 
-class BTagCalibrationDbCreator : public edm::EDAnalyzer
-{
+class BTagCalibrationDbCreator : public edm::one::EDAnalyzer<> {
 public:
   BTagCalibrationDbCreator(const edm::ParameterSet&);
   void beginJob() override;
@@ -30,9 +29,8 @@ BTagCalibrationDbCreator::BTagCalibrationDbCreator(const edm::ParameterSet& p):
   tagger_ (p.getUntrackedParameter<std::string>("tagger" ))
 {}
 
-void BTagCalibrationDbCreator::beginJob()
-{
-  auto calib = new BTagCalibration(tagger_, csvFile_);
+void BTagCalibrationDbCreator::beginJob() {
+  auto calib = new BTagCalibration(tagger_, csvFile_, true);
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
     if (s->isNewTagRequest(tagger_)) {

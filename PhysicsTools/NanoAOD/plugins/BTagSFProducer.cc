@@ -52,14 +52,15 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
             
             nDiscs=discNames_.size();            
             assert(discShortNames_.size()==nDiscs && weightFiles_.size()==nDiscs && operatingPoints_.size()==nDiscs && measurementTypesB_.size()==nDiscs && measurementTypesC_.size()==nDiscs && measurementTypesUDSG_.size()==nDiscs && sysTypes_.size()==nDiscs);            
-            
+
+            bool validate = iConfig.getUntrackedParameter<bool>("validate");            
             for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc)  {
                 
                 if (weightFiles_[iDisc]!="unavailable")  {
                     // setup calibration                
                     BTagCalibration calib;
                     edm::FileInPath fip(weightFiles_[iDisc]);
-                    calib=BTagCalibration(discShortNames_[iDisc],fip.fullPath());
+                    calib=BTagCalibration(discShortNames_[iDisc],fip.fullPath(), validate);
                     
                     // determine op
                     std::string opname;
@@ -132,6 +133,7 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
           desc.add<std::vector<std::string>>("measurementTypesC")->setComment("e.g. \"ttbar\", \"comb\", \"incl\", \"iterativefit\" for c jets");
           desc.add<std::vector<std::string>>("measurementTypesUDSG")->setComment("e.g. \"ttbar\", \"comb\", \"incl\", \"iterativefit\" for light jets");
           desc.add<std::vector<std::string>>("sysTypes")->setComment("\"up\", \"central\", \"down\", but arbitrary strings possible, like \"up_generator\" or \"up_jec\"");
+          desc.addUntracked<bool>("validate", false)->setComment("validate the function expressions in the weightFiles");
           
           descriptions.add("BTagWeightTable", desc);
       }
