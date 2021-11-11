@@ -21,16 +21,14 @@
  The primary way of using the class it to call makeOrGetAndClear
  An example use would be
  \code
- auto objectToUse = holder.makeOrGetAndClear(
-                             []() { return new MyObject(10); }, //makes new one
-                             [](MyObject* old) {old->reset(); } //resets old one
-                    );
+ auto objectToUse = holder.makeOrGetAndClear([]() { return new MyObject(10); },   //makes new one
+                                             [](MyObject* old) { old->reset(); }  //resets old one
+ );
  \endcode
  
  If you always want to set the values you can use makeOrGet
  \code
- auto objectToUse = holder.makeOrGet(
-                         []() { return new MyObject(); });
+ auto objectToUse = holder.makeOrGet([]() { return new MyObject(); });
  objectToUse->setValue(3);
  \endcode
  
@@ -115,22 +113,22 @@ namespace edm {
       }
     }
 
-    ///Takes an object from the queue if one is available, or creates one using iFunc.
-    template <typename F>
-    std::shared_ptr<T> makeOrGet(F iFunc) {
+    ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
+    template <typename FM>
+    std::shared_ptr<T> makeOrGet(FM&& iMakeFunc) {
       std::unique_ptr<T, Deleter> item;
       if (m_availableQueue.try_pop(item)) {
         return wrapCustomDeleter(std::move(item));
       } else {
-        return wrapCustomDeleter(makeUnique(iFunc()));
+        return wrapCustomDeleter(makeUnique(iMakeFunc()));
       }
     }
 
     ///Takes an object from the queue if one is available, or creates one using iMakeFunc.
     ///Then, passes the object to iClearFunc, and returns it.
     template <typename FM, typename FC>
-    std::shared_ptr<T> makeOrGetAndClear(FM iMakeFunc, FC iClearFunc) {
-      std::shared_ptr<T> returnValue = makeOrGet(iMakeFunc);
+    std::shared_ptr<T> makeOrGetAndClear(FM&& iMakeFunc, FC&& iClearFunc) {
+      std::shared_ptr<T> returnValue = makeOrGet(std::forward<FM>(iMakeFunc));
       iClearFunc(returnValue.get());
       return returnValue;
     }
