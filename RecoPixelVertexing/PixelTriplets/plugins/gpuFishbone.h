@@ -36,7 +36,7 @@ namespace gpuPixelDoublets {
     float x[maxCellsPerHit], y[maxCellsPerHit], z[maxCellsPerHit], n[maxCellsPerHit];
     uint32_t cc[maxCellsPerHit];
     uint16_t d[maxCellsPerHit];
-    // uint8_t l[maxCellsPerHit];
+    uint8_t l[maxCellsPerHit];
 
     for (int idy = firstY, nt = nHits - offset; idy < nt; idy += gridDim.y * blockDim.y) {
       auto const& vc = isOuterHitOfCell[idy];
@@ -57,6 +57,7 @@ namespace gpuPixelDoublets {
         if (checkTrack && ci.tracks().empty())
           continue;
         cc[sg] = vc[ic];
+        l[sg] = ci.layerPairId();
         d[sg] = ci.inner_detIndex(hh);
         x[sg] = ci.inner_x(hh) - xo;
         y[sg] = ci.inner_y(hh) - yo;
@@ -71,17 +72,27 @@ namespace gpuPixelDoublets {
         auto& ci = cells[cc[ic]];
         for (auto jc = ic + 1; jc < sg; ++jc) {
           auto& cj = cells[cc[jc]];
-          // must be different detectors (in the same layer)
+          // must be different detectors
           //        if (d[ic]==d[jc]) continue;
-          // || l[ic]!=l[jc]) continue;
           auto cos12 = x[ic] * x[jc] + y[ic] * y[jc] + z[ic] * z[jc];
           if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * n[ic] * n[jc]) {
-            // alligned:  kill farthest  (prefer consecutive layers)
+            // alligned:  kill farthest (prefer consecutive layers)
+            // if same layer prefer farthest (longer level arm)
+            bool sameLayer = l[ic] == l[jc];
             if (n[ic] > n[jc]) {
-              ci.kill();
-              break;
+              if (sameLayer) {
+                cj.kill();  // closest
+              } else {
+                ci.kill();  // farthest
+                break;
+              }
             } else {
-              cj.kill();
+              if (!sameLayer) {
+                cj.kill();  // farthest
+              } else {
+                ci.kill();  // closest
+                break;
+              }
             }
           }
         }  // cj
