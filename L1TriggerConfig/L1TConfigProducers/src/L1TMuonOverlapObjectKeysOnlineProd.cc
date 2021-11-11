@@ -11,7 +11,7 @@ public:
   void fillObjectKeys(L1TriggerKeyExt* pL1TriggerKey) override;
 
   L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet&);
-  ~L1TMuonOverlapObjectKeysOnlineProd(void) override {}
+  ~L1TMuonOverlapObjectKeysOnlineProd(void) override = default;
 };
 
 L1TMuonOverlapObjectKeysOnlineProd::L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
