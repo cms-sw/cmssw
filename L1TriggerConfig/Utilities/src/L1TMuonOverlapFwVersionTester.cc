@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapFwVersionO2ORcd.h"
@@ -22,6 +21,8 @@ class L1TMuonOverlapFwVersionTester : public edm::EDAnalyzer {
 private:
   bool isO2Opayload;
   bool writeToDB;
+  edm::ESGetToken<L1TMuonOverlapFwVersion, L1TMuonOverlapFwVersionRcd> esToken;
+  edm::ESGetToken<L1TMuonOverlapFwVersion, L1TMuonOverlapFwVersionO2ORcd> esToken_O2O;
 
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -29,32 +30,33 @@ public:
   explicit L1TMuonOverlapFwVersionTester(const edm::ParameterSet &pset) : edm::EDAnalyzer() {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
     writeToDB = pset.getUntrackedParameter<bool>("writeToDB", false);
+    esToken = esConsumes<L1TMuonOverlapFwVersion, L1TMuonOverlapFwVersionRcd>();
+    esToken_O2O = esConsumes<L1TMuonOverlapFwVersion, L1TMuonOverlapFwVersionO2ORcd>();
   }
-  ~L1TMuonOverlapFwVersionTester(void) override {}
+  ~L1TMuonOverlapFwVersionTester(void) override = default;
 };
 
 void L1TMuonOverlapFwVersionTester::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
-  edm::ESHandle<L1TMuonOverlapFwVersion> handle1;
+  L1TMuonOverlapFwVersion data;
   if (isO2Opayload)
-    evSetup.get<L1TMuonOverlapFwVersionO2ORcd>().get(handle1);
+    data = evSetup.getData(esToken_O2O);
   else
-    evSetup.get<L1TMuonOverlapFwVersionRcd>().get(handle1);
-  std::shared_ptr<L1TMuonOverlapFwVersion> ptr1(new L1TMuonOverlapFwVersion(*(handle1.product())));
+    data = evSetup.getData(esToken);
 
-  cout << "Contents of L1TMuonOverlapFwVersion: " << endl;
-
-  cout << " algoVersion() = " << ptr1->algoVersion() << endl;
-  cout << " layersVersion() = " << ptr1->layersVersion() << endl;
-  cout << " patternsVersion() = " << ptr1->patternsVersion() << endl;
-  cout << " synthDate() = " << ptr1->synthDate() << endl;
+  edm::LogInfo("L1TMuonOverlapFwVersionTester")
+      << "*** Contents of L1TMuonOverlapFwVersion: algoVersion() = " << data.algoVersion()
+      << ", layersVersion() = " << data.layersVersion()
+      << ", patternsVersion() = " << data.patternsVersion()
+      << ", synthDate() = " << data.synthDate();
 
   if (writeToDB) {
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if (poolDb.isAvailable()) {
-      cout << "Writing payload to DB" << endl;
+      edm::LogInfo("L1TMuonOverlapFwVersionTester")
+          << "*** Writing payload to DB";
       cond::Time_t firstSinceTime = poolDb->beginOfTime();
-      poolDb->writeOne(
-          ptr1.get(), firstSinceTime, (isO2Opayload ? "L1TMuonOverlapFwVersionO2ORcd" : "L1TMuonOverlapFwVersionRcd"));
+      poolDb->writeOneIOV(
+          data, firstSinceTime, (isO2Opayload ? "L1TMuonOverlapFwVersionO2ORcd" : "L1TMuonOverlapFwVersionRcd"));
     }
   }
 }
