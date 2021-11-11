@@ -45,15 +45,13 @@ void L1TMuonOverlapFwVersionTester::analyze(const edm::Event &iEvent, const edm:
 
   edm::LogInfo("L1TMuonOverlapFwVersionTester")
       << "*** Contents of L1TMuonOverlapFwVersion: algoVersion() = " << data.algoVersion()
-      << ", layersVersion() = " << data.layersVersion()
-      << ", patternsVersion() = " << data.patternsVersion()
+      << ", layersVersion() = " << data.layersVersion() << ", patternsVersion() = " << data.patternsVersion()
       << ", synthDate() = " << data.synthDate();
 
   if (writeToDB) {
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if (poolDb.isAvailable()) {
-      edm::LogInfo("L1TMuonOverlapFwVersionTester")
-          << "*** Writing payload to DB";
+      edm::LogInfo("L1TMuonOverlapFwVersionTester") << "*** Writing payload to DB";
       cond::Time_t firstSinceTime = poolDb->beginOfTime();
       poolDb->writeOneIOV(
           data, firstSinceTime, (isO2Opayload ? "L1TMuonOverlapFwVersionO2ORcd" : "L1TMuonOverlapFwVersionRcd"));
