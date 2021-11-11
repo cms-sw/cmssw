@@ -11,13 +11,23 @@ if 'unitTest=True' in sys.argv:
 #--------------------------------------------------
 # Event Source and Condition
 
-if unitTest:
-    process.load("DQM.Integration.config.unittestinputsource_cfi")
-    from DQM.Integration.config.unittestinputsource_cfi import options
-else:
-    # Live Online DQM in P5
-    process.load("DQM.Integration.config.inputsource_cfi")
-    from DQM.Integration.config.inputsource_cfi import options
+# hack to put the source file here
+process.source = cms.Source("PoolSource",
+   fileNames = cms.untracked.vstring("file:/eos/cms/store/data/Commissioning2021/Cosmics/RAW/v1/000/345/823/00000/7f9ccd7b-11df-4aea-8f30-2a6b656313bf.root",)
+
+   )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)         
+
+# if unitTest:
+#     process.load("DQM.Integration.config.unittestinputsource_cfi")
+#     from DQM.Integration.config.unittestinputsource_cfi import options
+# else:
+#     # Live Online DQM in P5
+#     process.load("DQM.Integration.config.inputsource_cfi")
+#     from DQM.Integration.config.inputsource_cfi import options
 
 # # Testing in lxplus
 # process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -42,9 +52,9 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = "L1T"
 process.dqmSaver.tag = "L1T"
-process.dqmSaver.runNumber = options.runNumber
+# process.dqmSaver.runNumber = options.runNumber
 process.dqmSaverPB.tag = "L1T"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver * process.dqmSaverPB)
 
@@ -92,11 +102,11 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
 process.load("DQM.L1TMonitor.L1TStage2_cff")
 
 process.l1tMonitorPath = cms.Path(
-    process.l1tStage2OnlineDQM +
-    process.hltFatEventFilter +
+    process.l1tStage2OnlineDQM) # +
+    # process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2OnlineDQMValidationEvents
-)
+    # process.l1tStage2OnlineDQMValidationEvents
+# )
 
 # Remove DQM Modules
 #process.l1tStage2OnlineDQM.remove(process.l1tStage2CaloLayer1)
@@ -114,59 +124,59 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 #--------------------------------------------------
 # Customize for other type of runs
 
-# Cosmic run
-if (process.runType.getRunType() == process.runType.cosmic_run):
-    # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
-    process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
-    process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
-    #process.l1tStage2MonitorClient.remove(process.l1TStage2OMTFQualityTests)
-    process.l1tStage2MonitorClient.remove(process.l1TStage2BMTFQualityTests)
-    process.l1tStage2MonitorClient.remove(process.l1TStage2MuonQualityTestsCollisions)
-    process.l1tStage2EventInfoClient.DisableL1Systems = ["EMTF", "OMTF", "BMTF", "uGMT"]
+# # Cosmic run
+# if (process.runType.getRunType() == process.runType.cosmic_run):
+#     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
+#     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
+#     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
+#     #process.l1tStage2MonitorClient.remove(process.l1TStage2OMTFQualityTests)
+#     process.l1tStage2MonitorClient.remove(process.l1TStage2BMTFQualityTests)
+#     process.l1tStage2MonitorClient.remove(process.l1TStage2MuonQualityTestsCollisions)
+#     process.l1tStage2EventInfoClient.DisableL1Systems = ["EMTF", "OMTF", "BMTF", "uGMT"]
 
-# Heavy-Ion run
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.onlineMetaDataDigis.onlineMetaDataInputLabel = "rawDataRepacker"
-    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = "rawDataRepacker"
-    process.castorDigis.InputLabel = "rawDataRepacker"
-    process.ctppsDiamondRawToDigi.rawDataTag = "rawDataRepacker"
-    process.ctppsPixelDigis.inputLabel = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
-    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
-    process.hcalDigis.InputLabel = "rawDataRepacker"
-    process.muonCSCDigis.InputObjects = "rawDataRepacker"
-    process.muonDTDigis.inputLabel = "rawDataRepacker"
-    process.muonRPCDigis.InputLabel = "rawDataRepacker"
-    process.muonGEMDigis.InputLabel = "rawDataRepacker"
-    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
-    process.siStripDigis.ProductLabel = "rawDataRepacker"
-    process.tcdsDigis.InputLabel = "rawDataRepacker"
-    process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
-    process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
-    process.totemTriggerRawToDigi.rawDataTag = "rawDataRepacker"
-    process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
-    process.csctfDigis.producer = "rawDataRepacker"
-    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.gctDigis.inputLabel = "rawDataRepacker"
-    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
-    process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
-    process.bmtfDigis.InputLabel = "rawDataRepacker"
-    process.omtfStage2Digis.inputLabel = "rawDataRepacker"
-    process.emtfStage2Digis.InputLabel = "rawDataRepacker"
-    process.gmtStage2Digis.InputLabel = "rawDataRepacker"
-    process.caloLayer1Digis.InputLabel = "rawDataRepacker"
-    process.caloStage1Digis.InputLabel = "rawDataRepacker"
-    process.caloStage2Digis.InputLabel = "rawDataRepacker"
-    process.gtStage2Digis.InputLabel = "rawDataRepacker"
-    process.l1tStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSupp.rawData = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSuppFatEvts.rawData = "rawDataRepacker"
-    process.l1tStage2BmtfZeroSupp.rawData = "rawDataRepacker"
-    process.l1tStage2BmtfZeroSuppFatEvts.rawData = "rawDataRepacker"
-    process.selfFatEventFilter.rawInput = "rawDataRepacker"
-    process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
-    process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
+# # Heavy-Ion run
+# if (process.runType.getRunType() == process.runType.hi_run):
+#     process.onlineMetaDataDigis.onlineMetaDataInputLabel = "rawDataRepacker"
+#     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = "rawDataRepacker"
+#     process.castorDigis.InputLabel = "rawDataRepacker"
+#     process.ctppsDiamondRawToDigi.rawDataTag = "rawDataRepacker"
+#     process.ctppsPixelDigis.inputLabel = "rawDataRepacker"
+#     process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
+#     process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
+#     process.hcalDigis.InputLabel = "rawDataRepacker"
+#     process.muonCSCDigis.InputObjects = "rawDataRepacker"
+#     process.muonDTDigis.inputLabel = "rawDataRepacker"
+#     process.muonRPCDigis.InputLabel = "rawDataRepacker"
+#     process.muonGEMDigis.InputLabel = "rawDataRepacker"
+#     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+#     process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+#     process.siStripDigis.ProductLabel = "rawDataRepacker"
+#     process.tcdsDigis.InputLabel = "rawDataRepacker"
+#     process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
+#     process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
+#     process.totemTriggerRawToDigi.rawDataTag = "rawDataRepacker"
+#     process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
+#     process.csctfDigis.producer = "rawDataRepacker"
+#     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
+#     process.gctDigis.inputLabel = "rawDataRepacker"
+#     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
+#     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
+#     process.bmtfDigis.InputLabel = "rawDataRepacker"
+#     process.omtfStage2Digis.inputLabel = "rawDataRepacker"
+#     process.emtfStage2Digis.InputLabel = "rawDataRepacker"
+#     process.gmtStage2Digis.InputLabel = "rawDataRepacker"
+#     process.caloLayer1Digis.InputLabel = "rawDataRepacker"
+#     process.caloStage1Digis.InputLabel = "rawDataRepacker"
+#     process.caloStage2Digis.InputLabel = "rawDataRepacker"
+#     process.gtStage2Digis.InputLabel = "rawDataRepacker"
+#     process.l1tStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
+#     process.l1tStage2uGMTZeroSupp.rawData = "rawDataRepacker"
+#     process.l1tStage2uGMTZeroSuppFatEvts.rawData = "rawDataRepacker"
+#     process.l1tStage2BmtfZeroSupp.rawData = "rawDataRepacker"
+#     process.l1tStage2BmtfZeroSuppFatEvts.rawData = "rawDataRepacker"
+#     process.selfFatEventFilter.rawInput = "rawDataRepacker"
+#     process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
+#     process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
 
 #--------------------------------------------------
 # L1T Online DQM Schedule
