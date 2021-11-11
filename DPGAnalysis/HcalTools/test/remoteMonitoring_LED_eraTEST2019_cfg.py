@@ -44,6 +44,26 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
   )
 
+# process.TFileService = cms.Service("TFileService",
+#     fileName = cms.string('histoTFileService.root'),
+#     closeFileFast = cms.untracked.bool(False)
+# )
+#process.TFileService = cms.Service('TFileService',
+#   fileName=cms.string("testhisto.root"),
+# closeFileFast = cms.untracked.bool(True)
+#)
+#process.TFileService = cms.Service("TFileService",
+#      fileName = cms.string("analysis_minbias_Full.root"),
+#      closeFileFast = cms.untracked.bool(True)
+#  )
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string(histodir+'/LED_'+runnumber+'.root')
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
+
+# process.TFileService = cms.Service("TFileService", fileName = cms.string("plotting%03d.root" % jobnumber))
+
 #process.source = cms.Source("PoolSource",
 process.source = cms.Source("HcalTBSource",
                             skipBadFiles=cms.untracked.bool(True),
@@ -354,8 +374,8 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   hfInputNoiseTag = cms.InputTag('hfrecoNoise'),
                                   #
                                   #HistOutFile = cms.untracked.string('LED_331370.root'),
-                                  HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
-                                  MAPOutFile = cms.untracked.string('LogEleMapdb.h')
+                                  #HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
+                                  #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),
