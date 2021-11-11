@@ -1173,6 +1173,11 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   php.layerGroupM_ = dbl_to_int(getDDDArray("GroupingZMid", sv, 0));
   php.layerGroupO_ = dbl_to_int(getDDDArray("GroupingZOut", sv, 0));
   php.slopeMin_ = getDDDArray("Slope", sv, 1);
+  const auto& dummy2 = getDDDArray("LayerOffset", sv, 0);
+  if (!dummy2.empty())
+    php.layerOffset_ = dummy2[0];
+  else
+    php.layerOffset_ = 0;
 
   // Wafer size
   std::string attribute = "Volume";
@@ -1223,6 +1228,14 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3, "CellSize");
   rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4hepToG4);
 
+  // Layer Offset
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
+  if (!dummy2.empty()) {
+    php.layerOffset_ = dummy2[0];
+  } else {
+    php.layerOffset_ = 0;
+  }
+
   loadSpecParsHexagon(php);
 }
 
@@ -1242,6 +1255,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const HGCalParameters& php) {
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: " << php.cellSize_.size() << " cells of sizes:";
   for (unsigned int k = 0; k < php.cellSize_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << php.cellSize_[k];
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: First Layer " << php.firstLayer_ << " and layer offset "
+                                << php.layerOffset_;
 #endif
 }
 
