@@ -193,6 +193,5 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoBToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomBToken_;
-
 };
 #endif
