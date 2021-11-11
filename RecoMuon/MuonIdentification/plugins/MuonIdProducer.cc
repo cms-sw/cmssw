@@ -163,6 +163,9 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   edm::InputTag rpcHitTag("rpcRecHits");
   rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
 
+  edm::InputTag gemHitTag("gemRecHits");
+  gemHitToken_ = consumes<GEMRecHitCollection>(gemHitTag);
+
   //Consumes... UGH
   inputCollectionTypes_.resize(inputCollectionLabels_.size());
   for (unsigned int i = 0; i < inputCollectionLabels_.size(); ++i) {
@@ -251,6 +254,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
+  iEvent.getByToken(gemHitToken_, gemHitHandle_);
   if (fillGlobalTrackQuality_)
     iEvent.getByToken(glbQualToken_, glbQualHandle_);
 }
@@ -790,6 +794,7 @@ bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
   return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
+  //return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
@@ -864,7 +869,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
     }
     aMuon.setCalEnergy(muonEnergy);
   }
-  if (!fillMatching_ && !aMuon.isTrackerMuon() && !aMuon.isRPCMuon())
+  if (!fillMatching_ && !aMuon.isTrackerMuon() && !aMuon.isRPCMuon() && !aMuon.isGEMMuon())
     return;
 
   // fill muon match info
@@ -874,6 +879,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   for (const auto& chamber : info.chambers) {
     if (chamber.id.subdetId() == MuonSubdetId::RPC && rpcHitHandle_.isValid())
       continue;  // Skip RPC chambers, they are taken care of below)
+    if (chamber.id.subdetId() == MuonSubdetId::GEM && gemHitHandle_.isValid() && GEMDetId(chamber.id.rawId()).station() != 0)
+      continue;  // Skip GE1/1 and 2/1 chambers, they are taken care of below)
     reco::MuonChamberMatch matchedChamber;
 
     const auto& lErr = chamber.tState.localError();
@@ -1018,6 +1025,63 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         if (absDx <= 20 or absDx * absDx <= 16 * localError.xx())
           matchedChamber.rpcMatches.push_back(rpcHitMatch);
       }
+
+      muonChamberMatches.push_back(matchedChamber);
+    }
+  }
+
+  // Fill GEM info
+  LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill GEM info";
+  if (gemHitHandle_.isValid()) {
+    for (const auto& chamber : info.chambers) {
+      // only GE1/1 and 2/1 are for rechits, reject station 0 and segments (layer==0 for GEMSegment)
+      if (chamber.id.subdetId() != MuonSubdetId::GEM || GEMDetId(chamber.id.rawId()).station() == 0 || GEMDetId(chamber.id.rawId()).layer() == 0)
+        continue;  // Consider RPC chambers only
+      const auto& lErr = chamber.tState.localError();
+      const auto& lPos = chamber.tState.localPosition();
+      const auto& lDir = chamber.tState.localDirection();
+
+      reco::MuonChamberMatch matchedChamber;
+
+      LocalError localError = lErr.positionError();
+      matchedChamber.x = lPos.x();
+      matchedChamber.y = lPos.y();
+      matchedChamber.xErr = sqrt(localError.xx());
+      matchedChamber.yErr = sqrt(localError.yy());
+
+      matchedChamber.dXdZ = lDir.z() != 0 ? lDir.x() / lDir.z() : 9999;
+      matchedChamber.dYdZ = lDir.z() != 0 ? lDir.y() / lDir.z() : 9999;
+      // DANGEROUS - compiler cannot guaranty parameters ordering
+      AlgebraicSymMatrix55 trajectoryCovMatrix = lErr.matrix();
+      matchedChamber.dXdZErr = trajectoryCovMatrix(1, 1) > 0 ? sqrt(trajectoryCovMatrix(1, 1)) : 0;
+      matchedChamber.dYdZErr = trajectoryCovMatrix(2, 2) > 0 ? sqrt(trajectoryCovMatrix(2, 2)) : 0;
+
+      matchedChamber.edgeX = chamber.localDistanceX;
+      matchedChamber.edgeY = chamber.localDistanceY;
+
+      theShowerDigiFiller_->fillDefault(matchedChamber);
+
+      matchedChamber.id = chamber.id;
+
+      //std::cout << "In GEM Hit Matching info s" << GEMDetId(chamber.id.rawId()) << " ngs:" << gemHitHandle_->size() << " :: ";
+      for (const auto& gemRecHit : *gemHitHandle_) {
+        reco::MuonGEMHitMatch gemHitMatch;
+
+        // std::cout << " h:" << gemRecHit.gemId();
+        //  constexpr GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
+        if (GEMDetId(gemRecHit.gemId().region(),gemRecHit.gemId().ring(),gemRecHit.gemId().station(),gemRecHit.gemId().layer(),gemRecHit.gemId().chamber(),0).rawId() != chamber.id.rawId())
+          continue;
+
+        gemHitMatch.x = gemRecHit.localPosition().x();
+        gemHitMatch.mask = 0;
+        gemHitMatch.bx = gemRecHit.BunchX();
+
+        const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
+        //std::cout << " absdx " << absDx << "  :";
+        if (absDx <= 20 or absDx * absDx <= 16 * localError.xx())
+          matchedChamber.gemHitMatches.push_back(gemHitMatch);
+      }
+      //std::cout << ":" << std::endl;
 
       muonChamberMatches.push_back(matchedChamber);
     }
