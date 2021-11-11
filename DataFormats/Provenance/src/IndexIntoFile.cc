@@ -1841,10 +1841,6 @@ namespace edm {
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::entryContinues() const {
     auto entry = runOrLumisEntry(indexToLumi()).entry();
     return entry == invalidEntry;
-    /*if (entry == invalidEntry) {
-      return true;
-    }
-    return (indexToEventRange() != indexToLumi()) ; */
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::peekAheadAtLumi() const {
