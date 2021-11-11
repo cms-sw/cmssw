@@ -178,6 +178,15 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 256, 1, 257);
   emtfTrackPt->setAxisTitle("Track p_{T} [GeV]", 1);
 
+  // Unconstrained pT (Suzanne, 11 Nov 2021)
+  emtfTrackPtUnconstrained = ibooker.book1D("emtfTrackPtUnconstrained", "EMTF Track p_{T} Unconstrained", 256, 1, 257);
+  emtfTrackPtUnconstrained->setAxisTitle("Track p_{T} Unconstrained [GeV]", 1);
+
+  // Unconstrained dxy (Suzanne, 11 Nov 2021)
+  // CHECK ME: Bounds?
+  emtfTrackDxy = ibooker.book1D("emtfTrackDxy", "EMTF Track d_{xy}", 50, 0, 100);
+  emtfTrackDxy->setAxisTitle("Track d_{xy} [cm]", 1);
+
   emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
   emtfTrackEta->setAxisTitle("Track #eta", 1);
 
@@ -934,6 +943,9 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTracknHits->Fill(numHits);
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
     emtfTrackPt->Fill(Track->Pt());
+    // Unconstrained pT, dxy (Suzanne 11 Nov 2021)
+    emtfTrackPtUnconstrained->Fill(Track->PtUnconstrained());
+    emtfTrackDxy->Fill(Track->Dxy());
     emtfTrackEta->Fill(eta);
 
     emtfTrackOccupancy->Fill(eta, phi_glob_rad);
