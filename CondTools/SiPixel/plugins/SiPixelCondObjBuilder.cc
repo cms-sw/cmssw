@@ -49,7 +49,7 @@ namespace cms {
     float maxgain = 10;
     float minped = 0;
     float maxped = 255;
-    SiPixelGainCalibration_ = new SiPixelGainCalibration(minped, maxped, mingain, maxgain);
+    SiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibration>(minped, maxped, mingain, maxgain);
 
     const TrackerGeometry* pDD = &iSetup.getData(pddToken_);
     edm::LogInfo("SiPixelCondObjBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
@@ -185,11 +185,11 @@ namespace cms {
       //           SiPixelGainCalibration_, tillTime , callbackToken);
 
       if (mydbservice->isNewTagRequest(recordName_)) {
-        mydbservice->createNewIOV<SiPixelGainCalibration>(
-            SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(), recordName_);
+        mydbservice->createOneIOV<SiPixelGainCalibration>(
+            *SiPixelGainCalibration_, mydbservice->beginOfTime(), recordName_);
       } else {
-        mydbservice->appendSinceTime<SiPixelGainCalibration>(
-            SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
+        mydbservice->appendOneIOV<SiPixelGainCalibration>(
+            *SiPixelGainCalibration_, mydbservice->currentTime(), recordName_);
       }
       edm::LogInfo(" --- all OK");
     } catch (const cond::Exception& er) {

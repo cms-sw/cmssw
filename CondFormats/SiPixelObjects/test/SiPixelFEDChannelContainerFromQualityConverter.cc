@@ -60,7 +60,7 @@ private:
   const bool printdebug_;
   const bool isMC_;
   const bool removeEmptyPayloads_;
-  SiPixelFEDChannelContainer* myQualities;
+  std::unique_ptr<SiPixelFEDChannelContainer> myQualities;
 
   int IOVcount_;
   edm::ESWatcher<SiPixelQualityFromDbRcd> SiPixelQualityWatcher_;
@@ -78,12 +78,10 @@ SiPixelFEDChannelContainerFromQualityConverter::SiPixelFEDChannelContainerFromQu
       isMC_(iConfig.getUntrackedParameter<bool>("isMC", true)),
       removeEmptyPayloads_(iConfig.getUntrackedParameter<bool>("removeEmptyPayloads", false)) {
   //now do what ever initialization is needed
-  myQualities = new SiPixelFEDChannelContainer();
+  myQualities = std::make_unique<SiPixelFEDChannelContainer>();
 }
 
-SiPixelFEDChannelContainerFromQualityConverter::~SiPixelFEDChannelContainerFromQualityConverter() {
-  delete myQualities;
-}
+SiPixelFEDChannelContainerFromQualityConverter::~SiPixelFEDChannelContainerFromQualityConverter() = default;
 
 //
 // member functions
