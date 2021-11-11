@@ -462,8 +462,8 @@ private:
   edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
 
   edm::Service<TFileService> fs_;
-  std::string fOutputFileName;
-  std::string MAPOutputFileName;
+//  std::string fOutputFileName;
+//  std::string MAPOutputFileName;
   edm::InputTag inputTag_;
   const edm::ESGetToken<HcalDbService, HcalDbRecord> tokDB_;
   const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tokTopo_;
@@ -2419,7 +2419,7 @@ void CMTRawAnalyzer::endJob() {
 //
 CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig)
     : tokDB_(esConsumes<HcalDbService, HcalDbRecord>()),
-      tokTopo_(edm::ESGetToken<HcalTopology, HcalRecNumberingRecord>()) {
+      tokTopo_(esConsumes<HcalTopology, HcalRecNumberingRecord>()) {
   usesResource(TFileService::kSharedResource);
   verbosity = iConfig.getUntrackedParameter<int>("Verbosity");
   MAPcreation = iConfig.getUntrackedParameter<int>("MapCreation");
@@ -2606,8 +2606,8 @@ CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig)
   calibrWidthHEMax_ = iConfig.getParameter<double>("calibrWidthHEMax");    //
   calibrWidthHOMax_ = iConfig.getParameter<double>("calibrWidthHOMax");    //
   calibrWidthHFMax_ = iConfig.getParameter<double>("calibrWidthHFMax");    //
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
-  MAPOutputFileName = iConfig.getUntrackedParameter<std::string>("MAPOutFile");
+//  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
+//  MAPOutputFileName = iConfig.getUntrackedParameter<std::string>("MAPOutFile");
   TSpeakHBMin_ = iConfig.getParameter<double>("TSpeakHBMin");  //
   TSpeakHBMax_ = iConfig.getParameter<double>("TSpeakHBMax");  //
   TSpeakHEMin_ = iConfig.getParameter<double>("TSpeakHEMin");  //
