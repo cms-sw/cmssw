@@ -2124,7 +2124,7 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     // Minimum and maximum radius index for each layer
     for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
       php.iradMinBH_.emplace_back(1 + php.tileRingRange_[k].first);
-      php.iradMaxBH_.emplace_back(php.tileRingRange_[k].second);
+      php.iradMaxBH_.emplace_back(1 + php.tileRingRange_[k].second);
 #ifdef EDM_ML_DEBUG
       int kk = php.scintType(php.firstLayer_ + (int)(k));
       edm::LogVerbatim("HGCalGeom") << "New Layer " << k << " Type " << kk << " Low edge " << php.iradMinBH_.back()
