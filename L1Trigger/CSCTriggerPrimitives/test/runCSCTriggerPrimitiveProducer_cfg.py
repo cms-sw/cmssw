@@ -120,7 +120,7 @@ if useB904Data:
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
 if options.l1:
-      l1csc.commonParam.runCCLUT = options.runCCLUT
+      l1csc.commonParam.runCCLUT = cms.bool(options.runCCLUT)
       l1csc.commonParam.runCCLUT_OTMB = cms.bool(options.runCCLUTOTMB)
       l1csc.commonParam.runCCLUT_TMB = cms.bool(options.runCCLUTTMB)
       l1csc.commonParam.runME11ILT = options.runME11ILT
